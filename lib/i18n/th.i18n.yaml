@@ -494,6 +494,9 @@ search:
   contentRating: การจัดระดับเนื้อหา
   removeTag: ลบแท็ก
   pleaseEnterSearchContent: โปรดป้อนเนื้อหาที่จะค้นหา
+  exactMatch: "ตรงทุกคำ"
+  exactMatchOnHint: "กำลังจับคู่ทั้งวลีแบบตรงทุกคำ และค้นหาชื่อเรื่องภาษาจีนกับญี่ปุ่นด้วย แตะเพื่อค้นแบบกว้างขึ้น"
+  exactMatchOffHint: "จับคู่แบบหลวม — Iwara จะแยกคำออก แตะเพื่อจับคู่ทั้งวลีแบบตรงทุกคำ"
   searchHistory: ประวัติการค้นหา
   searchSuggestion: คำแนะนำการค้นหา
   usedTimes: จำนวนครั้งที่ใช้
@@ -729,6 +732,7 @@ settings:
   signatureContent: เนื้อหาลายเซ็น
   signaturePreview: 'ตัวอย่าง'
   signatureSampleBody: 'ข้อความของคุณอยู่ตรงนี้'
+  signatureRegenerate: 'สร้างใหม่'
   signatureNotSet: 'ยังไม่ได้ตั้งค่า'
   signatureRuleHint: "ลายเซ็นจะต่อท้ายเนื้อหาโดยมีเส้นคั่น แอปจะใส่เส้นคั่นให้เอง คุณแค่เขียนข้อความด้านล่าง"
   signatureInsertVariable: "แทรกตัวแปร"
@@ -779,6 +783,19 @@ settings:
   signatureOptLengthShort: "เอาเฉพาะประโยคสั้น"
   signatureRestoreDefault: "คืนค่าเริ่มต้น"
   signatureSourceHitokoto: "Hitokoto (ข้อความสุ่ม)"
+  signatureAiSourceName: "ข้อความจาก AI"
+  signatureEditTextHint: "นี่คือลายเซ็นที่เขียนอยู่ในความเห็นนี้แล้ว ทั้งวรรคทองและวันที่ตอนนี้เป็นแค่ข้อความธรรมดา แก้ได้ตามใจ ล้างให้ว่างคือไม่เอาลายเซ็น"
+  signatureResolving: "กำลังสร้าง ${name}…"
+  signaturePendingValue: "(สร้างตอนส่ง)"
+  signatureAiHint: "ประโยคที่ AI เขียนขึ้นสด ๆ ใหม่ทุกความเห็น ใช้ผู้ให้บริการ AI ที่คุณตั้งค่าไว้"
+  signatureAiUnavailable: "ยังไม่ได้ตั้งค่าผู้ให้บริการ AI แหล่งนี้จึงยังไม่ปรากฏในแผงตัวแปร"
+  signaturePromptTitle: "พรอมต์"
+  signaturePromptHint: "นี่คือสิ่งที่ส่งให้โมเดล เขียนใหม่ได้ตามใจ ทั้งน้ำเสียง ความยาว และหัวข้อ กฎที่มีอยู่แล้วควรเก็บไว้"
+  signaturePromptReset: "คืนค่าเริ่มต้น"
+  signaturePromptTry: "ลองดู"
+  signaturePromptSample: "สิ่งที่เขียนออกมา"
+  signaturePromptLanguageHint: "จะถูกแทนด้วยภาษาอินเทอร์เฟซของคุณ ถ้าลบออก ข้อความจะใช้ภาษาตามพรอมต์"
+  signaturePromptEdited: "แก้แล้ว"
   signatureVariablesGroup: "ตัวแปรในตัว"
   signatureNeedsNetwork: "ต้องใช้เครือข่าย"
   signatureBuiltinSource: "ในตัว"
@@ -1705,6 +1722,8 @@ forum:
     other: เนื้อหาอื่นๆ ที่ไม่ได้จัดหมวดหมู่
   reply: ตอบกลับ
   pendingReview: กำลังรอการตรวจสอบ
+  floorNotFound: 'ไม่พบความคิดเห็นนี้หรือถูกลบไปแล้ว'
+  floorNotLoadedYet: 'ความคิดเห็นนี้อยู่ด้านบน โหลดเพิ่มเติมเพื่อข้ามไป'
   editedAt: แก้ไขเมื่อ
   copySuccess: คัดลอกไปยังคลิปบอร์ดแล้ว
   copySuccessForMessage: 'คัดลอกไปยังคลิปบอร์ดแล้ว: ${str}'
@@ -3663,3 +3682,65 @@ historyPage:
   clearTabTitle: "ล้าง \"${tab}\""
   clearTabConfirm: "ประวัติทั้งหมดใน \"${tab}\" จะถูกลบ รวมถึงตำแหน่งการรับชมของวิดีโอเหล่านั้น ไม่สามารถย้อนกลับได้"
   rangeByLastViewed: "กรองตามเวลาที่ดูล่าสุด"
+
+ai:
+  title: "AI"
+  providers: "ผู้ให้บริการ"
+  providersHint: "เพิ่มผู้ให้บริการ AI อย่างน้อยหนึ่งราย แล้วเลือกผู้ให้บริการสำหรับแต่ละฟีเจอร์"
+  addProvider: "เพิ่มผู้ให้บริการ"
+  noProviders: "ยังไม่มีผู้ให้บริการ เพิ่มผู้ให้บริการเพื่อเปิดใช้งานการแปล การค้นหา และลายเซ็นด้วย AI"
+  pickPreset: "เลือกผู้ให้บริการ"
+  providerNameLabel: "ชื่อ"
+  apiKey: "คีย์ API"
+  baseUrl: "ปลายทาง API"
+  model: "โมเดล"
+  modelPick: "เลือกโมเดล"
+  modelEmpty: "ไม่สามารถโหลดรายการโมเดลได้ คุณยังสามารถพิมพ์ชื่อโมเดลได้โดยตรง"
+  advanced: "ขั้นสูง"
+  reasoning: "โมเดลการให้เหตุผล"
+  streaming: "เอาต์พุตแบบสตรีม"
+  structuredOutput: "เอาต์พุตที่มีโครงสร้าง"
+  structuredOutputHint: "จำเป็นสำหรับการค้นหาด้วย AI ปลายทางรีเลย์หลายแห่งไม่รองรับ ให้ปิดตัวเลือกนี้หากการค้นหาล้มเหลวบ่อยครั้ง"
+  temperature: "อุณหภูมิ"
+  maxTokens: "โทเค็นสูงสุด"
+  maxTokensAuto: "อัตโนมัติ (ขีดจำกัดของโมเดล)"
+  test: "ทดสอบ"
+  testOk: "เชื่อมต่อสำเร็จ"
+  deleteProvider: "ลบผู้ให้บริการ"
+  usedBy: "ใช้งานโดย"
+  taskBindings: "การกำหนดฟีเจอร์"
+  taskBindingsHint: "แต่ละฟีเจอร์สามารถใช้ผู้ให้บริการที่แตกต่างกันได้"
+  taskTranslate: "การแปล"
+  taskSearch: "ค้นหาด้วย AI"
+  taskSignature: "ลายเซ็น"
+  taskAuto: "อัตโนมัติ"
+  usage: "การใช้งาน"
+  usageCalls: "การเรียกใช้"
+  usageTokens: "โทเค็น"
+  usageFailures: "ล้มเหลว"
+  usageReset: "ล้างสถิติ"
+  usageEmpty: "ยังไม่มีประวัติการเรียกใช้"
+  openSettings: "เปิดการตั้งค่า AI"
+  notConfigured: "ยังไม่ได้กำหนดค่า"
+  searchTitle: "ค้นหาด้วย AI"
+  searchHint: "อธิบายสิ่งที่คุณกำลังค้นหา แล้ว AI จะช่วยกรอกคำค้นหาและตัวกรองให้"
+  searchPlaceholder: "เช่น MMD ล่าสุดที่มียอดดูมากกว่า 10,000 ครั้ง"
+  searchApply: "ค้นหาด้วยเงื่อนไขเหล่านี้"
+  searchEmpty: "ไม่สามารถแปลงเป็นเงื่อนไขการค้นหาได้ ลองอธิบายด้วยวิธีอื่นดู"
+  searchFilters: "ตัวกรอง"
+  searchSwitchSegment: "สลับไปที่ ${segment}"
+  searchGenerating: "กำลังประมวลผล…"
+  searchRetrying: "ครั้งก่อนล้มเหลว กำลังลองใหม่…"
+  searchRetryReason: "สาเหตุ: ${reason}"
+  searchStageWaiting: "ส่งคำขอแล้ว กำลังรอการตอบกลับ…"
+  searchStageThinkingNext: "กำลังคิดขั้นต่อไป…"
+  searchStageReasoning: "กำลังให้เหตุผล…"
+  searchStageTool: "กำลังลองค้นหา…"
+  searchStageDrafting: "กำลังเขียนคำตอบ · ${chars} ตัวอักษร"
+  searchStageParsing: "กำลังจัดระเบียบผลลัพธ์…"
+  searchThinking: "กระบวนการคิด"
+  searchKeywordNeedsQuotes: "คำค้นนี้ไม่ได้ใส่เครื่องหมายคำพูด Iwara จึงจับคู่แบบหลวม ๆ — เมื่อเรียงแบบนี้ หน้าแรกจะแทบไม่เกี่ยวข้อง ใส่ \"เครื่องหมายคำพูด\" หรือเรียงตามความเกี่ยวข้อง"
+  searchToolProbing: "ลองค้น ${query}"
+  searchToolFound: "${count} รายการ · ${titles}"
+  searchToolFailed: "ล้มเหลว: ${reason}"
+  searchFiltersDropped: "ลบตัวกรอง ${count} รายการที่ไม่มีในส่วนนี้แล้ว"

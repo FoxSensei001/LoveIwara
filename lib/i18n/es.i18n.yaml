@@ -494,6 +494,9 @@ search:
   contentRating: Clasificación de contenido
   removeTag: Quitar etiqueta
   pleaseEnterSearchContent: Introduzca el contenido de búsqueda
+  exactMatch: "Exacto"
+  exactMatchOnHint: "Coincidencia exacta de la frase, buscando también en títulos en chino y japonés. Toca para una búsqueda más amplia."
+  exactMatchOffHint: "Coincidencia laxa: Iwara separa las palabras. Toca para la frase exacta."
   searchHistory: Historial de búsqueda
   searchSuggestion: Sugerencia de búsqueda
   usedTimes: Veces usado
@@ -729,6 +732,7 @@ settings:
   signatureContent: Contenido de la firma
   signaturePreview: 'Vista previa'
   signatureSampleBody: 'Aquí va tu mensaje'
+  signatureRegenerate: 'Regenerar'
   signatureNotSet: 'Sin configurar'
   signatureRuleHint: "La firma se añade después del texto, separada por una línea horizontal. La app añade la línea; tú solo escribe lo de abajo."
   signatureInsertVariable: "Insertar variable"
@@ -779,6 +783,19 @@ settings:
   signatureOptLengthShort: "Solo frases cortas"
   signatureRestoreDefault: "Restaurar valores por defecto"
   signatureSourceHitokoto: "Hitokoto (frase al azar)"
+  signatureAiSourceName: "Frase generada por IA"
+  signatureEditTextHint: "Esta es la firma ya escrita en este comentario: la frase y la fecha ahora son solo texto, cámbialas a tu gusto. Vacíalo para quitar la firma."
+  signatureResolving: "Generando ${name}…"
+  signaturePendingValue: "(se genera al enviar)"
+  signatureAiHint: "Una frase que la IA escribe en el momento, nueva en cada comentario. Usa el proveedor de IA que configuraste."
+  signatureAiUnavailable: "Aún no hay proveedor de IA configurado, así que esta fuente no aparece en el panel de variables."
+  signaturePromptTitle: "Prompt"
+  signaturePromptHint: "Esto es lo que se envía al modelo. Reescríbelo como quieras: tono, longitud, tema. Las reglas que ya trae vale la pena conservarlas."
+  signaturePromptReset: "Restaurar predeterminado"
+  signaturePromptTry: "Probar"
+  signaturePromptSample: "Lo que escribió"
+  signaturePromptLanguageHint: "se sustituye por el idioma de tu interfaz. Si lo quitas, la frase seguirá el idioma del prompt."
+  signaturePromptEdited: "editado"
   signatureVariablesGroup: "Variables integradas"
   signatureNeedsNetwork: "Necesita red"
   signatureBuiltinSource: "Integrado"
@@ -1705,6 +1722,8 @@ forum:
     other: Otro contenido sin clasificar
   reply: Responder
   pendingReview: Pendiente de revisión
+  floorNotFound: 'Esa publicación ya no existe'
+  floorNotLoadedYet: 'Esa publicación está más arriba: carga más respuestas para ir a ella'
   editedAt: Editado el
   copySuccess: Copiado al portapapeles
   copySuccessForMessage: 'Copiado al portapapeles: ${str}'
@@ -3663,3 +3682,65 @@ historyPage:
   clearTabTitle: "Borrar «${tab}»"
   clearTabConfirm: "Se eliminará todo el historial de «${tab}», junto con el progreso de reproducción de esos vídeos. No se puede deshacer."
   rangeByLastViewed: "Filtrado por última visualización"
+
+ai:
+  title: "IA"
+  providers: "Proveedores"
+  providersHint: "Añade uno o más proveedores de IA y elige cuál usará cada función."
+  addProvider: "Añadir proveedor"
+  noProviders: "Aún no hay proveedores. Añade uno para habilitar la traducción, búsqueda y firma con IA."
+  pickPreset: "Elegir proveedor"
+  providerNameLabel: "Nombre"
+  apiKey: "Clave API"
+  baseUrl: "Punto de conexión"
+  model: "Modelo"
+  modelPick: "Elegir modelo"
+  modelEmpty: "No se pudo cargar la lista de modelos; escribir el nombre del modelo también funciona."
+  advanced: "Avanzado"
+  reasoning: "Modelo de razonamiento"
+  streaming: "Salida en streaming"
+  structuredOutput: "Salida estructurada"
+  structuredOutputHint: "Necesario para la búsqueda con IA. Muchos puntos de retransmisión no lo admiten; desactívalo si la búsqueda sigue fallando."
+  temperature: "Temperatura"
+  maxTokens: "Tokens máximos"
+  maxTokensAuto: "Automático (límite del modelo)"
+  test: "Probar"
+  testOk: "Conexión correcta"
+  deleteProvider: "Eliminar proveedor"
+  usedBy: "Usado por"
+  taskBindings: "Asignación de funciones"
+  taskBindingsHint: "Cada función puede usar un proveedor diferente."
+  taskTranslate: "Traducción"
+  taskSearch: "Búsqueda con IA"
+  taskSignature: "Firma"
+  taskAuto: "Automático"
+  usage: "Uso"
+  usageCalls: "Llamadas"
+  usageTokens: "Tokens consumidos"
+  usageFailures: "Errores"
+  usageReset: "Borrar estadísticas"
+  usageEmpty: "Aún no hay llamadas"
+  openSettings: "Abrir ajustes de IA"
+  notConfigured: "No configurado"
+  searchTitle: "Búsqueda con IA"
+  searchHint: "Describe lo que buscas; la IA completará los términos de búsqueda y los filtros."
+  searchPlaceholder: "p. ej. MMD recientes con más de 10.000 visitas"
+  searchApply: "Buscar con estos criterios"
+  searchEmpty: "No se pudieron obtener términos de búsqueda. Prueba a describirlo de otra forma."
+  searchFilters: "Filtros"
+  searchSwitchSegment: "Cambiar a ${segment}"
+  searchGenerating: "Pensando…"
+  searchRetrying: "El intento anterior falló, reintentando…"
+  searchRetryReason: "Motivo: ${reason}"
+  searchStageWaiting: "Solicitud enviada, esperando respuesta…"
+  searchStageThinkingNext: "Pensando en el siguiente paso…"
+  searchStageReasoning: "Razonando…"
+  searchStageTool: "Probando una búsqueda…"
+  searchStageDrafting: "Escribiendo la respuesta · ${chars} caracteres"
+  searchStageParsing: "Ordenando el resultado…"
+  searchThinking: "Razonamiento"
+  searchKeywordNeedsQuotes: "Esta palabra clave no está entrecomillada, así que Iwara la hace coincidir de forma laxa: con este orden la primera página será casi toda irrelevante. Ponla entre \"comillas\" u ordena por relevancia."
+  searchToolProbing: "Probando ${query}"
+  searchToolFound: "${count} resultados · ${titles}"
+  searchToolFailed: "No se pudo: ${reason}"
+  searchFiltersDropped: "Se han quitado ${count} filtros que no existen en esta sección."

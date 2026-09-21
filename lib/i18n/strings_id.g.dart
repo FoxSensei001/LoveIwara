@@ -97,6 +97,7 @@ class TranslationsId extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsVrFormatId vrFormat = _TranslationsVrFormatId._(_root);
 	@override late final _TranslationsLocalMediaId localMedia = _TranslationsLocalMediaId._(_root);
 	@override late final _TranslationsHistoryPageId historyPage = _TranslationsHistoryPageId._(_root);
+	@override late final _TranslationsAiId ai = _TranslationsAiId._(_root);
 }
 
 // Path: personalProfile
@@ -643,6 +644,9 @@ class _TranslationsSearchId extends TranslationsSearchEn {
 	@override String get contentRating => 'Peringkat Konten';
 	@override String get removeTag => 'Hapus Tag';
 	@override String get pleaseEnterSearchContent => 'Silakan masukkan konten pencarian';
+	@override String get exactMatch => 'Persis';
+	@override String get exactMatchOnHint => 'Mencocokkan frasa persis, sekaligus mencari judul berbahasa Mandarin dan Jepang. Ketuk untuk pencarian yang lebih longgar.';
+	@override String get exactMatchOffHint => 'Pencocokan longgar — Iwara memecah kata. Ketuk untuk frasa persis.';
 	@override String get searchHistory => 'Riwayat Pencarian';
 	@override String get searchSuggestion => 'Saran Pencarian';
 	@override String get usedTimes => 'Jumlah Penggunaan';
@@ -893,6 +897,7 @@ class _TranslationsSettingsId extends TranslationsSettingsEn {
 	@override String get signatureContent => 'Isi Tanda Tangan';
 	@override String get signaturePreview => 'Pratinjau';
 	@override String get signatureSampleBody => 'Tulisan kamu di sini';
+	@override String get signatureRegenerate => 'Buat ulang';
 	@override String get signatureNotSet => 'Belum diatur';
 	@override String get signatureRuleHint => 'Tanda tangan ditambahkan setelah isi, dipisahkan garis horizontal. Aplikasi yang menambahkan garisnya — kamu cukup menulis kalimat di bawah.';
 	@override String get signatureInsertVariable => 'Sisipkan variabel';
@@ -943,6 +948,19 @@ class _TranslationsSettingsId extends TranslationsSettingsEn {
 	@override String get signatureOptLengthShort => 'Hanya kalimat pendek';
 	@override String get signatureRestoreDefault => 'Kembalikan ke bawaan';
 	@override String get signatureSourceHitokoto => 'Hitokoto (kutipan acak)';
+	@override String get signatureAiSourceName => 'Kalimat buatan AI';
+	@override String get signatureEditTextHint => 'Ini tanda tangan yang sudah tertulis di komentar ini — kutipan dan tanggalnya kini hanya teks biasa, ubah sesukamu. Kosongkan untuk menghapusnya.';
+	@override String signatureResolving({required Object name}) => 'Membuat ${name}…';
+	@override String get signaturePendingValue => '(dibuat saat dikirim)';
+	@override String get signatureAiHint => 'Satu kalimat yang ditulis AI saat itu juga, baru untuk setiap komentar. Memakai penyedia AI yang kamu atur.';
+	@override String get signatureAiUnavailable => 'Belum ada penyedia AI yang diatur, jadi sumber ini tidak muncul di panel variabel.';
+	@override String get signaturePromptTitle => 'Prompt';
+	@override String get signaturePromptHint => 'Inilah yang dikirim ke model. Tulis ulang sesukamu: nada, panjang, temanya. Aturan yang sudah ada di dalamnya layak dipertahankan.';
+	@override String get signaturePromptReset => 'Kembalikan ke bawaan';
+	@override String get signaturePromptTry => 'Coba';
+	@override String get signaturePromptSample => 'Hasilnya';
+	@override String get signaturePromptLanguageHint => 'diganti dengan bahasa antarmukamu. Kalau dihapus, kalimatnya mengikuti bahasa prompt.';
+	@override String get signaturePromptEdited => 'diubah';
 	@override String get signatureVariablesGroup => 'Variabel bawaan';
 	@override String get signatureNeedsNetwork => 'Perlu jaringan';
 	@override String get signatureBuiltinSource => 'Bawaan';
@@ -1343,6 +1361,8 @@ class _TranslationsForumId extends TranslationsForumEn {
 	@override late final _TranslationsForumLeafDescriptionsId leafDescriptions = _TranslationsForumLeafDescriptionsId._(_root);
 	@override String get reply => 'Balas';
 	@override String get pendingReview => 'Menunggu Tinjauan';
+	@override String get floorNotFound => 'Balasan itu tidak ada atau sudah dihapus';
+	@override String get floorNotLoadedYet => 'Balasan itu ada di atas — muat lebih banyak untuk menuju ke sana';
 	@override String get editedAt => 'Diubah Pada';
 	@override String get copySuccess => 'Disalin ke papan klip';
 	@override String copySuccessForMessage({required Object str}) => 'Disalin ke papan klip: ${str}';
@@ -2842,6 +2862,75 @@ class _TranslationsHistoryPageId extends TranslationsHistoryPageEn {
 	@override String clearTabTitle({required Object tab}) => 'Bersihkan "${tab}"';
 	@override String clearTabConfirm({required Object tab}) => 'Semua riwayat di "${tab}" akan dihapus, beserta progres tontonan video tersebut. Tindakan ini tidak dapat dibatalkan.';
 	@override String get rangeByLastViewed => 'Difilter menurut waktu terakhir dilihat';
+}
+
+// Path: ai
+class _TranslationsAiId extends TranslationsAiEn {
+	_TranslationsAiId._(TranslationsId root) : this._root = root, super.internal(root);
+
+	final TranslationsId _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'AI';
+	@override String get providers => 'Penyedia';
+	@override String get providersHint => 'Tambahkan satu atau beberapa penyedia AI, lalu pilih mana yang digunakan setiap fitur.';
+	@override String get addProvider => 'Tambah penyedia';
+	@override String get noProviders => 'Belum ada penyedia. Tambahkan satu untuk mengaktifkan terjemahan, pencarian, dan tanda tangan AI.';
+	@override String get pickPreset => 'Pilih penyedia';
+	@override String get providerNameLabel => 'Nama';
+	@override String get apiKey => 'Kunci API';
+	@override String get baseUrl => 'Alamat endpoint';
+	@override String get model => 'Model AI';
+	@override String get modelPick => 'Pilih model';
+	@override String get modelEmpty => 'Gagal memuat daftar model — Anda juga bisa mengetik langsung nama modelnya.';
+	@override String get advanced => 'Lanjutan';
+	@override String get reasoning => 'Model penalaran';
+	@override String get streaming => 'Keluaran streaming';
+	@override String get structuredOutput => 'Keluaran terstruktur';
+	@override String get structuredOutputHint => 'Dibutuhkan untuk pencarian AI. Banyak endpoint perantara tidak mendukungnya — matikan jika pencarian terus gagal.';
+	@override String get temperature => 'Temperatur';
+	@override String get maxTokens => 'Token maksimal';
+	@override String get maxTokensAuto => 'Otomatis (batas model)';
+	@override String get test => 'Uji';
+	@override String get testOk => 'Koneksi berhasil';
+	@override String get deleteProvider => 'Hapus penyedia';
+	@override String get usedBy => 'Digunakan oleh';
+	@override String get taskBindings => 'Penetapan fitur';
+	@override String get taskBindingsHint => 'Setiap fitur dapat menggunakan penyedia yang berbeda.';
+	@override String get taskTranslate => 'Terjemahan';
+	@override String get taskSearch => 'Pencarian AI';
+	@override String get taskSignature => 'Tanda tangan';
+	@override String get taskAuto => 'Otomatis';
+	@override String get usage => 'Penggunaan';
+	@override String get usageCalls => 'Panggilan';
+	@override String get usageTokens => 'Jumlah token';
+	@override String get usageFailures => 'Gagal';
+	@override String get usageReset => 'Bersihkan statistik';
+	@override String get usageEmpty => 'Belum ada panggilan';
+	@override String get openSettings => 'Buka pengaturan AI';
+	@override String get notConfigured => 'Belum dikonfigurasi';
+	@override String get searchTitle => 'Pencarian AI';
+	@override String get searchHint => 'Jelaskan apa yang Anda cari; AI akan mengisi kata kunci pencarian dan filter.';
+	@override String get searchPlaceholder => 'mis. MMD terbaru dengan lebih dari 10 rb tayangan';
+	@override String get searchApply => 'Cari dengan kriteria ini';
+	@override String get searchEmpty => 'Tidak dapat mengubahnya menjadi kata kunci pencarian. Coba jelaskan dengan cara lain.';
+	@override String get searchFilters => 'Kriteria filter';
+	@override String searchSwitchSegment({required Object segment}) => 'Beralih ke ${segment}';
+	@override String get searchGenerating => 'Sedang berpikir…';
+	@override String get searchRetrying => 'Percobaan sebelumnya gagal, mencoba lagi…';
+	@override String searchRetryReason({required Object reason}) => 'Alasan: ${reason}';
+	@override String get searchStageWaiting => 'Permintaan terkirim, menunggu balasan…';
+	@override String get searchStageThinkingNext => 'Memikirkan langkah berikutnya…';
+	@override String get searchStageReasoning => 'Sedang menalar…';
+	@override String get searchStageTool => 'Mencoba pencarian…';
+	@override String searchStageDrafting({required Object chars}) => 'Menulis jawaban · ${chars} karakter';
+	@override String get searchStageParsing => 'Merapikan hasil…';
+	@override String get searchThinking => 'Proses berpikir';
+	@override String get searchKeywordNeedsQuotes => 'Kata kunci ini tidak diapit tanda kutip, jadi Iwara mencocokkannya secara longgar — dengan urutan ini halaman pertama sebagian besar tidak relevan. Apit dengan "tanda kutip", atau urutkan berdasarkan relevansi.';
+	@override String searchToolProbing({required Object query}) => 'Mencoba ${query}';
+	@override String searchToolFound({required Object count, required Object titles}) => '${count} hasil · ${titles}';
+	@override String searchToolFailed({required Object reason}) => 'Gagal: ${reason}';
+	@override String searchFiltersDropped({required Object count}) => '${count} filter yang tidak ada di bagian ini telah dihapus.';
 }
 
 // Path: common.pagination
@@ -5145,6 +5234,9 @@ extension on TranslationsId {
 			'search.contentRating' => 'Peringkat Konten',
 			'search.removeTag' => 'Hapus Tag',
 			'search.pleaseEnterSearchContent' => 'Silakan masukkan konten pencarian',
+			'search.exactMatch' => 'Persis',
+			'search.exactMatchOnHint' => 'Mencocokkan frasa persis, sekaligus mencari judul berbahasa Mandarin dan Jepang. Ketuk untuk pencarian yang lebih longgar.',
+			'search.exactMatchOffHint' => 'Pencocokan longgar — Iwara memecah kata. Ketuk untuk frasa persis.',
 			'search.searchHistory' => 'Riwayat Pencarian',
 			'search.searchSuggestion' => 'Saran Pencarian',
 			'search.usedTimes' => 'Jumlah Penggunaan',
@@ -5194,11 +5286,11 @@ extension on TranslationsId {
 			'settings.fastForwardTime' => 'Waktu Maju Cepat',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => 'Waktu maju cepat harus berupa bilangan bulat positif.',
 			'settings.rewindTime' => 'Waktu Mundur',
+			_ => null,
+		} ?? switch (path) {
 			'settings.rewindTimeMustBeAPositiveInteger' => 'Waktu mundur harus berupa bilangan bulat positif.',
 			'settings.longPressPlaybackSpeed' => 'Kecepatan Pemutaran Tekan Lama',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'Kecepatan pemutaran tekan lama harus berupa angka positif.',
-			_ => null,
-		} ?? switch (path) {
 			'settings.defaultPlaybackSpeed' => 'Kecepatan Pemutaran Bawaan',
 			'settings.rememberPlaybackSpeed' => 'Ingat Kecepatan Pemutaran',
 			'settings.rememberPlaybackSpeedDesc' => 'Saat diaktifkan, kecepatan yang Anda atur di pemutar disimpan sebagai bawaan dan diterapkan secara otomatis ke video baru.',
@@ -5379,6 +5471,7 @@ extension on TranslationsId {
 			'settings.signatureContent' => 'Isi Tanda Tangan',
 			'settings.signaturePreview' => 'Pratinjau',
 			'settings.signatureSampleBody' => 'Tulisan kamu di sini',
+			'settings.signatureRegenerate' => 'Buat ulang',
 			'settings.signatureNotSet' => 'Belum diatur',
 			'settings.signatureRuleHint' => 'Tanda tangan ditambahkan setelah isi, dipisahkan garis horizontal. Aplikasi yang menambahkan garisnya — kamu cukup menulis kalimat di bawah.',
 			'settings.signatureInsertVariable' => 'Sisipkan variabel',
@@ -5429,6 +5522,19 @@ extension on TranslationsId {
 			'settings.signatureOptLengthShort' => 'Hanya kalimat pendek',
 			'settings.signatureRestoreDefault' => 'Kembalikan ke bawaan',
 			'settings.signatureSourceHitokoto' => 'Hitokoto (kutipan acak)',
+			'settings.signatureAiSourceName' => 'Kalimat buatan AI',
+			'settings.signatureEditTextHint' => 'Ini tanda tangan yang sudah tertulis di komentar ini — kutipan dan tanggalnya kini hanya teks biasa, ubah sesukamu. Kosongkan untuk menghapusnya.',
+			'settings.signatureResolving' => ({required Object name}) => 'Membuat ${name}…',
+			'settings.signaturePendingValue' => '(dibuat saat dikirim)',
+			'settings.signatureAiHint' => 'Satu kalimat yang ditulis AI saat itu juga, baru untuk setiap komentar. Memakai penyedia AI yang kamu atur.',
+			'settings.signatureAiUnavailable' => 'Belum ada penyedia AI yang diatur, jadi sumber ini tidak muncul di panel variabel.',
+			'settings.signaturePromptTitle' => 'Prompt',
+			'settings.signaturePromptHint' => 'Inilah yang dikirim ke model. Tulis ulang sesukamu: nada, panjang, temanya. Aturan yang sudah ada di dalamnya layak dipertahankan.',
+			'settings.signaturePromptReset' => 'Kembalikan ke bawaan',
+			'settings.signaturePromptTry' => 'Coba',
+			'settings.signaturePromptSample' => 'Hasilnya',
+			'settings.signaturePromptLanguageHint' => 'diganti dengan bahasa antarmukamu. Kalau dihapus, kalimatnya mengikuti bahasa prompt.',
+			'settings.signaturePromptEdited' => 'diubah',
 			'settings.signatureVariablesGroup' => 'Variabel bawaan',
 			'settings.signatureNeedsNetwork' => 'Perlu jaringan',
 			'settings.signatureBuiltinSource' => 'Bawaan',
@@ -5694,6 +5800,8 @@ extension on TranslationsId {
 			'settings.cdnRefreshServerListTooltip' => 'Segarkan daftar server',
 			'settings.cdnSpeedTestButton' => 'Uji Kecepatan',
 			'settings.cdnSpeedTestingButton' => ({required Object count}) => 'Menguji (${count})',
+			_ => null,
+		} ?? switch (path) {
 			'settings.cdnNoServerDataHint' => 'Tidak ada data server yang tersedia, silakan klik tombol segarkan',
 			'settings.cdnTestingStatus' => 'Menguji',
 			'settings.cdnUnreachableStatus' => 'Tidak Terjangkau',
@@ -5711,8 +5819,6 @@ extension on TranslationsId {
 			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => 'Pemberian Izin Penyimpanan Gagal Namun Beberapa Fitur Mungkin Terbatas',
 			'settings.downloadSettings.storagePermissionRationale' => 'Untuk menyimpan unduhan ke folder yang Anda pilih, aplikasi memerlukan akses penyimpanan.\n\nDi Android 11 dan yang lebih baru, ini berarti izin "Akses semua file"; tanpa izin itu, file disimpan ke folder privat aplikasi sebagai gantinya.',
 			'settings.downloadSettings.storagePermissionRationaleLegacy' => 'Untuk menyimpan unduhan ke folder yang Anda pilih, aplikasi memerlukan akses penyimpanan.\n\nTanpa izin itu, file disimpan ke folder privat aplikasi sebagai gantinya.',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.grantStoragePermission' => 'Beri Izin Penyimpanan',
 			'settings.downloadSettings.customDownloadPath' => 'Jalur Unduhan Kustom',
 			'settings.downloadSettings.customDownloadPathDescription' => 'Saat diaktifkan, Anda dapat memilih lokasi penyimpanan kustom untuk file yang diunduh',
@@ -6208,6 +6314,8 @@ extension on TranslationsId {
 			'markdown.iwaraSpecialMarkdownSyntax' => 'Sintaks Markdown Khusus Iwara',
 			'markdown.internalLink' => 'Tautan Internal',
 			'markdown.supportAutoConvertLinkBelow' => 'Mendukung konversi otomatis tautan berikut:',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.convertLinkExample' => '🎬 Tautan Video\n🖼️ Tautan Gambar\n👤 Tautan Pengguna\n📌 Tautan Forum\n🎵 Tautan Daftar Putar\n💬 Tautan Topik',
 			'markdown.mentionUser' => 'Sebutkan Pengguna',
 			'markdown.mentionUserDescription' => 'Masukkan @ diikuti nama pengguna, akan otomatis diubah menjadi tautan pengguna',
@@ -6225,8 +6333,6 @@ extension on TranslationsId {
 			'markdown.listDescription' => 'Buat daftar berurut dengan angka+titik, buat daftar tak berurut dengan -',
 			'markdown.listSyntax' => '1. Item pertama\n2. Item kedua\n\n- Item tak berurut\n  - Subitem\n  - Subitem lain',
 			'markdown.linkAndImage' => 'Tautan dan Gambar',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.linkAndImageDescription' => 'Format tautan: [teks](URL)\nFormat gambar: ![deskripsi](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[teks tautan](${link})\n![deskripsi gambar](${imgUrl})',
 			'markdown.title' => 'Judul',
@@ -6303,6 +6409,8 @@ extension on TranslationsId {
 			'forum.leafDescriptions.other' => 'Konten lain yang tidak terklasifikasi',
 			'forum.reply' => 'Balas',
 			'forum.pendingReview' => 'Menunggu Tinjauan',
+			'forum.floorNotFound' => 'Balasan itu tidak ada atau sudah dihapus',
+			'forum.floorNotLoadedYet' => 'Balasan itu ada di atas — muat lebih banyak untuk menuju ke sana',
 			'forum.editedAt' => 'Diubah Pada',
 			'forum.copySuccess' => 'Disalin ke papan klip',
 			'forum.copySuccessForMessage' => ({required Object str}) => 'Disalin ke papan klip: ${str}',
@@ -6720,6 +6828,8 @@ extension on TranslationsId {
 			'download.relocation.sectionNotAttempted' => 'Not processed (stopped, left as is)',
 			'download.relocation.unexpectedError' => ({required Object message}) => 'Stopped because of an error: ${message}. Items already moved are complete.',
 			'download.category.manageTitle' => 'Kelola kategori',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.label' => 'Kategori',
 			'download.category.uncategorized' => 'Tanpa Kategori',
 			'download.category.manage' => 'Kelola',
@@ -6739,8 +6849,6 @@ extension on TranslationsId {
 			'download.category.renameSuccess' => 'Nama kategori diubah',
 			'download.category.renameFailed' => 'Gagal mengganti nama kategori',
 			'download.category.deleteTitle' => 'Hapus kategori',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'Hapus kategori "${title}"? ${count} item di dalamnya akan dipindahkan ke Tanpa Kategori. Tidak ada berkas yang dihapus.',
 			'download.category.deleteSuccess' => 'Kategori dihapus',
 			'download.category.deleteFailed' => 'Gagal menghapus kategori',
@@ -7234,6 +7342,8 @@ extension on TranslationsId {
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'Pada ${position}',
 			'mediaPlayer.notice.noIssuesRecorded' => 'Tidak ada masalah yang tercatat',
 			'mediaPlayer.notice.exportLogsAction' => 'Ekspor log',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.imageLoadFailed' => 'Gagal Memuat Gambar',
 			'mediaPlayer.unsupportedImageFormat' => 'Format Gambar Tidak Didukung',
 			'mediaPlayer.tryOtherViewer' => 'Silakan coba gunakan penampil lain',
@@ -7253,8 +7363,6 @@ extension on TranslationsId {
 			'diagnostics.schemaHealthRepairedBefore' => 'Sebelumnya pernah diperbaiki oleh jaring pengaman',
 			'diagnostics.logPolicySectionTitle' => 'Kebijakan Log',
 			'diagnostics.configServiceUnavailable' => 'Layanan konfigurasi belum diinisialisasi. Kebijakan log tidak dapat disesuaikan.',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.enableLoggingTitle' => 'Aktifkan pencatatan log',
 			'diagnostics.enableLoggingSubtitle' => 'Nonaktifkan untuk menghentikan penulisan log baru',
 			'diagnostics.enableLogPersistenceTitle' => 'Aktifkan persistensi log',
@@ -7748,6 +7856,8 @@ extension on TranslationsId {
 			'watchLater.removedFromWatchLater' => 'Dihapus dari Tonton Nanti',
 			'watchLater.removedCount' => ({required Object count}) => 'Menghapus ${count} item',
 			'watchLater.viewWatchLaterList' => 'Lihat daftar',
+			_ => null,
+		} ?? switch (path) {
 			'watchLater.addFailed' => 'Gagal menambahkan ke Tonton Nanti',
 			'watchLater.invalidItem' => 'Tidak Tersedia',
 			'watchLater.clearWatched' => 'Bersihkan yang telah ditonton',
@@ -7767,8 +7877,6 @@ extension on TranslationsId {
 			'watchLater.emptyUnwatchedVideo' => 'Tidak ada lagi yang bisa ditonton di sini',
 			'watchLater.emptyUnwatchedGallery' => 'Tidak ada lagi yang bisa dilihat di sini',
 			'watchLater.queueLoadFailed' => 'Gagal memuat, ketuk untuk mencoba lagi',
-			_ => null,
-		} ?? switch (path) {
 			'mediaMenu.like' => 'Suka',
 			'mediaMenu.unlike' => 'Batal Suka',
 			'mediaMenu.viewAuthor' => 'Lihat penulis',
@@ -8115,6 +8223,66 @@ extension on TranslationsId {
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'Bersihkan "${tab}"',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Semua riwayat di "${tab}" akan dihapus, beserta progres tontonan video tersebut. Tindakan ini tidak dapat dibatalkan.',
 			'historyPage.rangeByLastViewed' => 'Difilter menurut waktu terakhir dilihat',
+			'ai.title' => 'AI',
+			'ai.providers' => 'Penyedia',
+			'ai.providersHint' => 'Tambahkan satu atau beberapa penyedia AI, lalu pilih mana yang digunakan setiap fitur.',
+			'ai.addProvider' => 'Tambah penyedia',
+			'ai.noProviders' => 'Belum ada penyedia. Tambahkan satu untuk mengaktifkan terjemahan, pencarian, dan tanda tangan AI.',
+			'ai.pickPreset' => 'Pilih penyedia',
+			'ai.providerNameLabel' => 'Nama',
+			'ai.apiKey' => 'Kunci API',
+			'ai.baseUrl' => 'Alamat endpoint',
+			'ai.model' => 'Model AI',
+			'ai.modelPick' => 'Pilih model',
+			'ai.modelEmpty' => 'Gagal memuat daftar model — Anda juga bisa mengetik langsung nama modelnya.',
+			'ai.advanced' => 'Lanjutan',
+			'ai.reasoning' => 'Model penalaran',
+			'ai.streaming' => 'Keluaran streaming',
+			'ai.structuredOutput' => 'Keluaran terstruktur',
+			'ai.structuredOutputHint' => 'Dibutuhkan untuk pencarian AI. Banyak endpoint perantara tidak mendukungnya — matikan jika pencarian terus gagal.',
+			'ai.temperature' => 'Temperatur',
+			'ai.maxTokens' => 'Token maksimal',
+			'ai.maxTokensAuto' => 'Otomatis (batas model)',
+			'ai.test' => 'Uji',
+			'ai.testOk' => 'Koneksi berhasil',
+			'ai.deleteProvider' => 'Hapus penyedia',
+			'ai.usedBy' => 'Digunakan oleh',
+			'ai.taskBindings' => 'Penetapan fitur',
+			'ai.taskBindingsHint' => 'Setiap fitur dapat menggunakan penyedia yang berbeda.',
+			'ai.taskTranslate' => 'Terjemahan',
+			'ai.taskSearch' => 'Pencarian AI',
+			'ai.taskSignature' => 'Tanda tangan',
+			'ai.taskAuto' => 'Otomatis',
+			'ai.usage' => 'Penggunaan',
+			'ai.usageCalls' => 'Panggilan',
+			'ai.usageTokens' => 'Jumlah token',
+			'ai.usageFailures' => 'Gagal',
+			'ai.usageReset' => 'Bersihkan statistik',
+			'ai.usageEmpty' => 'Belum ada panggilan',
+			'ai.openSettings' => 'Buka pengaturan AI',
+			'ai.notConfigured' => 'Belum dikonfigurasi',
+			'ai.searchTitle' => 'Pencarian AI',
+			'ai.searchHint' => 'Jelaskan apa yang Anda cari; AI akan mengisi kata kunci pencarian dan filter.',
+			'ai.searchPlaceholder' => 'mis. MMD terbaru dengan lebih dari 10 rb tayangan',
+			'ai.searchApply' => 'Cari dengan kriteria ini',
+			'ai.searchEmpty' => 'Tidak dapat mengubahnya menjadi kata kunci pencarian. Coba jelaskan dengan cara lain.',
+			'ai.searchFilters' => 'Kriteria filter',
+			'ai.searchSwitchSegment' => ({required Object segment}) => 'Beralih ke ${segment}',
+			'ai.searchGenerating' => 'Sedang berpikir…',
+			'ai.searchRetrying' => 'Percobaan sebelumnya gagal, mencoba lagi…',
+			'ai.searchRetryReason' => ({required Object reason}) => 'Alasan: ${reason}',
+			'ai.searchStageWaiting' => 'Permintaan terkirim, menunggu balasan…',
+			'ai.searchStageThinkingNext' => 'Memikirkan langkah berikutnya…',
+			'ai.searchStageReasoning' => 'Sedang menalar…',
+			'ai.searchStageTool' => 'Mencoba pencarian…',
+			'ai.searchStageDrafting' => ({required Object chars}) => 'Menulis jawaban · ${chars} karakter',
+			'ai.searchStageParsing' => 'Merapikan hasil…',
+			'ai.searchThinking' => 'Proses berpikir',
+			'ai.searchKeywordNeedsQuotes' => 'Kata kunci ini tidak diapit tanda kutip, jadi Iwara mencocokkannya secara longgar — dengan urutan ini halaman pertama sebagian besar tidak relevan. Apit dengan "tanda kutip", atau urutkan berdasarkan relevansi.',
+			'ai.searchToolProbing' => ({required Object query}) => 'Mencoba ${query}',
+			'ai.searchToolFound' => ({required Object count, required Object titles}) => '${count} hasil · ${titles}',
+			'ai.searchToolFailed' => ({required Object reason}) => 'Gagal: ${reason}',
+			'ai.searchFiltersDropped' => ({required Object count}) => '${count} filter yang tidak ada di bagian ini telah dihapus.',
 			_ => null,
 		};
 	}

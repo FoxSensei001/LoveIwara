@@ -494,6 +494,9 @@ search:
   contentRating: Xếp hạng nội dung
   removeTag: Xóa thẻ
   pleaseEnterSearchContent: Vui lòng nhập nội dung tìm kiếm
+  exactMatch: "Chính xác"
+  exactMatchOnHint: "Đang khớp chính xác cụm từ, đồng thời tìm cả tiêu đề tiếng Trung và tiếng Nhật. Chạm để tìm rộng hơn."
+  exactMatchOffHint: "Đang khớp lỏng — Iwara tách các từ ra. Chạm để khớp chính xác cụm từ."
   searchHistory: Lịch sử tìm kiếm
   searchSuggestion: Gợi ý tìm kiếm
   usedTimes: Số lần sử dụng
@@ -729,6 +732,7 @@ settings:
   signatureContent: Nội dung chữ ký
   signaturePreview: 'Xem trước'
   signatureSampleBody: 'Nội dung của bạn ở đây'
+  signatureRegenerate: 'Tạo lại'
   signatureNotSet: 'Chưa đặt'
   signatureRuleHint: "Chữ ký được thêm sau nội dung, ngăn cách bằng một đường kẻ ngang. Ứng dụng tự thêm đường kẻ — bạn chỉ cần viết dòng bên dưới."
   signatureInsertVariable: "Chèn biến"
@@ -779,6 +783,19 @@ settings:
   signatureOptLengthShort: "Chỉ câu ngắn"
   signatureRestoreDefault: "Khôi phục mặc định"
   signatureSourceHitokoto: "Hitokoto (câu ngẫu nhiên)"
+  signatureAiSourceName: "Câu chữ tạo bởi AI"
+  signatureEditTextHint: "Đây là chữ ký đã có sẵn trong bình luận này — câu trích và ngày giờ giờ chỉ là chữ thường, sửa tuỳ ý. Xoá trống là bỏ chữ ký."
+  signatureResolving: "Đang tạo ${name}…"
+  signaturePendingValue: "(tạo khi gửi)"
+  signatureAiHint: "Một câu do AI viết ngay lúc đó, mỗi bình luận một câu mới. Dùng nhà cung cấp AI bạn đã thiết lập."
+  signatureAiUnavailable: "Chưa thiết lập nhà cung cấp AI nên nguồn này không hiện trong bảng biến."
+  signaturePromptTitle: "Prompt"
+  signaturePromptHint: "Đây là thứ được gửi cho mô hình. Viết lại tuỳ ý: giọng điệu, độ dài, chủ đề. Các quy tắc có sẵn trong đó nên giữ lại."
+  signaturePromptReset: "Khôi phục mặc định"
+  signaturePromptTry: "Thử"
+  signaturePromptSample: "Kết quả"
+  signaturePromptLanguageHint: "sẽ được thay bằng ngôn ngữ giao diện. Bỏ nó đi thì câu sẽ theo ngôn ngữ của prompt."
+  signaturePromptEdited: "đã sửa"
   signatureVariablesGroup: "Biến có sẵn"
   signatureNeedsNetwork: "Cần mạng"
   signatureBuiltinSource: "Có sẵn"
@@ -1705,6 +1722,8 @@ forum:
     other: Nội dung khác chưa được phân loại
   reply: Trả lời
   pendingReview: Đang chờ duyệt
+  floorNotFound: 'Bài trả lời đó không tồn tại hoặc đã bị xóa'
+  floorNotLoadedYet: 'Bài đó ở phía trên — tải thêm để nhảy tới'
   editedAt: Chỉnh sửa lúc
   copySuccess: Đã sao chép vào clipboard
   copySuccessForMessage: 'Đã sao chép vào clipboard: ${str}'
@@ -3663,3 +3682,65 @@ historyPage:
   clearTabTitle: "Xóa \"${tab}\""
   clearTabConfirm: "Toàn bộ lịch sử trong \"${tab}\" sẽ bị xóa, kèm tiến độ xem của các video đó. Không thể hoàn tác."
   rangeByLastViewed: "Lọc theo thời gian xem gần nhất"
+
+ai:
+  title: "AI"
+  providers: "Nhà cung cấp"
+  providersHint: "Thêm một hoặc nhiều nhà cung cấp AI, sau đó chọn nhà cung cấp cho từng tính năng."
+  addProvider: "Thêm nhà cung cấp"
+  noProviders: "Chưa có nhà cung cấp nào. Hãy thêm để bật tính năng dịch, tìm kiếm và chữ ký bằng AI."
+  pickPreset: "Chọn nhà cung cấp"
+  providerNameLabel: "Tên"
+  apiKey: "Khóa API"
+  baseUrl: "Điểm cuối"
+  model: "Mô hình"
+  modelPick: "Chọn mô hình"
+  modelEmpty: "Không thể tải danh sách mô hình — bạn cũng có thể nhập trực tiếp tên mô hình."
+  advanced: "Nâng cao"
+  reasoning: "Mô hình suy luận"
+  streaming: "Đầu ra dạng luồng"
+  structuredOutput: "Đầu ra có cấu trúc"
+  structuredOutputHint: "Cần thiết cho tìm kiếm AI. Nhiều endpoint trung gian không hỗ trợ — hãy tắt nếu tìm kiếm liên tục thất bại."
+  temperature: "Nhiệt độ"
+  maxTokens: "Token tối đa"
+  maxTokensAuto: "Tự động (giới hạn mô hình)"
+  test: "Kiểm tra"
+  testOk: "Kết nối thành công"
+  deleteProvider: "Xóa nhà cung cấp"
+  usedBy: "Đang dùng cho"
+  taskBindings: "Phân bổ tính năng"
+  taskBindingsHint: "Mỗi tính năng có thể dùng một nhà cung cấp khác nhau."
+  taskTranslate: "Dịch thuật"
+  taskSearch: "Tìm kiếm AI"
+  taskSignature: "Chữ ký"
+  taskAuto: "Tự động"
+  usage: "Mức sử dụng"
+  usageCalls: "Lượt gọi"
+  usageTokens: "Số token"
+  usageFailures: "Thất bại"
+  usageReset: "Xóa thống kê"
+  usageEmpty: "Chưa có lượt gọi nào"
+  openSettings: "Mở cài đặt AI"
+  notConfigured: "Chưa định cấu hình"
+  searchTitle: "Tìm kiếm AI"
+  searchHint: "Mô tả nội dung bạn muốn tìm; AI sẽ điền các từ khóa tìm kiếm và bộ lọc."
+  searchPlaceholder: "vd: MMD mới nhất có hơn 10k lượt xem"
+  searchApply: "Tìm kiếm bằng các điều kiện này"
+  searchEmpty: "Không thể tạo từ khóa tìm kiếm từ mô tả này. Hãy thử diễn đạt theo cách khác."
+  searchFilters: "Bộ lọc"
+  searchSwitchSegment: "Chuyển sang ${segment}"
+  searchGenerating: "Đang suy nghĩ…"
+  searchRetrying: "Lần trước thất bại, đang thử lại…"
+  searchRetryReason: "Lý do: ${reason}"
+  searchStageWaiting: "Đã gửi yêu cầu, đang chờ phản hồi…"
+  searchStageThinkingNext: "Đang nghĩ bước tiếp theo…"
+  searchStageReasoning: "Đang suy luận…"
+  searchStageTool: "Đang thử tìm kiếm…"
+  searchStageDrafting: "Đang viết câu trả lời · ${chars} ký tự"
+  searchStageParsing: "Đang sắp xếp kết quả…"
+  searchThinking: "Quá trình suy luận"
+  searchKeywordNeedsQuotes: "Từ khoá này không đặt trong dấu ngoặc kép nên Iwara khớp lỏng lẻo — với kiểu sắp xếp này trang đầu phần lớn sẽ không liên quan. Hãy đặt nó trong \"dấu ngoặc kép\", hoặc sắp xếp theo độ liên quan."
+  searchToolProbing: "Thử tìm ${query}"
+  searchToolFound: "${count} kết quả · ${titles}"
+  searchToolFailed: "Không chạy được: ${reason}"
+  searchFiltersDropped: "Đã bỏ ${count} bộ lọc không có trong mục này."

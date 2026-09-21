@@ -97,6 +97,7 @@ class TranslationsVi extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsVrFormatVi vrFormat = _TranslationsVrFormatVi._(_root);
 	@override late final _TranslationsLocalMediaVi localMedia = _TranslationsLocalMediaVi._(_root);
 	@override late final _TranslationsHistoryPageVi historyPage = _TranslationsHistoryPageVi._(_root);
+	@override late final _TranslationsAiVi ai = _TranslationsAiVi._(_root);
 }
 
 // Path: personalProfile
@@ -643,6 +644,9 @@ class _TranslationsSearchVi extends TranslationsSearchEn {
 	@override String get contentRating => 'Xếp hạng nội dung';
 	@override String get removeTag => 'Xóa thẻ';
 	@override String get pleaseEnterSearchContent => 'Vui lòng nhập nội dung tìm kiếm';
+	@override String get exactMatch => 'Chính xác';
+	@override String get exactMatchOnHint => 'Đang khớp chính xác cụm từ, đồng thời tìm cả tiêu đề tiếng Trung và tiếng Nhật. Chạm để tìm rộng hơn.';
+	@override String get exactMatchOffHint => 'Đang khớp lỏng — Iwara tách các từ ra. Chạm để khớp chính xác cụm từ.';
 	@override String get searchHistory => 'Lịch sử tìm kiếm';
 	@override String get searchSuggestion => 'Gợi ý tìm kiếm';
 	@override String get usedTimes => 'Số lần sử dụng';
@@ -893,6 +897,7 @@ class _TranslationsSettingsVi extends TranslationsSettingsEn {
 	@override String get signatureContent => 'Nội dung chữ ký';
 	@override String get signaturePreview => 'Xem trước';
 	@override String get signatureSampleBody => 'Nội dung của bạn ở đây';
+	@override String get signatureRegenerate => 'Tạo lại';
 	@override String get signatureNotSet => 'Chưa đặt';
 	@override String get signatureRuleHint => 'Chữ ký được thêm sau nội dung, ngăn cách bằng một đường kẻ ngang. Ứng dụng tự thêm đường kẻ — bạn chỉ cần viết dòng bên dưới.';
 	@override String get signatureInsertVariable => 'Chèn biến';
@@ -943,6 +948,19 @@ class _TranslationsSettingsVi extends TranslationsSettingsEn {
 	@override String get signatureOptLengthShort => 'Chỉ câu ngắn';
 	@override String get signatureRestoreDefault => 'Khôi phục mặc định';
 	@override String get signatureSourceHitokoto => 'Hitokoto (câu ngẫu nhiên)';
+	@override String get signatureAiSourceName => 'Câu chữ tạo bởi AI';
+	@override String get signatureEditTextHint => 'Đây là chữ ký đã có sẵn trong bình luận này — câu trích và ngày giờ giờ chỉ là chữ thường, sửa tuỳ ý. Xoá trống là bỏ chữ ký.';
+	@override String signatureResolving({required Object name}) => 'Đang tạo ${name}…';
+	@override String get signaturePendingValue => '(tạo khi gửi)';
+	@override String get signatureAiHint => 'Một câu do AI viết ngay lúc đó, mỗi bình luận một câu mới. Dùng nhà cung cấp AI bạn đã thiết lập.';
+	@override String get signatureAiUnavailable => 'Chưa thiết lập nhà cung cấp AI nên nguồn này không hiện trong bảng biến.';
+	@override String get signaturePromptTitle => 'Prompt';
+	@override String get signaturePromptHint => 'Đây là thứ được gửi cho mô hình. Viết lại tuỳ ý: giọng điệu, độ dài, chủ đề. Các quy tắc có sẵn trong đó nên giữ lại.';
+	@override String get signaturePromptReset => 'Khôi phục mặc định';
+	@override String get signaturePromptTry => 'Thử';
+	@override String get signaturePromptSample => 'Kết quả';
+	@override String get signaturePromptLanguageHint => 'sẽ được thay bằng ngôn ngữ giao diện. Bỏ nó đi thì câu sẽ theo ngôn ngữ của prompt.';
+	@override String get signaturePromptEdited => 'đã sửa';
 	@override String get signatureVariablesGroup => 'Biến có sẵn';
 	@override String get signatureNeedsNetwork => 'Cần mạng';
 	@override String get signatureBuiltinSource => 'Có sẵn';
@@ -1343,6 +1361,8 @@ class _TranslationsForumVi extends TranslationsForumEn {
 	@override late final _TranslationsForumLeafDescriptionsVi leafDescriptions = _TranslationsForumLeafDescriptionsVi._(_root);
 	@override String get reply => 'Trả lời';
 	@override String get pendingReview => 'Đang chờ duyệt';
+	@override String get floorNotFound => 'Bài trả lời đó không tồn tại hoặc đã bị xóa';
+	@override String get floorNotLoadedYet => 'Bài đó ở phía trên — tải thêm để nhảy tới';
 	@override String get editedAt => 'Chỉnh sửa lúc';
 	@override String get copySuccess => 'Đã sao chép vào clipboard';
 	@override String copySuccessForMessage({required Object str}) => 'Đã sao chép vào clipboard: ${str}';
@@ -2842,6 +2862,75 @@ class _TranslationsHistoryPageVi extends TranslationsHistoryPageEn {
 	@override String clearTabTitle({required Object tab}) => 'Xóa "${tab}"';
 	@override String clearTabConfirm({required Object tab}) => 'Toàn bộ lịch sử trong "${tab}" sẽ bị xóa, kèm tiến độ xem của các video đó. Không thể hoàn tác.';
 	@override String get rangeByLastViewed => 'Lọc theo thời gian xem gần nhất';
+}
+
+// Path: ai
+class _TranslationsAiVi extends TranslationsAiEn {
+	_TranslationsAiVi._(TranslationsVi root) : this._root = root, super.internal(root);
+
+	final TranslationsVi _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'AI';
+	@override String get providers => 'Nhà cung cấp';
+	@override String get providersHint => 'Thêm một hoặc nhiều nhà cung cấp AI, sau đó chọn nhà cung cấp cho từng tính năng.';
+	@override String get addProvider => 'Thêm nhà cung cấp';
+	@override String get noProviders => 'Chưa có nhà cung cấp nào. Hãy thêm để bật tính năng dịch, tìm kiếm và chữ ký bằng AI.';
+	@override String get pickPreset => 'Chọn nhà cung cấp';
+	@override String get providerNameLabel => 'Tên';
+	@override String get apiKey => 'Khóa API';
+	@override String get baseUrl => 'Điểm cuối';
+	@override String get model => 'Mô hình';
+	@override String get modelPick => 'Chọn mô hình';
+	@override String get modelEmpty => 'Không thể tải danh sách mô hình — bạn cũng có thể nhập trực tiếp tên mô hình.';
+	@override String get advanced => 'Nâng cao';
+	@override String get reasoning => 'Mô hình suy luận';
+	@override String get streaming => 'Đầu ra dạng luồng';
+	@override String get structuredOutput => 'Đầu ra có cấu trúc';
+	@override String get structuredOutputHint => 'Cần thiết cho tìm kiếm AI. Nhiều endpoint trung gian không hỗ trợ — hãy tắt nếu tìm kiếm liên tục thất bại.';
+	@override String get temperature => 'Nhiệt độ';
+	@override String get maxTokens => 'Token tối đa';
+	@override String get maxTokensAuto => 'Tự động (giới hạn mô hình)';
+	@override String get test => 'Kiểm tra';
+	@override String get testOk => 'Kết nối thành công';
+	@override String get deleteProvider => 'Xóa nhà cung cấp';
+	@override String get usedBy => 'Đang dùng cho';
+	@override String get taskBindings => 'Phân bổ tính năng';
+	@override String get taskBindingsHint => 'Mỗi tính năng có thể dùng một nhà cung cấp khác nhau.';
+	@override String get taskTranslate => 'Dịch thuật';
+	@override String get taskSearch => 'Tìm kiếm AI';
+	@override String get taskSignature => 'Chữ ký';
+	@override String get taskAuto => 'Tự động';
+	@override String get usage => 'Mức sử dụng';
+	@override String get usageCalls => 'Lượt gọi';
+	@override String get usageTokens => 'Số token';
+	@override String get usageFailures => 'Thất bại';
+	@override String get usageReset => 'Xóa thống kê';
+	@override String get usageEmpty => 'Chưa có lượt gọi nào';
+	@override String get openSettings => 'Mở cài đặt AI';
+	@override String get notConfigured => 'Chưa định cấu hình';
+	@override String get searchTitle => 'Tìm kiếm AI';
+	@override String get searchHint => 'Mô tả nội dung bạn muốn tìm; AI sẽ điền các từ khóa tìm kiếm và bộ lọc.';
+	@override String get searchPlaceholder => 'vd: MMD mới nhất có hơn 10k lượt xem';
+	@override String get searchApply => 'Tìm kiếm bằng các điều kiện này';
+	@override String get searchEmpty => 'Không thể tạo từ khóa tìm kiếm từ mô tả này. Hãy thử diễn đạt theo cách khác.';
+	@override String get searchFilters => 'Bộ lọc';
+	@override String searchSwitchSegment({required Object segment}) => 'Chuyển sang ${segment}';
+	@override String get searchGenerating => 'Đang suy nghĩ…';
+	@override String get searchRetrying => 'Lần trước thất bại, đang thử lại…';
+	@override String searchRetryReason({required Object reason}) => 'Lý do: ${reason}';
+	@override String get searchStageWaiting => 'Đã gửi yêu cầu, đang chờ phản hồi…';
+	@override String get searchStageThinkingNext => 'Đang nghĩ bước tiếp theo…';
+	@override String get searchStageReasoning => 'Đang suy luận…';
+	@override String get searchStageTool => 'Đang thử tìm kiếm…';
+	@override String searchStageDrafting({required Object chars}) => 'Đang viết câu trả lời · ${chars} ký tự';
+	@override String get searchStageParsing => 'Đang sắp xếp kết quả…';
+	@override String get searchThinking => 'Quá trình suy luận';
+	@override String get searchKeywordNeedsQuotes => 'Từ khoá này không đặt trong dấu ngoặc kép nên Iwara khớp lỏng lẻo — với kiểu sắp xếp này trang đầu phần lớn sẽ không liên quan. Hãy đặt nó trong "dấu ngoặc kép", hoặc sắp xếp theo độ liên quan.';
+	@override String searchToolProbing({required Object query}) => 'Thử tìm ${query}';
+	@override String searchToolFound({required Object count, required Object titles}) => '${count} kết quả · ${titles}';
+	@override String searchToolFailed({required Object reason}) => 'Không chạy được: ${reason}';
+	@override String searchFiltersDropped({required Object count}) => 'Đã bỏ ${count} bộ lọc không có trong mục này.';
 }
 
 // Path: common.pagination
@@ -5145,6 +5234,9 @@ extension on TranslationsVi {
 			'search.contentRating' => 'Xếp hạng nội dung',
 			'search.removeTag' => 'Xóa thẻ',
 			'search.pleaseEnterSearchContent' => 'Vui lòng nhập nội dung tìm kiếm',
+			'search.exactMatch' => 'Chính xác',
+			'search.exactMatchOnHint' => 'Đang khớp chính xác cụm từ, đồng thời tìm cả tiêu đề tiếng Trung và tiếng Nhật. Chạm để tìm rộng hơn.',
+			'search.exactMatchOffHint' => 'Đang khớp lỏng — Iwara tách các từ ra. Chạm để khớp chính xác cụm từ.',
 			'search.searchHistory' => 'Lịch sử tìm kiếm',
 			'search.searchSuggestion' => 'Gợi ý tìm kiếm',
 			'search.usedTimes' => 'Số lần sử dụng',
@@ -5194,11 +5286,11 @@ extension on TranslationsVi {
 			'settings.fastForwardTime' => 'Thời gian tua tới',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => 'Thời gian tua tới phải là số nguyên dương.',
 			'settings.rewindTime' => 'Thời gian tua lại',
+			_ => null,
+		} ?? switch (path) {
 			'settings.rewindTimeMustBeAPositiveInteger' => 'Thời gian tua lại phải là số nguyên dương.',
 			'settings.longPressPlaybackSpeed' => 'Tốc độ phát khi nhấn giữ',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'Tốc độ phát khi nhấn giữ phải là số dương.',
-			_ => null,
-		} ?? switch (path) {
 			'settings.defaultPlaybackSpeed' => 'Tốc độ phát mặc định',
 			'settings.rememberPlaybackSpeed' => 'Ghi nhớ tốc độ phát',
 			'settings.rememberPlaybackSpeedDesc' => 'Khi bật, tốc độ bạn đặt trong trình phát sẽ được lưu làm mặc định và tự động áp dụng cho video mới.',
@@ -5379,6 +5471,7 @@ extension on TranslationsVi {
 			'settings.signatureContent' => 'Nội dung chữ ký',
 			'settings.signaturePreview' => 'Xem trước',
 			'settings.signatureSampleBody' => 'Nội dung của bạn ở đây',
+			'settings.signatureRegenerate' => 'Tạo lại',
 			'settings.signatureNotSet' => 'Chưa đặt',
 			'settings.signatureRuleHint' => 'Chữ ký được thêm sau nội dung, ngăn cách bằng một đường kẻ ngang. Ứng dụng tự thêm đường kẻ — bạn chỉ cần viết dòng bên dưới.',
 			'settings.signatureInsertVariable' => 'Chèn biến',
@@ -5429,6 +5522,19 @@ extension on TranslationsVi {
 			'settings.signatureOptLengthShort' => 'Chỉ câu ngắn',
 			'settings.signatureRestoreDefault' => 'Khôi phục mặc định',
 			'settings.signatureSourceHitokoto' => 'Hitokoto (câu ngẫu nhiên)',
+			'settings.signatureAiSourceName' => 'Câu chữ tạo bởi AI',
+			'settings.signatureEditTextHint' => 'Đây là chữ ký đã có sẵn trong bình luận này — câu trích và ngày giờ giờ chỉ là chữ thường, sửa tuỳ ý. Xoá trống là bỏ chữ ký.',
+			'settings.signatureResolving' => ({required Object name}) => 'Đang tạo ${name}…',
+			'settings.signaturePendingValue' => '(tạo khi gửi)',
+			'settings.signatureAiHint' => 'Một câu do AI viết ngay lúc đó, mỗi bình luận một câu mới. Dùng nhà cung cấp AI bạn đã thiết lập.',
+			'settings.signatureAiUnavailable' => 'Chưa thiết lập nhà cung cấp AI nên nguồn này không hiện trong bảng biến.',
+			'settings.signaturePromptTitle' => 'Prompt',
+			'settings.signaturePromptHint' => 'Đây là thứ được gửi cho mô hình. Viết lại tuỳ ý: giọng điệu, độ dài, chủ đề. Các quy tắc có sẵn trong đó nên giữ lại.',
+			'settings.signaturePromptReset' => 'Khôi phục mặc định',
+			'settings.signaturePromptTry' => 'Thử',
+			'settings.signaturePromptSample' => 'Kết quả',
+			'settings.signaturePromptLanguageHint' => 'sẽ được thay bằng ngôn ngữ giao diện. Bỏ nó đi thì câu sẽ theo ngôn ngữ của prompt.',
+			'settings.signaturePromptEdited' => 'đã sửa',
 			'settings.signatureVariablesGroup' => 'Biến có sẵn',
 			'settings.signatureNeedsNetwork' => 'Cần mạng',
 			'settings.signatureBuiltinSource' => 'Có sẵn',
@@ -5694,6 +5800,8 @@ extension on TranslationsVi {
 			'settings.cdnRefreshServerListTooltip' => 'Làm mới danh sách máy chủ',
 			'settings.cdnSpeedTestButton' => 'Kiểm tra tốc độ',
 			'settings.cdnSpeedTestingButton' => ({required Object count}) => 'Đang kiểm tra (${count})',
+			_ => null,
+		} ?? switch (path) {
 			'settings.cdnNoServerDataHint' => 'Không có dữ liệu máy chủ, vui lòng nhấn nút làm mới',
 			'settings.cdnTestingStatus' => 'Đang kiểm tra',
 			'settings.cdnUnreachableStatus' => 'Không thể kết nối',
@@ -5711,8 +5819,6 @@ extension on TranslationsVi {
 			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => 'Cấp quyền lưu trữ thất bại nhưng một số tính năng có thể bị hạn chế',
 			'settings.downloadSettings.storagePermissionRationale' => 'Để lưu tệp tải xuống vào thư mục bạn chọn, ứng dụng cần quyền truy cập bộ nhớ.\n\nTrên Android 11 trở lên, điều này có nghĩa là quyền "truy cập mọi tệp"; nếu không có, tệp sẽ được lưu vào thư mục riêng của ứng dụng.',
 			'settings.downloadSettings.storagePermissionRationaleLegacy' => 'Để lưu tệp tải xuống vào thư mục bạn chọn, ứng dụng cần quyền truy cập bộ nhớ.\n\nNếu không có, tệp sẽ được lưu vào thư mục riêng của ứng dụng.',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.grantStoragePermission' => 'Cấp quyền lưu trữ',
 			'settings.downloadSettings.customDownloadPath' => 'Đường dẫn tải xuống tùy chỉnh',
 			'settings.downloadSettings.customDownloadPathDescription' => 'Khi bật, bạn có thể chọn vị trí lưu tùy chỉnh cho tệp tải xuống',
@@ -6208,6 +6314,8 @@ extension on TranslationsVi {
 			'markdown.iwaraSpecialMarkdownSyntax' => 'Cú pháp Markdown đặc biệt của Iwara',
 			'markdown.internalLink' => 'Liên kết nội bộ',
 			'markdown.supportAutoConvertLinkBelow' => 'Hỗ trợ tự động chuyển đổi liên kết dưới đây:',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.convertLinkExample' => '🎬 Liên kết video\n🖼️ Liên kết ảnh\n👤 Liên kết người dùng\n📌 Liên kết diễn đàn\n🎵 Liên kết danh sách phát\n💬 Liên kết chủ đề',
 			'markdown.mentionUser' => 'Nhắc tên người dùng',
 			'markdown.mentionUserDescription' => 'Nhập @ theo sau là tên người dùng, sẽ tự động chuyển thành liên kết người dùng',
@@ -6225,8 +6333,6 @@ extension on TranslationsVi {
 			'markdown.listDescription' => 'Tạo danh sách có thứ tự bằng số + dấu chấm, tạo danh sách không thứ tự bằng dấu -',
 			'markdown.listSyntax' => '1. Mục thứ nhất\n2. Mục thứ hai\n\n- Mục không thứ tự\n  - Mục con\n  - Mục con khác',
 			'markdown.linkAndImage' => 'Liên kết và hình ảnh',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.linkAndImageDescription' => 'Định dạng liên kết: [văn bản](URL)\nĐịnh dạng ảnh: ![mô tả](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[văn bản liên kết](${link})\n![mô tả ảnh](${imgUrl})',
 			'markdown.title' => 'Tiêu đề',
@@ -6303,6 +6409,8 @@ extension on TranslationsVi {
 			'forum.leafDescriptions.other' => 'Nội dung khác chưa được phân loại',
 			'forum.reply' => 'Trả lời',
 			'forum.pendingReview' => 'Đang chờ duyệt',
+			'forum.floorNotFound' => 'Bài trả lời đó không tồn tại hoặc đã bị xóa',
+			'forum.floorNotLoadedYet' => 'Bài đó ở phía trên — tải thêm để nhảy tới',
 			'forum.editedAt' => 'Chỉnh sửa lúc',
 			'forum.copySuccess' => 'Đã sao chép vào clipboard',
 			'forum.copySuccessForMessage' => ({required Object str}) => 'Đã sao chép vào clipboard: ${str}',
@@ -6720,6 +6828,8 @@ extension on TranslationsVi {
 			'download.relocation.sectionNotAttempted' => 'Not processed (stopped, left as is)',
 			'download.relocation.unexpectedError' => ({required Object message}) => 'Stopped because of an error: ${message}. Items already moved are complete.',
 			'download.category.manageTitle' => 'Quản lý danh mục',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.label' => 'Danh mục',
 			'download.category.uncategorized' => 'Chưa phân loại',
 			'download.category.manage' => 'Quản lý',
@@ -6739,8 +6849,6 @@ extension on TranslationsVi {
 			'download.category.renameSuccess' => 'Đã đổi tên danh mục',
 			'download.category.renameFailed' => 'Đổi tên danh mục thất bại',
 			'download.category.deleteTitle' => 'Xóa danh mục',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'Xóa danh mục "${title}"? ${count} mục bên trong sẽ chuyển vào Chưa phân loại. Không có tệp nào bị xóa.',
 			'download.category.deleteSuccess' => 'Đã xóa danh mục',
 			'download.category.deleteFailed' => 'Xóa danh mục thất bại',
@@ -7234,6 +7342,8 @@ extension on TranslationsVi {
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'Tại ${position}',
 			'mediaPlayer.notice.noIssuesRecorded' => 'Không ghi nhận vấn đề nào',
 			'mediaPlayer.notice.exportLogsAction' => 'Xuất nhật ký',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.imageLoadFailed' => 'Tải ảnh thất bại',
 			'mediaPlayer.unsupportedImageFormat' => 'Định dạng ảnh không được hỗ trợ',
 			'mediaPlayer.tryOtherViewer' => 'Vui lòng thử dùng trình xem khác',
@@ -7253,8 +7363,6 @@ extension on TranslationsVi {
 			'diagnostics.schemaHealthRepairedBefore' => 'Trước đây đã được lưới an toàn sửa chữa',
 			'diagnostics.logPolicySectionTitle' => 'Chính sách nhật ký',
 			'diagnostics.configServiceUnavailable' => 'Dịch vụ cấu hình chưa được khởi tạo. Không thể điều chỉnh chính sách nhật ký.',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.enableLoggingTitle' => 'Bật ghi nhật ký',
 			'diagnostics.enableLoggingSubtitle' => 'Tắt để ngừng ghi nhật ký mới',
 			'diagnostics.enableLogPersistenceTitle' => 'Bật lưu nhật ký lâu dài',
@@ -7748,6 +7856,8 @@ extension on TranslationsVi {
 			'watchLater.removedFromWatchLater' => 'Đã xóa khỏi Xem sau',
 			'watchLater.removedCount' => ({required Object count}) => 'Đã xóa ${count} mục',
 			'watchLater.viewWatchLaterList' => 'Xem danh sách',
+			_ => null,
+		} ?? switch (path) {
 			'watchLater.addFailed' => 'Thêm vào Xem sau thất bại',
 			'watchLater.invalidItem' => 'Không khả dụng',
 			'watchLater.clearWatched' => 'Xóa các mục đã xem',
@@ -7767,8 +7877,6 @@ extension on TranslationsVi {
 			'watchLater.emptyUnwatchedVideo' => 'Không còn gì để xem ở đây',
 			'watchLater.emptyUnwatchedGallery' => 'Không còn gì để xem ở đây',
 			'watchLater.queueLoadFailed' => 'Tải thất bại, nhấn để thử lại',
-			_ => null,
-		} ?? switch (path) {
 			'mediaMenu.like' => 'Thích',
 			'mediaMenu.unlike' => 'Bỏ thích',
 			'mediaMenu.viewAuthor' => 'Xem tác giả',
@@ -8115,6 +8223,66 @@ extension on TranslationsVi {
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'Xóa "${tab}"',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Toàn bộ lịch sử trong "${tab}" sẽ bị xóa, kèm tiến độ xem của các video đó. Không thể hoàn tác.',
 			'historyPage.rangeByLastViewed' => 'Lọc theo thời gian xem gần nhất',
+			'ai.title' => 'AI',
+			'ai.providers' => 'Nhà cung cấp',
+			'ai.providersHint' => 'Thêm một hoặc nhiều nhà cung cấp AI, sau đó chọn nhà cung cấp cho từng tính năng.',
+			'ai.addProvider' => 'Thêm nhà cung cấp',
+			'ai.noProviders' => 'Chưa có nhà cung cấp nào. Hãy thêm để bật tính năng dịch, tìm kiếm và chữ ký bằng AI.',
+			'ai.pickPreset' => 'Chọn nhà cung cấp',
+			'ai.providerNameLabel' => 'Tên',
+			'ai.apiKey' => 'Khóa API',
+			'ai.baseUrl' => 'Điểm cuối',
+			'ai.model' => 'Mô hình',
+			'ai.modelPick' => 'Chọn mô hình',
+			'ai.modelEmpty' => 'Không thể tải danh sách mô hình — bạn cũng có thể nhập trực tiếp tên mô hình.',
+			'ai.advanced' => 'Nâng cao',
+			'ai.reasoning' => 'Mô hình suy luận',
+			'ai.streaming' => 'Đầu ra dạng luồng',
+			'ai.structuredOutput' => 'Đầu ra có cấu trúc',
+			'ai.structuredOutputHint' => 'Cần thiết cho tìm kiếm AI. Nhiều endpoint trung gian không hỗ trợ — hãy tắt nếu tìm kiếm liên tục thất bại.',
+			'ai.temperature' => 'Nhiệt độ',
+			'ai.maxTokens' => 'Token tối đa',
+			'ai.maxTokensAuto' => 'Tự động (giới hạn mô hình)',
+			'ai.test' => 'Kiểm tra',
+			'ai.testOk' => 'Kết nối thành công',
+			'ai.deleteProvider' => 'Xóa nhà cung cấp',
+			'ai.usedBy' => 'Đang dùng cho',
+			'ai.taskBindings' => 'Phân bổ tính năng',
+			'ai.taskBindingsHint' => 'Mỗi tính năng có thể dùng một nhà cung cấp khác nhau.',
+			'ai.taskTranslate' => 'Dịch thuật',
+			'ai.taskSearch' => 'Tìm kiếm AI',
+			'ai.taskSignature' => 'Chữ ký',
+			'ai.taskAuto' => 'Tự động',
+			'ai.usage' => 'Mức sử dụng',
+			'ai.usageCalls' => 'Lượt gọi',
+			'ai.usageTokens' => 'Số token',
+			'ai.usageFailures' => 'Thất bại',
+			'ai.usageReset' => 'Xóa thống kê',
+			'ai.usageEmpty' => 'Chưa có lượt gọi nào',
+			'ai.openSettings' => 'Mở cài đặt AI',
+			'ai.notConfigured' => 'Chưa định cấu hình',
+			'ai.searchTitle' => 'Tìm kiếm AI',
+			'ai.searchHint' => 'Mô tả nội dung bạn muốn tìm; AI sẽ điền các từ khóa tìm kiếm và bộ lọc.',
+			'ai.searchPlaceholder' => 'vd: MMD mới nhất có hơn 10k lượt xem',
+			'ai.searchApply' => 'Tìm kiếm bằng các điều kiện này',
+			'ai.searchEmpty' => 'Không thể tạo từ khóa tìm kiếm từ mô tả này. Hãy thử diễn đạt theo cách khác.',
+			'ai.searchFilters' => 'Bộ lọc',
+			'ai.searchSwitchSegment' => ({required Object segment}) => 'Chuyển sang ${segment}',
+			'ai.searchGenerating' => 'Đang suy nghĩ…',
+			'ai.searchRetrying' => 'Lần trước thất bại, đang thử lại…',
+			'ai.searchRetryReason' => ({required Object reason}) => 'Lý do: ${reason}',
+			'ai.searchStageWaiting' => 'Đã gửi yêu cầu, đang chờ phản hồi…',
+			'ai.searchStageThinkingNext' => 'Đang nghĩ bước tiếp theo…',
+			'ai.searchStageReasoning' => 'Đang suy luận…',
+			'ai.searchStageTool' => 'Đang thử tìm kiếm…',
+			'ai.searchStageDrafting' => ({required Object chars}) => 'Đang viết câu trả lời · ${chars} ký tự',
+			'ai.searchStageParsing' => 'Đang sắp xếp kết quả…',
+			'ai.searchThinking' => 'Quá trình suy luận',
+			'ai.searchKeywordNeedsQuotes' => 'Từ khoá này không đặt trong dấu ngoặc kép nên Iwara khớp lỏng lẻo — với kiểu sắp xếp này trang đầu phần lớn sẽ không liên quan. Hãy đặt nó trong "dấu ngoặc kép", hoặc sắp xếp theo độ liên quan.',
+			'ai.searchToolProbing' => ({required Object query}) => 'Thử tìm ${query}',
+			'ai.searchToolFound' => ({required Object count, required Object titles}) => '${count} kết quả · ${titles}',
+			'ai.searchToolFailed' => ({required Object reason}) => 'Không chạy được: ${reason}',
+			'ai.searchFiltersDropped' => ({required Object count}) => 'Đã bỏ ${count} bộ lọc không có trong mục này.',
 			_ => null,
 		};
 	}

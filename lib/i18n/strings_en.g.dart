@@ -98,6 +98,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsVrFormatEn vrFormat = TranslationsVrFormatEn.internal(_root);
 	late final TranslationsLocalMediaEn localMedia = TranslationsLocalMediaEn.internal(_root);
 	late final TranslationsHistoryPageEn historyPage = TranslationsHistoryPageEn.internal(_root);
+	late final TranslationsAiEn ai = TranslationsAiEn.internal(_root);
 }
 
 // Path: personalProfile
@@ -1507,6 +1508,15 @@ class TranslationsSearchEn {
 	/// en: 'Please enter search content'
 	String get pleaseEnterSearchContent => 'Please enter search content';
 
+	/// en: 'Exact'
+	String get exactMatch => 'Exact';
+
+	/// en: 'Matching the phrase exactly, and searching Chinese and Japanese titles too. Tap for a looser search.'
+	String get exactMatchOnHint => 'Matching the phrase exactly, and searching Chinese and Japanese titles too. Tap for a looser search.';
+
+	/// en: 'Loose matching — Iwara splits the words up. Tap to match the exact phrase.'
+	String get exactMatchOffHint => 'Loose matching — Iwara splits the words up. Tap to match the exact phrase.';
+
 	/// en: 'Search History'
 	String get searchHistory => 'Search History';
 
@@ -2221,6 +2231,9 @@ class TranslationsSettingsEn {
 	/// en: 'Your message goes here'
 	String get signatureSampleBody => 'Your message goes here';
 
+	/// en: 'Regenerate'
+	String get signatureRegenerate => 'Regenerate';
+
 	/// en: 'Not set'
 	String get signatureNotSet => 'Not set';
 
@@ -2370,6 +2383,45 @@ class TranslationsSettingsEn {
 
 	/// en: 'Hitokoto (random quote)'
 	String get signatureSourceHitokoto => 'Hitokoto (random quote)';
+
+	/// en: 'AI-written line'
+	String get signatureAiSourceName => 'AI-written line';
+
+	/// en: 'This is the signature already written into this comment — the quote line and the AI line are plain text now, edit them however you like. Clear it to drop the signature.'
+	String get signatureEditTextHint => 'This is the signature already written into this comment — the quote line and the AI line are plain text now, edit them however you like. Clear it to drop the signature.';
+
+	/// en: 'Generating ${name}…'
+	String signatureResolving({required Object name}) => 'Generating ${name}…';
+
+	/// en: '(generated when you send)'
+	String get signaturePendingValue => '(generated when you send)';
+
+	/// en: 'A line written by AI on the spot, fresh for every comment. Uses the AI provider you configured.'
+	String get signatureAiHint => 'A line written by AI on the spot, fresh for every comment. Uses the AI provider you configured.';
+
+	/// en: 'No AI provider configured yet, so this source stays hidden in the variable panel.'
+	String get signatureAiUnavailable => 'No AI provider configured yet, so this source stays hidden in the variable panel.';
+
+	/// en: 'Prompt'
+	String get signaturePromptTitle => 'Prompt';
+
+	/// en: 'This is what gets sent to the model. Rewrite it however you like — tone, length, subject. The rules already in there are the ones worth keeping.'
+	String get signaturePromptHint => 'This is what gets sent to the model. Rewrite it however you like — tone, length, subject. The rules already in there are the ones worth keeping.';
+
+	/// en: 'Restore default'
+	String get signaturePromptReset => 'Restore default';
+
+	/// en: 'Try it'
+	String get signaturePromptTry => 'Try it';
+
+	/// en: 'What it wrote'
+	String get signaturePromptSample => 'What it wrote';
+
+	/// en: 'is replaced with your interface language. Remove it and the line follows the prompt's language instead.'
+	String get signaturePromptLanguageHint => 'is replaced with your interface language. Remove it and the line follows the prompt\'s language instead.';
+
+	/// en: 'edited'
+	String get signaturePromptEdited => 'edited';
 
 	/// en: 'Built-in variables'
 	String get signatureVariablesGroup => 'Built-in variables';
@@ -3387,6 +3439,12 @@ class TranslationsForumEn {
 
 	/// en: 'Pending Review'
 	String get pendingReview => 'Pending Review';
+
+	/// en: 'That post no longer exists'
+	String get floorNotFound => 'That post no longer exists';
+
+	/// en: 'That post is further up — load more replies to jump to it'
+	String get floorNotLoadedYet => 'That post is further up — load more replies to jump to it';
 
 	/// en: 'Edited At'
 	String get editedAt => 'Edited At';
@@ -7159,6 +7217,195 @@ class TranslationsHistoryPageEn {
 
 	/// en: 'Filtered by last viewed time'
 	String get rangeByLastViewed => 'Filtered by last viewed time';
+}
+
+// Path: ai
+class TranslationsAiEn {
+	TranslationsAiEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'AI'
+	String get title => 'AI';
+
+	/// en: 'Providers'
+	String get providers => 'Providers';
+
+	/// en: 'Add one or more AI providers, then pick which one each feature uses.'
+	String get providersHint => 'Add one or more AI providers, then pick which one each feature uses.';
+
+	/// en: 'Add provider'
+	String get addProvider => 'Add provider';
+
+	/// en: 'No providers yet. Add one to enable AI translation, search and signature.'
+	String get noProviders => 'No providers yet. Add one to enable AI translation, search and signature.';
+
+	/// en: 'Pick a provider'
+	String get pickPreset => 'Pick a provider';
+
+	/// en: 'Name'
+	String get providerNameLabel => 'Name';
+
+	/// en: 'API key'
+	String get apiKey => 'API key';
+
+	/// en: 'Endpoint'
+	String get baseUrl => 'Endpoint';
+
+	/// en: 'Model'
+	String get model => 'Model';
+
+	/// en: 'Pick a model'
+	String get modelPick => 'Pick a model';
+
+	/// en: 'Could not load the model list — typing a model name works too.'
+	String get modelEmpty => 'Could not load the model list — typing a model name works too.';
+
+	/// en: 'Advanced'
+	String get advanced => 'Advanced';
+
+	/// en: 'Reasoning model'
+	String get reasoning => 'Reasoning model';
+
+	/// en: 'Stream output'
+	String get streaming => 'Stream output';
+
+	/// en: 'Structured output'
+	String get structuredOutput => 'Structured output';
+
+	/// en: 'Needed for AI search. Many relay endpoints ignore it — turn it off if search keeps failing.'
+	String get structuredOutputHint => 'Needed for AI search. Many relay endpoints ignore it — turn it off if search keeps failing.';
+
+	/// en: 'Temperature'
+	String get temperature => 'Temperature';
+
+	/// en: 'Max tokens'
+	String get maxTokens => 'Max tokens';
+
+	/// en: 'Auto (model limit)'
+	String get maxTokensAuto => 'Auto (model limit)';
+
+	/// en: 'Test'
+	String get test => 'Test';
+
+	/// en: 'Connection works'
+	String get testOk => 'Connection works';
+
+	/// en: 'Delete provider'
+	String get deleteProvider => 'Delete provider';
+
+	/// en: 'Used by'
+	String get usedBy => 'Used by';
+
+	/// en: 'Feature assignment'
+	String get taskBindings => 'Feature assignment';
+
+	/// en: 'Each feature can use a different provider.'
+	String get taskBindingsHint => 'Each feature can use a different provider.';
+
+	/// en: 'Translation'
+	String get taskTranslate => 'Translation';
+
+	/// en: 'AI search'
+	String get taskSearch => 'AI search';
+
+	/// en: 'Signature'
+	String get taskSignature => 'Signature';
+
+	/// en: 'Automatic'
+	String get taskAuto => 'Automatic';
+
+	/// en: 'Usage'
+	String get usage => 'Usage';
+
+	/// en: 'Calls'
+	String get usageCalls => 'Calls';
+
+	/// en: 'Tokens'
+	String get usageTokens => 'Tokens';
+
+	/// en: 'Failures'
+	String get usageFailures => 'Failures';
+
+	/// en: 'Clear stats'
+	String get usageReset => 'Clear stats';
+
+	/// en: 'No calls yet'
+	String get usageEmpty => 'No calls yet';
+
+	/// en: 'Open AI settings'
+	String get openSettings => 'Open AI settings';
+
+	/// en: 'Not configured'
+	String get notConfigured => 'Not configured';
+
+	/// en: 'AI search'
+	String get searchTitle => 'AI search';
+
+	/// en: 'Describe what you are looking for; AI fills in the search terms and filters.'
+	String get searchHint => 'Describe what you are looking for; AI fills in the search terms and filters.';
+
+	/// en: 'e.g. recent MMD with over 10k views'
+	String get searchPlaceholder => 'e.g. recent MMD with over 10k views';
+
+	/// en: 'Search with these'
+	String get searchApply => 'Search with these';
+
+	/// en: 'Could not turn that into search terms. Try describing it differently.'
+	String get searchEmpty => 'Could not turn that into search terms. Try describing it differently.';
+
+	/// en: 'Filters'
+	String get searchFilters => 'Filters';
+
+	/// en: 'Switch to ${segment}'
+	String searchSwitchSegment({required Object segment}) => 'Switch to ${segment}';
+
+	/// en: 'Thinking…'
+	String get searchGenerating => 'Thinking…';
+
+	/// en: 'Last attempt failed, retrying…'
+	String get searchRetrying => 'Last attempt failed, retrying…';
+
+	/// en: 'Reason: ${reason}'
+	String searchRetryReason({required Object reason}) => 'Reason: ${reason}';
+
+	/// en: 'Sent — waiting for a reply…'
+	String get searchStageWaiting => 'Sent — waiting for a reply…';
+
+	/// en: 'Thinking about what comes next…'
+	String get searchStageThinkingNext => 'Thinking about what comes next…';
+
+	/// en: 'Reasoning…'
+	String get searchStageReasoning => 'Reasoning…';
+
+	/// en: 'Test-searching…'
+	String get searchStageTool => 'Test-searching…';
+
+	/// en: 'Writing the answer · ${chars} chars'
+	String searchStageDrafting({required Object chars}) => 'Writing the answer · ${chars} chars';
+
+	/// en: 'Sorting out the result…'
+	String get searchStageParsing => 'Sorting out the result…';
+
+	/// en: 'Reasoning'
+	String get searchThinking => 'Reasoning';
+
+	/// en: 'This keyword is not quoted, so Iwara matches it loosely — under this sort the first page will be mostly unrelated. Put it in "quotes", or sort by relevance.'
+	String get searchKeywordNeedsQuotes => 'This keyword is not quoted, so Iwara matches it loosely — under this sort the first page will be mostly unrelated. Put it in "quotes", or sort by relevance.';
+
+	/// en: 'Trying ${query}'
+	String searchToolProbing({required Object query}) => 'Trying ${query}';
+
+	/// en: '${count} results · ${titles}'
+	String searchToolFound({required Object count, required Object titles}) => '${count} results · ${titles}';
+
+	/// en: 'Couldn't run it: ${reason}'
+	String searchToolFailed({required Object reason}) => 'Couldn\'t run it: ${reason}';
+
+	/// en: 'Removed ${count} filter(s) this section does not have.'
+	String searchFiltersDropped({required Object count}) => 'Removed ${count} filter(s) this section does not have.';
 }
 
 // Path: common.pagination
@@ -12008,6 +12255,9 @@ extension on Translations {
 			'search.contentRating' => 'Content Rating',
 			'search.removeTag' => 'Remove Tag',
 			'search.pleaseEnterSearchContent' => 'Please enter search content',
+			'search.exactMatch' => 'Exact',
+			'search.exactMatchOnHint' => 'Matching the phrase exactly, and searching Chinese and Japanese titles too. Tap for a looser search.',
+			'search.exactMatchOffHint' => 'Loose matching — Iwara splits the words up. Tap to match the exact phrase.',
 			'search.searchHistory' => 'Search History',
 			'search.searchSuggestion' => 'Search Suggestion',
 			'search.usedTimes' => 'Used Times',
@@ -12057,11 +12307,11 @@ extension on Translations {
 			'settings.fastForwardTime' => 'Fast Forward Time',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => 'Fast forward time must be a positive integer.',
 			'settings.rewindTime' => 'Rewind Time',
+			_ => null,
+		} ?? switch (path) {
 			'settings.rewindTimeMustBeAPositiveInteger' => 'Rewind time must be a positive integer.',
 			'settings.longPressPlaybackSpeed' => 'Long Press Playback Speed',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'Long press playback speed must be a positive number.',
-			_ => null,
-		} ?? switch (path) {
 			'settings.defaultPlaybackSpeed' => 'Default Playback Speed',
 			'settings.rememberPlaybackSpeed' => 'Remember Playback Speed',
 			'settings.rememberPlaybackSpeedDesc' => 'When enabled, the speed you set in the player is saved as the default and applied automatically to new videos.',
@@ -12242,6 +12492,7 @@ extension on Translations {
 			'settings.signatureContent' => 'Signature Content',
 			'settings.signaturePreview' => 'Preview',
 			'settings.signatureSampleBody' => 'Your message goes here',
+			'settings.signatureRegenerate' => 'Regenerate',
 			'settings.signatureNotSet' => 'Not set',
 			'settings.signatureRuleHint' => 'Your signature is appended after the body, separated by a horizontal rule. The app adds the rule for you — just write the line below.',
 			'settings.signatureInsertVariable' => 'Insert a variable',
@@ -12292,6 +12543,19 @@ extension on Translations {
 			'settings.signatureOptLengthShort' => 'Short lines only',
 			'settings.signatureRestoreDefault' => 'Restore default',
 			'settings.signatureSourceHitokoto' => 'Hitokoto (random quote)',
+			'settings.signatureAiSourceName' => 'AI-written line',
+			'settings.signatureEditTextHint' => 'This is the signature already written into this comment — the quote line and the AI line are plain text now, edit them however you like. Clear it to drop the signature.',
+			'settings.signatureResolving' => ({required Object name}) => 'Generating ${name}…',
+			'settings.signaturePendingValue' => '(generated when you send)',
+			'settings.signatureAiHint' => 'A line written by AI on the spot, fresh for every comment. Uses the AI provider you configured.',
+			'settings.signatureAiUnavailable' => 'No AI provider configured yet, so this source stays hidden in the variable panel.',
+			'settings.signaturePromptTitle' => 'Prompt',
+			'settings.signaturePromptHint' => 'This is what gets sent to the model. Rewrite it however you like — tone, length, subject. The rules already in there are the ones worth keeping.',
+			'settings.signaturePromptReset' => 'Restore default',
+			'settings.signaturePromptTry' => 'Try it',
+			'settings.signaturePromptSample' => 'What it wrote',
+			'settings.signaturePromptLanguageHint' => 'is replaced with your interface language. Remove it and the line follows the prompt\'s language instead.',
+			'settings.signaturePromptEdited' => 'edited',
 			'settings.signatureVariablesGroup' => 'Built-in variables',
 			'settings.signatureNeedsNetwork' => 'Needs network',
 			'settings.signatureBuiltinSource' => 'Built-in',
@@ -12557,6 +12821,8 @@ extension on Translations {
 			'settings.cdnRefreshServerListTooltip' => 'Refresh server list',
 			'settings.cdnSpeedTestButton' => 'Speed Test',
 			'settings.cdnSpeedTestingButton' => ({required Object count}) => 'Testing (${count})',
+			_ => null,
+		} ?? switch (path) {
 			'settings.cdnNoServerDataHint' => 'No server data available, please click the refresh button',
 			'settings.cdnTestingStatus' => 'Testing',
 			'settings.cdnUnreachableStatus' => 'Unreachable',
@@ -12574,8 +12840,6 @@ extension on Translations {
 			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => 'Storage Permission Grant Failed But Some Features May Be Limited',
 			'settings.downloadSettings.storagePermissionRationale' => 'To save downloads to the folder you pick, the app needs storage access.\n\nOn Android 11 and later this means the "All files access" permission; without it, files are saved to the app-private folder instead.',
 			'settings.downloadSettings.storagePermissionRationaleLegacy' => 'To save downloads to the folder you pick, the app needs storage access.\n\nWithout it, files are saved to the app-private folder instead.',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.grantStoragePermission' => 'Grant Storage Permission',
 			'settings.downloadSettings.customDownloadPath' => 'Custom Download Path',
 			'settings.downloadSettings.customDownloadPathDescription' => 'When enabled, you can choose a custom save location for downloaded files',
@@ -13071,6 +13335,8 @@ extension on Translations {
 			'markdown.iwaraSpecialMarkdownSyntax' => 'Iwara Special Markdown Syntax',
 			'markdown.internalLink' => 'Internal Link',
 			'markdown.supportAutoConvertLinkBelow' => 'Support auto convert link below:',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.convertLinkExample' => '🎬 Video Link\n🖼️ Image Link\n👤 User Link\n📌 Forum Link\n🎵 Playlist Link\n💬 Thread Link',
 			'markdown.mentionUser' => 'Mention User',
 			'markdown.mentionUserDescription' => 'Input @ followed by username, will be automatically converted to user link',
@@ -13088,8 +13354,6 @@ extension on Translations {
 			'markdown.listDescription' => 'Create ordered list with number+dot, create unordered list with -',
 			'markdown.listSyntax' => '1. First item\n2. Second item\n\n- Unordered item\n  - Subitem\n  - Another subitem',
 			'markdown.linkAndImage' => 'Link and Image',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.linkAndImageDescription' => 'Link format: [text](URL)\nImage format: ![description](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[link text](${link})\n![image description](${imgUrl})',
 			'markdown.title' => 'Title',
@@ -13166,6 +13430,8 @@ extension on Translations {
 			'forum.leafDescriptions.other' => 'Other unclassified content',
 			'forum.reply' => 'Reply',
 			'forum.pendingReview' => 'Pending Review',
+			'forum.floorNotFound' => 'That post no longer exists',
+			'forum.floorNotLoadedYet' => 'That post is further up — load more replies to jump to it',
 			'forum.editedAt' => 'Edited At',
 			'forum.copySuccess' => 'Copied to clipboard',
 			'forum.copySuccessForMessage' => ({required Object str}) => 'Copied to clipboard: ${str}',
@@ -13583,6 +13849,8 @@ extension on Translations {
 			'download.relocation.sectionNotAttempted' => 'Not processed (stopped, left as is)',
 			'download.relocation.unexpectedError' => ({required Object message}) => 'Stopped because of an error: ${message}. Items already moved are complete.',
 			'download.category.manageTitle' => 'Manage categories',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.label' => 'Categories',
 			'download.category.uncategorized' => 'Uncategorized',
 			'download.category.manage' => 'Manage',
@@ -13602,8 +13870,6 @@ extension on Translations {
 			'download.category.renameSuccess' => 'Category renamed',
 			'download.category.renameFailed' => 'Failed to rename category',
 			'download.category.deleteTitle' => 'Delete category',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'Delete the category "${title}"? The ${count} items in it move to Uncategorized. No files are deleted.',
 			'download.category.deleteSuccess' => 'Category deleted',
 			'download.category.deleteFailed' => 'Failed to delete category',
@@ -14097,6 +14363,8 @@ extension on Translations {
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'At ${position}',
 			'mediaPlayer.notice.noIssuesRecorded' => 'No issues recorded',
 			'mediaPlayer.notice.exportLogsAction' => 'Export logs',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.imageLoadFailed' => 'Image Load Failed',
 			'mediaPlayer.unsupportedImageFormat' => 'Unsupported Image Format',
 			'mediaPlayer.tryOtherViewer' => 'Please try using other viewers',
@@ -14116,8 +14384,6 @@ extension on Translations {
 			'diagnostics.schemaHealthRepairedBefore' => 'Was repaired by the safety net before',
 			'diagnostics.logPolicySectionTitle' => 'Log Policy',
 			'diagnostics.configServiceUnavailable' => 'Config service is not initialized. Log policy cannot be adjusted.',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.enableLoggingTitle' => 'Enable logging',
 			'diagnostics.enableLoggingSubtitle' => 'Disable to stop writing new logs',
 			'diagnostics.enableLogPersistenceTitle' => 'Enable log persistence',
@@ -14611,6 +14877,8 @@ extension on Translations {
 			'watchLater.removedFromWatchLater' => 'Removed from Watch Later',
 			'watchLater.removedCount' => ({required Object count}) => 'Removed ${count} items',
 			'watchLater.viewWatchLaterList' => 'View list',
+			_ => null,
+		} ?? switch (path) {
 			'watchLater.addFailed' => 'Failed to add to Watch Later',
 			'watchLater.invalidItem' => 'Unavailable',
 			'watchLater.clearWatched' => 'Clear watched',
@@ -14630,8 +14898,6 @@ extension on Translations {
 			'watchLater.emptyUnwatchedVideo' => 'Nothing left to watch here',
 			'watchLater.emptyUnwatchedGallery' => 'Nothing left to view here',
 			'watchLater.queueLoadFailed' => 'Failed to load, tap to retry',
-			_ => null,
-		} ?? switch (path) {
 			'mediaMenu.like' => 'Like',
 			'mediaMenu.unlike' => 'Unlike',
 			'mediaMenu.viewAuthor' => 'View author',
@@ -14978,6 +15244,66 @@ extension on Translations {
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'Clear "${tab}"',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'All history in "${tab}" will be deleted, along with the watch progress of those videos. This cannot be undone.',
 			'historyPage.rangeByLastViewed' => 'Filtered by last viewed time',
+			'ai.title' => 'AI',
+			'ai.providers' => 'Providers',
+			'ai.providersHint' => 'Add one or more AI providers, then pick which one each feature uses.',
+			'ai.addProvider' => 'Add provider',
+			'ai.noProviders' => 'No providers yet. Add one to enable AI translation, search and signature.',
+			'ai.pickPreset' => 'Pick a provider',
+			'ai.providerNameLabel' => 'Name',
+			'ai.apiKey' => 'API key',
+			'ai.baseUrl' => 'Endpoint',
+			'ai.model' => 'Model',
+			'ai.modelPick' => 'Pick a model',
+			'ai.modelEmpty' => 'Could not load the model list — typing a model name works too.',
+			'ai.advanced' => 'Advanced',
+			'ai.reasoning' => 'Reasoning model',
+			'ai.streaming' => 'Stream output',
+			'ai.structuredOutput' => 'Structured output',
+			'ai.structuredOutputHint' => 'Needed for AI search. Many relay endpoints ignore it — turn it off if search keeps failing.',
+			'ai.temperature' => 'Temperature',
+			'ai.maxTokens' => 'Max tokens',
+			'ai.maxTokensAuto' => 'Auto (model limit)',
+			'ai.test' => 'Test',
+			'ai.testOk' => 'Connection works',
+			'ai.deleteProvider' => 'Delete provider',
+			'ai.usedBy' => 'Used by',
+			'ai.taskBindings' => 'Feature assignment',
+			'ai.taskBindingsHint' => 'Each feature can use a different provider.',
+			'ai.taskTranslate' => 'Translation',
+			'ai.taskSearch' => 'AI search',
+			'ai.taskSignature' => 'Signature',
+			'ai.taskAuto' => 'Automatic',
+			'ai.usage' => 'Usage',
+			'ai.usageCalls' => 'Calls',
+			'ai.usageTokens' => 'Tokens',
+			'ai.usageFailures' => 'Failures',
+			'ai.usageReset' => 'Clear stats',
+			'ai.usageEmpty' => 'No calls yet',
+			'ai.openSettings' => 'Open AI settings',
+			'ai.notConfigured' => 'Not configured',
+			'ai.searchTitle' => 'AI search',
+			'ai.searchHint' => 'Describe what you are looking for; AI fills in the search terms and filters.',
+			'ai.searchPlaceholder' => 'e.g. recent MMD with over 10k views',
+			'ai.searchApply' => 'Search with these',
+			'ai.searchEmpty' => 'Could not turn that into search terms. Try describing it differently.',
+			'ai.searchFilters' => 'Filters',
+			'ai.searchSwitchSegment' => ({required Object segment}) => 'Switch to ${segment}',
+			'ai.searchGenerating' => 'Thinking…',
+			'ai.searchRetrying' => 'Last attempt failed, retrying…',
+			'ai.searchRetryReason' => ({required Object reason}) => 'Reason: ${reason}',
+			'ai.searchStageWaiting' => 'Sent — waiting for a reply…',
+			'ai.searchStageThinkingNext' => 'Thinking about what comes next…',
+			'ai.searchStageReasoning' => 'Reasoning…',
+			'ai.searchStageTool' => 'Test-searching…',
+			'ai.searchStageDrafting' => ({required Object chars}) => 'Writing the answer · ${chars} chars',
+			'ai.searchStageParsing' => 'Sorting out the result…',
+			'ai.searchThinking' => 'Reasoning',
+			'ai.searchKeywordNeedsQuotes' => 'This keyword is not quoted, so Iwara matches it loosely — under this sort the first page will be mostly unrelated. Put it in "quotes", or sort by relevance.',
+			'ai.searchToolProbing' => ({required Object query}) => 'Trying ${query}',
+			'ai.searchToolFound' => ({required Object count, required Object titles}) => '${count} results · ${titles}',
+			'ai.searchToolFailed' => ({required Object reason}) => 'Couldn\'t run it: ${reason}',
+			'ai.searchFiltersDropped' => ({required Object count}) => 'Removed ${count} filter(s) this section does not have.',
 			_ => null,
 		};
 	}

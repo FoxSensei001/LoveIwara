@@ -494,6 +494,9 @@ search:
   contentRating: Peringkat Konten
   removeTag: Hapus Tag
   pleaseEnterSearchContent: Silakan masukkan konten pencarian
+  exactMatch: "Persis"
+  exactMatchOnHint: "Mencocokkan frasa persis, sekaligus mencari judul berbahasa Mandarin dan Jepang. Ketuk untuk pencarian yang lebih longgar."
+  exactMatchOffHint: "Pencocokan longgar — Iwara memecah kata. Ketuk untuk frasa persis."
   searchHistory: Riwayat Pencarian
   searchSuggestion: Saran Pencarian
   usedTimes: Jumlah Penggunaan
@@ -729,6 +732,7 @@ settings:
   signatureContent: Isi Tanda Tangan
   signaturePreview: 'Pratinjau'
   signatureSampleBody: 'Tulisan kamu di sini'
+  signatureRegenerate: 'Buat ulang'
   signatureNotSet: 'Belum diatur'
   signatureRuleHint: "Tanda tangan ditambahkan setelah isi, dipisahkan garis horizontal. Aplikasi yang menambahkan garisnya — kamu cukup menulis kalimat di bawah."
   signatureInsertVariable: "Sisipkan variabel"
@@ -779,6 +783,19 @@ settings:
   signatureOptLengthShort: "Hanya kalimat pendek"
   signatureRestoreDefault: "Kembalikan ke bawaan"
   signatureSourceHitokoto: "Hitokoto (kutipan acak)"
+  signatureAiSourceName: "Kalimat buatan AI"
+  signatureEditTextHint: "Ini tanda tangan yang sudah tertulis di komentar ini — kutipan dan tanggalnya kini hanya teks biasa, ubah sesukamu. Kosongkan untuk menghapusnya."
+  signatureResolving: "Membuat ${name}…"
+  signaturePendingValue: "(dibuat saat dikirim)"
+  signatureAiHint: "Satu kalimat yang ditulis AI saat itu juga, baru untuk setiap komentar. Memakai penyedia AI yang kamu atur."
+  signatureAiUnavailable: "Belum ada penyedia AI yang diatur, jadi sumber ini tidak muncul di panel variabel."
+  signaturePromptTitle: "Prompt"
+  signaturePromptHint: "Inilah yang dikirim ke model. Tulis ulang sesukamu: nada, panjang, temanya. Aturan yang sudah ada di dalamnya layak dipertahankan."
+  signaturePromptReset: "Kembalikan ke bawaan"
+  signaturePromptTry: "Coba"
+  signaturePromptSample: "Hasilnya"
+  signaturePromptLanguageHint: "diganti dengan bahasa antarmukamu. Kalau dihapus, kalimatnya mengikuti bahasa prompt."
+  signaturePromptEdited: "diubah"
   signatureVariablesGroup: "Variabel bawaan"
   signatureNeedsNetwork: "Perlu jaringan"
   signatureBuiltinSource: "Bawaan"
@@ -1705,6 +1722,8 @@ forum:
     other: Konten lain yang tidak terklasifikasi
   reply: Balas
   pendingReview: Menunggu Tinjauan
+  floorNotFound: 'Balasan itu tidak ada atau sudah dihapus'
+  floorNotLoadedYet: 'Balasan itu ada di atas — muat lebih banyak untuk menuju ke sana'
   editedAt: Diubah Pada
   copySuccess: Disalin ke papan klip
   copySuccessForMessage: 'Disalin ke papan klip: ${str}'
@@ -3663,3 +3682,65 @@ historyPage:
   clearTabTitle: "Bersihkan \"${tab}\""
   clearTabConfirm: "Semua riwayat di \"${tab}\" akan dihapus, beserta progres tontonan video tersebut. Tindakan ini tidak dapat dibatalkan."
   rangeByLastViewed: "Difilter menurut waktu terakhir dilihat"
+
+ai:
+  title: "AI"
+  providers: "Penyedia"
+  providersHint: "Tambahkan satu atau beberapa penyedia AI, lalu pilih mana yang digunakan setiap fitur."
+  addProvider: "Tambah penyedia"
+  noProviders: "Belum ada penyedia. Tambahkan satu untuk mengaktifkan terjemahan, pencarian, dan tanda tangan AI."
+  pickPreset: "Pilih penyedia"
+  providerNameLabel: "Nama"
+  apiKey: "Kunci API"
+  baseUrl: "Alamat endpoint"
+  model: "Model AI"
+  modelPick: "Pilih model"
+  modelEmpty: "Gagal memuat daftar model — Anda juga bisa mengetik langsung nama modelnya."
+  advanced: "Lanjutan"
+  reasoning: "Model penalaran"
+  streaming: "Keluaran streaming"
+  structuredOutput: "Keluaran terstruktur"
+  structuredOutputHint: "Dibutuhkan untuk pencarian AI. Banyak endpoint perantara tidak mendukungnya — matikan jika pencarian terus gagal."
+  temperature: "Temperatur"
+  maxTokens: "Token maksimal"
+  maxTokensAuto: "Otomatis (batas model)"
+  test: "Uji"
+  testOk: "Koneksi berhasil"
+  deleteProvider: "Hapus penyedia"
+  usedBy: "Digunakan oleh"
+  taskBindings: "Penetapan fitur"
+  taskBindingsHint: "Setiap fitur dapat menggunakan penyedia yang berbeda."
+  taskTranslate: "Terjemahan"
+  taskSearch: "Pencarian AI"
+  taskSignature: "Tanda tangan"
+  taskAuto: "Otomatis"
+  usage: "Penggunaan"
+  usageCalls: "Panggilan"
+  usageTokens: "Jumlah token"
+  usageFailures: "Gagal"
+  usageReset: "Bersihkan statistik"
+  usageEmpty: "Belum ada panggilan"
+  openSettings: "Buka pengaturan AI"
+  notConfigured: "Belum dikonfigurasi"
+  searchTitle: "Pencarian AI"
+  searchHint: "Jelaskan apa yang Anda cari; AI akan mengisi kata kunci pencarian dan filter."
+  searchPlaceholder: "mis. MMD terbaru dengan lebih dari 10 rb tayangan"
+  searchApply: "Cari dengan kriteria ini"
+  searchEmpty: "Tidak dapat mengubahnya menjadi kata kunci pencarian. Coba jelaskan dengan cara lain."
+  searchFilters: "Kriteria filter"
+  searchSwitchSegment: "Beralih ke ${segment}"
+  searchGenerating: "Sedang berpikir…"
+  searchRetrying: "Percobaan sebelumnya gagal, mencoba lagi…"
+  searchRetryReason: "Alasan: ${reason}"
+  searchStageWaiting: "Permintaan terkirim, menunggu balasan…"
+  searchStageThinkingNext: "Memikirkan langkah berikutnya…"
+  searchStageReasoning: "Sedang menalar…"
+  searchStageTool: "Mencoba pencarian…"
+  searchStageDrafting: "Menulis jawaban · ${chars} karakter"
+  searchStageParsing: "Merapikan hasil…"
+  searchThinking: "Proses berpikir"
+  searchKeywordNeedsQuotes: "Kata kunci ini tidak diapit tanda kutip, jadi Iwara mencocokkannya secara longgar — dengan urutan ini halaman pertama sebagian besar tidak relevan. Apit dengan \"tanda kutip\", atau urutkan berdasarkan relevansi."
+  searchToolProbing: "Mencoba ${query}"
+  searchToolFound: "${count} hasil · ${titles}"
+  searchToolFailed: "Gagal: ${reason}"
+  searchFiltersDropped: "${count} filter yang tidak ada di bagian ini telah dihapus."

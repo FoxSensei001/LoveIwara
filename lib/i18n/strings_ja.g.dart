@@ -97,6 +97,7 @@ class TranslationsJa extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsVrFormatJa vrFormat = _TranslationsVrFormatJa._(_root);
 	@override late final _TranslationsLocalMediaJa localMedia = _TranslationsLocalMediaJa._(_root);
 	@override late final _TranslationsHistoryPageJa historyPage = _TranslationsHistoryPageJa._(_root);
+	@override late final _TranslationsAiJa ai = _TranslationsAiJa._(_root);
 }
 
 // Path: personalProfile
@@ -643,6 +644,9 @@ class _TranslationsSearchJa extends TranslationsSearchEn {
 	@override String get contentRating => 'コンテンツレーティング';
 	@override String get removeTag => 'タグを削除';
 	@override String get pleaseEnterSearchContent => '検索内容を入力してください';
+	@override String get exactMatch => '完全一致';
+	@override String get exactMatchOnHint => 'フレーズ全体で完全一致し、中国語・日本語のタイトルも併せて検索しています。タップで緩い検索に戻します。';
+	@override String get exactMatchOffHint => '緩い一致です（iwara が語を分割します）。タップでフレーズ全体の完全一致に。';
 	@override String get searchHistory => '検索履歴';
 	@override String get searchSuggestion => '検索提案';
 	@override String get usedTimes => '使用回数';
@@ -893,6 +897,7 @@ class _TranslationsSettingsJa extends TranslationsSettingsEn {
 	@override String get signatureContent => '小尾巴の内容';
 	@override String get signaturePreview => 'プレビュー';
 	@override String get signatureSampleBody => 'ここに本文が入ります';
+	@override String get signatureRegenerate => '別の一言にする';
 	@override String get signatureNotSet => '未設定';
 	@override String get signatureRuleHint => '署名は本文の後ろに、区切り線を挟んで付きます。区切り線はアプリが入れるので、下の一文だけ書いてください。';
 	@override String get signatureInsertVariable => '変数を挿入';
@@ -943,6 +948,19 @@ class _TranslationsSettingsJa extends TranslationsSettingsEn {
 	@override String get signatureOptLengthShort => '短い一文だけ';
 	@override String get signatureRestoreDefault => '既定に戻す';
 	@override String get signatureSourceHitokoto => 'ひとこと';
+	@override String get signatureAiSourceName => 'AI ひとこと';
+	@override String get signatureEditTextHint => 'このコメントに既に書かれている署名です。一言も日付も今はただの文字なので自由に直せます。空にすれば署名なしになります。';
+	@override String signatureResolving({required Object name}) => '${name}を生成中…';
+	@override String get signaturePendingValue => '（送信時に生成）';
+	@override String get signatureAiHint => 'AI がその場で書く一言。コメントごとに新しくなります。設定した AI プロバイダーを使います。';
+	@override String get signatureAiUnavailable => 'AI プロバイダーが未設定のため、変数パネルには表示されません。';
+	@override String get signaturePromptTitle => 'プロンプト';
+	@override String get signaturePromptHint => 'モデルに送られるのがこれです。口調も長さも題材も自由に書き換えてかまいません。既に入っているルールは残す価値があります。';
+	@override String get signaturePromptReset => '既定に戻す';
+	@override String get signaturePromptTry => '試す';
+	@override String get signaturePromptSample => '書かれたもの';
+	@override String get signaturePromptLanguageHint => 'は表示言語に置き換わります。削除するとプロンプトの言語に従います。';
+	@override String get signaturePromptEdited => '変更済み';
 	@override String get signatureVariablesGroup => '組み込み変数';
 	@override String get signatureNeedsNetwork => 'ネットワークが必要';
 	@override String get signatureBuiltinSource => '標準';
@@ -1343,6 +1361,8 @@ class _TranslationsForumJa extends TranslationsForumEn {
 	@override late final _TranslationsForumLeafDescriptionsJa leafDescriptions = _TranslationsForumLeafDescriptionsJa._(_root);
 	@override String get reply => '回覆';
 	@override String get pendingReview => '審査中';
+	@override String get floorNotFound => 'その投稿は存在しないか削除されました';
+	@override String get floorNotLoadedYet => 'その投稿はさらに前にあります。続きを読み込むと移動できます';
 	@override String get editedAt => '編集日時';
 	@override String get copySuccess => 'クリップボードにコピーされました';
 	@override String copySuccessForMessage({required Object str}) => 'クリップボードにコピーされました: ${str}';
@@ -2842,6 +2862,75 @@ class _TranslationsHistoryPageJa extends TranslationsHistoryPageEn {
 	@override String clearTabTitle({required Object tab}) => '「${tab}」を消去';
 	@override String clearTabConfirm({required Object tab}) => '「${tab}」の履歴をすべて削除し、該当する動画の視聴位置も消去します。この操作は元に戻せません。';
 	@override String get rangeByLastViewed => '最終閲覧日時で絞り込み';
+}
+
+// Path: ai
+class _TranslationsAiJa extends TranslationsAiEn {
+	_TranslationsAiJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'AI';
+	@override String get providers => 'プロバイダー';
+	@override String get providersHint => '1つ以上のAIプロバイダーを追加し、各機能で使用するプロバイダーを指定します。';
+	@override String get addProvider => 'プロバイダーを追加';
+	@override String get noProviders => 'プロバイダーがまだありません。追加するとAI翻訳・検索・署名機能が利用可能になります。';
+	@override String get pickPreset => 'プロバイダーを選択';
+	@override String get providerNameLabel => '名前';
+	@override String get apiKey => 'APIキー';
+	@override String get baseUrl => 'エンドポイント';
+	@override String get model => 'モデル';
+	@override String get modelPick => 'モデルを選択';
+	@override String get modelEmpty => 'モデルリストを取得できませんでした。直接モデル名を入力しても利用できます。';
+	@override String get advanced => '詳細設定';
+	@override String get reasoning => '推論モデル';
+	@override String get streaming => 'ストリーミング出力';
+	@override String get structuredOutput => '構造化出力';
+	@override String get structuredOutputHint => 'AI検索で必要です。多くの中継エンドポイントでは対応していないため、検索が失敗し続ける場合は無効にしてください。';
+	@override String get temperature => 'サンプリング温度';
+	@override String get maxTokens => '最大トークン数';
+	@override String get maxTokensAuto => '自動（モデル上限）';
+	@override String get test => 'テスト';
+	@override String get testOk => '接続成功';
+	@override String get deleteProvider => 'プロバイダーを削除';
+	@override String get usedBy => '使用先';
+	@override String get taskBindings => '機能の割り当て';
+	@override String get taskBindingsHint => '機能ごとに異なるプロバイダーを指定できます。';
+	@override String get taskTranslate => '翻訳';
+	@override String get taskSearch => 'AI検索';
+	@override String get taskSignature => '署名';
+	@override String get taskAuto => '自動';
+	@override String get usage => '使用状況';
+	@override String get usageCalls => '呼び出し回数';
+	@override String get usageTokens => 'トークン数';
+	@override String get usageFailures => '失敗';
+	@override String get usageReset => '統計をリセット';
+	@override String get usageEmpty => '呼び出し履歴はまだありません';
+	@override String get openSettings => 'AI設定を開く';
+	@override String get notConfigured => '未設定';
+	@override String get searchTitle => 'AI検索';
+	@override String get searchHint => '探したいものを文章で説明すると、AIが検索キーワードと絞り込み条件を入力します。';
+	@override String get searchPlaceholder => '例：再生回数1万回以上の最新MMD';
+	@override String get searchApply => 'この条件で検索';
+	@override String get searchEmpty => '検索条件を抽出できませんでした。別の表現で試してみてください。';
+	@override String get searchFilters => 'フィルター';
+	@override String searchSwitchSegment({required Object segment}) => '「${segment}」に切り替え';
+	@override String get searchGenerating => '考え中…';
+	@override String get searchRetrying => '前回は失敗しました。再試行中…';
+	@override String searchRetryReason({required Object reason}) => '原因：${reason}';
+	@override String get searchStageWaiting => 'リクエスト送信済み、応答待ち…';
+	@override String get searchStageThinkingNext => '次の手を考えています…';
+	@override String get searchStageReasoning => '推論中…';
+	@override String get searchStageTool => '検索を試しています…';
+	@override String searchStageDrafting({required Object chars}) => '回答を作成中 · ${chars} 文字';
+	@override String get searchStageParsing => '結果を整理中…';
+	@override String get searchThinking => '思考の過程';
+	@override String get searchKeywordNeedsQuotes => 'このキーワードは引用符で囲まれていないため、iwara は細かく分解して緩く一致させます。この並び順だと1ページ目はほぼ無関係です。"引用符"で囲むか、関連度順にしてください。';
+	@override String searchToolProbing({required Object query}) => '${query} で試し検索';
+	@override String searchToolFound({required Object count, required Object titles}) => '${count} 件 · ${titles}';
+	@override String searchToolFailed({required Object reason}) => '試し検索に失敗：${reason}';
+	@override String searchFiltersDropped({required Object count}) => 'このセクションに無い絞り込みを ${count} 件削除しました。';
 }
 
 // Path: common.pagination
@@ -5145,6 +5234,9 @@ extension on TranslationsJa {
 			'search.contentRating' => 'コンテンツレーティング',
 			'search.removeTag' => 'タグを削除',
 			'search.pleaseEnterSearchContent' => '検索内容を入力してください',
+			'search.exactMatch' => '完全一致',
+			'search.exactMatchOnHint' => 'フレーズ全体で完全一致し、中国語・日本語のタイトルも併せて検索しています。タップで緩い検索に戻します。',
+			'search.exactMatchOffHint' => '緩い一致です（iwara が語を分割します）。タップでフレーズ全体の完全一致に。',
 			'search.searchHistory' => '検索履歴',
 			'search.searchSuggestion' => '検索提案',
 			'search.usedTimes' => '使用回数',
@@ -5194,11 +5286,11 @@ extension on TranslationsJa {
 			'settings.fastForwardTime' => '早送り時間',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => '早送り時間は正の整数でなければなりません。',
 			'settings.rewindTime' => '巻き戻し時間',
+			_ => null,
+		} ?? switch (path) {
 			'settings.rewindTimeMustBeAPositiveInteger' => '巻き戻し時間は正の整数でなければなりません。',
 			'settings.longPressPlaybackSpeed' => '長押し再生速度',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '長押し再生速度は正の数でなければなりません。',
-			_ => null,
-		} ?? switch (path) {
 			'settings.defaultPlaybackSpeed' => 'デフォルト再生速度',
 			'settings.rememberPlaybackSpeed' => '再生速度を記憶する',
 			'settings.rememberPlaybackSpeedDesc' => '有効にすると、プレーヤーで調整した再生速度がデフォルトとして保存され、以降の新しい動画に自動的に適用されます。',
@@ -5379,6 +5471,7 @@ extension on TranslationsJa {
 			'settings.signatureContent' => '小尾巴の内容',
 			'settings.signaturePreview' => 'プレビュー',
 			'settings.signatureSampleBody' => 'ここに本文が入ります',
+			'settings.signatureRegenerate' => '別の一言にする',
 			'settings.signatureNotSet' => '未設定',
 			'settings.signatureRuleHint' => '署名は本文の後ろに、区切り線を挟んで付きます。区切り線はアプリが入れるので、下の一文だけ書いてください。',
 			'settings.signatureInsertVariable' => '変数を挿入',
@@ -5429,6 +5522,19 @@ extension on TranslationsJa {
 			'settings.signatureOptLengthShort' => '短い一文だけ',
 			'settings.signatureRestoreDefault' => '既定に戻す',
 			'settings.signatureSourceHitokoto' => 'ひとこと',
+			'settings.signatureAiSourceName' => 'AI ひとこと',
+			'settings.signatureEditTextHint' => 'このコメントに既に書かれている署名です。一言も日付も今はただの文字なので自由に直せます。空にすれば署名なしになります。',
+			'settings.signatureResolving' => ({required Object name}) => '${name}を生成中…',
+			'settings.signaturePendingValue' => '（送信時に生成）',
+			'settings.signatureAiHint' => 'AI がその場で書く一言。コメントごとに新しくなります。設定した AI プロバイダーを使います。',
+			'settings.signatureAiUnavailable' => 'AI プロバイダーが未設定のため、変数パネルには表示されません。',
+			'settings.signaturePromptTitle' => 'プロンプト',
+			'settings.signaturePromptHint' => 'モデルに送られるのがこれです。口調も長さも題材も自由に書き換えてかまいません。既に入っているルールは残す価値があります。',
+			'settings.signaturePromptReset' => '既定に戻す',
+			'settings.signaturePromptTry' => '試す',
+			'settings.signaturePromptSample' => '書かれたもの',
+			'settings.signaturePromptLanguageHint' => 'は表示言語に置き換わります。削除するとプロンプトの言語に従います。',
+			'settings.signaturePromptEdited' => '変更済み',
 			'settings.signatureVariablesGroup' => '組み込み変数',
 			'settings.signatureNeedsNetwork' => 'ネットワークが必要',
 			'settings.signatureBuiltinSource' => '標準',
@@ -5694,6 +5800,8 @@ extension on TranslationsJa {
 			'settings.cdnRefreshServerListTooltip' => 'サーバーリストを更新',
 			'settings.cdnSpeedTestButton' => '速度テスト',
 			'settings.cdnSpeedTestingButton' => ({required Object count}) => 'テスト中 (${count})',
+			_ => null,
+		} ?? switch (path) {
 			'settings.cdnNoServerDataHint' => 'サーバーデータがありません、更新ボタンをクリックしてください',
 			'settings.cdnTestingStatus' => 'テスト中',
 			'settings.cdnUnreachableStatus' => '到達不可',
@@ -5711,8 +5819,6 @@ extension on TranslationsJa {
 			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => 'ストレージ権限が付与されませんでしたが、一部の機能が制限される可能性があります',
 			'settings.downloadSettings.storagePermissionRationale' => '選択した場所にファイルを保存するには、ストレージ権限が必要です。\n\nAndroid 11 以降では公開ディレクトリへの書き込みに「すべてのファイルへのアクセス」権限が必要です。許可しない場合、ファイルはアプリ専用ディレクトリに保存されます。',
 			'settings.downloadSettings.storagePermissionRationaleLegacy' => '選択した場所にファイルを保存するには、ストレージ権限が必要です。\n\n許可しない場合、ファイルはアプリ専用ディレクトリに保存されます。',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.grantStoragePermission' => 'ストレージ権限を付与',
 			'settings.downloadSettings.customDownloadPath' => 'カスタムダウンロードパス',
 			'settings.downloadSettings.customDownloadPathDescription' => '有効にすると、ダウンロードファイルのカスタム保存場所を選択できます',
@@ -6208,6 +6314,8 @@ extension on TranslationsJa {
 			'markdown.iwaraSpecialMarkdownSyntax' => 'Iwara 専用構文',
 			'markdown.internalLink' => '站内鏈接',
 			'markdown.supportAutoConvertLinkBelow' => '以下のタイプのリンクを自動変換します：',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.convertLinkExample' => '🎬 ビデオリンク\n🖼️ 画像リンク\n👤 ユーザーリンク\n📌 フォーラムリンク\n🎵 プレイリストリンク\n💬 スレッドリンク',
 			'markdown.mentionUser' => 'ユーザーを言及',
 			'markdown.mentionUserDescription' => '@後にユーザー名を入力すると、ユーザーリンクに自動変換されます',
@@ -6225,8 +6333,6 @@ extension on TranslationsJa {
 			'markdown.listDescription' => '数字+点号で順序付きリストを作成し、- で順序なしリストを作成',
 			'markdown.listSyntax' => '1. 第一項\n2. 第二項\n\n- 順序なし項\n  - 子項\n  - 別の子項',
 			'markdown.linkAndImage' => 'リンクと画像',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.linkAndImageDescription' => 'リンク形式：[テキスト](URL)\n画像形式：![説明](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[リンクテキスト](${link})\n![画像説明](${imgUrl})',
 			'markdown.title' => 'タイトル',
@@ -6303,6 +6409,8 @@ extension on TranslationsJa {
 			'forum.leafDescriptions.other' => 'その他の未分類のコンテンツ',
 			'forum.reply' => '回覆',
 			'forum.pendingReview' => '審査中',
+			'forum.floorNotFound' => 'その投稿は存在しないか削除されました',
+			'forum.floorNotLoadedYet' => 'その投稿はさらに前にあります。続きを読み込むと移動できます',
 			'forum.editedAt' => '編集日時',
 			'forum.copySuccess' => 'クリップボードにコピーされました',
 			'forum.copySuccessForMessage' => ({required Object str}) => 'クリップボードにコピーされました: ${str}',
@@ -6720,6 +6828,8 @@ extension on TranslationsJa {
 			'download.relocation.sectionNotAttempted' => '未処理（停止したため元のまま）',
 			'download.relocation.unexpectedError' => ({required Object message}) => 'エラーで停止しました：${message}。移動済みの項目はすべて完全です。',
 			'download.category.manageTitle' => 'カテゴリーの管理',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.label' => 'カテゴリー',
 			'download.category.uncategorized' => '未分類',
 			'download.category.manage' => '管理',
@@ -6739,8 +6849,6 @@ extension on TranslationsJa {
 			'download.category.renameSuccess' => '名前を変更しました',
 			'download.category.renameFailed' => '名前の変更に失敗しました',
 			'download.category.deleteTitle' => 'カテゴリーの削除',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'カテゴリ「${title}」を削除しますか？中の ${count} 件は「未分類」へ移動し、ファイルは削除されません。',
 			'download.category.deleteSuccess' => 'カテゴリーを削除しました',
 			'download.category.deleteFailed' => 'カテゴリーの削除に失敗しました',
@@ -7234,6 +7342,8 @@ extension on TranslationsJa {
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => '有効な${webName}リンクではありません',
 			'linkInputDialog.linkParseError' => ({required Object error}) => 'リンク解析エラー: ${error}',
 			'linkInputDialog.unsupportedLinkDialogTitle' => 'サポートされていないリンク',
+			_ => null,
+		} ?? switch (path) {
 			'linkInputDialog.unsupportedLinkDialogContent' => 'このリンクタイプは現在アプリ内で直接開くことができず、外部ブラウザを使用してアクセスする必要があります。\n\nブラウザでこのリンクを開きますか？',
 			'linkInputDialog.openInBrowser' => 'ブラウザで開く',
 			'linkInputDialog.confirmOpenBrowserDialogTitle' => 'ブラウザを開くことを確認',
@@ -7253,8 +7363,6 @@ extension on TranslationsJa {
 			'log.exportHistoryLogs' => '履歴ログをエクスポート',
 			'log.exportHistoryLogsDesc' => '指定された日付範囲内のログをエクスポート',
 			'log.exportMergedLogs' => 'マージログをエクスポート',
-			_ => null,
-		} ?? switch (path) {
 			'log.exportMergedLogsDesc' => '指定された日付範囲内のマージログをエクスポート',
 			'log.showLogStats' => 'ログ統計情報を表示',
 			'log.logExportSuccess' => 'ログエクスポート成功',
@@ -7748,6 +7856,8 @@ extension on TranslationsJa {
 			'watchLater.removedFromWatchLater' => 'あとで見るから削除しました',
 			'watchLater.removedCount' => ({required Object count}) => '${count} 件を削除しました',
 			'watchLater.viewWatchLaterList' => 'リストを見る',
+			_ => null,
+		} ?? switch (path) {
 			'watchLater.addFailed' => 'あとで見るへの追加に失敗しました',
 			'watchLater.invalidItem' => '利用できません',
 			'watchLater.clearWatched' => '視聴済みを削除',
@@ -7767,8 +7877,6 @@ extension on TranslationsJa {
 			'watchLater.emptyUnwatchedVideo' => '未視聴の動画はありません',
 			'watchLater.emptyUnwatchedGallery' => '未視聴のギャラリーはありません',
 			'watchLater.queueLoadFailed' => '読み込みに失敗しました。タップで再試行',
-			_ => null,
-		} ?? switch (path) {
 			'mediaMenu.like' => 'いいね',
 			'mediaMenu.unlike' => 'いいねを取り消す',
 			'mediaMenu.viewAuthor' => '作者ページを見る',
@@ -8115,6 +8223,66 @@ extension on TranslationsJa {
 			'historyPage.clearTabTitle' => ({required Object tab}) => '「${tab}」を消去',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => '「${tab}」の履歴をすべて削除し、該当する動画の視聴位置も消去します。この操作は元に戻せません。',
 			'historyPage.rangeByLastViewed' => '最終閲覧日時で絞り込み',
+			'ai.title' => 'AI',
+			'ai.providers' => 'プロバイダー',
+			'ai.providersHint' => '1つ以上のAIプロバイダーを追加し、各機能で使用するプロバイダーを指定します。',
+			'ai.addProvider' => 'プロバイダーを追加',
+			'ai.noProviders' => 'プロバイダーがまだありません。追加するとAI翻訳・検索・署名機能が利用可能になります。',
+			'ai.pickPreset' => 'プロバイダーを選択',
+			'ai.providerNameLabel' => '名前',
+			'ai.apiKey' => 'APIキー',
+			'ai.baseUrl' => 'エンドポイント',
+			'ai.model' => 'モデル',
+			'ai.modelPick' => 'モデルを選択',
+			'ai.modelEmpty' => 'モデルリストを取得できませんでした。直接モデル名を入力しても利用できます。',
+			'ai.advanced' => '詳細設定',
+			'ai.reasoning' => '推論モデル',
+			'ai.streaming' => 'ストリーミング出力',
+			'ai.structuredOutput' => '構造化出力',
+			'ai.structuredOutputHint' => 'AI検索で必要です。多くの中継エンドポイントでは対応していないため、検索が失敗し続ける場合は無効にしてください。',
+			'ai.temperature' => 'サンプリング温度',
+			'ai.maxTokens' => '最大トークン数',
+			'ai.maxTokensAuto' => '自動（モデル上限）',
+			'ai.test' => 'テスト',
+			'ai.testOk' => '接続成功',
+			'ai.deleteProvider' => 'プロバイダーを削除',
+			'ai.usedBy' => '使用先',
+			'ai.taskBindings' => '機能の割り当て',
+			'ai.taskBindingsHint' => '機能ごとに異なるプロバイダーを指定できます。',
+			'ai.taskTranslate' => '翻訳',
+			'ai.taskSearch' => 'AI検索',
+			'ai.taskSignature' => '署名',
+			'ai.taskAuto' => '自動',
+			'ai.usage' => '使用状況',
+			'ai.usageCalls' => '呼び出し回数',
+			'ai.usageTokens' => 'トークン数',
+			'ai.usageFailures' => '失敗',
+			'ai.usageReset' => '統計をリセット',
+			'ai.usageEmpty' => '呼び出し履歴はまだありません',
+			'ai.openSettings' => 'AI設定を開く',
+			'ai.notConfigured' => '未設定',
+			'ai.searchTitle' => 'AI検索',
+			'ai.searchHint' => '探したいものを文章で説明すると、AIが検索キーワードと絞り込み条件を入力します。',
+			'ai.searchPlaceholder' => '例：再生回数1万回以上の最新MMD',
+			'ai.searchApply' => 'この条件で検索',
+			'ai.searchEmpty' => '検索条件を抽出できませんでした。別の表現で試してみてください。',
+			'ai.searchFilters' => 'フィルター',
+			'ai.searchSwitchSegment' => ({required Object segment}) => '「${segment}」に切り替え',
+			'ai.searchGenerating' => '考え中…',
+			'ai.searchRetrying' => '前回は失敗しました。再試行中…',
+			'ai.searchRetryReason' => ({required Object reason}) => '原因：${reason}',
+			'ai.searchStageWaiting' => 'リクエスト送信済み、応答待ち…',
+			'ai.searchStageThinkingNext' => '次の手を考えています…',
+			'ai.searchStageReasoning' => '推論中…',
+			'ai.searchStageTool' => '検索を試しています…',
+			'ai.searchStageDrafting' => ({required Object chars}) => '回答を作成中 · ${chars} 文字',
+			'ai.searchStageParsing' => '結果を整理中…',
+			'ai.searchThinking' => '思考の過程',
+			'ai.searchKeywordNeedsQuotes' => 'このキーワードは引用符で囲まれていないため、iwara は細かく分解して緩く一致させます。この並び順だと1ページ目はほぼ無関係です。"引用符"で囲むか、関連度順にしてください。',
+			'ai.searchToolProbing' => ({required Object query}) => '${query} で試し検索',
+			'ai.searchToolFound' => ({required Object count, required Object titles}) => '${count} 件 · ${titles}',
+			'ai.searchToolFailed' => ({required Object reason}) => '試し検索に失敗：${reason}',
+			'ai.searchFiltersDropped' => ({required Object count}) => 'このセクションに無い絞り込みを ${count} 件削除しました。',
 			_ => null,
 		};
 	}

@@ -494,6 +494,9 @@ search:
   contentRating: Content Rating
   removeTag: Remove Tag
   pleaseEnterSearchContent: Please enter search content
+  exactMatch: "Exact"
+  exactMatchOnHint: "Matching the phrase exactly, and searching Chinese and Japanese titles too. Tap for a looser search."
+  exactMatchOffHint: "Loose matching — Iwara splits the words up. Tap to match the exact phrase."
   searchHistory: Search History
   searchSuggestion: Search Suggestion
   usedTimes: Used Times
@@ -729,6 +732,7 @@ settings:
   signatureContent: Signature Content
   signaturePreview: 'Preview'
   signatureSampleBody: 'Your message goes here'
+  signatureRegenerate: 'Regenerate'
   signatureNotSet: 'Not set'
   signatureRuleHint: "Your signature is appended after the body, separated by a horizontal rule. The app adds the rule for you — just write the line below."
   signatureInsertVariable: "Insert a variable"
@@ -779,6 +783,19 @@ settings:
   signatureOptLengthShort: "Short lines only"
   signatureRestoreDefault: "Restore default"
   signatureSourceHitokoto: "Hitokoto (random quote)"
+  signatureAiSourceName: "AI-written line"
+  signatureEditTextHint: "This is the signature already written into this comment — the quote line and the AI line are plain text now, edit them however you like. Clear it to drop the signature."
+  signatureResolving: "Generating ${name}…"
+  signaturePendingValue: "(generated when you send)"
+  signatureAiHint: "A line written by AI on the spot, fresh for every comment. Uses the AI provider you configured."
+  signatureAiUnavailable: "No AI provider configured yet, so this source stays hidden in the variable panel."
+  signaturePromptTitle: "Prompt"
+  signaturePromptHint: "This is what gets sent to the model. Rewrite it however you like — tone, length, subject. The rules already in there are the ones worth keeping."
+  signaturePromptReset: "Restore default"
+  signaturePromptTry: "Try it"
+  signaturePromptSample: "What it wrote"
+  signaturePromptLanguageHint: "is replaced with your interface language. Remove it and the line follows the prompt's language instead."
+  signaturePromptEdited: "edited"
   signatureVariablesGroup: "Built-in variables"
   signatureNeedsNetwork: "Needs network"
   signatureBuiltinSource: "Built-in"
@@ -1706,6 +1723,8 @@ forum:
     other: Other unclassified content
   reply: Reply
   pendingReview: Pending Review
+  floorNotFound: 'That post no longer exists'
+  floorNotLoadedYet: 'That post is further up — load more replies to jump to it'
   editedAt: Edited At
   copySuccess: Copied to clipboard
   copySuccessForMessage: 'Copied to clipboard: ${str}'
@@ -3665,3 +3684,65 @@ historyPage:
   clearTabTitle: "Clear \"${tab}\""
   clearTabConfirm: "All history in \"${tab}\" will be deleted, along with the watch progress of those videos. This cannot be undone."
   rangeByLastViewed: "Filtered by last viewed time"
+
+ai:
+  title: "AI"
+  providers: "Providers"
+  providersHint: "Add one or more AI providers, then pick which one each feature uses."
+  addProvider: "Add provider"
+  noProviders: "No providers yet. Add one to enable AI translation, search and signature."
+  pickPreset: "Pick a provider"
+  providerNameLabel: "Name"
+  apiKey: "API key"
+  baseUrl: "Endpoint"
+  model: "Model"
+  modelPick: "Pick a model"
+  modelEmpty: "Could not load the model list — typing a model name works too."
+  advanced: "Advanced"
+  reasoning: "Reasoning model"
+  streaming: "Stream output"
+  structuredOutput: "Structured output"
+  structuredOutputHint: "Needed for AI search. Many relay endpoints ignore it — turn it off if search keeps failing."
+  temperature: "Temperature"
+  maxTokens: "Max tokens"
+  maxTokensAuto: "Auto (model limit)"
+  test: "Test"
+  testOk: "Connection works"
+  deleteProvider: "Delete provider"
+  usedBy: "Used by"
+  taskBindings: "Feature assignment"
+  taskBindingsHint: "Each feature can use a different provider."
+  taskTranslate: "Translation"
+  taskSearch: "AI search"
+  taskSignature: "Signature"
+  taskAuto: "Automatic"
+  usage: "Usage"
+  usageCalls: "Calls"
+  usageTokens: "Tokens"
+  usageFailures: "Failures"
+  usageReset: "Clear stats"
+  usageEmpty: "No calls yet"
+  openSettings: "Open AI settings"
+  notConfigured: "Not configured"
+  searchTitle: "AI search"
+  searchHint: "Describe what you are looking for; AI fills in the search terms and filters."
+  searchPlaceholder: "e.g. recent MMD with over 10k views"
+  searchApply: "Search with these"
+  searchEmpty: "Could not turn that into search terms. Try describing it differently."
+  searchFilters: "Filters"
+  searchSwitchSegment: "Switch to ${segment}"
+  searchGenerating: "Thinking…"
+  searchRetrying: "Last attempt failed, retrying…"
+  searchRetryReason: "Reason: ${reason}"
+  searchStageWaiting: "Sent — waiting for a reply…"
+  searchStageThinkingNext: "Thinking about what comes next…"
+  searchStageReasoning: "Reasoning…"
+  searchStageTool: "Test-searching…"
+  searchStageDrafting: "Writing the answer · ${chars} chars"
+  searchStageParsing: "Sorting out the result…"
+  searchThinking: "Reasoning"
+  searchKeywordNeedsQuotes: "This keyword is not quoted, so Iwara matches it loosely — under this sort the first page will be mostly unrelated. Put it in \"quotes\", or sort by relevance."
+  searchToolProbing: "Trying ${query}"
+  searchToolFound: "${count} results · ${titles}"
+  searchToolFailed: "Couldn't run it: ${reason}"
+  searchFiltersDropped: "Removed ${count} filter(s) this section does not have."

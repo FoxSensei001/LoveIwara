@@ -494,6 +494,9 @@ search:
   contentRating: Classification du contenu
   removeTag: Retirer le tag
   pleaseEnterSearchContent: Veuillez saisir le contenu à rechercher
+  exactMatch: "Exact"
+  exactMatchOnHint: "Correspondance exacte de la phrase, avec recherche aussi dans les titres chinois et japonais. Touchez pour une recherche plus large."
+  exactMatchOffHint: "Correspondance large — Iwara découpe les mots. Touchez pour la phrase exacte."
   searchHistory: Historique de recherche
   searchSuggestion: Suggestion de recherche
   usedTimes: Nombre d'utilisations
@@ -729,6 +732,7 @@ settings:
   signatureContent: Contenu de la signature
   signaturePreview: 'Aperçu'
   signatureSampleBody: 'Votre message ici'
+  signatureRegenerate: 'Régénérer'
   signatureNotSet: 'Non défini'
   signatureRuleHint: "La signature est ajoutée après le corps, séparée par une ligne horizontale. L'appli ajoute la ligne — écrivez seulement le texte ci-dessous."
   signatureInsertVariable: "Insérer une variable"
@@ -779,6 +783,19 @@ settings:
   signatureOptLengthShort: "Phrases courtes seulement"
   signatureRestoreDefault: "Rétablir les valeurs par défaut"
   signatureSourceHitokoto: "Hitokoto (citation aléatoire)"
+  signatureAiSourceName: "Phrase générée par l'IA"
+  signatureEditTextHint: "Voici la signature déjà présente dans ce commentaire : la phrase et la date ne sont plus que du texte, modifie-les librement. Vide le champ pour la retirer."
+  signatureResolving: "Génération de ${name}…"
+  signaturePendingValue: "(généré à l'envoi)"
+  signatureAiHint: "Une phrase écrite par l'IA sur le moment, différente à chaque commentaire. Utilise le fournisseur d'IA que tu as configuré."
+  signatureAiUnavailable: "Aucun fournisseur d'IA configuré pour l'instant, cette source n'apparaît donc pas dans le panneau des variables."
+  signaturePromptTitle: "Prompt"
+  signaturePromptHint: "Voici ce qui est envoyé au modèle. Réécris-le comme tu veux : ton, longueur, sujet. Les règles déjà présentes valent la peine d'être gardées."
+  signaturePromptReset: "Rétablir par défaut"
+  signaturePromptTry: "Essayer"
+  signaturePromptSample: "Ce qu'elle a écrit"
+  signaturePromptLanguageHint: "est remplacé par la langue de ton interface. Sans lui, la phrase suit la langue du prompt."
+  signaturePromptEdited: "modifié"
   signatureVariablesGroup: "Variables intégrées"
   signatureNeedsNetwork: "Nécessite le réseau"
   signatureBuiltinSource: "Intégré"
@@ -1705,6 +1722,8 @@ forum:
     other: Autres contenus non classés
   reply: Répondre
   pendingReview: En attente de vérification
+  floorNotFound: "Ce message n'existe plus"
+  floorNotLoadedYet: 'Ce message se trouve plus haut — chargez plus de réponses pour y accéder'
   editedAt: Modifié le
   copySuccess: Copié dans le presse-papiers
   copySuccessForMessage: 'Copié dans le presse-papiers : ${str}'
@@ -3663,3 +3682,65 @@ historyPage:
   clearTabTitle: "Effacer « ${tab} »"
   clearTabConfirm: "Tout l’historique de « ${tab} » sera supprimé, ainsi que la progression de lecture de ces vidéos. Action irréversible."
   rangeByLastViewed: "Filtré par dernière consultation"
+
+ai:
+  title: "IA"
+  providers: "Fournisseurs"
+  providersHint: "Ajoutez un ou plusieurs fournisseurs d'IA, puis choisissez celui utilisé par chaque fonctionnalité."
+  addProvider: "Ajouter un fournisseur"
+  noProviders: "Aucun fournisseur configuré. Ajoutez-en un pour activer la traduction, la recherche et la signature IA."
+  pickPreset: "Choisir un fournisseur"
+  providerNameLabel: "Nom"
+  apiKey: "Clé API"
+  baseUrl: "Point de terminaison"
+  model: "Modèle"
+  modelPick: "Choisir un modèle"
+  modelEmpty: "Impossible de charger la liste des modèles — vous pouvez aussi saisir le nom directement."
+  advanced: "Avancé"
+  reasoning: "Modèle de raisonnement"
+  streaming: "Sortie en flux"
+  structuredOutput: "Sortie structurée"
+  structuredOutputHint: "Requis pour la recherche IA. De nombreux relais ne le prennent pas en charge — désactivez-le si les recherches échouent."
+  temperature: "Température"
+  maxTokens: "Tokens max"
+  maxTokensAuto: "Auto (limite du modèle)"
+  test: "Tester"
+  testOk: "Connexion réussie"
+  deleteProvider: "Supprimer le fournisseur"
+  usedBy: "Utilisé par"
+  taskBindings: "Attribution des fonctionnalités"
+  taskBindingsHint: "Chaque fonctionnalité peut utiliser un fournisseur différent."
+  taskTranslate: "Traduction"
+  taskSearch: "Recherche IA"
+  taskSignature: "Signature de message"
+  taskAuto: "Automatique"
+  usage: "Utilisation"
+  usageCalls: "Appels"
+  usageTokens: "Nombre de tokens"
+  usageFailures: "Échecs"
+  usageReset: "Effacer les statistiques"
+  usageEmpty: "Aucun appel pour le moment"
+  openSettings: "Ouvrir les réglages d'IA"
+  notConfigured: "Non configuré"
+  searchTitle: "Recherche IA"
+  searchHint: "Décrivez ce que vous cherchez ; l'IA complétera les termes de recherche et les filtres."
+  searchPlaceholder: "ex. MMD récent avec plus de 10 000 vues"
+  searchApply: "Rechercher avec ces critères"
+  searchEmpty: "Impossible d'extraire des termes de recherche. Essayez de formuler différemment."
+  searchFilters: "Filtres"
+  searchSwitchSegment: "Basculer vers ${segment}"
+  searchGenerating: "Réflexion en cours…"
+  searchRetrying: "Échec de la tentative précédente, nouvel essai…"
+  searchRetryReason: "Raison : ${reason}"
+  searchStageWaiting: "Requête envoyée, en attente de réponse…"
+  searchStageThinkingNext: "Réfléchit à la suite…"
+  searchStageReasoning: "Raisonnement…"
+  searchStageTool: "Recherche d'essai…"
+  searchStageDrafting: "Rédaction de la réponse · ${chars} caractères"
+  searchStageParsing: "Mise en forme du résultat…"
+  searchThinking: "Raisonnement"
+  searchKeywordNeedsQuotes: "Ce mot-clé n'est pas entre guillemets, donc Iwara le fait correspondre de façon approximative : avec ce tri, la première page sera surtout hors sujet. Mettez-le entre \"guillemets\" ou triez par pertinence."
+  searchToolProbing: "Essai de ${query}"
+  searchToolFound: "${count} résultats · ${titles}"
+  searchToolFailed: "Échec : ${reason}"
+  searchFiltersDropped: "${count} filtres absents de cette section ont été retirés."

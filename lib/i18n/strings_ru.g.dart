@@ -97,6 +97,7 @@ class TranslationsRu extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsVrFormatRu vrFormat = _TranslationsVrFormatRu._(_root);
 	@override late final _TranslationsLocalMediaRu localMedia = _TranslationsLocalMediaRu._(_root);
 	@override late final _TranslationsHistoryPageRu historyPage = _TranslationsHistoryPageRu._(_root);
+	@override late final _TranslationsAiRu ai = _TranslationsAiRu._(_root);
 }
 
 // Path: personalProfile
@@ -643,6 +644,9 @@ class _TranslationsSearchRu extends TranslationsSearchEn {
 	@override String get contentRating => 'Возрастной рейтинг';
 	@override String get removeTag => 'Удалить тег';
 	@override String get pleaseEnterSearchContent => 'Введите поисковый запрос';
+	@override String get exactMatch => 'Точно';
+	@override String get exactMatchOnHint => 'Точное совпадение фразы, дополнительно ищем в китайских и японских заголовках. Нажмите для менее строгого поиска.';
+	@override String get exactMatchOffHint => 'Нестрогое совпадение — Iwara разбивает слова. Нажмите для точной фразы.';
 	@override String get searchHistory => 'История поиска';
 	@override String get searchSuggestion => 'Подсказки поиска';
 	@override String get usedTimes => 'Использований';
@@ -893,6 +897,7 @@ class _TranslationsSettingsRu extends TranslationsSettingsEn {
 	@override String get signatureContent => 'Текст подписи';
 	@override String get signaturePreview => 'Предпросмотр';
 	@override String get signatureSampleBody => 'Здесь ваш текст';
+	@override String get signatureRegenerate => 'Обновить';
 	@override String get signatureNotSet => 'Не задано';
 	@override String get signatureRuleHint => 'Подпись добавляется после текста и отделяется горизонтальной линией. Линию добавляет приложение — вам нужно написать только строку ниже.';
 	@override String get signatureInsertVariable => 'Вставить переменную';
@@ -943,6 +948,19 @@ class _TranslationsSettingsRu extends TranslationsSettingsEn {
 	@override String get signatureOptLengthShort => 'Только короткие';
 	@override String get signatureRestoreDefault => 'Вернуть по умолчанию';
 	@override String get signatureSourceHitokoto => 'Hitokoto (случайная цитата)';
+	@override String get signatureAiSourceName => 'Фраза от ИИ';
+	@override String get signatureEditTextHint => 'Это подпись, уже записанная в этот комментарий: фраза и дата теперь просто текст, правьте как угодно. Очистите поле, чтобы убрать подпись.';
+	@override String signatureResolving({required Object name}) => 'Создаём ${name}…';
+	@override String get signaturePendingValue => '(создаётся при отправке)';
+	@override String get signatureAiHint => 'Строка, которую ИИ пишет на месте — своя для каждого комментария. Использует настроенного вами провайдера ИИ.';
+	@override String get signatureAiUnavailable => 'Провайдер ИИ ещё не настроен, поэтому этот источник не показывается в панели переменных.';
+	@override String get signaturePromptTitle => 'Промпт';
+	@override String get signaturePromptHint => 'Именно это уходит модели. Перепишите как угодно: тон, длину, тему. Правила, которые уже есть, стоит оставить.';
+	@override String get signaturePromptReset => 'Сбросить по умолчанию';
+	@override String get signaturePromptTry => 'Попробовать';
+	@override String get signaturePromptSample => 'Что получилось';
+	@override String get signaturePromptLanguageHint => 'заменяется языком интерфейса. Без него строка пойдёт на языке промпта.';
+	@override String get signaturePromptEdited => 'изменён';
 	@override String get signatureVariablesGroup => 'Встроенные переменные';
 	@override String get signatureNeedsNetwork => 'Нужна сеть';
 	@override String get signatureBuiltinSource => 'Встроенный';
@@ -1343,6 +1361,8 @@ class _TranslationsForumRu extends TranslationsForumEn {
 	@override late final _TranslationsForumLeafDescriptionsRu leafDescriptions = _TranslationsForumLeafDescriptionsRu._(_root);
 	@override String get reply => 'Ответить';
 	@override String get pendingReview => 'На рассмотрении';
+	@override String get floorNotFound => 'Это сообщение не существует или удалено';
+	@override String get floorNotLoadedYet => 'Это сообщение выше — загрузите больше ответов, чтобы перейти к нему';
 	@override String get editedAt => 'Дата изменения';
 	@override String get copySuccess => 'Скопировано в буфер обмена';
 	@override String copySuccessForMessage({required Object str}) => 'Скопировано в буфер обмена: ${str}';
@@ -2842,6 +2862,75 @@ class _TranslationsHistoryPageRu extends TranslationsHistoryPageEn {
 	@override String clearTabTitle({required Object tab}) => 'Очистить «${tab}»';
 	@override String clearTabConfirm({required Object tab}) => 'Вся история в «${tab}» будет удалена вместе с прогрессом просмотра этих видео. Действие необратимо.';
 	@override String get rangeByLastViewed => 'По времени последнего просмотра';
+}
+
+// Path: ai
+class _TranslationsAiRu extends TranslationsAiEn {
+	_TranslationsAiRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'ИИ';
+	@override String get providers => 'Провайдеры';
+	@override String get providersHint => 'Добавьте одного или нескольких провайдеров ИИ и назначьте их для нужных функций.';
+	@override String get addProvider => 'Добавить провайдера';
+	@override String get noProviders => 'Провайдеры пока не добавлены. Добавьте хотя бы одного, чтобы включить перевод, поиск и подпись с помощью ИИ.';
+	@override String get pickPreset => 'Выбрать провайдера';
+	@override String get providerNameLabel => 'Название';
+	@override String get apiKey => 'API-ключ';
+	@override String get baseUrl => 'Конечная точка';
+	@override String get model => 'Модель';
+	@override String get modelPick => 'Выбрать модель';
+	@override String get modelEmpty => 'Не удалось загрузить список моделей — можно также ввести название модели вручную.';
+	@override String get advanced => 'Расширенные';
+	@override String get reasoning => 'Модель рассуждений';
+	@override String get streaming => 'Потоковый вывод';
+	@override String get structuredOutput => 'Структурированный вывод';
+	@override String get structuredOutputHint => 'Требуется для поиска с ИИ. Многие сторонние прокси-эндпоинты не поддерживают эту функцию — отключите её, если поиск постоянно завершается ошибкой.';
+	@override String get temperature => 'Температура';
+	@override String get maxTokens => 'Макс. количество токенов';
+	@override String get maxTokensAuto => 'Авто (лимит модели)';
+	@override String get test => 'Проверить';
+	@override String get testOk => 'Подключение успешно';
+	@override String get deleteProvider => 'Удалить провайдера';
+	@override String get usedBy => 'Используется в';
+	@override String get taskBindings => 'Назначение функций';
+	@override String get taskBindingsHint => 'Для каждой функции можно выбрать отдельного провайдера.';
+	@override String get taskTranslate => 'Перевод';
+	@override String get taskSearch => 'Поиск с ИИ';
+	@override String get taskSignature => 'Подпись';
+	@override String get taskAuto => 'Автоматически';
+	@override String get usage => 'Использование';
+	@override String get usageCalls => 'Вызовы';
+	@override String get usageTokens => 'Токены';
+	@override String get usageFailures => 'Ошибки';
+	@override String get usageReset => 'Сбросить статистику';
+	@override String get usageEmpty => 'Вызовов пока не было';
+	@override String get openSettings => 'Открыть настройки ИИ';
+	@override String get notConfigured => 'Не настроено';
+	@override String get searchTitle => 'Поиск с ИИ';
+	@override String get searchHint => 'Опишите, что вы ищете, и ИИ сам заполнит поисковые запросы и фильтры.';
+	@override String get searchPlaceholder => 'Например: недавние MMD с более 10 тыс. просмотров';
+	@override String get searchApply => 'Искать по этим условиям';
+	@override String get searchEmpty => 'Не удалось сформировать поисковый запрос. Попробуйте описать иначе.';
+	@override String get searchFilters => 'Фильтры';
+	@override String searchSwitchSegment({required Object segment}) => 'Переключить на ${segment}';
+	@override String get searchGenerating => 'Обработка…';
+	@override String get searchRetrying => 'Предыдущая попытка не удалась, повтор…';
+	@override String searchRetryReason({required Object reason}) => 'Причина: ${reason}';
+	@override String get searchStageWaiting => 'Запрос отправлен, ждём ответа…';
+	@override String get searchStageThinkingNext => 'Обдумывает следующий шаг…';
+	@override String get searchStageReasoning => 'Рассуждает…';
+	@override String get searchStageTool => 'Пробный поиск…';
+	@override String searchStageDrafting({required Object chars}) => 'Пишет ответ · ${chars} симв.';
+	@override String get searchStageParsing => 'Разбираем результат…';
+	@override String get searchThinking => 'Ход рассуждений';
+	@override String get searchKeywordNeedsQuotes => 'Запрос не взят в кавычки, поэтому Iwara сопоставляет его нестрого — при такой сортировке первая страница будет в основном нерелевантной. Возьмите его в "кавычки" или сортируйте по релевантности.';
+	@override String searchToolProbing({required Object query}) => 'Пробую ${query}';
+	@override String searchToolFound({required Object count, required Object titles}) => 'Результатов: ${count} · ${titles}';
+	@override String searchToolFailed({required Object reason}) => 'Не удалось: ${reason}';
+	@override String searchFiltersDropped({required Object count}) => 'Удалено фильтров, которых нет в этом разделе: ${count}.';
 }
 
 // Path: common.pagination
@@ -5145,6 +5234,9 @@ extension on TranslationsRu {
 			'search.contentRating' => 'Возрастной рейтинг',
 			'search.removeTag' => 'Удалить тег',
 			'search.pleaseEnterSearchContent' => 'Введите поисковый запрос',
+			'search.exactMatch' => 'Точно',
+			'search.exactMatchOnHint' => 'Точное совпадение фразы, дополнительно ищем в китайских и японских заголовках. Нажмите для менее строгого поиска.',
+			'search.exactMatchOffHint' => 'Нестрогое совпадение — Iwara разбивает слова. Нажмите для точной фразы.',
 			'search.searchHistory' => 'История поиска',
 			'search.searchSuggestion' => 'Подсказки поиска',
 			'search.usedTimes' => 'Использований',
@@ -5194,11 +5286,11 @@ extension on TranslationsRu {
 			'settings.fastForwardTime' => 'Время перемотки вперед',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => 'Время перемотки должно быть положительным целым числом.',
 			'settings.rewindTime' => 'Время перемотки назад',
+			_ => null,
+		} ?? switch (path) {
 			'settings.rewindTimeMustBeAPositiveInteger' => 'Время перемотки должно быть положительным целым числом.',
 			'settings.longPressPlaybackSpeed' => 'Скорость при долгом нажатии',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'Скорость при долгом нажатии должна быть положительным числом.',
-			_ => null,
-		} ?? switch (path) {
 			'settings.defaultPlaybackSpeed' => 'Скорость по умолчанию',
 			'settings.rememberPlaybackSpeed' => 'Запоминать скорость воспроизведения',
 			'settings.rememberPlaybackSpeedDesc' => 'Скорость, установленная в плеере, будет сохранена по умолчанию и применена к новым видео.',
@@ -5379,6 +5471,7 @@ extension on TranslationsRu {
 			'settings.signatureContent' => 'Текст подписи',
 			'settings.signaturePreview' => 'Предпросмотр',
 			'settings.signatureSampleBody' => 'Здесь ваш текст',
+			'settings.signatureRegenerate' => 'Обновить',
 			'settings.signatureNotSet' => 'Не задано',
 			'settings.signatureRuleHint' => 'Подпись добавляется после текста и отделяется горизонтальной линией. Линию добавляет приложение — вам нужно написать только строку ниже.',
 			'settings.signatureInsertVariable' => 'Вставить переменную',
@@ -5429,6 +5522,19 @@ extension on TranslationsRu {
 			'settings.signatureOptLengthShort' => 'Только короткие',
 			'settings.signatureRestoreDefault' => 'Вернуть по умолчанию',
 			'settings.signatureSourceHitokoto' => 'Hitokoto (случайная цитата)',
+			'settings.signatureAiSourceName' => 'Фраза от ИИ',
+			'settings.signatureEditTextHint' => 'Это подпись, уже записанная в этот комментарий: фраза и дата теперь просто текст, правьте как угодно. Очистите поле, чтобы убрать подпись.',
+			'settings.signatureResolving' => ({required Object name}) => 'Создаём ${name}…',
+			'settings.signaturePendingValue' => '(создаётся при отправке)',
+			'settings.signatureAiHint' => 'Строка, которую ИИ пишет на месте — своя для каждого комментария. Использует настроенного вами провайдера ИИ.',
+			'settings.signatureAiUnavailable' => 'Провайдер ИИ ещё не настроен, поэтому этот источник не показывается в панели переменных.',
+			'settings.signaturePromptTitle' => 'Промпт',
+			'settings.signaturePromptHint' => 'Именно это уходит модели. Перепишите как угодно: тон, длину, тему. Правила, которые уже есть, стоит оставить.',
+			'settings.signaturePromptReset' => 'Сбросить по умолчанию',
+			'settings.signaturePromptTry' => 'Попробовать',
+			'settings.signaturePromptSample' => 'Что получилось',
+			'settings.signaturePromptLanguageHint' => 'заменяется языком интерфейса. Без него строка пойдёт на языке промпта.',
+			'settings.signaturePromptEdited' => 'изменён',
 			'settings.signatureVariablesGroup' => 'Встроенные переменные',
 			'settings.signatureNeedsNetwork' => 'Нужна сеть',
 			'settings.signatureBuiltinSource' => 'Встроенный',
@@ -5694,6 +5800,8 @@ extension on TranslationsRu {
 			'settings.cdnRefreshServerListTooltip' => 'Обновить список серверов',
 			'settings.cdnSpeedTestButton' => 'Проверка скорости',
 			'settings.cdnSpeedTestingButton' => ({required Object count}) => 'Проверка (${count})',
+			_ => null,
+		} ?? switch (path) {
 			'settings.cdnNoServerDataHint' => 'Нет данных о серверах, нажмите кнопку обновления',
 			'settings.cdnTestingStatus' => 'Проверка',
 			'settings.cdnUnreachableStatus' => 'Недоступен',
@@ -5711,8 +5819,6 @@ extension on TranslationsRu {
 			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => 'Не удалось предоставить разрешение, некоторые функции могут быть ограничены',
 			'settings.downloadSettings.storagePermissionRationale' => 'Для сохранения в выбранную папку приложению нужен доступ к памяти.\n\nНа Android 11+ требуется «Доступ ко всем файлам»; без него файлы сохраняются в изолированную папку приложения.',
 			'settings.downloadSettings.storagePermissionRationaleLegacy' => 'Для сохранения в выбранную папку приложению нужен доступ к памяти.\n\nБез него файлы сохраняются в изолированную папку приложения.',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.grantStoragePermission' => 'Предоставить доступ',
 			'settings.downloadSettings.customDownloadPath' => 'Пользовательская папка загрузки',
 			'settings.downloadSettings.customDownloadPathDescription' => 'Возможность выбрать свое место для сохранения файлов',
@@ -6208,6 +6314,8 @@ extension on TranslationsRu {
 			'markdown.iwaraSpecialMarkdownSyntax' => 'Особый синтаксис Markdown Iwara',
 			'markdown.internalLink' => 'Внутренняя ссылка',
 			'markdown.supportAutoConvertLinkBelow' => 'Поддерживается автоматическое преобразование следующих ссылок:',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.convertLinkExample' => '🎬 Ссылка на видео\n🖼️ Ссылка на изображение\n👤 Ссылка на пользователя\n📌 Ссылка на форум\n🎵 Ссылка на плейлист\n💬 Ссылка на тему',
 			'markdown.mentionUser' => 'Упоминание пользователя',
 			'markdown.mentionUserDescription' => 'Введите @, а затем имя пользователя — оно автоматически преобразуется в ссылку на пользователя',
@@ -6225,8 +6333,6 @@ extension on TranslationsRu {
 			'markdown.listDescription' => 'Нумерованный список создаётся цифрой с точкой, маркированный — знаком -',
 			'markdown.listSyntax' => '1. Первый пункт\n2. Второй пункт\n\n- Пункт маркированного списка\n  - Подпункт\n  - Ещё один подпункт',
 			'markdown.linkAndImage' => 'Ссылка и изображение',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.linkAndImageDescription' => 'Формат ссылки: [текст](URL)\nФормат изображения: ![описание](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[текст ссылки](${link})\n![описание изображения](${imgUrl})',
 			'markdown.title' => 'Заголовок',
@@ -6303,6 +6409,8 @@ extension on TranslationsRu {
 			'forum.leafDescriptions.other' => 'Прочий неклассифицированный контент',
 			'forum.reply' => 'Ответить',
 			'forum.pendingReview' => 'На рассмотрении',
+			'forum.floorNotFound' => 'Это сообщение не существует или удалено',
+			'forum.floorNotLoadedYet' => 'Это сообщение выше — загрузите больше ответов, чтобы перейти к нему',
 			'forum.editedAt' => 'Дата изменения',
 			'forum.copySuccess' => 'Скопировано в буфер обмена',
 			'forum.copySuccessForMessage' => ({required Object str}) => 'Скопировано в буфер обмена: ${str}',
@@ -6720,6 +6828,8 @@ extension on TranslationsRu {
 			'download.relocation.sectionNotAttempted' => 'Not processed (stopped, left as is)',
 			'download.relocation.unexpectedError' => ({required Object message}) => 'Stopped because of an error: ${message}. Items already moved are complete.',
 			'download.category.manageTitle' => 'Управление категориями',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.label' => 'Категории',
 			'download.category.uncategorized' => 'Без категории',
 			'download.category.manage' => 'Управление',
@@ -6739,8 +6849,6 @@ extension on TranslationsRu {
 			'download.category.renameSuccess' => 'Категория переименована',
 			'download.category.renameFailed' => 'Не удалось переименовать категорию',
 			'download.category.deleteTitle' => 'Удалить категорию',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'Удалить категорию «${title}»? Элементы (${count}) перейдут в «Без категории». Файлы не удаляются.',
 			'download.category.deleteSuccess' => 'Категория удалена',
 			'download.category.deleteFailed' => 'Не удалось удалить категорию',
@@ -7234,6 +7342,8 @@ extension on TranslationsRu {
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'На ${position}',
 			'mediaPlayer.notice.noIssuesRecorded' => 'Проблемы не зафиксированы',
 			'mediaPlayer.notice.exportLogsAction' => 'Экспортировать логи',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.imageLoadFailed' => 'Не удалось загрузить изображение',
 			'mediaPlayer.unsupportedImageFormat' => 'Неподдерживаемый формат изображения',
 			'mediaPlayer.tryOtherViewer' => 'Попробуйте использовать другой просмотрщик',
@@ -7253,8 +7363,6 @@ extension on TranslationsRu {
 			'diagnostics.schemaHealthRepairedBefore' => 'Ранее была восстановлена защитным механизмом',
 			'diagnostics.logPolicySectionTitle' => 'Политика логов',
 			'diagnostics.configServiceUnavailable' => 'Служба конфигурации не инициализирована. Невозможно изменить политику логов.',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.enableLoggingTitle' => 'Вести журнал',
 			'diagnostics.enableLoggingSubtitle' => 'Отключите, чтобы прекратить запись новых логов',
 			'diagnostics.enableLogPersistenceTitle' => 'Сохранять логи на диск',
@@ -7748,6 +7856,8 @@ extension on TranslationsRu {
 			'watchLater.removedFromWatchLater' => 'Убрано из «Посмотреть позже»',
 			'watchLater.removedCount' => ({required Object count}) => 'Удалено элементов: ${count}',
 			'watchLater.viewWatchLaterList' => 'Открыть список',
+			_ => null,
+		} ?? switch (path) {
 			'watchLater.addFailed' => 'Не удалось добавить в «Посмотреть позже»',
 			'watchLater.invalidItem' => 'Недоступно',
 			'watchLater.clearWatched' => 'Очистить просмотренное',
@@ -7767,8 +7877,6 @@ extension on TranslationsRu {
 			'watchLater.emptyUnwatchedVideo' => 'Здесь больше нечего смотреть',
 			'watchLater.emptyUnwatchedGallery' => 'Здесь больше нечего смотреть',
 			'watchLater.queueLoadFailed' => 'Не удалось загрузить, нажмите для повтора',
-			_ => null,
-		} ?? switch (path) {
 			'mediaMenu.like' => 'Нравится',
 			'mediaMenu.unlike' => 'Убрать отметку «Нравится»',
 			'mediaMenu.viewAuthor' => 'Открыть автора',
@@ -8115,6 +8223,66 @@ extension on TranslationsRu {
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'Очистить «${tab}»',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Вся история в «${tab}» будет удалена вместе с прогрессом просмотра этих видео. Действие необратимо.',
 			'historyPage.rangeByLastViewed' => 'По времени последнего просмотра',
+			'ai.title' => 'ИИ',
+			'ai.providers' => 'Провайдеры',
+			'ai.providersHint' => 'Добавьте одного или нескольких провайдеров ИИ и назначьте их для нужных функций.',
+			'ai.addProvider' => 'Добавить провайдера',
+			'ai.noProviders' => 'Провайдеры пока не добавлены. Добавьте хотя бы одного, чтобы включить перевод, поиск и подпись с помощью ИИ.',
+			'ai.pickPreset' => 'Выбрать провайдера',
+			'ai.providerNameLabel' => 'Название',
+			'ai.apiKey' => 'API-ключ',
+			'ai.baseUrl' => 'Конечная точка',
+			'ai.model' => 'Модель',
+			'ai.modelPick' => 'Выбрать модель',
+			'ai.modelEmpty' => 'Не удалось загрузить список моделей — можно также ввести название модели вручную.',
+			'ai.advanced' => 'Расширенные',
+			'ai.reasoning' => 'Модель рассуждений',
+			'ai.streaming' => 'Потоковый вывод',
+			'ai.structuredOutput' => 'Структурированный вывод',
+			'ai.structuredOutputHint' => 'Требуется для поиска с ИИ. Многие сторонние прокси-эндпоинты не поддерживают эту функцию — отключите её, если поиск постоянно завершается ошибкой.',
+			'ai.temperature' => 'Температура',
+			'ai.maxTokens' => 'Макс. количество токенов',
+			'ai.maxTokensAuto' => 'Авто (лимит модели)',
+			'ai.test' => 'Проверить',
+			'ai.testOk' => 'Подключение успешно',
+			'ai.deleteProvider' => 'Удалить провайдера',
+			'ai.usedBy' => 'Используется в',
+			'ai.taskBindings' => 'Назначение функций',
+			'ai.taskBindingsHint' => 'Для каждой функции можно выбрать отдельного провайдера.',
+			'ai.taskTranslate' => 'Перевод',
+			'ai.taskSearch' => 'Поиск с ИИ',
+			'ai.taskSignature' => 'Подпись',
+			'ai.taskAuto' => 'Автоматически',
+			'ai.usage' => 'Использование',
+			'ai.usageCalls' => 'Вызовы',
+			'ai.usageTokens' => 'Токены',
+			'ai.usageFailures' => 'Ошибки',
+			'ai.usageReset' => 'Сбросить статистику',
+			'ai.usageEmpty' => 'Вызовов пока не было',
+			'ai.openSettings' => 'Открыть настройки ИИ',
+			'ai.notConfigured' => 'Не настроено',
+			'ai.searchTitle' => 'Поиск с ИИ',
+			'ai.searchHint' => 'Опишите, что вы ищете, и ИИ сам заполнит поисковые запросы и фильтры.',
+			'ai.searchPlaceholder' => 'Например: недавние MMD с более 10 тыс. просмотров',
+			'ai.searchApply' => 'Искать по этим условиям',
+			'ai.searchEmpty' => 'Не удалось сформировать поисковый запрос. Попробуйте описать иначе.',
+			'ai.searchFilters' => 'Фильтры',
+			'ai.searchSwitchSegment' => ({required Object segment}) => 'Переключить на ${segment}',
+			'ai.searchGenerating' => 'Обработка…',
+			'ai.searchRetrying' => 'Предыдущая попытка не удалась, повтор…',
+			'ai.searchRetryReason' => ({required Object reason}) => 'Причина: ${reason}',
+			'ai.searchStageWaiting' => 'Запрос отправлен, ждём ответа…',
+			'ai.searchStageThinkingNext' => 'Обдумывает следующий шаг…',
+			'ai.searchStageReasoning' => 'Рассуждает…',
+			'ai.searchStageTool' => 'Пробный поиск…',
+			'ai.searchStageDrafting' => ({required Object chars}) => 'Пишет ответ · ${chars} симв.',
+			'ai.searchStageParsing' => 'Разбираем результат…',
+			'ai.searchThinking' => 'Ход рассуждений',
+			'ai.searchKeywordNeedsQuotes' => 'Запрос не взят в кавычки, поэтому Iwara сопоставляет его нестрого — при такой сортировке первая страница будет в основном нерелевантной. Возьмите его в "кавычки" или сортируйте по релевантности.',
+			'ai.searchToolProbing' => ({required Object query}) => 'Пробую ${query}',
+			'ai.searchToolFound' => ({required Object count, required Object titles}) => 'Результатов: ${count} · ${titles}',
+			'ai.searchToolFailed' => ({required Object reason}) => 'Не удалось: ${reason}',
+			'ai.searchFiltersDropped' => ({required Object count}) => 'Удалено фильтров, которых нет в этом разделе: ${count}.',
 			_ => null,
 		};
 	}

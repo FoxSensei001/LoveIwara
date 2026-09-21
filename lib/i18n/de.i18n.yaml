@@ -494,6 +494,9 @@ search:
   contentRating: Inhaltseinstufung
   removeTag: Tag entfernen
   pleaseEnterSearchContent: Bitte Suchinhalt eingeben
+  exactMatch: "Exakt"
+  exactMatchOnHint: "Exakte Übereinstimmung der Phrase, zusätzlich werden chinesische und japanische Titel durchsucht. Tippen für eine lockerere Suche."
+  exactMatchOffHint: "Lockere Übereinstimmung — Iwara zerlegt die Wörter. Tippen für exakte Phrase."
   searchHistory: Suchverlauf
   searchSuggestion: Suchvorschläge
   usedTimes: Nutzungshäufigkeit
@@ -729,6 +732,7 @@ settings:
   signatureContent: Signaturinhalt
   signaturePreview: 'Vorschau'
   signatureSampleBody: 'Hier steht dein Text'
+  signatureRegenerate: 'Neu generieren'
   signatureNotSet: 'Nicht festgelegt'
   signatureRuleHint: "Die Signatur wird nach dem Text angehängt, getrennt durch eine Trennlinie. Die Linie fügt die App hinzu – schreibe nur die Zeile unten."
   signatureInsertVariable: "Variable einfügen"
@@ -779,6 +783,19 @@ settings:
   signatureOptLengthShort: "Nur kurze Sätze"
   signatureRestoreDefault: "Standard wiederherstellen"
   signatureSourceHitokoto: "Hitokoto (Zufallszitat)"
+  signatureAiSourceName: "KI-generierte Zeile"
+  signatureEditTextHint: "Das ist die Signatur, die bereits in diesem Kommentar steht — Spruch und Datum sind jetzt einfach Text, ändere sie beliebig. Leeren entfernt die Signatur."
+  signatureResolving: "Erzeuge ${name}…"
+  signaturePendingValue: "(wird beim Senden erzeugt)"
+  signatureAiHint: "Eine Zeile, die die KI im Moment des Absendens schreibt — bei jedem Kommentar neu. Nutzt den von dir eingerichteten KI-Anbieter."
+  signatureAiUnavailable: "Noch kein KI-Anbieter eingerichtet, deshalb taucht diese Quelle nicht im Variablen-Panel auf."
+  signaturePromptTitle: "Prompt"
+  signaturePromptHint: "Das geht so an das Modell. Schreib es um, wie du willst — Ton, Länge, Thema. Die Regeln, die schon drinstehen, lohnt es sich zu behalten."
+  signaturePromptReset: "Standard wiederherstellen"
+  signaturePromptTry: "Ausprobieren"
+  signaturePromptSample: "Das Ergebnis"
+  signaturePromptLanguageHint: "wird durch deine Oberflächensprache ersetzt. Ohne das folgt die Zeile der Sprache des Prompts."
+  signaturePromptEdited: "geändert"
   signatureVariablesGroup: "Eingebaute Variablen"
   signatureNeedsNetwork: "Braucht Netz"
   signatureBuiltinSource: "Eingebaut"
@@ -1705,6 +1722,8 @@ forum:
     other: Sonstige nicht klassifizierte Inhalte
   reply: Antworten
   pendingReview: Ausstehende Prüfung
+  floorNotFound: 'Dieser Beitrag existiert nicht mehr'
+  floorNotLoadedYet: 'Dieser Beitrag liegt weiter oben — lade mehr Antworten, um dorthin zu springen'
   editedAt: Bearbeitet am
   copySuccess: In die Zwischenablage kopiert
   copySuccessForMessage: 'In die Zwischenablage kopiert: ${str}'
@@ -3663,3 +3682,65 @@ historyPage:
   clearTabTitle: "„${tab}“ leeren"
   clearTabConfirm: "Der gesamte Verlauf in „${tab}“ wird gelöscht, einschließlich des Wiedergabefortschritts dieser Videos. Dies kann nicht rückgängig gemacht werden."
   rangeByLastViewed: "Nach zuletzt angesehen gefiltert"
+
+ai:
+  title: "KI"
+  providers: "Anbieter"
+  providersHint: "Fügen Sie einen oder mehrere KI-Anbieter hinzu und weisen Sie diese den Funktionen zu."
+  addProvider: "Anbieter hinzufügen"
+  noProviders: "Noch keine Anbieter vorhanden. Fügen Sie einen hinzu, um KI-Übersetzung, Suche und Signatur zu aktivieren."
+  pickPreset: "Anbieter auswählen"
+  providerNameLabel: "Bezeichnung"
+  apiKey: "API-Schlüssel"
+  baseUrl: "Endpunkt"
+  model: "Modell"
+  modelPick: "Modell auswählen"
+  modelEmpty: "Modellliste konnte nicht geladen werden — Sie können den Modellnamen auch direkt eingeben."
+  advanced: "Erweitert"
+  reasoning: "Reasoning-Modell"
+  streaming: "Streaming-Ausgabe"
+  structuredOutput: "Strukturierte Ausgabe"
+  structuredOutputHint: "Wird für die KI-Suche benötigt. Viele Relay-Endpunkte unterstützen dies nicht — deaktivieren Sie es, wenn die Suche fehlschlägt."
+  temperature: "Temperatur"
+  maxTokens: "Max. Tokens"
+  maxTokensAuto: "Automatisch (Modellgrenze)"
+  test: "Testen"
+  testOk: "Verbindung erfolgreich"
+  deleteProvider: "Anbieter löschen"
+  usedBy: "Verwendet für"
+  taskBindings: "Funktionszuweisung"
+  taskBindingsHint: "Jede Funktion kann einen anderen Anbieter verwenden."
+  taskTranslate: "Übersetzung"
+  taskSearch: "KI-Suche"
+  taskSignature: "Signatur"
+  taskAuto: "Automatisch"
+  usage: "Nutzung"
+  usageCalls: "Aufrufe"
+  usageTokens: "Token-Anzahl"
+  usageFailures: "Fehlgeschlagen"
+  usageReset: "Statistiken zurücksetzen"
+  usageEmpty: "Noch keine Aufrufe vorhanden"
+  openSettings: "KI-Einstellungen öffnen"
+  notConfigured: "Nicht konfiguriert"
+  searchTitle: "KI-Suche"
+  searchHint: "Beschreiben Sie, was Sie suchen. Die KI füllt Suchbegriffe und Filter automatisch aus."
+  searchPlaceholder: "z. B. aktuelle MMDs mit über 10.000 Aufrufen"
+  searchApply: "Mit diesen Begriffen suchen"
+  searchEmpty: "Suchbegriffe konnten nicht erkannt werden. Bitte versuchen Sie es mit einer anderen Formulierung."
+  searchFilters: "Filterkriterien"
+  searchSwitchSegment: "Zu ${segment} wechseln"
+  searchGenerating: "Wird verarbeitet…"
+  searchRetrying: "Letzter Versuch fehlgeschlagen, neuer Versuch…"
+  searchRetryReason: "Grund: ${reason}"
+  searchStageWaiting: "Anfrage gesendet, warte auf Antwort…"
+  searchStageThinkingNext: "Überlegt den nächsten Schritt…"
+  searchStageReasoning: "Überlegt…"
+  searchStageTool: "Testsuche läuft…"
+  searchStageDrafting: "Antwort wird geschrieben · ${chars} Zeichen"
+  searchStageParsing: "Ergebnis wird aufbereitet…"
+  searchThinking: "Denkprozess"
+  searchKeywordNeedsQuotes: "Dieses Stichwort steht nicht in Anführungszeichen, daher passt Iwara es nur lose an — bei dieser Sortierung ist die erste Seite meist unpassend. Setze es in \"Anführungszeichen\" oder sortiere nach Relevanz."
+  searchToolProbing: "Teste ${query}"
+  searchToolFound: "${count} Treffer · ${titles}"
+  searchToolFailed: "Fehlgeschlagen: ${reason}"
+  searchFiltersDropped: "${count} Filter entfernt, die es in diesem Bereich nicht gibt."

@@ -494,6 +494,9 @@ search:
   contentRating: 內容分級
   removeTag: 移除標籤
   pleaseEnterSearchContent: 請輸入搜尋內容
+  exactMatch: "精確匹配"
+  exactMatchOnHint: "正按整個詞精確匹配，並額外搜尋中文與日文標題。點一下改回鬆散搜尋。"
+  exactMatchOffHint: "正在鬆散匹配——iwara 會把詞拆開。點一下改成精確匹配整個詞。"
   searchHistory: 搜尋歷史
   searchSuggestion: 搜尋建議
   usedTimes: 使用次數
@@ -730,6 +733,7 @@ settings:
   signatureContent: 小尾巴內容
   signaturePreview: '效果預覽'
   signatureSampleBody: '這裡是你寫的正文'
+  signatureRegenerate: '換一句'
   signatureNotSet: '尚未設定'
   signatureRuleHint: "小尾巴會跟在正文後面，中間自動隔一條分隔線——分隔線由應用程式產生，你只需要寫下面這句話。"
   signatureInsertVariable: "插入變數"
@@ -780,6 +784,19 @@ settings:
   signatureOptLengthShort: "只要短句"
   signatureRestoreDefault: "恢復預設"
   signatureSourceHitokoto: "一言"
+  signatureAiSourceName: "AI 一言"
+  signatureEditTextHint: "這是這則留言裡已經寫好的小尾巴——一言、日期這會兒都只是普通文字，隨便改。清空就是不要小尾巴了。"
+  signatureResolving: "正在產生${name}…"
+  signaturePendingValue: "（發送時產生）"
+  signatureAiHint: "由 AI 現寫的一句話，每條留言都是新的。用的是你配好的 AI 供應商。"
+  signatureAiUnavailable: "還沒配 AI 供應商，所以它暫時不會出現在變數面板裡。"
+  signaturePromptTitle: "提示詞"
+  signaturePromptHint: "這就是發給模型的那一段。語氣、長短、寫什麼，隨便改。裡面已有的幾條規矩值得留著。"
+  signaturePromptReset: "恢復預設"
+  signaturePromptTry: "試一下"
+  signaturePromptSample: "它寫出來的"
+  signaturePromptLanguageHint: "會換成你的介面語言。刪掉它，一言就會跟著提示詞的語言走。"
+  signaturePromptEdited: "改過"
   signatureVariablesGroup: "內建變數"
   signatureNeedsNetwork: "需要連網"
   signatureBuiltinSource: "內建"
@@ -1756,6 +1773,8 @@ forum:
     other: 其他未分類的內容
   reply: 回覆
   pendingReview: 審核中
+  floorNotFound: '該樓層不存在或已被刪除'
+  floorNotLoadedYet: '該樓層在更早的位置，繼續向上載入後才能跳轉'
   editedAt: 編輯時間
   copySuccess: 已複製到剪貼簿
   copySuccessForMessage: '已複製到剪貼簿: ${str}'
@@ -3667,3 +3686,65 @@ historyPage:
   clearTabTitle: "清空「${tab}」"
   clearTabConfirm: "將刪除「${tab}」中的全部歷史記錄，以及對應影片的觀看進度。此操作無法復原。"
   rangeByLastViewed: "依最後瀏覽時間篩選"
+
+ai:
+  title: "AI"
+  providers: "供應商"
+  providersHint: "新增一個或多個 AI 供應商，再為每項功能指定用哪一個。"
+  addProvider: "新增供應商"
+  noProviders: "還沒有供應商。新增一個之後，翻譯、搜尋和小尾巴才能用上 AI。"
+  pickPreset: "選擇供應商"
+  providerNameLabel: "名稱"
+  apiKey: "API 金鑰"
+  baseUrl: "端點位址"
+  model: "模型"
+  modelPick: "選擇模型"
+  modelEmpty: "沒抓到模型列表，直接填模型名也可以"
+  advanced: "進階"
+  reasoning: "推理模型"
+  streaming: "串流輸出"
+  structuredOutput: "結構化輸出"
+  structuredOutputHint: "AI 搜尋要用它。不少中轉端點並不支援，搜尋老是失敗就關掉。"
+  temperature: "溫度"
+  maxTokens: "最大 token"
+  maxTokensAuto: "自動（模型上限）"
+  test: "測試"
+  testOk: "連線正常"
+  deleteProvider: "刪除供應商"
+  usedBy: "正在用於"
+  taskBindings: "功能分配"
+  taskBindingsHint: "每項功能可以指定不同的供應商。"
+  taskTranslate: "翻譯"
+  taskSearch: "AI 搜尋"
+  taskSignature: "小尾巴"
+  taskAuto: "自動"
+  usage: "用量"
+  usageCalls: "呼叫"
+  usageTokens: "token"
+  usageFailures: "失敗"
+  usageReset: "清空統計"
+  usageEmpty: "還沒有呼叫紀錄"
+  openSettings: "前往 AI 設定"
+  notConfigured: "未設定"
+  searchTitle: "AI 搜尋"
+  searchHint: "用一句話描述你想找什麼，AI 會替你填好搜尋詞和篩選條件。"
+  searchPlaceholder: "例如：播放量破萬的最新 MMD"
+  searchApply: "用這些條件搜尋"
+  searchEmpty: "沒能從這句話裡解析出搜尋條件，換個說法試試"
+  searchFilters: "篩選條件"
+  searchSwitchSegment: "切換到「${segment}」"
+  searchGenerating: "正在理解…"
+  searchRetrying: "上一次失敗了，正在重試…"
+  searchRetryReason: "失敗原因：${reason}"
+  searchStageWaiting: "已送出請求，等待回應…"
+  searchStageThinkingNext: "正在繼續思考…"
+  searchStageReasoning: "正在推理…"
+  searchStageTool: "正在試搜…"
+  searchStageDrafting: "正在寫答案 · 已 ${chars} 字"
+  searchStageParsing: "正在整理結果…"
+  searchThinking: "思考過程"
+  searchKeywordNeedsQuotes: "這個關鍵詞沒加引號，iwara 會把它拆碎了鬆散匹配——按這個排序，第一頁多半與它無關。給它加上英文雙引號，或者改成按相關度排序。"
+  searchToolProbing: "試搜 ${query}"
+  searchToolFound: "${count} 筆 · ${titles}"
+  searchToolFailed: "試搜失敗：${reason}"
+  searchFiltersDropped: "已移除 ${count} 條本板塊沒有的篩選。"

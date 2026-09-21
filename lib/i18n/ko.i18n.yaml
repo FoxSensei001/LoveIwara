@@ -494,6 +494,9 @@ search:
   contentRating: 콘텐츠 등급
   removeTag: 태그 제거
   pleaseEnterSearchContent: 검색 내용을 입력하세요
+  exactMatch: "정확히 일치"
+  exactMatchOnHint: "구문 전체로 정확히 일치시키며 중국어·일본어 제목도 함께 검색합니다. 탭하면 느슨한 검색으로 돌아갑니다."
+  exactMatchOffHint: "느슨하게 일치 중 — iwara가 단어를 쪼갭니다. 탭하면 구문 전체를 정확히 일치시킵니다."
   searchHistory: 검색 기록
   searchSuggestion: 검색 제안
   usedTimes: 사용 횟수
@@ -729,6 +732,7 @@ settings:
   signatureContent: 서명 내용
   signaturePreview: '미리보기'
   signatureSampleBody: '여기에 본문이 들어갑니다'
+  signatureRegenerate: '다시 생성'
   signatureNotSet: '설정되지 않음'
   signatureRuleHint: "서명은 본문 뒤에 구분선을 사이에 두고 붙습니다. 구분선은 앱이 넣으니 아래 문장만 작성하세요."
   signatureInsertVariable: "변수 넣기"
@@ -779,6 +783,19 @@ settings:
   signatureOptLengthShort: "짧은 문장만"
   signatureRestoreDefault: "기본값으로 되돌리기"
   signatureSourceHitokoto: "Hitokoto (무작위 문구)"
+  signatureAiSourceName: "AI 한 줄 문구"
+  signatureEditTextHint: "이 댓글에 이미 적혀 있는 서명입니다. 한 줄 문구도 날짜도 지금은 그냥 글자라 마음대로 고칠 수 있습니다. 비우면 서명이 빠집니다."
+  signatureResolving: "${name} 생성 중…"
+  signaturePendingValue: "(보낼 때 생성)"
+  signatureAiHint: "AI 가 그 자리에서 쓰는 한 줄. 댓글마다 새로 생성됩니다. 설정한 AI 공급자를 사용합니다."
+  signatureAiUnavailable: "AI 공급자가 아직 없어서 변수 패널에는 나타나지 않습니다."
+  signaturePromptTitle: "프롬프트"
+  signaturePromptHint: "모델에 전달되는 내용입니다. 어조도 길이도 소재도 마음대로 고쳐도 됩니다. 이미 들어있는 규칙은 남겨두는 편이 좋습니다."
+  signaturePromptReset: "기본값 복원"
+  signaturePromptTry: "시험해보기"
+  signaturePromptSample: "쓴 문장"
+  signaturePromptLanguageHint: "은(는) 인터페이스 언어로 바뀝니다. 지우면 프롬프트의 언어를 따릅니다."
+  signaturePromptEdited: "수정됨"
   signatureVariablesGroup: "기본 변수"
   signatureNeedsNetwork: "네트워크 필요"
   signatureBuiltinSource: "기본"
@@ -1705,6 +1722,8 @@ forum:
     other: 기타 분류되지 않은 콘텐츠
   reply: 답글
   pendingReview: 검토 대기 중
+  floorNotFound: '해당 댓글이 없거나 삭제되었습니다'
+  floorNotLoadedYet: '해당 댓글은 더 위에 있습니다. 더 불러온 뒤 이동할 수 있습니다'
   editedAt: 수정일
   copySuccess: 클립보드에 복사되었습니다
   copySuccessForMessage: '클립보드에 복사됨: ${str}'
@@ -3663,3 +3682,65 @@ historyPage:
   clearTabTitle: "\"${tab}\" 지우기"
   clearTabConfirm: "\"${tab}\"의 모든 기록과 해당 동영상의 시청 위치가 삭제됩니다. 이 작업은 되돌릴 수 없습니다."
   rangeByLastViewed: "마지막으로 본 시간 기준"
+
+ai:
+  title: "AI"
+  providers: "제공자"
+  providersHint: "하나 이상의 AI 제공자를 추가한 뒤, 각 기능에서 사용할 제공자를 지정하세요."
+  addProvider: "제공자 추가"
+  noProviders: "등록된 제공자가 없습니다. 제공자를 추가하면 AI 번역, 검색, 서명 기능을 사용할 수 있습니다."
+  pickPreset: "제공자 선택"
+  providerNameLabel: "이름"
+  apiKey: "API 키"
+  baseUrl: "엔드포인트"
+  model: "모델"
+  modelPick: "모델 선택"
+  modelEmpty: "모델 목록을 불러오지 못했습니다. 모델 이름을 직접 입력해도 됩니다."
+  advanced: "고급"
+  reasoning: "추론 모델"
+  streaming: "스트리밍 출력"
+  structuredOutput: "구조화된 출력"
+  structuredOutputHint: "AI 검색에 필요합니다. 많은 중계 엔드포인트에서 지원하지 않으므로, 검색이 계속 실패하면 이 옵션을 끄세요."
+  temperature: "온도"
+  maxTokens: "최대 토큰"
+  maxTokensAuto: "자동 (모델 상한)"
+  test: "테스트"
+  testOk: "연결 성공"
+  deleteProvider: "제공자 삭제"
+  usedBy: "사용 중"
+  taskBindings: "기능 할당"
+  taskBindingsHint: "기능별로 서로 다른 제공자를 지정할 수 있습니다."
+  taskTranslate: "번역"
+  taskSearch: "AI 검색"
+  taskSignature: "서명"
+  taskAuto: "자동"
+  usage: "사용량"
+  usageCalls: "호출"
+  usageTokens: "토큰"
+  usageFailures: "실패"
+  usageReset: "통계 초기화"
+  usageEmpty: "아직 호출 기록이 없습니다"
+  openSettings: "AI 설정 열기"
+  notConfigured: "구성되지 않음"
+  searchTitle: "AI 검색"
+  searchHint: "찾고 있는 것을 설명하면 AI가 검색어와 필터를 자동으로 채워줍니다."
+  searchPlaceholder: "예: 조회수 1만 회 이상의 최신 MMD"
+  searchApply: "이 조건으로 검색"
+  searchEmpty: "검색 조건을 파악하지 못했습니다. 다른 방식으로 설명해 보세요."
+  searchFilters: "필터"
+  searchSwitchSegment: "「${segment}」(으)로 전환"
+  searchGenerating: "생각하는 중…"
+  searchRetrying: "이전 시도가 실패했습니다. 재시도 중…"
+  searchRetryReason: "원인: ${reason}"
+  searchStageWaiting: "요청을 보냈습니다. 응답 대기 중…"
+  searchStageThinkingNext: "다음 단계를 고민하는 중…"
+  searchStageReasoning: "추론 중…"
+  searchStageTool: "시험 검색 중…"
+  searchStageDrafting: "답변 작성 중 · ${chars}자"
+  searchStageParsing: "결과 정리 중…"
+  searchThinking: "사고 과정"
+  searchKeywordNeedsQuotes: "이 검색어는 따옴표가 없어 iwara가 느슨하게 일치시킵니다. 이 정렬에서는 첫 페이지가 대부분 무관합니다. \"따옴표\"로 감싸거나 관련도순으로 바꾸세요."
+  searchToolProbing: "${query} 로 시험 검색"
+  searchToolFound: "${count}개 · ${titles}"
+  searchToolFailed: "시험 검색 실패: ${reason}"
+  searchFiltersDropped: "이 섹션에 없는 필터 ${count}개를 제거했습니다."

@@ -97,6 +97,7 @@ class TranslationsKo extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsVrFormatKo vrFormat = _TranslationsVrFormatKo._(_root);
 	@override late final _TranslationsLocalMediaKo localMedia = _TranslationsLocalMediaKo._(_root);
 	@override late final _TranslationsHistoryPageKo historyPage = _TranslationsHistoryPageKo._(_root);
+	@override late final _TranslationsAiKo ai = _TranslationsAiKo._(_root);
 }
 
 // Path: personalProfile
@@ -643,6 +644,9 @@ class _TranslationsSearchKo extends TranslationsSearchEn {
 	@override String get contentRating => '콘텐츠 등급';
 	@override String get removeTag => '태그 제거';
 	@override String get pleaseEnterSearchContent => '검색 내용을 입력하세요';
+	@override String get exactMatch => '정확히 일치';
+	@override String get exactMatchOnHint => '구문 전체로 정확히 일치시키며 중국어·일본어 제목도 함께 검색합니다. 탭하면 느슨한 검색으로 돌아갑니다.';
+	@override String get exactMatchOffHint => '느슨하게 일치 중 — iwara가 단어를 쪼갭니다. 탭하면 구문 전체를 정확히 일치시킵니다.';
 	@override String get searchHistory => '검색 기록';
 	@override String get searchSuggestion => '검색 제안';
 	@override String get usedTimes => '사용 횟수';
@@ -893,6 +897,7 @@ class _TranslationsSettingsKo extends TranslationsSettingsEn {
 	@override String get signatureContent => '서명 내용';
 	@override String get signaturePreview => '미리보기';
 	@override String get signatureSampleBody => '여기에 본문이 들어갑니다';
+	@override String get signatureRegenerate => '다시 생성';
 	@override String get signatureNotSet => '설정되지 않음';
 	@override String get signatureRuleHint => '서명은 본문 뒤에 구분선을 사이에 두고 붙습니다. 구분선은 앱이 넣으니 아래 문장만 작성하세요.';
 	@override String get signatureInsertVariable => '변수 넣기';
@@ -943,6 +948,19 @@ class _TranslationsSettingsKo extends TranslationsSettingsEn {
 	@override String get signatureOptLengthShort => '짧은 문장만';
 	@override String get signatureRestoreDefault => '기본값으로 되돌리기';
 	@override String get signatureSourceHitokoto => 'Hitokoto (무작위 문구)';
+	@override String get signatureAiSourceName => 'AI 한 줄 문구';
+	@override String get signatureEditTextHint => '이 댓글에 이미 적혀 있는 서명입니다. 한 줄 문구도 날짜도 지금은 그냥 글자라 마음대로 고칠 수 있습니다. 비우면 서명이 빠집니다.';
+	@override String signatureResolving({required Object name}) => '${name} 생성 중…';
+	@override String get signaturePendingValue => '(보낼 때 생성)';
+	@override String get signatureAiHint => 'AI 가 그 자리에서 쓰는 한 줄. 댓글마다 새로 생성됩니다. 설정한 AI 공급자를 사용합니다.';
+	@override String get signatureAiUnavailable => 'AI 공급자가 아직 없어서 변수 패널에는 나타나지 않습니다.';
+	@override String get signaturePromptTitle => '프롬프트';
+	@override String get signaturePromptHint => '모델에 전달되는 내용입니다. 어조도 길이도 소재도 마음대로 고쳐도 됩니다. 이미 들어있는 규칙은 남겨두는 편이 좋습니다.';
+	@override String get signaturePromptReset => '기본값 복원';
+	@override String get signaturePromptTry => '시험해보기';
+	@override String get signaturePromptSample => '쓴 문장';
+	@override String get signaturePromptLanguageHint => '은(는) 인터페이스 언어로 바뀝니다. 지우면 프롬프트의 언어를 따릅니다.';
+	@override String get signaturePromptEdited => '수정됨';
 	@override String get signatureVariablesGroup => '기본 변수';
 	@override String get signatureNeedsNetwork => '네트워크 필요';
 	@override String get signatureBuiltinSource => '기본';
@@ -1343,6 +1361,8 @@ class _TranslationsForumKo extends TranslationsForumEn {
 	@override late final _TranslationsForumLeafDescriptionsKo leafDescriptions = _TranslationsForumLeafDescriptionsKo._(_root);
 	@override String get reply => '답글';
 	@override String get pendingReview => '검토 대기 중';
+	@override String get floorNotFound => '해당 댓글이 없거나 삭제되었습니다';
+	@override String get floorNotLoadedYet => '해당 댓글은 더 위에 있습니다. 더 불러온 뒤 이동할 수 있습니다';
 	@override String get editedAt => '수정일';
 	@override String get copySuccess => '클립보드에 복사되었습니다';
 	@override String copySuccessForMessage({required Object str}) => '클립보드에 복사됨: ${str}';
@@ -2842,6 +2862,75 @@ class _TranslationsHistoryPageKo extends TranslationsHistoryPageEn {
 	@override String clearTabTitle({required Object tab}) => '"${tab}" 지우기';
 	@override String clearTabConfirm({required Object tab}) => '"${tab}"의 모든 기록과 해당 동영상의 시청 위치가 삭제됩니다. 이 작업은 되돌릴 수 없습니다.';
 	@override String get rangeByLastViewed => '마지막으로 본 시간 기준';
+}
+
+// Path: ai
+class _TranslationsAiKo extends TranslationsAiEn {
+	_TranslationsAiKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'AI';
+	@override String get providers => '제공자';
+	@override String get providersHint => '하나 이상의 AI 제공자를 추가한 뒤, 각 기능에서 사용할 제공자를 지정하세요.';
+	@override String get addProvider => '제공자 추가';
+	@override String get noProviders => '등록된 제공자가 없습니다. 제공자를 추가하면 AI 번역, 검색, 서명 기능을 사용할 수 있습니다.';
+	@override String get pickPreset => '제공자 선택';
+	@override String get providerNameLabel => '이름';
+	@override String get apiKey => 'API 키';
+	@override String get baseUrl => '엔드포인트';
+	@override String get model => '모델';
+	@override String get modelPick => '모델 선택';
+	@override String get modelEmpty => '모델 목록을 불러오지 못했습니다. 모델 이름을 직접 입력해도 됩니다.';
+	@override String get advanced => '고급';
+	@override String get reasoning => '추론 모델';
+	@override String get streaming => '스트리밍 출력';
+	@override String get structuredOutput => '구조화된 출력';
+	@override String get structuredOutputHint => 'AI 검색에 필요합니다. 많은 중계 엔드포인트에서 지원하지 않으므로, 검색이 계속 실패하면 이 옵션을 끄세요.';
+	@override String get temperature => '온도';
+	@override String get maxTokens => '최대 토큰';
+	@override String get maxTokensAuto => '자동 (모델 상한)';
+	@override String get test => '테스트';
+	@override String get testOk => '연결 성공';
+	@override String get deleteProvider => '제공자 삭제';
+	@override String get usedBy => '사용 중';
+	@override String get taskBindings => '기능 할당';
+	@override String get taskBindingsHint => '기능별로 서로 다른 제공자를 지정할 수 있습니다.';
+	@override String get taskTranslate => '번역';
+	@override String get taskSearch => 'AI 검색';
+	@override String get taskSignature => '서명';
+	@override String get taskAuto => '자동';
+	@override String get usage => '사용량';
+	@override String get usageCalls => '호출';
+	@override String get usageTokens => '토큰';
+	@override String get usageFailures => '실패';
+	@override String get usageReset => '통계 초기화';
+	@override String get usageEmpty => '아직 호출 기록이 없습니다';
+	@override String get openSettings => 'AI 설정 열기';
+	@override String get notConfigured => '구성되지 않음';
+	@override String get searchTitle => 'AI 검색';
+	@override String get searchHint => '찾고 있는 것을 설명하면 AI가 검색어와 필터를 자동으로 채워줍니다.';
+	@override String get searchPlaceholder => '예: 조회수 1만 회 이상의 최신 MMD';
+	@override String get searchApply => '이 조건으로 검색';
+	@override String get searchEmpty => '검색 조건을 파악하지 못했습니다. 다른 방식으로 설명해 보세요.';
+	@override String get searchFilters => '필터';
+	@override String searchSwitchSegment({required Object segment}) => '「${segment}」(으)로 전환';
+	@override String get searchGenerating => '생각하는 중…';
+	@override String get searchRetrying => '이전 시도가 실패했습니다. 재시도 중…';
+	@override String searchRetryReason({required Object reason}) => '원인: ${reason}';
+	@override String get searchStageWaiting => '요청을 보냈습니다. 응답 대기 중…';
+	@override String get searchStageThinkingNext => '다음 단계를 고민하는 중…';
+	@override String get searchStageReasoning => '추론 중…';
+	@override String get searchStageTool => '시험 검색 중…';
+	@override String searchStageDrafting({required Object chars}) => '답변 작성 중 · ${chars}자';
+	@override String get searchStageParsing => '결과 정리 중…';
+	@override String get searchThinking => '사고 과정';
+	@override String get searchKeywordNeedsQuotes => '이 검색어는 따옴표가 없어 iwara가 느슨하게 일치시킵니다. 이 정렬에서는 첫 페이지가 대부분 무관합니다. "따옴표"로 감싸거나 관련도순으로 바꾸세요.';
+	@override String searchToolProbing({required Object query}) => '${query} 로 시험 검색';
+	@override String searchToolFound({required Object count, required Object titles}) => '${count}개 · ${titles}';
+	@override String searchToolFailed({required Object reason}) => '시험 검색 실패: ${reason}';
+	@override String searchFiltersDropped({required Object count}) => '이 섹션에 없는 필터 ${count}개를 제거했습니다.';
 }
 
 // Path: common.pagination
@@ -5145,6 +5234,9 @@ extension on TranslationsKo {
 			'search.contentRating' => '콘텐츠 등급',
 			'search.removeTag' => '태그 제거',
 			'search.pleaseEnterSearchContent' => '검색 내용을 입력하세요',
+			'search.exactMatch' => '정확히 일치',
+			'search.exactMatchOnHint' => '구문 전체로 정확히 일치시키며 중국어·일본어 제목도 함께 검색합니다. 탭하면 느슨한 검색으로 돌아갑니다.',
+			'search.exactMatchOffHint' => '느슨하게 일치 중 — iwara가 단어를 쪼갭니다. 탭하면 구문 전체를 정확히 일치시킵니다.',
 			'search.searchHistory' => '검색 기록',
 			'search.searchSuggestion' => '검색 제안',
 			'search.usedTimes' => '사용 횟수',
@@ -5194,11 +5286,11 @@ extension on TranslationsKo {
 			'settings.fastForwardTime' => '빨리 감기 시간',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => '빨리 감기 시간은 양의 정수여야 합니다.',
 			'settings.rewindTime' => '되감기 시간',
+			_ => null,
+		} ?? switch (path) {
 			'settings.rewindTimeMustBeAPositiveInteger' => '되감기 시간은 양의 정수여야 합니다.',
 			'settings.longPressPlaybackSpeed' => '길게 누르기 재생 속도',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '길게 누르기 재생 속도는 양수여야 합니다.',
-			_ => null,
-		} ?? switch (path) {
 			'settings.defaultPlaybackSpeed' => '기본 재생 속도',
 			'settings.rememberPlaybackSpeed' => '재생 속도 기억',
 			'settings.rememberPlaybackSpeedDesc' => '활성화하면 플레이어에서 설정한 속도가 기본값으로 저장되어 새 동영상에 자동으로 적용됩니다.',
@@ -5379,6 +5471,7 @@ extension on TranslationsKo {
 			'settings.signatureContent' => '서명 내용',
 			'settings.signaturePreview' => '미리보기',
 			'settings.signatureSampleBody' => '여기에 본문이 들어갑니다',
+			'settings.signatureRegenerate' => '다시 생성',
 			'settings.signatureNotSet' => '설정되지 않음',
 			'settings.signatureRuleHint' => '서명은 본문 뒤에 구분선을 사이에 두고 붙습니다. 구분선은 앱이 넣으니 아래 문장만 작성하세요.',
 			'settings.signatureInsertVariable' => '변수 넣기',
@@ -5429,6 +5522,19 @@ extension on TranslationsKo {
 			'settings.signatureOptLengthShort' => '짧은 문장만',
 			'settings.signatureRestoreDefault' => '기본값으로 되돌리기',
 			'settings.signatureSourceHitokoto' => 'Hitokoto (무작위 문구)',
+			'settings.signatureAiSourceName' => 'AI 한 줄 문구',
+			'settings.signatureEditTextHint' => '이 댓글에 이미 적혀 있는 서명입니다. 한 줄 문구도 날짜도 지금은 그냥 글자라 마음대로 고칠 수 있습니다. 비우면 서명이 빠집니다.',
+			'settings.signatureResolving' => ({required Object name}) => '${name} 생성 중…',
+			'settings.signaturePendingValue' => '(보낼 때 생성)',
+			'settings.signatureAiHint' => 'AI 가 그 자리에서 쓰는 한 줄. 댓글마다 새로 생성됩니다. 설정한 AI 공급자를 사용합니다.',
+			'settings.signatureAiUnavailable' => 'AI 공급자가 아직 없어서 변수 패널에는 나타나지 않습니다.',
+			'settings.signaturePromptTitle' => '프롬프트',
+			'settings.signaturePromptHint' => '모델에 전달되는 내용입니다. 어조도 길이도 소재도 마음대로 고쳐도 됩니다. 이미 들어있는 규칙은 남겨두는 편이 좋습니다.',
+			'settings.signaturePromptReset' => '기본값 복원',
+			'settings.signaturePromptTry' => '시험해보기',
+			'settings.signaturePromptSample' => '쓴 문장',
+			'settings.signaturePromptLanguageHint' => '은(는) 인터페이스 언어로 바뀝니다. 지우면 프롬프트의 언어를 따릅니다.',
+			'settings.signaturePromptEdited' => '수정됨',
 			'settings.signatureVariablesGroup' => '기본 변수',
 			'settings.signatureNeedsNetwork' => '네트워크 필요',
 			'settings.signatureBuiltinSource' => '기본',
@@ -5694,6 +5800,8 @@ extension on TranslationsKo {
 			'settings.cdnRefreshServerListTooltip' => '서버 목록 새로 고침',
 			'settings.cdnSpeedTestButton' => '속도 테스트',
 			'settings.cdnSpeedTestingButton' => ({required Object count}) => '테스트 중 (${count})',
+			_ => null,
+		} ?? switch (path) {
 			'settings.cdnNoServerDataHint' => '서버 데이터가 없습니다. 새로 고침 버튼을 눌러 주세요',
 			'settings.cdnTestingStatus' => '테스트 중',
 			'settings.cdnUnreachableStatus' => '연결할 수 없음',
@@ -5711,8 +5819,6 @@ extension on TranslationsKo {
 			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => '저장소 권한 부여에 실패했지만 일부 기능은 제한될 수 있습니다',
 			'settings.downloadSettings.storagePermissionRationale' => '선택한 폴더에 다운로드를 저장하려면 앱에 저장소 접근 권한이 필요합니다.\n\nAndroid 11 이상에서는 "모든 파일 접근" 권한을 의미하며, 이것이 없으면 파일은 대신 앱 비공개 폴더에 저장됩니다.',
 			'settings.downloadSettings.storagePermissionRationaleLegacy' => '선택한 폴더에 다운로드를 저장하려면 앱에 저장소 접근 권한이 필요합니다.\n\n없으면 파일은 대신 앱 비공개 폴더에 저장됩니다.',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.grantStoragePermission' => '저장소 권한 부여',
 			'settings.downloadSettings.customDownloadPath' => '사용자 지정 다운로드 경로',
 			'settings.downloadSettings.customDownloadPathDescription' => '활성화하면 다운로드한 파일의 저장 위치를 사용자 지정할 수 있습니다',
@@ -6208,6 +6314,8 @@ extension on TranslationsKo {
 			'markdown.iwaraSpecialMarkdownSyntax' => 'Iwara 전용 Markdown 문법',
 			'markdown.internalLink' => '내부 링크',
 			'markdown.supportAutoConvertLinkBelow' => '다음 링크의 자동 변환을 지원합니다:',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.convertLinkExample' => '🎬 동영상 링크\n🖼️ 이미지 링크\n👤 사용자 링크\n📌 포럼 링크\n🎵 재생목록 링크\n💬 스레드 링크',
 			'markdown.mentionUser' => '사용자 멘션',
 			'markdown.mentionUserDescription' => '@ 뒤에 사용자 이름을 입력하면 자동으로 사용자 링크로 변환됩니다',
@@ -6225,8 +6333,6 @@ extension on TranslationsKo {
 			'markdown.listDescription' => '숫자+마침표로 순서 있는 목록을, -로 순서 없는 목록을 만듭니다',
 			'markdown.listSyntax' => '1. 첫 번째 항목\n2. 두 번째 항목\n\n- 순서 없는 항목\n  - 하위 항목\n  - 또 다른 하위 항목',
 			'markdown.linkAndImage' => '링크와 이미지',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.linkAndImageDescription' => '링크 형식: [텍스트](URL)\n이미지 형식: ![설명](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[링크 텍스트](${link})\n![이미지 설명](${imgUrl})',
 			'markdown.title' => '제목',
@@ -6303,6 +6409,8 @@ extension on TranslationsKo {
 			'forum.leafDescriptions.other' => '기타 분류되지 않은 콘텐츠',
 			'forum.reply' => '답글',
 			'forum.pendingReview' => '검토 대기 중',
+			'forum.floorNotFound' => '해당 댓글이 없거나 삭제되었습니다',
+			'forum.floorNotLoadedYet' => '해당 댓글은 더 위에 있습니다. 더 불러온 뒤 이동할 수 있습니다',
 			'forum.editedAt' => '수정일',
 			'forum.copySuccess' => '클립보드에 복사되었습니다',
 			'forum.copySuccessForMessage' => ({required Object str}) => '클립보드에 복사됨: ${str}',
@@ -6720,6 +6828,8 @@ extension on TranslationsKo {
 			'download.relocation.sectionNotAttempted' => 'Not processed (stopped, left as is)',
 			'download.relocation.unexpectedError' => ({required Object message}) => 'Stopped because of an error: ${message}. Items already moved are complete.',
 			'download.category.manageTitle' => '카테고리 관리',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.label' => '카테고리',
 			'download.category.uncategorized' => '미분류',
 			'download.category.manage' => '관리',
@@ -6739,8 +6849,6 @@ extension on TranslationsKo {
 			'download.category.renameSuccess' => '카테고리 이름 변경됨',
 			'download.category.renameFailed' => '카테고리 이름 변경 실패',
 			'download.category.deleteTitle' => '카테고리 삭제',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => '"${title}" 카테고리를 삭제하시겠습니까? 안에 있는 ${count}개 항목은 미분류로 이동합니다. 파일은 삭제되지 않습니다.',
 			'download.category.deleteSuccess' => '카테고리 삭제됨',
 			'download.category.deleteFailed' => '카테고리 삭제 실패',
@@ -7234,6 +7342,8 @@ extension on TranslationsKo {
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => '${position} 지점',
 			'mediaPlayer.notice.noIssuesRecorded' => '기록된 문제가 없습니다',
 			'mediaPlayer.notice.exportLogsAction' => '로그 내보내기',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.imageLoadFailed' => '이미지 로드 실패',
 			'mediaPlayer.unsupportedImageFormat' => '지원하지 않는 이미지 형식',
 			'mediaPlayer.tryOtherViewer' => '다른 뷰어를 사용해 보세요',
@@ -7253,8 +7363,6 @@ extension on TranslationsKo {
 			'diagnostics.schemaHealthRepairedBefore' => '이전에 안전망으로 복구됨',
 			'diagnostics.logPolicySectionTitle' => '로그 정책',
 			'diagnostics.configServiceUnavailable' => '구성 서비스가 초기화되지 않았습니다. 로그 정책을 조정할 수 없습니다.',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.enableLoggingTitle' => '로그 기록 사용',
 			'diagnostics.enableLoggingSubtitle' => '끄면 새 로그 쓰기를 중지합니다',
 			'diagnostics.enableLogPersistenceTitle' => '로그 영구 저장 사용',
@@ -7748,6 +7856,8 @@ extension on TranslationsKo {
 			'watchLater.removedFromWatchLater' => '나중에 보기에서 제거되었습니다',
 			'watchLater.removedCount' => ({required Object count}) => '${count}개 항목을 제거했습니다',
 			'watchLater.viewWatchLaterList' => '목록 보기',
+			_ => null,
+		} ?? switch (path) {
 			'watchLater.addFailed' => '나중에 보기에 추가하지 못했습니다',
 			'watchLater.invalidItem' => '사용할 수 없음',
 			'watchLater.clearWatched' => '시청한 항목 지우기',
@@ -7767,8 +7877,6 @@ extension on TranslationsKo {
 			'watchLater.emptyUnwatchedVideo' => '여기에 볼 남은 항목이 없습니다',
 			'watchLater.emptyUnwatchedGallery' => '여기에 볼 남은 항목이 없습니다',
 			'watchLater.queueLoadFailed' => '불러오지 못했습니다. 탭하여 다시 시도',
-			_ => null,
-		} ?? switch (path) {
 			'mediaMenu.like' => '좋아요',
 			'mediaMenu.unlike' => '좋아요 취소',
 			'mediaMenu.viewAuthor' => '작성자 보기',
@@ -8115,6 +8223,66 @@ extension on TranslationsKo {
 			'historyPage.clearTabTitle' => ({required Object tab}) => '"${tab}" 지우기',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => '"${tab}"의 모든 기록과 해당 동영상의 시청 위치가 삭제됩니다. 이 작업은 되돌릴 수 없습니다.',
 			'historyPage.rangeByLastViewed' => '마지막으로 본 시간 기준',
+			'ai.title' => 'AI',
+			'ai.providers' => '제공자',
+			'ai.providersHint' => '하나 이상의 AI 제공자를 추가한 뒤, 각 기능에서 사용할 제공자를 지정하세요.',
+			'ai.addProvider' => '제공자 추가',
+			'ai.noProviders' => '등록된 제공자가 없습니다. 제공자를 추가하면 AI 번역, 검색, 서명 기능을 사용할 수 있습니다.',
+			'ai.pickPreset' => '제공자 선택',
+			'ai.providerNameLabel' => '이름',
+			'ai.apiKey' => 'API 키',
+			'ai.baseUrl' => '엔드포인트',
+			'ai.model' => '모델',
+			'ai.modelPick' => '모델 선택',
+			'ai.modelEmpty' => '모델 목록을 불러오지 못했습니다. 모델 이름을 직접 입력해도 됩니다.',
+			'ai.advanced' => '고급',
+			'ai.reasoning' => '추론 모델',
+			'ai.streaming' => '스트리밍 출력',
+			'ai.structuredOutput' => '구조화된 출력',
+			'ai.structuredOutputHint' => 'AI 검색에 필요합니다. 많은 중계 엔드포인트에서 지원하지 않으므로, 검색이 계속 실패하면 이 옵션을 끄세요.',
+			'ai.temperature' => '온도',
+			'ai.maxTokens' => '최대 토큰',
+			'ai.maxTokensAuto' => '자동 (모델 상한)',
+			'ai.test' => '테스트',
+			'ai.testOk' => '연결 성공',
+			'ai.deleteProvider' => '제공자 삭제',
+			'ai.usedBy' => '사용 중',
+			'ai.taskBindings' => '기능 할당',
+			'ai.taskBindingsHint' => '기능별로 서로 다른 제공자를 지정할 수 있습니다.',
+			'ai.taskTranslate' => '번역',
+			'ai.taskSearch' => 'AI 검색',
+			'ai.taskSignature' => '서명',
+			'ai.taskAuto' => '자동',
+			'ai.usage' => '사용량',
+			'ai.usageCalls' => '호출',
+			'ai.usageTokens' => '토큰',
+			'ai.usageFailures' => '실패',
+			'ai.usageReset' => '통계 초기화',
+			'ai.usageEmpty' => '아직 호출 기록이 없습니다',
+			'ai.openSettings' => 'AI 설정 열기',
+			'ai.notConfigured' => '구성되지 않음',
+			'ai.searchTitle' => 'AI 검색',
+			'ai.searchHint' => '찾고 있는 것을 설명하면 AI가 검색어와 필터를 자동으로 채워줍니다.',
+			'ai.searchPlaceholder' => '예: 조회수 1만 회 이상의 최신 MMD',
+			'ai.searchApply' => '이 조건으로 검색',
+			'ai.searchEmpty' => '검색 조건을 파악하지 못했습니다. 다른 방식으로 설명해 보세요.',
+			'ai.searchFilters' => '필터',
+			'ai.searchSwitchSegment' => ({required Object segment}) => '「${segment}」(으)로 전환',
+			'ai.searchGenerating' => '생각하는 중…',
+			'ai.searchRetrying' => '이전 시도가 실패했습니다. 재시도 중…',
+			'ai.searchRetryReason' => ({required Object reason}) => '원인: ${reason}',
+			'ai.searchStageWaiting' => '요청을 보냈습니다. 응답 대기 중…',
+			'ai.searchStageThinkingNext' => '다음 단계를 고민하는 중…',
+			'ai.searchStageReasoning' => '추론 중…',
+			'ai.searchStageTool' => '시험 검색 중…',
+			'ai.searchStageDrafting' => ({required Object chars}) => '답변 작성 중 · ${chars}자',
+			'ai.searchStageParsing' => '결과 정리 중…',
+			'ai.searchThinking' => '사고 과정',
+			'ai.searchKeywordNeedsQuotes' => '이 검색어는 따옴표가 없어 iwara가 느슨하게 일치시킵니다. 이 정렬에서는 첫 페이지가 대부분 무관합니다. "따옴표"로 감싸거나 관련도순으로 바꾸세요.',
+			'ai.searchToolProbing' => ({required Object query}) => '${query} 로 시험 검색',
+			'ai.searchToolFound' => ({required Object count, required Object titles}) => '${count}개 · ${titles}',
+			'ai.searchToolFailed' => ({required Object reason}) => '시험 검색 실패: ${reason}',
+			'ai.searchFiltersDropped' => ({required Object count}) => '이 섹션에 없는 필터 ${count}개를 제거했습니다.',
 			_ => null,
 		};
 	}

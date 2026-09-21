@@ -97,6 +97,7 @@ class TranslationsTh extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsVrFormatTh vrFormat = _TranslationsVrFormatTh._(_root);
 	@override late final _TranslationsLocalMediaTh localMedia = _TranslationsLocalMediaTh._(_root);
 	@override late final _TranslationsHistoryPageTh historyPage = _TranslationsHistoryPageTh._(_root);
+	@override late final _TranslationsAiTh ai = _TranslationsAiTh._(_root);
 }
 
 // Path: personalProfile
@@ -643,6 +644,9 @@ class _TranslationsSearchTh extends TranslationsSearchEn {
 	@override String get contentRating => 'การจัดระดับเนื้อหา';
 	@override String get removeTag => 'ลบแท็ก';
 	@override String get pleaseEnterSearchContent => 'โปรดป้อนเนื้อหาที่จะค้นหา';
+	@override String get exactMatch => 'ตรงทุกคำ';
+	@override String get exactMatchOnHint => 'กำลังจับคู่ทั้งวลีแบบตรงทุกคำ และค้นหาชื่อเรื่องภาษาจีนกับญี่ปุ่นด้วย แตะเพื่อค้นแบบกว้างขึ้น';
+	@override String get exactMatchOffHint => 'จับคู่แบบหลวม — Iwara จะแยกคำออก แตะเพื่อจับคู่ทั้งวลีแบบตรงทุกคำ';
 	@override String get searchHistory => 'ประวัติการค้นหา';
 	@override String get searchSuggestion => 'คำแนะนำการค้นหา';
 	@override String get usedTimes => 'จำนวนครั้งที่ใช้';
@@ -893,6 +897,7 @@ class _TranslationsSettingsTh extends TranslationsSettingsEn {
 	@override String get signatureContent => 'เนื้อหาลายเซ็น';
 	@override String get signaturePreview => 'ตัวอย่าง';
 	@override String get signatureSampleBody => 'ข้อความของคุณอยู่ตรงนี้';
+	@override String get signatureRegenerate => 'สร้างใหม่';
 	@override String get signatureNotSet => 'ยังไม่ได้ตั้งค่า';
 	@override String get signatureRuleHint => 'ลายเซ็นจะต่อท้ายเนื้อหาโดยมีเส้นคั่น แอปจะใส่เส้นคั่นให้เอง คุณแค่เขียนข้อความด้านล่าง';
 	@override String get signatureInsertVariable => 'แทรกตัวแปร';
@@ -943,6 +948,19 @@ class _TranslationsSettingsTh extends TranslationsSettingsEn {
 	@override String get signatureOptLengthShort => 'เอาเฉพาะประโยคสั้น';
 	@override String get signatureRestoreDefault => 'คืนค่าเริ่มต้น';
 	@override String get signatureSourceHitokoto => 'Hitokoto (ข้อความสุ่ม)';
+	@override String get signatureAiSourceName => 'ข้อความจาก AI';
+	@override String get signatureEditTextHint => 'นี่คือลายเซ็นที่เขียนอยู่ในความเห็นนี้แล้ว ทั้งวรรคทองและวันที่ตอนนี้เป็นแค่ข้อความธรรมดา แก้ได้ตามใจ ล้างให้ว่างคือไม่เอาลายเซ็น';
+	@override String signatureResolving({required Object name}) => 'กำลังสร้าง ${name}…';
+	@override String get signaturePendingValue => '(สร้างตอนส่ง)';
+	@override String get signatureAiHint => 'ประโยคที่ AI เขียนขึ้นสด ๆ ใหม่ทุกความเห็น ใช้ผู้ให้บริการ AI ที่คุณตั้งค่าไว้';
+	@override String get signatureAiUnavailable => 'ยังไม่ได้ตั้งค่าผู้ให้บริการ AI แหล่งนี้จึงยังไม่ปรากฏในแผงตัวแปร';
+	@override String get signaturePromptTitle => 'พรอมต์';
+	@override String get signaturePromptHint => 'นี่คือสิ่งที่ส่งให้โมเดล เขียนใหม่ได้ตามใจ ทั้งน้ำเสียง ความยาว และหัวข้อ กฎที่มีอยู่แล้วควรเก็บไว้';
+	@override String get signaturePromptReset => 'คืนค่าเริ่มต้น';
+	@override String get signaturePromptTry => 'ลองดู';
+	@override String get signaturePromptSample => 'สิ่งที่เขียนออกมา';
+	@override String get signaturePromptLanguageHint => 'จะถูกแทนด้วยภาษาอินเทอร์เฟซของคุณ ถ้าลบออก ข้อความจะใช้ภาษาตามพรอมต์';
+	@override String get signaturePromptEdited => 'แก้แล้ว';
 	@override String get signatureVariablesGroup => 'ตัวแปรในตัว';
 	@override String get signatureNeedsNetwork => 'ต้องใช้เครือข่าย';
 	@override String get signatureBuiltinSource => 'ในตัว';
@@ -1343,6 +1361,8 @@ class _TranslationsForumTh extends TranslationsForumEn {
 	@override late final _TranslationsForumLeafDescriptionsTh leafDescriptions = _TranslationsForumLeafDescriptionsTh._(_root);
 	@override String get reply => 'ตอบกลับ';
 	@override String get pendingReview => 'กำลังรอการตรวจสอบ';
+	@override String get floorNotFound => 'ไม่พบความคิดเห็นนี้หรือถูกลบไปแล้ว';
+	@override String get floorNotLoadedYet => 'ความคิดเห็นนี้อยู่ด้านบน โหลดเพิ่มเติมเพื่อข้ามไป';
 	@override String get editedAt => 'แก้ไขเมื่อ';
 	@override String get copySuccess => 'คัดลอกไปยังคลิปบอร์ดแล้ว';
 	@override String copySuccessForMessage({required Object str}) => 'คัดลอกไปยังคลิปบอร์ดแล้ว: ${str}';
@@ -2842,6 +2862,75 @@ class _TranslationsHistoryPageTh extends TranslationsHistoryPageEn {
 	@override String clearTabTitle({required Object tab}) => 'ล้าง "${tab}"';
 	@override String clearTabConfirm({required Object tab}) => 'ประวัติทั้งหมดใน "${tab}" จะถูกลบ รวมถึงตำแหน่งการรับชมของวิดีโอเหล่านั้น ไม่สามารถย้อนกลับได้';
 	@override String get rangeByLastViewed => 'กรองตามเวลาที่ดูล่าสุด';
+}
+
+// Path: ai
+class _TranslationsAiTh extends TranslationsAiEn {
+	_TranslationsAiTh._(TranslationsTh root) : this._root = root, super.internal(root);
+
+	final TranslationsTh _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'AI';
+	@override String get providers => 'ผู้ให้บริการ';
+	@override String get providersHint => 'เพิ่มผู้ให้บริการ AI อย่างน้อยหนึ่งราย แล้วเลือกผู้ให้บริการสำหรับแต่ละฟีเจอร์';
+	@override String get addProvider => 'เพิ่มผู้ให้บริการ';
+	@override String get noProviders => 'ยังไม่มีผู้ให้บริการ เพิ่มผู้ให้บริการเพื่อเปิดใช้งานการแปล การค้นหา และลายเซ็นด้วย AI';
+	@override String get pickPreset => 'เลือกผู้ให้บริการ';
+	@override String get providerNameLabel => 'ชื่อ';
+	@override String get apiKey => 'คีย์ API';
+	@override String get baseUrl => 'ปลายทาง API';
+	@override String get model => 'โมเดล';
+	@override String get modelPick => 'เลือกโมเดล';
+	@override String get modelEmpty => 'ไม่สามารถโหลดรายการโมเดลได้ คุณยังสามารถพิมพ์ชื่อโมเดลได้โดยตรง';
+	@override String get advanced => 'ขั้นสูง';
+	@override String get reasoning => 'โมเดลการให้เหตุผล';
+	@override String get streaming => 'เอาต์พุตแบบสตรีม';
+	@override String get structuredOutput => 'เอาต์พุตที่มีโครงสร้าง';
+	@override String get structuredOutputHint => 'จำเป็นสำหรับการค้นหาด้วย AI ปลายทางรีเลย์หลายแห่งไม่รองรับ ให้ปิดตัวเลือกนี้หากการค้นหาล้มเหลวบ่อยครั้ง';
+	@override String get temperature => 'อุณหภูมิ';
+	@override String get maxTokens => 'โทเค็นสูงสุด';
+	@override String get maxTokensAuto => 'อัตโนมัติ (ขีดจำกัดของโมเดล)';
+	@override String get test => 'ทดสอบ';
+	@override String get testOk => 'เชื่อมต่อสำเร็จ';
+	@override String get deleteProvider => 'ลบผู้ให้บริการ';
+	@override String get usedBy => 'ใช้งานโดย';
+	@override String get taskBindings => 'การกำหนดฟีเจอร์';
+	@override String get taskBindingsHint => 'แต่ละฟีเจอร์สามารถใช้ผู้ให้บริการที่แตกต่างกันได้';
+	@override String get taskTranslate => 'การแปล';
+	@override String get taskSearch => 'ค้นหาด้วย AI';
+	@override String get taskSignature => 'ลายเซ็น';
+	@override String get taskAuto => 'อัตโนมัติ';
+	@override String get usage => 'การใช้งาน';
+	@override String get usageCalls => 'การเรียกใช้';
+	@override String get usageTokens => 'โทเค็น';
+	@override String get usageFailures => 'ล้มเหลว';
+	@override String get usageReset => 'ล้างสถิติ';
+	@override String get usageEmpty => 'ยังไม่มีประวัติการเรียกใช้';
+	@override String get openSettings => 'เปิดการตั้งค่า AI';
+	@override String get notConfigured => 'ยังไม่ได้กำหนดค่า';
+	@override String get searchTitle => 'ค้นหาด้วย AI';
+	@override String get searchHint => 'อธิบายสิ่งที่คุณกำลังค้นหา แล้ว AI จะช่วยกรอกคำค้นหาและตัวกรองให้';
+	@override String get searchPlaceholder => 'เช่น MMD ล่าสุดที่มียอดดูมากกว่า 10,000 ครั้ง';
+	@override String get searchApply => 'ค้นหาด้วยเงื่อนไขเหล่านี้';
+	@override String get searchEmpty => 'ไม่สามารถแปลงเป็นเงื่อนไขการค้นหาได้ ลองอธิบายด้วยวิธีอื่นดู';
+	@override String get searchFilters => 'ตัวกรอง';
+	@override String searchSwitchSegment({required Object segment}) => 'สลับไปที่ ${segment}';
+	@override String get searchGenerating => 'กำลังประมวลผล…';
+	@override String get searchRetrying => 'ครั้งก่อนล้มเหลว กำลังลองใหม่…';
+	@override String searchRetryReason({required Object reason}) => 'สาเหตุ: ${reason}';
+	@override String get searchStageWaiting => 'ส่งคำขอแล้ว กำลังรอการตอบกลับ…';
+	@override String get searchStageThinkingNext => 'กำลังคิดขั้นต่อไป…';
+	@override String get searchStageReasoning => 'กำลังให้เหตุผล…';
+	@override String get searchStageTool => 'กำลังลองค้นหา…';
+	@override String searchStageDrafting({required Object chars}) => 'กำลังเขียนคำตอบ · ${chars} ตัวอักษร';
+	@override String get searchStageParsing => 'กำลังจัดระเบียบผลลัพธ์…';
+	@override String get searchThinking => 'กระบวนการคิด';
+	@override String get searchKeywordNeedsQuotes => 'คำค้นนี้ไม่ได้ใส่เครื่องหมายคำพูด Iwara จึงจับคู่แบบหลวม ๆ — เมื่อเรียงแบบนี้ หน้าแรกจะแทบไม่เกี่ยวข้อง ใส่ "เครื่องหมายคำพูด" หรือเรียงตามความเกี่ยวข้อง';
+	@override String searchToolProbing({required Object query}) => 'ลองค้น ${query}';
+	@override String searchToolFound({required Object count, required Object titles}) => '${count} รายการ · ${titles}';
+	@override String searchToolFailed({required Object reason}) => 'ล้มเหลว: ${reason}';
+	@override String searchFiltersDropped({required Object count}) => 'ลบตัวกรอง ${count} รายการที่ไม่มีในส่วนนี้แล้ว';
 }
 
 // Path: common.pagination
@@ -5145,6 +5234,9 @@ extension on TranslationsTh {
 			'search.contentRating' => 'การจัดระดับเนื้อหา',
 			'search.removeTag' => 'ลบแท็ก',
 			'search.pleaseEnterSearchContent' => 'โปรดป้อนเนื้อหาที่จะค้นหา',
+			'search.exactMatch' => 'ตรงทุกคำ',
+			'search.exactMatchOnHint' => 'กำลังจับคู่ทั้งวลีแบบตรงทุกคำ และค้นหาชื่อเรื่องภาษาจีนกับญี่ปุ่นด้วย แตะเพื่อค้นแบบกว้างขึ้น',
+			'search.exactMatchOffHint' => 'จับคู่แบบหลวม — Iwara จะแยกคำออก แตะเพื่อจับคู่ทั้งวลีแบบตรงทุกคำ',
 			'search.searchHistory' => 'ประวัติการค้นหา',
 			'search.searchSuggestion' => 'คำแนะนำการค้นหา',
 			'search.usedTimes' => 'จำนวนครั้งที่ใช้',
@@ -5194,11 +5286,11 @@ extension on TranslationsTh {
 			'settings.fastForwardTime' => 'เวลาเดินหน้าอย่างเร็ว',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => 'เวลาเดินหน้าอย่างเร็วต้องเป็นจำนวนเต็มบวก',
 			'settings.rewindTime' => 'เวลาย้อนกลับ',
+			_ => null,
+		} ?? switch (path) {
 			'settings.rewindTimeMustBeAPositiveInteger' => 'เวลาย้อนกลับต้องเป็นจำนวนเต็มบวก',
 			'settings.longPressPlaybackSpeed' => 'ความเร็วการเล่นเมื่อกดค้าง',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'ความเร็วการเล่นเมื่อกดค้างต้องเป็นตัวเลขบวก',
-			_ => null,
-		} ?? switch (path) {
 			'settings.defaultPlaybackSpeed' => 'ความเร็วการเล่นเริ่มต้น',
 			'settings.rememberPlaybackSpeed' => 'จำความเร็วการเล่น',
 			'settings.rememberPlaybackSpeedDesc' => 'เมื่อเปิดใช้งาน ความเร็วที่คุณตั้งในเครื่องเล่นจะถูกบันทึกเป็นค่าเริ่มต้นและใช้กับวิดีโอใหม่โดยอัตโนมัติ',
@@ -5379,6 +5471,7 @@ extension on TranslationsTh {
 			'settings.signatureContent' => 'เนื้อหาลายเซ็น',
 			'settings.signaturePreview' => 'ตัวอย่าง',
 			'settings.signatureSampleBody' => 'ข้อความของคุณอยู่ตรงนี้',
+			'settings.signatureRegenerate' => 'สร้างใหม่',
 			'settings.signatureNotSet' => 'ยังไม่ได้ตั้งค่า',
 			'settings.signatureRuleHint' => 'ลายเซ็นจะต่อท้ายเนื้อหาโดยมีเส้นคั่น แอปจะใส่เส้นคั่นให้เอง คุณแค่เขียนข้อความด้านล่าง',
 			'settings.signatureInsertVariable' => 'แทรกตัวแปร',
@@ -5429,6 +5522,19 @@ extension on TranslationsTh {
 			'settings.signatureOptLengthShort' => 'เอาเฉพาะประโยคสั้น',
 			'settings.signatureRestoreDefault' => 'คืนค่าเริ่มต้น',
 			'settings.signatureSourceHitokoto' => 'Hitokoto (ข้อความสุ่ม)',
+			'settings.signatureAiSourceName' => 'ข้อความจาก AI',
+			'settings.signatureEditTextHint' => 'นี่คือลายเซ็นที่เขียนอยู่ในความเห็นนี้แล้ว ทั้งวรรคทองและวันที่ตอนนี้เป็นแค่ข้อความธรรมดา แก้ได้ตามใจ ล้างให้ว่างคือไม่เอาลายเซ็น',
+			'settings.signatureResolving' => ({required Object name}) => 'กำลังสร้าง ${name}…',
+			'settings.signaturePendingValue' => '(สร้างตอนส่ง)',
+			'settings.signatureAiHint' => 'ประโยคที่ AI เขียนขึ้นสด ๆ ใหม่ทุกความเห็น ใช้ผู้ให้บริการ AI ที่คุณตั้งค่าไว้',
+			'settings.signatureAiUnavailable' => 'ยังไม่ได้ตั้งค่าผู้ให้บริการ AI แหล่งนี้จึงยังไม่ปรากฏในแผงตัวแปร',
+			'settings.signaturePromptTitle' => 'พรอมต์',
+			'settings.signaturePromptHint' => 'นี่คือสิ่งที่ส่งให้โมเดล เขียนใหม่ได้ตามใจ ทั้งน้ำเสียง ความยาว และหัวข้อ กฎที่มีอยู่แล้วควรเก็บไว้',
+			'settings.signaturePromptReset' => 'คืนค่าเริ่มต้น',
+			'settings.signaturePromptTry' => 'ลองดู',
+			'settings.signaturePromptSample' => 'สิ่งที่เขียนออกมา',
+			'settings.signaturePromptLanguageHint' => 'จะถูกแทนด้วยภาษาอินเทอร์เฟซของคุณ ถ้าลบออก ข้อความจะใช้ภาษาตามพรอมต์',
+			'settings.signaturePromptEdited' => 'แก้แล้ว',
 			'settings.signatureVariablesGroup' => 'ตัวแปรในตัว',
 			'settings.signatureNeedsNetwork' => 'ต้องใช้เครือข่าย',
 			'settings.signatureBuiltinSource' => 'ในตัว',
@@ -5694,6 +5800,8 @@ extension on TranslationsTh {
 			'settings.cdnRefreshServerListTooltip' => 'รีเฟรชรายการเซิร์ฟเวอร์',
 			'settings.cdnSpeedTestButton' => 'ทดสอบความเร็ว',
 			'settings.cdnSpeedTestingButton' => ({required Object count}) => 'กำลังทดสอบ (${count})',
+			_ => null,
+		} ?? switch (path) {
 			'settings.cdnNoServerDataHint' => 'ไม่มีข้อมูลเซิร์ฟเวอร์ โปรดคลิกปุ่มรีเฟรช',
 			'settings.cdnTestingStatus' => 'กำลังทดสอบ',
 			'settings.cdnUnreachableStatus' => 'ไม่สามารถเข้าถึงได้',
@@ -5711,8 +5819,6 @@ extension on TranslationsTh {
 			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => 'การอนุญาตสิทธิ์การจัดเก็บข้อมูลล้มเหลว ฟีเจอร์บางอย่างอาจถูกจำกัด',
 			'settings.downloadSettings.storagePermissionRationale' => 'ในการบันทึกไฟล์ดาวน์โหลดลงในโฟลเดอร์ที่คุณเลือก แอปต้องได้รับสิทธิ์การจัดเก็บข้อมูล\n\nบน Android 11 ขึ้นไป หมายถึงสิทธิ์ "การเข้าถึงไฟล์ทั้งหมด" หากไม่มีสิทธิ์นี้ ไฟล์จะถูกบันทึกลงในโฟลเดอร์ส่วนตัวของแอปแทน',
 			'settings.downloadSettings.storagePermissionRationaleLegacy' => 'ในการบันทึกไฟล์ดาวน์โหลดลงในโฟลเดอร์ที่คุณเลือก แอปต้องได้รับสิทธิ์การจัดเก็บข้อมูล\n\nหากไม่ได้รับสิทธิ์ ไฟล์จะถูกบันทึกลงในโฟลเดอร์ส่วนตัวของแอปแทน',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.grantStoragePermission' => 'อนุญาตสิทธิ์การจัดเก็บข้อมูล',
 			'settings.downloadSettings.customDownloadPath' => 'เส้นทางดาวน์โหลดที่กำหนดเอง',
 			'settings.downloadSettings.customDownloadPathDescription' => 'เมื่อเปิดใช้งาน คุณสามารถเลือกตำแหน่งบันทึกที่กำหนดเองสำหรับไฟล์ที่ดาวน์โหลดได้',
@@ -6208,6 +6314,8 @@ extension on TranslationsTh {
 			'markdown.iwaraSpecialMarkdownSyntax' => 'ไวยากรณ์ Markdown พิเศษของ Iwara',
 			'markdown.internalLink' => 'ลิงก์ภายในเว็บไซต์',
 			'markdown.supportAutoConvertLinkBelow' => 'รองรับการแปลงลิงก์ต่อไปนี้โดยอัตโนมัติ:',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.convertLinkExample' => '🎬 ลิงก์วิดีโอ\n🖼️ ลิงก์รูปภาพ\n👤 ลิงก์ผู้ใช้\n📌 ลิงก์ฟอรัม\n🎵 ลิงก์เพลย์ลิสต์\n💬 ลิงก์กระทู้',
 			'markdown.mentionUser' => 'กล่าวถึงผู้ใช้',
 			'markdown.mentionUserDescription' => 'พิมพ์ @ ตามด้วยชื่อผู้ใช้ ระบบจะแปลงเป็นลิงก์ผู้ใช้โดยอัตโนมัติ',
@@ -6225,8 +6333,6 @@ extension on TranslationsTh {
 			'markdown.listDescription' => 'สร้างรายการแบบมีลำดับด้วย ตัวเลข+จุด สร้างรายการแบบไม่มีลำดับด้วย -',
 			'markdown.listSyntax' => '1. รายการแรก\n2. รายการที่สอง\n\n- รายการแบบไม่มีลำดับ\n  - รายการย่อย\n  - อีกหนึ่งรายการย่อย',
 			'markdown.linkAndImage' => 'ลิงก์และรูปภาพ',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.linkAndImageDescription' => 'รูปแบบลิงก์: [ข้อความ](URL)\nรูปแบบรูปภาพ: ![คำอธิบาย](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[ข้อความลิงก์](${link})\n![คำอธิบายรูปภาพ](${imgUrl})',
 			'markdown.title' => 'หัวข้อ',
@@ -6303,6 +6409,8 @@ extension on TranslationsTh {
 			'forum.leafDescriptions.other' => 'เนื้อหาอื่นๆ ที่ไม่ได้จัดหมวดหมู่',
 			'forum.reply' => 'ตอบกลับ',
 			'forum.pendingReview' => 'กำลังรอการตรวจสอบ',
+			'forum.floorNotFound' => 'ไม่พบความคิดเห็นนี้หรือถูกลบไปแล้ว',
+			'forum.floorNotLoadedYet' => 'ความคิดเห็นนี้อยู่ด้านบน โหลดเพิ่มเติมเพื่อข้ามไป',
 			'forum.editedAt' => 'แก้ไขเมื่อ',
 			'forum.copySuccess' => 'คัดลอกไปยังคลิปบอร์ดแล้ว',
 			'forum.copySuccessForMessage' => ({required Object str}) => 'คัดลอกไปยังคลิปบอร์ดแล้ว: ${str}',
@@ -6720,6 +6828,8 @@ extension on TranslationsTh {
 			'download.relocation.sectionNotAttempted' => 'Not processed (stopped, left as is)',
 			'download.relocation.unexpectedError' => ({required Object message}) => 'Stopped because of an error: ${message}. Items already moved are complete.',
 			'download.category.manageTitle' => 'จัดการหมวดหมู่',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.label' => 'หมวดหมู่',
 			'download.category.uncategorized' => 'ไม่ได้จัดหมวดหมู่',
 			'download.category.manage' => 'จัดการ',
@@ -6739,8 +6849,6 @@ extension on TranslationsTh {
 			'download.category.renameSuccess' => 'เปลี่ยนชื่อหมวดหมู่แล้ว',
 			'download.category.renameFailed' => 'เปลี่ยนชื่อหมวดหมู่ไม่สำเร็จ',
 			'download.category.deleteTitle' => 'ลบหมวดหมู่',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'ลบหมวดหมู่ "${title}" หรือไม่? รายการ ${count} รายการในหมวดหมู่นี้จะถูกย้ายไปที่ "ไม่ได้จัดหมวดหมู่" ไฟล์จะไม่ถูกลบ',
 			'download.category.deleteSuccess' => 'ลบหมวดหมู่แล้ว',
 			'download.category.deleteFailed' => 'ลบหมวดหมู่ไม่สำเร็จ',
@@ -7234,6 +7342,8 @@ extension on TranslationsTh {
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'ที่ตำแหน่ง ${position}',
 			'mediaPlayer.notice.noIssuesRecorded' => 'ไม่มีบันทึกปัญหา',
 			'mediaPlayer.notice.exportLogsAction' => 'ส่งออกบันทึก',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.imageLoadFailed' => 'โหลดรูปภาพไม่สำเร็จ',
 			'mediaPlayer.unsupportedImageFormat' => 'รูปแบบรูปภาพที่ไม่รองรับ',
 			'mediaPlayer.tryOtherViewer' => 'โปรดลองใช้โปรแกรมดูภาพอื่น',
@@ -7253,8 +7363,6 @@ extension on TranslationsTh {
 			'diagnostics.schemaHealthRepairedBefore' => 'เคยได้รับการซ่อมแซมโดยเครือข่ายความปลอดภัยมาก่อน',
 			'diagnostics.logPolicySectionTitle' => 'นโยบายบันทึก',
 			'diagnostics.configServiceUnavailable' => 'บริการกำหนดค่ายังไม่ได้เริ่มต้น ไม่สามารถปรับนโยบายบันทึกได้',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.enableLoggingTitle' => 'เปิดใช้งานการบันทึก',
 			'diagnostics.enableLoggingSubtitle' => 'ปิดใช้งานเพื่อหยุดการเขียนบันทึกใหม่',
 			'diagnostics.enableLogPersistenceTitle' => 'เปิดใช้งานการคงอยู่ของบันทึก',
@@ -7748,6 +7856,8 @@ extension on TranslationsTh {
 			'watchLater.removedFromWatchLater' => 'เอาออกจากดูภายหลังแล้ว',
 			'watchLater.removedCount' => ({required Object count}) => 'ลบออกแล้ว ${count} รายการ',
 			'watchLater.viewWatchLaterList' => 'ดูรายการ',
+			_ => null,
+		} ?? switch (path) {
 			'watchLater.addFailed' => 'เพิ่มในดูภายหลังไม่สำเร็จ',
 			'watchLater.invalidItem' => 'ไม่พร้อมใช้งาน',
 			'watchLater.clearWatched' => 'ล้างรายการที่ดูแล้ว',
@@ -7767,8 +7877,6 @@ extension on TranslationsTh {
 			'watchLater.emptyUnwatchedVideo' => 'ไม่มีอะไรเหลือให้รับชมที่นี่',
 			'watchLater.emptyUnwatchedGallery' => 'ไม่มีอะไรเหลือให้ดูที่นี่',
 			'watchLater.queueLoadFailed' => 'โหลดไม่สำเร็จ แตะเพื่อลองใหม่',
-			_ => null,
-		} ?? switch (path) {
 			'mediaMenu.like' => 'ถูกใจ',
 			'mediaMenu.unlike' => 'เลิกถูกใจ',
 			'mediaMenu.viewAuthor' => 'ดูผู้สร้าง',
@@ -8115,6 +8223,66 @@ extension on TranslationsTh {
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'ล้าง "${tab}"',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'ประวัติทั้งหมดใน "${tab}" จะถูกลบ รวมถึงตำแหน่งการรับชมของวิดีโอเหล่านั้น ไม่สามารถย้อนกลับได้',
 			'historyPage.rangeByLastViewed' => 'กรองตามเวลาที่ดูล่าสุด',
+			'ai.title' => 'AI',
+			'ai.providers' => 'ผู้ให้บริการ',
+			'ai.providersHint' => 'เพิ่มผู้ให้บริการ AI อย่างน้อยหนึ่งราย แล้วเลือกผู้ให้บริการสำหรับแต่ละฟีเจอร์',
+			'ai.addProvider' => 'เพิ่มผู้ให้บริการ',
+			'ai.noProviders' => 'ยังไม่มีผู้ให้บริการ เพิ่มผู้ให้บริการเพื่อเปิดใช้งานการแปล การค้นหา และลายเซ็นด้วย AI',
+			'ai.pickPreset' => 'เลือกผู้ให้บริการ',
+			'ai.providerNameLabel' => 'ชื่อ',
+			'ai.apiKey' => 'คีย์ API',
+			'ai.baseUrl' => 'ปลายทาง API',
+			'ai.model' => 'โมเดล',
+			'ai.modelPick' => 'เลือกโมเดล',
+			'ai.modelEmpty' => 'ไม่สามารถโหลดรายการโมเดลได้ คุณยังสามารถพิมพ์ชื่อโมเดลได้โดยตรง',
+			'ai.advanced' => 'ขั้นสูง',
+			'ai.reasoning' => 'โมเดลการให้เหตุผล',
+			'ai.streaming' => 'เอาต์พุตแบบสตรีม',
+			'ai.structuredOutput' => 'เอาต์พุตที่มีโครงสร้าง',
+			'ai.structuredOutputHint' => 'จำเป็นสำหรับการค้นหาด้วย AI ปลายทางรีเลย์หลายแห่งไม่รองรับ ให้ปิดตัวเลือกนี้หากการค้นหาล้มเหลวบ่อยครั้ง',
+			'ai.temperature' => 'อุณหภูมิ',
+			'ai.maxTokens' => 'โทเค็นสูงสุด',
+			'ai.maxTokensAuto' => 'อัตโนมัติ (ขีดจำกัดของโมเดล)',
+			'ai.test' => 'ทดสอบ',
+			'ai.testOk' => 'เชื่อมต่อสำเร็จ',
+			'ai.deleteProvider' => 'ลบผู้ให้บริการ',
+			'ai.usedBy' => 'ใช้งานโดย',
+			'ai.taskBindings' => 'การกำหนดฟีเจอร์',
+			'ai.taskBindingsHint' => 'แต่ละฟีเจอร์สามารถใช้ผู้ให้บริการที่แตกต่างกันได้',
+			'ai.taskTranslate' => 'การแปล',
+			'ai.taskSearch' => 'ค้นหาด้วย AI',
+			'ai.taskSignature' => 'ลายเซ็น',
+			'ai.taskAuto' => 'อัตโนมัติ',
+			'ai.usage' => 'การใช้งาน',
+			'ai.usageCalls' => 'การเรียกใช้',
+			'ai.usageTokens' => 'โทเค็น',
+			'ai.usageFailures' => 'ล้มเหลว',
+			'ai.usageReset' => 'ล้างสถิติ',
+			'ai.usageEmpty' => 'ยังไม่มีประวัติการเรียกใช้',
+			'ai.openSettings' => 'เปิดการตั้งค่า AI',
+			'ai.notConfigured' => 'ยังไม่ได้กำหนดค่า',
+			'ai.searchTitle' => 'ค้นหาด้วย AI',
+			'ai.searchHint' => 'อธิบายสิ่งที่คุณกำลังค้นหา แล้ว AI จะช่วยกรอกคำค้นหาและตัวกรองให้',
+			'ai.searchPlaceholder' => 'เช่น MMD ล่าสุดที่มียอดดูมากกว่า 10,000 ครั้ง',
+			'ai.searchApply' => 'ค้นหาด้วยเงื่อนไขเหล่านี้',
+			'ai.searchEmpty' => 'ไม่สามารถแปลงเป็นเงื่อนไขการค้นหาได้ ลองอธิบายด้วยวิธีอื่นดู',
+			'ai.searchFilters' => 'ตัวกรอง',
+			'ai.searchSwitchSegment' => ({required Object segment}) => 'สลับไปที่ ${segment}',
+			'ai.searchGenerating' => 'กำลังประมวลผล…',
+			'ai.searchRetrying' => 'ครั้งก่อนล้มเหลว กำลังลองใหม่…',
+			'ai.searchRetryReason' => ({required Object reason}) => 'สาเหตุ: ${reason}',
+			'ai.searchStageWaiting' => 'ส่งคำขอแล้ว กำลังรอการตอบกลับ…',
+			'ai.searchStageThinkingNext' => 'กำลังคิดขั้นต่อไป…',
+			'ai.searchStageReasoning' => 'กำลังให้เหตุผล…',
+			'ai.searchStageTool' => 'กำลังลองค้นหา…',
+			'ai.searchStageDrafting' => ({required Object chars}) => 'กำลังเขียนคำตอบ · ${chars} ตัวอักษร',
+			'ai.searchStageParsing' => 'กำลังจัดระเบียบผลลัพธ์…',
+			'ai.searchThinking' => 'กระบวนการคิด',
+			'ai.searchKeywordNeedsQuotes' => 'คำค้นนี้ไม่ได้ใส่เครื่องหมายคำพูด Iwara จึงจับคู่แบบหลวม ๆ — เมื่อเรียงแบบนี้ หน้าแรกจะแทบไม่เกี่ยวข้อง ใส่ "เครื่องหมายคำพูด" หรือเรียงตามความเกี่ยวข้อง',
+			'ai.searchToolProbing' => ({required Object query}) => 'ลองค้น ${query}',
+			'ai.searchToolFound' => ({required Object count, required Object titles}) => '${count} รายการ · ${titles}',
+			'ai.searchToolFailed' => ({required Object reason}) => 'ล้มเหลว: ${reason}',
+			'ai.searchFiltersDropped' => ({required Object count}) => 'ลบตัวกรอง ${count} รายการที่ไม่มีในส่วนนี้แล้ว',
 			_ => null,
 		};
 	}

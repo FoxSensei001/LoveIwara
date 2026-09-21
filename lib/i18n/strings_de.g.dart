@@ -97,6 +97,7 @@ class TranslationsDe extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsVrFormatDe vrFormat = _TranslationsVrFormatDe._(_root);
 	@override late final _TranslationsLocalMediaDe localMedia = _TranslationsLocalMediaDe._(_root);
 	@override late final _TranslationsHistoryPageDe historyPage = _TranslationsHistoryPageDe._(_root);
+	@override late final _TranslationsAiDe ai = _TranslationsAiDe._(_root);
 }
 
 // Path: personalProfile
@@ -643,6 +644,9 @@ class _TranslationsSearchDe extends TranslationsSearchEn {
 	@override String get contentRating => 'Inhaltseinstufung';
 	@override String get removeTag => 'Tag entfernen';
 	@override String get pleaseEnterSearchContent => 'Bitte Suchinhalt eingeben';
+	@override String get exactMatch => 'Exakt';
+	@override String get exactMatchOnHint => 'Exakte Übereinstimmung der Phrase, zusätzlich werden chinesische und japanische Titel durchsucht. Tippen für eine lockerere Suche.';
+	@override String get exactMatchOffHint => 'Lockere Übereinstimmung — Iwara zerlegt die Wörter. Tippen für exakte Phrase.';
 	@override String get searchHistory => 'Suchverlauf';
 	@override String get searchSuggestion => 'Suchvorschläge';
 	@override String get usedTimes => 'Nutzungshäufigkeit';
@@ -893,6 +897,7 @@ class _TranslationsSettingsDe extends TranslationsSettingsEn {
 	@override String get signatureContent => 'Signaturinhalt';
 	@override String get signaturePreview => 'Vorschau';
 	@override String get signatureSampleBody => 'Hier steht dein Text';
+	@override String get signatureRegenerate => 'Neu generieren';
 	@override String get signatureNotSet => 'Nicht festgelegt';
 	@override String get signatureRuleHint => 'Die Signatur wird nach dem Text angehängt, getrennt durch eine Trennlinie. Die Linie fügt die App hinzu – schreibe nur die Zeile unten.';
 	@override String get signatureInsertVariable => 'Variable einfügen';
@@ -943,6 +948,19 @@ class _TranslationsSettingsDe extends TranslationsSettingsEn {
 	@override String get signatureOptLengthShort => 'Nur kurze Sätze';
 	@override String get signatureRestoreDefault => 'Standard wiederherstellen';
 	@override String get signatureSourceHitokoto => 'Hitokoto (Zufallszitat)';
+	@override String get signatureAiSourceName => 'KI-generierte Zeile';
+	@override String get signatureEditTextHint => 'Das ist die Signatur, die bereits in diesem Kommentar steht — Spruch und Datum sind jetzt einfach Text, ändere sie beliebig. Leeren entfernt die Signatur.';
+	@override String signatureResolving({required Object name}) => 'Erzeuge ${name}…';
+	@override String get signaturePendingValue => '(wird beim Senden erzeugt)';
+	@override String get signatureAiHint => 'Eine Zeile, die die KI im Moment des Absendens schreibt — bei jedem Kommentar neu. Nutzt den von dir eingerichteten KI-Anbieter.';
+	@override String get signatureAiUnavailable => 'Noch kein KI-Anbieter eingerichtet, deshalb taucht diese Quelle nicht im Variablen-Panel auf.';
+	@override String get signaturePromptTitle => 'Prompt';
+	@override String get signaturePromptHint => 'Das geht so an das Modell. Schreib es um, wie du willst — Ton, Länge, Thema. Die Regeln, die schon drinstehen, lohnt es sich zu behalten.';
+	@override String get signaturePromptReset => 'Standard wiederherstellen';
+	@override String get signaturePromptTry => 'Ausprobieren';
+	@override String get signaturePromptSample => 'Das Ergebnis';
+	@override String get signaturePromptLanguageHint => 'wird durch deine Oberflächensprache ersetzt. Ohne das folgt die Zeile der Sprache des Prompts.';
+	@override String get signaturePromptEdited => 'geändert';
 	@override String get signatureVariablesGroup => 'Eingebaute Variablen';
 	@override String get signatureNeedsNetwork => 'Braucht Netz';
 	@override String get signatureBuiltinSource => 'Eingebaut';
@@ -1343,6 +1361,8 @@ class _TranslationsForumDe extends TranslationsForumEn {
 	@override late final _TranslationsForumLeafDescriptionsDe leafDescriptions = _TranslationsForumLeafDescriptionsDe._(_root);
 	@override String get reply => 'Antworten';
 	@override String get pendingReview => 'Ausstehende Prüfung';
+	@override String get floorNotFound => 'Dieser Beitrag existiert nicht mehr';
+	@override String get floorNotLoadedYet => 'Dieser Beitrag liegt weiter oben — lade mehr Antworten, um dorthin zu springen';
 	@override String get editedAt => 'Bearbeitet am';
 	@override String get copySuccess => 'In die Zwischenablage kopiert';
 	@override String copySuccessForMessage({required Object str}) => 'In die Zwischenablage kopiert: ${str}';
@@ -2842,6 +2862,75 @@ class _TranslationsHistoryPageDe extends TranslationsHistoryPageEn {
 	@override String clearTabTitle({required Object tab}) => '„${tab}“ leeren';
 	@override String clearTabConfirm({required Object tab}) => 'Der gesamte Verlauf in „${tab}“ wird gelöscht, einschließlich des Wiedergabefortschritts dieser Videos. Dies kann nicht rückgängig gemacht werden.';
 	@override String get rangeByLastViewed => 'Nach zuletzt angesehen gefiltert';
+}
+
+// Path: ai
+class _TranslationsAiDe extends TranslationsAiEn {
+	_TranslationsAiDe._(TranslationsDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDe _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'KI';
+	@override String get providers => 'Anbieter';
+	@override String get providersHint => 'Fügen Sie einen oder mehrere KI-Anbieter hinzu und weisen Sie diese den Funktionen zu.';
+	@override String get addProvider => 'Anbieter hinzufügen';
+	@override String get noProviders => 'Noch keine Anbieter vorhanden. Fügen Sie einen hinzu, um KI-Übersetzung, Suche und Signatur zu aktivieren.';
+	@override String get pickPreset => 'Anbieter auswählen';
+	@override String get providerNameLabel => 'Bezeichnung';
+	@override String get apiKey => 'API-Schlüssel';
+	@override String get baseUrl => 'Endpunkt';
+	@override String get model => 'Modell';
+	@override String get modelPick => 'Modell auswählen';
+	@override String get modelEmpty => 'Modellliste konnte nicht geladen werden — Sie können den Modellnamen auch direkt eingeben.';
+	@override String get advanced => 'Erweitert';
+	@override String get reasoning => 'Reasoning-Modell';
+	@override String get streaming => 'Streaming-Ausgabe';
+	@override String get structuredOutput => 'Strukturierte Ausgabe';
+	@override String get structuredOutputHint => 'Wird für die KI-Suche benötigt. Viele Relay-Endpunkte unterstützen dies nicht — deaktivieren Sie es, wenn die Suche fehlschlägt.';
+	@override String get temperature => 'Temperatur';
+	@override String get maxTokens => 'Max. Tokens';
+	@override String get maxTokensAuto => 'Automatisch (Modellgrenze)';
+	@override String get test => 'Testen';
+	@override String get testOk => 'Verbindung erfolgreich';
+	@override String get deleteProvider => 'Anbieter löschen';
+	@override String get usedBy => 'Verwendet für';
+	@override String get taskBindings => 'Funktionszuweisung';
+	@override String get taskBindingsHint => 'Jede Funktion kann einen anderen Anbieter verwenden.';
+	@override String get taskTranslate => 'Übersetzung';
+	@override String get taskSearch => 'KI-Suche';
+	@override String get taskSignature => 'Signatur';
+	@override String get taskAuto => 'Automatisch';
+	@override String get usage => 'Nutzung';
+	@override String get usageCalls => 'Aufrufe';
+	@override String get usageTokens => 'Token-Anzahl';
+	@override String get usageFailures => 'Fehlgeschlagen';
+	@override String get usageReset => 'Statistiken zurücksetzen';
+	@override String get usageEmpty => 'Noch keine Aufrufe vorhanden';
+	@override String get openSettings => 'KI-Einstellungen öffnen';
+	@override String get notConfigured => 'Nicht konfiguriert';
+	@override String get searchTitle => 'KI-Suche';
+	@override String get searchHint => 'Beschreiben Sie, was Sie suchen. Die KI füllt Suchbegriffe und Filter automatisch aus.';
+	@override String get searchPlaceholder => 'z. B. aktuelle MMDs mit über 10.000 Aufrufen';
+	@override String get searchApply => 'Mit diesen Begriffen suchen';
+	@override String get searchEmpty => 'Suchbegriffe konnten nicht erkannt werden. Bitte versuchen Sie es mit einer anderen Formulierung.';
+	@override String get searchFilters => 'Filterkriterien';
+	@override String searchSwitchSegment({required Object segment}) => 'Zu ${segment} wechseln';
+	@override String get searchGenerating => 'Wird verarbeitet…';
+	@override String get searchRetrying => 'Letzter Versuch fehlgeschlagen, neuer Versuch…';
+	@override String searchRetryReason({required Object reason}) => 'Grund: ${reason}';
+	@override String get searchStageWaiting => 'Anfrage gesendet, warte auf Antwort…';
+	@override String get searchStageThinkingNext => 'Überlegt den nächsten Schritt…';
+	@override String get searchStageReasoning => 'Überlegt…';
+	@override String get searchStageTool => 'Testsuche läuft…';
+	@override String searchStageDrafting({required Object chars}) => 'Antwort wird geschrieben · ${chars} Zeichen';
+	@override String get searchStageParsing => 'Ergebnis wird aufbereitet…';
+	@override String get searchThinking => 'Denkprozess';
+	@override String get searchKeywordNeedsQuotes => 'Dieses Stichwort steht nicht in Anführungszeichen, daher passt Iwara es nur lose an — bei dieser Sortierung ist die erste Seite meist unpassend. Setze es in "Anführungszeichen" oder sortiere nach Relevanz.';
+	@override String searchToolProbing({required Object query}) => 'Teste ${query}';
+	@override String searchToolFound({required Object count, required Object titles}) => '${count} Treffer · ${titles}';
+	@override String searchToolFailed({required Object reason}) => 'Fehlgeschlagen: ${reason}';
+	@override String searchFiltersDropped({required Object count}) => '${count} Filter entfernt, die es in diesem Bereich nicht gibt.';
 }
 
 // Path: common.pagination
@@ -5145,6 +5234,9 @@ extension on TranslationsDe {
 			'search.contentRating' => 'Inhaltseinstufung',
 			'search.removeTag' => 'Tag entfernen',
 			'search.pleaseEnterSearchContent' => 'Bitte Suchinhalt eingeben',
+			'search.exactMatch' => 'Exakt',
+			'search.exactMatchOnHint' => 'Exakte Übereinstimmung der Phrase, zusätzlich werden chinesische und japanische Titel durchsucht. Tippen für eine lockerere Suche.',
+			'search.exactMatchOffHint' => 'Lockere Übereinstimmung — Iwara zerlegt die Wörter. Tippen für exakte Phrase.',
 			'search.searchHistory' => 'Suchverlauf',
 			'search.searchSuggestion' => 'Suchvorschläge',
 			'search.usedTimes' => 'Nutzungshäufigkeit',
@@ -5194,11 +5286,11 @@ extension on TranslationsDe {
 			'settings.fastForwardTime' => 'Vorspulzeit',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => 'Die Vorspulzeit muss eine positive ganze Zahl sein.',
 			'settings.rewindTime' => 'Rückspulzeit',
+			_ => null,
+		} ?? switch (path) {
 			'settings.rewindTimeMustBeAPositiveInteger' => 'Die Rückspulzeit muss eine positive ganze Zahl sein.',
 			'settings.longPressPlaybackSpeed' => 'Wiedergabegeschwindigkeit bei Langdruck',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'Die Wiedergabegeschwindigkeit bei Langdruck muss eine positive Zahl sein.',
-			_ => null,
-		} ?? switch (path) {
 			'settings.defaultPlaybackSpeed' => 'Standard-Wiedergabegeschwindigkeit',
 			'settings.rememberPlaybackSpeed' => 'Wiedergabegeschwindigkeit merken',
 			'settings.rememberPlaybackSpeedDesc' => 'Wenn aktiviert, wird die im Player eingestellte Geschwindigkeit als Standard gespeichert und automatisch auf neue Videos angewendet.',
@@ -5379,6 +5471,7 @@ extension on TranslationsDe {
 			'settings.signatureContent' => 'Signaturinhalt',
 			'settings.signaturePreview' => 'Vorschau',
 			'settings.signatureSampleBody' => 'Hier steht dein Text',
+			'settings.signatureRegenerate' => 'Neu generieren',
 			'settings.signatureNotSet' => 'Nicht festgelegt',
 			'settings.signatureRuleHint' => 'Die Signatur wird nach dem Text angehängt, getrennt durch eine Trennlinie. Die Linie fügt die App hinzu – schreibe nur die Zeile unten.',
 			'settings.signatureInsertVariable' => 'Variable einfügen',
@@ -5429,6 +5522,19 @@ extension on TranslationsDe {
 			'settings.signatureOptLengthShort' => 'Nur kurze Sätze',
 			'settings.signatureRestoreDefault' => 'Standard wiederherstellen',
 			'settings.signatureSourceHitokoto' => 'Hitokoto (Zufallszitat)',
+			'settings.signatureAiSourceName' => 'KI-generierte Zeile',
+			'settings.signatureEditTextHint' => 'Das ist die Signatur, die bereits in diesem Kommentar steht — Spruch und Datum sind jetzt einfach Text, ändere sie beliebig. Leeren entfernt die Signatur.',
+			'settings.signatureResolving' => ({required Object name}) => 'Erzeuge ${name}…',
+			'settings.signaturePendingValue' => '(wird beim Senden erzeugt)',
+			'settings.signatureAiHint' => 'Eine Zeile, die die KI im Moment des Absendens schreibt — bei jedem Kommentar neu. Nutzt den von dir eingerichteten KI-Anbieter.',
+			'settings.signatureAiUnavailable' => 'Noch kein KI-Anbieter eingerichtet, deshalb taucht diese Quelle nicht im Variablen-Panel auf.',
+			'settings.signaturePromptTitle' => 'Prompt',
+			'settings.signaturePromptHint' => 'Das geht so an das Modell. Schreib es um, wie du willst — Ton, Länge, Thema. Die Regeln, die schon drinstehen, lohnt es sich zu behalten.',
+			'settings.signaturePromptReset' => 'Standard wiederherstellen',
+			'settings.signaturePromptTry' => 'Ausprobieren',
+			'settings.signaturePromptSample' => 'Das Ergebnis',
+			'settings.signaturePromptLanguageHint' => 'wird durch deine Oberflächensprache ersetzt. Ohne das folgt die Zeile der Sprache des Prompts.',
+			'settings.signaturePromptEdited' => 'geändert',
 			'settings.signatureVariablesGroup' => 'Eingebaute Variablen',
 			'settings.signatureNeedsNetwork' => 'Braucht Netz',
 			'settings.signatureBuiltinSource' => 'Eingebaut',
@@ -5694,6 +5800,8 @@ extension on TranslationsDe {
 			'settings.cdnRefreshServerListTooltip' => 'Serverliste aktualisieren',
 			'settings.cdnSpeedTestButton' => 'Geschwindigkeitstest',
 			'settings.cdnSpeedTestingButton' => ({required Object count}) => 'Test läuft (${count})',
+			_ => null,
+		} ?? switch (path) {
 			'settings.cdnNoServerDataHint' => 'Keine Serverdaten verfügbar, bitte klicken Sie auf die Aktualisieren-Schaltfläche',
 			'settings.cdnTestingStatus' => 'Wird getestet',
 			'settings.cdnUnreachableStatus' => 'Nicht erreichbar',
@@ -5711,8 +5819,6 @@ extension on TranslationsDe {
 			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => 'Speicherberechtigung nicht erteilt, einige Funktionen sind möglicherweise eingeschränkt',
 			'settings.downloadSettings.storagePermissionRationale' => 'Um Downloads in dem von Ihnen gewählten Ordner zu speichern, benötigt die App Speicherzugriff.\n\nUnter Android 11 und höher bedeutet das die Berechtigung „Zugriff auf alle Dateien“; ohne sie werden Dateien stattdessen im privaten App-Ordner gespeichert.',
 			'settings.downloadSettings.storagePermissionRationaleLegacy' => 'Um Downloads in dem von Ihnen gewählten Ordner zu speichern, benötigt die App Speicherzugriff.\n\nOhne ihn werden Dateien stattdessen im privaten App-Ordner gespeichert.',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.grantStoragePermission' => 'Speicherberechtigung erteilen',
 			'settings.downloadSettings.customDownloadPath' => 'Benutzerdefinierter Downloadpfad',
 			'settings.downloadSettings.customDownloadPathDescription' => 'Wenn aktiviert, können Sie einen benutzerdefinierten Speicherort für heruntergeladene Dateien wählen',
@@ -6208,6 +6314,8 @@ extension on TranslationsDe {
 			'markdown.iwaraSpecialMarkdownSyntax' => 'Iwara-spezifische Markdown-Syntax',
 			'markdown.internalLink' => 'Interner Link',
 			'markdown.supportAutoConvertLinkBelow' => 'Automatische Umwandlung der folgenden Links wird unterstützt:',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.convertLinkExample' => '🎬 Videolink\n🖼️ Bildlink\n👤 Benutzerlink\n📌 Forum-Link\n🎵 Playlist-Link\n💬 Themenlink',
 			'markdown.mentionUser' => 'Benutzer erwähnen',
 			'markdown.mentionUserDescription' => 'Geben Sie @ gefolgt vom Benutzernamen ein; dies wird automatisch in einen Benutzerlink umgewandelt',
@@ -6225,8 +6333,6 @@ extension on TranslationsDe {
 			'markdown.listDescription' => 'Erstellen Sie eine geordnete Liste mit Zahl+Punkt und eine ungeordnete Liste mit -',
 			'markdown.listSyntax' => '1. Erstes Element\n2. Zweites Element\n\n- Ungeordnetes Element\n  - Unterelement\n  - Weiteres Unterelement',
 			'markdown.linkAndImage' => 'Link und Bild',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.linkAndImageDescription' => 'Link-Format: [Text](URL)\nBild-Format: ![Beschreibung](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[Linktext](${link})\n![Bildbeschreibung](${imgUrl})',
 			'markdown.title' => 'Titel',
@@ -6303,6 +6409,8 @@ extension on TranslationsDe {
 			'forum.leafDescriptions.other' => 'Sonstige nicht klassifizierte Inhalte',
 			'forum.reply' => 'Antworten',
 			'forum.pendingReview' => 'Ausstehende Prüfung',
+			'forum.floorNotFound' => 'Dieser Beitrag existiert nicht mehr',
+			'forum.floorNotLoadedYet' => 'Dieser Beitrag liegt weiter oben — lade mehr Antworten, um dorthin zu springen',
 			'forum.editedAt' => 'Bearbeitet am',
 			'forum.copySuccess' => 'In die Zwischenablage kopiert',
 			'forum.copySuccessForMessage' => ({required Object str}) => 'In die Zwischenablage kopiert: ${str}',
@@ -6720,6 +6828,8 @@ extension on TranslationsDe {
 			'download.relocation.sectionNotAttempted' => 'Not processed (stopped, left as is)',
 			'download.relocation.unexpectedError' => ({required Object message}) => 'Stopped because of an error: ${message}. Items already moved are complete.',
 			'download.category.manageTitle' => 'Kategorien verwalten',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.label' => 'Kategorien',
 			'download.category.uncategorized' => 'Nicht kategorisiert',
 			'download.category.manage' => 'Verwalten',
@@ -6739,8 +6849,6 @@ extension on TranslationsDe {
 			'download.category.renameSuccess' => 'Kategorie umbenannt',
 			'download.category.renameFailed' => 'Kategorie konnte nicht umbenannt werden',
 			'download.category.deleteTitle' => 'Kategorie löschen',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'Kategorie „${title}“ löschen? Die ${count} Elemente darin werden nach „Nicht kategorisiert“ verschoben. Es werden keine Dateien gelöscht.',
 			'download.category.deleteSuccess' => 'Kategorie gelöscht',
 			'download.category.deleteFailed' => 'Kategorie konnte nicht gelöscht werden',
@@ -7234,6 +7342,8 @@ extension on TranslationsDe {
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'Bei ${position}',
 			'mediaPlayer.notice.noIssuesRecorded' => 'Keine Probleme aufgezeichnet',
 			'mediaPlayer.notice.exportLogsAction' => 'Protokolle exportieren',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.imageLoadFailed' => 'Bild konnte nicht geladen werden',
 			'mediaPlayer.unsupportedImageFormat' => 'Nicht unterstütztes Bildformat',
 			'mediaPlayer.tryOtherViewer' => 'Bitte versuchen Sie es mit anderen Betrachtern',
@@ -7253,8 +7363,6 @@ extension on TranslationsDe {
 			'diagnostics.schemaHealthRepairedBefore' => 'Wurde zuvor vom Sicherheitsnetz repariert',
 			'diagnostics.logPolicySectionTitle' => 'Protokollrichtlinie',
 			'diagnostics.configServiceUnavailable' => 'Der Konfigurationsdienst ist nicht initialisiert. Die Protokollrichtlinie kann nicht angepasst werden.',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.enableLoggingTitle' => 'Protokollierung aktivieren',
 			'diagnostics.enableLoggingSubtitle' => 'Deaktivieren, um keine neuen Protokolle mehr zu schreiben',
 			'diagnostics.enableLogPersistenceTitle' => 'Protokollpersistenz aktivieren',
@@ -7748,6 +7856,8 @@ extension on TranslationsDe {
 			'watchLater.removedFromWatchLater' => 'Aus „Später ansehen“ entfernt',
 			'watchLater.removedCount' => ({required Object count}) => '${count} Elemente entfernt',
 			'watchLater.viewWatchLaterList' => 'Liste anzeigen',
+			_ => null,
+		} ?? switch (path) {
 			'watchLater.addFailed' => 'Hinzufügen zu „Später ansehen“ fehlgeschlagen',
 			'watchLater.invalidItem' => 'Nicht verfügbar',
 			'watchLater.clearWatched' => 'Angesehenes löschen',
@@ -7767,8 +7877,6 @@ extension on TranslationsDe {
 			'watchLater.emptyUnwatchedVideo' => 'Hier gibt es nichts mehr anzuschauen',
 			'watchLater.emptyUnwatchedGallery' => 'Hier gibt es nichts mehr anzusehen',
 			'watchLater.queueLoadFailed' => 'Laden fehlgeschlagen, zum Wiederholen tippen',
-			_ => null,
-		} ?? switch (path) {
 			'mediaMenu.like' => 'Gefällt mir',
 			'mediaMenu.unlike' => 'Gefällt mir nicht mehr',
 			'mediaMenu.viewAuthor' => 'Autor ansehen',
@@ -8115,6 +8223,66 @@ extension on TranslationsDe {
 			'historyPage.clearTabTitle' => ({required Object tab}) => '„${tab}“ leeren',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Der gesamte Verlauf in „${tab}“ wird gelöscht, einschließlich des Wiedergabefortschritts dieser Videos. Dies kann nicht rückgängig gemacht werden.',
 			'historyPage.rangeByLastViewed' => 'Nach zuletzt angesehen gefiltert',
+			'ai.title' => 'KI',
+			'ai.providers' => 'Anbieter',
+			'ai.providersHint' => 'Fügen Sie einen oder mehrere KI-Anbieter hinzu und weisen Sie diese den Funktionen zu.',
+			'ai.addProvider' => 'Anbieter hinzufügen',
+			'ai.noProviders' => 'Noch keine Anbieter vorhanden. Fügen Sie einen hinzu, um KI-Übersetzung, Suche und Signatur zu aktivieren.',
+			'ai.pickPreset' => 'Anbieter auswählen',
+			'ai.providerNameLabel' => 'Bezeichnung',
+			'ai.apiKey' => 'API-Schlüssel',
+			'ai.baseUrl' => 'Endpunkt',
+			'ai.model' => 'Modell',
+			'ai.modelPick' => 'Modell auswählen',
+			'ai.modelEmpty' => 'Modellliste konnte nicht geladen werden — Sie können den Modellnamen auch direkt eingeben.',
+			'ai.advanced' => 'Erweitert',
+			'ai.reasoning' => 'Reasoning-Modell',
+			'ai.streaming' => 'Streaming-Ausgabe',
+			'ai.structuredOutput' => 'Strukturierte Ausgabe',
+			'ai.structuredOutputHint' => 'Wird für die KI-Suche benötigt. Viele Relay-Endpunkte unterstützen dies nicht — deaktivieren Sie es, wenn die Suche fehlschlägt.',
+			'ai.temperature' => 'Temperatur',
+			'ai.maxTokens' => 'Max. Tokens',
+			'ai.maxTokensAuto' => 'Automatisch (Modellgrenze)',
+			'ai.test' => 'Testen',
+			'ai.testOk' => 'Verbindung erfolgreich',
+			'ai.deleteProvider' => 'Anbieter löschen',
+			'ai.usedBy' => 'Verwendet für',
+			'ai.taskBindings' => 'Funktionszuweisung',
+			'ai.taskBindingsHint' => 'Jede Funktion kann einen anderen Anbieter verwenden.',
+			'ai.taskTranslate' => 'Übersetzung',
+			'ai.taskSearch' => 'KI-Suche',
+			'ai.taskSignature' => 'Signatur',
+			'ai.taskAuto' => 'Automatisch',
+			'ai.usage' => 'Nutzung',
+			'ai.usageCalls' => 'Aufrufe',
+			'ai.usageTokens' => 'Token-Anzahl',
+			'ai.usageFailures' => 'Fehlgeschlagen',
+			'ai.usageReset' => 'Statistiken zurücksetzen',
+			'ai.usageEmpty' => 'Noch keine Aufrufe vorhanden',
+			'ai.openSettings' => 'KI-Einstellungen öffnen',
+			'ai.notConfigured' => 'Nicht konfiguriert',
+			'ai.searchTitle' => 'KI-Suche',
+			'ai.searchHint' => 'Beschreiben Sie, was Sie suchen. Die KI füllt Suchbegriffe und Filter automatisch aus.',
+			'ai.searchPlaceholder' => 'z. B. aktuelle MMDs mit über 10.000 Aufrufen',
+			'ai.searchApply' => 'Mit diesen Begriffen suchen',
+			'ai.searchEmpty' => 'Suchbegriffe konnten nicht erkannt werden. Bitte versuchen Sie es mit einer anderen Formulierung.',
+			'ai.searchFilters' => 'Filterkriterien',
+			'ai.searchSwitchSegment' => ({required Object segment}) => 'Zu ${segment} wechseln',
+			'ai.searchGenerating' => 'Wird verarbeitet…',
+			'ai.searchRetrying' => 'Letzter Versuch fehlgeschlagen, neuer Versuch…',
+			'ai.searchRetryReason' => ({required Object reason}) => 'Grund: ${reason}',
+			'ai.searchStageWaiting' => 'Anfrage gesendet, warte auf Antwort…',
+			'ai.searchStageThinkingNext' => 'Überlegt den nächsten Schritt…',
+			'ai.searchStageReasoning' => 'Überlegt…',
+			'ai.searchStageTool' => 'Testsuche läuft…',
+			'ai.searchStageDrafting' => ({required Object chars}) => 'Antwort wird geschrieben · ${chars} Zeichen',
+			'ai.searchStageParsing' => 'Ergebnis wird aufbereitet…',
+			'ai.searchThinking' => 'Denkprozess',
+			'ai.searchKeywordNeedsQuotes' => 'Dieses Stichwort steht nicht in Anführungszeichen, daher passt Iwara es nur lose an — bei dieser Sortierung ist die erste Seite meist unpassend. Setze es in "Anführungszeichen" oder sortiere nach Relevanz.',
+			'ai.searchToolProbing' => ({required Object query}) => 'Teste ${query}',
+			'ai.searchToolFound' => ({required Object count, required Object titles}) => '${count} Treffer · ${titles}',
+			'ai.searchToolFailed' => ({required Object reason}) => 'Fehlgeschlagen: ${reason}',
+			'ai.searchFiltersDropped' => ({required Object count}) => '${count} Filter entfernt, die es in diesem Bereich nicht gibt.',
 			_ => null,
 		};
 	}

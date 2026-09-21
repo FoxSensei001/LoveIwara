@@ -496,6 +496,9 @@ search:
   contentRating: 内容分级
   removeTag: 移除标签
   pleaseEnterSearchContent: 请输入搜索内容
+  exactMatch: "精确匹配"
+  exactMatchOnHint: "正按整个词精确匹配，并额外搜索中文与日文标题。点一下改回松散搜索。"
+  exactMatchOffHint: "正在松散匹配——iwara 会把词拆开。点一下改成精确匹配整个词。"
   searchHistory: 搜索历史
   searchSuggestion: 搜索建议
   usedTimes: 使用次数
@@ -731,6 +734,7 @@ settings:
   signatureContent: 小尾巴内容
   signaturePreview: '效果预览'
   signatureSampleBody: '这里是你写的正文'
+  signatureRegenerate: '换一句'
   signatureNotSet: '还没设置'
   signatureRuleHint: "小尾巴会跟在正文后面，中间自动隔一条分隔线——分隔线由应用生成，你只需要写下面这句话。"
   signatureInsertVariable: "插入变量"
@@ -781,6 +785,19 @@ settings:
   signatureOptLengthShort: "只要短句"
   signatureRestoreDefault: "恢复默认"
   signatureSourceHitokoto: "一言"
+  signatureAiSourceName: "AI 一言"
+  signatureEditTextHint: "这是这条评论里已经写好的小尾巴——一言、日期这会儿都只是普通文字，随便改。清空就是不要小尾巴了。"
+  signatureResolving: "正在生成${name}…"
+  signaturePendingValue: "（发送时生成）"
+  signatureAiHint: "由 AI 现写的一句话，每条评论都是新的。用的是你配好的 AI 供应商。"
+  signatureAiUnavailable: "还没配 AI 供应商，所以它暂时不会出现在变量面板里。"
+  signaturePromptTitle: "提示词"
+  signaturePromptHint: "这就是发给模型的那一段。语气、长短、写什么，随便改。里面已有的几条规矩值得留着。"
+  signaturePromptReset: "恢复默认"
+  signaturePromptTry: "试一下"
+  signaturePromptSample: "它写出来的"
+  signaturePromptLanguageHint: "会换成你的界面语言。删掉它，一言就会跟着提示词的语言走。"
+  signaturePromptEdited: "改过"
   signatureVariablesGroup: "内置变量"
   signatureNeedsNetwork: "需要联网"
   signatureBuiltinSource: "内置"
@@ -1710,6 +1727,8 @@ forum:
     other: 其他未分类的内容
   reply: 回复
   pendingReview: 审核中
+  floorNotFound: '该楼层不存在或已被删除'
+  floorNotLoadedYet: '该楼层在更早的位置，继续向上加载后才能跳转'
   editedAt: 编辑时间
   copySuccess: 已复制到剪贴板
   copySuccessForMessage: '已复制到剪贴板: ${str}'
@@ -3665,3 +3684,65 @@ historyPage:
   clearTabTitle: "清空「${tab}」"
   clearTabConfirm: "将删除「${tab}」中的全部历史记录，以及对应视频的观看进度。此操作无法撤销。"
   rangeByLastViewed: "按最后浏览时间筛选"
+
+ai:
+  title: "AI"
+  providers: "供应商"
+  providersHint: "添加一个或多个 AI 供应商，再为每项功能指定用哪一个。"
+  addProvider: "添加供应商"
+  noProviders: "还没有供应商。添加一个之后，翻译、搜索和小尾巴才能用上 AI。"
+  pickPreset: "选择供应商"
+  providerNameLabel: "名称"
+  apiKey: "API 密钥"
+  baseUrl: "端点地址"
+  model: "模型"
+  modelPick: "选择模型"
+  modelEmpty: "没拉到模型列表，直接填模型名也可以"
+  advanced: "高级"
+  reasoning: "推理模型"
+  streaming: "流式输出"
+  structuredOutput: "结构化输出"
+  structuredOutputHint: "AI 搜索要用它。不少中转端点并不支持，搜索老是失败就关掉。"
+  temperature: "温度"
+  maxTokens: "最大 token"
+  maxTokensAuto: "自动（模型上限）"
+  test: "测试"
+  testOk: "连接正常"
+  deleteProvider: "删除供应商"
+  usedBy: "正在用于"
+  taskBindings: "功能分配"
+  taskBindingsHint: "每项功能可以指定不同的供应商。"
+  taskTranslate: "翻译"
+  taskSearch: "AI 搜索"
+  taskSignature: "小尾巴"
+  taskAuto: "自动"
+  usage: "用量"
+  usageCalls: "调用"
+  usageTokens: "token"
+  usageFailures: "失败"
+  usageReset: "清空统计"
+  usageEmpty: "还没有调用记录"
+  openSettings: "前往 AI 设置"
+  notConfigured: "未配置"
+  searchTitle: "AI 搜索"
+  searchHint: "用一句话描述你想找什么，AI 会替你填好搜索词和筛选条件。"
+  searchPlaceholder: "例如：播放量过万的最新 MMD"
+  searchApply: "用这些条件搜索"
+  searchEmpty: "没能从这句话里解析出搜索条件，换个说法试试"
+  searchFilters: "筛选条件"
+  searchSwitchSegment: "切换到「${segment}」"
+  searchGenerating: "正在理解…"
+  searchRetrying: "上一次失败了，正在重试…"
+  searchRetryReason: "失败原因：${reason}"
+  searchStageWaiting: "已发出请求，等待回应…"
+  searchStageThinkingNext: "正在继续思考…"
+  searchStageReasoning: "正在推理…"
+  searchStageTool: "正在试搜…"
+  searchStageDrafting: "正在写答案 · 已 ${chars} 字"
+  searchStageParsing: "正在整理结果…"
+  searchThinking: "思考过程"
+  searchKeywordNeedsQuotes: "这个关键词没加引号，iwara 会把它拆碎了松散匹配——按这个排序，第一页多半与它无关。给它加上英文双引号，或者改成按相关度排序。"
+  searchToolProbing: "试搜 ${query}"
+  searchToolFound: "${count} 条 · ${titles}"
+  searchToolFailed: "试搜失败：${reason}"
+  searchFiltersDropped: "已移除 ${count} 条本板块没有的筛选。"

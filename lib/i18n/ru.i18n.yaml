@@ -494,6 +494,9 @@ search:
   contentRating: Возрастной рейтинг
   removeTag: Удалить тег
   pleaseEnterSearchContent: Введите поисковый запрос
+  exactMatch: "Точно"
+  exactMatchOnHint: "Точное совпадение фразы, дополнительно ищем в китайских и японских заголовках. Нажмите для менее строгого поиска."
+  exactMatchOffHint: "Нестрогое совпадение — Iwara разбивает слова. Нажмите для точной фразы."
   searchHistory: История поиска
   searchSuggestion: Подсказки поиска
   usedTimes: Использований
@@ -729,6 +732,7 @@ settings:
   signatureContent: Текст подписи
   signaturePreview: 'Предпросмотр'
   signatureSampleBody: 'Здесь ваш текст'
+  signatureRegenerate: 'Обновить'
   signatureNotSet: 'Не задано'
   signatureRuleHint: "Подпись добавляется после текста и отделяется горизонтальной линией. Линию добавляет приложение — вам нужно написать только строку ниже."
   signatureInsertVariable: "Вставить переменную"
@@ -779,6 +783,19 @@ settings:
   signatureOptLengthShort: "Только короткие"
   signatureRestoreDefault: "Вернуть по умолчанию"
   signatureSourceHitokoto: "Hitokoto (случайная цитата)"
+  signatureAiSourceName: "Фраза от ИИ"
+  signatureEditTextHint: "Это подпись, уже записанная в этот комментарий: фраза и дата теперь просто текст, правьте как угодно. Очистите поле, чтобы убрать подпись."
+  signatureResolving: "Создаём ${name}…"
+  signaturePendingValue: "(создаётся при отправке)"
+  signatureAiHint: "Строка, которую ИИ пишет на месте — своя для каждого комментария. Использует настроенного вами провайдера ИИ."
+  signatureAiUnavailable: "Провайдер ИИ ещё не настроен, поэтому этот источник не показывается в панели переменных."
+  signaturePromptTitle: "Промпт"
+  signaturePromptHint: "Именно это уходит модели. Перепишите как угодно: тон, длину, тему. Правила, которые уже есть, стоит оставить."
+  signaturePromptReset: "Сбросить по умолчанию"
+  signaturePromptTry: "Попробовать"
+  signaturePromptSample: "Что получилось"
+  signaturePromptLanguageHint: "заменяется языком интерфейса. Без него строка пойдёт на языке промпта."
+  signaturePromptEdited: "изменён"
   signatureVariablesGroup: "Встроенные переменные"
   signatureNeedsNetwork: "Нужна сеть"
   signatureBuiltinSource: "Встроенный"
@@ -1705,6 +1722,8 @@ forum:
     other: Прочий неклассифицированный контент
   reply: Ответить
   pendingReview: На рассмотрении
+  floorNotFound: 'Это сообщение не существует или удалено'
+  floorNotLoadedYet: 'Это сообщение выше — загрузите больше ответов, чтобы перейти к нему'
   editedAt: Дата изменения
   copySuccess: Скопировано в буфер обмена
   copySuccessForMessage: 'Скопировано в буфер обмена: ${str}'
@@ -3663,3 +3682,65 @@ historyPage:
   clearTabTitle: "Очистить «${tab}»"
   clearTabConfirm: "Вся история в «${tab}» будет удалена вместе с прогрессом просмотра этих видео. Действие необратимо."
   rangeByLastViewed: "По времени последнего просмотра"
+
+ai:
+  title: "ИИ"
+  providers: "Провайдеры"
+  providersHint: "Добавьте одного или нескольких провайдеров ИИ и назначьте их для нужных функций."
+  addProvider: "Добавить провайдера"
+  noProviders: "Провайдеры пока не добавлены. Добавьте хотя бы одного, чтобы включить перевод, поиск и подпись с помощью ИИ."
+  pickPreset: "Выбрать провайдера"
+  providerNameLabel: "Название"
+  apiKey: "API-ключ"
+  baseUrl: "Конечная точка"
+  model: "Модель"
+  modelPick: "Выбрать модель"
+  modelEmpty: "Не удалось загрузить список моделей — можно также ввести название модели вручную."
+  advanced: "Расширенные"
+  reasoning: "Модель рассуждений"
+  streaming: "Потоковый вывод"
+  structuredOutput: "Структурированный вывод"
+  structuredOutputHint: "Требуется для поиска с ИИ. Многие сторонние прокси-эндпоинты не поддерживают эту функцию — отключите её, если поиск постоянно завершается ошибкой."
+  temperature: "Температура"
+  maxTokens: "Макс. количество токенов"
+  maxTokensAuto: "Авто (лимит модели)"
+  test: "Проверить"
+  testOk: "Подключение успешно"
+  deleteProvider: "Удалить провайдера"
+  usedBy: "Используется в"
+  taskBindings: "Назначение функций"
+  taskBindingsHint: "Для каждой функции можно выбрать отдельного провайдера."
+  taskTranslate: "Перевод"
+  taskSearch: "Поиск с ИИ"
+  taskSignature: "Подпись"
+  taskAuto: "Автоматически"
+  usage: "Использование"
+  usageCalls: "Вызовы"
+  usageTokens: "Токены"
+  usageFailures: "Ошибки"
+  usageReset: "Сбросить статистику"
+  usageEmpty: "Вызовов пока не было"
+  openSettings: "Открыть настройки ИИ"
+  notConfigured: "Не настроено"
+  searchTitle: "Поиск с ИИ"
+  searchHint: "Опишите, что вы ищете, и ИИ сам заполнит поисковые запросы и фильтры."
+  searchPlaceholder: "Например: недавние MMD с более 10 тыс. просмотров"
+  searchApply: "Искать по этим условиям"
+  searchEmpty: "Не удалось сформировать поисковый запрос. Попробуйте описать иначе."
+  searchFilters: "Фильтры"
+  searchSwitchSegment: "Переключить на ${segment}"
+  searchGenerating: "Обработка…"
+  searchRetrying: "Предыдущая попытка не удалась, повтор…"
+  searchRetryReason: "Причина: ${reason}"
+  searchStageWaiting: "Запрос отправлен, ждём ответа…"
+  searchStageThinkingNext: "Обдумывает следующий шаг…"
+  searchStageReasoning: "Рассуждает…"
+  searchStageTool: "Пробный поиск…"
+  searchStageDrafting: "Пишет ответ · ${chars} симв."
+  searchStageParsing: "Разбираем результат…"
+  searchThinking: "Ход рассуждений"
+  searchKeywordNeedsQuotes: "Запрос не взят в кавычки, поэтому Iwara сопоставляет его нестрого — при такой сортировке первая страница будет в основном нерелевантной. Возьмите его в \"кавычки\" или сортируйте по релевантности."
+  searchToolProbing: "Пробую ${query}"
+  searchToolFound: "Результатов: ${count} · ${titles}"
+  searchToolFailed: "Не удалось: ${reason}"
+  searchFiltersDropped: "Удалено фильтров, которых нет в этом разделе: ${count}."

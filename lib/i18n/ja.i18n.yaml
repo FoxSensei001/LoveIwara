@@ -495,6 +495,9 @@ search:
   contentRating: コンテンツレーティング
   removeTag: タグを削除
   pleaseEnterSearchContent: 検索内容を入力してください
+  exactMatch: "完全一致"
+  exactMatchOnHint: "フレーズ全体で完全一致し、中国語・日本語のタイトルも併せて検索しています。タップで緩い検索に戻します。"
+  exactMatchOffHint: "緩い一致です（iwara が語を分割します）。タップでフレーズ全体の完全一致に。"
   searchHistory: 検索履歴
   searchSuggestion: 検索提案
   usedTimes: 使用回数
@@ -730,6 +733,7 @@ settings:
   signatureContent: 小尾巴の内容
   signaturePreview: 'プレビュー'
   signatureSampleBody: 'ここに本文が入ります'
+  signatureRegenerate: '別の一言にする'
   signatureNotSet: '未設定'
   signatureRuleHint: "署名は本文の後ろに、区切り線を挟んで付きます。区切り線はアプリが入れるので、下の一文だけ書いてください。"
   signatureInsertVariable: "変数を挿入"
@@ -780,6 +784,19 @@ settings:
   signatureOptLengthShort: "短い一文だけ"
   signatureRestoreDefault: "既定に戻す"
   signatureSourceHitokoto: "ひとこと"
+  signatureAiSourceName: "AI ひとこと"
+  signatureEditTextHint: "このコメントに既に書かれている署名です。一言も日付も今はただの文字なので自由に直せます。空にすれば署名なしになります。"
+  signatureResolving: "${name}を生成中…"
+  signaturePendingValue: "（送信時に生成）"
+  signatureAiHint: "AI がその場で書く一言。コメントごとに新しくなります。設定した AI プロバイダーを使います。"
+  signatureAiUnavailable: "AI プロバイダーが未設定のため、変数パネルには表示されません。"
+  signaturePromptTitle: "プロンプト"
+  signaturePromptHint: "モデルに送られるのがこれです。口調も長さも題材も自由に書き換えてかまいません。既に入っているルールは残す価値があります。"
+  signaturePromptReset: "既定に戻す"
+  signaturePromptTry: "試す"
+  signaturePromptSample: "書かれたもの"
+  signaturePromptLanguageHint: "は表示言語に置き換わります。削除するとプロンプトの言語に従います。"
+  signaturePromptEdited: "変更済み"
   signatureVariablesGroup: "組み込み変数"
   signatureNeedsNetwork: "ネットワークが必要"
   signatureBuiltinSource: "標準"
@@ -1708,6 +1725,8 @@ forum:
     other: その他の未分類のコンテンツ
   reply: 回覆
   pendingReview: 審査中
+  floorNotFound: 'その投稿は存在しないか削除されました'
+  floorNotLoadedYet: 'その投稿はさらに前にあります。続きを読み込むと移動できます'
   editedAt: 編集日時
   copySuccess: クリップボードにコピーされました
   copySuccessForMessage: 'クリップボードにコピーされました: ${str}'
@@ -3664,3 +3683,65 @@ historyPage:
   clearTabTitle: "「${tab}」を消去"
   clearTabConfirm: "「${tab}」の履歴をすべて削除し、該当する動画の視聴位置も消去します。この操作は元に戻せません。"
   rangeByLastViewed: "最終閲覧日時で絞り込み"
+
+ai:
+  title: "AI"
+  providers: "プロバイダー"
+  providersHint: "1つ以上のAIプロバイダーを追加し、各機能で使用するプロバイダーを指定します。"
+  addProvider: "プロバイダーを追加"
+  noProviders: "プロバイダーがまだありません。追加するとAI翻訳・検索・署名機能が利用可能になります。"
+  pickPreset: "プロバイダーを選択"
+  providerNameLabel: "名前"
+  apiKey: "APIキー"
+  baseUrl: "エンドポイント"
+  model: "モデル"
+  modelPick: "モデルを選択"
+  modelEmpty: "モデルリストを取得できませんでした。直接モデル名を入力しても利用できます。"
+  advanced: "詳細設定"
+  reasoning: "推論モデル"
+  streaming: "ストリーミング出力"
+  structuredOutput: "構造化出力"
+  structuredOutputHint: "AI検索で必要です。多くの中継エンドポイントでは対応していないため、検索が失敗し続ける場合は無効にしてください。"
+  temperature: "サンプリング温度"
+  maxTokens: "最大トークン数"
+  maxTokensAuto: "自動（モデル上限）"
+  test: "テスト"
+  testOk: "接続成功"
+  deleteProvider: "プロバイダーを削除"
+  usedBy: "使用先"
+  taskBindings: "機能の割り当て"
+  taskBindingsHint: "機能ごとに異なるプロバイダーを指定できます。"
+  taskTranslate: "翻訳"
+  taskSearch: "AI検索"
+  taskSignature: "署名"
+  taskAuto: "自動"
+  usage: "使用状況"
+  usageCalls: "呼び出し回数"
+  usageTokens: "トークン数"
+  usageFailures: "失敗"
+  usageReset: "統計をリセット"
+  usageEmpty: "呼び出し履歴はまだありません"
+  openSettings: "AI設定を開く"
+  notConfigured: "未設定"
+  searchTitle: "AI検索"
+  searchHint: "探したいものを文章で説明すると、AIが検索キーワードと絞り込み条件を入力します。"
+  searchPlaceholder: "例：再生回数1万回以上の最新MMD"
+  searchApply: "この条件で検索"
+  searchEmpty: "検索条件を抽出できませんでした。別の表現で試してみてください。"
+  searchFilters: "フィルター"
+  searchSwitchSegment: "「${segment}」に切り替え"
+  searchGenerating: "考え中…"
+  searchRetrying: "前回は失敗しました。再試行中…"
+  searchRetryReason: "原因：${reason}"
+  searchStageWaiting: "リクエスト送信済み、応答待ち…"
+  searchStageThinkingNext: "次の手を考えています…"
+  searchStageReasoning: "推論中…"
+  searchStageTool: "検索を試しています…"
+  searchStageDrafting: "回答を作成中 · ${chars} 文字"
+  searchStageParsing: "結果を整理中…"
+  searchThinking: "思考の過程"
+  searchKeywordNeedsQuotes: "このキーワードは引用符で囲まれていないため、iwara は細かく分解して緩く一致させます。この並び順だと1ページ目はほぼ無関係です。\"引用符\"で囲むか、関連度順にしてください。"
+  searchToolProbing: "${query} で試し検索"
+  searchToolFound: "${count} 件 · ${titles}"
+  searchToolFailed: "試し検索に失敗：${reason}"
+  searchFiltersDropped: "このセクションに無い絞り込みを ${count} 件削除しました。"

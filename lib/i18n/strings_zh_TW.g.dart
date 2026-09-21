@@ -97,6 +97,7 @@ class TranslationsZhTw extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsVrFormatZhTw vrFormat = _TranslationsVrFormatZhTw._(_root);
 	@override late final _TranslationsLocalMediaZhTw localMedia = _TranslationsLocalMediaZhTw._(_root);
 	@override late final _TranslationsHistoryPageZhTw historyPage = _TranslationsHistoryPageZhTw._(_root);
+	@override late final _TranslationsAiZhTw ai = _TranslationsAiZhTw._(_root);
 }
 
 // Path: personalProfile
@@ -643,6 +644,9 @@ class _TranslationsSearchZhTw extends TranslationsSearchEn {
 	@override String get contentRating => '內容分級';
 	@override String get removeTag => '移除標籤';
 	@override String get pleaseEnterSearchContent => '請輸入搜尋內容';
+	@override String get exactMatch => '精確匹配';
+	@override String get exactMatchOnHint => '正按整個詞精確匹配，並額外搜尋中文與日文標題。點一下改回鬆散搜尋。';
+	@override String get exactMatchOffHint => '正在鬆散匹配——iwara 會把詞拆開。點一下改成精確匹配整個詞。';
 	@override String get searchHistory => '搜尋歷史';
 	@override String get searchSuggestion => '搜尋建議';
 	@override String get usedTimes => '使用次數';
@@ -893,6 +897,7 @@ class _TranslationsSettingsZhTw extends TranslationsSettingsEn {
 	@override String get signatureContent => '小尾巴內容';
 	@override String get signaturePreview => '效果預覽';
 	@override String get signatureSampleBody => '這裡是你寫的正文';
+	@override String get signatureRegenerate => '換一句';
 	@override String get signatureNotSet => '尚未設定';
 	@override String get signatureRuleHint => '小尾巴會跟在正文後面，中間自動隔一條分隔線——分隔線由應用程式產生，你只需要寫下面這句話。';
 	@override String get signatureInsertVariable => '插入變數';
@@ -943,6 +948,19 @@ class _TranslationsSettingsZhTw extends TranslationsSettingsEn {
 	@override String get signatureOptLengthShort => '只要短句';
 	@override String get signatureRestoreDefault => '恢復預設';
 	@override String get signatureSourceHitokoto => '一言';
+	@override String get signatureAiSourceName => 'AI 一言';
+	@override String get signatureEditTextHint => '這是這則留言裡已經寫好的小尾巴——一言、日期這會兒都只是普通文字，隨便改。清空就是不要小尾巴了。';
+	@override String signatureResolving({required Object name}) => '正在產生${name}…';
+	@override String get signaturePendingValue => '（發送時產生）';
+	@override String get signatureAiHint => '由 AI 現寫的一句話，每條留言都是新的。用的是你配好的 AI 供應商。';
+	@override String get signatureAiUnavailable => '還沒配 AI 供應商，所以它暫時不會出現在變數面板裡。';
+	@override String get signaturePromptTitle => '提示詞';
+	@override String get signaturePromptHint => '這就是發給模型的那一段。語氣、長短、寫什麼，隨便改。裡面已有的幾條規矩值得留著。';
+	@override String get signaturePromptReset => '恢復預設';
+	@override String get signaturePromptTry => '試一下';
+	@override String get signaturePromptSample => '它寫出來的';
+	@override String get signaturePromptLanguageHint => '會換成你的介面語言。刪掉它，一言就會跟著提示詞的語言走。';
+	@override String get signaturePromptEdited => '改過';
 	@override String get signatureVariablesGroup => '內建變數';
 	@override String get signatureNeedsNetwork => '需要連網';
 	@override String get signatureBuiltinSource => '內建';
@@ -1372,6 +1390,8 @@ class _TranslationsForumZhTw extends TranslationsForumEn {
 	@override late final _TranslationsForumLeafDescriptionsZhTw leafDescriptions = _TranslationsForumLeafDescriptionsZhTw._(_root);
 	@override String get reply => '回覆';
 	@override String get pendingReview => '審核中';
+	@override String get floorNotFound => '該樓層不存在或已被刪除';
+	@override String get floorNotLoadedYet => '該樓層在更早的位置，繼續向上載入後才能跳轉';
 	@override String get editedAt => '編輯時間';
 	@override String get copySuccess => '已複製到剪貼簿';
 	@override String copySuccessForMessage({required Object str}) => '已複製到剪貼簿: ${str}';
@@ -2842,6 +2862,75 @@ class _TranslationsHistoryPageZhTw extends TranslationsHistoryPageEn {
 	@override String clearTabTitle({required Object tab}) => '清空「${tab}」';
 	@override String clearTabConfirm({required Object tab}) => '將刪除「${tab}」中的全部歷史記錄，以及對應影片的觀看進度。此操作無法復原。';
 	@override String get rangeByLastViewed => '依最後瀏覽時間篩選';
+}
+
+// Path: ai
+class _TranslationsAiZhTw extends TranslationsAiEn {
+	_TranslationsAiZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'AI';
+	@override String get providers => '供應商';
+	@override String get providersHint => '新增一個或多個 AI 供應商，再為每項功能指定用哪一個。';
+	@override String get addProvider => '新增供應商';
+	@override String get noProviders => '還沒有供應商。新增一個之後，翻譯、搜尋和小尾巴才能用上 AI。';
+	@override String get pickPreset => '選擇供應商';
+	@override String get providerNameLabel => '名稱';
+	@override String get apiKey => 'API 金鑰';
+	@override String get baseUrl => '端點位址';
+	@override String get model => '模型';
+	@override String get modelPick => '選擇模型';
+	@override String get modelEmpty => '沒抓到模型列表，直接填模型名也可以';
+	@override String get advanced => '進階';
+	@override String get reasoning => '推理模型';
+	@override String get streaming => '串流輸出';
+	@override String get structuredOutput => '結構化輸出';
+	@override String get structuredOutputHint => 'AI 搜尋要用它。不少中轉端點並不支援，搜尋老是失敗就關掉。';
+	@override String get temperature => '溫度';
+	@override String get maxTokens => '最大 token';
+	@override String get maxTokensAuto => '自動（模型上限）';
+	@override String get test => '測試';
+	@override String get testOk => '連線正常';
+	@override String get deleteProvider => '刪除供應商';
+	@override String get usedBy => '正在用於';
+	@override String get taskBindings => '功能分配';
+	@override String get taskBindingsHint => '每項功能可以指定不同的供應商。';
+	@override String get taskTranslate => '翻譯';
+	@override String get taskSearch => 'AI 搜尋';
+	@override String get taskSignature => '小尾巴';
+	@override String get taskAuto => '自動';
+	@override String get usage => '用量';
+	@override String get usageCalls => '呼叫';
+	@override String get usageTokens => 'token';
+	@override String get usageFailures => '失敗';
+	@override String get usageReset => '清空統計';
+	@override String get usageEmpty => '還沒有呼叫紀錄';
+	@override String get openSettings => '前往 AI 設定';
+	@override String get notConfigured => '未設定';
+	@override String get searchTitle => 'AI 搜尋';
+	@override String get searchHint => '用一句話描述你想找什麼，AI 會替你填好搜尋詞和篩選條件。';
+	@override String get searchPlaceholder => '例如：播放量破萬的最新 MMD';
+	@override String get searchApply => '用這些條件搜尋';
+	@override String get searchEmpty => '沒能從這句話裡解析出搜尋條件，換個說法試試';
+	@override String get searchFilters => '篩選條件';
+	@override String searchSwitchSegment({required Object segment}) => '切換到「${segment}」';
+	@override String get searchGenerating => '正在理解…';
+	@override String get searchRetrying => '上一次失敗了，正在重試…';
+	@override String searchRetryReason({required Object reason}) => '失敗原因：${reason}';
+	@override String get searchStageWaiting => '已送出請求，等待回應…';
+	@override String get searchStageThinkingNext => '正在繼續思考…';
+	@override String get searchStageReasoning => '正在推理…';
+	@override String get searchStageTool => '正在試搜…';
+	@override String searchStageDrafting({required Object chars}) => '正在寫答案 · 已 ${chars} 字';
+	@override String get searchStageParsing => '正在整理結果…';
+	@override String get searchThinking => '思考過程';
+	@override String get searchKeywordNeedsQuotes => '這個關鍵詞沒加引號，iwara 會把它拆碎了鬆散匹配——按這個排序，第一頁多半與它無關。給它加上英文雙引號，或者改成按相關度排序。';
+	@override String searchToolProbing({required Object query}) => '試搜 ${query}';
+	@override String searchToolFound({required Object count, required Object titles}) => '${count} 筆 · ${titles}';
+	@override String searchToolFailed({required Object reason}) => '試搜失敗：${reason}';
+	@override String searchFiltersDropped({required Object count}) => '已移除 ${count} 條本板塊沒有的篩選。';
 }
 
 // Path: common.pagination
@@ -5145,6 +5234,9 @@ extension on TranslationsZhTw {
 			'search.contentRating' => '內容分級',
 			'search.removeTag' => '移除標籤',
 			'search.pleaseEnterSearchContent' => '請輸入搜尋內容',
+			'search.exactMatch' => '精確匹配',
+			'search.exactMatchOnHint' => '正按整個詞精確匹配，並額外搜尋中文與日文標題。點一下改回鬆散搜尋。',
+			'search.exactMatchOffHint' => '正在鬆散匹配——iwara 會把詞拆開。點一下改成精確匹配整個詞。',
 			'search.searchHistory' => '搜尋歷史',
 			'search.searchSuggestion' => '搜尋建議',
 			'search.usedTimes' => '使用次數',
@@ -5194,11 +5286,11 @@ extension on TranslationsZhTw {
 			'settings.fastForwardTime' => '快進時間',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => '快進時間必須是正整數。',
 			'settings.rewindTime' => '快退時間',
+			_ => null,
+		} ?? switch (path) {
 			'settings.rewindTimeMustBeAPositiveInteger' => '快退時間必須是正整數。',
 			'settings.longPressPlaybackSpeed' => '長按播放倍速',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '長按播放倍速必須是正數。',
-			_ => null,
-		} ?? switch (path) {
 			'settings.defaultPlaybackSpeed' => '預設播放倍速',
 			'settings.rememberPlaybackSpeed' => '記住播放倍速',
 			'settings.rememberPlaybackSpeedDesc' => '開啟後，在播放器中調整的倍速會自動儲存為預設倍速，並套用到後續播放的新影片。',
@@ -5379,6 +5471,7 @@ extension on TranslationsZhTw {
 			'settings.signatureContent' => '小尾巴內容',
 			'settings.signaturePreview' => '效果預覽',
 			'settings.signatureSampleBody' => '這裡是你寫的正文',
+			'settings.signatureRegenerate' => '換一句',
 			'settings.signatureNotSet' => '尚未設定',
 			'settings.signatureRuleHint' => '小尾巴會跟在正文後面，中間自動隔一條分隔線——分隔線由應用程式產生，你只需要寫下面這句話。',
 			'settings.signatureInsertVariable' => '插入變數',
@@ -5429,6 +5522,19 @@ extension on TranslationsZhTw {
 			'settings.signatureOptLengthShort' => '只要短句',
 			'settings.signatureRestoreDefault' => '恢復預設',
 			'settings.signatureSourceHitokoto' => '一言',
+			'settings.signatureAiSourceName' => 'AI 一言',
+			'settings.signatureEditTextHint' => '這是這則留言裡已經寫好的小尾巴——一言、日期這會兒都只是普通文字，隨便改。清空就是不要小尾巴了。',
+			'settings.signatureResolving' => ({required Object name}) => '正在產生${name}…',
+			'settings.signaturePendingValue' => '（發送時產生）',
+			'settings.signatureAiHint' => '由 AI 現寫的一句話，每條留言都是新的。用的是你配好的 AI 供應商。',
+			'settings.signatureAiUnavailable' => '還沒配 AI 供應商，所以它暫時不會出現在變數面板裡。',
+			'settings.signaturePromptTitle' => '提示詞',
+			'settings.signaturePromptHint' => '這就是發給模型的那一段。語氣、長短、寫什麼，隨便改。裡面已有的幾條規矩值得留著。',
+			'settings.signaturePromptReset' => '恢復預設',
+			'settings.signaturePromptTry' => '試一下',
+			'settings.signaturePromptSample' => '它寫出來的',
+			'settings.signaturePromptLanguageHint' => '會換成你的介面語言。刪掉它，一言就會跟著提示詞的語言走。',
+			'settings.signaturePromptEdited' => '改過',
 			'settings.signatureVariablesGroup' => '內建變數',
 			'settings.signatureNeedsNetwork' => '需要連網',
 			'settings.signatureBuiltinSource' => '內建',
@@ -5694,6 +5800,8 @@ extension on TranslationsZhTw {
 			'settings.cdnRefreshServerListTooltip' => '重新整理伺服器清單',
 			'settings.cdnSpeedTestButton' => '測速',
 			'settings.cdnSpeedTestingButton' => ({required Object count}) => '測速中 (${count})',
+			_ => null,
+		} ?? switch (path) {
 			'settings.cdnNoServerDataHint' => '查無伺服器資料，請點選重新整理按鈕',
 			'settings.cdnTestingStatus' => '測速中',
 			'settings.cdnUnreachableStatus' => '無法連線',
@@ -5711,8 +5819,6 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => '儲存權限授權失敗，部分功能可能受限',
 			'settings.downloadSettings.storagePermissionRationale' => '為了把檔案下載到你選擇的位置，應用程式需要儲存權限。\n\nAndroid 11 以上需要授予「所有檔案存取權」才能寫入公共目錄；未授予時，檔案會儲存到應用程式專用目錄。',
 			'settings.downloadSettings.storagePermissionRationaleLegacy' => '為了把檔案下載到你選擇的位置，應用程式需要儲存權限。\n\n未授予時，檔案會儲存到應用程式專用目錄。',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.grantStoragePermission' => '授權儲存權限',
 			'settings.downloadSettings.customDownloadPath' => '自訂下載位置',
 			'settings.downloadSettings.customDownloadPathDescription' => '啟用後可以為下載的檔案選擇自訂儲存位置',
@@ -6208,6 +6314,8 @@ extension on TranslationsZhTw {
 			'videoDetail.likeAvatars.closeTooltip' => '關閉',
 			'videoDetail.likeAvatars.retry' => '重試',
 			'videoDetail.likeAvatars.noLikesYet' => '還沒有人出現在這裡，來當第一個吧！',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.likeAvatars.pageInfo' => ({required Object page, required Object totalPages, required Object totalCount}) => '第 ${page} / ${totalPages} 頁 · 共 ${totalCount} 人',
 			'videoDetail.likeAvatars.prevPage' => '上一頁',
 			'videoDetail.likeAvatars.nextPage' => '下一頁',
@@ -6225,8 +6333,6 @@ extension on TranslationsZhTw {
 			'share.shareAsImageFailed' => '分享影片封面為圖片失敗，請稍後再試',
 			'share.shareAsTextFailed' => '分享影片詳情為文字失敗，請稍後再試',
 			'share.shareVideo' => '分享影片',
-			_ => null,
-		} ?? switch (path) {
 			'share.authorIs' => '作者是',
 			'share.shareGallery' => '分享圖庫',
 			'share.galleryTitleIs' => '圖庫名字叫做',
@@ -6337,6 +6443,8 @@ extension on TranslationsZhTw {
 			'forum.leafDescriptions.other' => '其他未分類的內容',
 			'forum.reply' => '回覆',
 			'forum.pendingReview' => '審核中',
+			'forum.floorNotFound' => '該樓層不存在或已被刪除',
+			'forum.floorNotLoadedYet' => '該樓層在更早的位置，繼續向上載入後才能跳轉',
 			'forum.editedAt' => '編輯時間',
 			'forum.copySuccess' => '已複製到剪貼簿',
 			'forum.copySuccessForMessage' => ({required Object str}) => '已複製到剪貼簿: ${str}',
@@ -6720,6 +6828,8 @@ extension on TranslationsZhTw {
 			'download.relocation.actionWillRemove' => '將移除這條記錄',
 			'download.relocation.actionWillKeep' => '儲存空間未連接，保留不移除',
 			'download.relocation.actionWillRetry' => '移動後重新下載',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.actionWillRemoveTask' => '將移除任務',
 			'download.relocation.statRedownload' => '重新下載',
 			'download.relocation.statRemoved' => '已移除',
@@ -6739,8 +6849,6 @@ extension on TranslationsZhTw {
 			'download.relocation.statChecked' => '已檢查',
 			'download.relocation.statMissing' => '找不到',
 			'download.relocation.statKeep' => '建議保留',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.cleanupGroupGone' => '檔案已不在',
 			'download.relocation.cleanupGroupRecoverable' => '可能還能找回',
 			'download.relocation.cleanupRecoverableHint' => '儲存空間未連接、沒有權限、或可能被改了名，預設不選。點開單項可查看詳情並找回。',
@@ -7234,6 +7342,8 @@ extension on TranslationsZhTw {
 			'diagnostics.healthAlert.highFlushLatencyTitle' => '落盤延遲偏高',
 			'diagnostics.healthAlert.droppedTooManyTitle' => '日誌丟棄較多',
 			'diagnostics.healthAlert.droppedTooManyDetail' => ({required Object droppedCount, required Object threshold}) => 'droppedCount=${droppedCount} (門檻=${threshold})',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.healthAlert.rateLimitedTitle' => '觸發限流',
 			'diagnostics.healthAlert.exportFailedTitle' => '日誌匯出失敗',
 			'diagnostics.healthAlert.fileNearLimitTitle' => '日誌檔案接近上限',
@@ -7253,8 +7363,6 @@ extension on TranslationsZhTw {
 			'crashRecoveryDialog.previousStart' => ({required Object time}) => '上次啟動: ${time}',
 			'crashRecoveryDialog.lastException' => ({required Object message}) => '最後異常: ${message}',
 			'crashRecoveryDialog.lastHangRecovered' => '上次偵測到介面卡頓，已自動恢復',
-			_ => null,
-		} ?? switch (path) {
 			'crashRecoveryDialog.lastHangStalled' => ({required Object stalledMs}) => '上次偵測到介面可能假死，持續約 ${stalledMs}ms',
 			'crashRecoveryDialog.exportGuide' => '請前往 設定 > 診斷與回饋 > 匯出日誌。',
 			'crashRecoveryDialog.privacyHint' => '日誌可能包含隱私資訊，請先檢查後再透過郵件傳送至：',
@@ -7748,6 +7856,8 @@ extension on TranslationsZhTw {
 			'watchLater.removedFromWatchLater' => '已移出稍後再看',
 			'watchLater.removedCount' => ({required Object count}) => '已移出 ${count} 筆',
 			'watchLater.viewWatchLaterList' => '檢視清單',
+			_ => null,
+		} ?? switch (path) {
 			'watchLater.addFailed' => '加入稍後再看失敗',
 			'watchLater.invalidItem' => '已失效',
 			'watchLater.clearWatched' => '清除已看完',
@@ -7767,8 +7877,6 @@ extension on TranslationsZhTw {
 			'watchLater.emptyUnwatchedVideo' => '沒有未看完的影片',
 			'watchLater.emptyUnwatchedGallery' => '沒有未看完的圖庫',
 			'watchLater.queueLoadFailed' => '載入失敗，點擊重試',
-			_ => null,
-		} ?? switch (path) {
 			'mediaMenu.like' => '按讚',
 			'mediaMenu.unlike' => '取消按讚',
 			'mediaMenu.viewAuthor' => '檢視作者主頁',
@@ -8115,6 +8223,66 @@ extension on TranslationsZhTw {
 			'historyPage.clearTabTitle' => ({required Object tab}) => '清空「${tab}」',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => '將刪除「${tab}」中的全部歷史記錄，以及對應影片的觀看進度。此操作無法復原。',
 			'historyPage.rangeByLastViewed' => '依最後瀏覽時間篩選',
+			'ai.title' => 'AI',
+			'ai.providers' => '供應商',
+			'ai.providersHint' => '新增一個或多個 AI 供應商，再為每項功能指定用哪一個。',
+			'ai.addProvider' => '新增供應商',
+			'ai.noProviders' => '還沒有供應商。新增一個之後，翻譯、搜尋和小尾巴才能用上 AI。',
+			'ai.pickPreset' => '選擇供應商',
+			'ai.providerNameLabel' => '名稱',
+			'ai.apiKey' => 'API 金鑰',
+			'ai.baseUrl' => '端點位址',
+			'ai.model' => '模型',
+			'ai.modelPick' => '選擇模型',
+			'ai.modelEmpty' => '沒抓到模型列表，直接填模型名也可以',
+			'ai.advanced' => '進階',
+			'ai.reasoning' => '推理模型',
+			'ai.streaming' => '串流輸出',
+			'ai.structuredOutput' => '結構化輸出',
+			'ai.structuredOutputHint' => 'AI 搜尋要用它。不少中轉端點並不支援，搜尋老是失敗就關掉。',
+			'ai.temperature' => '溫度',
+			'ai.maxTokens' => '最大 token',
+			'ai.maxTokensAuto' => '自動（模型上限）',
+			'ai.test' => '測試',
+			'ai.testOk' => '連線正常',
+			'ai.deleteProvider' => '刪除供應商',
+			'ai.usedBy' => '正在用於',
+			'ai.taskBindings' => '功能分配',
+			'ai.taskBindingsHint' => '每項功能可以指定不同的供應商。',
+			'ai.taskTranslate' => '翻譯',
+			'ai.taskSearch' => 'AI 搜尋',
+			'ai.taskSignature' => '小尾巴',
+			'ai.taskAuto' => '自動',
+			'ai.usage' => '用量',
+			'ai.usageCalls' => '呼叫',
+			'ai.usageTokens' => 'token',
+			'ai.usageFailures' => '失敗',
+			'ai.usageReset' => '清空統計',
+			'ai.usageEmpty' => '還沒有呼叫紀錄',
+			'ai.openSettings' => '前往 AI 設定',
+			'ai.notConfigured' => '未設定',
+			'ai.searchTitle' => 'AI 搜尋',
+			'ai.searchHint' => '用一句話描述你想找什麼，AI 會替你填好搜尋詞和篩選條件。',
+			'ai.searchPlaceholder' => '例如：播放量破萬的最新 MMD',
+			'ai.searchApply' => '用這些條件搜尋',
+			'ai.searchEmpty' => '沒能從這句話裡解析出搜尋條件，換個說法試試',
+			'ai.searchFilters' => '篩選條件',
+			'ai.searchSwitchSegment' => ({required Object segment}) => '切換到「${segment}」',
+			'ai.searchGenerating' => '正在理解…',
+			'ai.searchRetrying' => '上一次失敗了，正在重試…',
+			'ai.searchRetryReason' => ({required Object reason}) => '失敗原因：${reason}',
+			'ai.searchStageWaiting' => '已送出請求，等待回應…',
+			'ai.searchStageThinkingNext' => '正在繼續思考…',
+			'ai.searchStageReasoning' => '正在推理…',
+			'ai.searchStageTool' => '正在試搜…',
+			'ai.searchStageDrafting' => ({required Object chars}) => '正在寫答案 · 已 ${chars} 字',
+			'ai.searchStageParsing' => '正在整理結果…',
+			'ai.searchThinking' => '思考過程',
+			'ai.searchKeywordNeedsQuotes' => '這個關鍵詞沒加引號，iwara 會把它拆碎了鬆散匹配——按這個排序，第一頁多半與它無關。給它加上英文雙引號，或者改成按相關度排序。',
+			'ai.searchToolProbing' => ({required Object query}) => '試搜 ${query}',
+			'ai.searchToolFound' => ({required Object count, required Object titles}) => '${count} 筆 · ${titles}',
+			'ai.searchToolFailed' => ({required Object reason}) => '試搜失敗：${reason}',
+			'ai.searchFiltersDropped' => ({required Object count}) => '已移除 ${count} 條本板塊沒有的篩選。',
 			_ => null,
 		};
 	}
