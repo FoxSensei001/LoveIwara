@@ -9,11 +9,11 @@ import 'package:i_iwara/app/utils/signature_template.dart';
 void main() {
   group('解析与渲染', () {
     test('认出变量、参数，和花括号转义', () {
-      final tpl = SignatureTemplate.parse('来自 {app} {{注意}} {date:yyyy}');
-      expect(tpl.variables.map((v) => v.key), ['app', 'date:yyyy']);
+      final tpl = SignatureTemplate.parse('来自 {platform} {{注意}} {date:yyyy}');
+      expect(tpl.variables.map((v) => v.key), ['platform', 'date:yyyy']);
       expect(
-        tpl.render({'app': 'Love Iwara', 'date:yyyy': '2026'}),
-        '来自 Love Iwara {注意} 2026',
+        tpl.render({'platform': 'Android', 'date:yyyy': '2026'}),
+        '来自 Android {注意} 2026',
       );
     });
 
@@ -23,8 +23,40 @@ void main() {
     });
 
     test('取不到值的变量整段消失，不留空洞也不留花括号', () {
-      final tpl = SignatureTemplate.parse('发自 {app}，今日一言：{hitokoto}');
-      expect(tpl.render({'app': 'Love Iwara'}), '发自 Love Iwara，今日一言：');
+      final tpl = SignatureTemplate.parse('看 {title} 中，今日一言：{hitokoto}');
+      // ⭐ 连那个悬在末尾的冒号一起收掉。发出去一句「今日一言：」比少半句更难看，
+      // 而上层那条「填不出就整段消失」的承诺本来就不该卡在标点上。
+      expect(tpl.render({'title': '某个视频'}), '看 某个视频 中，今日一言');
+    });
+
+    test('⭐ 变量撑着的成对包围符与悬空连接符，跟着变量一起消失', () {
+      String render(String source, [Map<String, String> values = const {}]) =>
+          SignatureTemplate.parse(source).render(values);
+
+      // 成对包围符：整对没有，不留一个空书名号
+      expect(render('正在看《{title}》'), '正在看');
+      expect(render('正在看《{title}》', {'title': '月光'}), '正在看《月光》');
+      // 悬空连接符：两侧都空了才吃，另一侧还剩字就留着
+      expect(render('看到 {playtime} / {duration}'), '看到');
+      expect(render('今日一言：{hitokoto}'), '今日一言');
+      // ⛔ 这一条是前一版的回归：`·` 左边还剩「正在看」，凭什么把它并进日期
+      expect(
+        render('正在看《{title}》 · {date}', {'date': '2026-09-21'}),
+        '正在看 · 2026-09-21',
+      );
+      // ⛔ 只吃紧挨着洞的那一段，离得远的连字号不许动
+      expect(render('a-b {title}'), 'a-b');
+    });
+
+    test('⭐ 降级后的小尾巴仍认得出是自己的（骨架正则要容忍被吃掉的标点）', () {
+      final pattern = SignatureTemplate.matchPatternOf(
+        '正在看《{title}》 · {date}',
+      )!;
+      expect(pattern.hasMatch('正在看《月光下的旋转》 · 2026-09-21'), isTrue);
+      expect(pattern.hasMatch('正在看 · 2026-09-21'), isTrue);
+      // 老版本已经发出去的那些（带空书名号）也要继续认得
+      expect(pattern.hasMatch('正在看《》 · 2026-09-21'), isTrue);
+      expect(pattern.hasMatch('随便一句别人的评论'), isFalse);
     });
 
     test('认不出的变量在预览里原样留着，好让用户看见自己打错了', () {
