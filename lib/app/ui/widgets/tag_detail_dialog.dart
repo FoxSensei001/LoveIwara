@@ -54,11 +54,7 @@ Future<void> showTagDetailDialog(BuildContext context, Tag tag) {
             ],
           ),
           actions: [
-            GlassDialogAction(
-              label: t.common.close,
-              emphasized: false,
-              onPressed: () => Navigator.of(context).pop(),
-            ),
+            GlassDialogAction.pop(label: t.common.close, emphasized: false),
           ],
         );
       },
@@ -108,11 +104,7 @@ Future<void> showOreno3dTagDetailDialog(
             ],
           ),
           actions: [
-            GlassDialogAction(
-              label: t.common.close,
-              emphasized: false,
-              onPressed: () => Navigator.of(context).pop(),
-            ),
+            GlassDialogAction.pop(label: t.common.close, emphasized: false),
           ],
         );
       },
@@ -149,11 +141,7 @@ Future<void> showTagLocalizationGuideDialog(BuildContext context) {
             ),
           ),
           actions: [
-            GlassDialogAction(
-              label: t.common.close,
-              emphasized: false,
-              onPressed: () => Navigator.of(context).pop(),
-            ),
+            GlassDialogAction.pop(label: t.common.close, emphasized: false),
           ],
         );
       },

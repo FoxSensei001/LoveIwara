@@ -746,11 +746,7 @@ class _SiteModeConfirmDialogState extends State<_SiteModeConfirmDialog> {
         ),
       ),
       actions: [
-        GlassDialogAction(
-          label: t.common.cancel,
-          emphasized: false,
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        GlassDialogAction.pop(label: t.common.cancel, emphasized: false),
         GlassDialogAction(
           label: t.common.confirm,
           onPressed: _selectedSite == widget.currentSite

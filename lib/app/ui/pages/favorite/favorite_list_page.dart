@@ -97,10 +97,7 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
       if (folder == null) throw Exception('Create failed');
       await _fetchFolders();
       if (!mounted) return;
-      showAppToast(
-        t.favorite.createFolderSuccess,
-        type: AppToastType.success,
-      );
+      showAppToast(t.favorite.createFolderSuccess, type: AppToastType.success);
     } catch (e) {
       if (!mounted) return;
       showAppToast(t.favorite.createFolderFailed, type: AppToastType.error);
@@ -117,16 +114,16 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
           t.favorite.deleteFolderConfirmWithTitle(title: folder.title),
         ),
         actions: [
-          GlassDialogAction(
+          GlassDialogAction.pop(
             label: t.common.cancel,
             emphasized: false,
-            onPressed: () => Navigator.of(context).pop(false),
+            result: false,
           ),
-          GlassDialogAction(
+          GlassDialogAction.pop(
             label: t.common.confirm,
             emphasized: false,
             destructive: true,
-            onPressed: () => Navigator.of(context).pop(true),
+            result: true,
           ),
         ],
       ),
@@ -169,10 +166,7 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
       if (!success) throw Exception('Update failed');
       await _fetchFolders();
       if (!mounted) return;
-      showAppToast(
-        t.favorite.editFolderSuccess,
-        type: AppToastType.success,
-      );
+      showAppToast(t.favorite.editFolderSuccess, type: AppToastType.success);
     } catch (e) {
       if (!mounted) return;
       showAppToast(t.favorite.editFolderFailed, type: AppToastType.error);
@@ -237,10 +231,8 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
       bottom: MediaQuery.paddingOf(context).bottom + 16,
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => ScrollToTopFab(
-          visible: visible,
-          onPressed: _scrollToTop,
-        ),
+        builder: (context, visible, _) =>
+            ScrollToTopFab(visible: visible, onPressed: _scrollToTop),
       ),
     );
   }
@@ -660,11 +652,7 @@ class _FolderNameDialogState extends State<_FolderNameDialog> {
         onSubmitted: _submit,
       ),
       actions: [
-        GlassDialogAction(
-          label: t.common.cancel,
-          emphasized: false,
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        GlassDialogAction.pop(label: t.common.cancel, emphasized: false),
         GlassDialogAction(
           label: widget.confirmLabel,
           onPressed: () => _submit(_controller.text),

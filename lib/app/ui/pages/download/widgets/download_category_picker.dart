@@ -89,10 +89,8 @@ class _DownloadCategoryPickerState extends State<DownloadCategoryPicker> {
                     label: t.download.category.uncategorized,
                   ),
                   ...categories.map(
-                    (c) => GlassDropdownItem<String?>(
-                      value: c.id,
-                      label: c.title,
-                    ),
+                    (c) =>
+                        GlassDropdownItem<String?>(value: c.id, label: c.title),
                   ),
                 ],
                 onChanged: widget.onChanged,
@@ -148,15 +146,12 @@ Future<({bool confirmed, String? categoryId})> showDownloadCategoryDialog(
           ),
         ),
         actions: [
-          GlassDialogAction(
+          GlassDialogAction.pop(
             label: t.common.cancel,
             emphasized: false,
-            onPressed: () => Navigator.of(context).pop(false),
+            result: false,
           ),
-          GlassDialogAction(
-            label: t.common.download,
-            onPressed: () => Navigator.of(context).pop(true),
-          ),
+          GlassDialogAction.pop(label: t.common.download, result: true),
         ],
       ),
     ),
@@ -216,7 +211,8 @@ Widget _buildSaveToPreviewRow(BuildContext context, List<String> segments) {
               children: [
                 Text(
                   t.download.saveToPreviewLabel,
-                  style: TextStyle(                    fontSize: 10,
+                  style: TextStyle(
+                    fontSize: 10,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.6,
                     color: colorScheme.onSurfaceVariant,

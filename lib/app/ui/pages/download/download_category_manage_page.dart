@@ -140,10 +140,7 @@ class _DownloadCategoryManagePageState
         );
       }
     } else if (mounted) {
-      showAppToast(
-        t.download.category.renameFailed,
-        type: AppToastType.error,
-      );
+      showAppToast(t.download.category.renameFailed, type: AppToastType.error);
     }
   }
 
@@ -217,10 +214,7 @@ class _DownloadCategoryManagePageState
         );
       }
     } else if (mounted) {
-      showAppToast(
-        t.download.category.deleteFailed,
-        type: AppToastType.error,
-      );
+      showAppToast(t.download.category.deleteFailed, type: AppToastType.error);
     }
   }
 
@@ -315,10 +309,8 @@ class _DownloadCategoryManagePageState
       bottom: computeBottomSafeInset(MediaQuery.of(context)) + 16,
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => ScrollToTopFab(
-          visible: visible,
-          onPressed: _scrollToTop,
-        ),
+        builder: (context, visible, _) =>
+            ScrollToTopFab(visible: visible, onPressed: _scrollToTop),
       ),
     );
   }
@@ -580,11 +572,7 @@ class _CategoryNameDialogState extends State<_CategoryNameDialog> {
         onSubmitted: _submit,
       ),
       actions: [
-        GlassDialogAction(
-          label: t.common.cancel,
-          emphasized: false,
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        GlassDialogAction.pop(label: t.common.cancel, emphasized: false),
         GlassDialogAction(
           label: widget.confirmLabel,
           emphasized: false,

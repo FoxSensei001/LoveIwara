@@ -432,14 +432,7 @@ class BottomToolbar extends StatelessWidget {
               },
             ),
             actions: [
-              GlassDialogAction(
-                label: t.common.cancel,
-                emphasized: false,
-                onPressed: () {
-                  // 关闭对话框
-                  Navigator.of(context).pop();
-                },
-              ),
+              GlassDialogAction.pop(label: t.common.cancel, emphasized: false),
               GlassDialogAction(
                 label: t.common.confirm,
                 onPressed: () {

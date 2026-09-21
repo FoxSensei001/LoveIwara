@@ -86,16 +86,13 @@ class _SignatureProvidersBodyState extends State<SignatureProvidersBody> {
             : provider.displayName,
         content: Text(provider.url),
         actions: [
-          GlassDialogAction(
-            label: t.common.cancel,
-            onPressed: () => Navigator.of(context).pop(false),
-          ),
-          GlassDialogAction(
+          GlassDialogAction.pop(label: t.common.cancel, result: false),
+          GlassDialogAction.pop(
             label: isRestore
                 ? t.settings.signatureRestoreDefault
                 : t.common.delete,
             destructive: !isRestore,
-            onPressed: () => Navigator.of(context).pop(true),
+            result: true,
           ),
         ],
       ),

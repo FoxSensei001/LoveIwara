@@ -407,7 +407,10 @@ class _NumberInputDialogState extends State<_NumberInputDialog> {
         ),
         GlassDialogAction(
           label: slang.t.common.confirm,
-          onPressed: () => Navigator.of(context).pop(_controller.text.trim()),
+          onPressed: () => Navigator.of(
+            context,
+            rootNavigator: true,
+          ).pop(_controller.text.trim()),
         ),
       ],
     );

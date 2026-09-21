@@ -116,15 +116,15 @@ class _BatchConfirmDialog extends StatelessWidget {
         ],
       ),
       actions: [
-        GlassDialogAction(
+        GlassDialogAction.pop(
           label: t.common.cancel,
           emphasized: false,
-          onPressed: () => Navigator.of(context).pop(false),
+          result: false,
         ),
-        GlassDialogAction(
+        GlassDialogAction.pop(
           label: confirmLabel,
           destructive: destructive,
-          onPressed: () => Navigator.of(context).pop(true),
+          result: true,
         ),
       ],
     );

@@ -161,12 +161,7 @@ class _DeepLXTranslationSettingsWidgetState
         builder: (context) => GlassAlertDialog(
           title: slang.t.translation.needVerification,
           content: Text(slang.t.translation.needVerificationContent),
-          actions: [
-            GlassDialogAction(
-              label: slang.t.translation.confirm,
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ],
+          actions: [GlassDialogAction.pop(label: slang.t.translation.confirm)],
         ),
       ),
     );

@@ -1022,11 +1022,7 @@ class _KeybindingCaptureDialogState extends State<_KeybindingCaptureDialog> {
         ),
       ),
       actions: [
-        GlassDialogAction(
-          label: slang.t.common.cancel,
-          emphasized: false,
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        GlassDialogAction.pop(label: slang.t.common.cancel, emphasized: false),
       ],
     );
   }

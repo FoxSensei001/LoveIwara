@@ -24,7 +24,37 @@ class GlassDialogAction {
     this.destructive = false,
     this.emphasized = true,
     this.loading = false,
-  });
+  }) : _pops = false,
+       _popResult = null;
+
+  /// 「关掉这张弹窗，并把 [result] 交给 `showAppDialog` 的调用方」。
+  ///
+  /// ⭐ 绝大多数动作要的就是这件事，而手写那一句**有一半的人会写错**
+  /// （见下面 [onPressed] 的文档：漏掉 `rootNavigator: true` 就会 pop 掉调用它的
+  /// 那一页，弹窗纹丝不动，且不报任何错）。这条路由弹窗**自己**用自己的 context
+  /// 去 pop，调用点根本碰不到 Navigator，也就无从写错。
+  ///
+  /// ```dart
+  /// GlassDialogAction.pop(label: t.common.cancel)                  // 关掉，回 null
+  /// GlassDialogAction.pop(label: t.common.delete, result: true,    // 关掉，回 true
+  ///     destructive: true)
+  /// ```
+  ///
+  /// [result] 的类型要与 `showAppDialog<T>` 的 `T` 对得上（和直接 `pop(result)`
+  /// 时的要求一样）。
+  const GlassDialogAction.pop({
+    required this.label,
+    Object? result,
+    this.destructive = false,
+    this.emphasized = true,
+    this.loading = false,
+  }) : onPressed = null,
+       _pops = true,
+       _popResult = result;
+
+  /// 这枚动作是不是「关掉弹窗」那一类（由 [GlassDialogAction.pop] 建的）。
+  final bool _pops;
+  final Object? _popResult;
 
   final String label;
 
@@ -47,6 +77,9 @@ class GlassDialogAction {
   /// ```dart
   /// onPressed: () => Navigator.of(context, rootNavigator: true).pop(true)
   /// ```
+  ///
+  /// ⭐ 但**首选 [GlassDialogAction.pop]**：那条根本不给调用点碰 Navigator 的机会。
+  /// 这里的 `onPressed` 留给「关弹窗之外还要干别的」或「干完才决定关不关」的动作。
   final VoidCallback? onPressed;
 
   /// 危险动作（删除/清空一类不可逆操作）：文字转 `cs.error` 语义色。
@@ -422,7 +455,15 @@ class GlassAlertDialog extends StatelessWidget {
           ),
           child: GlassTextActionButton(
             label: actions[i].label,
-            onPressed: actions[i].onPressed,
+            // ⛔ `rootNavigator: true` 与**弹窗自己的** context：弹窗挂在 root
+            // navigator 上，而调用点的 context 多半在某个 shell 的嵌套 navigator
+            // 里。用错任何一个，pop 掉的都是调用它的那一页。
+            onPressed: actions[i]._pops
+                ? () => Navigator.of(
+                    context,
+                    rootNavigator: true,
+                  ).pop(actions[i]._popResult)
+                : actions[i].onPressed,
             emphasized: actions[i].emphasized,
             destructive: actions[i].destructive,
             loading: actions[i].loading,

@@ -146,6 +146,32 @@ void main() {
     );
   });
 
+  test('弹窗动作不许拿调用点的 context 关弹窗（已清零，零容忍）', () {
+    final offenders = <String>[];
+    for (final file in _dartFiles()) {
+      final source = file.readAsStringSync().replaceAll(_lineComment, '');
+      for (final match in _dialogActionPopsCallerNavigator.allMatches(source)) {
+        final line =
+            '\n'.allMatches(source.substring(0, match.start)).length + 1;
+        offenders.add('${_rel(file)}:$line');
+      }
+    }
+    expect(
+      offenders,
+      isEmpty,
+      reason:
+          '弹窗挂在 **root navigator** 上，而调用点的 context 多半在某个 shell 的\n'
+          '嵌套 navigator 里（设置树、播放器）。于是这句顺手写下的\n'
+          '`onPressed: () => Navigator.of(context).pop(x)` pop 掉的是**调用它的那一页**，\n'
+          '弹窗纹丝不动——而且不报任何错。2026-09-21 用户在 AI 供应商详情页点删除时\n'
+          '撞上的就是它：页面退回了上一级，确认框还杵在屏幕中间，东西一个没删。\n'
+          '  · 只是关弹窗 → GlassDialogAction.pop(label: …, result: …)\n'
+          '    （弹窗自己用自己的 context 去 pop，调用点碰不到 Navigator）\n'
+          '  · 关之外还要干别的 → Navigator.of(context, rootNavigator: true).pop(…)\n'
+          '${offenders.join('\n')}',
+    );
+  });
+
   test('没有硬编码的液态档（全局开关能一把关掉，零容忍）', () {
     final offenders = <String>[];
     for (final file in _dartFiles()) {
@@ -493,6 +519,18 @@ const _opensOverlayExemptFiles = <String>{
 
 /// 硬编码的液态档供档点：`backend: GlassBackend.liquidWidgets` 之类。
 /// 比较（`== GlassBackend.easyLens`）不算——那是组件内部按当前档分支，不是供档。
+/// `GlassDialogAction(... onPressed: () => Navigator.of(context).pop(...))`
+///
+/// 只认**没写 `rootNavigator: true`** 的那一种：写了的是正确写法（关弹窗之外还要
+/// 干别的时只能这么写）。`GlassDialogAction.pop(...)` 压根不出现 Navigator，
+/// 自然也匹配不上。
+final _dialogActionPopsCallerNavigator = RegExp(
+  r'GlassDialogAction\(' // 只管弹窗动作，别处的 pop 不在本条管辖内
+  r'(?:(?!GlassDialogAction|onPressed)[\s\S])*?'
+  r'onPressed:\s*\(\)\s*(?:=>|\{)[\s\S]{0,160}?'
+  r'Navigator\.of\(\s*context\s*\)\.pop\(',
+);
+
 final _hardcodedLiquidBackend = RegExp(
   r'backend:\s*GlassBackend\.(liquidWidgets|easyLens)',
 );

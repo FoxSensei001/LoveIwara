@@ -524,11 +524,7 @@ List<GlassDialogAction> _dialogActions(
   VoidCallback submit,
 ) {
   return [
-    GlassDialogAction(
-      label: slang.t.common.cancel,
-      emphasized: false,
-      onPressed: () => Navigator.of(context).pop(),
-    ),
+    GlassDialogAction.pop(label: slang.t.common.cancel, emphasized: false),
     GlassDialogAction(label: slang.t.common.confirm, onPressed: submit),
   ];
 }

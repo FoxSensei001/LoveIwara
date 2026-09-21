@@ -150,10 +150,7 @@ class _CrashRecoveryDialogWidgetState
         ],
       ),
       actions: [
-        GlassDialogAction(
-          label: t.crashRecoveryDialog.acknowledge,
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        GlassDialogAction.pop(label: t.crashRecoveryDialog.acknowledge),
       ],
     );
   }

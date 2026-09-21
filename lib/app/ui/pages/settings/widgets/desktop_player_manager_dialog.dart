@@ -453,7 +453,9 @@ class _PlayerEditDialogState extends State<_PlayerEditDialog> {
     super.initState();
     _nameController = TextEditingController(text: widget.entry.name);
     _pathController = TextEditingController(text: widget.entry.executablePath);
-    _argsController = TextEditingController(text: widget.entry.argumentTemplate);
+    _argsController = TextEditingController(
+      text: widget.entry.argumentTemplate,
+    );
     _nameTouchedByUser = widget.entry.name.isNotEmpty;
     // 已经写过非默认参数的条目，进来就把「高级」摊开——否则用户看不到自己填过
     // 的东西，会以为丢了。
@@ -559,11 +561,7 @@ class _PlayerEditDialogState extends State<_PlayerEditDialog> {
         ],
       ),
       actions: [
-        GlassDialogAction(
-          label: t.common.cancel,
-          emphasized: false,
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        GlassDialogAction.pop(label: t.common.cancel, emphasized: false),
         GlassDialogAction(
           label: t.common.save,
           emphasized: true,

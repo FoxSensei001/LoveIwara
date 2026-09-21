@@ -243,16 +243,12 @@ class _SimpleTextInputDialogState extends State<SimpleTextInputDialog> {
         autofocus: true,
       ),
       actions: [
-        GlassDialogAction(
-          label: slang.t.common.cancel,
-          emphasized: false,
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        GlassDialogAction.pop(label: slang.t.common.cancel, emphasized: false),
         GlassDialogAction(
           label: slang.t.common.confirm,
           onPressed: () {
             widget.onConfirm(_controller.text);
-            Navigator.of(context).pop();
+            Navigator.of(context, rootNavigator: true).pop();
           },
         ),
       ],

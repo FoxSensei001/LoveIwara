@@ -666,16 +666,15 @@ class _PaginationBarState extends State<PaginationBar>
             ],
           ),
           actions: [
-            GlassDialogAction(
+            GlassDialogAction.pop(
               label: slang.t.common.cancel,
               emphasized: false,
-              onPressed: () => Navigator.of(context).pop(),
             ),
             GlassDialogAction(
               label: slang.t.common.pagination.jump,
               emphasized: false,
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context, rootNavigator: true).pop();
                 _jumpToPage();
               },
             ),
