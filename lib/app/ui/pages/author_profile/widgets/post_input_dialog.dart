@@ -30,6 +30,11 @@ class _PostInputDialogState extends State<PostInputDialog> {
   late TextEditingController _titleController;
   late TextEditingController _bodyController;
   bool _isLoading = false;
+
+  /// 这次提交正在等哪个数据源。转圈只说「在忙」，说不出「为什么慢」——
+  /// 接了 AI 一言之后这一步可能真要好几秒。见 [_onSignatureProgress]。
+  String? _submitStatus;
+
   int _currentTitleLength = 0;
   int _currentBodyLength = 0;
   final ConfigService _configService = Get.find<ConfigService>();
@@ -42,6 +47,10 @@ class _PostInputDialogState extends State<PostInputDialog> {
 
   final GlobalKey<EnhancedEmojiTextFieldState> _emojiTextFieldKey =
       GlobalKey<EnhancedEmojiTextFieldState>();
+
+  /// 这一次编辑里**已经当场生成过**的数据源取值（用户在预览里点了「换一句」）。
+  /// 提交时优先用它，看到什么就发出什么。同 `BaseInputWidget` 的那一份。
+  final Map<String, String> _pinnedSignatureValues = {};
 
   // 标题最大长度
   static const int maxTitleLength = 100;
@@ -85,20 +94,73 @@ class _PostInputDialogState extends State<PostInputDialog> {
     super.dispose();
   }
 
-  /// 会被发出去的正文（含小尾巴）的**估算**样子。字数统计与预览读它。
+  /// 会被发出去的正文（含小尾巴）的**估算**样子。**字数统计**读它。
   ///
   /// 小尾巴里的网络变量（一言 / 自定义源）在这里只取上次的缓存值——每敲一个
   /// 字都要重算一遍长度，不可能为它去等请求。真发送那一份见 [_handleSubmit]。
-  String _composedBody({bool padNetwork = true}) => CommentMarkup.compose(
-    body: _bodyController.text,
-    signature: _signatureEnabled
-        ? _signatureService.estimate(
-            _configService[ConfigKey.SIGNATURE_CONTENT_KEY] as String,
-            context: _signatureContext,
-            padNetwork: padNetwork,
-          )
-        : null,
-  );
+  ///
+  /// ⛔ 预览**不读它**，读 [_estimatedSignature]（`SignatureFill.pending`）：
+  /// 拿上次的缓存值撑宽度是对的，摆给用户看却是在冒充「你要发出去的那句」。
+  String _composedBody({SignatureFill fill = SignatureFill.length}) =>
+      CommentMarkup.compose(
+        body: _bodyController.text,
+        signature: _signatureEnabled
+            ? _signatureService.estimate(
+                _signatureTemplate,
+                context: _signatureContext,
+                fill: fill,
+                pinned: _pinnedSignatureValues,
+              )
+            : null,
+      );
+
+  String get _signatureTemplate =>
+      _configService[ConfigKey.SIGNATURE_CONTENT_KEY] as String;
+
+  /// 小尾巴**求值后**的样子，关掉时是 null。预览按三段传，不拼进正文。
+  ///
+  /// ⛔ 走 pending：没点过「生成」就写「发送时生成」，不拿上一条的一言冒充。
+  String? get _estimatedSignature => _signatureEnabled
+      ? _signatureService.estimate(
+          _signatureTemplate,
+          context: _signatureContext,
+          fill: SignatureFill.pending,
+          pinned: _pinnedSignatureValues,
+        )
+      : null;
+
+  /// 把小尾巴求值的进度翻成底栏那一行字。说的是**那个源的名字**，
+  /// 不是一句笼统的「处理中」。只有一个源时不报 1/1，那是噪音。
+  void _onSignatureProgress(SignatureProgress progress) {
+    if (!mounted) return;
+    final current = progress.current;
+    final label = current == null
+        ? null
+        : slang.t.settings.signatureResolving(name: current);
+    setState(() {
+      // ⛔ done/total，不是「正在处理第几个」：这些源是并行取的。理由同
+      // `base_input_widget._onSignatureProgress`。
+      _submitStatus = label == null
+          ? null
+          : progress.total > 1
+          ? '$label ${progress.done}/${progress.total}'
+          : label;
+    });
+  }
+
+  /// 当场把模板里的数据源变量取一遍并钉住，返回小尾巴的新样子。
+  Future<String?> _regenerateSignature() async {
+    final fresh = await _signatureService.resolveProviderValues(
+      _signatureTemplate,
+      context: _signatureContext,
+    );
+    if (!mounted) return null;
+    setState(() {
+      _pinnedSignatureValues.addAll(fresh);
+      _currentBodyLength = _composedBody().length;
+    });
+    return _estimatedSignature;
+  }
 
   SignatureContext get _signatureContext =>
       SignatureContext(title: _titleController.text);
@@ -114,11 +176,20 @@ class _PostInputDialogState extends State<PostInputDialog> {
   }
 
   /// 预览给的是**发出去的样子**——小尾巴在内。
+  /// ⛔ 三段分开传：拼成一串再渲染的话，小尾巴会画成全宽 `<hr>` 加一行正文
+  /// 大小的字，和它发出去之后在列表里的 11px 脚注对不上（见
+  /// `CommentStructurePreview`）。
   void _showPreview() {
     MarkdownPreviewHelper.showPreviewWithTitle(
       context,
-      _composedBody(padNetwork: false),
+      _bodyController.text,
       _titleController.text,
+      signature: _estimatedSignature,
+      onRegenerateSignature:
+          _signatureEnabled &&
+              _signatureService.needsNetwork(_signatureTemplate)
+          ? _regenerateSignature
+          : null,
     );
   }
 
@@ -177,17 +248,24 @@ class _PostInputDialogState extends State<PostInputDialog> {
     // SignatureService 里（最坏是小尾巴少一段，不会卡住发帖）。
     final signature = _signatureEnabled
         ? await _signatureService.render(
-            _configService[ConfigKey.SIGNATURE_CONTENT_KEY] as String,
+            _signatureTemplate,
             context: _signatureContext,
+            // 预览里点过「换一句」就发他看见的那一句，别再取一次新的。
+            pinned: _pinnedSignatureValues,
+            onProgress: _onSignatureProgress,
           )
         : null;
+    if (mounted) setState(() => _submitStatus = null);
     await widget.onSubmit(
       _titleController.text,
       CommentMarkup.compose(body: _bodyController.text, signature: signature),
     );
     if (!mounted) return;
+    // 这一轮钉住的一言到此作废：接着发的下一帖是新的一帖，该有新的一句。
+    _pinnedSignatureValues.clear();
     setState(() {
       _isLoading = false;
+      _currentBodyLength = _composedBody().length;
     });
   }
 
@@ -293,6 +371,7 @@ class _PostInputDialogState extends State<PostInputDialog> {
                 onBlockedTap: !hasAgreed ? _showRulesDialog : null,
                 submitText: t.common.send,
                 isLoading: _isLoading,
+                statusText: _submitStatus,
                 onEmoji: _showEmojiPicker,
                 onPreview: _showPreview,
                 previewHasContent: _bodyController.text.trim().isNotEmpty,

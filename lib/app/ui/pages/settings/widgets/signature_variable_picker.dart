@@ -49,7 +49,10 @@ class SignatureVariablePicker extends StatelessWidget {
                   label: SignatureVariableLabels.of(t, spec.name),
                   token: spec.sample,
                   // 样例值当场算：本地变量算得出真值，算不出就留空。
-                  sample: service.estimate(spec.sample, padNetwork: false),
+                  sample: service.estimate(
+                    spec.sample,
+                    fill: SignatureFill.sample,
+                  ),
                   onTap: () => Navigator.of(context).pop(spec.sample),
                 ),
               _GroupLabel(text: t.settings.signatureSources),
@@ -88,9 +91,10 @@ class SignatureVariableLabels {
   /// 英文品牌名。
   static String providerName(slang.Translations t, SignatureProvider p) =>
       switch (p) {
+        _ when p.isAi => t.settings.signatureAiSourceName,
         _ when p.id == 'hitokoto' || p.presetId == 'hitokoto' =>
           t.settings.signatureSourceHitokoto,
-        _ => p.name.isEmpty ? p.id : p.name,
+        _ => p.displayName.isEmpty ? p.id : p.displayName,
       };
 
   /// 这条源当前选的那些选项，连成一行（「文学诗词 · 短句」）。没有选项就是空串。

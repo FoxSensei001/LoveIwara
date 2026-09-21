@@ -7,8 +7,7 @@ import 'package:i_iwara/app/ui/pages/settings/widgets/signature_variable_picker.
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
-import 'package:i_iwara/app/utils/comment_markup.dart';
-import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
+import 'package:i_iwara/app/ui/widgets/comment_structure_widgets.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 接数据源的向导。完成返回 [SignatureProvider]，中途退出返回 null。
@@ -642,13 +641,9 @@ class _SignatureProviderWizardState extends State<SignatureProviderWizard> {
                       color: cs.onErrorContainer,
                     ),
                   )
-                : CustomMarkdownBody(
-                    data: CommentMarkup.compose(
-                      body: t.settings.signatureSampleBody,
-                      signature: value ?? '',
-                    ),
-                    padding: EdgeInsets.zero,
-                    selectable: false,
+                : CommentStructurePreview(
+                    body: t.settings.signatureSampleBody,
+                    signature: value ?? '',
                   ),
           ),
         ),
@@ -993,13 +988,9 @@ class _SignatureProviderWizardState extends State<SignatureProviderWizard> {
                 color: cs.outlineVariant.withValues(alpha: 0.5),
               ),
             ),
-            child: CustomMarkdownBody(
-              data: CommentMarkup.compose(
-                body: t.settings.signatureSampleBody,
-                signature: _joinedValue,
-              ),
-              padding: EdgeInsets.zero,
-              selectable: false,
+            child: CommentStructurePreview(
+              body: t.settings.signatureSampleBody,
+              signature: _joinedValue,
             ),
           ),
         ],

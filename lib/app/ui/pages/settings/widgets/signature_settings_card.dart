@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
+import 'package:i_iwara/app/ui/widgets/comment_structure_widgets.dart';
 import 'package:i_iwara/app/ui/widgets/enhanced_emoji_text_field.dart';
 import 'package:i_iwara/app/ui/widgets/emoji_picker_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
@@ -20,8 +20,11 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 /// 看不到那条 `---` 会变成什么——而它恰恰是整件事出问题的地方（详见
 /// [CommentMarkup] 的类文档：分隔线的语法在旧实现里根本没生效过）。
 ///
-/// 这里直接走和评论区同一个 [CustomMarkdownBody] 渲染 [CommentMarkup.compose]
-/// 的结果：设置页里看到的，就是别人在评论区看到的。
+/// ⛔ 这里走 [CommentStructurePreview]，**不是** `CustomMarkdownBody` 渲染
+/// [CommentMarkup.compose] 的结果。后者画出来的小尾巴是一条全宽 `<hr>` 加一行
+/// 与正文同样大同样黑的字，而评论列表里它是 11px、alpha 0.6、前缀一小截横线
+/// 的脚注——设置页里看到的必须就是别人在评论区看到的，那是这块预览唯一的
+/// 职责（2026-09-21 用户报障：两边样式不一样）。
 class SignaturePreviewBlock extends StatelessWidget {
   const SignaturePreviewBlock({super.key, required this.signature});
 
@@ -36,7 +39,7 @@ class SignaturePreviewBlock extends StatelessWidget {
     // 就去打别人的接口。真取一次的地方在设置页的数据源列表里。
     final resolved = Get.find<SignatureService>().estimate(
       signature,
-      padNetwork: false,
+      fill: SignatureFill.sample,
     );
 
     return Column(
@@ -59,15 +62,11 @@ class SignaturePreviewBlock extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
           ),
-          child: CustomMarkdownBody(
-            // 用一句示例正文占位，好让分隔线有「上文」可分——只给签名一行的话
+          child: CommentStructurePreview(
+            // 用一句示例正文占位，好让脚注有「上文」可分——只给签名一行的话
             // 看不出它和正文之间是怎么隔开的。
-            data: CommentMarkup.compose(
-              body: t.settings.signatureSampleBody,
-              signature: resolved,
-            ),
-            padding: EdgeInsets.zero,
-            selectable: false,
+            body: t.settings.signatureSampleBody,
+            signature: resolved,
           ),
         ),
       ],

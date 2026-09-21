@@ -3,6 +3,7 @@ import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/signature_ai_card.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/signature_providers_card.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/signature_settings_card.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
@@ -100,6 +101,30 @@ class ForumSettingsPage extends StatelessWidget {
                         ),
                       ),
                     ),
+                  ],
+                ),
+              ),
+              // AI 一言：独立一块，**不在数据源列表里**。它不请求地址，
+              // 唯一的可调项是提示词，和「地址 + 取值路径」那套没有交集。
+              Card(
+                elevation: 2,
+                clipBehavior: Clip.hardEdge,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        t.settings.signatureAiSourceName,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    const SignatureAiBody(),
                   ],
                 ),
               ),

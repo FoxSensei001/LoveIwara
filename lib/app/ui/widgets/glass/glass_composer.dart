@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/comment_structure_widgets.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -534,16 +535,15 @@ class GlassQuoteCard extends StatelessWidget {
                 ),
               ),
             const SizedBox(width: 8),
-            Icon(Icons.reply_rounded, size: 13, color: fg),
-            const SizedBox(width: 5),
-            Text(
-              t.forum.replyToFloor(floor: floor.toString(), username: username),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 12.5,
-                fontWeight: FontWeight.w700,
-                color: fg,
+            // 身份（头像 + 昵称 + @username）与列表里的引用条**共用同一只件**：
+            // 「写的时候和发出去之后长得一样」是这张卡从一开始就立的约定，
+            // 两份实现迟早各自漂移。
+            Flexible(
+              child: QuotedIdentity(
+                username: username,
+                avatarSize: 18,
+                nameColor: fg,
+                dimmed: !enabled,
               ),
             ),
             // 摘要跟在同一行、灰字、吃掉剩余宽度。占两行不值——它只是帮你
@@ -567,6 +567,17 @@ class GlassQuoteCard extends StatelessWidget {
               )
             else
               const Spacer(),
+            const SizedBox(width: 6),
+            // 楼层号钉在行尾，和列表里的引用条同一个位置。
+            Text(
+              '#$floor',
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w700,
+                color: fg,
+                height: 1.2,
+              ),
+            ),
           ],
         ),
       ),
@@ -629,6 +640,7 @@ class GlassComposerBar extends StatelessWidget {
     this.onQuoteToggle,
     this.length,
     this.limit,
+    this.statusText,
   });
 
   final VoidCallback? onSubmit;
@@ -701,6 +713,15 @@ class GlassComposerBar extends StatelessWidget {
   /// 两者都给才显示，且**只在接近上限时**才淡入——平时它是噪音。
   final int? length;
   final int? limit;
+
+  /// 发送过程中正在做什么（「正在生成 AI 一言…」）。null＝不显示。
+  ///
+  /// ⭐ 一个没有说明的转圈会被读成「应用卡住了」。接了 AI 小尾巴之后这一步
+  /// 可能真要好几秒，用户等得起，但得知道在等谁——所以这里说的是**那个源的
+  /// 名字**，不是一句笼统的「处理中」。
+  ///
+  /// 它占的是字数标签的位置：发送已经开始了，这时候再报字数没有意义。
+  final String? statusText;
 
   /// 到多少比例才把字数亮出来。X 也是这么做的：短草稿不显示数字。
   static const double _countRevealRatio = 0.8;
@@ -858,12 +879,35 @@ class GlassComposerBar extends StatelessWidget {
           ),
         ],
 
-        const Spacer(),
-
-        _CounterLabel(
-          length: length,
-          limit: limit,
-          revealRatio: _countRevealRatio,
+        // 状态与字数占同一个位置：发送已经开始了，这时候报字数没有意义。
+        // 「有出有入」：两者互换走淡入淡出，不是硬切。
+        //
+        // ⛔ 这一格**同时兼任 Spacer**：内容靠右贴着提交键，剩下的空当全由它
+        // 吃掉。早先写成 `Spacer() + Flexible(…)`——两者都是 flex 1，把空当
+        // 对半分，Flexible 那半里用不掉的部分就顶在标签与提交键之间，把提交键
+        // 从右边缘推开一大截（2026-09-21 用户截图）。
+        //
+        // ⛔ Flex 的 parent data 只认 Row 的**直接子件**：Expanded / Flexible
+        // 塞进 AnimatedSwitcher 里会当场抛 ParentDataWidget 错，只能包在外面。
+        Expanded(
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              switchInCurve: Curves.easeOutCubic,
+              child: statusText != null
+                  ? _StatusLabel(
+                      key: const ValueKey('status'),
+                      text: statusText!,
+                    )
+                  : _CounterLabel(
+                      key: const ValueKey('counter'),
+                      length: length,
+                      limit: limit,
+                      revealRatio: _countRevealRatio,
+                    ),
+            ),
+          ),
         ),
 
         const SizedBox(width: 8),
@@ -879,12 +923,39 @@ class GlassComposerBar extends StatelessWidget {
   }
 }
 
+/// 发送过程中的状态标签：「正在生成 AI 一言…」。
+///
+/// ⛔ 这里**不再画一个转圈**：发送键上已经有一个了，两个一起转会让人以为是
+/// 两件事在跑。这行字的职责只是给那个转圈一个说明。挤的时候省略号截断，
+/// 绝不换行——底栏是固定一行高。
+class _StatusLabel extends StatelessWidget {
+  const _StatusLabel({super.key, required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(left: 8),
+      child: Text(
+        text,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        textAlign: TextAlign.end,
+        style: TextStyle(fontSize: 11, height: 1.2, color: cs.onSurfaceVariant),
+      ),
+    );
+  }
+}
+
 /// 字数标签：平时不在场，写到 [revealRatio] 才淡入，超限转错误色。
 ///
 /// 「有出有入」：它不是硬切出现的，出入场都走透明度 + 宽度过渡，否则底栏
 /// 会在用户打到某个字数时突然跳一下。
 class _CounterLabel extends StatelessWidget {
   const _CounterLabel({
+    super.key,
     required this.length,
     required this.limit,
     required this.revealRatio,

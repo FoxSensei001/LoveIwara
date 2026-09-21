@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
+
 /// 一个小尾巴**数据源**：一个会返回一句话的地址，加上「从返回里取哪一段」。
 ///
 /// ⭐ 一言不是特例，它只是一个**预置**的数据源（[SignatureProvider.hitokoto]）。
@@ -18,7 +20,12 @@ class SignatureProvider {
     this.presetId = '',
     this.params = const {},
     this.suffixPath = '',
+    this.kind = kindHttp,
+    this.prompt = '',
   });
+
+  static const String kindHttp = 'http';
+  static const String kindAi = 'ai';
 
   /// 模板里怎么引用它：直接写 `{id}`。
   ///
@@ -72,6 +79,27 @@ class SignatureProvider {
   /// bug），但和自定义源一样可以测试、可以被模板引用。
   final bool builtin;
 
+  /// 数据源种类：[kindHttp]（默认，请求 HTTP 接口）或 [kindAi]（由 AI 生成）。
+  final String kind;
+
+  /// [kindAi] 专用：用户改过的提示词，空串＝用出厂那份
+  /// （`SignatureAiPrompt.defaultTemplate`）。
+  ///
+  /// ⭐ 里面可以写 `{language}`，求值时换成当前界面语言的英文名——和小尾巴
+  /// 模板同一套花括号语法，用户不必再学第二种写法。
+  ///
+  /// ⛔ 存空串而不是把默认那份抄进来：抄进去之后我们再改默认提示词，
+  /// 老用户永远停在旧版上，而他根本不知道自己"改过"。
+  final String prompt;
+
+  bool get isAi => kind == kindAi;
+
+  /// 显示给用户看的名称。
+  ///
+  /// 内置的 AI 源文案随当前界面语言切换，其余返回配置里存的 [name]。
+  String get displayName =>
+      isAi ? slang.t.settings.signatureAiSourceName : name;
+
   /// 预置的一言。
   ///
   /// 取 `hitokoto` 字段而不是整个响应体：那个接口返回的是一坨带 id / 作者 /
@@ -87,6 +115,15 @@ class SignatureProvider {
     path: 'hitokoto',
     builtin: true,
     presetId: 'hitokoto',
+  );
+
+  /// AI 写的一句话。⛔ 只在 AI 可用时才进 [SignatureService.providers]。
+  static const SignatureProvider aiHitokoto = SignatureProvider(
+    id: 'ai_hitokoto',
+    name: 'AI', // 显示名由 i18n 现算，见 [displayName]
+    url: '', // AI 源不请求地址
+    kind: kindAi,
+    builtin: true,
   );
 
   /// 所有预置源。设置页把它们排在自定义源前面。
@@ -134,6 +171,8 @@ class SignatureProvider {
     String? presetId,
     Map<String, List<String>>? params,
     String? suffixPath,
+    String? kind,
+    String? prompt,
   }) => SignatureProvider(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -145,6 +184,8 @@ class SignatureProvider {
     presetId: presetId ?? this.presetId,
     params: params ?? this.params,
     suffixPath: suffixPath ?? this.suffixPath,
+    kind: kind ?? this.kind,
+    prompt: prompt ?? this.prompt,
   );
 
   /// 真正要请求的地址：基础地址 + [params]。
@@ -245,6 +286,8 @@ class SignatureProvider {
     if (presetId.isNotEmpty) 'presetId': presetId,
     if (params.isNotEmpty) 'params': params,
     if (suffixPath.isNotEmpty) 'suffixPath': suffixPath,
+    if (kind != kindHttp) 'kind': kind,
+    if (prompt.isNotEmpty) 'prompt': prompt,
   };
 
   factory SignatureProvider.fromJson(Map<String, dynamic> json) =>
@@ -258,6 +301,8 @@ class SignatureProvider {
         presetId: (json['presetId'] as String?) ?? '',
         params: _paramsFromJson(json['params']),
         suffixPath: (json['suffixPath'] as String?) ?? '',
+        kind: (json['kind'] as String?) == kindAi ? kindAi : kindHttp,
+        prompt: (json['prompt'] as String?) ?? '',
       );
 
   static Map<String, List<String>> _paramsFromJson(dynamic raw) {
@@ -286,7 +331,10 @@ class SignatureProvider {
       return decoded
           .whereType<Map>()
           .map((e) => SignatureProvider.fromJson(e.cast<String, dynamic>()))
-          .where((e) => e.id.isNotEmpty && e.url.isNotEmpty)
+          // ⛔ 「没有地址就是坏数据」对 AI 源不成立——它根本不请求地址。
+          // 漏掉这一条的后果是：用户改完提示词、当场生效，下次启动静默变回
+          // 默认，而配置文件里那条一直好好地躺着。
+          .where((e) => e.id.isNotEmpty && (e.url.isNotEmpty || e.isAi))
           .toList();
     } catch (_) {
       return const [];

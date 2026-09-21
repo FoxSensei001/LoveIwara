@@ -19,7 +19,9 @@ import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 /// 基础输入组件，提供通用的输入功能。
 ///
-/// ## 输入框里只有用户自己的字
+/// ## ⭐ 两种模式：新写是「三段结构」，编辑是「一整坨原文」
+///
+/// ### 新写（[initialContent] 为空）——输入框里只有用户自己的字
 ///
 /// 引用头与小尾巴都是**结构**，由 [CommentMarkup] 在提交那一刻拼进去，
 /// 全程不进 [controller]。旧版反着来——把 `'Reply #N: @x\n---\n'` 和小尾巴
@@ -32,7 +34,23 @@ import 'package:i_iwara/app/utils/show_app_dialog.dart';
 /// - 「有 initialContent 就不加小尾巴」的分支让论坛回复永远收不到小尾巴，
 ///   用户在设置里开了却不生效。
 ///
-/// 这三件事的修法是同一件：不让用户碰到语法。
+/// 这三件事的修法是同一件：写的时候不让用户碰到语法。
+///
+/// ### 编辑（[initialContent] 非空）——整条原文摊开，什么都能改
+///
+/// ⭐ **分界线是「预设 vs 内容」**：引用头、一言、日期这些在**生成**那一刻
+/// 是预设（模板求值的结果）；一旦发出去，它们就是这条评论里的普通文字，
+/// 和正文没有区别。编辑时把它们藏起来（引用缩成一张卡、小尾巴缩成一个开关）
+/// 意味着用户改不了自己已经发出去的话——打错的楼层号、想换掉的那句一言，
+/// 全都没有入口（2026-09-21 用户两次报障）。
+///
+/// 所以编辑模式下输入框里就是**服务端上那串字本身**（只过一道
+/// [CommentMarkup.softenLineBreaks] 把硬换行的行尾空格抹掉，免得越编越脏），
+/// 引用卡片与小尾巴开关一并不在场——它们描述的东西现在都在文本里，再画一份
+/// 就会在提交时拼第二遍。提交走 `compose(body: 全文)`，只做扶正与硬化。
+///
+/// 预览仍然预报**列表里的样子**：那一步把输入框里的全文过一道
+/// [CommentMarkup.parse] 拆回三段，与评论卡片走同一套呈现件。
 class BaseInputWidget extends StatefulWidget {
   final TextEditingController controller;
   final String title;
@@ -48,8 +66,8 @@ class BaseInputWidget extends StatefulWidget {
   final bool isLoading;
   final String? errorText;
 
-  /// 既有正文（编辑已发布内容时用）。会先过 [CommentMarkup.parse] 拆掉
-  /// 引用头与小尾巴，输入框里只留作者自己写的那部分；提交时再原样接回去。
+  /// 既有正文（编辑已发布内容时用）。非空即进**编辑模式**：整条原文摊在
+  /// 输入框里，引用头与小尾巴都当普通文字，见本类的类文档。
   final String? initialContent;
 
   final bool enabled;
@@ -108,6 +126,20 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
   /// 期间发送键要变成 loading，否则用户会当没反应接着连点。
   bool _submitting = false;
 
+  /// 这是在编辑一条**已经存在**的内容，输入框里摊的是它的完整原文。
+  ///
+  /// ⭐ 见类文档那条分界线：编辑时引用头与小尾巴都是普通文字，不再是结构。
+  /// 于是这个模式下**引用卡片、小尾巴开关、模板求值全部退场**——它们描述的
+  /// 东西已经在 [controller] 里了，再走一遍就会在提交时拼出第二份。
+  bool _rawEditMode = false;
+
+  /// 这次提交正在等哪个数据源。null＝没在等（或者根本不联网）。
+  ///
+  /// ⭐ 转圈只说「在忙」，不说「为什么慢」。接了 AI 一言之后这一步可能真要
+  /// 好几秒（见 `SignatureService` 的 `_aiTimeout`），一个没有说明的转圈会被
+  /// 读成「应用卡住了」——用户等得起，但要知道在等谁。
+  String? _submitStatus;
+
   /// 当前这条回复引用的楼层。**不会被置空**——它同时是「你在回哪一楼」这个
   /// 事实的陈述，带不带引用由 [_quoteEnabled] 管。
   ReplyQuote? _quote;
@@ -123,6 +155,13 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
   /// 不是直接读配置，是为了让「编辑一条已带小尾巴的旧回复」能照原样保留
   /// （见 initState）——那种情况下的初值来自内容本身，与配置无关。
   late bool _signatureEnabled;
+
+  /// 这一次编辑里**已经当场生成过**的数据源取值，键是 `SignatureVariable.key`。
+  ///
+  /// 用户在预览里点「生成 / 换一句」就往这里记一笔。提交时 [render] 优先用它，
+  /// 不再打第二次接口——否则预览里看到的那句一言和真发出去的不是同一句，用户
+  /// 会以为自己发错了。一次都没点过就是空表，提交时照旧现取。
+  final Map<String, String> _pinnedSignatureValues = {};
 
   @override
   void initState() {
@@ -141,25 +180,23 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
     _signatureEnabled =
         widget.allowSignature && _configService[ConfigKey.ENABLE_SIGNATURE_KEY];
 
-    // 既有正文：拆掉结构，输入框里只留作者自己写的那部分。编辑一条带引用的
-    // 旧回复时，引用会回到上方的卡片里，而不是继续躺在输入框里等着被改坏。
+    // ⭐ 编辑既有内容＝把服务端上那串字**原样**摊开，引用头和小尾巴都在里面。
+    //
+    // 早先这里走 `CommentMarkup.parse`，把引用收进上方卡片、把小尾巴收进一个
+    // 开关（外加一张单独的编辑弹窗）。结果是用户在输入框里看不到自己发过的
+    // 那两段字，改不了打错的楼层号，也换不掉那句一言——「编辑」变成了「只能
+    // 改中间那段」（2026-09-21 用户两次报障）。
+    //
+    // 于是编辑模式下**不解析**：引用卡片、小尾巴开关、模板求值一并退场
+    // （见 [_rawEditMode]）。只过一道 softenLineBreaks——硬换行那两个行尾
+    // 空格是发送时加的，留着会让用户每编辑保存一次就多硬化一层。
     final existing = widget.initialContent;
     if (existing != null && existing.isNotEmpty) {
-      final parsed = CommentMarkup.parse(
-        existing,
-        knownSignature: _configService[ConfigKey.SIGNATURE_CONTENT_KEY],
-      );
-      // 编辑既有内容：原样保留它本来有什么，不受配置影响——用户点的是
-      // 「编辑」，不是「按我现在的偏好重写一遍」。
-      if (parsed.quote != null) {
-        _quote ??= parsed.quote;
-        _quoteEnabled = true;
-      }
-      // 两个方向都要写：原文没带小尾巴就**关掉**它，哪怕用户配置里开着。
-      // 否则编辑一条别人从没签过名的旧回复，保存时会凭空给它接上一句
-      // 「Sent from …」。
-      _signatureEnabled = widget.allowSignature && parsed.footer != null;
-      final body = CommentMarkup.softenLineBreaks(parsed.body);
+      _rawEditMode = true;
+      _quote = null;
+      _quoteEnabled = false;
+      _signatureEnabled = false;
+      final body = CommentMarkup.softenLineBreaks(existing).trim();
       widget.controller.text = body;
       // `controller.text` 的 setter 会把 selection 置成 -1（无效），落焦时
       // 光标去哪儿全看用户点在哪儿。显式钉到末尾：编辑就该接着上次写。
@@ -186,10 +223,14 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
   String _composed() => _composeWith(widget.controller.text);
 
   String _composeWith(String body) {
+    // 编辑模式下输入框里就是全文，没有结构要拼；compose 在这里只剩扶正
+    // （`---` 补空行）和硬化换行两件事。
     return CommentMarkup.compose(
       body: body,
-      quote: _quoteEnabled ? _quote : null,
-      signature: _signatureEnabled ? _estimatedSignature() : null,
+      quote: _rawEditMode || !_quoteEnabled ? null : _quote,
+      signature: !_rawEditMode && _signatureEnabled
+          ? _estimatedSignature()
+          : null,
     );
   }
 
@@ -200,7 +241,12 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
   String _estimatedSignature() => _signatureService.estimate(
     _configService[ConfigKey.SIGNATURE_CONTENT_KEY] as String,
     context: widget.signatureContext,
+    pinned: _pinnedSignatureValues,
   );
+
+  /// 用户配置里那条小尾巴模板的原文。
+  String get _signatureTemplate =>
+      _configService[ConfigKey.SIGNATURE_CONTENT_KEY] as String;
 
   /// 本弹窗要不要露出小尾巴开关：**只问这只弹窗参不参与小尾巴**。
   ///
@@ -208,7 +254,10 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
   /// 没用过的开关"。可这一条同时是小尾巴**唯一的入口**——没进过设置树的人因此
   /// 永远发现不了它，只会觉得三个点里根本没有这个选项（2026-09-20 用户报障）。
   /// 配没配过现在只改那一条的说法，见 [GlassComposerBar.signatureConfigured]。
-  bool get _showSignatureToggle => widget.allowSignature;
+  ///
+  /// ⛔ 编辑模式下不在场：那条小尾巴已经是输入框里的文字了，再给一个「带不带」
+  /// 的开关只会让人以为它能把文本里那段删掉——它不能，两者说的不是一回事。
+  bool get _showSignatureToggle => widget.allowSignature && !_rawEditMode;
 
   /// 用户配过小尾巴的内容没有。没配过时菜单里那一条变成「还没设置」，
   /// 点下去跳设置页而不是开关。
@@ -247,25 +296,80 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
     });
   }
 
-  /// 预览给的是**发出去的样子**，不是输入框里的样子——引用块和小尾巴都在内。
+  /// 预览给的是**发出去的样子**，不是输入框里的样子——引用条和小尾巴都在内。
   ///
-  /// 小尾巴里的网络变量这里**不**现取：预览取一次、发送再取一次，两句不同的
-  /// 一言会让人以为发错了；而且点一次预览就打一次别人的接口也不像话。没有
-  /// 缓存值时就让 `{hitokoto}` 原样留在预览里。
+  /// ⛔ 三段是分开传的，不是先 compose 成一串再交给 markdown 渲染。那样画出来
+  /// 的引用头是引用块、小尾巴是全宽 `<hr>` 加一行正文大小的字，和评论列表里
+  /// 的引用条 / 11px 脚注对不上——预览预报不了结果就没有意义（见
+  /// `CommentStructurePreview`）。
+  ///
+  /// 小尾巴里的数据源变量**默认仍不现取**：点一次预览就打一次别人的接口不
+  /// 像话，而且预览取一次、发送再取一次会是两句不同的话。改成给用户一枚
+  /// 「生成 / 换一句」自己按——按出来的那句会被钉住（[_pinnedSignatureValues]），
+  /// 提交时原样发出去，看到什么就发出什么。
   void _showPreview() {
+    // ⭐ 编辑模式：输入框里是全文，这里再拆回三段交给同一套呈现件。预览要
+    // 预报的始终是**评论列表里的样子**，不是输入框里的样子——用户在文本里
+    // 改坏了引用头、或者把小尾巴那条 `---  ` 记号删了，在这儿一眼看得出来。
+    if (_rawEditMode) {
+      final parsed = CommentMarkup.parse(
+        widget.controller.text,
+        knownSignature: _configService[ConfigKey.SIGNATURE_CONTENT_KEY],
+      );
+      MarkdownPreviewHelper.showPreview(
+        context,
+        parsed.body,
+        quote: parsed.quote,
+        signature: parsed.footer,
+      );
+      return;
+    }
+
+    final template = _signatureTemplate;
+    final canRegenerate =
+        _signatureEnabled && _signatureService.needsNetwork(template);
+
     MarkdownPreviewHelper.showPreview(
       context,
-      CommentMarkup.compose(
-        body: widget.controller.text,
-        quote: _quoteEnabled ? _quote : null,
-        signature: _signatureEnabled
-            ? _signatureService.estimate(
-                _configService[ConfigKey.SIGNATURE_CONTENT_KEY] as String,
-                context: widget.signatureContext,
-                padNetwork: false,
-              )
-            : null,
-      ),
+      widget.controller.text,
+      quote: _quoteEnabled ? _quote : null,
+      signature: _signatureEnabled
+          ? _signatureService.estimate(
+              template,
+              context: widget.signatureContext,
+              // ⛔ pending，不是 sample：预览回答的是「我按下发送会发出
+              // 什么」。拿上次那句填，用户看到的就是**上一条评论的**一言，
+              // 而且和真要发出去的那句长得一模一样，没办法分辨。
+              fill: SignatureFill.pending,
+              pinned: _pinnedSignatureValues,
+            )
+          : null,
+      onRegenerateSignature: canRegenerate ? _regenerateSignature : null,
+    );
+  }
+
+  /// 当场把模板里的数据源变量全取一遍，钉住结果，返回小尾巴的新样子。
+  ///
+  /// 取不到（超时 / 接口挂了）时 `resolveProviderValues` 给的是空表或上次成功
+  /// 的值，这里照样把 estimate 的结果返回去——预览里那行字保持原样，比凭空
+  /// 消失好。
+  Future<String?> _regenerateSignature() async {
+    final template = _signatureTemplate;
+    final fresh = await _signatureService.resolveProviderValues(
+      template,
+      context: widget.signatureContext,
+    );
+    if (!mounted) return null;
+    setState(() {
+      _pinnedSignatureValues.addAll(fresh);
+      // 一言换长了，字数额度跟着变——不重算的话用户会在提交那一刻才发现超限。
+      _currentLength = _composed().length;
+    });
+    return _signatureService.estimate(
+      template,
+      context: widget.signatureContext,
+      fill: SignatureFill.pending,
+      pinned: _pinnedSignatureValues,
     );
   }
 
@@ -354,21 +458,70 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
     try {
       composed = await _composeForSubmit();
     } finally {
-      if (mounted) setState(() => _submitting = false);
+      if (mounted) {
+        setState(() {
+          _submitting = false;
+          _submitStatus = null;
+        });
+      }
     }
     if (!mounted) return;
 
     widget.onSubmit?.call(composed);
+    // ⛔ 回调是调用方给的，它完全可能当场把这只 composer 从树上摘掉（把承载它
+    // 的那一段换掉、收起内联输入区）。上面那道 mounted 是在 onSubmit **之前**
+    // 查的，不作数——少了这一道，下面那次 setState 就是对着已经 dispose 的
+    // State 喊话。
+    if (!mounted) return;
+
+    // ⛔ 发完就把这一轮的钉子丢掉。composer 在不少地方是**不随发送销毁**的
+    // （视频详情页的评论框发完只清空文字，State 还在），钉子留着的话接着写的
+    // 第二条会原样带上第一条那句一言——用户看到的是「一言不会变了」。
+    // 发送失败时同样清掉：重发一次本来就该算新的一条。
+    _pinnedSignatureValues.clear();
+    setState(() => _currentLength = _composed().length);
+  }
+
+  /// 把小尾巴求值的进度翻成底栏那一行字。
+  ///
+  /// ⭐ 说的是**那个源的名字**（「正在生成 AI 一言…」），不是一句笼统的
+  /// 「处理中」：用户等得起几秒，但要知道在等谁——否则一个没有说明的转圈
+  /// 只会被读成「应用卡住了」。只有一个源时不报 1/1，那是噪音。
+  void _onSignatureProgress(SignatureProgress progress) {
+    if (!mounted) return;
+    final current = progress.current;
+    final label = current == null
+        ? null
+        : t.settings.signatureResolving(name: current);
+    setState(() {
+      // ⛔ 报 done/total，不是 `done+1`/total 的「正在处理第几个」：这些源是
+      // **并行**取的，压根没有「当前第几个」这回事。写 done+1 的后果是最后
+      // 一个还在转圈时就显示 2/2，看着像已经完成了（2026-09-21 用户截图）。
+      _submitStatus = label == null
+          ? null
+          : progress.total > 1
+          ? '$label ${progress.done}/${progress.total}'
+          : label;
+    });
   }
 
   /// 真正要发出去的那一串：小尾巴在这里现求值。
   Future<String> _composeForSubmit() async {
-    final signature = _signatureEnabled
-        ? await _signatureService.render(
-            _configService[ConfigKey.SIGNATURE_CONTENT_KEY] as String,
+    // ⛔ 编辑模式原样发回去，**绝不重新求值**：用户点的是「编辑」，照模板重算
+    // 等于把他已经发出去的那句话偷偷换成另一句。compose 在这里只做扶正与硬化。
+    if (_rawEditMode) {
+      return CommentMarkup.compose(body: widget.controller.text);
+    }
+
+    final signature = !_signatureEnabled
+        ? null
+        : await _signatureService.render(
+            _signatureTemplate,
             context: widget.signatureContext,
-          )
-        : null;
+            // 预览里点过「生成」就用他看见的那一句，别再取一次新的。
+            pinned: _pinnedSignatureValues,
+            onProgress: _onSignatureProgress,
+          );
 
     String build(String? sig) => CommentMarkup.compose(
       body: widget.controller.text,
@@ -495,6 +648,7 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
             onBlockedTap: blocked && canSubmit ? _showRulesDialog : null,
             submitText: widget.submitText,
             isLoading: widget.isLoading || _submitting,
+            statusText: _submitStatus,
             onEmoji: widget.showEmojiPicker ? _showEmojiPickerDialog : null,
             onPreview: widget.showPreview ? _showPreview : null,
             previewHasContent: widget.controller.text.trim().isNotEmpty,

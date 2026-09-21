@@ -81,7 +81,9 @@ class _SignatureProvidersBodyState extends State<SignatureProvidersBody> {
     final isRestore = SignatureService.isBuiltinSlot(provider.id);
     final confirmed = await showAppDialog<bool>(
       GlassAlertDialog(
-        title: provider.name.isEmpty ? provider.id : provider.name,
+        title: provider.displayName.isEmpty
+            ? provider.id
+            : provider.displayName,
         content: Text(provider.url),
         actions: [
           GlassDialogAction(
@@ -111,7 +113,11 @@ class _SignatureProvidersBodyState extends State<SignatureProvidersBody> {
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     final cs = Theme.of(context).colorScheme;
-    final providers = _service.providers;
+    // ⛔ AI 一言不在这张列表里，它有自己的一块（`SignatureAiBody`）。
+    // 数据源的含义是「一个会返回一句话的地址」——地址、取值路径、加工规则，
+    // 整套向导都围着这件事转，AI 源一样都不占。混进来的后果是点进去落在
+    // 「填接口地址」那一屏上，对着一个 AI 功能问 URL（2026-09-21 用户点名）。
+    final providers = _service.providers.where((e) => !e.isAi).toList();
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),

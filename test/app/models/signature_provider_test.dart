@@ -457,5 +457,33 @@ void main() {
       expect(SignatureProvider.decodeList('{不是 json'), isEmpty);
       expect(SignatureProvider.decodeList('[{"id":"x"}]'), isEmpty);
     });
+
+    // AI 源没有地址，所以「没地址＝坏数据」那条通用规则会把它整条吃掉。
+    // 表现是：改完提示词当场生效，重启后静默变回默认，而配置文件里那条
+    // 一直好好地躺着——界面上没有任何一处会说出这件事。
+    test('⛔ AI 源没有地址，不能被「没地址就是坏数据」那条规则筛掉', () {
+      final encoded = SignatureProvider.encodeList([
+        const SignatureProvider(
+          id: 'ai_hitokoto',
+          name: 'AI',
+          url: '',
+          kind: SignatureProvider.kindAi,
+          prompt: 'Write something in {language}.',
+        ),
+      ]);
+      final back = SignatureProvider.decodeList(encoded);
+      expect(back, hasLength(1));
+      expect(back.single.isAi, isTrue);
+      expect(back.single.prompt, 'Write something in {language}.');
+    });
+
+    // ⛔ 写成 `aiHitokoto.copyWith(prompt: ...)` 会把 builtin=true 一起带过来，
+    // 而上面那条「内置源不写进配置」会让保存全程静默失败。
+    test('⛔ 由内置 AI 源 copyWith 出来的那份存不进去（所以不许那样写）', () {
+      final encoded = SignatureProvider.encodeList([
+        SignatureProvider.aiHitokoto.copyWith(prompt: '改过的'),
+      ]);
+      expect(SignatureProvider.decodeList(encoded), isEmpty);
+    });
   });
 }

@@ -8,10 +8,13 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:i_iwara/app/models/ai_task.model.dart';
 import 'package:i_iwara/app/models/signature_provider.model.dart';
+import 'package:i_iwara/app/services/ai_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/http_client_factory.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
+import 'package:i_iwara/app/utils/signature_ai_prompt.dart';
 import 'package:i_iwara/app/utils/signature_template.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -42,6 +45,58 @@ class SignatureVariableSpec {
   String get sample => defaultArg == null ? '{$name}' : '{$name:$defaultArg}';
 }
 
+/// [SignatureService.estimate] 拿什么填那些「要联网才知道」的变量。
+///
+/// ⛔ 分成三档是因为三个调用点要的**根本不是一回事**，而第三档被当成第二档
+/// 用了很久（2026-09-21 用户报障）：发送前的预览里摆着一句上一条评论的一言，
+/// 和真会发出去的那句长得一模一样，用户以为看到的就是要发的。
+enum SignatureFill {
+  /// 算长度用：上次成功的值 → 没有就一段等宽的点。
+  ///
+  /// 要的是**宽度**，内容无所谓。字数统计每敲一键算一次，不可能等网络。
+  length,
+
+  /// 给人看的样例用（设置页、变量选择面板）：上次成功的值 → 没有就原样留
+  /// `{hitokoto}`。
+  ///
+  /// 这里拿上次的值是**对的**：打开一张列表就去挨个请求别人的接口不礼貌，
+  /// 而这两处问的是「这个源会给我什么」，不是「我这条会发出什么」。
+  sample,
+
+  /// 发送前的预览用：**只认这一次当场生成过的值**，没生成过就写一句
+  /// 「发送时生成」。
+  ///
+  /// ⛔ 这一档绝不许回退到上次缓存。预览回答的是「我按下发送会发出什么」，
+  /// 而那个答案在用户点「生成」之前根本不存在——摆一句看起来像真的旧句子，
+  /// 比摆一句「还没生成」错得多。
+  pending,
+}
+
+/// 发送时小尾巴求值的进度。发送键上那圈转圈拿它说明「在等什么」。
+///
+/// ⭐ 存在的理由：接了 AI 一言之后这一步可能要好几秒（见 `_aiTimeout`），
+/// 而一个没有说明的转圈会被读成「应用卡住了」。用户等得起，但要知道在等谁。
+class SignatureProgress {
+  const SignatureProgress({
+    required this.done,
+    required this.total,
+    required this.pending,
+  });
+
+  /// 已经取回来的个数。
+  final int done;
+
+  /// 这次要联网取的变量总数。**不含**本地变量和已经钉住的值——那些是同步的，
+  /// 算进来会让进度条一开始就莫名其妙地不是 0。
+  final int total;
+
+  /// 还在等的那些源的显示名（「AI 一言」/「Hitokoto」/ 用户自己起的名）。
+  final List<String> pending;
+
+  /// 还在等的第一个源。只有一个源时它就是全部答案。
+  String? get current => pending.isEmpty ? null : pending.first;
+}
+
 /// 把小尾巴模板求值成真正发出去的那句话。
 ///
 /// ⛔ 再说一遍这件事的边界：评论发到 Iwara 之后就是死文本。这里做的全部事情
@@ -51,7 +106,7 @@ class SignatureVariableSpec {
 /// 网络变量按用户的选择**每条评论都新取**，但求值链路上挂着三道兜底，因为
 /// 「发不出评论」永远比「小尾巴少一句」严重得多：
 ///
-/// 1. 超时 [_requestTimeout]，挂住的连接不许拖住发送；
+/// 1. 超时（[_httpTimeout] / [_aiTimeout]，按源的种类分），挂住的连接不许拖住发送；
 /// 2. 失败回退到上一次成功的值（跨重启保留，见 [_loadCache]）；
 /// 3. 还是没有就让这个变量整段消失，剩下的照常发出去。
 class SignatureService extends GetxService {
@@ -60,9 +115,9 @@ class SignatureService extends GetxService {
         dio ??
         (Dio(
             BaseOptions(
-              connectTimeout: _requestTimeout,
-              receiveTimeout: _requestTimeout,
-              sendTimeout: _requestTimeout,
+              connectTimeout: _httpTimeout,
+              receiveTimeout: _httpTimeout,
+              sendTimeout: _httpTimeout,
               // 什么都可能被填进自定义源，别让 dio 替我们猜类型后解析失败抛错
               responseType: ResponseType.plain,
               // 4xx/5xx 交给下面统一按「取不到」处理，不走异常
@@ -77,7 +132,33 @@ class SignatureService extends GetxService {
           ));
   }
 
-  static const Duration _requestTimeout = Duration(seconds: 6);
+  /// 普通接口源（一言这一族）的超时。
+  ///
+  /// 原先是 6s，对「打一个接口」来说也偏紧：墙内用户的请求要先过一次代理，
+  /// 冷启动时光是代理连接 + TLS 握手就能吃掉好几秒，而这 6s 是**整个请求**的
+  /// 预算，不是握手的预算。放宽到 15s——反正取不到也只是回退上次的值，
+  /// 真正要防的是「连接挂死拖住发送」，那种情况 15s 和 6s 一样都会被截断。
+  static const Duration _httpTimeout = Duration(seconds: 15);
+
+  /// AI 源的超时。
+  ///
+  /// ⛔ **不能和接口源共用一个数**：AI 源要跑一次模型推理，和打一个接口不是
+  /// 一个量级。[AiService.defaultRequestTimeout] 自己给的预算是 90s，外面套一
+  /// 个 6s 等于把它压到 1/15——AI 一言因此几乎必然超时，日志里只留下一行
+  /// `TimeoutException after 0:00:06`，看着像接口坏了，其实是我们自己掐的
+  /// （2026-09-21 用户报障）。
+  ///
+  /// 取 45s 而不是跟着 AiService 的 90s：发送那一刻评论在等着这句话，不该跟
+  /// 模型的最坏情况走。慢过 45s 的模型就让它回退上次的值。
+  static const Duration _aiTimeout = Duration(seconds: 45);
+
+  /// 套在 [_aiTimeout] 外面的余量。
+  ///
+  /// AI 那条路的超时由 [AiRequest.timeout] 在 `AiService` 内部先触发，那里能
+  /// 给出带供应商信息的真实错误；外面这层只是防「future 整个挂住」的兜底，
+  /// 所以要比内层晚一点到，否则永远是外层先赢、错误信息永远是干巴巴的
+  /// `TimeoutException`。
+  static const Duration _timeoutSlack = Duration(seconds: 5);
 
   /// 没有缓存值时，拿来估算长度的网络变量占位宽度。
   ///
@@ -150,19 +231,67 @@ class SignatureService extends GetxService {
   /// ⭐ 自定义源里**同名的那条会顶掉内置源，并占住它原来的位置**。内置的一言
   /// 因此不再是一块动不得的石头：用户想给它换个口味、带上出处，改完仍旧是
   /// `{hitokoto}`，模板不用动；删掉这条覆盖就恢复默认。
+  ///
+  /// ⭐ AI 可用时，[SignatureProvider.aiHitokoto] 也作为预置源之一（排在 hitokoto 之后）。
   List<SignatureProvider> get providers {
     final custom = customProviders;
     final overrides = {for (final e in custom) e.id: e};
     final taken = <String>{};
 
+    final effectiveBuiltins = [
+      ...SignatureProvider.builtins,
+      if (aiAvailable) SignatureProvider.aiHitokoto,
+    ];
+
     final out = <SignatureProvider>[];
-    for (final builtin in SignatureProvider.builtins) {
+    for (final builtin in effectiveBuiltins) {
       final override = overrides[builtin.id];
       if (override != null) taken.add(builtin.id);
       out.add(override ?? builtin);
     }
-    out.addAll(custom.where((e) => !taken.contains(e.id)));
+    // ⛔ AI 源只能从上面那张内置表进来。少了这道过滤，用户改过提示词之后
+    // 再把 AI 供应商删掉，那条覆盖会作为一条普通自定义源掉进列表——一个
+    // 点开是空白、测试必失败、还删不掉（它占着内置的位子）的幽灵。
+    out.addAll(custom.where((e) => !taken.contains(e.id) && !e.isAi));
     return out;
+  }
+
+  /// AI 这条路现在能不能用（配了供应商，且它允许跑小尾巴任务）。
+  bool get aiAvailable =>
+      Get.isRegistered<AiService>() &&
+      Get.find<AiService>().isAvailable(AiTask.signature);
+
+  /// AI 一言那条源的**当前**样子：用户改过提示词就是改过的那份。
+  ///
+  /// ⛔ 返回的是配置，不问可用性——设置页要在 AI 还没配好时也能编辑提示词，
+  /// 否则用户得先去配供应商才能看见这个功能存在。
+  SignatureProvider get aiProvider =>
+      customProviders.firstWhereOrNull(
+        (e) => e.id == SignatureProvider.aiHitokoto.id,
+      ) ??
+      SignatureProvider.aiHitokoto;
+
+  /// 改写 AI 一言的提示词。传空串＝恢复出厂（把那条覆盖整条删掉）。
+  Future<void> saveAiPrompt(String prompt) async {
+    final next = customProviders
+        .where((e) => e.id != SignatureProvider.aiHitokoto.id)
+        .toList();
+    final trimmed = prompt.trim();
+    if (trimmed.isNotEmpty && trimmed != SignatureAiPrompt.defaultTemplate) {
+      // ⛔ 不能写 `aiHitokoto.copyWith(...)`：copyWith 会把 `builtin: true`
+      // 一起带过来，而 encodeList 明确不存内置源——那样保存会全程静默失败，
+      // 界面上还显示改好了。必须自己搭一条 builtin=false 的。
+      next.add(
+        SignatureProvider(
+          id: SignatureProvider.aiHitokoto.id,
+          name: SignatureProvider.aiHitokoto.name,
+          url: '',
+          kind: SignatureProvider.kindAi,
+          prompt: trimmed,
+        ),
+      );
+    }
+    await saveCustomProviders(next);
   }
 
   /// 这个 id 是不是内置源的位子（＝删掉只是恢复默认，不是真删）。
@@ -187,42 +316,122 @@ class SignatureService extends GetxService {
   // -------------------------------------------------------------------- 渲染
 
   /// 真发送走这条：所有变量都现取，网络变量按上面那三道兜底处理。
+  ///
+  /// [pinned] 是**这一次编辑里已经当场生成过**的值（用户在预览里点了「生成」
+  /// 或「换一句」）。键与 [SignatureVariable.key] 一致，命中的变量直接用它、
+  /// 不再打一次接口——否则预览里看到的那句和真发出去的那句不是同一句，
+  /// 用户会以为自己发错了。本地变量（日期、时间）不受它影响：那些每次现算
+  /// 才是对的，`{time}` 应当是按下发送的时刻而不是点开预览的时刻。
+  ///
+  /// [onProgress] 让发送键上那圈转圈说得出「在等什么」。⭐ 只在真要联网时才
+  /// 回调：全是本地变量（或全被钉住了）的那条模板求值是同步的，报一次
+  /// `total: 0` 的进度只会让界面闪一下。
   Future<String> render(
     String template, {
     SignatureContext context = SignatureContext.empty,
     bool keepUnknown = false,
+    Map<String, String>? pinned,
+    void Function(SignatureProgress)? onProgress,
   }) async {
     await _ensureDateSymbols();
 
     final parsed = SignatureTemplate.parse(template);
     final values = <String, String>{};
 
+    // ⛔ 先把「同步就能填」的全填掉，剩下的才是进度的分母。本地变量和钉住的
+    // 值混进来的话，进度一开始就不是 0/N，读起来像是漏了几步。
+    final remote = <SignatureVariable>[];
+    for (final variable in parsed.variables) {
+      // 本地变量优先现算；钉住的值只对网络变量生效。
+      final local = _resolveLocal(variable, context);
+      if (local != null) {
+        values[variable.key] = local;
+        continue;
+      }
+      final pin = pinned?[variable.key];
+      if (pin != null && pin.isNotEmpty) {
+        values[variable.key] = pin;
+        continue;
+      }
+      remote.add(variable);
+    }
+
+    final report = remote.isEmpty ? null : onProgress;
+    final pending = report == null ? <String>[] : remote.map(_labelOf).toList();
+
+    // 先报一次 0/N：不然在第一个返回**之前**（恰恰是最慢的那段）界面上什么
+    // 都没有，而那正是用户最想知道「在等谁」的时候。
+    report?.call(
+      SignatureProgress(
+        done: 0,
+        total: remote.length,
+        pending: List.of(pending),
+      ),
+    );
+
+    var done = 0;
     await Future.wait(
-      parsed.variables.map((variable) async {
+      remote.map((variable) async {
         final value = await _resolveGuarded(variable, context);
         if (value != null) values[variable.key] = value;
+        done++;
+        pending.remove(_labelOf(variable));
+        report?.call(
+          SignatureProgress(
+            done: done,
+            total: remote.length,
+            pending: List.of(pending),
+          ),
+        );
       }),
     );
 
     return parsed.render(values, keepUnknown: keepUnknown);
   }
 
-  /// 同步估算：本地变量照常算，网络变量用上次成功的值。
+  /// 一个变量在进度里怎么称呼：优先用数据源的显示名，认不出就用变量名自己。
+  String _labelOf(SignatureVariable variable) =>
+      providerOf(variable.name)?.displayName ?? variable.name;
+
+  /// 把模板里**所有数据源变量**现取一遍，返回 key → 取到的值。
   ///
-  /// 字数统计和「结构开销占掉多少额度」用它。**不要**拿它的结果去发送——
-  /// 那样发出去的会是上一条评论的一言。
+  /// 预览里那枚「生成 / 换一句」按的就是它。与 [render] 共用 [_resolveGuarded]，
+  /// 所以超时、失败回退上次值这三道兜底完全一样——预览里能取到的，发送时
+  /// 一定也能取到。
   ///
-  /// [padNetwork] 管的是「还没有缓存值的网络变量」怎么占位：
+  /// 只跑网络变量：本地变量没有「生成」这回事，把它们一起算进来只会让
+  /// `{date}` 被钉在点预览的那一刻。
+  Future<Map<String, String>> resolveProviderValues(
+    String template, {
+    SignatureContext context = SignatureContext.empty,
+  }) async {
+    final parsed = SignatureTemplate.parse(template);
+    final out = <String, String>{};
+
+    await Future.wait(
+      parsed.variables.where((v) => _resolveLocal(v, context) == null).map((
+        variable,
+      ) async {
+        final value = await _resolveGuarded(variable, context);
+        if (value != null && value.isNotEmpty) out[variable.key] = value;
+      }),
+    );
+
+    return out;
+  }
+
+  /// 同步估算：本地变量照常算，网络变量按 [fill] 说的办。
   ///
-  /// - true（算长度时）：拿一段等宽的点撑住，好让额度扣得接近真实；
-  /// - false（给人看时）：原样留 `{hitokoto}`，一屏圆点没人看得懂。
+  /// **不要**拿它的结果去发送——真发送走 [render]。
   ///
   /// 两边都估不准也不至于出事：真发送时 `_composeForSubmit` 会把超出的部分从
   /// 小尾巴上砍掉，不会因为估少了几个字而发不出去。
+  /// [pinned] 见 [render]：这一次编辑里当场生成过的值，优先于一切兜底。
   String estimate(
     String template, {
     SignatureContext context = SignatureContext.empty,
-    bool padNetwork = true,
+    SignatureFill fill = SignatureFill.length,
+    Map<String, String>? pinned,
   }) {
     final parsed = SignatureTemplate.parse(template);
     final values = <String, String>{};
@@ -233,10 +442,23 @@ class SignatureService extends GetxService {
         values[variable.key] = local;
         continue;
       }
+      final pin = pinned?[variable.key];
+      if (pin != null && pin.isNotEmpty) {
+        values[variable.key] = pin;
+        continue;
+      }
+
+      // ⛔ 只有这一档不许碰 `_lastGood`：发送前的预览里，一句**上一条评论的**
+      // 一言和真会发出去的那句长得一模一样，用户没有任何办法分辨。
+      if (fill == SignatureFill.pending) {
+        values[variable.key] = slang.t.settings.signaturePendingValue;
+        continue;
+      }
+
       final cached = _lastGood[variable.key];
       if (cached != null) {
         values[variable.key] = cached;
-      } else if (padNetwork) {
+      } else if (fill == SignatureFill.length) {
         values[variable.key] = '•' * _networkEstimateWidth;
       }
     }
@@ -267,8 +489,14 @@ class SignatureService extends GetxService {
     final local = _resolveLocal(variable, context);
     if (local != null) return local;
 
+    // ⛔ 超时按**源的种类**取，不是一个全局常数：AI 源要跑模型推理，
+    // 拿接口源的预算去掐它等于让它永远超时。见 [_aiTimeout]。
+    final budget = providerOf(variable.name)?.isAi == true
+        ? _aiTimeout + _timeoutSlack
+        : _httpTimeout;
+
     try {
-      final fetched = await _resolveRemote(variable).timeout(_requestTimeout);
+      final fetched = await _resolveRemote(variable).timeout(budget);
       if (fetched != null && fetched.trim().isNotEmpty) {
         _rememberGood(variable.key, fetched.trim());
         return fetched.trim();
@@ -347,7 +575,9 @@ class SignatureService extends GetxService {
     if (raw.isEmpty) return null;
     final shaped = provider.composeValue(raw);
     if (shaped.isEmpty) return null;
-    return autoTranslate ? await _translated(shaped) : shaped;
+    return (autoTranslate && !provider.isAi)
+        ? await _translated(shaped)
+        : shaped;
   }
 
   // ------------------------------------------------------------------ 翻译
@@ -390,10 +620,18 @@ class SignatureService extends GetxService {
 
   /// 翻一句话。⛔ 失败一律原样返回——小尾巴少翻一句只是可惜，发不出评论才是事故。
   Future<String> _translated(String text) async {
+    // ⛔ 翻译这条路**也可能是 AI**（设置里的「AI 翻译」开关），所以预算同样
+    // 要分种类。只按「源不是 AI 源」就套接口预算的话，开了 AI 翻译的用户会
+    // 卡在同一个坑里：一言取回来了，翻译那一步静默超时、原样返回中文。
+    // DeepLX 优先级高于 AI，与 TranslationService.translate 的分支保持一致。
+    final aiTranslate =
+        _config[ConfigKey.USE_DEEPLX_TRANSLATION] != true &&
+        _config[ConfigKey.USE_AI_TRANSLATION] == true;
+
     try {
       final result = await Get.find<TranslationService>()
           .translate(text, targetLanguage: _targetLanguage)
-          .timeout(_requestTimeout);
+          .timeout(aiTranslate ? _aiTimeout + _timeoutSlack : _httpTimeout);
       final translated = result.data?.trim();
       if (result.isSuccess && translated != null && translated.isNotEmpty) {
         return translated;
@@ -410,6 +648,7 @@ class SignatureService extends GetxService {
   /// 向导拿着它在本地反复试：换出处开关、改提取规则都不必再打一次接口，
   /// 而用户看到的每一个样例都来自真实返回。
   Future<String> fetchBody(SignatureProvider provider) async {
+    if (provider.isAi) return _fetchAiValue(provider);
     final uri = provider.resolvedUri();
     final response = await _dio.getUri<String>(uri);
     final status = response.statusCode ?? 0;
@@ -417,6 +656,72 @@ class SignatureService extends GetxService {
       throw HttpException('HTTP $status', uri: uri);
     }
     return response.data?.trim() ?? '';
+  }
+
+  /// 请求 AI 生成一句小尾巴短句。
+  ///
+  /// 提示词取这条源自己的 [SignatureProvider.prompt]（用户在设置里改过的），
+  /// 空串就是出厂那份。见 [SignatureAiPrompt]。
+  ///
+  /// ⛔ 失败或空结果必须返回空串，不抛出异常，由上层自然落到三道兜底。
+  Future<String> _fetchAiValue(SignatureProvider provider) async {
+    if (!Get.isRegistered<AiService>()) return '';
+    final aiService = Get.find<AiService>();
+    if (!aiService.isAvailable(AiTask.signature)) return '';
+
+    try {
+      final localeTag = slang.LocaleSettings.currentLocale.languageTag;
+      final req = AiRequest(
+        task: AiTask.signature,
+        input: SignatureAiPrompt.userPrompt,
+        system: SignatureAiPrompt.render(provider.prompt, localeTag),
+        // ⛔ 显式给预算，别用 AiService 的 90s 默认值：发送那一刻评论在等这句
+        // 话。内层先到（外面留了 [_timeoutSlack]），错误信息才说得出是哪一步。
+        timeout: _aiTimeout,
+      );
+      final result = await aiService.complete(req);
+      if (!result.isSuccess) return '';
+      final raw = result.data?.trim() ?? '';
+      if (raw.isEmpty) return '';
+      return _stripAiWrapping(raw);
+    } catch (e) {
+      LogUtils.w('获取 AI 一言失败：$e', 'SignatureService');
+      return '';
+    }
+  }
+
+  /// 剥掉模型常见的多余包装：首尾成对引号、行首破折号、首尾空白。
+  static String _stripAiWrapping(String text) {
+    var s = text.trim();
+    bool changed = true;
+    while (changed) {
+      changed = false;
+
+      if (s.startsWith('- ') || s.startsWith('— ') || s.startsWith('– ')) {
+        s = s.substring(2).trim();
+        changed = true;
+        continue;
+      }
+
+      if (s.length >= 2) {
+        const quotePairs = [
+          ('"', '"'),
+          ("'", "'"),
+          ('「', '」'),
+          ('『', '』'),
+          ('“', '”'),
+          ('‘', '’'),
+        ];
+        for (final (open, close) in quotePairs) {
+          if (s.startsWith(open) && s.endsWith(close)) {
+            s = s.substring(open.length, s.length - close.length).trim();
+            changed = true;
+            break;
+          }
+        }
+      }
+    }
+    return s;
   }
 
   /// 只把地址请求回来，**不取值**。
