@@ -37,6 +37,10 @@ class ThreadCommentCardWidget extends StatefulWidget {
   // repo
   final ThreadDetailRepository listSourceRepository;
 
+  /// 点引用条跳到那一楼。由帖子详情页提供（只有它知道分页与滚动），
+  /// 为 null 时引用条不可点。
+  final void Function(int floor)? onJumpToFloor;
+
   const ThreadCommentCardWidget({
     super.key,
     required this.comment,
@@ -44,6 +48,7 @@ class ThreadCommentCardWidget extends StatefulWidget {
     required this.threadId,
     required this.lockedThread,
     required this.listSourceRepository,
+    this.onJumpToFloor,
   });
 
   @override
@@ -311,10 +316,7 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
     final userService = Get.find<UserService>();
     if (!userService.isAuthenticated) {
       AppService.switchGlobalDrawer();
-      showAppToast(
-        slang.t.errors.pleaseLoginFirst,
-        type: AppToastType.warning,
-      );
+      showAppToast(slang.t.errors.pleaseLoginFirst, type: AppToastType.warning);
       return false;
     }
     return true;
@@ -525,6 +527,11 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                             floor: _parsed.quote!.floor,
                             username: _parsed.quote!.username,
                             excerpt: _parsed.quote!.excerpt,
+                            onTapFloor: widget.onJumpToFloor == null
+                                ? null
+                                : () => widget.onJumpToFloor!(
+                                    _parsed.quote!.floor,
+                                  ),
                           ),
                         // 正文；SelectionArea 会吞掉 tap 传不到整行的 InkWell，
                         // 点按回复需经 onTap 显式透传进去

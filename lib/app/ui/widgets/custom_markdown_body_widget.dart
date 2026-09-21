@@ -72,6 +72,15 @@ class CustomMarkdownBody extends StatefulWidget {
   /// 它们不在任何翻页容器里，没有可抢的手势。
   final bool? selectable;
 
+  /// 正文段落的基准字体。给了就整体降级渲染（字号、颜色、行高），分隔线也跟着
+  /// 变细变淡。
+  ///
+  /// ⭐ 小尾巴脚注用它：小尾巴本身就是 markdown（它会原样发到 iwara，网页端也
+  /// 照 markdown 渲染），用户写的 `---`、加粗、链接都该生效——拿纯 `Text` 画会
+  /// 把那条分隔线原样显示成三个横杠（2026-09-21 用户截图）。但它又必须比正文
+  /// 轻，所以是**降级渲染**，不是照正文渲染。
+  final TextStyle? baseTextStyle;
+
   const CustomMarkdownBody({
     super.key,
     required this.data,
@@ -91,6 +100,7 @@ class CustomMarkdownBody extends StatefulWidget {
     this.onLongPress,
     this.onProcessedContentChanged,
     this.selectable,
+    this.baseTextStyle,
   });
 
   @override
@@ -1163,11 +1173,34 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
         : MarkdownConfig.defaultConfig;
 
     final baseTable = baseConfig.table;
+    final base = widget.baseTextStyle;
 
     return baseConfig.copy(
       configs: [
+        if (base != null) ...[
+          PConfig(textStyle: base),
+          // ⛔ 标题也要压下来。降级渲染的地方（脚注）本来不该出现标题，但
+          // **setext 语法会凭空造出一个**：`一句话↵---` 里那句话就是 H2。
+          // 已经发出去的评论改不了，所以渲染端必须扛得住——不压的话那句话会
+          // 以 24px 粗体杵在 11px 的脚注里（2026-09-21 用户截图那条就是）。
+          H1Config(style: base.copyWith(fontWeight: FontWeight.w700)),
+          H2Config(style: base.copyWith(fontWeight: FontWeight.w700)),
+          H3Config(style: base.copyWith(fontWeight: FontWeight.w700)),
+          H4Config(style: base.copyWith(fontWeight: FontWeight.w600)),
+          H5Config(style: base.copyWith(fontWeight: FontWeight.w600)),
+          H6Config(style: base.copyWith(fontWeight: FontWeight.w600)),
+        ],
         widget.showHorizontalRules
-            ? baseConfig.hr
+            ? (base == null
+                  ? baseConfig.hr
+                  // 降级渲染时那条 `<hr>` 也要跟着轻下来：正文那条 2px 的深灰
+                  // 横杠摆在 11px 的脚注里，会比它分隔的字还抢眼。
+                  : HrConfig(
+                      height: 1,
+                      color: (base.color ?? baseConfig.hr.color).withValues(
+                        alpha: 0.45,
+                      ),
+                    ))
             : const HrConfig(height: 0, color: Colors.transparent),
         // 当表格列较多、宽度超出屏幕时，包裹一层横向滚动以便查看被遮挡的列
         TableConfig(

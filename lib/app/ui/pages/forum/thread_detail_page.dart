@@ -23,6 +23,7 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:i_iwara/app/services/quoted_user_cache.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'widgets/thread_comment_card_widget.dart';
 import 'package:flutter/services.dart';
@@ -70,6 +71,25 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
   IndicatorStatus _indicatorStatus = IndicatorStatus.fullScreenBusying;
   String? _errorMessage;
   bool _isFirstLoad = true;
+
+  /// 当前这一屏里，楼层号 → 那条楼层的锚点。跳转靠它 `ensureVisible`。
+  ///
+  /// ⚠️ 只装**当前构建出来的**那些：翻页 / 刷新之后旧的 key 会失效，所以每次
+  /// 换数据都要清一遍（见 [_resetFloorAnchors]），否则 `currentContext` 会拿到
+  /// 已经卸载的 element。
+  final Map<int, GlobalKey> _floorAnchors = {};
+
+  /// 刚跳到的那一楼，短暂点亮。null＝没有。
+  ///
+  /// 不点亮的话，跳转在一屏全是相似楼层的列表里等于什么都没发生——用户不知道
+  /// 到底是滚到了哪一条。
+  int? _highlightedFloor;
+
+  /// 正在为「跳楼层」翻页：抑制 [_loadPaginatedData] 翻页后那记回到顶部。
+  ///
+  /// ⛔ 不抑制的话两个滚动会打架：它把列表甩回顶部，我们紧接着 ensureVisible
+  /// 到目标楼层，用户看到的是列表抽搐一下。
+  bool _jumpingToFloor = false;
 
   @override
   void initState() {
@@ -144,6 +164,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
       if (!mounted) return;
 
       setState(() {
+        _resetFloorAnchors();
         paginatedItems = items;
         currentPage = page;
         isLoading = false;
@@ -158,7 +179,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
         }
       });
 
-      if (pageChanged && _scrollController.hasClients) {
+      if (pageChanged && !_jumpingToFloor && _scrollController.hasClients) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _scrollController.animateTo(
             0,
@@ -259,10 +280,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
       return;
     }
     if (!_userService.isAuthenticated) {
-      showAppToast(
-        slang.t.errors.pleaseLoginFirst,
-        type: AppToastType.warning,
-      );
+      showAppToast(slang.t.errors.pleaseLoginFirst, type: AppToastType.warning);
       return;
     }
     showGlassBottomSheet(
@@ -366,10 +384,8 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
             (isPaginated.value ? PaginationBar.barHeight : 0),
         child: ValueListenableBuilder<bool>(
           valueListenable: _showBackToTop,
-          builder: (context, visible, _) => ScrollToTopFab(
-            visible: visible,
-            onPressed: _scrollToTop,
-          ),
+          builder: (context, visible, _) =>
+              ScrollToTopFab(visible: visible, onPressed: _scrollToTop),
         ),
       ),
     );
@@ -950,24 +966,181 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
     );
   }
 
+  void _resetFloorAnchors() => _floorAnchors.clear();
+
+  /// 跳到某一楼。引用条点下去走的就是这条路。
+  ///
+  /// 三种落法，按代价从小到大：
+  ///
+  /// 1. **已经在当前这份数据里** → 滚过去（两种模式都走这条）。注意「在数据里」
+  ///    不等于「在屏幕上」：懒列表只给屏内那几条建 element，所以屏外的目标要先
+  ///    由 [_ensureFloorBuilt] 挪出来；
+  /// 2. **分页模式且不在本页** → 楼层号 `replyNum` 是服务端下发的**全局**序号，
+  ///    第几页算得出来（`(floor-1) ~/ itemsPerPage`），翻过去再滚；
+  /// 3. **瀑布流且还没加载到** → ⛔ 不做「自动一直加载到那一页」：目标可能在
+  ///    几十页以前，那等于替用户决定打几十次请求。老老实实说一句它在更早的
+  ///    位置，把要不要继续翻留给用户。
+  ///
+  /// 楼层被删（总数比它小）时直接说不存在——引用里的楼层号指向一条不在了的
+  /// 回复是完全正常的事，不该表现成「点了没反应」。
+  Future<void> _jumpToFloor(int floor) async {
+    final total = _thread.value?.numPosts;
+    if (floor < 1 || (total != null && floor > total)) {
+      showAppToast(slang.t.forum.floorNotFound, type: AppToastType.warning);
+      return;
+    }
+
+    if (await _revealFloor(floor)) return;
+
+    if (!isPaginated.value) {
+      showAppToast(slang.t.forum.floorNotLoadedYet, type: AppToastType.info);
+      return;
+    }
+
+    final targetPage = (floor - 1) ~/ itemsPerPage;
+    if (targetPage == currentPage) {
+      // 就在本页却找不到锚点＝这一楼确实不在数据里（被删了）
+      showAppToast(slang.t.forum.floorNotFound, type: AppToastType.warning);
+      return;
+    }
+
+    _jumpingToFloor = true;
+    try {
+      await _loadPaginatedData(targetPage);
+      if (!mounted) return;
+      // 等这一帧画完，新一页的锚点才挂得上去
+      await WidgetsBinding.instance.endOfFrame;
+      if (!mounted) return;
+      if (await _revealFloor(floor)) return;
+      showAppToast(slang.t.forum.floorNotFound, type: AppToastType.warning);
+    } finally {
+      _jumpingToFloor = false;
+    }
+  }
+
+  /// 当前这份数据里的全部楼层（分页模式是本页，瀑布流是已经加载到的那些）。
+  List<ThreadCommentModel> get _currentItems =>
+      isPaginated.value ? paginatedItems : listSourceRepository;
+
+  /// 朝目标楼层一屏一屏地挪，最多挪这么多次就放弃。
+  ///
+  /// 一页 40 条、一屏放得下三四条，来回也就十来次；给到 80 是留给「一页条数
+  /// 很多 + 每条都很长」的极端情形，同时保证这个循环一定会停。
+  static const int _maxFloorSeekSteps = 80;
+
+  /// 让目标楼层**真的挂到树上**，返回是否落成。
+  ///
+  /// ⛔ 楼层是 `SliverChildBuilderDelegate` 懒建的：屏外那些根本没有 element，
+  /// `GlobalKey.currentContext` 对它们恒为 null。早先直接拿这个 null 当「找不到
+  /// 这一楼」，于是在同一页里往回跳（正读第 38 楼，点一条指向第 3 楼的引用）会
+  /// 弹出「楼层不存在」——而它明明就在这一页里（2026-09-21 审查查出）。
+  ///
+  /// 所以先问**数据**里有没有这一楼（那才是「存不存在」的真答案），有就朝它的
+  /// 方向挪，边挪边看锚点挂上来没有。楼层按 `replyNum` 升序排，所以目标比已建
+  /// 出来的最小楼层还小就往上，否则往下。
+  Future<bool> _ensureFloorBuilt(int floor) async {
+    if (_floorAnchors[floor]?.currentContext != null) return true;
+    if (!_currentItems.any((c) => c.replyNum + 1 == floor)) return false;
+    if (!_scrollController.hasClients) return false;
+
+    for (var step = 0; step < _maxFloorSeekSteps; step++) {
+      final built = _floorAnchors.entries
+          .where((e) => e.value.currentContext != null)
+          .map((e) => e.key)
+          .toList();
+      // 一条都没建出来就没有方向可言（列表还没画）——交给调用方去报。
+      if (built.isEmpty) return false;
+
+      final position = _scrollController.position;
+      final smallest = built.reduce((a, b) => a < b ? a : b);
+      final delta = position.viewportDimension * 0.8;
+      final target =
+          (floor < smallest ? position.pixels - delta : position.pixels + delta)
+              .clamp(position.minScrollExtent, position.maxScrollExtent);
+      // 已经顶到头还没见着它：再挪也没用。
+      if ((target - position.pixels).abs() < 1) return false;
+
+      // ⛔ 这一段用 jumpTo：它是**找**的过程，不是给人看的过程。真正的落位由
+      // [_revealFloor] 的 ensureVisible 平滑做完。
+      _scrollController.jumpTo(target);
+      await WidgetsBinding.instance.endOfFrame;
+      if (!mounted) return false;
+      if (_floorAnchors[floor]?.currentContext != null) return true;
+    }
+    return false;
+  }
+
+  /// 目标楼层在当前这份数据里就滚过去并点亮，返回是否落成。
+  Future<bool> _revealFloor(int floor) async {
+    if (!await _ensureFloorBuilt(floor)) return false;
+    if (!mounted) return false;
+    // ⭐ 锚点是在 await **之后**现取的，所以它本来就是当下那一个（`currentContext`
+    // 对没挂在树上的 key 直接给 null）。`mounted` 这一道是给分析器看的，也顺手
+    // 防住「拿到的一刻正好被回收」。
+    final anchor = _floorAnchors[floor]?.currentContext;
+    if (anchor == null || !anchor.mounted) return false;
+
+    await Scrollable.ensureVisible(
+      anchor,
+      duration: const Duration(milliseconds: 380),
+      curve: Curves.easeOutCubic,
+      // 别把目标贴在屏幕最上沿：留一点上文才看得出它是回复流里的一条
+      alignment: 0.12,
+    );
+    if (!mounted) return true;
+
+    setState(() => _highlightedFloor = floor);
+    Future.delayed(const Duration(milliseconds: 1600), () {
+      if (!mounted || _highlightedFloor != floor) return;
+      setState(() => _highlightedFloor = null);
+    });
+    return true;
+  }
+
   Widget buildCommentItem(
     BuildContext context,
     ThreadCommentModel comment,
     bool isWideScreen, {
     bool showDivider = false,
   }) {
-    final item = ThreadCommentCardWidget(
+    final floor = comment.replyNum + 1;
+    // 每构建一条就把作者喂进引用缓存：引用条的头像 / 昵称靠它，喂过之后同页
+    // （以及之后翻回来的页）的引用都是零网络的。幂等，成本是一次 map 写。
+    QuotedUserCache.seed([comment.user]);
+    final anchor = _floorAnchors.putIfAbsent(floor, () => GlobalKey());
+
+    final Widget item = ThreadCommentCardWidget(
+      key: ValueKey('floor-$floor-${comment.id}'),
       comment: comment,
       threadAuthorId: _thread.value?.user.id ?? '',
       threadId: widget.threadId,
       lockedThread: _thread.value?.locked ?? false,
       listSourceRepository: listSourceRepository,
+      onJumpToFloor: _jumpToFloor,
     );
-    if (!showDivider) return item;
+
+    // 跳过去之后点亮一下，否则在一屏相似的楼层里根本看不出落在了哪条。
+    final highlighted = _highlightedFloor == floor;
+    final Widget anchored = KeyedSubtree(
+      key: anchor,
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: highlighted ? 180 : 700),
+        curve: Curves.easeOut,
+        decoration: BoxDecoration(
+          color: highlighted
+              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.12)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: item,
+      ),
+    );
+
+    if (!showDivider) return anchored;
     // 扁平楼层流之间用细分隔线（与评论区一致）
     return Column(
       children: [
-        item,
+        anchored,
         Divider(
           height: 1,
           thickness: 0.5,

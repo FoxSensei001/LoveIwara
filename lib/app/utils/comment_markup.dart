@@ -38,11 +38,7 @@ import 'package:i_iwara/common/constants.dart';
 
 /// 一条回复所指向的楼层。
 class ReplyQuote {
-  const ReplyQuote({
-    required this.floor,
-    required this.username,
-    this.excerpt,
-  });
+  const ReplyQuote({required this.floor, required this.username, this.excerpt});
 
   /// 楼层号（展示用，与 iwara 的 `replyNum + 1` 一致）。
   final int floor;
@@ -104,6 +100,24 @@ class CommentMarkup {
     r'^\s*(?:-{3,}|\*{3,}|_{3,})\s*$',
   );
 
+  /// ⭐ **我们自己**发出去的那条小尾巴分隔线：`---` 后面跟两个空格。
+  ///
+  /// 行尾空白在 markdown 里对分隔线毫无影响（`---`/`---  ` 都是 `<hr>`），我们
+  /// 自己的渲染器、iwara 网页端、第三方客户端看到的东西一个像素都没变；但它给了
+  /// [parse] 一个**确定的记号**：认出这一行就等于认出「下面那段是小尾巴」，
+  /// 不必再走 [_detectFooter] 那套「短于 40 字、不以句号收尾、只有一行」的
+  /// 启发式去猜。长签名、多行签名从此也认得出来。
+  ///
+  /// ⚠️ 只是记号，不是保证：分隔线仍可能被别的客户端重排、被服务端 trim 掉行尾
+  /// 空白。认不出就退回启发式，与加这条之前完全一样，不会更差。
+  static const String signatureBreak = '---  ';
+
+  /// 认 [signatureBreak] 的正则。前导空格按 markdown 规矩放到 3 个，行尾至少
+  /// 两个空白——一个空格是软换行的残留，两个才是我们刻意留的记号。
+  static final RegExp _signatureBreakPattern = RegExp(
+    r'^ {0,3}(?:-{3,}|\*{3,}|_{3,})[ \t]{2,}$',
+  );
+
   /// 摘要里出现的图片/表情 markdown。整段留在引用里会在引用条里塞进一张图，
   /// 摘要要的是「一眼认出回的是哪条」，不是复刻原文。
   static final RegExp _imageMarkdownPattern = RegExp(r'!\[[^\]]*\]\([^)]*\)');
@@ -149,36 +163,83 @@ class CommentMarkup {
   /// 块与块之间一律空行隔开——这是 `---` 能成为分隔线而不是 setext 下划线的
   /// 唯一条件，也是网页端分段的唯一依据。
   ///
-  /// [hardenBody] 为真时把正文里的软换行写死成硬换行，见 [hardenLineBreaks]。
+  /// [harden] 为真时把软换行写死成硬换行，见 [hardenLineBreaks]。
+  ///
+  /// ⛔ **三段一视同仁**，别再只硬化正文。早先这里只给正文加了这一道，于是
+  /// 一条多行的小尾巴（或带摘要的引用头）在我们这儿是分行的、在 iwara 网页端
+  /// 折成一坨——那正是 [hardenLineBreaks] 当初要根治的割裂，只是漏掉了另外
+  /// 两段（2026-09-21 比对网页端渲染时查出）。
   static String compose({
     required String body,
     ReplyQuote? quote,
     String? signature,
-    bool hardenBody = true,
+    bool harden = true,
   }) {
     final blocks = <String>[];
 
+    // ⛔ 先把 `---` 扶正（补空行）再硬化：顺序反了的话 `foo↵---` 里的 foo 已经
+    // 被判成 setext 标题行，补空行也救不回读者看到的东西。见
+    // [normalizeThematicBreaks]。
+    String prepare(String text) {
+      final normalized = normalizeThematicBreaks(text);
+      return harden ? hardenLineBreaks(normalized) : normalized;
+    }
+
     if (quote != null) {
-      blocks.add(buildQuoteBlock(quote));
+      blocks.add(prepare(buildQuoteBlock(quote)));
     }
 
     final trimmedBody = body.trim();
     if (trimmedBody.isNotEmpty) {
-      blocks.add(hardenBody ? hardenLineBreaks(trimmedBody) : trimmedBody);
+      blocks.add(prepare(trimmedBody));
     }
 
     final trimmedSignature = signature?.trim();
     if (trimmedSignature != null && trimmedSignature.isNotEmpty) {
       // 小尾巴自带的前导 `---` 去掉，由这里统一补——旧默认值
       // `'\n\n---\nSent from …'` 就带着一条，不去掉会出现两条分隔线。
-      final stripped = _stripLeadingThematicBreak(trimmedSignature);
+      // 小尾巴同样要扶正：用户的模板里常常自己排一条线分隔两个数据源。
+      final stripped = prepare(_stripLeadingThematicBreak(trimmedSignature));
       if (stripped.isNotEmpty) {
-        blocks.add('---');
+        // 带记号的分隔线，见 [signatureBreak]。
+        blocks.add(signatureBreak);
         blocks.add(stripped);
       }
     }
 
     return blocks.join('\n\n');
+  }
+
+  /// 让独立成行的 `---` 真的成为一条分隔线。
+  ///
+  /// ⛔ markdown 里「一行文字 + 紧跟一行 `---`」是 **setext H2 下划线**：那行字
+  /// 会变成大标题，而分隔线**从来不会出现**——在我们这儿如此，在 iwara 网页端
+  /// 也如此。用户在小尾巴模板里写 `---` 的意思一律是「画条线」，所以补一个空行
+  /// 把它还原成 thematic break（2026-09-21 用户的组合小尾巴就撞在这上面：
+  /// `一言。↵---↵另一句`，两端都没有线，只有一个大标题）。
+  ///
+  /// 围栏代码块里的内容不动——那里面的 `---` 是代码。
+  static String normalizeThematicBreaks(String text) {
+    final lines = text.split('\n');
+    final out = <String>[];
+    var inFence = false;
+
+    for (final line in lines) {
+      if (RegExp(r'^\s*(?:```|~~~)').hasMatch(line)) {
+        inFence = !inFence;
+        out.add(line);
+        continue;
+      }
+      if (!inFence &&
+          _thematicBreakPattern.hasMatch(line) &&
+          out.isNotEmpty &&
+          out.last.trim().isNotEmpty) {
+        out.add('');
+      }
+      out.add(line);
+    }
+
+    return out.join('\n');
   }
 
   /// 把**用户自己打的**软换行写死成 markdown 硬换行（行尾两个空格）。
@@ -206,7 +267,15 @@ class CommentMarkup {
           isLast ||
           line.trim().isEmpty ||
           nextIsBlank ||
-          line.endsWith('  ')) {
+          line.endsWith('  ') ||
+          // ⛔ 分隔线一律不硬化。行尾两个空格对一条 `---` 本来就没有意义
+          // （硬换行是行内的事，分隔线是块级元素），而硬化它的代价很大：
+          // 正文里写 `foo↵---↵bar` 会被补成 `---  `，和小尾巴那条记号一模
+          // 一样，于是人家正文后半段被判成签名灰掉。
+          //
+          // ⭐ 不生产赝品，记号就不必再验上下文——小尾巴的判据因此可以就是
+          // 「`---  ` 以下的部分」这一句话（2026-09-21 用户明确）。
+          _thematicBreakPattern.hasMatch(line)) {
         out.add(line);
         continue;
       }
@@ -222,16 +291,25 @@ class CommentMarkup {
   /// 编辑已发布的评论时要先过这一道，否则用户在输入框里看到的每一行都挂着
   /// 看不见的空格，再提交一次又硬化一层，越编越脏。
   /// 和 [hardenLineBreaks] 一样跳过围栏代码块：那里头的行尾空格是内容。
+  ///
+  /// ⛔ **分隔线一行原样留着**，别顺手把它也软化了。`---  ` 行尾那两个空格不是
+  /// 硬换行的残留，是 [signatureBreak] 那个记号本身。编辑模式把全文摊进输入框
+  /// 时会过这一道——抹掉的话用户只是点开编辑再保存一次，小尾巴的记号就没了，
+  /// 下次渲染只能退回启发式，多行小尾巴从此被当成正文黑压压地显示
+  /// （2026-09-21 往返测试查出）。
   static String softenLineBreaks(String text) {
     final lines = text.split('\n');
     var inFence = false;
-    return lines.map((line) {
-      if (RegExp(r'^\s*(?:```|~~~)').hasMatch(line)) {
-        inFence = !inFence;
-        return line;
-      }
-      return inFence ? line : line.replaceFirst(RegExp(r'[ \t]+$'), '');
-    }).join('\n');
+    return lines
+        .map((line) {
+          if (RegExp(r'^\s*(?:```|~~~)').hasMatch(line)) {
+            inFence = !inFence;
+            return line;
+          }
+          if (inFence || _thematicBreakPattern.hasMatch(line)) return line;
+          return line.replaceFirst(RegExp(r'[ \t]+$'), '');
+        })
+        .join('\n');
   }
 
   /// 从一坨原文里把引用头与小尾巴认回来。
@@ -324,8 +402,16 @@ class CommentMarkup {
 
   /// 找出小尾巴那条分隔线在第几行；没有就返回 null。
   ///
-  /// 判据刻意收得很紧。误判的代价是把人家正文的结尾段落灰掉——那比「没认出
-  /// 签名、照常整段显示」难看得多，所以每一条都往严了卡：
+  /// ⭐ 分两趟，方向相反，这是本方法唯一需要记住的事：
+  ///
+  /// - **第一趟从前往后**，找「有把握」的那条（带记号 / 逐字对上 / 骨架对上）。
+  ///   有把握时要的是**最早**那条——小尾巴自己可以多行、中间还能有 `---`，
+  ///   取最后一条会把小尾巴的前半段留在正文里。
+  /// - **第二趟从后往前**，跑启发式，用来猜别人的评论。没把握时把更少的东西
+  ///   判成签名更安全。
+  ///
+  /// 启发式那三条刻意收得很紧。误判的代价是把人家正文的结尾段落灰掉——那比
+  /// 「没认出签名、照常整段显示」难看得多：
   ///
   /// 1. 必须是**最后**一条分隔线，且前面真的有正文；
   /// 2. 后面只剩**一行**，不超过 [_footerMaxChars] 个字；
@@ -343,17 +429,50 @@ class CommentMarkup {
         ? null
         : SignatureTemplate.matchPatternOf(expected);
 
-    for (var i = lines.length - 1; i > 0; i--) {
-      if (!_thematicBreakPattern.hasMatch(lines[i])) continue;
-
-      final tail = lines.sublist(i + 1).join('\n').trim();
-      if (tail.isEmpty) return null;
-
+    /// 能当分隔线的那些行：前面有正文、后面有东西。
+    bool usable(int i) {
+      if (!_thematicBreakPattern.hasMatch(lines[i])) return false;
+      if (lines.sublist(i + 1).join('\n').trim().isEmpty) return false;
       // 分隔线前面必须真的有正文，否则整条评论就只剩一个签名了
-      if (lines.sublist(0, i).join('\n').trim().isEmpty) return null;
+      if (lines.sublist(0, i).join('\n').trim().isEmpty) return false;
+      return true;
+    }
+
+    // ---- 第一趟：从**最早**的分隔线找起，找有把握的那条 ----
+    //
+    // ⛔ 方向是刻意的，别改回从后往前。小尾巴自己可以是**多行、且中间带
+    // `---`**（用户的模板想怎么排就怎么排）。从后往前找会停在小尾巴内部那条
+    // 分隔线上，于是小尾巴的前半段被当成正文，用正文的字号黑压压地显示出来，
+    // 只有最后一行进了脚注（2026-09-21 用户截图）。
+    //
+    // 有把握＝下面三条之一，都不是启发式：
+    //   a. 这条分隔线带着我们的记号；
+    //   b. 尾巴与本机配置里那条小尾巴逐字相同；
+    //   c. 尾巴对得上小尾巴模板编译出的骨架正则。
+    for (var i = 1; i < lines.length; i++) {
+      if (!usable(i)) continue;
+      final tail = lines.sublist(i + 1).join('\n').trim();
+
+      // ⭐ **小尾巴的判据就是这一句：`---  ` 以下的部分**（三横杠两空格，
+      // [signatureBreak]）。这条分隔线是我们（或另一个装了本 App 的人）拼
+      // 出来的，下面那段确定是小尾巴，不必再拿启发式去猜。
+      //
+      // 早先这里还要求「上下都是空行」，因为 [hardenLineBreaks] 会把正文里的
+      // `foo↵---↵bar` 补成 `---  `，造出赝品。那条约束现在没有了——改成
+      // **不生产赝品**（硬化时跳过分隔线），判据因此能回到用户说的那一句。
+      if (_signatureBreakPattern.hasMatch(lines[i])) return i;
 
       if (expected.isNotEmpty && tail == expected) return i;
       if (expectedPattern != null && expectedPattern.hasMatch(tail)) return i;
+    }
+
+    // ---- 第二趟：启发式，只认**最后**一条分隔线 ----
+    //
+    // 这一趟是拿来猜别人的评论的，所以判据收得很紧（见本方法的文档）。
+    // 从后往前是对的：没有任何把握时，把更少的东西判成签名更安全。
+    for (var i = lines.length - 1; i > 0; i--) {
+      if (!usable(i)) continue;
+      final tail = lines.sublist(i + 1).join('\n').trim();
 
       if (tail.contains('\n')) return null;
       if (tail.length > _footerMaxChars) return null;
