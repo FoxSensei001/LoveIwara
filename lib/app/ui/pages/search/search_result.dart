@@ -1183,27 +1183,30 @@ class _SearchResultState extends State<SearchResult> {
           headerExtent: headerExtent,
           headerTop: statusBarHeight,
           solidExtent: statusBarHeight,
-          // 底部要多让出角落坞那一条，否则最后一行永远压在坞底下
-          //（分页模式除外，见 CornerDockBottomInset）。
-          body: Obx(() {
-            // ⛔ 先无条件读一次 Rx 再参与短路：写成 `sink && !isPaginated.value` 时宽屏
-            // （sink=false）下 `&&` 短路、这只 Obx 首次 build 一个观察者都没登记 →
-            // GetX 抛「improper use」，整张结果列表变成红屏（Quest 1024dp 面板首报）。
-            final bool paginated = searchController.isPaginated.value;
-            return CornerDockBottomInset(
-              active: sink && !paginated,
-              child: NotificationListener<ScrollNotification>(
-                onNotification: (notification) {
-                  if (notification.metrics.axis == Axis.vertical &&
-                      notification.depth == 0) {
-                    _showBackToTop.value = notification.metrics.pixels >= 300;
-                  }
-                  return false;
-                },
-                child: _buildCurrentSearchList(headerExtent),
-              ),
-            );
-          }),
+          // 底部要多让出角落坞那一条，否则最后一行永远压在坞底下。
+          //
+          // ⭐ **分页模式也要让**：那时坞被抬到了分页栏之上（见 _buildCornerDocks
+          // 的 extraBottomInset），压住的是分页栏上方的最后一行卡片。分页栏自己
+          // 不跟着抬——它会把坞那一条减回去，见 CornerDockBottomInset.reserveOf。
+          //
+          // ⛔ 这里不包 Obx：active 只看屏宽，一只不读任何 Rx 的 Obx 会让 GetX
+          // 抛「improper use」，整张结果列表变红屏（Quest 1024dp 面板栽过一次）。
+          body: CornerDockBottomInset(
+            // 右下角坞最多两格：回顶浮钮一格、动作胶囊一格（见 _buildCornerDocks）。
+            // ⛔ 宽屏也要让一格：那时动作胶囊回到了 header 行，但**回顶浮钮仍
+            // 留在坞里**（它不看 sink），不让位照样压着最后一行。
+            rows: sink ? 2 : 1,
+            child: NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                if (notification.metrics.axis == Axis.vertical &&
+                    notification.depth == 0) {
+                  _showBackToTop.value = notification.metrics.pixels >= 300;
+                }
+                return false;
+              },
+              child: _buildCurrentSearchList(headerExtent),
+            ),
+          ),
           header: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(

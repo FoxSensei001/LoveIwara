@@ -14,6 +14,7 @@ import 'package:i_iwara/utils/loading_more_refresh_guard.dart';
 import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import 'package:i_iwara/utils/common_utils.dart' show CommonUtils;
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_corner_dock.dart';
 import 'package:i_iwara/app/utils/frame_perf_logger.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'common_media_list_widgets.dart';
@@ -510,7 +511,9 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
         if (widget.scrollController != null) {
           _mediaListController!.registerScrollToTopCallback(_scrollToTop);
         }
-        _rebuildKeyListener = rxEver(_mediaListController!.rebuildKey, (int key) {
+        _rebuildKeyListener = rxEver(_mediaListController!.rebuildKey, (
+          int key,
+        ) {
           if (mounted) refresh();
         }).call;
       }
@@ -896,7 +899,8 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   ) {
     if (delegate == null) return null;
     final double width = MediaLayoutUtils.resolveWaterfallChildWidth(
-      sliverCrossAxisExtent: availableWidth - MediaListView.listHorizontalPadding * 2,
+      sliverCrossAxisExtent:
+          availableWidth - MediaListView.listHorizontalPadding * 2,
       maxCrossAxisExtent: delegate.maxCrossAxisExtent,
       crossAxisSpacing: delegate.crossAxisSpacing,
     );
@@ -1049,6 +1053,15 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   Widget _buildPaginatedView(BuildContext context, double availableWidth) {
     // 获取系统底部安全区域高度
     final bottomInset = computeBottomSafeInset(MediaQuery.of(context));
+    // ⛔ 分页栏不能吃「角落坞借走的那一条」：那不是安全区，是浮在分页栏**上面**
+    // 的 chrome（见 [CornerDockBottomInset]）。跟着抬的话整条栏会浮起来 60px、
+    // 底下露出一条空档。内容那边照常用抬高后的 bottomInset——最后一行确实被坞
+    // 盖着，本来就该躲开。
+    final barBottomInset =
+        (bottomInset - CornerDockBottomInset.reserveOf(context)).clamp(
+          0.0,
+          double.infinity,
+        );
     // 计算分页栏所需的底部边距（PaginationBar内部已处理paddingBottom，这里只需要基础高度
     // + 悬浮模式下上方的透明渐入区，保证最后一行能完整滚出渐变）
     final paginationBarHeight = MediaListView.paginationBarReservedExtent
@@ -1126,7 +1139,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
             isLoading: isLoading,
             onPageChanged: _loadPaginatedData,
             useBlurEffect: true,
-            paddingBottom: bottomInset,
+            paddingBottom: barBottomInset,
             showBottomPadding: widget.showBottomPadding,
             isTotalCountUnknown: _isTotalCountUnknown,
             canGoNext: _isTotalCountUnknown ? _canGoNextWhenTotalUnknown : true,

@@ -537,14 +537,18 @@ class _TagMediaListPageState extends State<TagMediaListPage>
         extra: _buildCornerDocks(context, sink: sink),
         // 视口必须铺满整页（不能在外面套 Padding，否则内容会在 header 下边缘被
         // 裁掉、永远滚不到 header 背后）；留白交给列表自身的 paddingTop。
-        // 底部则要多让出角落坞那一条，否则最后一行永远压在坞底下
-        //（分页模式除外，见 CornerDockBottomInset）。
+        // 底部则要多让出角落坞那一条，否则最后一行永远压在坞底下。分页模式也要
+        // 让——那时坞被抬到分页栏之上，压住的是栏上方那一行；分页栏自己会把这
+        // 一条减回去（见 CornerDockBottomInset.reserveOf）。
         body: Obx(() {
           final isPaginated = _mediaListController.isPaginated.value;
           final rebuildKey = _mediaListController.rebuildKey.value.toString();
 
           return CornerDockBottomInset(
-            active: sink && !isPaginated,
+            // 右下角坞最多两格：回顶浮钮一格、动作胶囊一格（见 _buildCornerDocks）。
+            // ⛔ 宽屏也要让一格：那时动作胶囊回到了 header 行，但**回顶浮钮仍
+            // 留在坞里**（它不看 sink），不让位照样压着最后一行。
+            rows: sink ? 2 : 1,
             child: TabBarView(
               controller: _tabController,
               children: sorts.map((sort) {

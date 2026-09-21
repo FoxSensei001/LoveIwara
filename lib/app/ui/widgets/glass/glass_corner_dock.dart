@@ -12,26 +12,48 @@ bool useCornerDock(BuildContext context) =>
 /// 窄/宽屏分界。与 header 上既有的 `isWide` 判定（热门列表 / 订阅页）同一个数。
 const double kCornerDockBreakpoint = 600;
 
-/// 坞在底部占掉的那条空间：坞高（[GlassTokens.pillHeight]）+ 它距底的 16。
-/// 列表要额外让出这么多，否则最后一行永远压在坞底下——浮动底栏那条
+/// 坞在底部占掉的那条空间：[rows] 格坞高 + 格间距 + 它距底的 16。列表要额外
+/// 让出这么多，否则最后一行永远压在坞底下——浮动底栏那条
 /// [GlassTokens.floatingBarReservedExtent] 是同一个道理。
-const double kCornerDockReserve = GlassTokens.pillHeight + 16;
+///
+/// ⛔ [rows] 要按**最多几格**填，不是此刻几格。右下角坞常常是两格（回顶浮钮
+/// 一格、动作胶囊一格），而回顶钮按滚动显隐、动作组在选择态整只退场——跟着实
+/// 时变的话，列表底部让位会随手指一跳一跳。宁可常年多让一格的高度。
+///
+/// ⛔ 这里一度写死成单格（`pillHeight + 16` ＝ 60）。右下角两格实际占 96，于是
+/// 瀑布流下差 52px、分页下差 34px，「最后一行被浮钮压住」在两种模式下都在发生，
+/// 只是分页模式下卡片正好卡在那一条上，最先被看出来。
+double cornerDockReserve([int rows = 1]) {
+  assert(rows >= 1, '坞至少一格；整只不在场请传 CornerDockBottomInset.active: false');
+  return GlassTokens.pillHeight * rows +
+      GlassTokens.chromeGap * (rows - 1) +
+      16;
+}
 
-/// 给 [child] 的底部安全区加上坞占掉的那一条（[kCornerDockReserve]）。
+/// 给 [child] 的底部安全区加上坞占掉的那一条（[cornerDockReserve]）。
 ///
 /// 只包**列表本体**，别包整只 `GlassHeaderOverlay`：坞自己也是按底部安全区
 /// 定位的，把它一起包进来就成了「坞把自己顶上去」的循环。
 ///
-/// ⛔ **分页模式下不要开**（传 `active: false`）。分页栏自己也读
-/// `computeBottomSafeInset` 定位（`MediaListView._buildPaginatedView` 把它当
-/// `paddingBottom` 喂给 `PaginationBar`），安全区一抬高，整条分页栏就跟着浮起来
-/// 60px，底下露出一条空档。分页模式本来就为分页栏让出了
-/// `MediaListView.paginationBarReservedExtent`，内容离底已经够远。
+/// # ⛔ 底部还钉着别的常驻浮层时（分页栏），抬高的这一条不是给它的
+///
+/// 抬高走的是 `MediaQuery.padding.bottom`，而**列表内容**和**分页栏**读的是
+/// 同一个值（`MediaListView._buildPaginatedView` 既拿它算内容的 `reservedBottom`，
+/// 又把它当 `paddingBottom` 喂给 `PaginationBar`）。于是一抬两个都动：内容让位
+/// 是对的（它确实被坞盖着），分页栏却会跟着浮起来 60px、底下露出一条空档。
+///
+/// 早先的办法是分页模式下整只不开（`active: false`），代价是**坞那一条彻底没人
+/// 让**——坞被抬到了分页栏之上，而内容只让出了分页栏的高度，最后一行卡片就压在
+/// 坞底下。
+///
+/// 现在两件事分开：照常抬安全区（内容因此让够），同时用 [reserveOf] 把「这里头
+/// 有多少是坞借走的」透下去，让按安全区定位的常驻浮层自己减回去。
 class CornerDockBottomInset extends StatelessWidget {
   const CornerDockBottomInset({
     super.key,
     required this.child,
     this.active = true,
+    this.rows = 1,
   });
 
   final Widget child;
@@ -39,18 +61,48 @@ class CornerDockBottomInset extends StatelessWidget {
   /// 坞此刻是否在场（窄屏才在）。为假时整只透传。
   final bool active;
 
+  /// 两个下角里**最高的那一坞**最多堆几格。列表是整宽的，最后一行横跨左右，
+  /// 所以按高的那边算。见 [cornerDockReserve] 关于「按最多、不按此刻」的说明。
+  final int rows;
+
+  /// 此处的底部安全区里，有多少是坞借去的。没有坞就是 0。
+  ///
+  /// ⭐ 给「贴着屏幕底缘、按安全区定位」的东西用（分页栏那一族）：坞那一条是
+  /// **浮在它上面的 chrome**，不是安全区，跟着抬就会把自己顶飞。列表内容不必
+  /// 问这个数——它本来就该躲开坞。
+  static double reserveOf(BuildContext context) =>
+      context
+          .dependOnInheritedWidgetOfExactType<_CornerDockReserve>()
+          ?.reserve ??
+      0;
+
   @override
   Widget build(BuildContext context) {
     if (!active) return child;
     final mq = MediaQuery.of(context);
+    final double reserve = cornerDockReserve(rows);
     // 列表读的是 computeBottomSafeInset（padding / viewPadding / 手势区取最大），
     // 所以这里也得从那个最大值往上加，光加 padding.bottom 可能被别的项盖过去。
-    final double bottom = computeBottomSafeInset(mq) + kCornerDockReserve;
-    return MediaQuery(
-      data: mq.copyWith(padding: mq.padding.copyWith(bottom: bottom)),
-      child: child,
+    final double bottom = computeBottomSafeInset(mq) + reserve;
+    return _CornerDockReserve(
+      reserve: reserve,
+      child: MediaQuery(
+        data: mq.copyWith(padding: mq.padding.copyWith(bottom: bottom)),
+        child: child,
+      ),
     );
   }
+}
+
+/// [CornerDockBottomInset.reserveOf] 的载体。
+class _CornerDockReserve extends InheritedWidget {
+  const _CornerDockReserve({required this.reserve, required super.child});
+
+  final double reserve;
+
+  @override
+  bool updateShouldNotify(_CornerDockReserve oldWidget) =>
+      oldWidget.reserve != reserve;
 }
 
 /// [GlassCornerDock] 挂在哪个下角。
