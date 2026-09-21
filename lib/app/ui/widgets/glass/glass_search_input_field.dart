@@ -27,9 +27,11 @@ const double _lineHeight = 1.25;
 /// 盖得更全（拉满也盖不到图标那一段）。两件事各归各位，别再想用一个尺寸同时
 /// 解决对齐和命中。
 ///
-/// ⚠️ `height: double.infinity` 要求**外壳的高度是有界的**——放进 [GlassSurface]
-/// 这类定高胶囊里才成立（它默认就是 `GlassTokens.pillHeight`）。别塞进高度不定
-/// 的容器。
+/// ⚠️ 撑满这件事要求**外壳的高度是有界的**——放进 [GlassSurface] 这类定高胶囊
+/// 里才成立（它默认就是 `GlassTokens.pillHeight`）。高度不定的容器（表单里的
+/// `Column`、列表项……）里请改用 `GlassInputSurface + TextField`：这里虽然已经
+/// 不会再抛异常（见 [build] 里那段），但退回自然高度之后既没有胶囊也没有图标，
+/// 长相是不对的。
 ///
 /// # ⛔ 字在行盒里还得再居中一次
 ///
@@ -120,49 +122,61 @@ class GlassSearchInputField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return SizedBox(
-      height: double.infinity,
-      // 撑满的是**槽位**（免得胶囊里的其他孩子跟着变矮），居中的是里头那条行盒。
-      child: Align(
-        child: TextField(
-          controller: controller,
-          focusNode: focusNode,
-          textInputAction: TextInputAction.search,
-          textAlignVertical: TextAlignVertical.center,
-          // 行盒高度写死成 fontSize × [_lineHeight]，多出来的行距**上下平分**。
-          // 见类注释「字在行盒里还得再居中一次」。
-          strutStyle: StrutStyle(
-            fontSize: fontSize,
-            height: _lineHeight,
-            leading: 0,
-            forceStrutHeight: true,
-            leadingDistribution: TextLeadingDistribution.even,
-          ),
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.w500,
-            color: colorScheme.onSurface,
-            height: _lineHeight,
-            leadingDistribution: TextLeadingDistribution.even,
-          ),
-          decoration: InputDecoration(
-            isCollapsed: true,
-            hintText: hintText,
-            hintStyle: TextStyle(
+    return LayoutBuilder(
+      // ⛔ 只有拿到**有界高度**时才撑满。无界时硬写 `double.infinity` 会当场抛
+      // 「BoxConstraints forces an infinite height」，而这条异常的代价远不止一条
+      // 红字：它把外层 sliver 的 performLayout 打断，geometry 留成 null，下一次
+      // hit test 报出来的是一句与现场毫无关系的「Null check operator used on a
+      // null value @ RenderViewportBase.hitTestChildren」——2026-09-21 AI 接入
+      // 向导那次报障就是这么来的，光看栈根本回不到这里。
+      // 类注释第 30 行早写了「别塞进高度不定的容器」，但文档拦不住人，这里改成
+      // 拦得住：无界时退回自然高度（样子不对，但页面是活的）。
+      builder: (context, constraints) => SizedBox(
+        height: constraints.hasBoundedHeight ? double.infinity : null,
+        // 撑满的是**槽位**（免得胶囊里的其他孩子跟着变矮），居中的是里头那条行盒。
+        child: Align(
+          child: TextField(
+            controller: controller,
+            focusNode: focusNode,
+            textInputAction: TextInputAction.search,
+            textAlignVertical: TextAlignVertical.center,
+            // 行盒高度写死成 fontSize × [_lineHeight]，多出来的行距**上下平分**。
+            // 见类注释「字在行盒里还得再居中一次」。
+            strutStyle: StrutStyle(
               fontSize: fontSize,
-              color: colorScheme.onSurfaceVariant.withValues(alpha: hintAlpha),
-              // 提示文字是 `InputDecorator` 自己摆的一只 `Text`，吃不到上面那条
-              // strut，必须自带同一套行高规则，否则它在行盒里的偏移与输入文字
-              // 不一样——「有字时是正的、空着时提示偏上」就是这么来的。
+              height: _lineHeight,
+              leading: 0,
+              forceStrutHeight: true,
+              leadingDistribution: TextLeadingDistribution.even,
+            ),
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.w500,
+              color: colorScheme.onSurface,
               height: _lineHeight,
               leadingDistribution: TextLeadingDistribution.even,
             ),
-            border: InputBorder.none,
-            focusedBorder: InputBorder.none,
-            contentPadding: EdgeInsets.zero,
+            decoration: InputDecoration(
+              isCollapsed: true,
+              hintText: hintText,
+              hintStyle: TextStyle(
+                fontSize: fontSize,
+                color: colorScheme.onSurfaceVariant.withValues(
+                  alpha: hintAlpha,
+                ),
+                // 提示文字是 `InputDecorator` 自己摆的一只 `Text`，吃不到上面那条
+                // strut，必须自带同一套行高规则，否则它在行盒里的偏移与输入文字
+                // 不一样——「有字时是正的、空着时提示偏上」就是这么来的。
+                height: _lineHeight,
+                leadingDistribution: TextLeadingDistribution.even,
+              ),
+              border: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              contentPadding: EdgeInsets.zero,
+            ),
+            onChanged: onChanged == null ? null : (_) => onChanged!(),
+            onSubmitted: onSubmitted,
           ),
-          onChanged: onChanged == null ? null : (_) => onChanged!(),
-          onSubmitted: onSubmitted,
         ),
       ),
     );
