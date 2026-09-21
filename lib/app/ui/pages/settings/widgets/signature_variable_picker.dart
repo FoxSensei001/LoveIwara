@@ -4,6 +4,7 @@ import 'package:i_iwara/app/models/signature_preset.dart';
 import 'package:i_iwara/app/models/signature_provider.model.dart';
 import 'package:i_iwara/app/services/signature_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
+import 'package:i_iwara/app/utils/signature_scenes.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 变量选择面板。选中一条返回它的模板写法（如 `{date:yyyy-MM-dd}`）。
@@ -24,14 +25,36 @@ Future<String?> showSignatureVariablePicker(BuildContext context) {
   );
 }
 
-class SignatureVariablePicker extends StatelessWidget {
+class SignatureVariablePicker extends StatefulWidget {
   const SignatureVariablePicker({super.key});
+
+  @override
+  State<SignatureVariablePicker> createState() =>
+      _SignatureVariablePickerState();
+}
+
+class _SignatureVariablePickerState extends State<SignatureVariablePicker> {
+  /// 上下文变量的样例值从这儿来。⛔ 少了它，那一组整列显示一句「看页面而定」
+  /// ——一张变量表最该回答的「这东西长什么样」，恰恰是空的
+  /// （2026-09-21 用户：「光靠文字用户很难理解是什么」）。
+  SignatureSceneSet? _scenes;
+
+  @override
+  void initState() {
+    super.initState();
+    loadSignatureScenes(slang.t).then((value) {
+      if (mounted) setState(() => _scenes = value);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     final service = Get.find<SignatureService>();
     final providers = service.providers;
+    // 示范上下文取「在视频页」那一档：它是唯一给得全的场合，拿别的档会让
+    // 一半的行仍旧空着。
+    final demo = _scenes?.byId(SignatureScene.videoId).context;
 
     return GlassFloatingHeaderSheet(
       title: t.settings.signatureInsertVariable,
@@ -53,6 +76,29 @@ class SignatureVariablePicker extends StatelessWidget {
                     spec.sample,
                     fill: SignatureFill.sample,
                   ),
+                  onTap: () => Navigator.of(context).pop(spec.sample),
+                ),
+              // ⭐ 上下文变量单独成组，并在组标题下说清「值从哪儿来」：这一组
+              // 的「有没有值」本身就看页面，少了这句话，用户会以为自己插的变量
+              // 是坏的。右边那列是**示范值**（用户自己最近看过的那条），不是
+              // 当前真值——这儿没有正在看的作品。
+              _GroupLabel(
+                text: t.settings.signatureContextGroup,
+                hint: t.settings.signatureContextHint,
+              ),
+              for (final spec in SignatureService.contextVariables)
+                _VariableRow(
+                  label: SignatureVariableLabels.of(t, spec.name),
+                  token: spec.sample,
+                  sample: demo == null
+                      ? null
+                      : service.estimate(
+                          spec.sample,
+                          context: demo,
+                          fill: SignatureFill.sample,
+                          contextComplete: true,
+                        ),
+                  fallbackSample: t.settings.signatureContextValue,
                   onTap: () => Navigator.of(context).pop(spec.sample),
                 ),
               _GroupLabel(text: t.settings.signatureSources),
@@ -136,33 +182,57 @@ class SignatureVariableLabels {
     'time' => t.settings.varTime,
     'datetime' => t.settings.varDatetime,
     'weekday' => t.settings.varWeekday,
-    'app' => t.settings.varApp,
-    'version' => t.settings.varVersion,
     'platform' => t.settings.varPlatform,
+    'pick' => t.settings.varPick,
     'title' => t.settings.varTitle,
     'author' => t.settings.varAuthor,
-    'pick' => t.settings.varPick,
+    'tags' => t.settings.varTags,
+    'section' => t.settings.varSection,
+    'reply_to' => t.settings.varReplyTo,
+    'floor' => t.settings.varFloor,
+    'playtime' => t.settings.varPlaytime,
+    'duration' => t.settings.varDuration,
     _ => name,
   };
 }
 
 class _GroupLabel extends StatelessWidget {
-  const _GroupLabel({required this.text});
+  const _GroupLabel({required this.text, this.hint});
 
   final String text;
+
+  /// 这一组要额外说明「值从哪儿来」时写在标题下面的一行小字。
+  final String? hint;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final hint = this.hint;
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 12, 12, 6),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
-          color: cs.onSurfaceVariant,
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: cs.onSurfaceVariant,
+            ),
+          ),
+          if (hint != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              hint,
+              style: TextStyle(
+                fontSize: 11,
+                height: 1.35,
+                color: cs.onSurfaceVariant.withValues(alpha: 0.8),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

@@ -623,6 +623,7 @@ class GlassComposerBar extends StatelessWidget {
     this.isLoading = false,
     this.onEmoji,
     this.onInsertVariable,
+    this.onRecipes,
     this.onPreview,
     this.previewHasContent = false,
     this.onTranslate,
@@ -660,6 +661,12 @@ class GlassComposerBar extends StatelessWidget {
   /// 而那只弹窗又恰好没有预览键（预览就铺在输入框下面），所以常驻位仍是两枚，
   /// 没有突破本类文档里那条「窄屏最多 3 枚」的上限。
   final VoidCallback? onInsertVariable;
+
+  /// 「案例」。同样**只有小尾巴编辑器给它**，排在「更多」菜单里。
+  ///
+  /// 不进常驻位：它是「我不知道写什么」时才用一次的东西，而常驻位的名额要留给
+  /// 每次都用得上的表情与变量（本类文档：窄屏最多 3 枚）。
+  final VoidCallback? onRecipes;
 
   /// 眼睛上要不要挂那枚小红点：有东西可看时才挂。
   ///
@@ -729,6 +736,13 @@ class GlassComposerBar extends StatelessWidget {
   Future<void> _openMore(BuildContext context) async {
     final t = slang.Translations.of(context);
     final entries = <GlassMenuEntry>[
+      if (onRecipes != null)
+        GlassMenuOption<String>(
+          value: 'recipes',
+          label: t.settings.signatureRecipesTitle,
+          icon: Icons.auto_stories_outlined,
+          showCheck: false,
+        ),
       if (onTranslate != null)
         GlassMenuOption<String>(
           value: 'translate',
@@ -799,6 +813,8 @@ class GlassComposerBar extends StatelessWidget {
       entries: entries,
     );
     switch (picked) {
+      case 'recipes':
+        onRecipes?.call();
       case 'quote':
         onQuoteToggle?.call();
       case 'translate':
@@ -815,6 +831,7 @@ class GlassComposerBar extends StatelessWidget {
   }
 
   bool get _hasMore =>
+      onRecipes != null ||
       onTranslate != null ||
       onMarkdownHelp != null ||
       showQuoteToggle ||

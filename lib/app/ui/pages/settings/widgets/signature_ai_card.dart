@@ -6,6 +6,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/utils/signature_ai_prompt.dart';
+import 'package:i_iwara/app/utils/signature_scenes.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 设置页里的「AI 一言」整块。
@@ -35,7 +36,14 @@ class _SignatureAiBodyState extends State<SignatureAiBody> {
 
   Future<void> _test() async {
     try {
-      final value = await _service.fetchWith(_service.aiProvider);
+      // ⭐ 带上示范上下文。空上下文跑出来的是一句放之四海皆准的格言，而 AI 一言
+      // 与接口一言唯一的分野就是它**知道用户在看什么**——不带上下文试一次，
+      // 等于把这个功能最值钱的部分藏起来（见 SignatureContext.toPromptFacts）。
+      final scenes = await loadSignatureScenes(slang.t);
+      final value = await _service.fetchWith(
+        _service.aiProvider,
+        context: scenes.byId(SignatureScene.videoId).context,
+      );
       if (!mounted) return;
       setState(() {
         _failed = null;
@@ -289,6 +297,9 @@ class _SignatureAiPromptSheetState extends State<_SignatureAiPromptSheet> {
       _error = null;
     });
     try {
+      // 与卡片上那枚「测试」同一个道理：带上示范上下文，否则改完提示词试出来的
+      // 那句话永远看不出「它其实知道你在看什么」。
+      final scenes = await loadSignatureScenes(slang.t);
       final value = await _service.fetchWith(
         SignatureProvider(
           id: SignatureProvider.aiHitokoto.id,
@@ -297,6 +308,7 @@ class _SignatureAiPromptSheetState extends State<_SignatureAiPromptSheet> {
           kind: SignatureProvider.kindAi,
           prompt: _controller.text,
         ),
+        context: scenes.byId(SignatureScene.videoId).context,
       );
       if (!mounted) return;
       setState(() {
@@ -444,6 +456,19 @@ class _SignatureAiPromptSheetState extends State<_SignatureAiPromptSheet> {
                     ),
                   ),
                 ),
+                if (_error == null) ...[
+                  const SizedBox(height: 6),
+                  // 说破试写用的是什么上下文。不说的话，用户会以为这句话里凭空
+                  // 冒出来的标题是模型编的。
+                  Text(
+                    t.settings.signaturePromptSampleContext,
+                    style: TextStyle(
+                      fontSize: 11,
+                      height: 1.35,
+                      color: cs.onSurfaceVariant.withValues(alpha: 0.8),
+                    ),
+                  ),
+                ],
               ],
             ],
           ),
