@@ -215,9 +215,29 @@ String _systemPrompt(SearchSegment current, String currentSort) {
       'unquoted 3/20, quoted 20/20.',
     )
     ..writeln(
-      '  → Quote ANY run of Japanese/Chinese/Korean text. Quote Latin phrases '
-      'of two or more words ("hatsune miku"). Leave a single Latin word '
-      'unquoted so prefix matching still helps.',
+      '  → Quote a CJK run that is ONE name or term, kana and mixed script '
+      'included: 初音ミク, 白金ディスコ, このすば, ゆるキャン, けものフレンズ, '
+      '碧蓝航线. Measured, bare → quoted: このすば 4488 → 75, ゆるキャン 314 '
+      '→ 22, にじさんじ 9857 → 65 — precision of the first 20 by date goes '
+      'from 0-1/20 to 20/20 in every one of those. Quote Latin phrases of two '
+      'or more words ("hatsune miku"); leave a single Latin word unquoted so '
+      'prefix matching still helps.',
+    )
+    ..writeln(
+      '  → ⛔ But NEVER wrap a whole phrase built with a particle (の, が, を, '
+      'に, は, で, と) in one pair of quotes: that sentence almost never '
+      'occurs verbatim in a title, so it returns nothing at all. Measured: '
+      '原神の甘雨 138 bare but 0 quoted; 初音ミクのダンス 5250 bare but 0 '
+      'quoted; 水着の女の子 440 bare but 1 quoted. Quote the PARTS and let AND '
+      'join them — `"原神" "甘雨"` (10), `"初音ミク" "ダンス"` (135).',
+    )
+    ..writeln(
+      '  → ⛔ Only split on a particle when at least 2 characters remain on '
+      'each side, otherwise you cut a name apart: the の in ときのそら and the '
+      'こ/すば in このすば are parts of the name itself (splitting ときのそら '
+      'drops precision 20/20 → 9/20; splitting けものフレンズ drops 57 hits to '
+      '1). When in doubt, quote the whole run and let `preview_search` tell '
+      'you whether it exists.',
     )
     ..writeln(
       '  → Quotes compose: `"初音ミク" "ダンス"` (135) and `"初音ミク" ダンス` '
@@ -296,10 +316,15 @@ String _systemPrompt(SearchSegment current, String currentSort) {
     ..writeln(
       '⭐ You can check yourself: call `preview_search` with the query (and '
       'tags) you are about to answer with, and look at the count. Do it at '
-      'least once. A count of 0 means you must loosen something — usually by '
-      'dropping a word, or by unquoting a phrase that turns out not to exist '
-      'verbatim. A count in the tens of thousands with a specific request '
-      'means the opposite. Answer with the version you actually verified.',
+      'least once. A count of 0 or 1 means the phrase does not exist verbatim '
+      'and you must fall back, IN THIS ORDER: (1) if it contains a particle, '
+      'split it into two quoted parts (`"原神の甘雨"` 0 → `"原神" "甘雨"` 10; '
+      '`"初音ミクのダンス"` 0 → `"初音ミク" "ダンス"` 135); (2) drop the least '
+      'distinctive word; (3) as a last resort drop the quotes entirely. Stop '
+      'at the first step that returns results. A count in the tens of '
+      'thousands for a specific request means the opposite — you are too '
+      'loose, most likely because a CJK phrase went unquoted. Answer with the '
+      'version you actually verified.',
     )
     ..writeln()
     ..writeln('Rules:')
