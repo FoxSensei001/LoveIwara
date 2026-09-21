@@ -534,6 +534,10 @@ enum ConfigKey {
   SEARCH_SAVED_QUERIES,
   // 已提醒过"处于网站默认标签黑名单"的用户名列表，存为 JSON：[username, ...]
   DEFAULT_BLACKLIST_REMINDER_SEEN_USERS,
+  // AI 供应商多档案存储与用途绑定（P1 数据层）
+  AI_PROVIDER_PROFILES,
+  AI_PROVIDER_KEYS,
+  AI_TASK_BINDINGS,
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -853,6 +857,12 @@ extension ConfigKeyExtension on ConfigKey {
         return 'search_saved_queries';
       case ConfigKey.DEFAULT_BLACKLIST_REMINDER_SEEN_USERS:
         return 'default_blacklist_reminder_seen_users';
+      case ConfigKey.AI_PROVIDER_PROFILES:
+        return 'ai_provider_profiles';
+      case ConfigKey.AI_PROVIDER_KEYS:
+        return 'ai_provider_keys';
+      case ConfigKey.AI_TASK_BINDINGS:
+        return 'ai_task_bindings';
     }
   }
 
@@ -1217,6 +1227,12 @@ extension ConfigKeyExtension on ConfigKey {
         return <dynamic>[];
       case ConfigKey.DEFAULT_BLACKLIST_REMINDER_SEEN_USERS:
         return <String>[];
+      case ConfigKey.AI_PROVIDER_PROFILES:
+        return '';
+      case ConfigKey.AI_PROVIDER_KEYS:
+        return '';
+      case ConfigKey.AI_TASK_BINDINGS:
+        return '';
     }
   }
 }

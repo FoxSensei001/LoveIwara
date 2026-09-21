@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/ai_provider.model.dart';
 import 'package:i_iwara/app/models/ai_task.model.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
+import 'package:i_iwara/app/services/ai_profile_store.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/utils/ai_error_describe.dart';
 import 'package:i_iwara/app/utils/ai_json_extract.dart';
@@ -17,7 +18,119 @@ import 'package:i_iwara/utils/logger_utils.dart';
 /// schema 再去 import dartantic——那等于把 SDK 泄漏回每一个用它的地方，将来
 /// 换 SDK 又是满仓库改 import。`S` / `Schema` 本身来自 `json_schema_builder`，
 /// 已经在依赖树里（dartantic_interface 转出的），不是新增依赖。
-export 'package:dartantic_ai/dartantic_ai.dart' show S, Schema;
+export 'package:dartantic_ai/dartantic_ai.dart' show S, Schema, Tool;
+
+/// 模型调一次工具的过程，给界面画「它正在查什么」。
+///
+/// ⭐ 措辞由**调用方**给（[AiTool.describeCall] / [AiTool.describeResult]）：
+/// 本服务只看得见一个工具名和一坨 JSON，说不出「正在试搜 "初音ミク" …找到 2143
+/// 条」这种话，而用户要看的恰恰是后者。
+class AiToolCall {
+  const AiToolCall({required this.name, required this.call, this.result});
+
+  /// 工具名，兜底显示用。
+  final String name;
+
+  /// 这一次调用在做什么（一行人话）。
+  final String call;
+
+  /// 结果（一行人话）。null ＝ 还在跑。
+  final String? result;
+
+  bool get running => result == null;
+
+  AiToolCall done(String result) =>
+      AiToolCall(name: name, call: call, result: result);
+}
+
+/// 一件给模型用的工具，外加「怎么把它的一次调用说成人话」。
+///
+/// ⛔ 不要直接往 [AiRequest] 里塞 dartantic 的 `Tool`：那样界面上只剩一个函数名
+/// 在转圈，用户看不出它在查什么、查到了什么——而"能看见它在干什么"正是把工具
+/// 接进来的理由之一。
+class AiTool {
+  const AiTool({
+    required this.tool,
+    required this.describeCall,
+    required this.describeResult,
+  });
+
+  final Tool tool;
+
+  /// 参数 → 一行人话。
+  final String Function(Map<String, dynamic> args) describeCall;
+
+  /// 返回值 → 一行人话。异常时收到的是那个异常。
+  final String Function(Object? result) describeResult;
+}
+
+/// 结构化调用此刻走到哪一步。
+///
+/// ⭐ 存在的理由：[AiService.structured] 是"一次要完"的，调用方在它返回之前
+/// 手上什么都没有，界面上只剩一个转圈。而这类请求动辄十几二十秒（还可能在
+/// 重试、在降级），一个不动的转圈既说不清"是不是卡死了"，也说不清"它到底
+/// 有没有听懂我的话"。
+enum AiStage {
+  /// 已经发出去，还没收到第一个字。
+  waiting,
+
+  /// 模型在推理（[AiProgress.reasoning] 有字）。
+  reasoning,
+
+  /// 模型在查东西（[AiProgress.toolCalls] 最后一条还在跑）。
+  callingTool,
+
+  /// 模型在写答案（[AiProgress.draft] 有字）。
+  drafting,
+
+  /// 上一次失败了，正在重来（[AiProgress.notice] 是失败原因）。
+  ///
+  /// ⛔ 这一档必须存在：本服务内部有**两层**自动重来（流式失败降级成一次要完、
+  /// 带工具那次失败改成不带工具再跑一整轮），两层都只写日志。2026-09-21 用户
+  /// 报障「出错了也一点反应没有」就是它——端点回了 500，界面上那行字一个标点
+  /// 都没变，而后台正在闷头重试，最坏要静默 120+90+120+90 秒才吐出第一句话。
+  retrying,
+
+  /// 全文拿到了，正在解析 JSON。
+  parsing,
+}
+
+/// 一次结构化调用的过程播报。两段文本都是**累计**的（与 [AiService.stream]
+/// 一致），拿到就当完整内容渲染即可。
+class AiProgress {
+  const AiProgress({
+    required this.stage,
+    this.reasoning = '',
+    this.draft = '',
+    this.notice = '',
+    this.toolCalls = const [],
+  });
+
+  final AiStage stage;
+
+  /// 「刚才出了什么事」的技术原因，空串＝一切正常。
+  ///
+  /// ⭐ 与 [AiStage.retrying] 配套：光说「正在重试」用户判断不了该不该继续等
+  /// （端点 500 值得等一下，密钥错了等到天亮也没用）。措辞由本服务给不了，
+  /// 这里是**技术原因原文**，界面负责给它配一句人话的标签。
+  final String notice;
+
+  /// 这一轮已经发生过的工具调用，按时间先后。最后一条 [AiToolCall.running]
+  /// 为真时就是「正在查」。
+  final List<AiToolCall> toolCalls;
+
+  /// 推理过程累计文本。只有原生推理模型（Anthropic / Google / Ollama）会有。
+  final String reasoning;
+
+  /// 正文累计文本——结构化调用里就是那份正在成形的 JSON。
+  ///
+  /// ⛔ **别把它当"思考过程"直接摆给用户看**。这里一度有个 `visibleText`
+  /// 访问器（有推理就给推理，否则给 draft），界面照单全收的结果是一坨
+  /// `{"segment":"video","query":"\"初音ミク\"…` 挂在「正在理解…」底下——既不
+  /// 是思考也没人读得下去，而同一份 JSON 解析完本来就会在结果区里逐条摊开。
+  /// 它的正确用法是**量**而不是**内容**：拿长度去说「正在写答案 · 已 128 字」。
+  final String draft;
+}
 
 /// 一次 AI 调用要的全部东西。
 ///
@@ -33,7 +146,15 @@ class AiRequest {
     this.timeoutMessage,
     this.decorateError,
     this.streamErrorLabel,
+    this.tools = const [],
   });
+
+  /// 模型可以自己调的工具。空表＝纯问答。
+  ///
+  /// ⚠️ 函数调用要端点真的支持。中转普遍支持它（聊天客户端都靠它），但不是
+  /// 保证——所以带工具那次失败时，[AiService.structured] 会**不带工具再跑一次**
+  /// 而不是直接报错。
+  final List<AiTool> tools;
 
   /// 用哪个用途的档案。[profile] 非空时它只用于记账。
   final AiTask task;
@@ -100,8 +221,6 @@ class LegacyConfigProfileStore implements AiProfileStore {
   /// 这样用途绑定表在迁移前后指向同一个东西。
   static const String legacyProfileId = 'legacy';
 
-  T? _get<T>(ConfigKey key) => _config[key] as T?;
-
   @override
   List<AiProviderProfile> get profiles {
     final profile = _readLegacy();
@@ -111,28 +230,31 @@ class LegacyConfigProfileStore implements AiProfileStore {
   @override
   AiProviderProfile? profileFor(AiTask task) => _readLegacy();
 
-  AiProviderProfile? _readLegacy() {
+  AiProviderProfile? _readLegacy() => readLegacy(_config);
+
+  /// 从旧版 12 枚 `AI_TRANSLATION_*` 读取档案。供 P1 自动迁移及测试复用。
+  static AiProviderProfile readLegacy(ConfigService config) {
+    T? get<T>(ConfigKey key) => config[key] as T?;
     final kind = AiProviderKind.normalize(
-      _get<String>(ConfigKey.AI_TRANSLATION_PROVIDER) ?? AiProviderKind.openai,
+      get<String>(ConfigKey.AI_TRANSLATION_PROVIDER) ?? AiProviderKind.openai,
     );
     return AiProviderProfile(
       id: legacyProfileId,
       name: AiProviderKind.displayName(kind),
       kind: kind,
-      baseUrl: _get<String>(ConfigKey.AI_TRANSLATION_BASE_URL) ?? '',
-      model: _get<String>(ConfigKey.AI_TRANSLATION_MODEL) ?? '',
-      apiKey: _get<String>(ConfigKey.AI_TRANSLATION_API_KEY) ?? '',
-      reasoning: _get<bool>(ConfigKey.AI_TRANSLATION_REASONING_MODEL) ?? false,
+      baseUrl: get<String>(ConfigKey.AI_TRANSLATION_BASE_URL) ?? '',
+      model: get<String>(ConfigKey.AI_TRANSLATION_MODEL) ?? '',
+      apiKey: get<String>(ConfigKey.AI_TRANSLATION_API_KEY) ?? '',
+      reasoning: get<bool>(ConfigKey.AI_TRANSLATION_REASONING_MODEL) ?? false,
       sendTemperature:
-          _get<bool>(ConfigKey.AI_TRANSLATION_SEND_TEMPERATURE) ?? true,
-      streaming:
-          _get<bool>(ConfigKey.AI_TRANSLATION_SUPPORTS_STREAMING) ?? true,
+          get<bool>(ConfigKey.AI_TRANSLATION_SEND_TEMPERATURE) ?? true,
+      streaming: get<bool>(ConfigKey.AI_TRANSLATION_SUPPORTS_STREAMING) ?? true,
       // 历史配置里没有这一项，保守给 false ＝「别试 json_schema，直接走提示词
       // 契约」。实测绝大多数中转会**静默忽略** json_schema（见 [AiService.structured]），
       // 先试一次只是白等十几秒、白烧几百个 token。
       structuredOutput: false,
-      temperature: _get<double>(ConfigKey.AI_TRANSLATION_TEMPERATURE) ?? 0.3,
-      maxTokens: _get<int>(ConfigKey.AI_TRANSLATION_MAX_TOKENS) ?? 4096,
+      temperature: get<double>(ConfigKey.AI_TRANSLATION_TEMPERATURE) ?? 0.3,
+      maxTokens: get<int>(ConfigKey.AI_TRANSLATION_MAX_TOKENS) ?? 4096,
     );
   }
 }
@@ -175,9 +297,16 @@ class AiService extends GetxService {
       Get.isRegistered<ConfigService>() ? Get.find<ConfigService>() : null;
 
   late final AiProfileStore _store =
-      _injectedStore ?? LegacyConfigProfileStore(_config);
+      _injectedStore ?? ConfigProfileStore(_config);
 
   AiProfileStore get store => _store;
+
+  /// 初始化底层档案存储（自动迁移与密钥解密）。
+  Future<void> ready() async {
+    if (_store is ConfigProfileStore) {
+      await _store.ensureReady();
+    }
+  }
 
   /// 流式调用的默认超时。翻译一段长文本可能真的要这么久。
   static const Duration defaultStreamTimeout = Duration(seconds: 120);
@@ -194,6 +323,32 @@ class AiService extends GetxService {
   final Map<String, Timer> _timeouts = {};
   final Map<String, StreamSubscription<ChatResult<String>>> _subscriptions = {};
   final Map<String, void Function(String reasoning)> _reasoningCallbacks = {};
+  final Map<String, void Function(List<AiToolCall> calls)> _toolCallbacks = {};
+
+  /// 「这一次没走通，我在重来」的播报口。见 [AiStage.retrying]。
+  final Map<String, void Function(String reason)> _noticeCallbacks = {};
+
+  /// ⭐ 合流节拍：**每 [_streamPace] 才往外吐一次**，而不是底层给一个 token
+  /// 就吐一次。
+  ///
+  /// 我们对外吐的是**累计文本**，消费方（[CustomMarkdownBody] /
+  /// [MarkdownTranslationController] / 翻译弹窗）拿到就当完整内容重新解析
+  /// markdown 并重建。中转一秒能给二三十个 token，于是一段 300 字的译文要把
+  /// 越来越长的全文解析上百遍——累计文本让这件事还是 O(n²) 的。2026-09-21
+  /// 用户报障「疯狂刷新 UI」就是它。
+  ///
+  /// 收口在这一层而不是各消费方自己加 Timer：三处消费方各写一份节流迟早漂移，
+  /// 而且下一个接流的人照样会踩。120ms ≈ 8 次/秒，肉眼仍是连续出字。
+  ///
+  /// ⛔ 攒下的那一段**必须在关流之前落地**（见 [_cleanup] 开头），否则最后
+  /// 不到一拍的内容会被整段吞掉——译文尾巴少几个字，还不报错。
+  static const Duration _streamPace = Duration(milliseconds: 120);
+
+  final Map<String, Timer> _pacers = {};
+
+  /// 各请求的「立刻把攒着的吐出去」闭包，由 [_startStream] 注册（缓冲区是
+  /// 它的局部变量）。[_cleanup] 靠它做最后一次落地。
+  final Map<String, void Function()> _streamFlushers = {};
 
   int _requestSeq = 0;
 
@@ -272,31 +427,80 @@ class AiService extends GetxService {
   }
 
   /// 各家 maxTokens 的字段名都不一样，且类型不同。
-  ChatModelOptions _optionsFor(AiProviderProfile profile) =>
-      switch (profile.kind) {
-        AiProviderKind.anthropic => AnthropicChatOptions(
-          maxTokens: profile.maxTokens,
-        ),
-        AiProviderKind.google => GoogleChatModelOptions(
-          maxOutputTokens: profile.maxTokens,
-        ),
-        AiProviderKind.ollama => OllamaChatOptions(
-          numPredict: profile.maxTokens,
-        ),
-        AiProviderKind.mistral => MistralChatModelOptions(
-          maxTokens: profile.maxTokens,
-        ),
-        // xAI 走的是 OpenAI 那套 options（XAIProvider extends OpenAIProvider）
-        _ => OpenAIChatOptions(maxTokens: profile.maxTokens),
-      };
+  /// 真正要发出去的输出上限。0 ＝**不发这个参数**（由服务端用模型自己的上限），
+  /// 成因见 [AiProviderProfile.defaultMaxTokens]。
+  ///
+  /// ⛔ Anthropic 是例外：它的 `max_tokens` 必填，不给直接 400，所以那一路要
+  /// 落到一个所有 Claude 模型都接受的兜底值上。
+  int? _maxTokensFor(AiProviderProfile profile) {
+    if (profile.maxTokens > 0) return profile.maxTokens;
+    return profile.kind == AiProviderKind.anthropic
+        ? AiProviderProfile.anthropicFallbackMaxTokens
+        : null;
+  }
 
-  Agent buildAgent(AiProviderProfile profile) => Agent.forProvider(
-    buildProvider(profile),
-    chatModelName: profile.model.trim().isEmpty ? null : profile.model.trim(),
-    temperature: profile.effectiveTemperature,
-    enableThinking: profile.effectiveThinking,
-    chatModelOptions: _optionsFor(profile),
-  );
+  ChatModelOptions _optionsFor(AiProviderProfile profile) {
+    final maxTokens = _maxTokensFor(profile);
+    return switch (profile.kind) {
+      AiProviderKind.anthropic => AnthropicChatOptions(maxTokens: maxTokens),
+      AiProviderKind.google => GoogleChatModelOptions(
+        maxOutputTokens: maxTokens,
+      ),
+      AiProviderKind.ollama => OllamaChatOptions(numPredict: maxTokens),
+      AiProviderKind.mistral => MistralChatModelOptions(maxTokens: maxTokens),
+      // xAI 走的是 OpenAI 那套 options（XAIProvider extends OpenAIProvider）
+      _ => OpenAIChatOptions(maxTokens: maxTokens),
+    };
+  }
+
+  Agent buildAgent(AiProviderProfile profile, {List<Tool>? tools}) =>
+      Agent.forProvider(
+        buildProvider(profile),
+        chatModelName: profile.model.trim().isEmpty
+            ? null
+            : profile.model.trim(),
+        temperature: profile.effectiveTemperature,
+        enableThinking: profile.effectiveThinking,
+        chatModelOptions: _optionsFor(profile),
+        // ⛔ 空表也要给 null：有的端点收到空 `tools` 数组会 400。
+        tools: (tools == null || tools.isEmpty) ? null : tools,
+      );
+
+  /// 把一件 [AiTool] 包成 dartantic 的 `Tool`，顺手把「开始调 / 调完了」播出去。
+  ///
+  /// ⭐ 播报做在**包装层**而不是工具自己身上：工具是调用方写的，让每个工具各自
+  /// 记得上报，迟早有一个忘了（而忘了的症状就是界面上凭空卡住十几秒）。
+  ///
+  /// ⛔ 工具抛异常时也要落地成一条「失败了」，并且**把异常还给模型**而不是吞掉：
+  /// 模型看到"这个标签查不到"才会改口，吞掉它只会让模型以为自己成功了。
+  Tool _wrapTool(
+    AiTool spec,
+    List<AiToolCall> calls,
+    void Function(List<AiToolCall> calls)? report,
+  ) {
+    return Tool<Map<String, dynamic>>(
+      name: spec.tool.name,
+      description: spec.tool.description,
+      inputSchema: spec.tool.inputSchema,
+      onCall: (args) async {
+        final index = calls.length;
+        calls.add(
+          AiToolCall(name: spec.tool.name, call: spec.describeCall(args)),
+        );
+        report?.call(List.unmodifiable(calls));
+        try {
+          final result = await spec.tool.call(args);
+          calls[index] = calls[index].done(spec.describeResult(result));
+          report?.call(List.unmodifiable(calls));
+          return result;
+        } catch (e) {
+          calls[index] = calls[index].done(spec.describeResult(e));
+          report?.call(List.unmodifiable(calls));
+          rethrow;
+        }
+      },
+    );
+  }
 
   // ------------------------------------------------------------------ 查询
 
@@ -316,12 +520,18 @@ class AiService extends GetxService {
   // -------------------------------------------------------------- 一次要完
 
   Future<ApiResult<String>> complete(AiRequest req) async {
+    await ready();
     final profile = _resolve(req);
     if (profile == null) {
       return ApiResult.fail(req.decorate(_noProfileMessage()));
     }
     try {
-      final result = await buildAgent(profile)
+      // 非流式这条路拿不到播报口（[complete] 不收 onProgress），工具照跑，
+      // 只是界面上看不到它在查什么。
+      final tools = [
+        for (final spec in req.tools) _wrapTool(spec, <AiToolCall>[], null),
+      ];
+      final result = await buildAgent(profile, tools: tools)
           .send(req.input, history: _history(req))
           .timeout(req.timeout ?? defaultRequestTimeout);
       _account(req.task, tokens: result.usage);
@@ -359,17 +569,28 @@ class AiService extends GetxService {
   ///
   /// ⛔ 这个 flag 现在的含义是「端点真支持 json_schema」，**不是**「能不能用」。
   /// 早先版本在 flag 为假时直接拒绝，等于让绝大多数中转用户用不了 AI 搜索。
+  /// [onProgress] 是过程播报，给界面拿去画"思考中"那一块。⚠️ 它按
+  /// [_streamPace]（120ms）的节拍来，**只有文本契约那条路有字**：原生结构化
+  /// 输出是一次要完的，拿不到流，那条路只报得出阶段。
   Future<ApiResult<Map<String, dynamic>>> structured(
     AiRequest req, {
     required Schema schema,
+    void Function(AiProgress progress)? onProgress,
   }) async {
+    await ready();
     final profile = _resolve(req);
     if (profile == null) {
       return ApiResult.fail(req.decorate(_noProfileMessage()));
     }
 
+    onProgress?.call(const AiProgress(stage: AiStage.waiting));
+
     if (profile.structuredOutput) {
       try {
+        // ⚠️ 这条路**有意不带 [AiRequest.tools]**：Anthropic / Google 的原生
+        // 结构化输出本身就是靠工具调用编排的，再塞一组自己的工具进去，两套
+        // 编排会抢同一个出口。工具只在下面的文本契约那条路上跑（而那条路才是
+        // 绝大多数中转用户走的）。
         final result = await buildAgent(profile)
             .sendFor<Map<String, dynamic>>(
               req.input,
@@ -378,24 +599,30 @@ class AiService extends GetxService {
             )
             .timeout(req.timeout ?? defaultRequestTimeout);
         _account(req.task, tokens: result.usage);
+        onProgress?.call(const AiProgress(stage: AiStage.parsing));
         return ApiResult.success(message: '', data: result.output);
       } catch (e) {
         // 不直接报错：端点很可能只是不认 json_schema，文本契约那条路还能走通。
-        LogUtils.w('原生结构化输出失败，退回提示词契约：${describeRequestError(e)}', 'AiService');
+        final reason = describeRequestError(e);
+        LogUtils.w('原生结构化输出失败，退回提示词契约：$reason', 'AiService');
+        onProgress?.call(AiProgress(stage: AiStage.retrying, notice: reason));
       }
     }
 
-    return _structuredViaTextContract(req, schema);
+    return _structuredViaTextContract(req, schema, onProgress);
   }
 
   /// 文本契约：把 schema 写进提示词，再从自由文本里把 JSON 抠出来。
   Future<ApiResult<Map<String, dynamic>>> _structuredViaTextContract(
     AiRequest req,
     Schema schema,
+    void Function(AiProgress progress)? onProgress,
   ) async {
     final contract = _jsonContractPrompt(req.system, schema);
-    final result = await complete(
-      AiRequest(
+    final profile = _resolve(req);
+
+    Future<ApiResult<String>> run(List<AiTool> tools) {
+      final contractReq = AiRequest(
         task: req.task,
         input: req.input,
         system: contract,
@@ -403,9 +630,31 @@ class AiService extends GetxService {
         timeout: req.timeout,
         timeoutMessage: req.timeoutMessage,
         decorateError: req.decorateError,
-      ),
-    );
+        tools: tools,
+      );
+      // 要播报过程、档案又开着流式，就逐字跑——用户能看见它在写什么，而不是
+      // 对着一个不动的转圈猜是不是卡死了。其余情况老样子一次要完。
+      return (onProgress != null && (profile?.streaming ?? false))
+          ? _completeStreaming(contractReq, onProgress)
+          : complete(contractReq);
+    }
+
+    var result = await run(req.tools);
+    // ⛔ 端点不认函数调用时，带工具那次是直接失败的（400 / 干脆不回）。这时候
+    // 不带工具再跑一次——工具是锦上添花，不该让整个功能在这类端点上没法用。
+    if (!result.isSuccess && req.tools.isNotEmpty) {
+      LogUtils.w('带工具那次失败，改成不带工具重试：${result.message}', 'AiService');
+      // ⛔ 这是第二层静默重来：又是一整轮（流式 120s + 降级 90s）。不播的话，
+      // 用户对着同一行字已经等了三分多钟，什么都不知道。
+      onProgress?.call(
+        AiProgress(stage: AiStage.retrying, notice: result.message),
+      );
+      result = await run(const []);
+    }
     if (!result.isSuccess) return ApiResult.fail(result.message);
+    onProgress?.call(
+      AiProgress(stage: AiStage.parsing, draft: result.data ?? ''),
+    );
 
     final parsed = extractJsonObject(result.data ?? '');
     if (parsed == null) {
@@ -418,6 +667,75 @@ class AiService extends GetxService {
       );
     }
     return ApiResult.success(message: '', data: parsed);
+  }
+
+  /// 逐字跑一次纯文本调用，边跑边播报，最后把**全文**还回来。
+  ///
+  /// ⭐ 走 [stream] 而不是自己订阅一遍：合流节流、超时闸门、流失败自动降级成
+  /// [complete]（见 [_fallbackToComplete]）全在那一层，另起一份迟早漂。对调用
+  /// 方来说这条路与 [complete] 的**结果完全一样**，只是中途多了字。
+  ///
+  /// ⛔ 流里抛出来的多数是 `String`（[_withStreamError] / 超时那两条加的就是
+  /// 字符串），不是 Exception——照 `describeRequestError` 走会把一句已经措辞
+  /// 好的话再包一层。
+  Future<ApiResult<String>> _completeStreaming(
+    AiRequest req,
+    void Function(AiProgress progress) onProgress,
+  ) async {
+    var draft = '';
+    var reasoning = '';
+    var notice = '';
+    var calls = const <AiToolCall>[];
+
+    void emit(AiStage stage) => onProgress(
+      AiProgress(
+        stage: stage,
+        reasoning: reasoning,
+        draft: draft,
+        notice: notice,
+        toolCalls: calls,
+      ),
+    );
+
+    final source = stream(
+      req,
+      onReasoning: (text) {
+        reasoning = text;
+        emit(AiStage.reasoning);
+      },
+      onNotice: (reason) {
+        notice = reason;
+        // ⛔ 顺手把攒了一半的草稿扔掉：降级那次是**重新生成**，留着上一轮的
+        // 半截 JSON 在界面上，看起来像是还在接着写。
+        draft = '';
+        emit(AiStage.retrying);
+      },
+      onToolCalls: (list) {
+        calls = list;
+        // 最后一条还在跑＝正在查；查完了就是又回去想了，还没开始写答案。
+        emit(
+          list.isNotEmpty && list.last.running
+              ? AiStage.callingTool
+              : AiStage.waiting,
+        );
+      },
+    );
+    if (source == null) {
+      return ApiResult.fail(req.decorate(_noProfileMessage()));
+    }
+
+    try {
+      await for (final text in source) {
+        draft = text;
+        emit(AiStage.drafting);
+      }
+    } catch (e) {
+      return ApiResult.fail(
+        e is String ? e : req.decorate(describeRequestError(e)),
+        exception: e is Exception ? e : null,
+      );
+    }
+    return ApiResult.success(message: '', data: draft);
   }
 
   /// 把 schema 摊成一段"只准回 JSON"的约定，接在调用方的提示词后面。
@@ -446,10 +764,18 @@ class AiService extends GetxService {
   ///
   /// [onReasoning] 是推理过程的累计文本回调，仅 Anthropic / Google / Ollama
   /// 原生推理时会触发。
+  ///
+  /// [onNotice] 是「这一次没走通，我在重来」的播报（[_fallbackToComplete]）。
+  /// ⛔ 不给它的话，降级那段就是**完全静默**的：流早就 500 了，调用方手上的
+  /// 流却既不出字也不结束，最长能这样干等 90 秒。
   Stream<String>? stream(
     AiRequest req, {
     void Function(String reasoning)? onReasoning,
+    void Function(List<AiToolCall> calls)? onToolCalls,
+    void Function(String reason)? onNotice,
   }) {
+    // 触发底层存储初始化，但不改变 stream 同步返回 Stream<String>? 的签名
+    unawaited(ready());
     final profile = _resolve(req);
     if (profile == null) return null;
 
@@ -461,6 +787,12 @@ class AiService extends GetxService {
     _activeStreams[requestId] = controller;
     if (onReasoning != null) {
       _reasoningCallbacks[requestId] = onReasoning;
+    }
+    if (onToolCalls != null) {
+      _toolCallbacks[requestId] = onToolCalls;
+    }
+    if (onNotice != null) {
+      _noticeCallbacks[requestId] = onNotice;
     }
 
     _armTimeout(
@@ -491,10 +823,17 @@ class AiService extends GetxService {
   }
 
   void _cleanup(String requestId, {String? timeoutError}) {
+    // ⛔ 先把攒着的那一段吐出去，再拆东西：此刻 controller 还开着、
+    // reasoning 回调还在表里，晚一步就都没了（尾巴静默丢失）。
+    _pacers.remove(requestId)?.cancel();
+    _streamFlushers.remove(requestId)?.call();
+
     _timeouts.remove(requestId)?.cancel();
     // 中断底层订阅（关闭对话框 / 超时即断流）
     _subscriptions.remove(requestId)?.cancel();
     _reasoningCallbacks.remove(requestId);
+    _toolCallbacks.remove(requestId);
+    _noticeCallbacks.remove(requestId);
 
     final controller = _activeStreams.remove(requestId);
     if (controller != null && !controller.isClosed) {
@@ -510,28 +849,59 @@ class AiService extends GetxService {
     AiProviderProfile profile,
     String requestId,
   ) async {
+    // 确保发出真实流式请求前密钥已完成解密加载
+    await ready();
     final controller = _activeStreams[requestId];
     if (controller == null) return;
 
+    // 若调用方未显式指定 profile，以 ready 解密完成后的最新 profile 为准
+    final effectiveProfile = req.profile ?? profileFor(req.task) ?? profile;
+
     final reasoningCallback = _reasoningCallbacks[requestId];
+    // ⛔ 工具的调用记录挂在这一次请求上：流式失败降级重跑时是新的一轮，
+    // 不该把上一轮查过的东西继续摆在界面上。
+    final toolCalls = <AiToolCall>[];
+    final tools = [
+      for (final spec in req.tools)
+        _wrapTool(spec, toolCalls, _toolCallbacks[requestId]),
+    ];
     final answer = StringBuffer();
     final reasoning = StringBuffer();
     LanguageModelUsage? lastUsage;
 
+    // 合流：chunk 只往缓冲区写并置脏，真正往外吐由节拍器 / [_cleanup] 负责。
+    // 这样 `answer.toString()`（O(n) 的拷贝）也从「每 token 一次」降到
+    // 「每一拍一次」。
+    var answerDirty = false;
+    var reasoningDirty = false;
+    void flush() {
+      if (answerDirty) {
+        answerDirty = false;
+        if (!controller.isClosed) controller.add(answer.toString());
+      }
+      if (reasoningDirty) {
+        reasoningDirty = false;
+        reasoningCallback?.call(reasoning.toString());
+      }
+    }
+
+    _streamFlushers[requestId] = flush;
+    _pacers[requestId] = Timer.periodic(_streamPace, (_) => flush());
+
     try {
-      final sub = buildAgent(profile)
+      final sub = buildAgent(effectiveProfile, tools: tools)
           .sendStream(req.input, history: _history(req))
           .listen(
             (chunk) {
               if (controller.isClosed) return;
               if (chunk.output.isNotEmpty) {
                 answer.write(chunk.output);
-                controller.add(answer.toString());
+                answerDirty = true;
               }
               final thinking = chunk.thinking;
               if (thinking != null && thinking.isNotEmpty) {
                 reasoning.write(thinking);
-                reasoningCallback?.call(reasoning.toString());
+                reasoningDirty = true;
               }
               // 只有最后一个 chunk 带 usage，中途多数是 null——覆盖式赋值会把
               // 已经收到的那份抹掉。
@@ -565,10 +935,22 @@ class AiService extends GetxService {
     String requestId, {
     Object? streamError,
   }) async {
+    // ⛔ 把攒着的半截流**丢掉**（cancel 但不 flush）：降级这条路马上会吐一份
+    // 完整答案，而 [_cleanup] 的收尾 flush 排在它后面——不丢的话，用户看到的
+    // 是完整答案被那半截流覆盖回去。
+    _pacers.remove(requestId)?.cancel();
+    _streamFlushers.remove(requestId);
+
     final controller = _activeStreams[requestId];
     if (controller == null || controller.isClosed) {
       _cleanup(requestId);
       return;
+    }
+    // ⛔ 先把「刚才炸了，我在重来」播出去再去 await：降级这一次最长要 90 秒，
+    // 期间流既不出字也不结束，不播的话界面就是一动不动的转圈（用户会以为卡死
+    // 了，而实际上是端点回了 500）。
+    if (streamError != null) {
+      _noticeCallbacks[requestId]?.call(describeRequestError(streamError));
     }
     try {
       final result = await complete(req);
@@ -620,6 +1002,7 @@ class AiService extends GetxService {
     String probe = 'Hello',
     String system = '',
   }) async {
+    await ready();
     try {
       final result = await buildAgent(profile)
           .send(
@@ -656,6 +1039,7 @@ class AiService extends GetxService {
   /// 拉服务端的可用模型列表。让用户从列表里选，而不是手打模型名——
   /// 打错一个字的报错是 404，没人看得出那是模型名的问题。
   Future<ApiResult<List<String>>> listModels(AiProviderProfile profile) async {
+    await ready();
     try {
       final models = <String>[];
       await for (final m in buildProvider(profile).listModels()) {
@@ -680,6 +1064,13 @@ class AiService extends GetxService {
 
   @override
   void onClose() {
+    // 整只服务要没了，攒着的那点字没人接——直接扔，不做收尾 flush。
+    for (final pacer in _pacers.values) {
+      pacer.cancel();
+    }
+    _pacers.clear();
+    _streamFlushers.clear();
+
     for (final timer in _timeouts.values) {
       timer.cancel();
     }
@@ -690,6 +1081,7 @@ class AiService extends GetxService {
     }
     _subscriptions.clear();
     _reasoningCallbacks.clear();
+    _toolCallbacks.clear();
 
     for (final controller in _activeStreams.values) {
       if (!controller.isClosed) controller.close();

@@ -845,6 +845,13 @@ class NaviService {
     appRouter.push(SettingsSection.translation.path);
   }
 
+  // 跳转到 AI 设置页（供应商档案 / 用途分配 / 用量）。
+  // 搜索页那枚「用一句话搜」在还没配过 AI 时走这条：把人直接送到能配的
+  // 地方，而不是只丢一句「未配置」让他自己去设置树里找。
+  static void navigateToAiSettingsPage() {
+    appRouter.push(SettingsSection.ai.path);
+  }
+
   // 跳转到评论与论坛设置页（小尾巴 / 回复引用 / 表情库都在这一页）。
   // 发评论弹窗标题行那枚齿轮走这条：用户正对着小尾巴开关，想改内容就该
   // 一步到位，而不是关掉弹窗自己去设置树里翻。

@@ -57,8 +57,8 @@ void main() {
                         routes: [
                           if (section == SettingsSection.translation)
                             GoRoute(
-                              path: 'ai',
-                              builder: (_, _) => const Text('SUB:ai'),
+                              path: 'google',
+                              builder: (_, _) => const Text('SUB:google'),
                             ),
                           if (section == SettingsSection.display)
                             GoRoute(
@@ -148,9 +148,9 @@ void main() {
       await tester.pumpAndSettle();
       router.push(SettingsSection.translation.path);
       await tester.pumpAndSettle();
-      router.push(SettingsSubRoutes.translationAi);
+      router.push(SettingsSubRoutes.translationGoogle);
       await tester.pumpAndSettle();
-      expect(find.text('SUB:ai'), findsOneWidget);
+      expect(find.text('SUB:google'), findsOneWidget);
 
       router.pop();
       await tester.pumpAndSettle();
@@ -233,14 +233,14 @@ void main() {
       await tester.pumpAndSettle();
       router.replace(SettingsSection.translation.path);
       await tester.pumpAndSettle();
-      router.push(SettingsSubRoutes.translationAi);
+      router.push(SettingsSubRoutes.translationGoogle);
       await tester.pumpAndSettle();
 
       homeShellKey.currentState!.maybePop();
       await tester.pumpAndSettle();
       expect(
         router.state.uri.path,
-        SettingsSubRoutes.translationAi,
+        SettingsSubRoutes.translationGoogle,
         reason: 'go_router 若哪天修了这个限制，这条会红——那时才可以简化左栏返回逻辑',
       );
 
@@ -274,7 +274,9 @@ void main() {
   group('appRouter 里的设置路由', () {
     test('每个可用分区都注册了路由，且 location 与 SettingsSection.path 一致', () {
       expect(appRouter.namedLocation('settings'), kSettingsRootPath);
-      for (final section in SettingsSection.values.where((s) => s.isAvailable)) {
+      for (final section in SettingsSection.values.where(
+        (s) => s.isAvailable,
+      )) {
         expect(
           appRouter.namedLocation(section.routeName),
           section.path,
@@ -287,10 +289,6 @@ void main() {
       expect(
         appRouter.namedLocation('settings_translation_google'),
         SettingsSubRoutes.translationGoogle,
-      );
-      expect(
-        appRouter.namedLocation('settings_translation_ai'),
-        SettingsSubRoutes.translationAi,
       );
       expect(
         appRouter.namedLocation('settings_translation_deeplx'),
@@ -315,7 +313,10 @@ void main() {
     });
 
     test('布局 / 导航排序不再有顶层路由（已收编进设置树）', () {
-      expect(() => appRouter.namedLocation('layout_settings'), throwsA(anything));
+      expect(
+        () => appRouter.namedLocation('layout_settings'),
+        throwsA(anything),
+      );
       expect(
         () => appRouter.namedLocation('navigation_order_settings'),
         throwsA(anything),
@@ -342,7 +343,7 @@ void main() {
         SettingsSection.translation,
       );
       expect(
-        SettingsSection.fromLocation(SettingsSubRoutes.translationAi),
+        SettingsSection.fromLocation(SettingsSubRoutes.translationGoogle),
         SettingsSection.translation,
       );
       expect(
@@ -357,9 +358,7 @@ void main() {
     });
 
     test('分组覆盖全部分区且不重不漏', () {
-      final grouped = settingsSectionGroups
-          .expand((g) => g.sections)
-          .toList();
+      final grouped = settingsSectionGroups.expand((g) => g.sections).toList();
       expect(grouped.toSet(), SettingsSection.values.toSet());
       expect(grouped.length, SettingsSection.values.length);
     });

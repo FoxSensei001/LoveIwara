@@ -193,44 +193,11 @@ class _SearchFilterDrawerState extends State<SearchFilterDrawer> {
   }
 
   /// 区间类型必须两头都填，且 from < to。返回 null 表示这一项没问题。
-  String? _validateRangeValue(Filter filter) {
-    if (filter.operator != FilterOperator.RANGE) return null;
-    if (filter.value is! Map) return slang.t.searchFilter.rangeValueFormatError;
-
-    final rangeValue = filter.value as Map;
-    final from = rangeValue['from']?.toString().trim();
-    final to = rangeValue['to']?.toString().trim();
-
-    if (from == null || from.isEmpty) {
-      return slang.t.searchFilter.pleaseFillStartValue;
-    }
-    if (to == null || to.isEmpty) {
-      return slang.t.searchFilter.pleaseFillEndValue;
-    }
-
-    final field = FilterConfig.getContentType(
-      widget.segment,
-    )?.fields.firstWhere((f) => f.name == filter.field);
-
-    if (field?.type == FilterFieldType.NUMBER) {
-      try {
-        if (double.parse(from) >= double.parse(to)) {
-          return slang.t.searchFilter.startValueMustBeLessThanEndValue;
-        }
-      } catch (_) {
-        return slang.t.searchFilter.pleaseEnterValidNumber;
-      }
-    } else if (field?.type == FilterFieldType.DATE) {
-      try {
-        if (DateTime.parse(from).isAfter(DateTime.parse(to))) {
-          return slang.t.searchFilter.startDateMustBeBeforeEndDate;
-        }
-      } catch (_) {
-        return slang.t.searchFilter.pleaseEnterValidDate;
-      }
-    }
-    return null;
-  }
+  ///
+  /// 规则本体在 [FilterConfig.validateFilter]：AI 搜索弹窗里摆的是同一张
+  /// [FilterRowWidget]，两边各写一份迟早漂。
+  String? _validateRangeValue(Filter filter) =>
+      FilterConfig.validateFilter(filter, widget.segment);
 
   String _generateQuery() {
     final contentType = FilterConfig.getContentType(widget.segment);

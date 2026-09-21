@@ -558,7 +558,6 @@ const _rawMaterialButtonBaseline = <String, int>{
   'lib/app/ui/pages/settings/google_translation_settings_page.dart': 2,
   'lib/app/ui/pages/settings/history_update_logs_page.dart': 1,
   'lib/app/ui/pages/settings/keybinding_settings_page.dart': 2,
-  'lib/app/ui/pages/settings/widgets/ai_translation_setting_widget.dart': 3,
   'lib/app/ui/pages/settings/widgets/base_proxy_widget.dart': 2,
   'lib/app/ui/pages/settings/widgets/deeplx_translation_setting_widget.dart': 2,
   // 2026-09-01 补录：这一处早于本次改动就在，只是当时漏进了基线（播放器设置改

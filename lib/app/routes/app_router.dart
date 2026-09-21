@@ -53,7 +53,6 @@ import 'package:i_iwara/app/ui/pages/settings/settings_section.dart';
 import 'package:i_iwara/app/ui/pages/settings/google_translation_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/history_update_logs_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/log_viewer_page.dart';
-import 'package:i_iwara/app/ui/pages/settings/widgets/ai_translation_setting_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/deeplx_translation_setting_widget.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
 import 'package:i_iwara/app/ui/pages/local_media/downloaded_gallery_browse_page.dart';
@@ -1145,11 +1144,6 @@ List<RouteBase> _settingsSubRoutesOf(SettingsSection section) =>
           'google',
           'settings_translation_google',
           (isWide) => GoogleTranslationSettingsPage(isWideScreen: isWide),
-        ),
-        _settingsSubRoute(
-          'ai',
-          'settings_translation_ai',
-          (isWide) => AITranslationSettingsPage(isWideScreen: isWide),
         ),
         _settingsSubRoute(
           'deeplx',

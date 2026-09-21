@@ -86,10 +86,10 @@ class MarkdownTranslationController {
       LogUtils.i('使用流式翻译', 'MarkdownTranslationController');
       _translationStreamSubscription = stream.listen(
         (newText) {
-          LogUtils.d(
-            '收到流式翻译数据，长度: ${newText.length}',
-            'MarkdownTranslationController',
-          );
+          // ⛔ 这里**不要打日志**。流每吐一次就打一条，而 LogUtils.d 一次要走
+          // logger（带调用栈）+ developer.log + LogService 三个去处；一段译文
+          // 下来是几十上百条，日志本身就成了卡顿源（2026-09-21 用户报障）。
+          // 出字节奏已由 AiService 的合流节拍器收口，这里只管落值。
           // 在翻译过程中只更新原始文本，不进行格式化
           rawTranslatedText.value = newText;
           if (!isTranslationComplete.value) {

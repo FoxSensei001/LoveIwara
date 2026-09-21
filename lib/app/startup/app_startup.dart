@@ -418,6 +418,7 @@ class AppStartupCoordinator implements AppStartupRunner {
     // AI 调用层。必须早于 TranslationService：翻译的 AI 那一半靠它，
     // 后续的搜索 / 小尾巴同样从这里取能力（AI 不再是翻译的实现细节）。
     _registerDeferredSingleton<AiService>(AiService());
+    unawaited(Get.find<AiService>().ready());
     _registerDeferredSingleton<TranslationService>(TranslationService());
     _registerDeferredSingleton<FavoriteService>(FavoriteService());
     _registerDeferredSingleton<WatchLaterService>(WatchLaterService());

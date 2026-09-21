@@ -56,6 +56,21 @@ class ConfigBackupService extends GetxService {
   static final Set<String> _sensitiveConfigKeys = {
     ConfigKey.AI_TRANSLATION_API_KEY.key,
     ConfigKey.AI_TRANSLATION_BASE_URL.key,
+    ConfigKey.AI_PROVIDER_KEYS.key,
+    // ⛔ 档案表整格剔除，不只是密钥表。它里头有 `baseUrl`（自建/中转网关地址，
+    // 常常把 token 编在路径里）和 `headers`（用户自填的请求头，Authorization
+    // 就在这一类里）——正是上面那条 `AI_TRANSLATION_BASE_URL` 当初被拉黑的
+    // 同一样东西，换了个装法就漏出去了（2026-09-21 审查查出）。
+    //
+    // ⚠️ 整格剔除意味着恢复备份后档案的**名称 / 模型 / 参数也一并没了**。
+    // 这是认了的代价：密钥本来就不在备份里，恢复出来的档案照样不能用，让用户
+    // 重填一次 baseUrl 与模型名，好过把他的私有网关地址装进一个会被分享的文件。
+    // 真要连这些一起留，走「包含敏感信息」那条导出路径。
+    //
+    // ⛔ 这里要的是**整块不出门**（fail-closed）。别改成「只把 baseUrl /
+    // headers 抠掉、其余照抄」：那样下一个加进 AiProviderProfile 的敏感字段
+    // 又会默认漏出去，和这次踩的是同一个坑。
+    ConfigKey.AI_PROVIDER_PROFILES.key,
     ConfigKey.DEEPLX_API_KEY.key,
     ConfigKey.DEEPLX_DL_SESSION.key,
     ConfigKey.DEEPLX_BASE_URL.key,

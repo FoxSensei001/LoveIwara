@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:i_iwara/app/models/ai_task.model.dart';
+import 'package:i_iwara/app/services/ai_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_navigation.dart';
@@ -126,6 +128,10 @@ class TranslationSettingsPage extends StatelessWidget {
     final isAISelected = useAI;
     final isDeepLXSelected = useDeepLX;
 
+    final aiService = Get.find<AiService>();
+    final translateProfile = aiService.profileFor(AiTask.translate);
+    final aiProfileName = translateProfile?.name ?? slang.t.ai.notConfigured;
+
     return Card(
       elevation: 2,
       clipBehavior: Clip.antiAlias,
@@ -155,11 +161,18 @@ class TranslationSettingsPage extends StatelessWidget {
             subtitle: slang.t.translation.googleTranslationDescription,
             isSelected: isGoogleSelected,
             onTap: () {
-              SettingsNavigation.openSubPage(SettingsSubRoutes.translationGoogle);
+              SettingsNavigation.openSubPage(
+                SettingsSubRoutes.translationGoogle,
+              );
             },
           ),
           const Divider(height: 1, indent: 56),
           // AI 翻译
+          // ⛔ 这一行必须和上下的 Google / DeepLX 走**同一只** _buildServiceTile：
+          // 三行并排，样式一裂开就是一眼可见的不一致。AI 的配置页从翻译的三级
+          // 子页升成了一级分区，但「点这一行去配置它」这个语义没变，所以外形
+          // 不该变——副标题从一句固定说明换成当前绑定的档案名而已。
+          // 「启不启用 AI 翻译」那个开关跟着配置一起搬到了 AI 分区的功能分配卡。
           _buildServiceTile(
             context: context,
             icon: ShaderMask(
@@ -173,10 +186,10 @@ class TranslationSettingsPage extends StatelessWidget {
               ),
             ),
             title: slang.t.translation.aiTranslation,
-            subtitle: slang.t.translation.aiTranslationDescription,
+            subtitle: aiProfileName,
             isSelected: isAISelected,
             onTap: () {
-              SettingsNavigation.openSubPage(SettingsSubRoutes.translationAi);
+              SettingsNavigation.openSection(context, SettingsSection.ai);
             },
           ),
           const Divider(height: 1, indent: 56),
@@ -193,7 +206,9 @@ class TranslationSettingsPage extends StatelessWidget {
             isSelected: isDeepLXSelected,
             isLast: true,
             onTap: () {
-              SettingsNavigation.openSubPage(SettingsSubRoutes.translationDeeplx);
+              SettingsNavigation.openSubPage(
+                SettingsSubRoutes.translationDeeplx,
+              );
             },
           ),
         ],

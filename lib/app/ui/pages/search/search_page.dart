@@ -15,6 +15,7 @@ import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/search_filter_drawer.dart';
+import 'package:i_iwara/app/ui/pages/search/widgets/ai_search_sheet.dart';
 import 'package:i_iwara/app/models/saved_search.model.dart';
 import 'package:i_iwara/app/services/saved_search_service.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/saved_search_drawer.dart';
@@ -286,15 +287,6 @@ class _SearchPageState extends State<SearchPage> {
     String value,
     slang.Translations t,
   ) {
-    if (seg == SearchSegment.oreno3d) {
-      return switch (value) {
-        'hot' => t.oreno3d.sortTypes.hot,
-        'favorites' => t.oreno3d.sortTypes.favorites,
-        'latest' => t.oreno3d.sortTypes.latest,
-        'popularity' => t.oreno3d.sortTypes.popularity,
-        _ => t.common.sort,
-      };
-    }
     final sortOptions = FilterConfig.getSortOptionsForSegment(seg);
     for (final opt in sortOptions) {
       if (opt.value == value) return opt.label;
@@ -307,34 +299,7 @@ class _SearchPageState extends State<SearchPage> {
     String currentSort,
     slang.Translations t,
   ) {
-    if (seg == SearchSegment.oreno3d) {
-      return [
-        GlassMenuOption<String>(
-          value: 'hot',
-          icon: Icons.trending_up,
-          label: t.oreno3d.sortTypes.hot,
-          selected: currentSort == 'hot',
-        ),
-        GlassMenuOption<String>(
-          value: 'favorites',
-          icon: Icons.favorite,
-          label: t.oreno3d.sortTypes.favorites,
-          selected: currentSort == 'favorites',
-        ),
-        GlassMenuOption<String>(
-          value: 'latest',
-          icon: Icons.schedule,
-          label: t.oreno3d.sortTypes.latest,
-          selected: currentSort == 'latest',
-        ),
-        GlassMenuOption<String>(
-          value: 'popularity',
-          icon: Icons.star,
-          label: t.oreno3d.sortTypes.popularity,
-          selected: currentSort == 'popularity',
-        ),
-      ];
-    }
+    // Oreno3D 那四条也在 FilterConfig 里，见 getSortOptionsForSegment。
     final options = FilterConfig.getSortOptionsForSegment(seg);
     return options
         .map(
@@ -346,6 +311,56 @@ class _SearchPageState extends State<SearchPage> {
           ),
         )
         .toList();
+  }
+
+  /// 「用一句话搜」：AI 把大白话变成搜索词 + 筛选条件。
+  ///
+  /// 弹窗里会把解析出来的搜索词与每一条筛选**摊开给用户看过**，他按的那枚键
+  /// 就叫「用这些条件搜索」，所以这里直接提交。⛔ 反过来（只填表不提交）会让
+  /// 那句文案说谎，用户按完看着页面没动，只会再按一次。
+  ///
+  /// ⛔ 没配过 AI 时这枚入口**照样在场**，点下去说一句「还没配」。按「配没
+  /// 配过」把唯一入口藏起来，新用户就永远发现不了这个功能——小尾巴上已经栽
+  /// 过一次（2026-09-20 用户报障：「菜单里根本没这个选项」）。
+  Future<void> _openAiSearch() async {
+    if (!isAiSearchAvailable) {
+      showAppToast(
+        '${slang.t.ai.searchTitle}: ${slang.t.ai.notConfigured}',
+        type: AppToastType.warning,
+      );
+      // 直接把人送到能配的地方。只说一句「未配置」等于让他自己去设置树里找。
+      NaviService.navigateToAiSettingsPage();
+      return;
+    }
+
+    final result = await showAiSearchSheet(
+      context,
+      segment: _selectedSegment.value,
+      currentSort: _selectedSort.value,
+    );
+    if (result == null || !mounted) return;
+
+    _controller.text = result.query;
+    _controller.selection = TextSelection.collapsed(
+      offset: result.query.length,
+    );
+    // 板块与排序也是 AI 填的表的一部分（弹窗里已摊开给用户看过）。
+    // ⛔ 换板块必须先于 filters 落下来：筛选条件是按新板块的字段表验过的，
+    // 留在旧板块上那几条是画不出来的。
+    _selectedSegment.value = result.segment;
+    if (result.sort != null) {
+      _selectedSort.value = result.sort!;
+    } else if (result.segmentChanged) {
+      // 换了板块又没指定排序：旧板块的排序值在新板块上可能根本不合法
+      // （oreno3d 的 hot vs 视频的 date），退回新板块的默认值。
+      _selectedSort.value = FilterConfig.getDefaultSortForSegment(
+        result.segment,
+      );
+    }
+    _filters.assignAll(result.filters);
+    _searchErrorText.value = '';
+    setState(() {});
+    _handleSubmit(result.query);
   }
 
   /// 打开右侧「筛选」抽屉。改动即时生效（这里只是把条件记进 [_filters]，真正
@@ -448,12 +463,17 @@ class _SearchPageState extends State<SearchPage> {
                 ),
               ),
               const SizedBox(width: 8),
-              // 右上角：液态玻璃风格「已保存搜索」抽屉入口
+              // 「用一句话搜」。恒在场，没配过 AI 时点下去会说一句。
+              //
+              // ⭐ 窄屏下它是**唯一一处**带强调色的 chrome：这一枚圆钮是这个
+              // 功能在入口页的全部存在感（收口前它在胶囊行里还有一份带文字的
+              // 副本，两份加起来才挤出了那条横滚行）。着色是为了不让它淹进
+              // 一排同色圆钮里——⛔ 不要按「配没配过 AI」把它藏掉。
               GlassIconButton(
                 standalone: true,
-                icon: const Icon(Icons.bookmarks_outlined),
-                tooltip: t.savedSearch.title,
-                onPressed: _openSavedSearchDrawer,
+                icon: Icon(Icons.auto_awesome, color: colorScheme.primary),
+                tooltip: t.ai.searchTitle,
+                onPressed: _openAiSearch,
               ),
             ],
           ),
@@ -467,16 +487,13 @@ class _SearchPageState extends State<SearchPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // 1. 分段滑动切换器
-              _buildMobileSegmentControl(),
+              // 1. 选项行：分段下拉 + 排序/筛选/更多（一行收口，不横滚）
+              _buildMobileOptionsRow(),
 
-              // 2. 移动端快捷工具栏（排序、筛选、Oreno3D探索、Google搜索等）
-              _buildMobileQuickActionsBar(),
-
-              // 3. Oreno3D 专属收藏区
+              // 2. Oreno3D 专属收藏区
               _buildOreno3dSection(isWide: false),
 
-              // 4. 搜索历史记录区
+              // 3. 搜索历史记录区
               _buildHistorySection(isWide: false),
             ],
           ),
@@ -485,237 +502,158 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  /// 📱 移动端 Segment 滑动栏
-  Widget _buildMobileSegmentControl() {
+  /// 📱 窄屏选项行：分段下拉 ·「怎么排、怎么筛、还能干什么」图标胶囊组。
+  ///
+  /// # 为什么是一行、而且不横滚
+  ///
+  /// 收口前这里是**上下两条横向滚动行**：分段栏平铺 8 段（视频/图库/Oreno3D/
+  /// 用户/播放列表/论坛/帖子/投稿），下面再跟一条 5 个文字胶囊（排序/筛选/
+  /// 用一句话搜/已保存搜索/Google 搜索）。窄屏上两条都只露得出前两三项，其余
+  /// 全被裁在右边；更糟的是 header 里还各有一份「用一句话搜」「已保存搜索」
+  /// ——同一个入口摆了两遍，屏幕却是小屏上最缺的东西
+  /// （2026-09-21 用户报障：「选项太多，对小屏用户来说很难看」）。
+  ///
+  /// 现在：分段走下拉钮（8 条进玻璃菜单），排序/筛选/更多收成一坨图标胶囊，
+  /// 搜索框底下只剩这一行，横向一格都不用拨。读法与**搜索结果页**完全一致
+  /// ——那边窄屏时也是「我在看什么」+「怎么筛、还能干什么」两组图标胶囊
+  /// （见 search_result.dart 的 `_browseButtons` / `_actionButtons`）。
+  Widget _buildMobileOptionsRow() {
     final t = slang.Translations.of(context);
-
-    return Obx(() {
-      final selectedIndex = kSearchSegmentsByPriority.indexOf(
-        _selectedSegment.value,
-      );
-      final validIndex = selectedIndex >= 0 ? selectedIndex : 0;
-
-      final items = kSearchSegmentsByPriority.map((s) {
-        return GlassSegmentItem(
-          label: searchSegmentLabel(s, t),
-          icon: Icon(searchSegmentIcon(s), size: 16),
-        );
-      }).toList();
-
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        // 空间够就平铺分段胶囊，露不出 2.5 个完整段就退化成下拉钮
-        // （全站同一条约定，见 GlassAdaptiveSegmentedControl）。
-        child: GlassAdaptiveSegmentedControl(
-          items: items,
-          selectedIndex: validIndex,
-          onChanged: (index) {
-            final nextSeg = kSearchSegmentsByPriority[index];
-            _selectedSegment.value = nextSeg;
-            _selectedSort.value = FilterConfig.getDefaultSortForSegment(
-              nextSeg,
-            );
-          },
-        ),
-      );
-    });
-  }
-
-  /// 📱 移动端快捷工具栏（横向滚动胶囊）
-  Widget _buildMobileQuickActionsBar() {
-    final t = slang.Translations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 2, 12, 4),
+      padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
       child: Obx(() {
         final seg = _selectedSegment.value;
         final sort = _selectedSort.value;
         final filterCount = _filters.length;
-        final sortLabel = _getSortLabelFor(seg, sort, t);
         final sortOptions = FilterConfig.getSortOptionsForSegment(seg);
-        final showSort = seg == SearchSegment.oreno3d || sortOptions.isNotEmpty;
+        final showSort = sortOptions.isNotEmpty;
 
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          clipBehavior: Clip.none,
-          child: Row(
-            children: [
-              // 排序下拉
-              if (showSort)
+        final selectedIndex = kSearchSegmentsByPriority.indexOf(seg);
+        final validIndex = selectedIndex >= 0 ? selectedIndex : 0;
+        final items = kSearchSegmentsByPriority
+            .map(
+              (s) => GlassSegmentItem(
+                label: searchSegmentLabel(s, t),
+                icon: Icon(searchSegmentIcon(s), size: 16),
+              ),
+            )
+            .toList();
+
+        return Row(
+          children: [
+            // 分段：窄屏恒走下拉钮那一支（`dropdownOnly`）。8 段在 360dp 上
+            // 平铺只能露出两个半，那正是 GlassAdaptiveSegmentedControl 约定
+            // 里「该让位给下拉钮」的情形——这里直接把话说死，不再靠量宽赌。
+            Expanded(
+              child: GlassAdaptiveSegmentedControl(
+                items: items,
+                selectedIndex: validIndex,
+                dropdownOnly: true,
+                onChanged: (index) {
+                  final nextSeg = kSearchSegmentsByPriority[index];
+                  _selectedSegment.value = nextSeg;
+                  _selectedSort.value = FilterConfig.getDefaultSortForSegment(
+                    nextSeg,
+                  );
+                },
+              ),
+            ),
+            const SizedBox(width: 8),
+            GlassButtonGroup(
+              // 组里按钮会随板块增减（oreno3d 没有筛选），宽度形变要认得出
+              // 这是「同一坨玻璃换了内容」而不是换了一只。
+              touchFlexSignature: 'search-options|$showSort|${seg.name}',
+              children: [
+                if (showSort)
+                  Builder(
+                    builder: (anchorContext) => GlassIconButton(
+                      icon: Icon(_getSortIconFor(seg, sort)),
+                      tooltip:
+                          '${t.common.sort}: ${_getSortLabelFor(seg, sort, t)}',
+                      // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以
+                      // 直接划到某一条上松手选中（见 GlassTapArea.opensOverlay）。
+                      opensOverlay: true,
+                      onPressed: () async {
+                        final picked = await showGlassMenu<String>(
+                          anchorContext: anchorContext,
+                          entries: _buildSortMenuEntries(seg, sort, t),
+                        );
+                        if (picked != null) _selectedSort.value = picked;
+                      },
+                    ),
+                  ),
+                // oreno3d 是外站浏览，没有 iwara 那套筛选字段。
+                if (seg != SearchSegment.oreno3d)
+                  GlassIconButton(
+                    icon: const Icon(Icons.filter_list),
+                    tooltip: t.searchFilter.filterSettings,
+                    showBadge: filterCount > 0,
+                    badgeLabel: filterCount > 0 ? Text('$filterCount') : null,
+                    onPressed: () => _showFilterDialog(context, seg),
+                  ),
                 Builder(
-                  builder: (anchorContext) => GlassSurface(
-                    // 这块玻璃就是菜单的触发件：长按也能打开，且长按不抬手可以
-                    // 直接划到某一条上松手选中（见 GlassTapArea.opensOverlay）。
+                  builder: (anchorContext) => GlassIconButton(
+                    icon: const Icon(Icons.more_vert),
+                    tooltip: t.common.more,
                     opensOverlay: true,
-                    onTap: () async {
-                      final picked = await showGlassMenu<String>(
-                        anchorContext: anchorContext,
-                        entries: _buildSortMenuEntries(seg, sort, t),
-                      );
-                      if (picked != null) _selectedSort.value = picked;
-                    },
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          _getSortIconFor(seg, sort),
-                          size: 16,
-                          color: colorScheme.onSurface,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          sortLabel,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: colorScheme.onSurface,
-                          ),
-                        ),
-                        const SizedBox(width: 2),
-                        Icon(
-                          Icons.arrow_drop_down,
-                          size: 18,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ],
-                    ),
+                    onPressed: () => _openMoreMenu(anchorContext, seg),
                   ),
                 ),
-
-              if (showSort) const SizedBox(width: 8),
-
-              // 多维筛选
-              if (seg != SearchSegment.oreno3d)
-                Badge(
-                  isLabelVisible: filterCount > 0,
-                  label: Text('$filterCount'),
-                  backgroundColor: colorScheme.primary,
-                  child: GlassSurface(
-                    onTap: () => _showFilterDialog(context, seg),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.filter_list,
-                          size: 16,
-                          color: colorScheme.onSurface,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          t.searchFilter.filterSettings,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: colorScheme.onSurface,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-              // Oreno3D 探索实体入口
-              if (seg == SearchSegment.oreno3d)
-                GlassSurface(
-                  onTap: _openOreno3dPicker,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.travel_explore,
-                        size: 16,
-                        color: colorScheme.primary,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        t.favoriteTags.browseEntry,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.onSurface,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-              const SizedBox(width: 8),
-
-              // 已保存搜索
-              GlassSurface(
-                onTap: _openSavedSearchDrawer,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.bookmarks_outlined,
-                      size: 16,
-                      color: colorScheme.onSurface,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      t.savedSearch.title,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: colorScheme.onSurface,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(width: 8),
-
-              // Google 搜索入口
-              GlassSurface(
-                onTap: () => GoogleSearchBottomSheet.show(),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.travel_explore,
-                      size: 16,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      t.search.googleSearch,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         );
       }),
     );
+  }
+
+  /// 窄屏「更多」菜单：已保存搜索 / Google 搜索 /（Oreno3D 时）浏览标签。
+  ///
+  /// 这三条的共同点是**它们不改这次搜索的条件**，而是另开一条路——所以收进
+  /// 菜单，把行上的位置留给真正在调这次搜索的排序与筛选。
+  Future<void> _openMoreMenu(
+    BuildContext anchorContext,
+    SearchSegment seg,
+  ) async {
+    final t = slang.Translations.of(context);
+    const String actionSaved = 'saved';
+    const String actionGoogle = 'google';
+    const String actionOreno3dBrowse = 'oreno3d_browse';
+
+    final picked = await showGlassMenu<String>(
+      anchorContext: anchorContext,
+      entries: [
+        GlassMenuOption<String>(
+          value: actionSaved,
+          icon: Icons.bookmarks_outlined,
+          label: t.savedSearch.title,
+        ),
+        if (seg == SearchSegment.oreno3d)
+          GlassMenuOption<String>(
+            value: actionOreno3dBrowse,
+            icon: Icons.travel_explore,
+            label: t.favoriteTags.browseEntry,
+          ),
+        GlassMenuOption<String>(
+          value: actionGoogle,
+          icon: Icons.public,
+          label: t.search.googleSearch,
+        ),
+      ],
+    );
+    if (picked == null || !mounted) return;
+    switch (picked) {
+      case actionSaved:
+        _openSavedSearchDrawer();
+        break;
+      case actionOreno3dBrowse:
+        _openOreno3dPicker();
+        break;
+      case actionGoogle:
+        GoogleSearchBottomSheet.show();
+        break;
+    }
   }
 
   /// 💻 PC / 桌面端布局：居中 Hero 搜索控制台 + 展开式分段 + 双列网格历史记录
@@ -744,6 +682,13 @@ class _SearchPageState extends State<SearchPage> {
               const SizedBox(width: 12),
               GlassTitlePill(title: t.common.search),
               const Spacer(),
+              GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.auto_awesome),
+                tooltip: t.ai.searchTitle,
+                onPressed: _openAiSearch,
+              ),
+              const SizedBox(width: 8),
               GlassIconButton(
                 standalone: true,
                 icon: const Icon(Icons.bookmarks_outlined),

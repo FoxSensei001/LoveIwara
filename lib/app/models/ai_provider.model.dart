@@ -123,10 +123,44 @@ class AiProviderProfile {
     this.sendTemperature = true,
     this.streaming = true,
     this.structuredOutput = true,
-    this.temperature = 0.3,
-    this.maxTokens = 4096,
+    this.temperature = defaultTemperature,
+    this.maxTokens = defaultMaxTokens,
     this.headers = const {},
   });
+
+  /// ⭐ [maxTokens] 为 0 ＝**这个参数根本不发出去**，由服务端用该模型自己的
+  /// 输出上限。新建档案的出厂值就是它。
+  ///
+  /// ⛔ 之前写死 4096，那是上一代模型的上限：翻译一篇长帖会在半途**被硬截断**
+  /// 且不报错，用户看到的是译文断在一句话中间，根本猜不到是这个数的问题。
+  ///
+  /// ⛔ 但也**不能换成另一个大常数**——「主流默认值」这种东西不存在：
+  /// OpenAI / Google 不给就用模型自己的上限，Anthropic 的 `max_tokens` 却是
+  /// **必填**；而各家上限差一个数量级，且每代都在涨。填大了有的服务端直接拒
+  /// 请求，填小了静默截断。唯一不会过期、也不用猜的答案是**不填**。
+  static const int defaultMaxTokens = 0;
+
+  /// Anthropic 那条路的兜底：它的 `max_tokens` 必填，不给就是 400，
+  /// [defaultMaxTokens] 的「不填」对它不成立。
+  ///
+  /// 取 64K 是因为它是**当前所有 Claude 模型都接受**的值——2026-09-21 查
+  /// platform.claude.com 的 models/overview：Fable 5.1 / Opus 5 / Sonnet 5
+  /// 的 max output 都是 128K，最小的 Haiku 4.5 是 64K，取最小的那个才不会有
+  /// 模型整个用不了。
+  ///
+  /// ⚠️ 这个数会过期。真正权威的来源是 Anthropic 的 Models API（`/v1/models`
+  /// 的每条都带 `max_tokens`），dartantic 的 `listModels` 现在没透出来；哪天
+  /// 要较真，从那儿读比在这里写死强。
+  static const int anthropicFallbackMaxTokens = 65536;
+
+  /// 采样温度。⭐ 刻意**不**跟各家 API 的裸默认（1.0）走：这一层的主用途是
+  /// 翻译，温度高了模型会开始「润色」原文——加词、改语气、把梗解释一遍。
+  /// 搜索那一路要的是照着 schema 填表，同样不需要发散。
+  ///
+  /// ⛔ 改这个数不会动已存在的档案（存下来的 JSON 里是显式写死的），也**不要**
+  /// 顺手去改 `LegacyConfigProfileStore.readLegacy` 里那两个 `??` ——那是在读
+  /// 老用户的真实配置，换掉兜底值等于偷偷改了他原本的设置。
+  static const double defaultTemperature = 0.3;
 
   /// 稳定标识。用途绑定表与密钥存储都按它索引，**改名不该换 id**。
   final String id;
@@ -271,8 +305,9 @@ class AiProviderProfile {
         sendTemperature: (json['sendTemperature'] as bool?) ?? true,
         streaming: (json['streaming'] as bool?) ?? true,
         structuredOutput: (json['structuredOutput'] as bool?) ?? true,
-        temperature: (json['temperature'] as num?)?.toDouble() ?? 0.3,
-        maxTokens: (json['maxTokens'] as num?)?.toInt() ?? 4096,
+        temperature:
+            (json['temperature'] as num?)?.toDouble() ?? defaultTemperature,
+        maxTokens: (json['maxTokens'] as num?)?.toInt() ?? defaultMaxTokens,
         headers: _headersFromJson(json['headers']),
       );
 

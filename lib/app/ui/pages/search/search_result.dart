@@ -7,10 +7,12 @@ import 'package:i_iwara/app/ui/widgets/glow_notification_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/app/ui/pages/search/widgets/ai_search_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/search_filter_drawer.dart';
+import 'package:i_iwara/app/ui/pages/search/iwara_search_syntax.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/batch_download_selection.dart';
@@ -47,6 +49,18 @@ class SearchResultController extends GetxController {
   ); // 添加扩展数据管理
   final RxString currentSingleTagNameBehindSearchInput =
       ''.obs; // 用于显示 oreno3d 标签名
+
+  /// 关键词要不要按**短语精确匹配**发出去（给 CJK 词自动补引号）。
+  ///
+  /// ⭐ 默认开。不加引号的 CJK 在 iwara 上不走 AND，而是被拆碎了做 OR：
+  /// `初音ミク` 召回 10746 条，按时间排前 20 条只有 3 条真相关；`"初音ミク"`
+  /// 是 2143 条，前 20 条条条属实。详见 [autoQuoteKeyword]。
+  ///
+  /// ⛔ 做成开关而不是闷头改：它确实会让结果变少，用户得看得见是什么让结果变少，
+  /// 也得有一条退回去的路。所以搜索框下面那枚胶囊既是说明也是开关。
+  ///
+  /// 只活在本次搜索会话里，不落盘——它是对**这个词**的临时取舍，不是一项偏好。
+  final RxBool exactMatch = true.obs;
 
   // 筛选项状态管理
   final RxList<Filter> filters = <Filter>[].obs;
@@ -375,6 +389,13 @@ class _SearchResultState extends State<SearchResult> {
       final extData = searchController.extData.value;
       final filters = searchController.filters;
 
+      // ⭐ 关键词先补引号，**再**拼筛选：筛选串里全是花括号，混进来会被一起
+      // 当成待加引号的词。oreno3d 是另一个站的搜索，不吃这套语法。
+      if (segment != SearchSegment.oreno3d &&
+          searchController.exactMatch.value) {
+        query = autoQuoteKeyword(query);
+      }
+
       // 应用筛选项到查询
       if (filters.isNotEmpty) {
         final contentType = FilterConfig.getContentType(segment);
@@ -472,6 +493,64 @@ class _SearchResultState extends State<SearchResult> {
     );
   }
 
+  /// 「精确匹配」胶囊：关键词被自动补了引号时才在场，点一下就能退回松散搜索。
+  ///
+  /// ⭐ 它同时是**说明**和**开关**。加引号会让结果明显变少（`初音ミク` 10746 条
+  /// → `"初音ミク"` 2143 条），闷头改会变成「怎么突然搜不到东西了」；摆出来，
+  /// 变少这件事就有了来由，也有了退路。
+  ///
+  /// ⛔ 关掉之后胶囊**不消失**，只是暗下去：消失了就再也开不回来，而这条路径
+  /// （松散搜完发现全是无关的，想再精确一次）恰恰是最常走的那条。
+  Widget _buildExactMatchChip(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final cs = Theme.of(context).colorScheme;
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: _searchController,
+      builder: (context, value, _) => Obx(() {
+        // oreno3d 是另一个站的搜索，不吃 iwara 的引号语法。
+        final applicable =
+            searchController.selectedSegment.value != SearchSegment.oreno3d &&
+            willAutoQuote(value.text);
+        final on = searchController.exactMatch.value;
+        return GlassCapsuleReveal(
+          visible: applicable,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(width: 8),
+              GlassSurface(
+                onTap: searchController.exactMatch.toggle,
+                tooltip: on
+                    ? t.search.exactMatchOnHint
+                    : t.search.exactMatchOffHint,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      on ? Icons.format_quote : Icons.format_quote_outlined,
+                      size: 16,
+                      color: on ? cs.primary : cs.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      t.search.exactMatch,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: on ? FontWeight.w600 : FontWeight.w400,
+                        color: on ? cs.primary : cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      }),
+    );
+  }
+
   // 构建搜索胶囊：显示当前关键词，点按打开搜索弹窗。
   // 关键词读的是页面本地的 _searchController（与旧版输入框一致）：
   // SearchResultController 是固定 tag 的共享实例，栈上叠两个搜索页时会互相
@@ -510,6 +589,47 @@ class _SearchResultState extends State<SearchResult> {
           ),
         ],
       ),
+    );
+  }
+
+  /// 「用一句话搜」：AI 把大白话变成搜索词 + 筛选条件，当场换掉当前这次搜索。
+  ///
+  /// 弹窗里已经把解析结果摊开让用户看过、他按的键就叫「用这些条件搜索」，
+  /// 所以拿回来直接走 [_handleSearchResult] 刷新——这里本来就在看结果，
+  /// 对不对一眼就知道。
+  ///
+  /// ⛔ 没配过 AI 时这枚入口照样在场，点下去说一句「还没配」。按「配没配过」
+  /// 把唯一入口藏起来，新用户永远发现不了它（小尾巴上栽过一次）。
+  Future<void> _openAiSearch() async {
+    if (!isAiSearchAvailable) {
+      showAppToast(
+        '${slang.t.ai.searchTitle}: ${slang.t.ai.notConfigured}',
+        type: AppToastType.warning,
+      );
+      // 直接把人送到能配的地方。只说一句「未配置」等于让他自己去设置树里找。
+      NaviService.navigateToAiSettingsPage();
+      return;
+    }
+
+    final segment = searchController.selectedSegment.value;
+    final result = await showAiSearchSheet(
+      context,
+      segment: segment,
+      currentSort: searchController.selectedSort.value,
+    );
+    if (result == null || !mounted) return;
+
+    // 板块与排序也是 AI 填的表的一部分（弹窗里已摊开给用户看过）。换了板块
+    // 又没指定排序时退回新板块的默认值——旧板块的排序值在新板块上可能根本
+    // 不合法（oreno3d 的 hot vs 视频的 date）。
+    _handleSearchResult(
+      result.query,
+      result.segment,
+      result.filters,
+      result.sort ??
+          (result.segmentChanged
+              ? FilterConfig.getDefaultSortForSegment(result.segment)
+              : searchController.selectedSort.value),
     );
   }
 
@@ -713,20 +833,11 @@ class _SearchResultState extends State<SearchResult> {
     SearchSegment segment,
     String sort,
   ) {
-    final List<(String, String)> entries;
-    if (segment == SearchSegment.oreno3d) {
-      entries = [
-        ('hot', t.oreno3d.sortTypes.hot),
-        ('favorites', t.oreno3d.sortTypes.favorites),
-        ('latest', t.oreno3d.sortTypes.latest),
-        ('popularity', t.oreno3d.sortTypes.popularity),
-      ];
-    } else {
-      entries = [
-        for (final opt in FilterConfig.getSortOptionsForSegment(segment))
-          (opt.value, opt.label),
-      ];
-    }
+    // Oreno3D 那四条也在 FilterConfig 里，见 getSortOptionsForSegment。
+    final entries = [
+      for (final opt in FilterConfig.getSortOptionsForSegment(segment))
+        (opt.value, opt.label),
+    ];
 
     return Builder(
       builder: (anchorContext) => GlassIconButton(
@@ -863,9 +974,7 @@ class _SearchResultState extends State<SearchResult> {
     SearchSegment segment,
     String sort,
   ) {
-    final showSort =
-        segment == SearchSegment.oreno3d ||
-        FilterConfig.getSortOptionsForSegment(segment).isNotEmpty;
+    final showSort = FilterConfig.getSortOptionsForSegment(segment).isNotEmpty;
     return [
       _buildSegmentMenuButton(t, segment),
       if (showSort) _buildSortMenuButton(t, segment, sort),
@@ -887,6 +996,14 @@ class _SearchResultState extends State<SearchResult> {
           icon: const Icon(Icons.search),
           tooltip: t.common.search,
           onPressed: _showSearchDialog,
+        ),
+      // 「用一句话搜」。与筛选同族（都在回答「怎么筛」），所以挨着放。
+      // oreno3d 是外站浏览，没有 iwara 那套筛选字段，这枚也就不在场。
+      if (segment != SearchSegment.oreno3d)
+        GlassIconButton(
+          icon: const Icon(Icons.auto_awesome),
+          tooltip: t.ai.searchTitle,
+          onPressed: _openAiSearch,
         ),
       if (segment != SearchSegment.oreno3d)
         GlassIconButton(
@@ -1122,6 +1239,8 @@ class _SearchResultState extends State<SearchResult> {
                         : _buildSearchPill(context);
                   }),
                 ),
+                // 紧挨着关键词摆：它说的就是这个词被怎么发出去了。
+                _buildExactMatchChip(context),
                 GlassCapsuleReveal(
                   visible: !sink,
                   child: Row(

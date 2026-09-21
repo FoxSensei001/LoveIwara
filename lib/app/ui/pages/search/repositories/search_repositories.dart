@@ -9,11 +9,32 @@ import 'package:i_iwara/app/models/play_list.model.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'search_repository.dart';
 
+/// 某个排序值能不能给归并当尺子。
+///
+/// ⛔ `relevance`（以及不传 sort ＝ 服务端默认按相关度）下引擎**不返回分数**，
+/// 几路结果之间没有共同的尺子，归并会按一个不存在的顺序乱插。日期/播放/点赞
+/// 都是响应里带着的数值，可比。
+bool _sortIsMergeable(String? sort) =>
+    sort == 'date' || sort == 'views' || sort == 'likes';
+
 /// 视频搜索仓库
 class VideoSearchRepository extends SearchRepository<Video> {
   final String? sortKey;
   VideoSearchRepository({required super.query, this.sortKey})
     : super(segment: SearchSegment.video.apiType);
+
+  @override
+  bool get supportsCrossLanguageMerge => _sortIsMergeable(sortKey);
+
+  @override
+  String? itemId(Video item) => item.id;
+
+  @override
+  num? itemSortKey(Video item) => switch (sortKey) {
+    'views' => item.numViews ?? 0,
+    'likes' => item.numLikes ?? 0,
+    _ => item.createdAt?.millisecondsSinceEpoch,
+  };
 
   @override
   Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {
@@ -32,6 +53,19 @@ class ImageSearchRepository extends SearchRepository<ImageModel> {
   final String? sortKey;
   ImageSearchRepository({required super.query, this.sortKey})
     : super(segment: SearchSegment.image.apiType);
+
+  @override
+  bool get supportsCrossLanguageMerge => _sortIsMergeable(sortKey);
+
+  @override
+  String? itemId(ImageModel item) => item.id;
+
+  @override
+  num? itemSortKey(ImageModel item) => switch (sortKey) {
+    'views' => item.numViews,
+    'likes' => item.numLikes,
+    _ => item.createdAt?.millisecondsSinceEpoch,
+  };
 
   @override
   Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {

@@ -39,6 +39,29 @@ class FilterConfig {
     ];
   }
 
+  /// Oreno3D 是**另一个站**的索引，排序值与 iwara 那套完全不同。
+  ///
+  /// ⛔ 这份列表原先在四处各抄了一遍（搜索页的菜单与标签、结果页的菜单与
+  /// 「要不要显示排序钮」的判断），`getSortOptionsForSegment` 反倒对它返回空表。
+  /// 收口到这里之后「本板块能怎么排」只有一个问法——AI 搜索也才问得出来。
+  static List<FilterFieldOption> _buildOreno3dSort() {
+    return [
+      FilterFieldOption(value: 'hot', label: slang.t.oreno3d.sortTypes.hot),
+      FilterFieldOption(
+        value: 'favorites',
+        label: slang.t.oreno3d.sortTypes.favorites,
+      ),
+      FilterFieldOption(
+        value: 'latest',
+        label: slang.t.oreno3d.sortTypes.latest,
+      ),
+      FilterFieldOption(
+        value: 'popularity',
+        label: slang.t.oreno3d.sortTypes.popularity,
+      ),
+    ];
+  }
+
   static List<FilterFieldOption> getSortOptionsForSegment(
     SearchSegment segment,
   ) {
@@ -53,7 +76,7 @@ class FilterConfig {
       case SearchSegment.forum_posts:
         return _buildCommonSortOthers();
       case SearchSegment.oreno3d:
-        return const [];
+        return _buildOreno3dSort();
     }
   }
 
@@ -448,6 +471,54 @@ class FilterConfig {
 
   static FilterContentType? getContentType(SearchSegment segment) {
     return _contentTypes[segment];
+  }
+
+  /// 一条筛选填得合不合法（区间必须两头都填且 from < to）。null ＝没问题。
+  ///
+  /// ⛔ 收口在这里而不是各页各写一份：筛选抽屉与 AI 搜索弹窗用的是同一张卡
+  /// （`FilterRowWidget`），校验跟着卡走才不会漂。区间只填一头发出去，服务端
+  /// 直接 500。
+  static String? validateFilter(Filter filter, SearchSegment segment) {
+    if (filter.operator != FilterOperator.RANGE) return null;
+    if (filter.value is! Map) return slang.t.searchFilter.rangeValueFormatError;
+
+    final rangeValue = filter.value as Map;
+    final from = rangeValue['from']?.toString().trim();
+    final to = rangeValue['to']?.toString().trim();
+
+    if (from == null || from.isEmpty) {
+      return slang.t.searchFilter.pleaseFillStartValue;
+    }
+    if (to == null || to.isEmpty) {
+      return slang.t.searchFilter.pleaseFillEndValue;
+    }
+
+    FilterField? field;
+    for (final candidate in getContentType(segment)?.fields ?? const []) {
+      if (candidate.name == filter.field) {
+        field = candidate;
+        break;
+      }
+    }
+
+    if (field?.type == FilterFieldType.NUMBER) {
+      try {
+        if (double.parse(from) >= double.parse(to)) {
+          return slang.t.searchFilter.startValueMustBeLessThanEndValue;
+        }
+      } catch (_) {
+        return slang.t.searchFilter.pleaseEnterValidNumber;
+      }
+    } else if (field?.type == FilterFieldType.DATE) {
+      try {
+        if (DateTime.parse(from).isAfter(DateTime.parse(to))) {
+          return slang.t.searchFilter.startDateMustBeBeforeEndDate;
+        }
+      } catch (_) {
+        return slang.t.searchFilter.pleaseEnterValidDate;
+      }
+    }
+    return null;
   }
 
   static String generateFilterString(Filter filter, FilterField field) {

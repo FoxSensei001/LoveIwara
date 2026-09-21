@@ -3,6 +3,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/proxy/proxy_util.dart';
 
 import 'about_page.dart';
+import 'ai_settings_page.dart';
 import 'app_settings_page.dart';
 import 'block_settings_page.dart';
 import 'diagnostics_page.dart';
@@ -34,6 +35,7 @@ const double kSettingsTwoPaneBreakpoint = 720;
 enum SettingsSection {
   network,
   translation,
+  ai,
   keybinding,
   app,
   download,
@@ -55,6 +57,7 @@ enum SettingsSection {
   String get _segment => switch (this) {
     SettingsSection.network => 'network',
     SettingsSection.translation => 'translation',
+    SettingsSection.ai => 'ai',
     SettingsSection.keybinding => 'keybinding',
     SettingsSection.app => 'app',
     SettingsSection.download => 'download',
@@ -77,6 +80,7 @@ enum SettingsSection {
   String title(slang.Translations t) => switch (this) {
     SettingsSection.network => t.settings.networkSettings,
     SettingsSection.translation => t.translation.translation,
+    SettingsSection.ai => t.ai.title,
     SettingsSection.keybinding => t.settings.keybinding.title,
     SettingsSection.app => t.settings.appSettings,
     SettingsSection.download => t.settings.downloadSettings.downloadSettingsTitle,
@@ -93,6 +97,7 @@ enum SettingsSection {
   IconData get icon => switch (this) {
     SettingsSection.network => Icons.wifi,
     SettingsSection.translation => Icons.translate,
+    SettingsSection.ai => Icons.auto_awesome,
     SettingsSection.keybinding => Icons.keyboard,
     SettingsSection.app => Icons.settings,
     SettingsSection.download => Icons.download,
@@ -116,6 +121,7 @@ enum SettingsSection {
     SettingsSection.translation => TranslationSettingsPage(
       isWideScreen: isWideScreen,
     ),
+    SettingsSection.ai => AiSettingsPage(isWideScreen: isWideScreen),
     SettingsSection.keybinding => KeybindingSettingsPage(
       isWideScreen: isWideScreen,
     ),
@@ -166,7 +172,6 @@ enum SettingsSection {
 abstract final class SettingsSubRoutes {
   static String get translationGoogle =>
       '${SettingsSection.translation.path}/google';
-  static String get translationAi => '${SettingsSection.translation.path}/ai';
   static String get translationDeeplx =>
       '${SettingsSection.translation.path}/deeplx';
   static String get displayLayout => '${SettingsSection.display.path}/layout';
@@ -192,6 +197,7 @@ const List<SettingsSectionGroup> settingsSectionGroups = [
     sections: [
       SettingsSection.network,
       SettingsSection.translation,
+      SettingsSection.ai,
       SettingsSection.keybinding,
       SettingsSection.app,
       SettingsSection.download,
