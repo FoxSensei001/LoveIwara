@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/app/ui/pages/forum/controllers/thread_detail_repository.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -10,14 +9,19 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 class ForumEditTitleDialog extends StatefulWidget {
   final String postId;
   final String initialTitle;
-  final ThreadDetailRepository repository;
+
+  /// 接口要的两个定位 id。原先是整只收下数据源再从它身上读这两个字段——
+  /// 让一个纯输入对话框认得列表数据源，正是「刷新打错数据源」那类 bug 的温床。
+  final String categoryId;
+  final String threadId;
   final VoidCallback? onSubmit;
 
   const ForumEditTitleDialog({
     super.key,
     required this.postId,
     required this.initialTitle,
-    required this.repository,
+    required this.categoryId,
+    required this.threadId,
     this.onSubmit,
   });
 
@@ -57,10 +61,7 @@ class _ForumEditTitleDialogState extends State<ForumEditTitleDialog> {
 
     // 检查标题是否为空
     if (_titleController.text.trim().isEmpty) {
-      showAppToast(
-        slang.t.errors.titleCanNotBeEmpty,
-        type: AppToastType.error,
-      );
+      showAppToast(slang.t.errors.titleCanNotBeEmpty, type: AppToastType.error);
       return;
     }
 
@@ -69,8 +70,8 @@ class _ForumEditTitleDialogState extends State<ForumEditTitleDialog> {
     });
 
     final result = await _forumService.editThreadTitle(
-      widget.repository.categoryId,
-      widget.repository.threadId,
+      widget.categoryId,
+      widget.threadId,
       _titleController.text,
     );
 

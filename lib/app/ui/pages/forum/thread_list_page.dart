@@ -111,9 +111,7 @@ class _ThreadListPageState extends State<ThreadListPage>
   }
 
   void _openSearchDialog() {
-    NaviService.navigateToSearchPage(
-      initialSegment: SearchSegment.forum,
-    );
+    NaviService.navigateToSearchPage(initialSegment: SearchSegment.forum);
   }
 
   /// 右侧动作胶囊：[搜索(仅宽屏)] 刷新 · 发帖 · 更多。
@@ -183,10 +181,8 @@ class _ThreadListPageState extends State<ThreadListPage>
                 : 0),
         child: ValueListenableBuilder<bool>(
           valueListenable: _showBackToTop,
-          builder: (context, visible, _) => ScrollToTopFab(
-            visible: visible,
-            onPressed: _scrollToTop,
-          ),
+          builder: (context, visible, _) =>
+              ScrollToTopFab(visible: visible, onPressed: _scrollToTop),
         ),
       ),
     );
@@ -342,9 +338,10 @@ class _ThreadListPageState extends State<ThreadListPage>
     }
     showAppDialog(
       ForumPostDialog(
-        onSubmit: () {
-          listSourceRepository.refresh();
-        },
+        // ⛔ 这里原先直接调 `listSourceRepository.refresh()`。分页模式下屏幕上
+        // 渲染的不是这份数据源（见 [_refreshList]），刷了也不会有任何变化——
+        // 发完帖列表里找不到新帖。刷新一律走页面级的那个入口。
+        onSubmit: _refreshList,
         initCategoryId: categoryId,
       ),
     );

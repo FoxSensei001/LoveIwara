@@ -8,7 +8,6 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/signature_service.dart';
-import 'package:i_iwara/app/ui/pages/forum/controllers/thread_detail_repository.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_reply_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_edit_reply_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/comment_actions_menu.dart';
@@ -35,8 +34,17 @@ class ThreadCommentCardWidget extends StatefulWidget {
   final String threadAuthorId;
   final String threadId;
   final bool lockedThread;
-  // repo
-  final ThreadDetailRepository listSourceRepository;
+
+  /// 在这一楼下回复成功后，请帖子详情页刷新并落到新回复那一楼。
+  ///
+  /// ⛔ 卡片原先握着 `ThreadDetailRepository` 自己调 `refresh()`。那在分页模式下
+  /// 是个空操作：分页模式屏幕上渲染的是详情页自己维护的 `paginatedItems`，
+  /// repository 刷的是一份没人看的数据。刷新该由**渲染这份数据的人**来做，
+  /// 所以收成回调，卡片不再认得数据源。
+  final VoidCallback? onReplyPosted;
+
+  /// 编辑这一楼成功后，请帖子详情页原地刷新（不改变落点）。
+  final VoidCallback? onPostEdited;
 
   /// 点引用条跳到那一楼。由帖子详情页提供（只有它知道分页与滚动），
   /// 为 null 时引用条不可点。
@@ -53,7 +61,8 @@ class ThreadCommentCardWidget extends StatefulWidget {
     required this.threadAuthorId,
     required this.threadId,
     required this.lockedThread,
-    required this.listSourceRepository,
+    this.onReplyPosted,
+    this.onPostEdited,
     this.onJumpToFloor,
     this.threadSignatureContext,
   });
@@ -359,7 +368,7 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
           ),
         ),
         onSubmit: () {
-          widget.listSourceRepository.refresh();
+          widget.onReplyPosted?.call();
         },
       ),
     );
@@ -382,11 +391,10 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
     if (!_ensureLoggedIn()) return;
     showAppDialog(
       ForumEditReplyDialog(
-        postId: widget.comment.id,
+        post: widget.comment,
         initialContent: widget.comment.body,
-        repository: widget.listSourceRepository,
         onSubmit: () {
-          widget.listSourceRepository.refresh();
+          widget.onPostEdited?.call();
         },
       ),
     );

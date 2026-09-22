@@ -203,13 +203,80 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
     }
   }
 
-  /// 刷新数据
+  /// 刷新数据（回到第一页）。下拉刷新、菜单里的「刷新」走这条。
   Future<void> _refresh() async {
     if (isPaginated.value) {
       await _loadPaginatedData(0);
     } else {
       await listSourceRepository.refresh(true);
     }
+  }
+
+  /// 原地刷新：不改变落点，只把内容拉新。编辑楼层 / 改标题后走这条——
+  /// 用 [_refresh] 会把正在看第 5 页的人甩回第 1 页。
+  ///
+  /// 瀑布流那条分支只能整只重拉（loading_more_list 没有「只刷某一段」），
+  /// 与 [_refresh] 同效；「原地」这个保证目前只在分页模式下成立。
+  Future<void> _refreshInPlace() async {
+    if (isPaginated.value) {
+      await _loadPaginatedData(currentPage);
+    } else {
+      await listSourceRepository.refresh(true);
+    }
+  }
+
+  /// 发完回复后：刷新，然后落到自己刚发的那一楼并点亮它。
+  ///
+  /// ⛔ 不能只调 [_refresh]。论坛接口没有 sort 参数（见 `ForumService
+  /// .fetchForumThread`），楼层按 `replyNum` **升序**下发，新回复落在**最后一页**；
+  /// 而 [_refresh] 两条分支都回到第 0 页。于是「发完回复看不到自己那条」——
+  /// 20 楼以内的短帖碰巧是对的，长帖必然翻车。
+  ///
+  /// 分页模式下**先乐观估算**目标页（自己这条落在 `已知楼数 + 1` 楼）直接加载它，
+  /// 而不是先拉第 0 页再翻过去：后者要两次请求，用户还会看见列表先闪回帖首。
+  /// 请求回来 `numPosts` 就是真的了，若期间有别人也发了帖把楼层挤到下一页，
+  /// 再补一次。
+  ///
+  /// 瀑布流模式没有「翻到最后一页」这回事——要看到最后一楼得从第 0 页一路
+  /// loadMore 上去，那等于替用户打几十次请求（同 [_jumpToFloor] 的取舍）。所以
+  /// 只在新楼层恰好落进已加载数据时滚过去，落不进就安静收手，不弹误导人的提示。
+  Future<void> _revealNewestFloor() async {
+    final int knownPosts = _thread.value?.numPosts ?? 0;
+
+    if (isPaginated.value) {
+      // 翻页是为了落到目标楼层，不该触发 _loadPaginatedData 那记回到顶部。
+      _jumpingToFloor = true;
+      try {
+        // 自己这条是第 knownPosts + 1 楼 → 页码 (floor - 1) ~/ itemsPerPage
+        final int guessedPage = knownPosts ~/ itemsPerPage;
+        await _loadPaginatedData(guessedPage);
+        if (!mounted) return;
+
+        final int total = _thread.value?.numPosts ?? 0;
+        if (total < 1) return;
+        final int realPage = (total - 1) ~/ itemsPerPage;
+        if (realPage != currentPage) {
+          await _loadPaginatedData(realPage);
+          if (!mounted) return;
+        }
+
+        // 等这一帧画完，新一页的锚点才挂得上去
+        await WidgetsBinding.instance.endOfFrame;
+        if (!mounted) return;
+        await _revealFloor(total);
+      } finally {
+        _jumpingToFloor = false;
+      }
+      return;
+    }
+
+    await listSourceRepository.refresh(true);
+    if (!mounted) return;
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted) return;
+    final int total = _thread.value?.numPosts ?? 0;
+    if (total < 1) return;
+    await _revealFloor(total);
   }
 
   int get totalItems => listSourceRepository.requestTotalCount;
@@ -300,9 +367,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
       builder: (context) => ForumReplyBottomSheet(
         threadId: thread.id,
         signatureContext: _signatureContextOf(thread),
-        onSubmit: () {
-          _refresh();
-        },
+        onSubmit: _revealNewestFloor,
       ),
     );
   }
@@ -947,10 +1012,9 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
                                         ForumEditTitleDialog(
                                           postId: thread.id,
                                           initialTitle: thread.title,
-                                          repository: listSourceRepository,
-                                          onSubmit: () {
-                                            _refresh();
-                                          },
+                                          categoryId: widget.categoryId,
+                                          threadId: widget.threadId,
+                                          onSubmit: _refreshInPlace,
                                         ),
                                       );
                                     },
@@ -1128,7 +1192,8 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
       threadAuthorId: _thread.value?.user.id ?? '',
       threadId: widget.threadId,
       lockedThread: _thread.value?.locked ?? false,
-      listSourceRepository: listSourceRepository,
+      onReplyPosted: _revealNewestFloor,
+      onPostEdited: _refreshInPlace,
       onJumpToFloor: _jumpToFloor,
       // 楼层回复的小尾巴上下文＝这个主题的上下文（楼层自己再补上「回给谁」）。
       // 只有帖子详情页手里有主题信息，卡片自己看不见。
