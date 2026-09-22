@@ -1,5 +1,9 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart'
+    show InAppWebViewController;
+import 'package:get/get.dart' hide Response;
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'iwara_network_service.dart';
 import '../models/oreno3d_video.model.dart';
 import 'oreno3d_html_parser.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -29,6 +33,35 @@ enum Oreno3dSortType {
 
 class Oreno3dClient {
   static const String baseUrl = 'https://oreno3d.com';
+
+  /// 拿不到 WebView 真实 UA 的平台（Windows/Linux）用它。WebView2 是 Chromium，
+  /// 报成桌面 Chrome 与它的 JS 指纹对得上。
+  static const String _fallbackUserAgent =
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36';
+
+  /// 过盾拿到的 cf_clearance 与 UA 绑定：Dio 与过盾 WebView 必须报同一个 UA，
+  /// 否则 cookie 拿回来也不认、每个请求都重新挑战。WebView 用的是请求头里的 UA，
+  /// 所以这里让 Dio 报 WebView 自己的默认 UA——手机 WebView 顶着一个 Windows
+  /// Chrome 的 UA 本身就是 CF 眼里的可疑指纹。全进程只问一次。
+  static Future<String>? _webViewUserAgent;
+
+  static Future<String> _resolveUserAgent() {
+    return _webViewUserAgent ??= () async {
+      if (!(GetPlatform.isAndroid ||
+          GetPlatform.isIOS ||
+          GetPlatform.isMacOS)) {
+        return _fallbackUserAgent;
+      }
+      try {
+        final ua = await InAppWebViewController.getDefaultUserAgent();
+        if (ua.isNotEmpty) return ua;
+      } catch (e) {
+        LogUtils.w('获取 WebView 默认 UA 失败，退回内置 UA: $e', 'Oreno3dClient');
+      }
+      return _fallbackUserAgent;
+    }();
+  }
+
   late final Dio _dio;
 
   Oreno3dClient({
@@ -36,6 +69,7 @@ class Oreno3dClient {
     Duration? connectTimeout,
     Duration? receiveTimeout,
     Map<String, String>? headers,
+    bool interactiveChallenge = true,
   }) {
     _dio = dio ?? Dio();
 
@@ -44,8 +78,7 @@ class Oreno3dClient {
       connectTimeout: connectTimeout ?? const Duration(seconds: 30),
       receiveTimeout: receiveTimeout ?? const Duration(seconds: 30),
       headers: {
-        'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'User-Agent': _fallbackUserAgent,
         'Accept':
             'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
         'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,ja;q=0.7',
@@ -58,6 +91,19 @@ class Oreno3dClient {
       validateStatus: (status) => status != null && status < 500,
     );
     _dio.options.persistentConnection = false;
+
+    final hasCustomUserAgent =
+        headers?.keys.any((k) => k.toLowerCase() == 'user-agent') ?? false;
+    if (!hasCustomUserAgent) {
+      _dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) async {
+            options.headers['User-Agent'] = await _resolveUserAgent();
+            handler.next(options);
+          },
+        ),
+      );
+    }
 
     // 添加拦截器用于调试和错误处理
     _dio.interceptors.add(
@@ -137,6 +183,20 @@ class Oreno3dClient {
         },
       ),
     );
+
+    // 共用 iwara 那套过盾：共享 CookieJar（cf_clearance 一处拿到全站生效）+
+    // 挑战时先无头 WebView 自动过、5 秒没过弹全屏 WebView 让用户手动验证。
+    // 此前这里是裸 Dio，撞上挑战只会得到一个「访问被拒绝」。
+    // [interactiveChallenge] 为 false（后台任务）时只走无头，过不去也不弹窗。
+    if (Get.isRegistered<IwaraNetworkService>()) {
+      Get.find<IwaraNetworkService>().registerDio(
+        _dio,
+        decodeJsonAfterChallenge: false,
+        interactiveChallenge: interactiveChallenge,
+      );
+    } else {
+      LogUtils.w('网络服务未就绪，oreno3d 请求不带过盾', 'Oreno3dClient');
+    }
   }
 
   /// 搜索视频
@@ -396,6 +456,9 @@ class Oreno3dClient {
 
   /// 关闭客户端
   void close({bool force = false}) {
+    if (Get.isRegistered<IwaraNetworkService>()) {
+      Get.find<IwaraNetworkService>().unregisterDio(_dio);
+    }
     _dio.close(force: force);
   }
 }

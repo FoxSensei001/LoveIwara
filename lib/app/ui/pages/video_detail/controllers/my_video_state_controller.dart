@@ -2970,7 +2970,8 @@ class MyVideoStateController extends GetxController
       if (_isDisposed) return;
 
       final cache = _oreno3dMatchCache();
-      oreno3dClient = Oreno3dClient();
+      // 后台匹配不是用户发起的：撞盾只许无头自动过，别拿验证页盖住正在看的视频。
+      oreno3dClient = Oreno3dClient(interactiveChallenge: false);
 
       // 跨查询去重：同一条 oreno3d 视频可能在多条查询下都进入候选列表。
       final probedOreno3dIds = <String>{};

@@ -94,7 +94,8 @@ dependencies:
   media_kit_video: ^2.0.1
   media_kit_libs_video: ^1.0.7
 
-#  flutter_inappwebview: ^6.1.5
+  # oreno3d 要拿 WebView 默认 UA 对齐过盾（cloudflare_interceptor 本就带着它）。
+  flutter_inappwebview: ^6.1.5
   dio: ^5.9.1
   # 小尾巴里的 `{date:yyyy-MM-dd}` / `{weekday}` 要按用户语言格式化日期。
   # 本来就在依赖树里（slang_flutter / flutter_localizations 带的），这里只是
