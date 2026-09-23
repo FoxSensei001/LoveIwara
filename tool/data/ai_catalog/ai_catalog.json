@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "rev": "59a72d7ed4943589",
-  "builtAt": "2026-09-21T08:27:25.436278Z",
-  "count": 647,
+  "rev": "6fdf09e1b1a2ef57",
+  "builtAt": "2026-09-23T07:14:37.449707Z",
+  "count": 654,
   "upstream": {
     "source": "CherryHQ/cherry-studio @ packages/provider-registry (MIT)",
     "providers": "2707d81b155c6c98",
-    "models": "11174ce97b90176e"
+    "models": "b266093d9b453039"
   },
   "providers": {
     "silicon": {
@@ -1766,6 +1766,18 @@
     },
     "claude-opus-5": {
       "n": "Claude Opus 5",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 128000
+    },
+    "claude-opus-5-5": {
+      "n": "Claude Opus 5.5",
       "c": [
         "fc",
         "fi",
@@ -4935,6 +4947,28 @@
       ],
       "w": 1050000
     },
+    "gpt-6-luna": {
+      "n": "GPT-6 Luna",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1050000,
+      "o": 128000
+    },
+    "gpt-6-sol": {
+      "n": "GPT-6 Sol",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1050000,
+      "o": 128000
+    },
     "gpt-chat-latest": {
       "n": "OpenAI: GPT Chat Latest",
       "c": [
@@ -5715,7 +5749,17 @@
       "n": "Grok 4.6",
       "c": [
         "fc",
-        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 500000,
+      "o": 500000
+    },
+    "grok-4-7": {
+      "n": "Grok 4.7",
+      "c": [
+        "fc",
         "rs",
         "so",
         "vi"
@@ -5806,6 +5850,42 @@
       "c": [
         "fc",
         "rs"
+      ],
+      "w": 1048576,
+      "o": 131072
+    },
+    "mimo-v2-6-flash": {
+      "n": "MiMo-V2.6-Flash",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 131072
+    },
+    "mimo-v2-6-pro": {
+      "n": "MiMo-V2.6-Pro",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 131072
+    },
+    "mimo-v2-6-pro-ultraspeed": {
+      "n": "MiMo-V2.6-Pro-UltraSpeed",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
       ],
       "w": 1048576,
       "o": 131072
