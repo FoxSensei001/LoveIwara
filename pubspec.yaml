@@ -110,6 +110,9 @@ dependencies:
 
   device_info_plus: ^11.5.0
   dartantic_ai: ^3.4.1
+  # AI 服务要在 HTTP 层旁听 OpenAI 兼容端点的 `reasoning_content`（dartantic 丢了
+  # 它，见 ai_reasoning_openai.dart）。本来就在依赖树里，这里只是提成直接依赖。
+  http: ^1.6.0
   flutter_local_notifications: ^22.0.1
   local_notifier: ^0.1.6
   # ⛔ 钉死，不加 ^：4.3.1 在 Windows/Impeller 上首帧出不来（整窗白屏，raster 线程

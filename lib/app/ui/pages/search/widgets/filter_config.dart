@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/pages/search/iwara_search_syntax.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -519,6 +520,41 @@ class FilterConfig {
       }
     }
     return null;
+  }
+
+  /// 搜索框里的关键词 + 筛选抽屉里的条件 → 发给搜索仓库的那**一条**查询串。
+  ///
+  /// ⭐ 只有这一处拼：搜索结果页按它拼，AI 试搜也按它拼。两边各写一份的话，
+  /// 模型验过的那条查询与用户按下搜索后真正发出去的迟早对不上（引号补没补、
+  /// 筛选放前放后），「它说试过有 300 条、我点进去是空的」就是这么来的。
+  ///
+  /// ⛔ 关键词先补引号**再**拼筛选：筛选串里全是花括号，混进来会被一起当成待
+  /// 加引号的词。oreno3d 是另一个站的搜索，不吃这套语法。
+  static String composeSearchQuery({
+    required String keyword,
+    required SearchSegment segment,
+    required List<Filter> filters,
+    required bool exactMatch,
+  }) {
+    var query = keyword;
+    if (segment != SearchSegment.oreno3d && exactMatch) {
+      query = autoQuoteKeyword(query);
+    }
+    if (filters.isEmpty) return query;
+
+    final contentType = getContentType(segment);
+    if (contentType == null) return query;
+    final filterStrings = filters
+        .map((filter) {
+          final field = contentType.fields.firstWhere(
+            (f) => f.name == filter.field,
+            orElse: () => contentType.fields.first,
+          );
+          return generateFilterString(filter, field);
+        })
+        .where((s) => s.isNotEmpty)
+        .join(' ');
+    return filterStrings.isEmpty ? query : '$query $filterStrings';
   }
 
   static String generateFilterString(Filter filter, FilterField field) {

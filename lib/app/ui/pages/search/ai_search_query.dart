@@ -1,11 +1,16 @@
+import 'dart:async';
+
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/ai_task.model.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/services/ai_service.dart';
 import 'package:i_iwara/app/services/api_service.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/tag_localization_service.dart';
+import 'package:i_iwara/app/services/tag_name_index.dart';
 import 'package:i_iwara/app/services/user_preference_service.dart';
 import 'package:i_iwara/app/ui/pages/search/iwara_search_syntax.dart';
+import 'package:i_iwara/app/ui/pages/search/repositories/search_repositories.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
 import 'package:i_iwara/app/ui/widgets/search_mode_menu.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
@@ -26,6 +31,7 @@ class AiSearchQuery {
     required this.segmentChanged,
     required this.filters,
     this.sort,
+    this.preview,
   });
 
   /// 填进搜索框的关键词。可能是空串（「只按条件筛，不限关键词」）。
@@ -49,11 +55,111 @@ class AiSearchQuery {
 
   final List<Filter> filters;
 
+  /// 模型交上来的这份表**原样**试搜过的话，那次的结果。没试过、或试的是别的
+  /// 写法，就是 null。弹窗拿它说「预计约 N 条」，用户改了表之后要自己判断它
+  /// 还作不作数（见 [AiSearchPreview.matches]）。
+  final AiSearchPreview? preview;
+
   bool get isEmpty =>
       query.trim().isEmpty &&
       filters.isEmpty &&
       sort == null &&
       !segmentChanged;
+}
+
+/// 一次试搜的结果：与用户按下搜索之后**第一屏**看到的是同一份（同一个仓库、
+/// 同样的多路归并与核对）。
+class AiSearchPreview {
+  const AiSearchPreview({
+    required this.fingerprint,
+    required this.total,
+    required this.titles,
+  });
+
+  /// 这次试搜实际发出去的是什么（板块 + 排序 + 完整查询串）。
+  final String fingerprint;
+
+  /// 估计总数（多路归并时是并集的估计）。
+  final int total;
+
+  /// 前几条的标题。
+  final List<String> titles;
+
+  /// 表单现在的样子是不是就是试搜过的那一份。
+  bool matches({
+    required SearchSegment segment,
+    required String keyword,
+    required List<Filter> filters,
+    required String? sort,
+    required SearchSegment currentSegment,
+    required String currentSort,
+  }) =>
+      fingerprint ==
+      _plannedSearch(
+        segment: segment,
+        keyword: keyword,
+        filters: filters,
+        sort: sort,
+        currentSegment: currentSegment,
+        currentSort: currentSort,
+      ).fingerprint;
+}
+
+/// 这份表在搜索结果页上**真正**会发出去的那次搜索。
+///
+/// ⭐ 两件事都照搜索结果页的逻辑来，一处不许自己另算：查询串走
+/// [FilterConfig.composeSearchQuery]（引号、筛选的拼法），排序照
+/// `search_result._openAiSearch`（换了板块又没给排序就退回新板块的默认）。
+({String query, String sort, String fingerprint}) _plannedSearch({
+  required SearchSegment segment,
+  required String keyword,
+  required List<Filter> filters,
+  required String? sort,
+  required SearchSegment currentSegment,
+  required String currentSort,
+}) {
+  final query = FilterConfig.composeSearchQuery(
+    keyword: keyword.trim(),
+    segment: segment,
+    filters: filters,
+    exactMatch: _exactMatchEnabled,
+  );
+  final effectiveSort =
+      sort ??
+      (segment != currentSegment
+          ? FilterConfig.getDefaultSortForSegment(segment)
+          : currentSort);
+  return (
+    query: query,
+    sort: effectiveSort,
+    fingerprint: '${segment.name}|$effectiveSort|$query',
+  );
+}
+
+bool get _exactMatchEnabled =>
+    !Get.isRegistered<ConfigService>() ||
+    Get.find<ConfigService>()[ConfigKey.SEARCH_EXACT_MATCH] != false;
+
+bool get _tagExpansionEnabled =>
+    !Get.isRegistered<ConfigService>() ||
+    Get.find<ConfigService>()[ConfigKey.SEARCH_TAG_EXPANSION] != false;
+
+/// 这个关键词在这个板块上会被认成哪些标签、自动按标签补搜。
+///
+/// 与搜索仓库同一个判法（[resolveQueryTags] + [TagLocalizationService.matchName]
+/// + 用户的「按标签补搜」开关），弹窗拿它随着用户改关键词实时说明。
+List<TagNameMatch> aiSearchRecognizedTags(
+  String keyword,
+  SearchSegment segment,
+) {
+  if (!_tagExpansionEnabled || segment == SearchSegment.oreno3d) {
+    return const [];
+  }
+  return resolveQueryTags(
+    keyword,
+    apiType: segment.apiType,
+    resolveTag: TagLocalizationService.matchName,
+  );
 }
 
 /// 让 AI 按**整张搜索表**填一次：板块 / 关键词 / 排序 / 筛选。
@@ -63,6 +169,21 @@ class AiSearchQuery {
 /// 本来就是现成的白名单——把它摊给模型，模型只能填表，编出来的东西在解析这一步
 /// 当场作废，而不是发出去等服务端回 500。花括号仍由既有的
 /// [FilterConfig.generateFilterString] 渲染，格式只有那一处说了算。
+///
+/// # ⭐ 与搜索增强是**一套**，不是两套（2026-09-23 重做）
+///
+/// 早先的试搜工具自己拼一条单路请求：不走标签补路、不走别名路、不核对，按相关度
+/// 看 3 条。于是模型看到「"初音未来" 0 条」就去改写，而用户真按下搜索时标签路
+/// 有 156 条——它在按一个用户永远看不到的数字做决定，还把好词改坏了。
+/// 现在三件工具都落在 App 真实的那条路上：
+///
+/// - `preview_search` 收**与答案同形**的一张表，照搜索结果页的拼法与排序造一个
+///   真仓库（[createIwaraSearchRepository]）拉第 0 页——模型看到的就是用户会看到的；
+/// - `lookup_tags` 查随包的标签词库，并直说「这个词 App 会不会自动按标签补搜」；
+/// - `find_user` 把作者的显示名换成 `{author:…}` 要的 @username。
+///
+/// 提示词因此不再重讲 App 已经在做的事（补引号、跨语言补路、引号 0 条退裸词），
+/// 只讲模型真要决定的：选哪个词、哪些该变成筛选、怎么排。
 ///
 /// ⚠️ 模型**吐不出可靠的多态值**（一会儿数字一会儿数组），所以 schema 里
 /// `value` 一律是字符串，复杂类型在 [_parseValue] 里按字段类型解析回来。
@@ -82,6 +203,7 @@ Future<ApiResult<AiSearchQuery>> buildAiSearchQuery({
     return ApiResult.fail('no filterable fields');
   }
 
+  final session = _AiSearchSession(segment, currentSort);
   final ai = Get.find<AiService>();
   final result = await ai.structured(
     AiRequest(
@@ -89,7 +211,12 @@ Future<ApiResult<AiSearchQuery>> buildAiSearchQuery({
       input: request,
       system: _systemPrompt(segment, currentSort),
       decorateError: decorateError,
-      tools: [_searchPreviewTool()],
+      thinkAloud: true,
+      tools: [
+        session.previewTool(allFields.keys.toList()),
+        session.lookupTagsTool(),
+        session.findUserTool(),
+      ],
     ),
     schema: _schemaFor(allFields.keys.toList()),
     onProgress: onProgress,
@@ -99,7 +226,25 @@ Future<ApiResult<AiSearchQuery>> buildAiSearchQuery({
     return ApiResult.fail(result.message);
   }
 
-  return ApiResult.success(data: _parse(result.data!, segment));
+  final form = _parse(result.data!, segment);
+  final planned = _plannedSearch(
+    segment: form.segment,
+    keyword: form.query,
+    filters: form.filters,
+    sort: form.sort,
+    currentSegment: segment,
+    currentSort: currentSort,
+  );
+  return ApiResult.success(
+    data: AiSearchQuery(
+      query: form.query,
+      segment: form.segment,
+      segmentChanged: form.segment != segment,
+      sort: form.sort,
+      filters: form.filters,
+      preview: session.previews[planned.fingerprint],
+    ),
+  );
 }
 
 /// 所有板块字段的并集，按字段名去重（`title` / `author` 之类在好几个板块里
@@ -144,8 +289,8 @@ String _systemPrompt(SearchSegment current, String currentSort) {
     ..writeln(
       'You fill in the search form of a client app for Iwara, an adult '
       'MMD/3D video and image site. The app searches several different '
-      'indexes ("segments"). Pick the right segment first, then fill in the '
-      'sort and the filters that segment actually supports.',
+      'indexes ("segments"). Pick the right segment first, then the keyword, '
+      'the sort and the filters that segment actually supports.',
     )
     ..writeln()
     ..writeln(
@@ -195,146 +340,114 @@ String _systemPrompt(SearchSegment current, String currentSort) {
 
   buffer
     ..writeln()
-    // ⭐ 下面这一段是 2026-09-21 对着真端点量出来的（见 docs 与提交说明）。
-    // 它不是背景知识，而是这张表填得好不好的**全部差别**：iwara 换了搜索引擎
-    // 之后用户抱怨「搜不准」，根因就写在这几条里。
-    ..writeln('How the Iwara search engine actually behaves (measured):')
+    // ⭐ 这一段只讲**模型要决定的事**。App 自己会做的（补引号、跨语言补路、
+    // 按标签补路、引号 0 条退裸词）放在下一段当事实告诉它，别让它去模仿——
+    // 早先两百行把这些规则教给模型，它就在答案里手工再做一遍，与 App 做的叠在
+    // 一起反而坏事（例：自己加 title 筛选，被 AND 成交集）。
+    ..writeln('How the Iwara engine reads "query" (measured):')
     ..writeln(
-      '- Words in "query" are ANDed, and the LAST word is matched as a '
-      'prefix. `miku` 7289 hits and `dance` 14967 hits, but `miku dance` only '
-      '699 and `miku dance cosplay` only 2. So adding a word is a strong '
-      'narrowing — do use several words when the request is specific.',
+      '- Words are ANDed and the last word is prefix-matched: `miku` 7289, '
+      '`miku dance` 699, `miku dance cosplay` 2. Every extra word narrows '
+      'hard, so search the most distinctive term and do NOT pile on context '
+      'the user did not ask for (`"甘雨"` 119, `"原神" "甘雨"` only 10).',
     )
     ..writeln(
-      '- ⭐⭐ QUOTE every multi-word or CJK phrase: "…" means exact phrase. '
-      'This is the single most important thing you do. Unquoted CJK is NOT '
-      'ANDed — it is shredded into fragments and OR-ed, which is why Iwara '
-      'search feels broken: 白金ディスコ returns 1686 videos of which only 34 '
-      'contain the phrase, while "白金ディスコ" returns exactly those 34. '
-      'Measured precision of the first 20 hits for 初音ミク sorted by date: '
-      'unquoted 3/20, quoted 20/20.',
+      '- "…" is an exact phrase. Unquoted CJK is shredded into OR-ed '
+      'fragments (白金ディスコ 1686 hits, only 34 real; "白金ディスコ" exactly '
+      'those 34), so quote every CJK name or term, kana included. Quote Latin '
+      'phrases of 2+ words; leave a single Latin word bare.',
     )
     ..writeln(
-      '  → Quote a CJK run that is ONE name or term, kana and mixed script '
-      'included: 初音ミク, 白金ディスコ, このすば, ゆるキャン, けものフレンズ, '
-      '碧蓝航线. Measured, bare → quoted: このすば 4488 → 75, ゆるキャン 314 '
-      '→ 22, にじさんじ 9857 → 65 — precision of the first 20 by date goes '
-      'from 0-1/20 to 20/20 in every one of those. Quote Latin phrases of two '
-      'or more words ("hatsune miku"); leave a single Latin word unquoted so '
-      'prefix matching still helps.',
+      '- ⛔ Never quote a whole phrase joined by a particle (の が を に は で '
+      'と): `"原神の甘雨"` → 0. Quote the parts: `"原神" "甘雨"`. But do not '
+      'split names that contain one (ときのそら, このすば, けものフレンズ).',
     )
     ..writeln(
-      '  → ⛔ But NEVER wrap a whole phrase built with a particle (の, が, を, '
-      'に, は, で, と) in one pair of quotes: that sentence almost never '
-      'occurs verbatim in a title, so it returns nothing at all. Measured: '
-      '原神の甘雨 138 bare but 0 quoted; 初音ミクのダンス 5250 bare but 0 '
-      'quoted; 水着の女の子 440 bare but 1 quoted. Quote the PARTS and let AND '
-      'join them — `"原神" "甘雨"` (10), `"初音ミク" "ダンス"` (135).',
+      '- `-word` excludes (space before, attached to the word). There are NO '
+      'boolean operators: AND / OR / NOT / + / ! / parentheses are plain '
+      'words. Do not put `:` `/` or curly braces in "query".',
     )
     ..writeln(
-      '  → ⛔ Only split on a particle when at least 2 characters remain on '
-      'each side, otherwise you cut a name apart: the の in ときのそら and the '
-      'こ/すば in このすば are parts of the name itself (splitting ときのそら '
-      'drops precision 20/20 → 9/20; splitting けものフレンズ drops 57 hits to '
-      '1). When in doubt, quote the whole run and let `preview_search` tell '
-      'you whether it exists.',
-    )
-    ..writeln(
-      '  → Quotes compose: `"初音ミク" "ダンス"` (135) and `"初音ミク" ダンス` '
-      '(421) both work. Never emit an empty pair of quotes — `""` matches '
-      'nothing at all.',
-    )
-    ..writeln(
-      '- Sorting only re-orders the recall set, it never narrows it. With an '
-      'UNQUOTED keyword, date/views/likes therefore show the newest (or most '
-      'viewed) of a mostly-irrelevant pool — the first page has nothing to do '
-      'with what was typed. This is the single biggest complaint about Iwara '
-      'search, and quoting fixes it: once quoted, every sort is clean.',
-    )
-    ..writeln(
-      '- Exclude a word with a leading minus: `"初音ミク" -MMD`. ⛔ The minus '
-      'must be attached to the word AND preceded by a space — a hyphen inside '
-      'a word is just a hyphen (`R-18` is the same query as `R18`).',
-    )
-    ..writeln(
-      '- ⛔ There are NO boolean operators. `AND`, `OR`, `NOT`, `+`, `!`, '
-      'parentheses and `#` are all treated as ordinary characters or silently '
-      'dropped — `miku NOT dance` searches for the word "not". Use spaces '
-      '(AND), quotes (phrase) and `-` (exclude), nothing else. Also avoid `:` '
-      'and `/` inside "query"; they wreck tokenisation.',
-    )
-    ..writeln(
-      '- ⭐ The free-text query does NOT search tags ("hatsune_miku" as a '
-      'keyword: 38 results; as a tags filter: 6489) and does NOT search '
-      'usernames (gfsmmd as a keyword: 4; as an author filter: 126). Anything '
-      'about tags or authors MUST become a filter.',
-    )
-    ..writeln(
-      '- ⭐ When the request names a character, series or genre, write that '
-      'name in "query" as its own quoted phrase (the user\'s words, the '
-      'English name or the slug all work). The app recognises exact tag names '
-      'in the query and AUTOMATICALLY also searches that tag plus the name in '
-      'Japanese/English/Chinese, merging the results — a name in "query" '
-      'reaches tagged videos whose titles never mention it (measured: 原神 as '
-      'text alone finds 17 recent videos, with the automatic tag route 324). '
-      'Add a tags filter only to CONSTRAIN: a filter is ANDed into every one '
-      'of those searches, so it cuts out untagged matches. Write it in the '
-      'user\'s own words or as the English slug — the app resolves it against '
-      'the real Iwara tag dictionary and drops what it cannot resolve. Never '
-      'invent a slug.',
-    )
-    ..writeln(
-      '- IN on one filter is OR (tags IN [a,b] = a or b); two filters on the '
-      'same field are AND. "miku AND genshin" is therefore two tags filters. '
-      'NOT_IN really does exclude (measured: 320943 total − 6489 tagged = '
-      '314457), so use it for "without tag X".',
-    )
-    ..writeln(
-      '- "author" is the exact @username, case-insensitive. Partial handles '
-      'and display names match NOTHING ({author: gfsm} → 0, {author: "GFS '
-      'MMD"} → 0, {author: gfsmmd} → 126). Only fill it when the request '
-      'gives a handle. If the user names an author in prose, either search '
-      'the "user" segment or leave the name in "query".',
-    )
-    ..writeln(
-      '- ⭐ Because words AND, do NOT pile on context the user did not ask '
-      'for. `"甘雨"` finds 119 videos; adding her series as `"原神" "甘雨"` '
-      'cuts it to 10, because most uploaders never write the series name. '
-      'Search the most distinctive term; if it is a tag name the app '
-      'already expands it to the tag.',
-    )
-    ..writeln(
-      '- Typo tolerance is erratic ("mliku" → 7263 hits, "mikuu" → 4). Write '
-      'the correct, conventional spelling yourself; do not pass the user\'s '
-      'typo through, and prefer the romanisation their search history shows '
-      'they use.',
-    )
-    ..writeln(
-      '- "rating": ~88% of the catalogue is `ecchi`, so filtering on it '
-      'narrows almost nothing. Only set it when the user explicitly asks for '
-      'SFW / NSFW.',
-    )
-    ..writeln(
-      '- ⛔ "duration" is only recorded for 55% of the videos, so ANY duration '
-      'filter silently throws away the other 45%. Only use it when the '
-      'request is really about length.',
+      '- Free text searches titles and descriptions only — NOT tags and NOT '
+      'usernames. Tags and authors are filters or tag names (see below).',
     )
     ..writeln()
+    ..writeln('What the app does by itself after you answer — do not redo it:')
     ..writeln(
-      '⭐ You can check yourself: call `preview_search` with the query (and '
-      'tags) you are about to answer with, and look at the count. Do it at '
-      'least once. A count of 0 or 1 means the phrase does not exist verbatim '
-      'and you must fall back, IN THIS ORDER: (1) if it contains a particle, '
-      'split it into two quoted parts (`"原神の甘雨"` 0 → `"原神" "甘雨"` 10; '
-      '`"初音ミクのダンス"` 0 → `"初音ミク" "ダンス"` 135); (2) drop the least '
-      'distinctive word; (3) as a last resort drop the quotes entirely. Stop '
-      'at the first step that returns results. A count in the tens of '
-      'thousands for a specific request means the opposite — you are too '
-      'loose, most likely because a CJK phrase went unquoted. Answer with the '
-      'version you actually verified.',
+      '- ⭐ Tag expansion (videos and images): every word of "query" that is '
+      'EXACTLY a tag name in any language is also searched as that tag, and '
+      'as its Japanese / English / Chinese name, and the results are merged '
+      'and checked (a result must have the name in its title or carry the '
+      'tag). This is where most results come from — measured recall 17% '
+      'without it, 97% with it (原神 as text alone: 17 recent videos, with the '
+      'tag: 324). So put a character / series / genre in "query" by a name '
+      'the app recognises; `lookup_tags` tells you which names those are.',
+    )
+    ..writeln(
+      '- Therefore a tags FILTER is a hard constraint, not a way to reach the '
+      'tag: it is ANDed into every merged search and cuts out everything '
+      'untagged. Use it only when the user wants "only videos tagged X", '
+      'or NOT_IN for "without X".',
+    )
+    ..writeln(
+      '- It re-runs the keyword against the Chinese and Japanese title '
+      'indexes (the engine only searches one language per query). ⛔ So never '
+      'add a title/body filter just to reach another language — it would be '
+      'ANDed and CUT results (409 ∩ 307 = 38).',
+    )
+    ..writeln(
+      '- It auto-quotes CJK words without hiragana, and if a quoted phrase '
+      'returns nothing it retries unquoted. You do not need to pre-emptively '
+      'drop quotes.',
     )
     ..writeln()
-    ..writeln('Rules:')
+    ..writeln('Filters and sort:')
+    ..writeln(
+      '- ⭐ "popular" / "most viewed" / "trending" / "newest" is a SORT, not '
+      'an invented threshold like views >= 10000 — a made-up number silently '
+      'throws away everything below it.',
+    )
+    ..writeln(
+      '- "author" is the exact @username (case-insensitive); display names '
+      'and fragments match nothing. When the user names an author, call '
+      '`find_user` and use the username it returns. IN on author is OR '
+      '(several authors), NOT_IN excludes.',
+    )
+    ..writeln(
+      '- IN on one filter is OR; two filters on the same field are AND.',
+    )
+    ..writeln(
+      '- "rating": ~88% of the catalogue is ecchi, so only set it when the '
+      'user explicitly asks for SFW / NSFW. ⛔ "duration" is recorded for '
+      'only 55% of videos — any duration filter silently drops the other '
+      '45%; use it only when the request really is about length.',
+    )
+    ..writeln(
+      '- title / body / name filters need "locale": en for Latin, ja for '
+      'anything with kana or Japanese kanji, zh only for Chinese-only text '
+      '(崩坏, 发). Use them only when the user asks to constrain on title or '
+      'description.',
+    )
+    ..writeln()
+    ..writeln('How to work:')
+    ..writeln(
+      '1. For every character / series / genre / theme in the request, call '
+      '`lookup_tags` (all terms in one call). Prefer a name with '
+      '"app_auto_expands": true; if the user\'s word has none, a listed '
+      'similar tag\'s name may be the right term. Never invent a slug.',
+    )
+    ..writeln('2. If an author is named, call `find_user`.')
+    ..writeln(
+      '3. Call `preview_search` with your full candidate answer. It runs '
+      'EXACTLY the search the user will get (same merging, same checks) and '
+      'returns the estimated total, how many each route contributed, which '
+      'tags were expanded, and the first titles. Judge the TITLES: are they '
+      'what the user asked for? 0 results or off-topic titles → adjust and '
+      'preview again. Tens of thousands for a specific request → too loose. '
+      'Answer with a version you previewed.',
+    )
+    ..writeln()
+    ..writeln('Answer fields:')
     ..writeln(
       '- "segment": keep "${current.name}" unless the request clearly points '
       'at another index.',
@@ -344,24 +457,15 @@ String _systemPrompt(SearchSegment current, String currentSort) {
       'the user\'s current sort alone.',
     )
     ..writeln(
-      '- ⭐ Prefer sort over an invented threshold. "popular" / "most viewed" '
-      '/ "trending" is a SORT, not a filter like views >= 10000 — a made-up '
-      'number silently throws away everything below it.',
+      '- "query": quoted phrases, bare words and `-word` exclusions only. '
+      'Strip anything you expressed as segment, sort or filter; "" when the '
+      'request is purely about those.',
     )
     ..writeln(
-      '- "query" is the free-text keyword, written in the engine\'s syntax: '
-      'quoted phrases, bare words, and `-word` exclusions. Strip out anything '
-      'you expressed as segment, sort or filter. If the request is purely '
-      'about those, use "". Examples of good queries: `"初音ミク" "ダンス"`, '
-      '`"hatsune miku" -mmd`, `cosplay`.',
+      '- "filters": only fields listed under the segment you picked. Omit '
+      'it when nothing maps cleanly — fold the rest into "query" instead of '
+      'inventing a field.',
     )
-    ..writeln(
-      '- "filters": only fields listed under the segment you picked. If the '
-      'request mentions something with no matching field there, fold it into '
-      '"query" instead of inventing a field or borrowing one from another '
-      'segment.',
-    )
-    ..writeln('- Omit "filters" entirely when nothing maps cleanly.')
     ..writeln()
     ..writeln('Value formats (the "value" field is always a string):')
     ..writeln('- RANGE: "from..to". One side may be empty: "100.." or "..100".')
@@ -369,36 +473,10 @@ String _systemPrompt(SearchSegment current, String currentSort) {
     ..writeln('- DATE: ISO date, "2026-01-31".')
     ..writeln('- BOOLEAN: "true" or "false".')
     ..writeln()
-    // 本地化字段不挑语言就等于没筛：`{title: x}` 是个不存在的字段，服务端
-    // **静默忽略**它并把整个索引还回来（实测 320928 条＝全站）。
+    // 思考过程要给用户看，用他的界面语言写；原生推理管不了，正文那几句管得了。
     ..writeln(
-      '"locale" (only for the localized fields title / body / name — required '
-      'there):',
-    )
-    ..writeln(
-      '- Each language keeps its own index of the SAME text, analysed by that '
-      'language\'s tokenizer, so the suffix decides how well the text splits. '
-      'Measured: "kangxi" → en 666 / ja 76 / zh 2; "白金ディスコ" → ja 33 / '
-      'en 14 / zh 0; "崩坏" → zh 548 / ja 277; "原神" → ja 914 / zh 309.',
-    )
-    ..writeln('- Latin letters / romaji → "en".')
-    ..writeln('- Anything with kana, or Japanese written in kanji → "ja".')
-    ..writeln(
-      '- "zh" only for text that is Chinese-only — simplified characters that '
-      'do not exist in Japanese (崩坏, 发, 龙) or a Chinese-only rendering of '
-      'a name. Shared kanji (原神, 甘雨) do better on "ja", because most '
-      'titles on the site are Japanese.',
-    )
-    ..writeln(
-      '- ⛔ Do NOT add a title/body filter just to reach another language. '
-      'Free text only searches ONE language\'s title+body (the engine guesses '
-      'which, and guesses badly: 原神 → en, 明日方舟 → ja, 东方 → zh), but the '
-      'app ALREADY re-runs your quoted keyword against the Chinese and '
-      'Japanese title indexes and merges the results. A title filter would be '
-      'ANDed with the free text instead, which CUTS results (原神 free text '
-      '409 ∩ {title_zh:"原神"} 307 = only 38). Use these filters only when the '
-      'user really wants to constrain — "only Chinese titles", "mentioned in '
-      'the description".',
+      'Write your explanation sentences in the language with BCP-47 tag '
+      '"${slang.LocaleSettings.currentLocale.languageTag}".',
     );
 
   final history = _historyHints();
@@ -427,12 +505,54 @@ String? _segmentNote(SearchSegment seg) => switch (seg) {
         'some of them point at videos that no longer exist on Iwara. Pick it '
         'only when the user asks for it by name or wants to browse by '
         'origin / character, not merely because an Iwara keyword search '
-        'looks thin.',
-  SearchSegment.forum => 'Forum threads.',
+        'looks thin. It cannot be previewed.',
+  SearchSegment.forum => 'Forum threads (titles only are searchable).',
   SearchSegment.forum_posts => 'Individual forum replies, not whole threads.',
   SearchSegment.post => 'Blog-style posts written by users.',
   SearchSegment.playlist => 'User-made video playlists.',
   _ => null,
+};
+
+/// 答案的 `properties`，试搜工具的入参原样复用它——模型试搜的与交上来的是
+/// 同一种东西，不必学两套。
+Map<String, dynamic> _formProperties(List<String> fieldNames) => {
+  'segment': {
+    'type': 'string',
+    'enum': SearchSegment.values.map((s) => s.name).toList(),
+    'description': 'Which index to search.',
+  },
+  'query': {
+    'type': 'string',
+    'description': 'Free-text keyword. Empty string if filters cover it all.',
+  },
+  'sort': {
+    'type': 'string',
+    'description':
+        'A sort value of the chosen segment. Omit to keep the current sort.',
+  },
+  'filters': {
+    'type': 'array',
+    'description': 'Structured filters. Omit when nothing maps.',
+    'items': {
+      'type': 'object',
+      'properties': {
+        'field': {'type': 'string', 'enum': fieldNames},
+        'operator': {
+          'type': 'string',
+          'enum': FilterOperator.values.map((o) => o.name).toList(),
+        },
+        'value': {'type': 'string'},
+        'locale': {
+          'type': 'string',
+          'enum': _locales,
+          'description':
+              'Language index for the localized fields (title/body/name). '
+              'Required for those, ignored elsewhere.',
+        },
+      },
+      'required': ['field', 'operator', 'value'],
+    },
+  },
 };
 
 /// ⛔ 用 `Schema.fromMap` 手写这张表，不用 `json_schema_builder` 的
@@ -442,50 +562,365 @@ String? _segmentNote(SearchSegment seg) => switch (seg) {
 /// （见 `AiService._jsonContractPrompt`），写成什么样模型就看到什么样。
 Schema _schemaFor(List<String> fieldNames) => Schema.fromMap({
   'type': 'object',
-  'properties': {
-    'segment': {
-      'type': 'string',
-      'enum': SearchSegment.values.map((s) => s.name).toList(),
-      'description': 'Which index to search.',
-    },
-    'query': {
-      'type': 'string',
-      'description': 'Free-text keyword. Empty string if filters cover it all.',
-    },
-    'sort': {
-      'type': 'string',
-      'description':
-          'A sort value of the chosen segment. Omit to keep the current sort.',
-    },
-    'filters': {
-      'type': 'array',
-      'description': 'Structured filters. Omit when nothing maps.',
-      'items': {
-        'type': 'object',
-        'properties': {
-          'field': {'type': 'string', 'enum': fieldNames},
-          'operator': {
-            'type': 'string',
-            'enum': FilterOperator.values.map((o) => o.name).toList(),
-          },
-          'value': {'type': 'string'},
-          'locale': {
-            'type': 'string',
-            'enum': _locales,
-            'description':
-                'Language index for the localized fields (title/body/name). '
-                'Required for those, ignored elsewhere.',
-          },
-        },
-        'required': ['field', 'operator', 'value'],
-      },
-    },
-  },
+  'properties': _formProperties(fieldNames),
   'required': ['query'],
 });
 
-AiSearchQuery _parse(Map<String, dynamic> raw, SearchSegment current) {
-  final segment = _parseSegment(raw['segment'], current);
+// ─────────────────────────────────────────────────────────────────────────
+// 工具
+// ─────────────────────────────────────────────────────────────────────────
+
+/// 试搜最多几次、查标签最多几次、查作者最多几次。
+///
+/// ⛔ 必须有上限，而且要**在工具里硬拦**，不能只写在提示词里：一次试搜是一次
+/// 真实的多路搜索 + 一整轮对话，模型钻进「再查一次说不定更好」的循环时，用户
+/// 看到的是弹窗转了一分钟。
+const int _maxPreviewCalls = 4;
+const int _maxLookupCalls = 3;
+const int _maxFindUserCalls = 2;
+
+/// 试搜拉第 0 页拉多少条、回给模型看前几条。
+const int _previewPageSize = 20;
+const int _previewTitleCount = 8;
+
+/// 一次试搜最多等多久。多路归并首屏实测约 1.5s，冷连接会更久。
+const Duration _previewTimeout = Duration(seconds: 25);
+
+/// 一次 AI 搜索里几件工具共用的状态：次数、以及试搜过的结果（最后拿去对答案）。
+class _AiSearchSession {
+  _AiSearchSession(this.current, this.currentSort);
+
+  final SearchSegment current;
+  final String currentSort;
+
+  int _previewsUsed = 0;
+  int _lookupsUsed = 0;
+  int _userLookupsUsed = 0;
+
+  /// 指纹（见 [_plannedSearch]）→ 那次试搜的结果。
+  final Map<String, AiSearchPreview> previews = {};
+
+  /// ⭐ 让模型能**真的搜一下**再回答——而且搜的就是用户会搜的那一次。
+  ///
+  /// ⛔ 入参是**与答案同形**的一张表，不接花括号原文：整份提示词都刻意没教它
+  /// 那套语法，在这儿开个后门等于让它现学一套没人校验的东西。
+  ///
+  /// ⛔ 出错一律**回成一条结果**而不是抛出去：抛出去会把整轮对话打断，用户只
+  /// 拿到一句网络错误；回给它看，它自己会换个写法。
+  AiTool previewTool(List<String> fieldNames) => AiTool(
+    tool: Tool<Map<String, dynamic>>(
+      name: 'preview_search',
+      description:
+          'Run your candidate answer as the real search the user will get: '
+          'same query assembly, same automatic tag expansion and merging, '
+          'same sort. Takes exactly the same fields as your answer. Returns '
+          'the estimated total, how many results each route contributed '
+          '(main = your words as typed, tags = expanded tag, alias = the name '
+          'in another language, title = another language\'s title index), '
+          'the expanded tags, the first titles, and notes about anything in '
+          'your form that was dropped or changed. oreno3d cannot be '
+          'previewed. At most $_maxPreviewCalls calls.',
+      inputSchema: Schema.fromMap({
+        'type': 'object',
+        'properties': _formProperties(fieldNames),
+        'required': ['query'],
+      }),
+      onCall: (args) async {
+        if (_previewsUsed >= _maxPreviewCalls) {
+          return {
+            'error':
+                'preview limit of $_maxPreviewCalls reached — answer with '
+                'what you have.',
+          };
+        }
+        _previewsUsed++;
+        return _runPreview(args);
+      },
+    ),
+    describeCall: (args) {
+      final query = (args['query'] as String?)?.trim() ?? '';
+      final filters = (args['filters'] as List?)?.length ?? 0;
+      final parts = [
+        if (query.isNotEmpty) query,
+        if (filters > 0) slang.t.ai.searchToolFilterCount(count: filters),
+      ];
+      return slang.t.ai.searchToolProbing(
+        query: parts.isEmpty ? '…' : parts.join(' + '),
+      );
+    },
+    describeResult: (result) {
+      if (result is! Map) return slang.t.ai.searchToolFailed(reason: '$result');
+      final error = result['error'];
+      if (error != null) return slang.t.ai.searchToolFailed(reason: '$error');
+      final titles =
+          (result['first_results'] as List?)?.cast<String>().take(3) ??
+          const <String>[];
+      final tags = (result['expanded_tags'] as List?)?.cast<String>() ?? [];
+      final found = slang.t.ai.searchToolFound(
+        count: result['estimated_total'] as int? ?? 0,
+        titles: titles.join(' / '),
+      );
+      return tags.isEmpty
+          ? found
+          : '${slang.t.ai.searchToolExpanded(tags: tags.map((t) => '#$t').join(' '))} · $found';
+    },
+  );
+
+  Future<Map<String, dynamic>> _runPreview(Map<String, dynamic> args) async {
+    final notes = <String>[];
+    final form = _parse(args, current, notes: notes);
+    if (form.segment == SearchSegment.oreno3d) {
+      return {'error': 'oreno3d cannot be previewed — answer directly.'};
+    }
+    final planned = _plannedSearch(
+      segment: form.segment,
+      keyword: form.query,
+      filters: form.filters,
+      sort: form.sort,
+      currentSegment: current,
+      currentSort: currentSort,
+    );
+    final repo = createIwaraSearchRepository(
+      form.segment,
+      query: planned.query,
+      sort: planned.sort,
+    );
+    if (repo == null) return {'error': 'segment cannot be previewed'};
+
+    try {
+      final response = await repo
+          .fetchDataFromSource(
+            repo.buildQueryParams(0, _previewPageSize),
+            0,
+            _previewPageSize,
+          )
+          .timeout(_previewTimeout);
+      final items = repo.extractDataList(response);
+      final total = repo.extractTotalCount(response);
+      final titles = <String>[
+        for (final item in items)
+          if (_clip(repo.previewTitle(item)) case final title
+              when title.isNotEmpty)
+            title,
+      ].take(_previewTitleCount).toList();
+      final tags = [
+        for (final match in repo.plan.tags)
+          TagLocalizationService.displayName(match.slugs.first),
+      ];
+
+      previews[planned.fingerprint] = AiSearchPreview(
+        fingerprint: planned.fingerprint,
+        total: total,
+        titles: titles,
+      );
+
+      return {
+        'sent_query': planned.query,
+        'sort': planned.sort,
+        'estimated_total': total,
+        if (repo.isMerging)
+          'routes': [
+            for (final r in repo.routeStats)
+              {'kind': r.kind.name, 'query': r.query, 'count': r.count},
+          ],
+        if (tags.isNotEmpty) 'expanded_tags': tags,
+        'first_results': titles,
+        if (notes.isNotEmpty) 'notes': notes,
+      };
+    } catch (e) {
+      LogUtils.w('AI 搜索试搜失败：$e', 'AiSearchQuery');
+      return {'error': '$e'};
+    } finally {
+      repo.dispose();
+    }
+  }
+
+  /// ⭐ 查随包的标签词库——与「按标签补搜」用的是同一个判法，所以它说「会自动
+  /// 补搜」就真的会。
+  AiTool lookupTagsTool() => AiTool(
+    tool: Tool<Map<String, dynamic>>(
+      name: 'lookup_tags',
+      description:
+          'Look terms up in the Iwara tag dictionary the app ships with. For '
+          'each term: whether it is EXACTLY a tag name (then '
+          '"app_auto_expands" says the app will search that tag for you when '
+          'the term is in "query" on videos/images), the real slugs, the '
+          'tag\'s names in other languages, and similar tags when there is no '
+          'exact match. Put all terms in one call. At most $_maxLookupCalls '
+          'calls.',
+      inputSchema: Schema.fromMap({
+        'type': 'object',
+        'properties': {
+          'terms': {
+            'type': 'array',
+            'items': {'type': 'string'},
+            'description': 'Names to look up, in any language.',
+          },
+        },
+        'required': ['terms'],
+      }),
+      onCall: (args) async {
+        if (_lookupsUsed >= _maxLookupCalls) {
+          return {'error': 'lookup limit reached — answer with what you have.'};
+        }
+        _lookupsUsed++;
+        return {
+          'results': [for (final term in _terms(args)) _describeTerm(term)],
+        };
+      },
+    ),
+    describeCall: (args) =>
+        slang.t.ai.searchToolLookupTags(terms: _terms(args).join(', ')),
+    describeResult: (result) {
+      if (result is! Map || result['results'] is! List) {
+        return slang.t.ai.searchToolFailed(
+          reason: '${result is Map ? result['error'] : result}',
+        );
+      }
+      return [
+        for (final r in (result['results'] as List).whereType<Map>())
+          r['slugs'] is List
+              ? '${r['term']} → #${TagLocalizationService.displayName((r['slugs'] as List).first as String)}'
+              : '${r['term']} → ${slang.t.ai.searchToolTagMissing}',
+      ].join(' · ');
+    },
+  );
+
+  static List<String> _terms(Map<String, dynamic> args) =>
+      ((args['terms'] as List?) ?? const [])
+          .map((e) => e.toString().trim())
+          .where((e) => e.isNotEmpty)
+          .take(12)
+          .toList();
+
+  Map<String, dynamic> _describeTerm(String term) {
+    final exact = TagLocalizationService.matchName(term);
+    final similar = [
+      for (final tag in TagLocalizationService.search(term, limit: 8))
+        if (exact == null || !exact.slugs.contains(tag.id))
+          {'slug': tag.id, 'name': TagLocalizationService.displayName(tag.id)},
+    ].take(6).toList();
+    return {
+      'term': term,
+      if (exact != null) ...{
+        'slugs': exact.slugs,
+        'names': exact.aliases,
+        'app_auto_expands': _tagExpansionEnabled,
+      },
+      if (exact == null) 'exact_tag': false,
+      if (similar.isNotEmpty) 'similar_tags': similar,
+    };
+  }
+
+  /// 作者的显示名 → `{author:…}` 要的 @username。
+  AiTool findUserTool() => AiTool(
+    tool: Tool<Map<String, dynamic>>(
+      name: 'find_user',
+      description:
+          'Find Iwara users by display name or handle and get their exact '
+          '@username (what the "author" filter needs). At most '
+          '$_maxFindUserCalls calls.',
+      inputSchema: Schema.fromMap({
+        'type': 'object',
+        'properties': {
+          'name': {
+            'type': 'string',
+            'description': 'The name as the user wrote it.',
+          },
+        },
+        'required': ['name'],
+      }),
+      onCall: (args) async {
+        if (_userLookupsUsed >= _maxFindUserCalls) {
+          return {'error': 'find_user limit reached.'};
+        }
+        _userLookupsUsed++;
+        return _findUser((args['name'] as String?)?.trim() ?? '');
+      },
+    ),
+    describeCall: (args) =>
+        slang.t.ai.searchToolFindUser(name: '${args['name'] ?? '…'}'),
+    describeResult: (result) {
+      if (result is! Map || result['users'] is! List) {
+        return slang.t.ai.searchToolFailed(
+          reason: '${result is Map ? result['error'] : result}',
+        );
+      }
+      final users = (result['users'] as List).whereType<Map>().toList();
+      return slang.t.ai.searchToolUsersFound(
+        count: users.length,
+        users: users.take(3).map((u) => '@${u['username']}').join(' / '),
+      );
+    },
+  );
+
+  Future<Map<String, dynamic>> _findUser(String name) async {
+    if (name.isEmpty) return {'error': 'empty name'};
+    final api = Get.find<ApiService>();
+    final queries = <String>[
+      autoQuoteKeyword(name),
+      // 像个 handle 就再精确查一次用户名：自由文本搜的是显示名与简介。
+      if (RegExp(r'^[A-Za-z0-9_.\-]+$').hasMatch(name)) '{username:$name}',
+    ];
+    final users = <String, Map<String, String>>{};
+    try {
+      for (final query in queries) {
+        final response = await api.get(
+          '/search',
+          queryParameters: {
+            'query': query,
+            'type': SearchSegment.user.apiType,
+            'page': 0,
+            'limit': 6,
+            'sort': 'relevance',
+          },
+        );
+        final results = (response.data is Map)
+            ? (response.data['results'] as List?) ?? const []
+            : const [];
+        for (final item in results.whereType<Map>()) {
+          final username = '${item['username'] ?? ''}';
+          if (username.isEmpty) continue;
+          users[username.toLowerCase()] ??= {
+            'username': username,
+            'name': '${item['name'] ?? ''}',
+          };
+        }
+      }
+    } catch (e) {
+      LogUtils.w('AI 搜索查作者失败：$e', 'AiSearchQuery');
+      if (users.isEmpty) return {'error': '$e'};
+    }
+    return {'users': users.values.take(6).toList()};
+  }
+}
+
+String _clip(String text) {
+  final flat = text.replaceAll(RegExp(r'\s+'), ' ').trim();
+  return flat.length <= 80 ? flat : '${flat.substring(0, 80)}…';
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// 解析
+// ─────────────────────────────────────────────────────────────────────────
+
+/// 一张解析、校验过的表。
+typedef _Form = ({
+  SearchSegment segment,
+  String query,
+  String? sort,
+  List<Filter> filters,
+});
+
+/// [notes] 收集「表里哪些东西被丢掉或改掉了」（英文，回给模型看）：试搜时它得
+/// 知道自己写的标签不存在、字段不属于这个板块，否则会拿着一张被悄悄改过的表
+/// 去解读结果。
+_Form _parse(
+  Map<String, dynamic> raw,
+  SearchSegment current, {
+  List<String>? notes,
+}) {
+  final segment = _parseSegment(raw['segment'], current, notes);
   final fields = FilterConfig.getContentType(segment)?.fields ?? const [];
 
   var query = (raw['query'] as String?)?.trim() ?? '';
@@ -497,7 +932,12 @@ AiSearchQuery _parse(Map<String, dynamic> raw, SearchSegment current) {
   if (rawFilters is List) {
     for (final item in rawFilters) {
       if (item is! Map) continue;
-      final filter = _toFilter(item.cast<String, dynamic>(), fields, leftovers);
+      final filter = _toFilter(
+        item.cast<String, dynamic>(),
+        fields,
+        leftovers,
+        notes,
+      );
       if (filter != null) filters.add(filter);
     }
   }
@@ -510,183 +950,27 @@ AiSearchQuery _parse(Map<String, dynamic> raw, SearchSegment current) {
   // ⛔ oreno3d 是另一个站的搜索，不吃 iwara 的引号/减号语法。
   if (segment != SearchSegment.oreno3d) query = autoQuoteKeyword(query);
 
-  final sort = _parseSort(raw['sort'], segment);
-
-  return AiSearchQuery(
-    query: query,
+  return (
     segment: segment,
-    segmentChanged: segment != current,
-    sort: sort,
+    query: query,
+    sort: _parseSort(raw['sort'], segment, notes),
     filters: filters,
   );
 }
 
-/// 模型最多能试搜几次。
-///
-/// ⛔ 必须有个上限，而且要**在工具里硬拦**，不能只写在提示词里：一次试搜是一次
-/// 真实网络请求 + 一整轮对话，模型钻进「再查一次说不定更好」的循环时，用户看到
-/// 的是弹窗转了一分钟。四次够它验完关键词和两三个标签了。
-const int _maxPreviewCalls = 4;
-
-/// 试搜时看前几条标题。
-const int _previewTitleCount = 3;
-
-/// ⭐ 让模型能**真的搜一下**再回答。
-///
-/// 这是把「iwara 引擎很怪」这件事从提示词里解放出来的关键一步：提示词只能告诉
-/// 它规则，试搜能告诉它**这一次到底成不成**。最值当的两种用法：
-/// - 关键词加了引号之后还有没有结果（短语不存在时是 0 条，而 0 条比一堆不相关
-///   更难受，它得退回不加引号）；
-/// - 标签是不是真的（`{tags:[miku]}` 是 0 条，真 id 叫 `hatsune_miku`）。
-///
-/// ⛔ 工具只接**填表用的那几项**（板块 / 关键词 / 标签），不接花括号原文：整份
-/// 提示词都刻意没教它那套语法（见 [buildAiSearchQuery] 的说明），在这儿开个后门
-/// 等于让它现学一套没人校验的东西。
-///
-/// ⛔ 出错一律**回成一条结果**而不是抛出去：抛出去会把整轮对话打断，用户只拿到
-/// 一句网络错误；回给它看，它自己会换个写法。
-AiTool _searchPreviewTool() {
-  var used = 0;
-
-  // oreno3d 是另一个站，这个探针打的是 api.iwara.tv，探不了它。
-  final segments = SearchSegment.values
-      .where((s) => s != SearchSegment.oreno3d)
-      .map((s) => s.name)
-      .toList();
-
-  return AiTool(
-    tool: Tool<Map<String, dynamic>>(
-      name: 'preview_search',
-      description:
-          'Run a candidate search against the real Iwara index and get back '
-          'how many results it returns, plus the first few titles. Check '
-          'yourself with this before you answer — above all (1) that a quoted '
-          'phrase really occurs, and (2) that the tags you picked exist at '
-          'all (a wrong tag slug returns 0 and would hand the user an empty '
-          'page). At most $_maxPreviewCalls calls; if a result is 0 or '
-          'obviously off, adjust and answer with the version you verified.',
-      inputSchema: Schema.fromMap({
-        'type': 'object',
-        'properties': {
-          'segment': {
-            'type': 'string',
-            'enum': segments,
-            'description': 'Which index. Defaults to videos.',
-          },
-          'query': {
-            'type': 'string',
-            'description':
-                'Free-text part, in the engine syntax: quoted phrases, bare '
-                'words, -word to exclude. May be empty when only checking tags.',
-          },
-          'tags': {
-            'type': 'array',
-            'items': {'type': 'string'},
-            'description': 'Tag slugs to require (they are OR-ed together).',
-          },
-        },
-        'required': ['query'],
-      }),
-      onCall: (args) async {
-        if (used >= _maxPreviewCalls) {
-          return {
-            'error':
-                'preview limit of $_maxPreviewCalls reached — answer with '
-                'what you have.',
-          };
-        }
-        used++;
-        return _runPreview(args);
-      },
-    ),
-    describeCall: (args) {
-      final parts = <String>[
-        (args['query'] as String?)?.trim() ?? '',
-        ..._previewTags(args).map((t) => '#$t'),
-      ].where((e) => e.isNotEmpty);
-      return slang.t.ai.searchToolProbing(
-        query: parts.isEmpty ? '…' : parts.join(' '),
-      );
-    },
-    describeResult: (result) {
-      if (result is! Map) return slang.t.ai.searchToolFailed(reason: '$result');
-      final error = result['error'];
-      if (error != null) {
-        return slang.t.ai.searchToolFailed(reason: '$error');
-      }
-      final titles = (result['titles'] as List?)?.cast<String>() ?? const [];
-      return slang.t.ai.searchToolFound(
-        count: result['count'] as int? ?? 0,
-        titles: titles.join(' / '),
-      );
-    },
-  );
-}
-
-List<String> _previewTags(Map<String, dynamic> args) =>
-    (args['tags'] as List?)
-        ?.map((e) => e.toString().trim())
-        .where((e) => e.isNotEmpty)
-        .toList() ??
-    const [];
-
-/// 真打一次 `/search`，只取 count 与前几条标题。
-Future<Map<String, dynamic>> _runPreview(Map<String, dynamic> args) async {
-  final segment = SearchSegment.values.firstWhereOrNull(
-    (s) => s.name == (args['segment'] as String?)?.trim(),
-  );
-  final type = (segment ?? SearchSegment.video).apiType;
-
-  final tags = _previewTags(args);
-  // ⛔ 自由文本必须在花括号前面，反过来文本会被引擎静默丢掉（见 composeQuery）。
-  // 模型自己在 query 里写的筛选也一并挪到后面。
-  final parts = splitQueryParts((args['query'] as String?)?.trim() ?? '');
-  final query = composeQuery(
-    parts.text,
-    [
-      parts.filters,
-      if (tags.isNotEmpty) '{tags:[${tags.join(',')}]}',
-    ].where((e) => e.isNotEmpty).join(' '),
-  );
-
-  try {
-    final response = await Get.find<ApiService>().get(
-      '/search',
-      queryParameters: {
-        'query': query,
-        'type': type,
-        'page': 0,
-        'limit': _previewTitleCount,
-        // ⛔ 探的是「有没有」，不是「先看谁」——按相关度排，第一页才代表这批
-        // 结果里最像的那几条。
-        'sort': 'relevance',
-      },
-    );
-    final data = response.data;
-    if (data is! Map) return {'error': 'unexpected response'};
-    final results = (data['results'] as List?) ?? const [];
-    return {
-      'count': data['count'] ?? 0,
-      'titles': [
-        for (final item in results.take(_previewTitleCount))
-          if (item is Map)
-            '${item['title'] ?? item['name'] ?? item['username'] ?? ''}',
-      ].where((e) => e.isNotEmpty).toList(),
-    };
-  } catch (e) {
-    LogUtils.w('AI 搜索试搜失败：$e', 'AiSearchQuery');
-    return {'error': '$e'};
-  }
-}
-
 /// 认不出就留在用户当前的板块。⛔ 不要猜一个——把人送去别的索引，比少换一次
 /// 板块难收拾得多。
-SearchSegment _parseSegment(Object? raw, SearchSegment fallback) {
+SearchSegment _parseSegment(
+  Object? raw,
+  SearchSegment fallback,
+  List<String>? notes,
+) {
   final name = (raw as String?)?.trim();
   if (name == null || name.isEmpty) return fallback;
   final seg = SearchSegment.values.firstWhereOrNull((s) => s.name == name);
   if (seg == null) {
     LogUtils.w('AI 搜索给了不存在的板块：$name', 'AiSearchQuery');
+    notes?.add('unknown segment "$name" — kept "${fallback.name}"');
     return fallback;
   }
   return seg;
@@ -694,7 +978,7 @@ SearchSegment _parseSegment(Object? raw, SearchSegment fallback) {
 
 /// 排序值必须是**它选的那个板块**的合法值。oreno3d 的 `hot` 放到视频板块上
 /// 是一条服务端不认识的参数，搜出来是空的。
-String? _parseSort(Object? raw, SearchSegment segment) {
+String? _parseSort(Object? raw, SearchSegment segment, List<String>? notes) {
   final value = (raw as String?)?.trim();
   if (value == null || value.isEmpty) return null;
   final allowed = FilterConfig.getSortOptionsForSegment(
@@ -702,6 +986,7 @@ String? _parseSort(Object? raw, SearchSegment segment) {
   ).map((o) => o.value);
   if (!allowed.contains(value)) {
     LogUtils.w('AI 搜索给了 ${segment.name} 不支持的排序：$value', 'AiSearchQuery');
+    notes?.add('sort "$value" is not valid for ${segment.name} — ignored');
     return null;
   }
   return value;
@@ -711,6 +996,7 @@ Filter? _toFilter(
   Map<String, dynamic> raw,
   List<FilterField> fields,
   List<String> leftovers,
+  List<String>? notes,
 ) {
   final fieldName = (raw['field'] as String?)?.trim();
   if (fieldName == null || fieldName.isEmpty) return null;
@@ -721,13 +1007,17 @@ Filter? _toFilter(
   final field = fields.firstWhereOrNull((f) => f.name == fieldName);
   if (field == null) {
     LogUtils.w('AI 搜索给了本板块没有的字段：$fieldName', 'AiSearchQuery');
+    notes?.add('filter field "$fieldName" does not exist here — dropped');
     return null;
   }
 
   final operator = FilterOperator.values.firstWhereOrNull(
     (o) => o.name == (raw['operator'] as String?)?.trim(),
   );
-  if (operator == null) return null;
+  if (operator == null) {
+    notes?.add('filter on "$fieldName" has an unknown operator — dropped');
+    return null;
+  }
 
   // ⛔ 运算符也要按字段类型验：筛选抽屉里每个字段只给得出
   // [FilterConfig.getOperatorsForType] 那几个，模型却看得见全部。
@@ -738,6 +1028,7 @@ Filter? _toFilter(
       'AI 搜索把 ${operator.name} 用在了 ${field.name}（${field.type.name}）上',
       'AiSearchQuery',
     );
+    notes?.add('${operator.name} is not allowed on "$fieldName" — dropped');
     return null;
   }
 
@@ -746,10 +1037,13 @@ Filter? _toFilter(
     field,
     operator,
   );
-  if (value == null) return null;
+  if (value == null) {
+    notes?.add('value "${raw['value']}" for "$fieldName" is invalid — dropped');
+    return null;
+  }
 
   if (field.name == 'tags' && value is List<String>) {
-    value = _resolveTags(value, leftovers);
+    value = _resolveTags(value, leftovers, notes);
     if ((value as List).isEmpty) return null;
   }
 
@@ -794,7 +1088,7 @@ String _inferLocale(String text) =>
 /// 假名（含半角）+ 汉字（含扩展 A 与兼容区）。见 [_inferLocale]。
 final RegExp _japaneseish = RegExp(
   r'[぀-ヿㇰ-ㇿｦ-ﾟ'
-  r'㐀-䶿一-鿿豈-﫿]',
+  r'㐀-䶿一-鿿豈-﫿]',
 );
 
 String _flatten(Object? value) {
@@ -812,27 +1106,40 @@ String _flatten(Object? value) {
 /// App 本来就随包带着整份 iwara 标签词库（[TagLocalizationService]，id + 当前
 /// 语言译名），所以这件事不该让模型猜：它写用户的话或英文 slug，由我们查表。
 /// 查不到的不留在筛选里，而是退回关键词——空列表比模糊结果难用得多。
-List<String> _resolveTags(List<String> raw, List<String> leftovers) {
+List<String> _resolveTags(
+  List<String> raw,
+  List<String> leftovers,
+  List<String>? notes,
+) {
   final out = <String>[];
   for (final item in raw) {
     final resolved = _resolveTag(item);
-    if (resolved == null) {
+    if (resolved.isEmpty) {
       LogUtils.w('AI 搜索给了词库里没有的标签：$item，退回关键词', 'AiSearchQuery');
+      notes?.add('tag "$item" is not in the dictionary — moved into query');
       leftovers.add(item);
       continue;
     }
-    if (!out.contains(resolved)) out.add(resolved);
+    for (final slug in resolved) {
+      if (!out.contains(slug)) out.add(slug);
+    }
   }
   return out;
 }
 
-/// 只认**精确**命中（id 或当前语言译名，忽略大小写与下划线/空格之差）。
+/// 只认**精确**命中：先问「按标签补搜」用的那个名字索引（四种语言的名字都认；
+/// 同名的一组标签全要，`巨乳` 是五个 slug），再按 id / 当前语言译名比（忽略大小写
+/// 与下划线/空格之差）。认不出返回空表。
+///
 /// ⛔ 不要拿 [TagLocalizationService.search] 的第一条凑数：那是个带 contains 的
 /// 模糊搜索，「dance」会命中一堆无关标签，换进筛选条件里就是一条用户没要、
 /// 也看不懂哪来的硬条件。
-String? _resolveTag(String raw) {
+List<String> _resolveTag(String raw) {
+  final byName = TagLocalizationService.matchName(raw);
+  if (byName != null && byName.slugs.isNotEmpty) return byName.slugs;
+
   final needle = _normalizeTag(raw);
-  if (needle.isEmpty) return null;
+  if (needle.isEmpty) return const [];
 
   // ⛔ 词库那边的检索是按原样 contains 的，不会把下划线与空格当一回事：
   // 模型写 "Hatsune Miku"、id 是 `hatsune_miku`，直接查一次是查不着的。
@@ -844,13 +1151,13 @@ String? _resolveTag(String raw) {
   };
   for (final probe in probes) {
     for (final tag in TagLocalizationService.search(probe, limit: 12)) {
-      if (_normalizeTag(tag.id) == needle) return tag.id;
+      if (_normalizeTag(tag.id) == needle) return [tag.id];
       if (_normalizeTag(TagLocalizationService.displayName(tag.id)) == needle) {
-        return tag.id;
+        return [tag.id];
       }
     }
   }
-  return null;
+  return const [];
 }
 
 String _normalizeTag(String value) =>

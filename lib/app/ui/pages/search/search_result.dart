@@ -407,7 +407,6 @@ class _SearchResultState extends State<SearchResult> {
 
   Widget _buildCurrentSearchList(double paddingTop) {
     return Obx(() {
-      String query = searchController.currentSearch.value;
       final segment = searchController.selectedSegment.value;
       final isPaginated = searchController.isPaginated.value;
       final rebuildKey = searchController.rebuildKey.value;
@@ -416,33 +415,13 @@ class _SearchResultState extends State<SearchResult> {
       final extData = searchController.extData.value;
       final filters = searchController.filters;
 
-      // ⭐ 关键词先补引号，**再**拼筛选：筛选串里全是花括号，混进来会被一起
-      // 当成待加引号的词。oreno3d 是另一个站的搜索，不吃这套语法。
-      if (segment != SearchSegment.oreno3d &&
-          searchController.exactMatch.value) {
-        query = autoQuoteKeyword(query);
-      }
-
-      // 应用筛选项到查询
-      if (filters.isNotEmpty) {
-        final contentType = FilterConfig.getContentType(segment);
-        if (contentType != null) {
-          final filterStrings = filters
-              .map((filter) {
-                final field = contentType.fields.firstWhere(
-                  (f) => f.name == filter.field,
-                  orElse: () => contentType.fields.first,
-                );
-                return FilterConfig.generateFilterString(filter, field);
-              })
-              .where((s) => s.isNotEmpty)
-              .join(' ');
-
-          if (filterStrings.isNotEmpty) {
-            query = '$query $filterStrings';
-          }
-        }
-      }
+      // ⭐ 拼法只有一处（AI 试搜也按它拼），见 composeSearchQuery。
+      final query = FilterConfig.composeSearchQuery(
+        keyword: searchController.currentSearch.value,
+        segment: segment,
+        filters: filters.toList(),
+        exactMatch: searchController.exactMatch.value,
+      );
 
       LogUtils.d(
         '构建搜索列表: 关键词=$query, 类型=$segment, 使用分页=$isPaginated, 重建键=$rebuildKey, 排序=$sort, 搜索类型=$searchType, 扩展数据=$extData, 筛选项数量=${filters.length}',

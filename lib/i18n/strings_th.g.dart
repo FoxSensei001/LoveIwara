@@ -2982,6 +2982,15 @@ class _TranslationsAiTh extends TranslationsAiEn {
 	@override String searchToolProbing({required Object query}) => 'ลองค้น ${query}';
 	@override String searchToolFound({required Object count, required Object titles}) => '${count} รายการ · ${titles}';
 	@override String searchToolFailed({required Object reason}) => 'ล้มเหลว: ${reason}';
+	@override String searchToolFilterCount({required Object count}) => 'ตัวกรอง ${count} รายการ';
+	@override String searchToolExpanded({required Object tags}) => 'ค้นเพิ่มด้วย ${tags}';
+	@override String searchToolLookupTags({required Object terms}) => 'ค้นหาแท็ก ${terms}';
+	@override String get searchToolTagMissing => 'ไม่ใช่แท็ก';
+	@override String searchToolFindUser({required Object name}) => 'ค้นหาผู้สร้าง ${name}';
+	@override String searchToolUsersFound({required Object count, required Object users}) => '${count} คน · ${users}';
+	@override String searchPreviewEstimate({required Object count}) => 'ทดลองค้น: ประมาณ ${count} รายการ';
+	@override String get searchWillExpandTags => 'ค้นหาแท็กเหล่านี้ด้วย';
+	@override String get searchTraceReasoning => 'การให้เหตุผล';
 	@override String searchFiltersDropped({required Object count}) => 'ลบตัวกรอง ${count} รายการที่ไม่มีในส่วนนี้แล้ว';
 	@override String get revealKey => 'Show';
 	@override String get hideKey => 'Hide';
@@ -8451,6 +8460,15 @@ extension on TranslationsTh {
 			'ai.searchToolProbing' => ({required Object query}) => 'ลองค้น ${query}',
 			'ai.searchToolFound' => ({required Object count, required Object titles}) => '${count} รายการ · ${titles}',
 			'ai.searchToolFailed' => ({required Object reason}) => 'ล้มเหลว: ${reason}',
+			'ai.searchToolFilterCount' => ({required Object count}) => 'ตัวกรอง ${count} รายการ',
+			'ai.searchToolExpanded' => ({required Object tags}) => 'ค้นเพิ่มด้วย ${tags}',
+			'ai.searchToolLookupTags' => ({required Object terms}) => 'ค้นหาแท็ก ${terms}',
+			'ai.searchToolTagMissing' => 'ไม่ใช่แท็ก',
+			'ai.searchToolFindUser' => ({required Object name}) => 'ค้นหาผู้สร้าง ${name}',
+			'ai.searchToolUsersFound' => ({required Object count, required Object users}) => '${count} คน · ${users}',
+			'ai.searchPreviewEstimate' => ({required Object count}) => 'ทดลองค้น: ประมาณ ${count} รายการ',
+			'ai.searchWillExpandTags' => 'ค้นหาแท็กเหล่านี้ด้วย',
+			'ai.searchTraceReasoning' => 'การให้เหตุผล',
 			'ai.searchFiltersDropped' => ({required Object count}) => 'ลบตัวกรอง ${count} รายการที่ไม่มีในส่วนนี้แล้ว',
 			'ai.revealKey' => 'Show',
 			'ai.hideKey' => 'Hide',
@@ -8478,6 +8496,8 @@ extension on TranslationsTh {
 			'ai.capReasoning' => 'Reasoning',
 			'ai.capStructuredOutput' => 'JSON output',
 			'ai.capVision' => 'Vision',
+			_ => null,
+		} ?? switch (path) {
 			'ai.capFileInput' => 'Files',
 			'ai.triOn' => 'On',
 			'ai.triOff' => 'Off',
@@ -8487,8 +8507,6 @@ extension on TranslationsTh {
 			'ai.endpointPreview' => ({required Object url}) => 'Requests go to ${url}',
 			'ai.endpointTrailingSlash' => 'The trailing slash produces a doubled // in the path.',
 			'ai.endpointMissingVersion' => 'No version segment — most OpenAI-compatible endpoints need /v1.',
-			_ => null,
-		} ?? switch (path) {
 			'ai.modelOverrideHint' => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.',
 			'ai.followCatalog' => ({required Object value}) => 'Following the catalog: ${value}',
 			'ai.userOverride' => 'Overridden by you',

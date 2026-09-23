@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/ai_task.model.dart';
 import 'package:i_iwara/app/services/ai_service.dart';
+import 'package:i_iwara/app/services/tag_localization_service.dart';
 import 'package:i_iwara/app/ui/pages/search/ai_search_query.dart';
 import 'package:i_iwara/app/ui/pages/search/iwara_search_syntax.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
@@ -74,19 +75,23 @@ class _AiSearchSheetState extends State<_AiSearchSheet> {
   /// 正在被输入法编辑的输入框。只让"思考中"那一块自己重建。
   final ValueNotifier<AiProgress?> _progress = ValueNotifier(null);
 
-  /// 这一轮模型吐出来的思考/草稿全文，跑完之后留着给折叠行回看。
+  /// 这一轮的过程记录：推理、它说的话、查过什么，按时间排好（见
+  /// [AiTraceEntry]）。跑完之后留着给折叠行回看。
   ///
   /// ⭐ 结果不对时，这段是唯一能分清"我没说清"还是"它理解错了"的东西——
   /// 而那正是这张弹窗存在的理由。所以**报错时也要留着**。
-  String _thinkingLog = '';
-
-  /// 这一轮模型查过些什么。跑完照样留着——「它是查过才这么填的」和「它是猜的」
-  /// 是两回事，而这正是用户要判断的东西。
   ///
-  /// ⛔ 只在**非空**时覆盖：末尾那次 `parsing` 播报带的是空表（解析阶段不再有
-  /// 工具在跑），照单全收会让查过的记录在最后一刻凭空消失。
-  List<AiToolCall> _toolCalls = const [];
+  /// ⛔ 只在**非空**时覆盖：末尾那次 `parsing` 播报、以及官方端点「查完再填表」
+  /// 的第二趟都不带过程，照单全收会让记录在最后一刻凭空消失。
+  List<AiTraceEntry> _trace = const [];
+
+  /// 模型交上来的那份表原样试搜过的结果。用户改了表就不再作数（见
+  /// [AiSearchPreview.matches]），界面上随之消失。
+  AiSearchPreview? _preview;
   bool _thinkingExpanded = false;
+
+  /// 第几轮。迟到的回调（上一轮超时后才跑完的工具）拿它认出自己过期了。
+  int _runSeq = 0;
   DateTime? _startedAt;
   Duration? _took;
 
@@ -108,14 +113,15 @@ class _AiSearchSheetState extends State<_AiSearchSheet> {
   Future<void> _run() async {
     final request = _controller.text.trim();
     if (request.isEmpty || _running) return;
+    final run = ++_runSeq;
 
     setState(() {
       _running = true;
       _error = null;
       _hasResult = false;
       _filters.clear();
-      _thinkingLog = '';
-      _toolCalls = const [];
+      _trace = const [];
+      _preview = null;
       _thinkingExpanded = false;
       _took = null;
       _startedAt = DateTime.now();
@@ -128,17 +134,27 @@ class _AiSearchSheetState extends State<_AiSearchSheet> {
       currentSort: widget.currentSort,
       onProgress: (progress) {
         // ⛔ 这条按 token 节拍跑：只准写 notifier，不许 setState，更不许打日志。
-        if (!mounted) return;
-        _progress.value = progress;
-        // ⛔ 只留推理内容，不留 draft：结构化调用的 draft 就是那份正在成形的
-        // JSON，把它攒下来叫「思考过程」是假的——那份 JSON 解析完就在结果区里
-        // 逐条摊开了。非推理模型于是这一段为空，折叠行只剩工具调用记录，
-        // 那也比一坨 JSON 诚实。
-        if (progress.reasoning.isNotEmpty) _thinkingLog = progress.reasoning;
-        if (progress.toolCalls.isNotEmpty) _toolCalls = progress.toolCalls;
+        // ⛔ 上一轮超时后还在跑的工具会迟到着回调，别让它写进这一轮。
+        if (!mounted || run != _runSeq) return;
+        // ⛔ 留过程记录，不留 draft：结构化调用的 draft 末尾是那份正在成形的
+        // JSON，它解析完就在结果区里逐条摊开了。过程记录里的正文段会把 JSON
+        // 剪掉（[AiTraceEntry.prose]），只留模型说的那几句话。
+        if (progress.trace.isNotEmpty) _trace = progress.trace;
+        // 空表＝「这一拍不带过程」（查完回去填表、重试、解析），不是「过程没了」：
+        // 面板照样画攒着的那一份，否则时间线会在静默的那几秒里整块消失。
+        _progress.value = progress.trace.isNotEmpty || _trace.isEmpty
+            ? progress
+            : AiProgress(
+                stage: progress.stage,
+                reasoning: progress.reasoning,
+                draft: progress.draft,
+                notice: progress.notice,
+                toolCalls: progress.toolCalls,
+                trace: _trace,
+              );
       },
     );
-    if (!mounted) return;
+    if (!mounted || run != _runSeq) return;
     _progress.value = null;
 
     setState(() {
@@ -158,6 +174,7 @@ class _AiSearchSheetState extends State<_AiSearchSheet> {
         return;
       }
       _hasResult = true;
+      _preview = query.preview;
       _segment = query.segment;
       _sort = query.sort;
       _queryController.text = query.query;
@@ -365,8 +382,8 @@ class _AiSearchSheetState extends State<_AiSearchSheet> {
                     if (_hasResult) _buildResult(t, cs),
                     // 跑完仍然留着回看：结果不对时，这段是唯一能分清
                     // "我没说清"还是"它理解错了"的东西。
-                    if (!_running &&
-                        (_thinkingLog.isNotEmpty || _toolCalls.isNotEmpty))
+                    // 只交了 JSON 的模型剪完是空的：别留一行点开什么都没有的折叠行。
+                    if (!_running && _TraceView.hasContent(_trace))
                       _buildThinkingLog(t, cs),
                   ],
                 ),
@@ -537,6 +554,7 @@ class _AiSearchSheetState extends State<_AiSearchSheet> {
                       ],
                     ),
                   ),
+                ..._buildEnhancementLines(t, cs),
               ],
             ),
           ),
@@ -573,6 +591,111 @@ class _AiSearchSheetState extends State<_AiSearchSheet> {
         ],
       ),
     );
+  }
+
+  /// 按下去之后搜索增强会替他做什么、试搜过是什么样——跟着表单实时变。
+  ///
+  /// ⭐ 这是 AI 搜索与「按标签补搜」接上的那一处：早先结果区只摆关键词，用户
+  /// 看不出 `"原神"` 按下去其实还会按 #原神 标签补搜（那才是大头：文本 17 条、
+  /// 标签 324 条），也看不出模型试搜过的数字还作不作数。
+  ///
+  /// ⛔ 试搜数字只在表单**原样**就是试搜过的那一份时才摆：用户改了一个字它就
+  /// 不再是这份表的结果，留着只会骗人。
+  List<Widget> _buildEnhancementLines(slang.Translations t, ColorScheme cs) {
+    final keyword = _queryController.text;
+    final tags = aiSearchRecognizedTags(keyword, _segment);
+    final preview = _preview;
+    final previewValid =
+        preview != null &&
+        preview.matches(
+          segment: _segment,
+          keyword: keyword,
+          filters: _filters,
+          sort: _sort,
+          currentSegment: widget.segment,
+          currentSort: widget.currentSort,
+        );
+
+    return [
+      if (tags.isNotEmpty)
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Icon(Icons.sell_outlined, size: 13, color: cs.primary),
+              Text(
+                t.ai.searchWillExpandTags,
+                style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+              ),
+              for (final match in tags)
+                Text(
+                  '#${TagLocalizationService.displayName(match.slugs.first)}',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: cs.primary,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      // 有出有入：改了表之后这行要淡出去，不是一帧消失。
+      AnimatedSize(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOutCubic,
+        alignment: Alignment.topCenter,
+        child: previewValid
+            ? Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 1),
+                      child: Icon(
+                        Icons.fact_check_outlined,
+                        size: 13,
+                        color: cs.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: t.ai.searchPreviewEstimate(
+                                count: preview.total,
+                              ),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            if (preview.titles.isNotEmpty)
+                              TextSpan(
+                                text: '  ${preview.titles.take(3).join(' / ')}',
+                                style: TextStyle(color: cs.onSurfaceVariant),
+                              ),
+                          ],
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 11,
+                          height: 1.4,
+                          color: cs.onSurface,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : const SizedBox(width: double.infinity),
+      ),
+    ];
   }
 
   /// 结果区里「板块 / 排序」那种一行小标记。给了 [onTap] 就是可点的。
@@ -676,24 +799,10 @@ class _AiSearchSheetState extends State<_AiSearchSheet> {
             child: _thinkingExpanded
                 ? Padding(
                     padding: const EdgeInsets.only(top: 6),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (_toolCalls.isNotEmpty)
-                          _ToolCallLines(calls: _toolCalls),
-                        if (_thinkingLog.isNotEmpty)
-                          Padding(
-                            padding: EdgeInsets.only(
-                              top: _toolCalls.isEmpty ? 0 : 8,
-                            ),
-                            child: _ThinkingText(
-                              text: _thinkingLog,
-                              maxHeight: 180,
-                              follow: false,
-                            ),
-                          ),
-                      ],
+                    child: _TraceView(
+                      trace: _trace,
+                      maxHeight: 320,
+                      live: false,
                     ),
                   )
                 : const SizedBox(width: double.infinity),
@@ -765,12 +874,10 @@ class _ThinkingPanelState extends State<_ThinkingPanel> {
             final notice = progress?.notice ?? '';
             final stage = progress?.stage ?? AiStage.waiting;
             final retrying = stage == AiStage.retrying;
-            // ⛔ 正文只取 [AiProgress.reasoning]，**不用 visibleText**：它在没有
-            // 推理内容时会回落到 draft，而结构化调用的 draft 就是那坨正在成形的
-            // JSON。把 `{"segment":"video","query":"\"初音ミク\"…` 摆给用户看，
-            // 既不是"思考过程"也没人读得下去——那份 JSON 解析完就在下面的结果区
-            // 里逐条摊开了，比原文好懂得多。写答案这件事改由阶段那行字交代。
-            final reasoning = progress?.reasoning ?? '';
+            // ⛔ 正文只取过程记录，**不用 draft**：结构化调用的 draft 末尾是那坨
+            // 正在成形的 JSON，它解析完就在下面的结果区里逐条摊开了。过程记录里
+            // 的正文段已经剪掉 JSON（[AiTraceEntry.prose]）。
+            final trace = progress?.trace ?? const <AiTraceEntry>[];
             final label = _stageLabel(t, stage, progress?.draft ?? '', calls);
 
             return Column(
@@ -830,7 +937,7 @@ class _ThinkingPanelState extends State<_ThinkingPanel> {
                   duration: const Duration(milliseconds: 180),
                   curve: Curves.easeOutCubic,
                   alignment: Alignment.topCenter,
-                  child: (reasoning.isEmpty && calls.isEmpty && notice.isEmpty)
+                  child: (!_TraceView.hasContent(trace) && notice.isEmpty)
                       // 还没出字（原生结构化那条路根本拿不到流）：只有上面那行。
                       ? const SizedBox(width: double.infinity)
                       : Column(
@@ -841,16 +948,15 @@ class _ThinkingPanelState extends State<_ThinkingPanel> {
                             // （端点 500 值得等一下，密钥错了等到天亮也没用）。
                             if (notice.isNotEmpty)
                               _NoticeLine(reason: notice, cs: cs),
-                            // 查过什么摆在上面：它比思考过程好懂得多，也是唯一
-                            // 能分清「它查过才这么填」和「它是猜的」的东西。
-                            if (calls.isNotEmpty) _ToolCallLines(calls: calls),
-                            if (reasoning.isNotEmpty)
+                            // ⭐ 想、查、再想，按发生的先后排成一串：看得出哪次
+                            // 试搜是为了验证哪个念头、查到之后又改了什么主意。
+                            if (_TraceView.hasContent(trace))
                               Padding(
-                                padding: const EdgeInsets.only(top: 8),
-                                child: _ThinkingText(
-                                  text: reasoning,
-                                  maxHeight: 108,
-                                  follow: true,
+                                padding: const EdgeInsets.only(top: 4),
+                                child: _TraceView(
+                                  trace: trace,
+                                  maxHeight: 200,
+                                  live: true,
                                 ),
                               ),
                           ],
@@ -931,103 +1037,224 @@ class _NoticeLine extends StatelessWidget {
   }
 }
 
-/// 模型查过 / 正在查什么，一次调用一行。
+/// 过程记录：推理、模型说的话、工具调用，按时间排成一串。
 ///
-/// ⭐ 这是「思考过程」里最有用的一段：思维链是它**打算**怎么做，工具调用是它
-/// **真的**去查了、查到了什么。结果不对时，看一眼「试搜 "白金ディスコ" → 34 条」
-/// 就知道问题不在搜索词上。
-class _ToolCallLines extends StatelessWidget {
-  const _ToolCallLines({required this.calls});
+/// ⭐ 为什么不再是「工具一块、思维链一块」：模型是边想边查的，拆开摆就只剩
+/// 「它想了一大段」和「它查了三次」，看不出哪次试搜是为了验证哪个念头、查到
+/// 结果之后又改了什么主意——而那才是用户要的「它为什么这么填」。
+///
+/// 三种段落长得不一样，一眼分得开：
+/// - 推理（原生思维链）：小字、淡色、左边一道竖线——是它的草稿，不是结论；
+/// - 说的话（非推理模型「先说再答」那几句 / 工具之间的旁白）：正常字色；
+/// - 工具调用：一行，查什么在左、查到什么在右。
+class _TraceView extends StatelessWidget {
+  const _TraceView({
+    required this.trace,
+    required this.maxHeight,
+    required this.live,
+  });
 
-  final List<AiToolCall> calls;
+  final List<AiTraceEntry> trace;
+  final double maxHeight;
+
+  /// 正在跑：贴着最后一行滚（字在往下长）。
+  final bool live;
+
+  /// 有没有东西可画。正文段剪掉 JSON 之后可能是空的（只交了 JSON 的模型）。
+  static bool hasContent(List<AiTraceEntry> trace) => trace.any(_visible);
+
+  static bool _visible(AiTraceEntry e) => switch (e.kind) {
+    AiTraceKind.tool => true,
+    AiTraceKind.reasoning => e.text.trim().isNotEmpty,
+    AiTraceKind.narration => e.prose.isNotEmpty,
+  };
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (final call in calls)
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 2),
-                  child: SizedBox(
-                    width: 11,
-                    height: 11,
-                    child: call.running
-                        // 同时至多有一个在跑，不会堆出一排 ticker。
-                        ? CircularProgressIndicator(
-                            strokeWidth: 1.4,
-                            color: cs.primary,
-                          )
-                        : Icon(Icons.done, size: 11, color: cs.primary),
+    final t = slang.Translations.of(context);
+    final visible = trace.where(_visible).toList();
+    // 滚动跟随按「内容长了没有」判：条数 + 最后一段的长度。
+    final last = visible.isEmpty ? null : visible.last;
+    final revision =
+        '${visible.length}:${last?.text.length}:${last?.call?.result}';
+
+    return _FadingScroll(
+      maxHeight: maxHeight,
+      follow: live,
+      revision: revision,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final entry in visible)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: switch (entry.kind) {
+                AiTraceKind.tool => _ToolCallLine(call: entry.call!),
+                AiTraceKind.reasoning => _ReasoningBlock(
+                  label: t.ai.searchTraceReasoning,
+                  text: entry.text.trim(),
+                  cs: cs,
+                ),
+                AiTraceKind.narration => Text(
+                  entry.prose,
+                  style: TextStyle(
+                    fontSize: 12,
+                    height: 1.5,
+                    color: cs.onSurface.withValues(alpha: 0.88),
                   ),
                 ),
-                const SizedBox(width: 6),
-                // ⭐ 查什么在左、查到什么在右，两栏分家而不是一条 `A → B` 的
-                // 长句：用户扫这一块只为一件事——**数字**（0 条说明有条件把
-                // 结果杀光了）。挤在句中间时它是第几个词全看关键词多长。
-                Expanded(
-                  flex: 3,
-                  child: Text(
-                    call.call,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 11,
-                      height: 1.4,
-                      color: cs.onSurface.withValues(alpha: 0.85),
-                    ),
-                  ),
-                ),
-                if (call.result != null) ...[
-                  const SizedBox(width: 8),
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      call.result!,
-                      textAlign: TextAlign.right,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 11,
-                        height: 1.4,
-                        fontWeight: FontWeight.w600,
-                        color: cs.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                ],
-              ],
+              },
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 一段原生思维链：左边一道竖线 + 小字淡色。
+class _ReasoningBlock extends StatelessWidget {
+  const _ReasoningBlock({
+    required this.label,
+    required this.text,
+    required this.cs,
+  });
+
+  final String label;
+  final String text;
+  final ColorScheme cs;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(left: 8),
+      decoration: BoxDecoration(
+        border: Border(
+          left: BorderSide(
+            color: cs.outlineVariant.withValues(alpha: 0.8),
+            width: 2,
+          ),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: cs.onSurfaceVariant.withValues(alpha: 0.8),
             ),
           ),
+          const SizedBox(height: 2),
+          // ⛔ 不用等宽：思考链是散文不是代码，等宽字既窄又密，一眼看过去就是
+          // 一坨 log。也不用 SelectableText：它的裸识别器 slop 恒 18，比滚动更深
+          // 也更早赢，用户想滚这块会变成在选字。
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 11.5,
+              height: 1.5,
+              color: cs.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 模型查过 / 正在查的一次，一行。
+///
+/// ⭐ 这是过程记录里最有用的一种：思维链是它**打算**怎么做，工具调用是它
+/// **真的**去查了、查到了什么。结果不对时，看一眼「试搜 "白金ディスコ" → 约 34
+/// 条」就知道问题不在搜索词上。
+class _ToolCallLine extends StatelessWidget {
+  const _ToolCallLine({required this.call});
+
+  final AiToolCall call;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: SizedBox(
+            width: 11,
+            height: 11,
+            child: call.running
+                // 同时至多有一个在跑，不会堆出一排 ticker。
+                ? CircularProgressIndicator(strokeWidth: 1.4, color: cs.primary)
+                : Icon(Icons.done, size: 11, color: cs.primary),
+          ),
+        ),
+        const SizedBox(width: 6),
+        // ⭐ 查什么在左、查到什么在右，两栏分家而不是一条 `A → B` 的长句：用户扫
+        // 这一块只为一件事——**数字**（0 条说明有条件把结果杀光了）。挤在句中间
+        // 时它是第几个词全看关键词多长。
+        Expanded(
+          flex: 3,
+          child: Text(
+            call.call,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 11,
+              height: 1.4,
+              color: cs.onSurface.withValues(alpha: 0.85),
+            ),
+          ),
+        ),
+        if (call.result != null) ...[
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 2,
+            child: Text(
+              call.result!,
+              textAlign: TextAlign.right,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 11,
+                height: 1.4,
+                fontWeight: FontWeight.w600,
+                color: cs.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }
 }
 
-/// 一块限高、可滚的小字。[follow] 为真时始终贴着最后一行（正在出字）。
-class _ThinkingText extends StatefulWidget {
-  const _ThinkingText({
-    required this.text,
+/// 一块限高、可滚、上下按需渐隐的区域。[follow] 为真时始终贴着最后一行。
+///
+/// [revision] 变了＝内容变了：跟随模式下滚到底，否则只重算两头的渐隐。
+class _FadingScroll extends StatefulWidget {
+  const _FadingScroll({
+    required this.child,
+    required this.revision,
     required this.maxHeight,
     required this.follow,
   });
 
-  final String text;
+  final Widget child;
+  final Object revision;
   final double maxHeight;
   final bool follow;
 
   @override
-  State<_ThinkingText> createState() => _ThinkingTextState();
+  State<_FadingScroll> createState() => _FadingScrollState();
 }
 
-class _ThinkingTextState extends State<_ThinkingText> {
+class _FadingScrollState extends State<_FadingScroll> {
   final ScrollController _scroll = ScrollController();
 
   /// 内容有没有溢出到这一头之外。两头各自判：只在**真的还有字被藏起来**的那
@@ -1036,9 +1263,9 @@ class _ThinkingTextState extends State<_ThinkingText> {
   bool _overflowBottom = false;
 
   @override
-  void didUpdateWidget(_ThinkingText oldWidget) {
+  void didUpdateWidget(_FadingScroll oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.text == oldWidget.text) return;
+    if (widget.revision == oldWidget.revision) return;
     if (widget.follow) {
       _stickToBottom();
     } else {
@@ -1046,7 +1273,7 @@ class _ThinkingTextState extends State<_ThinkingText> {
     }
   }
 
-  /// ⛔ 要等这一帧布局完才知道新的最大滚动量——文字是刚加上去的，现在问到的
+  /// ⛔ 要等这一帧布局完才知道新的最大滚动量——内容是刚加上去的，现在问到的
   /// 还是上一帧的高度，贴不到底。
   void _stickToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1079,7 +1306,11 @@ class _ThinkingTextState extends State<_ThinkingText> {
   @override
   void initState() {
     super.initState();
-    _syncEdgesAfterFrame();
+    if (widget.follow) {
+      _stickToBottom();
+    } else {
+      _syncEdgesAfterFrame();
+    }
   }
 
   @override
@@ -1090,9 +1321,8 @@ class _ThinkingTextState extends State<_ThinkingText> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    // 渐隐带按像素折算成比例：这块的高度是定的，写死 stop 会让 108 和 180
-    // 两处的渐隐看起来不是一回事。
+    // 渐隐带按像素折算成比例：这块的高度是定的，写死 stop 会让两处高度不同的
+    // 渐隐看起来不是一回事。
     final fade = (_fadeExtent / widget.maxHeight).clamp(0.0, 0.4);
 
     return ConstrainedBox(
@@ -1120,18 +1350,7 @@ class _ThinkingTextState extends State<_ThinkingText> {
           },
           child: SingleChildScrollView(
             controller: _scroll,
-            // ⛔ 不用 SelectableText：它的裸识别器 slop 恒 18，比滚动更深也更早
-            // 赢，用户想滚这块小窗（或滚整张弹窗）会变成在选字，夹 slop 也救不回。
-            child: Text(
-              widget.text,
-              // ⛔ 不用等宽：思考链是散文不是代码，等宽字既窄又密，11px 下
-              // 一眼看过去就是一坨 log。
-              style: TextStyle(
-                fontSize: 12,
-                height: 1.5,
-                color: cs.onSurfaceVariant,
-              ),
-            ),
+            child: widget.child,
           ),
         ),
       ),

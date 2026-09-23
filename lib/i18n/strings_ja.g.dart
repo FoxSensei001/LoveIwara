@@ -2980,8 +2980,17 @@ class _TranslationsAiJa extends TranslationsAiEn {
 	@override String get searchThinking => '思考の過程';
 	@override String get searchKeywordNeedsQuotes => 'このキーワードは引用符で囲まれていないため、iwara は細かく分解して緩く一致させます。この並び順だと1ページ目はほぼ無関係です。"引用符"で囲むか、関連度順にしてください。';
 	@override String searchToolProbing({required Object query}) => '${query} で試し検索';
-	@override String searchToolFound({required Object count, required Object titles}) => '${count} 件 · ${titles}';
+	@override String searchToolFound({required Object count, required Object titles}) => '約 ${count} 件 · ${titles}';
 	@override String searchToolFailed({required Object reason}) => '試し検索に失敗：${reason}';
+	@override String searchToolFilterCount({required Object count}) => 'フィルター ${count} 件';
+	@override String searchToolExpanded({required Object tags}) => '${tags} で補完';
+	@override String searchToolLookupTags({required Object terms}) => 'タグを検索 ${terms}';
+	@override String get searchToolTagMissing => 'タグなし';
+	@override String searchToolFindUser({required Object name}) => '作者を検索 ${name}';
+	@override String searchToolUsersFound({required Object count, required Object users}) => '${count} 人 · ${users}';
+	@override String searchPreviewEstimate({required Object count}) => '試し検索：約 ${count} 件';
+	@override String get searchWillExpandTags => 'このタグでも自動検索';
+	@override String get searchTraceReasoning => '推論';
 	@override String searchFiltersDropped({required Object count}) => 'このセクションに無い絞り込みを ${count} 件削除しました。';
 	@override String get revealKey => 'Show';
 	@override String get hideKey => 'Hide';
@@ -8449,8 +8458,17 @@ extension on TranslationsJa {
 			'ai.searchThinking' => '思考の過程',
 			'ai.searchKeywordNeedsQuotes' => 'このキーワードは引用符で囲まれていないため、iwara は細かく分解して緩く一致させます。この並び順だと1ページ目はほぼ無関係です。"引用符"で囲むか、関連度順にしてください。',
 			'ai.searchToolProbing' => ({required Object query}) => '${query} で試し検索',
-			'ai.searchToolFound' => ({required Object count, required Object titles}) => '${count} 件 · ${titles}',
+			'ai.searchToolFound' => ({required Object count, required Object titles}) => '約 ${count} 件 · ${titles}',
 			'ai.searchToolFailed' => ({required Object reason}) => '試し検索に失敗：${reason}',
+			'ai.searchToolFilterCount' => ({required Object count}) => 'フィルター ${count} 件',
+			'ai.searchToolExpanded' => ({required Object tags}) => '${tags} で補完',
+			'ai.searchToolLookupTags' => ({required Object terms}) => 'タグを検索 ${terms}',
+			'ai.searchToolTagMissing' => 'タグなし',
+			'ai.searchToolFindUser' => ({required Object name}) => '作者を検索 ${name}',
+			'ai.searchToolUsersFound' => ({required Object count, required Object users}) => '${count} 人 · ${users}',
+			'ai.searchPreviewEstimate' => ({required Object count}) => '試し検索：約 ${count} 件',
+			'ai.searchWillExpandTags' => 'このタグでも自動検索',
+			'ai.searchTraceReasoning' => '推論',
 			'ai.searchFiltersDropped' => ({required Object count}) => 'このセクションに無い絞り込みを ${count} 件削除しました。',
 			'ai.revealKey' => 'Show',
 			'ai.hideKey' => 'Hide',
@@ -8478,6 +8496,8 @@ extension on TranslationsJa {
 			'ai.capReasoning' => 'Reasoning',
 			'ai.capStructuredOutput' => 'JSON output',
 			'ai.capVision' => 'Vision',
+			_ => null,
+		} ?? switch (path) {
 			'ai.capFileInput' => 'Files',
 			'ai.triOn' => 'On',
 			'ai.triOff' => 'Off',
@@ -8487,8 +8507,6 @@ extension on TranslationsJa {
 			'ai.endpointPreview' => ({required Object url}) => 'Requests go to ${url}',
 			'ai.endpointTrailingSlash' => 'The trailing slash produces a doubled // in the path.',
 			'ai.endpointMissingVersion' => 'No version segment — most OpenAI-compatible endpoints need /v1.',
-			_ => null,
-		} ?? switch (path) {
 			'ai.modelOverrideHint' => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.',
 			'ai.followCatalog' => ({required Object value}) => 'Following the catalog: ${value}',
 			'ai.userOverride' => 'Overridden by you',

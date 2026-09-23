@@ -2982,6 +2982,15 @@ class _TranslationsAiVi extends TranslationsAiEn {
 	@override String searchToolProbing({required Object query}) => 'Thử tìm ${query}';
 	@override String searchToolFound({required Object count, required Object titles}) => '${count} kết quả · ${titles}';
 	@override String searchToolFailed({required Object reason}) => 'Không chạy được: ${reason}';
+	@override String searchToolFilterCount({required Object count}) => '${count} bộ lọc';
+	@override String searchToolExpanded({required Object tags}) => 'bổ sung ${tags}';
+	@override String searchToolLookupTags({required Object terms}) => 'Tra thẻ ${terms}';
+	@override String get searchToolTagMissing => 'không phải thẻ';
+	@override String searchToolFindUser({required Object name}) => 'Tra tác giả ${name}';
+	@override String searchToolUsersFound({required Object count, required Object users}) => '${count} người · ${users}';
+	@override String searchPreviewEstimate({required Object count}) => 'Thử tìm: khoảng ${count} kết quả';
+	@override String get searchWillExpandTags => 'Cũng tìm theo các thẻ này';
+	@override String get searchTraceReasoning => 'Suy luận';
 	@override String searchFiltersDropped({required Object count}) => 'Đã bỏ ${count} bộ lọc không có trong mục này.';
 	@override String get revealKey => 'Show';
 	@override String get hideKey => 'Hide';
@@ -8451,6 +8460,15 @@ extension on TranslationsVi {
 			'ai.searchToolProbing' => ({required Object query}) => 'Thử tìm ${query}',
 			'ai.searchToolFound' => ({required Object count, required Object titles}) => '${count} kết quả · ${titles}',
 			'ai.searchToolFailed' => ({required Object reason}) => 'Không chạy được: ${reason}',
+			'ai.searchToolFilterCount' => ({required Object count}) => '${count} bộ lọc',
+			'ai.searchToolExpanded' => ({required Object tags}) => 'bổ sung ${tags}',
+			'ai.searchToolLookupTags' => ({required Object terms}) => 'Tra thẻ ${terms}',
+			'ai.searchToolTagMissing' => 'không phải thẻ',
+			'ai.searchToolFindUser' => ({required Object name}) => 'Tra tác giả ${name}',
+			'ai.searchToolUsersFound' => ({required Object count, required Object users}) => '${count} người · ${users}',
+			'ai.searchPreviewEstimate' => ({required Object count}) => 'Thử tìm: khoảng ${count} kết quả',
+			'ai.searchWillExpandTags' => 'Cũng tìm theo các thẻ này',
+			'ai.searchTraceReasoning' => 'Suy luận',
 			'ai.searchFiltersDropped' => ({required Object count}) => 'Đã bỏ ${count} bộ lọc không có trong mục này.',
 			'ai.revealKey' => 'Show',
 			'ai.hideKey' => 'Hide',
@@ -8478,6 +8496,8 @@ extension on TranslationsVi {
 			'ai.capReasoning' => 'Reasoning',
 			'ai.capStructuredOutput' => 'JSON output',
 			'ai.capVision' => 'Vision',
+			_ => null,
+		} ?? switch (path) {
 			'ai.capFileInput' => 'Files',
 			'ai.triOn' => 'On',
 			'ai.triOff' => 'Off',
@@ -8487,8 +8507,6 @@ extension on TranslationsVi {
 			'ai.endpointPreview' => ({required Object url}) => 'Requests go to ${url}',
 			'ai.endpointTrailingSlash' => 'The trailing slash produces a doubled // in the path.',
 			'ai.endpointMissingVersion' => 'No version segment — most OpenAI-compatible endpoints need /v1.',
-			_ => null,
-		} ?? switch (path) {
 			'ai.modelOverrideHint' => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.',
 			'ai.followCatalog' => ({required Object value}) => 'Following the catalog: ${value}',
 			'ai.userOverride' => 'Overridden by you',

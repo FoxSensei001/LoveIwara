@@ -2982,6 +2982,15 @@ class _TranslationsAiEs extends TranslationsAiEn {
 	@override String searchToolProbing({required Object query}) => 'Probando ${query}';
 	@override String searchToolFound({required Object count, required Object titles}) => '${count} resultados · ${titles}';
 	@override String searchToolFailed({required Object reason}) => 'No se pudo: ${reason}';
+	@override String searchToolFilterCount({required Object count}) => '${count} filtros';
+	@override String searchToolExpanded({required Object tags}) => 'ampliado con ${tags}';
+	@override String searchToolLookupTags({required Object terms}) => 'Buscando etiquetas ${terms}';
+	@override String get searchToolTagMissing => 'no es etiqueta';
+	@override String searchToolFindUser({required Object name}) => 'Buscando autor ${name}';
+	@override String searchToolUsersFound({required Object count, required Object users}) => '${count} usuarios · ${users}';
+	@override String searchPreviewEstimate({required Object count}) => 'Prueba: unos ${count} resultados';
+	@override String get searchWillExpandTags => 'También busca estas etiquetas';
+	@override String get searchTraceReasoning => 'Razonamiento';
 	@override String searchFiltersDropped({required Object count}) => 'Se han quitado ${count} filtros que no existen en esta sección.';
 	@override String get revealKey => 'Show';
 	@override String get hideKey => 'Hide';
@@ -8451,6 +8460,15 @@ extension on TranslationsEs {
 			'ai.searchToolProbing' => ({required Object query}) => 'Probando ${query}',
 			'ai.searchToolFound' => ({required Object count, required Object titles}) => '${count} resultados · ${titles}',
 			'ai.searchToolFailed' => ({required Object reason}) => 'No se pudo: ${reason}',
+			'ai.searchToolFilterCount' => ({required Object count}) => '${count} filtros',
+			'ai.searchToolExpanded' => ({required Object tags}) => 'ampliado con ${tags}',
+			'ai.searchToolLookupTags' => ({required Object terms}) => 'Buscando etiquetas ${terms}',
+			'ai.searchToolTagMissing' => 'no es etiqueta',
+			'ai.searchToolFindUser' => ({required Object name}) => 'Buscando autor ${name}',
+			'ai.searchToolUsersFound' => ({required Object count, required Object users}) => '${count} usuarios · ${users}',
+			'ai.searchPreviewEstimate' => ({required Object count}) => 'Prueba: unos ${count} resultados',
+			'ai.searchWillExpandTags' => 'También busca estas etiquetas',
+			'ai.searchTraceReasoning' => 'Razonamiento',
 			'ai.searchFiltersDropped' => ({required Object count}) => 'Se han quitado ${count} filtros que no existen en esta sección.',
 			'ai.revealKey' => 'Show',
 			'ai.hideKey' => 'Hide',
@@ -8478,6 +8496,8 @@ extension on TranslationsEs {
 			'ai.capReasoning' => 'Reasoning',
 			'ai.capStructuredOutput' => 'JSON output',
 			'ai.capVision' => 'Vision',
+			_ => null,
+		} ?? switch (path) {
 			'ai.capFileInput' => 'Files',
 			'ai.triOn' => 'On',
 			'ai.triOff' => 'Off',
@@ -8487,8 +8507,6 @@ extension on TranslationsEs {
 			'ai.endpointPreview' => ({required Object url}) => 'Requests go to ${url}',
 			'ai.endpointTrailingSlash' => 'The trailing slash produces a doubled // in the path.',
 			'ai.endpointMissingVersion' => 'No version segment — most OpenAI-compatible endpoints need /v1.',
-			_ => null,
-		} ?? switch (path) {
 			'ai.modelOverrideHint' => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.',
 			'ai.followCatalog' => ({required Object value}) => 'Following the catalog: ${value}',
 			'ai.userOverride' => 'Overridden by you',

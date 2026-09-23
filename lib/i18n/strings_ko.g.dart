@@ -2982,6 +2982,15 @@ class _TranslationsAiKo extends TranslationsAiEn {
 	@override String searchToolProbing({required Object query}) => '${query} 로 시험 검색';
 	@override String searchToolFound({required Object count, required Object titles}) => '${count}개 · ${titles}';
 	@override String searchToolFailed({required Object reason}) => '시험 검색 실패: ${reason}';
+	@override String searchToolFilterCount({required Object count}) => '필터 ${count}개';
+	@override String searchToolExpanded({required Object tags}) => '${tags} 태그로 보완';
+	@override String searchToolLookupTags({required Object terms}) => '태그 조회 ${terms}';
+	@override String get searchToolTagMissing => '태그 없음';
+	@override String searchToolFindUser({required Object name}) => '작성자 조회 ${name}';
+	@override String searchToolUsersFound({required Object count, required Object users}) => '${count}명 · ${users}';
+	@override String searchPreviewEstimate({required Object count}) => '미리 검색: 약 ${count}개';
+	@override String get searchWillExpandTags => '이 태그로도 자동 검색';
+	@override String get searchTraceReasoning => '추론';
 	@override String searchFiltersDropped({required Object count}) => '이 섹션에 없는 필터 ${count}개를 제거했습니다.';
 	@override String get revealKey => 'Show';
 	@override String get hideKey => 'Hide';
@@ -8451,6 +8460,15 @@ extension on TranslationsKo {
 			'ai.searchToolProbing' => ({required Object query}) => '${query} 로 시험 검색',
 			'ai.searchToolFound' => ({required Object count, required Object titles}) => '${count}개 · ${titles}',
 			'ai.searchToolFailed' => ({required Object reason}) => '시험 검색 실패: ${reason}',
+			'ai.searchToolFilterCount' => ({required Object count}) => '필터 ${count}개',
+			'ai.searchToolExpanded' => ({required Object tags}) => '${tags} 태그로 보완',
+			'ai.searchToolLookupTags' => ({required Object terms}) => '태그 조회 ${terms}',
+			'ai.searchToolTagMissing' => '태그 없음',
+			'ai.searchToolFindUser' => ({required Object name}) => '작성자 조회 ${name}',
+			'ai.searchToolUsersFound' => ({required Object count, required Object users}) => '${count}명 · ${users}',
+			'ai.searchPreviewEstimate' => ({required Object count}) => '미리 검색: 약 ${count}개',
+			'ai.searchWillExpandTags' => '이 태그로도 자동 검색',
+			'ai.searchTraceReasoning' => '추론',
 			'ai.searchFiltersDropped' => ({required Object count}) => '이 섹션에 없는 필터 ${count}개를 제거했습니다.',
 			'ai.revealKey' => 'Show',
 			'ai.hideKey' => 'Hide',
@@ -8478,6 +8496,8 @@ extension on TranslationsKo {
 			'ai.capReasoning' => 'Reasoning',
 			'ai.capStructuredOutput' => 'JSON output',
 			'ai.capVision' => 'Vision',
+			_ => null,
+		} ?? switch (path) {
 			'ai.capFileInput' => 'Files',
 			'ai.triOn' => 'On',
 			'ai.triOff' => 'Off',
@@ -8487,8 +8507,6 @@ extension on TranslationsKo {
 			'ai.endpointPreview' => ({required Object url}) => 'Requests go to ${url}',
 			'ai.endpointTrailingSlash' => 'The trailing slash produces a doubled // in the path.',
 			'ai.endpointMissingVersion' => 'No version segment — most OpenAI-compatible endpoints need /v1.',
-			_ => null,
-		} ?? switch (path) {
 			'ai.modelOverrideHint' => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.',
 			'ai.followCatalog' => ({required Object value}) => 'Following the catalog: ${value}',
 			'ai.userOverride' => 'Overridden by you',

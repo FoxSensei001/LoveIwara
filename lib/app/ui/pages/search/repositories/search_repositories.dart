@@ -106,6 +106,9 @@ class UserSearchRepository extends SearchRepository<User> {
     : super(segment: SearchSegment.user.apiType);
 
   @override
+  String previewTitle(User item) => '${item.name} (@${item.username})';
+
+  @override
   Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {
     return searchService.fetchUserByQuery(
       page: page,
@@ -122,6 +125,9 @@ class PostSearchRepository extends SearchRepository<PostModel> {
   final String? sortKey;
   PostSearchRepository({required super.query, this.sortKey})
     : super(segment: SearchSegment.post.apiType);
+
+  @override
+  String previewTitle(PostModel item) => item.title;
 
   @override
   Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {
@@ -142,6 +148,9 @@ class ForumSearchRepository extends SearchRepository<ForumThreadModel> {
     : super(segment: SearchSegment.forum.apiType);
 
   @override
+  String previewTitle(ForumThreadModel item) => item.title;
+
+  @override
   Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {
     return searchService.fetchForumByQuery(
       page: page,
@@ -158,6 +167,9 @@ class ForumPostsSearchRepository extends SearchRepository<ThreadCommentModel> {
   final String? sortKey;
   ForumPostsSearchRepository({required super.query, this.sortKey})
     : super(segment: SearchSegment.forum_posts.apiType);
+
+  @override
+  String previewTitle(ThreadCommentModel item) => item.body;
 
   @override
   Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {
@@ -205,6 +217,9 @@ class PlaylistSearchRepository extends SearchRepository<PlaylistModel> {
     : super(segment: SearchSegment.playlist.apiType);
 
   @override
+  String previewTitle(PlaylistModel item) => item.title;
+
+  @override
   Future<ApiResult> fetchSearchResults(int page, int limit, String keyword) {
     return searchService.fetchPlaylistByQuery(
       page: page,
@@ -215,3 +230,32 @@ class PlaylistSearchRepository extends SearchRepository<PlaylistModel> {
     );
   }
 }
+
+/// 按板块造一个 iwara 搜索仓库，与搜索结果页（search_list_widgets.dart）造的
+/// **是同一种**：同样的多路规划、归并、核对。
+///
+/// ⭐ 给 AI 试搜用：它要验的是「用户按下搜索之后会看到什么」，而那只有真仓库
+/// 说得准——自己另拼一条单路请求，标签补路、别名路、核对全都漏掉，模型看着
+/// 0 条去改写一个其实搜得到 300 条的词（2026-09-23 的「AI 搜索没融合增强」）。
+///
+/// oreno3d 是另一个站，返回 null。
+SearchRepository<dynamic>? createIwaraSearchRepository(
+  SearchSegment segment, {
+  required String query,
+  String? sort,
+}) => switch (segment) {
+  SearchSegment.video => VideoSearchRepository(query: query, sortKey: sort),
+  SearchSegment.image => ImageSearchRepository(query: query, sortKey: sort),
+  SearchSegment.user => UserSearchRepository(query: query, sortKey: sort),
+  SearchSegment.post => PostSearchRepository(query: query, sortKey: sort),
+  SearchSegment.forum => ForumSearchRepository(query: query, sortKey: sort),
+  SearchSegment.forum_posts => ForumPostsSearchRepository(
+    query: query,
+    sortKey: sort,
+  ),
+  SearchSegment.playlist => PlaylistSearchRepository(
+    query: query,
+    sortKey: sort,
+  ),
+  SearchSegment.oreno3d => null,
+};

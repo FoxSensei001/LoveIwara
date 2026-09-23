@@ -106,6 +106,24 @@ abstract class SearchRepository<T> extends ExtendedLoadingMoreBase<T> {
   String? itemTitle(T item) => null;
   Iterable<String> itemTagIds(T item) => const [];
 
+  /// 一行能认出这条是什么的字（AI 试搜回给模型看前几条用）。
+  ///
+  /// ⛔ 与 [itemTitle] 分开：那个是核对用的，给出来就会参与「这条算不算」的判断，
+  /// 而用户/论坛回复这些板块根本不归并、也不该被核对。
+  String previewTitle(T item) => itemTitle(item) ?? '';
+
+  /// 各路此刻的状态：哪一路、发的什么、估计多少条。第 0 页归并完才有意义。
+  ///
+  /// 只读，给 AI 试搜回报「这次按标签补搜了多少」——模型据此判断该不该改词，
+  /// 而不是只盯着原话那一路的 0。
+  List<({SearchRouteKind kind, String query, int count})> get routeStats => [
+    for (final c in _cursors)
+      (kind: c.route.kind, query: c.query, count: c.estimatedCount),
+  ];
+
+  /// 这次是不是真的走了多路归并（开关关着、板块不支持、只有一路时都不走）。
+  bool get isMerging => _mergeEnabled && !_mergeAbandoned;
+
   /// 这次搜索往哪几路发。按标签补路只在能归并的仓库里、且用户没关掉时才做
   /// （[ConfigKey.SEARCH_TAG_EXPANSION]）。
   late final SearchPlan plan = planSearchRoutes(

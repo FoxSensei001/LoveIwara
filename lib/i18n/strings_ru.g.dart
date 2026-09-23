@@ -2982,6 +2982,15 @@ class _TranslationsAiRu extends TranslationsAiEn {
 	@override String searchToolProbing({required Object query}) => 'Пробую ${query}';
 	@override String searchToolFound({required Object count, required Object titles}) => 'Результатов: ${count} · ${titles}';
 	@override String searchToolFailed({required Object reason}) => 'Не удалось: ${reason}';
+	@override String searchToolFilterCount({required Object count}) => 'Фильтров: ${count}';
+	@override String searchToolExpanded({required Object tags}) => 'дополнено тегами ${tags}';
+	@override String searchToolLookupTags({required Object terms}) => 'Поиск тегов ${terms}';
+	@override String get searchToolTagMissing => 'не тег';
+	@override String searchToolFindUser({required Object name}) => 'Поиск автора ${name}';
+	@override String searchToolUsersFound({required Object count, required Object users}) => 'Пользователей: ${count} · ${users}';
+	@override String searchPreviewEstimate({required Object count}) => 'Пробный поиск: около ${count}';
+	@override String get searchWillExpandTags => 'Также ищет по этим тегам';
+	@override String get searchTraceReasoning => 'Рассуждение';
 	@override String searchFiltersDropped({required Object count}) => 'Удалено фильтров, которых нет в этом разделе: ${count}.';
 	@override String get revealKey => 'Show';
 	@override String get hideKey => 'Hide';
@@ -8451,6 +8460,15 @@ extension on TranslationsRu {
 			'ai.searchToolProbing' => ({required Object query}) => 'Пробую ${query}',
 			'ai.searchToolFound' => ({required Object count, required Object titles}) => 'Результатов: ${count} · ${titles}',
 			'ai.searchToolFailed' => ({required Object reason}) => 'Не удалось: ${reason}',
+			'ai.searchToolFilterCount' => ({required Object count}) => 'Фильтров: ${count}',
+			'ai.searchToolExpanded' => ({required Object tags}) => 'дополнено тегами ${tags}',
+			'ai.searchToolLookupTags' => ({required Object terms}) => 'Поиск тегов ${terms}',
+			'ai.searchToolTagMissing' => 'не тег',
+			'ai.searchToolFindUser' => ({required Object name}) => 'Поиск автора ${name}',
+			'ai.searchToolUsersFound' => ({required Object count, required Object users}) => 'Пользователей: ${count} · ${users}',
+			'ai.searchPreviewEstimate' => ({required Object count}) => 'Пробный поиск: около ${count}',
+			'ai.searchWillExpandTags' => 'Также ищет по этим тегам',
+			'ai.searchTraceReasoning' => 'Рассуждение',
 			'ai.searchFiltersDropped' => ({required Object count}) => 'Удалено фильтров, которых нет в этом разделе: ${count}.',
 			'ai.revealKey' => 'Show',
 			'ai.hideKey' => 'Hide',
@@ -8478,6 +8496,8 @@ extension on TranslationsRu {
 			'ai.capReasoning' => 'Reasoning',
 			'ai.capStructuredOutput' => 'JSON output',
 			'ai.capVision' => 'Vision',
+			_ => null,
+		} ?? switch (path) {
 			'ai.capFileInput' => 'Files',
 			'ai.triOn' => 'On',
 			'ai.triOff' => 'Off',
@@ -8487,8 +8507,6 @@ extension on TranslationsRu {
 			'ai.endpointPreview' => ({required Object url}) => 'Requests go to ${url}',
 			'ai.endpointTrailingSlash' => 'The trailing slash produces a doubled // in the path.',
 			'ai.endpointMissingVersion' => 'No version segment — most OpenAI-compatible endpoints need /v1.',
-			_ => null,
-		} ?? switch (path) {
 			'ai.modelOverrideHint' => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.',
 			'ai.followCatalog' => ({required Object value}) => 'Following the catalog: ${value}',
 			'ai.userOverride' => 'Overridden by you',

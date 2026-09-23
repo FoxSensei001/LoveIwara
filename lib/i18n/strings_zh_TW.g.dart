@@ -2980,8 +2980,17 @@ class _TranslationsAiZhTw extends TranslationsAiEn {
 	@override String get searchThinking => '思考過程';
 	@override String get searchKeywordNeedsQuotes => '這個關鍵詞沒加引號，iwara 會把它拆碎了鬆散匹配——按這個排序，第一頁多半與它無關。給它加上英文雙引號，或者改成按相關度排序。';
 	@override String searchToolProbing({required Object query}) => '試搜 ${query}';
-	@override String searchToolFound({required Object count, required Object titles}) => '${count} 筆 · ${titles}';
+	@override String searchToolFound({required Object count, required Object titles}) => '約 ${count} 筆 · ${titles}';
 	@override String searchToolFailed({required Object reason}) => '試搜失敗：${reason}';
+	@override String searchToolFilterCount({required Object count}) => '${count} 個篩選';
+	@override String searchToolExpanded({required Object tags}) => '按 ${tags} 補搜';
+	@override String searchToolLookupTags({required Object terms}) => '查標籤 ${terms}';
+	@override String get searchToolTagMissing => '詞庫裡沒有';
+	@override String searchToolFindUser({required Object name}) => '查作者 ${name}';
+	@override String searchToolUsersFound({required Object count, required Object users}) => '${count} 位 · ${users}';
+	@override String searchPreviewEstimate({required Object count}) => '試搜過：約 ${count} 筆';
+	@override String get searchWillExpandTags => '會自動按標籤補搜';
+	@override String get searchTraceReasoning => '推理';
 	@override String searchFiltersDropped({required Object count}) => '已移除 ${count} 條本板塊沒有的篩選。';
 	@override String get revealKey => '顯示';
 	@override String get hideKey => '隱藏';
@@ -8449,8 +8458,17 @@ extension on TranslationsZhTw {
 			'ai.searchThinking' => '思考過程',
 			'ai.searchKeywordNeedsQuotes' => '這個關鍵詞沒加引號，iwara 會把它拆碎了鬆散匹配——按這個排序，第一頁多半與它無關。給它加上英文雙引號，或者改成按相關度排序。',
 			'ai.searchToolProbing' => ({required Object query}) => '試搜 ${query}',
-			'ai.searchToolFound' => ({required Object count, required Object titles}) => '${count} 筆 · ${titles}',
+			'ai.searchToolFound' => ({required Object count, required Object titles}) => '約 ${count} 筆 · ${titles}',
 			'ai.searchToolFailed' => ({required Object reason}) => '試搜失敗：${reason}',
+			'ai.searchToolFilterCount' => ({required Object count}) => '${count} 個篩選',
+			'ai.searchToolExpanded' => ({required Object tags}) => '按 ${tags} 補搜',
+			'ai.searchToolLookupTags' => ({required Object terms}) => '查標籤 ${terms}',
+			'ai.searchToolTagMissing' => '詞庫裡沒有',
+			'ai.searchToolFindUser' => ({required Object name}) => '查作者 ${name}',
+			'ai.searchToolUsersFound' => ({required Object count, required Object users}) => '${count} 位 · ${users}',
+			'ai.searchPreviewEstimate' => ({required Object count}) => '試搜過：約 ${count} 筆',
+			'ai.searchWillExpandTags' => '會自動按標籤補搜',
+			'ai.searchTraceReasoning' => '推理',
 			'ai.searchFiltersDropped' => ({required Object count}) => '已移除 ${count} 條本板塊沒有的篩選。',
 			'ai.revealKey' => '顯示',
 			'ai.hideKey' => '隱藏',
@@ -8478,6 +8496,8 @@ extension on TranslationsZhTw {
 			'ai.capReasoning' => '推理',
 			'ai.capStructuredOutput' => 'JSON 輸出',
 			'ai.capVision' => '看圖',
+			_ => null,
+		} ?? switch (path) {
 			'ai.capFileInput' => '讀檔案',
 			'ai.triOn' => '開',
 			'ai.triOff' => '關',
@@ -8487,8 +8507,6 @@ extension on TranslationsZhTw {
 			'ai.endpointPreview' => ({required Object url}) => '實際會請求 ${url}',
 			'ai.endpointTrailingSlash' => '結尾這個斜線會讓路徑裡多出一個 //。',
 			'ai.endpointMissingVersion' => '沒有版本段——多數 OpenAI 相容端點要帶 /v1。',
-			_ => null,
-		} ?? switch (path) {
 			'ai.modelOverrideHint' => '下面每一項都可以不填。不動它就跟著模型自己的能力和內建目錄走。',
 			'ai.followCatalog' => ({required Object value}) => '跟隨目錄：${value}',
 			'ai.userOverride' => '你改過了',

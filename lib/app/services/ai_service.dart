@@ -7,9 +7,11 @@ import 'package:i_iwara/app/models/ai_provider.model.dart';
 import 'package:i_iwara/app/models/ai_task.model.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/services/ai_profile_store.dart';
+import 'package:i_iwara/app/services/ai_reasoning_openai.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/utils/ai_error_describe.dart';
 import 'package:i_iwara/app/utils/ai_json_extract.dart';
+import 'package:i_iwara/app/utils/ai_think_tags.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 /// 结构化输出要用的 schema 构造器，**从这里转出去**。
@@ -95,6 +97,99 @@ enum AiStage {
   parsing,
 }
 
+/// 过程记录里的一段是什么。
+enum AiTraceKind {
+  /// 模型原生的思考（推理字段 / `<think>` 里的）。
+  reasoning,
+
+  /// 模型写在正文里的话：工具调用之间的「我先查一下 X」、以及交 JSON 之前那几句
+  /// 判断。⛔ 结构化调用的正文**末尾**是 JSON，界面要自己剪掉（见
+  /// [AiTraceEntry.prose]）。
+  narration,
+
+  /// 一次工具调用。
+  tool,
+}
+
+/// 过程记录的一段。
+///
+/// # ⭐ 为什么要有「按时间排好的一串」而不是推理一段、工具一段
+///
+/// 模型是**边想边查**的：想 → 查 → 看到结果再想 → 再查。拆成两段各自摆，就只剩
+/// 「它想了一大段」和「它查了三次」，看不出哪次查询是为了验证哪个念头、查到
+/// 结果之后又改了什么主意——而那才是用户想看的「它为什么这么填」。
+class AiTraceEntry {
+  const AiTraceEntry.text(this.kind, this.text) : call = null;
+
+  const AiTraceEntry.tool(AiToolCall this.call)
+    : kind = AiTraceKind.tool,
+      text = '';
+
+  final AiTraceKind kind;
+  final String text;
+  final AiToolCall? call;
+
+  /// 给人看的那部分：剪掉末尾那份 JSON（或它的代码围栏）。推理段原样返回。
+  ///
+  /// ⚠️ 只按「第一个 `{` 或 ``` 」剪：提示词要求它先说话、JSON 放最后，说话时
+  /// 也不许写花括号语法，所以第一个 `{` 就是 JSON 的开头。流式时 JSON 正写到
+  /// 一半，这样剪同样成立。
+  String get prose {
+    if (kind != AiTraceKind.narration) return text;
+    var end = text.length;
+    for (final mark in const ['{', '```']) {
+      final i = text.indexOf(mark);
+      if (i >= 0 && i < end) end = i;
+    }
+    return text.substring(0, end).trim();
+  }
+}
+
+/// 按到达顺序攒过程记录。文字按种类连成段，工具调用按下标原地更新。
+class _TraceBuilder {
+  final List<AiTraceEntry> _closed = [];
+  AiTraceKind? _openKind;
+  final StringBuffer _open = StringBuffer();
+
+  /// 工具调用在 [AiService._wrapTool] 那张表里的下标 → 在 [_closed] 里的位置。
+  final Map<int, int> _toolSlots = {};
+
+  void text(AiTraceKind kind, String delta) {
+    if (delta.isEmpty) return;
+    if (_openKind != kind) _close();
+    _openKind = kind;
+    _open.write(delta);
+  }
+
+  void tools(List<AiToolCall> calls) {
+    for (var i = 0; i < calls.length; i++) {
+      final slot = _toolSlots[i];
+      if (slot != null) {
+        _closed[slot] = AiTraceEntry.tool(calls[i]);
+        continue;
+      }
+      _close();
+      _toolSlots[i] = _closed.length;
+      _closed.add(AiTraceEntry.tool(calls[i]));
+    }
+  }
+
+  void _close() {
+    final kind = _openKind;
+    if (kind != null && _open.isNotEmpty) {
+      _closed.add(AiTraceEntry.text(kind, _open.toString()));
+    }
+    _open.clear();
+    _openKind = null;
+  }
+
+  List<AiTraceEntry> snapshot() => List.unmodifiable([
+    ..._closed,
+    if (_openKind != null && _open.isNotEmpty)
+      AiTraceEntry.text(_openKind!, _open.toString()),
+  ]);
+}
+
 /// 一次结构化调用的过程播报。两段文本都是**累计**的（与 [AiService.stream]
 /// 一致），拿到就当完整内容渲染即可。
 class AiProgress {
@@ -104,7 +199,13 @@ class AiProgress {
     this.draft = '',
     this.notice = '',
     this.toolCalls = const [],
+    this.trace = const [],
   });
+
+  /// ⭐ 界面画「思考过程」只该读这一项：推理、正文里的话、工具调用，按时间排好。
+  /// 空表＝这一次播报不带过程（例如末尾的 parsing），⛔ 调用方要保留上一份非空
+  /// 的，而不是照单全收清空。
+  final List<AiTraceEntry> trace;
 
   final AiStage stage;
 
@@ -119,7 +220,8 @@ class AiProgress {
   /// 为真时就是「正在查」。
   final List<AiToolCall> toolCalls;
 
-  /// 推理过程累计文本。只有原生推理模型（Anthropic / Google / Ollama）会有。
+  /// 推理过程累计文本：原生推理（Anthropic / Google / Ollama）、OpenAI 兼容端点
+  /// 的 `reasoning_content`（见 ai_reasoning_openai.dart）、正文里的 `<think>`。
   final String reasoning;
 
   /// 正文累计文本——结构化调用里就是那份正在成形的 JSON。
@@ -147,7 +249,15 @@ class AiRequest {
     this.decorateError,
     this.streamErrorLabel,
     this.tools = const [],
+    this.thinkAloud = false,
   });
+
+  /// 结构化调用：让模型**先用几句话说出判断，再交 JSON**。
+  ///
+  /// ⭐ 给不会原生推理的模型一个「思考过程」可看。它不是装饰：结果不对时，
+  /// 「它以为我要的是 X」这一句是用户分清「我没说清」与「它理解错了」的唯一线索。
+  /// 代价是几十个 token；JSON 本来就是从自由文本里防御式抠出来的，前面有话不碍事。
+  final bool thinkAloud;
 
   /// 模型可以自己调的工具。空表＝纯问答。
   ///
@@ -270,6 +380,8 @@ class AiService extends GetxService {
   final Map<String, StreamSubscription<ChatResult<String>>> _subscriptions = {};
   final Map<String, void Function(String reasoning)> _reasoningCallbacks = {};
   final Map<String, void Function(List<AiToolCall> calls)> _toolCallbacks = {};
+  final Map<String, void Function(List<AiTraceEntry> trace)> _traceCallbacks =
+      {};
 
   /// 「这一次没走通，我在重来」的播报口。见 [AiStage.retrying]。
   final Map<String, void Function(String reason)> _noticeCallbacks = {};
@@ -350,7 +462,14 @@ class AiService extends GetxService {
   ///
   /// ⛔ baseUrl 只对 openai / google / ollama 生效——另外三家的构造函数**没有**
   /// 这个参数。夹在 [AiResolvedModel.resolvedBaseUri] 里，不在这儿重复判断。
-  Provider buildProvider(AiResolvedModel profile) {
+  ///
+  /// [onThinking] 只对 OpenAI 兼容这一族生效：别家的思考走 SDK 自己的
+  /// `ChatResult.thinking`，这一族 SDK 丢了，由 [ReasoningOpenAIProvider] 在
+  /// HTTP 层旁听接出来。
+  Provider buildProvider(
+    AiResolvedModel profile, {
+    void Function(String delta)? onThinking,
+  }) {
     final uri = profile.resolvedBaseUri();
     final key = profile.apiKey.trim();
     final headers = profile.headers;
@@ -368,7 +487,12 @@ class AiService extends GetxService {
       AiProviderKind.ollama => OllamaProvider(baseUrl: uri, headers: headers),
       AiProviderKind.mistral => MistralProvider(apiKey: key, headers: headers),
       AiProviderKind.xai => XAIProvider(apiKey: key, headers: headers),
-      _ => OpenAIProvider(apiKey: key, baseUrl: uri, headers: headers),
+      _ => ReasoningOpenAIProvider(
+        apiKey: key,
+        baseUrl: uri,
+        headers: headers,
+        onThinking: onThinking ?? _ignoreThinking,
+      ),
     };
   }
 
@@ -391,18 +515,23 @@ class AiService extends GetxService {
     };
   }
 
-  Agent buildAgent(AiResolvedModel profile, {List<Tool>? tools}) =>
-      Agent.forProvider(
-        buildProvider(profile),
-        chatModelName: profile.modelId.trim().isEmpty
-            ? null
-            : profile.modelId.trim(),
-        temperature: profile.temperature,
-        enableThinking: profile.reasoning,
-        chatModelOptions: _optionsFor(profile),
-        // ⛔ 空表也要给 null：有的端点收到空 `tools` 数组会 400。
-        tools: (tools == null || tools.isEmpty) ? null : tools,
-      );
+  static void _ignoreThinking(String _) {}
+
+  Agent buildAgent(
+    AiResolvedModel profile, {
+    List<Tool>? tools,
+    void Function(String delta)? onThinking,
+  }) => Agent.forProvider(
+    buildProvider(profile, onThinking: onThinking),
+    chatModelName: profile.modelId.trim().isEmpty
+        ? null
+        : profile.modelId.trim(),
+    temperature: profile.temperature,
+    enableThinking: profile.reasoning,
+    chatModelOptions: _optionsFor(profile),
+    // ⛔ 空表也要给 null：有的端点收到空 `tools` 数组会 400。
+    tools: (tools == null || tools.isEmpty) ? null : tools,
+  );
 
   /// 把一件 [AiTool] 包成 dartantic 的 `Tool`，顺手把「开始调 / 调完了」播出去。
   ///
@@ -474,7 +603,11 @@ class AiService extends GetxService {
           .send(req.input, history: _history(req))
           .timeout(req.timeout ?? defaultRequestTimeout);
       _account(req.task, tokens: result.usage);
-      return ApiResult.success(message: '', data: result.output);
+      // 正文里夹着 `<think>` 的端点：思考不是答案，交出去之前剥掉。
+      return ApiResult.success(
+        message: '',
+        data: splitThinkTags(result.output).visible,
+      );
     } catch (e) {
       _account(req.task, failed: true);
       LogUtils.e('AI 调用失败（${req.task.wireName}）', tag: 'AiService', error: e);
@@ -625,7 +758,11 @@ class AiService extends GetxService {
     Schema schema,
     void Function(AiProgress progress)? onProgress,
   ) async {
-    final contract = _jsonContractPrompt(req.system, schema);
+    final contract = _jsonContractPrompt(
+      req.system,
+      schema,
+      thinkAloud: req.thinkAloud,
+    );
     final profile = _resolve(req);
 
     Future<ApiResult<String>> run(List<AiTool> tools) {
@@ -659,8 +796,17 @@ class AiService extends GetxService {
       result = await run(const []);
     }
     if (!result.isSuccess) return ApiResult.fail(result.message);
+    final streamed = onProgress != null && (profile?.streaming ?? false);
     onProgress?.call(
-      AiProgress(stage: AiStage.parsing, draft: result.data ?? ''),
+      AiProgress(
+        stage: AiStage.parsing,
+        draft: result.data ?? '',
+        // 一次要完的那条路一路上没播过过程，这里补一段它交 JSON 前说的话。
+        // ⛔ 流式那条已经有一份更完整的（含工具调用），别拿这段盖掉它。
+        trace: streamed || (result.data ?? '').isEmpty
+            ? const []
+            : [AiTraceEntry.text(AiTraceKind.narration, result.data!)],
+      ),
     );
 
     final parsed = extractJsonObject(result.data ?? '');
@@ -693,22 +839,33 @@ class AiService extends GetxService {
     var reasoning = '';
     var notice = '';
     var calls = const <AiToolCall>[];
+    var trace = const <AiTraceEntry>[];
+    var stage = AiStage.waiting;
 
-    void emit(AiStage stage) => onProgress(
-      AiProgress(
-        stage: stage,
-        reasoning: reasoning,
-        draft: draft,
-        notice: notice,
-        toolCalls: calls,
-      ),
-    );
+    void emit(AiStage next) {
+      stage = next;
+      onProgress(
+        AiProgress(
+          stage: next,
+          reasoning: reasoning,
+          draft: draft,
+          notice: notice,
+          toolCalls: calls,
+          trace: trace,
+        ),
+      );
+    }
 
     final source = stream(
       req,
       onReasoning: (text) {
         reasoning = text;
         emit(AiStage.reasoning);
+      },
+      // 与正文、推理同一拍到，阶段沿用当前的，只换内容。
+      onTrace: (entries) {
+        trace = entries;
+        emit(stage);
       },
       onNotice: (reason) {
         notice = reason;
@@ -734,7 +891,19 @@ class AiService extends GetxService {
     try {
       await for (final text in source) {
         draft = text;
-        emit(AiStage.drafting);
+        // ⛔ 正文是经流异步送到的，可能晚于「开始调工具」那一声到：工具还在跑
+        // 就别把阶段改回「正在写答案」（试搜最长要等二十几秒）。
+        emit(
+          calls.isNotEmpty && calls.last.running
+              ? AiStage.callingTool
+              : AiStage.drafting,
+        );
+      }
+      // 流失败、降级成一次要完之后，答案来自那次重跑，而过程记录还停在失败的那
+      // 半截流上。换成重跑那次说的话，否则折叠行里回看到的是一次作废的尝试。
+      if (notice.isNotEmpty && draft.isNotEmpty) {
+        trace = [AiTraceEntry.text(AiTraceKind.narration, draft)];
+        emit(stage);
       }
     } catch (e) {
       return ApiResult.fail(
@@ -746,19 +915,37 @@ class AiService extends GetxService {
   }
 
   /// 把 schema 摊成一段"只准回 JSON"的约定，接在调用方的提示词后面。
-  String _jsonContractPrompt(String system, Schema schema) {
+  ///
+  /// [thinkAloud] 为真时改成「先说几句判断，JSON 放最后」（见
+  /// [AiRequest.thinkAloud]）。⛔ 要明说「说话时别写花括号」：界面按第一个 `{`
+  /// 把 JSON 剪掉（[AiTraceEntry.prose]），解析也要从话里把 JSON 认出来。
+  String _jsonContractPrompt(
+    String system,
+    Schema schema, {
+    bool thinkAloud = false,
+  }) {
     final buffer = StringBuffer();
     if (system.trim().isNotEmpty) {
       buffer
         ..writeln(system.trim())
         ..writeln();
     }
-    buffer
-      ..writeln(
+    if (thinkAloud) {
+      buffer.writeln(
+        'Reply in two parts. FIRST, in 1-4 short plain sentences, say how you '
+        'read the request and why you chose this answer (what you checked, '
+        'what you changed after checking). Do not use curly braces or code '
+        'fences in this part. THEN end your reply with exactly one JSON object '
+        'conforming to this JSON Schema, with nothing after it and no markdown '
+        'code fences.',
+      );
+    } else {
+      buffer.writeln(
         'Reply with ONLY one JSON object conforming to this JSON Schema. '
         'No prose, no explanation, no markdown code fences.',
-      )
-      ..writeln(jsonEncode(schema.value));
+      );
+    }
+    buffer.writeln(jsonEncode(schema.value));
     return buffer.toString();
   }
 
@@ -775,10 +962,14 @@ class AiService extends GetxService {
   /// [onNotice] 是「这一次没走通，我在重来」的播报（[_fallbackToComplete]）。
   /// ⛔ 不给它的话，降级那段就是**完全静默**的：流早就 500 了，调用方手上的
   /// 流却既不出字也不结束，最长能这样干等 90 秒。
+  ///
+  /// [onTrace] 是按时间排好的过程记录（推理 / 正文里的话 / 工具调用），见
+  /// [AiTraceEntry]。与正文同一个节拍吐。
   Stream<String>? stream(
     AiRequest req, {
     void Function(String reasoning)? onReasoning,
     void Function(List<AiToolCall> calls)? onToolCalls,
+    void Function(List<AiTraceEntry> trace)? onTrace,
     void Function(String reason)? onNotice,
   }) {
     // 触发底层存储初始化，但不改变 stream 同步返回 Stream<String>? 的签名
@@ -797,6 +988,9 @@ class AiService extends GetxService {
     }
     if (onToolCalls != null) {
       _toolCallbacks[requestId] = onToolCalls;
+    }
+    if (onTrace != null) {
+      _traceCallbacks[requestId] = onTrace;
     }
     if (onNotice != null) {
       _noticeCallbacks[requestId] = onNotice;
@@ -840,6 +1034,7 @@ class AiService extends GetxService {
     _subscriptions.remove(requestId)?.cancel();
     _reasoningCallbacks.remove(requestId);
     _toolCallbacks.remove(requestId);
+    _traceCallbacks.remove(requestId);
     _noticeCallbacks.remove(requestId);
 
     final controller = _activeStreams.remove(requestId);
@@ -865,15 +1060,12 @@ class AiService extends GetxService {
     final effectiveProfile = req.model ?? modelFor(req.task) ?? profile;
 
     final reasoningCallback = _reasoningCallbacks[requestId];
-    // ⛔ 工具的调用记录挂在这一次请求上：流式失败降级重跑时是新的一轮，
-    // 不该把上一轮查过的东西继续摆在界面上。
-    final toolCalls = <AiToolCall>[];
-    final tools = [
-      for (final spec in req.tools)
-        _wrapTool(spec, toolCalls, _toolCallbacks[requestId]),
-    ];
+    final toolCallback = _toolCallbacks[requestId];
+    final traceCallback = _traceCallbacks[requestId];
     final answer = StringBuffer();
     final reasoning = StringBuffer();
+    final trace = _TraceBuilder();
+    final thinkTags = ThinkTagSplitter();
     LanguageModelUsage? lastUsage;
 
     // 合流：chunk 只往缓冲区写并置脏，真正往外吐由节拍器 / [_cleanup] 负责。
@@ -881,6 +1073,7 @@ class AiService extends GetxService {
     // 「每一拍一次」。
     var answerDirty = false;
     var reasoningDirty = false;
+    var traceDirty = false;
     void flush() {
       if (answerDirty) {
         answerDirty = false;
@@ -890,40 +1083,90 @@ class AiService extends GetxService {
         reasoningDirty = false;
         reasoningCallback?.call(reasoning.toString());
       }
+      if (traceDirty) {
+        traceDirty = false;
+        traceCallback?.call(trace.snapshot());
+      }
     }
 
-    _streamFlushers[requestId] = flush;
+    // ⭐ 三个来源的思考汇到同一处：SDK 的 `chunk.thinking`、OpenAI 兼容端点被
+    // 旁听出来的 `reasoning_content`、正文里的 `<think>`。
+    void addThinking(String text) {
+      if (text.isEmpty) return;
+      reasoning.write(text);
+      trace.text(AiTraceKind.reasoning, text);
+      reasoningDirty = true;
+      traceDirty = true;
+    }
+
+    void addAnswer(String text) {
+      if (text.isEmpty) return;
+      answer.write(text);
+      trace.text(AiTraceKind.narration, text);
+      answerDirty = true;
+      traceDirty = true;
+    }
+
+    // ⛔ 工具的调用记录挂在这一次请求上：流式失败降级重跑时是新的一轮，
+    // 不该把上一轮查过的东西继续摆在界面上。
+    final toolCalls = <AiToolCall>[];
+    final tools = [
+      for (final spec in req.tools)
+        _wrapTool(spec, toolCalls, (calls) {
+          // 工具事件不走节拍：它是离散的几次，而「开始查了」要立刻看得见。
+          // 先把攒着的字吐出去，界面上的先后才与发生的先后一致。
+          trace.tools(calls);
+          traceDirty = true;
+          flush();
+          toolCallback?.call(calls);
+        }),
+    ];
+
+    _streamFlushers[requestId] = () {
+      // 收尾：被扣住的半截「像标签」的字其实不是标签，还回去。
+      final rest = thinkTags.close();
+      addAnswer(rest.visible);
+      addThinking(rest.thinking);
+      flush();
+    };
     _pacers[requestId] = Timer.periodic(_streamPace, (_) => flush());
 
     try {
-      final sub = buildAgent(effectiveProfile, tools: tools)
-          .sendStream(req.input, history: _history(req))
-          .listen(
-            (chunk) {
-              if (controller.isClosed) return;
-              if (chunk.output.isNotEmpty) {
-                answer.write(chunk.output);
-                answerDirty = true;
-              }
-              final thinking = chunk.thinking;
-              if (thinking != null && thinking.isNotEmpty) {
-                reasoning.write(thinking);
-                reasoningDirty = true;
-              }
-              // 只有最后一个 chunk 带 usage，中途多数是 null——覆盖式赋值会把
-              // 已经收到的那份抹掉。
-              if (chunk.usage != null) lastUsage = chunk.usage;
-            },
-            onError: (Object e, StackTrace st) {
-              LogUtils.e('AI 流式调用出错', tag: 'AiService', error: e);
-              _fallbackToComplete(req, requestId, streamError: e);
-            },
-            onDone: () {
-              _account(req.task, tokens: lastUsage);
-              _cleanup(requestId);
-            },
-            cancelOnError: true,
-          );
+      final sub =
+          buildAgent(
+                effectiveProfile,
+                tools: tools,
+                onThinking: (delta) {
+                  if (!controller.isClosed) addThinking(delta);
+                },
+              )
+              .sendStream(req.input, history: _history(req))
+              .listen(
+                (chunk) {
+                  if (controller.isClosed) return;
+                  if (chunk.output.isNotEmpty) {
+                    final split = thinkTags.add(chunk.output);
+                    addThinking(split.thinking);
+                    addAnswer(split.visible);
+                  }
+                  final thinking = chunk.thinking;
+                  if (thinking != null && thinking.isNotEmpty) {
+                    addThinking(thinking);
+                  }
+                  // 只有最后一个 chunk 带 usage，中途多数是 null——覆盖式赋值会把
+                  // 已经收到的那份抹掉。
+                  if (chunk.usage != null) lastUsage = chunk.usage;
+                },
+                onError: (Object e, StackTrace st) {
+                  LogUtils.e('AI 流式调用出错', tag: 'AiService', error: e);
+                  _fallbackToComplete(req, requestId, streamError: e);
+                },
+                onDone: () {
+                  _account(req.task, tokens: lastUsage);
+                  _cleanup(requestId);
+                },
+                cancelOnError: true,
+              );
       _subscriptions[requestId] = sub;
     } catch (e) {
       // 构造 Agent 阶段就失败（缺凭据、地址不合法、开了不支持的 thinking）：
@@ -1089,6 +1332,7 @@ class AiService extends GetxService {
     _subscriptions.clear();
     _reasoningCallbacks.clear();
     _toolCallbacks.clear();
+    _traceCallbacks.clear();
 
     for (final controller in _activeStreams.values) {
       if (!controller.isClosed) controller.close();

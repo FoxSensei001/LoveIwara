@@ -2982,6 +2982,15 @@ class _TranslationsAiId extends TranslationsAiEn {
 	@override String searchToolProbing({required Object query}) => 'Mencoba ${query}';
 	@override String searchToolFound({required Object count, required Object titles}) => '${count} hasil · ${titles}';
 	@override String searchToolFailed({required Object reason}) => 'Gagal: ${reason}';
+	@override String searchToolFilterCount({required Object count}) => '${count} filter';
+	@override String searchToolExpanded({required Object tags}) => 'ditambah ${tags}';
+	@override String searchToolLookupTags({required Object terms}) => 'Mencari tag ${terms}';
+	@override String get searchToolTagMissing => 'bukan tag';
+	@override String searchToolFindUser({required Object name}) => 'Mencari pembuat ${name}';
+	@override String searchToolUsersFound({required Object count, required Object users}) => '${count} pengguna · ${users}';
+	@override String searchPreviewEstimate({required Object count}) => 'Uji coba: sekitar ${count} hasil';
+	@override String get searchWillExpandTags => 'Juga mencari tag ini';
+	@override String get searchTraceReasoning => 'Penalaran';
 	@override String searchFiltersDropped({required Object count}) => '${count} filter yang tidak ada di bagian ini telah dihapus.';
 	@override String get revealKey => 'Show';
 	@override String get hideKey => 'Hide';
@@ -8451,6 +8460,15 @@ extension on TranslationsId {
 			'ai.searchToolProbing' => ({required Object query}) => 'Mencoba ${query}',
 			'ai.searchToolFound' => ({required Object count, required Object titles}) => '${count} hasil · ${titles}',
 			'ai.searchToolFailed' => ({required Object reason}) => 'Gagal: ${reason}',
+			'ai.searchToolFilterCount' => ({required Object count}) => '${count} filter',
+			'ai.searchToolExpanded' => ({required Object tags}) => 'ditambah ${tags}',
+			'ai.searchToolLookupTags' => ({required Object terms}) => 'Mencari tag ${terms}',
+			'ai.searchToolTagMissing' => 'bukan tag',
+			'ai.searchToolFindUser' => ({required Object name}) => 'Mencari pembuat ${name}',
+			'ai.searchToolUsersFound' => ({required Object count, required Object users}) => '${count} pengguna · ${users}',
+			'ai.searchPreviewEstimate' => ({required Object count}) => 'Uji coba: sekitar ${count} hasil',
+			'ai.searchWillExpandTags' => 'Juga mencari tag ini',
+			'ai.searchTraceReasoning' => 'Penalaran',
 			'ai.searchFiltersDropped' => ({required Object count}) => '${count} filter yang tidak ada di bagian ini telah dihapus.',
 			'ai.revealKey' => 'Show',
 			'ai.hideKey' => 'Hide',
@@ -8478,6 +8496,8 @@ extension on TranslationsId {
 			'ai.capReasoning' => 'Reasoning',
 			'ai.capStructuredOutput' => 'JSON output',
 			'ai.capVision' => 'Vision',
+			_ => null,
+		} ?? switch (path) {
 			'ai.capFileInput' => 'Files',
 			'ai.triOn' => 'On',
 			'ai.triOff' => 'Off',
@@ -8487,8 +8507,6 @@ extension on TranslationsId {
 			'ai.endpointPreview' => ({required Object url}) => 'Requests go to ${url}',
 			'ai.endpointTrailingSlash' => 'The trailing slash produces a doubled // in the path.',
 			'ai.endpointMissingVersion' => 'No version segment — most OpenAI-compatible endpoints need /v1.',
-			_ => null,
-		} ?? switch (path) {
 			'ai.modelOverrideHint' => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.',
 			'ai.followCatalog' => ({required Object value}) => 'Following the catalog: ${value}',
 			'ai.userOverride' => 'Overridden by you',

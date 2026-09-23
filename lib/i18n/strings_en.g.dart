@@ -7554,11 +7554,38 @@ class TranslationsAiEn {
 	/// en: 'Trying ${query}'
 	String searchToolProbing({required Object query}) => 'Trying ${query}';
 
-	/// en: '${count} results · ${titles}'
-	String searchToolFound({required Object count, required Object titles}) => '${count} results · ${titles}';
+	/// en: '~${count} results · ${titles}'
+	String searchToolFound({required Object count, required Object titles}) => '~${count} results · ${titles}';
 
 	/// en: 'Couldn't run it: ${reason}'
 	String searchToolFailed({required Object reason}) => 'Couldn\'t run it: ${reason}';
+
+	/// en: '${count} filters'
+	String searchToolFilterCount({required Object count}) => '${count} filters';
+
+	/// en: 'expanded ${tags}'
+	String searchToolExpanded({required Object tags}) => 'expanded ${tags}';
+
+	/// en: 'Looking up tags ${terms}'
+	String searchToolLookupTags({required Object terms}) => 'Looking up tags ${terms}';
+
+	/// en: 'not a tag'
+	String get searchToolTagMissing => 'not a tag';
+
+	/// en: 'Looking up author ${name}'
+	String searchToolFindUser({required Object name}) => 'Looking up author ${name}';
+
+	/// en: '${count} users · ${users}'
+	String searchToolUsersFound({required Object count, required Object users}) => '${count} users · ${users}';
+
+	/// en: 'Previewed: about ${count} results'
+	String searchPreviewEstimate({required Object count}) => 'Previewed: about ${count} results';
+
+	/// en: 'Also searches these tags'
+	String get searchWillExpandTags => 'Also searches these tags';
+
+	/// en: 'Reasoning'
+	String get searchTraceReasoning => 'Reasoning';
 
 	/// en: 'Removed ${count} filter(s) this section does not have.'
 	String searchFiltersDropped({required Object count}) => 'Removed ${count} filter(s) this section does not have.';
@@ -15704,8 +15731,17 @@ extension on Translations {
 			'ai.searchThinking' => 'Reasoning',
 			'ai.searchKeywordNeedsQuotes' => 'This keyword is not quoted, so Iwara matches it loosely — under this sort the first page will be mostly unrelated. Put it in "quotes", or sort by relevance.',
 			'ai.searchToolProbing' => ({required Object query}) => 'Trying ${query}',
-			'ai.searchToolFound' => ({required Object count, required Object titles}) => '${count} results · ${titles}',
+			'ai.searchToolFound' => ({required Object count, required Object titles}) => '~${count} results · ${titles}',
 			'ai.searchToolFailed' => ({required Object reason}) => 'Couldn\'t run it: ${reason}',
+			'ai.searchToolFilterCount' => ({required Object count}) => '${count} filters',
+			'ai.searchToolExpanded' => ({required Object tags}) => 'expanded ${tags}',
+			'ai.searchToolLookupTags' => ({required Object terms}) => 'Looking up tags ${terms}',
+			'ai.searchToolTagMissing' => 'not a tag',
+			'ai.searchToolFindUser' => ({required Object name}) => 'Looking up author ${name}',
+			'ai.searchToolUsersFound' => ({required Object count, required Object users}) => '${count} users · ${users}',
+			'ai.searchPreviewEstimate' => ({required Object count}) => 'Previewed: about ${count} results',
+			'ai.searchWillExpandTags' => 'Also searches these tags',
+			'ai.searchTraceReasoning' => 'Reasoning',
 			'ai.searchFiltersDropped' => ({required Object count}) => 'Removed ${count} filter(s) this section does not have.',
 			'ai.revealKey' => 'Show',
 			'ai.hideKey' => 'Hide',
@@ -15733,6 +15769,8 @@ extension on Translations {
 			'ai.capReasoning' => 'Reasoning',
 			'ai.capStructuredOutput' => 'JSON output',
 			'ai.capVision' => 'Vision',
+			_ => null,
+		} ?? switch (path) {
 			'ai.capFileInput' => 'Files',
 			'ai.triOn' => 'On',
 			'ai.triOff' => 'Off',
@@ -15742,8 +15780,6 @@ extension on Translations {
 			'ai.endpointPreview' => ({required Object url}) => 'Requests go to ${url}',
 			'ai.endpointTrailingSlash' => 'The trailing slash produces a doubled // in the path.',
 			'ai.endpointMissingVersion' => 'No version segment — most OpenAI-compatible endpoints need /v1.',
-			_ => null,
-		} ?? switch (path) {
 			'ai.modelOverrideHint' => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.',
 			'ai.followCatalog' => ({required Object value}) => 'Following the catalog: ${value}',
 			'ai.userOverride' => 'Overridden by you',

@@ -29,10 +29,35 @@ Map<String, dynamic>? extractJsonObject(String raw) {
   final direct = _tryDecodeObject(text);
   if (direct != null) return direct;
 
-  final span = _firstBalancedObject(text);
-  if (span == null) return null;
-  return _tryDecodeObject(span);
+  // ⭐ 取**最后一个**解得开的对象，不是第一个：要求模型「先说几句再交 JSON」
+  // 之后（AiRequest.thinkAloud），前面那几句话里偶尔会冒出一对花括号（它在
+  // 复述语法），那一段解不开或解出来不是答案；答案永远在最后。
+  Map<String, dynamic>? last;
+  var from = 0;
+  while (true) {
+    final span = _firstBalancedObject(text, from);
+    if (span == null) {
+      final open = text.indexOf('{', from);
+      if (open < 0) break;
+      // ⛔ 配不平有两种来头，要分开：
+      // - 被截断的答案（撞上 maxTokens，外层没合上）：它以 `{"` 开头。后面的
+      //   `{` 全在它里面，往里扫会撞上某条筛选 `{"field":…}`——配得平、解得开，
+      //   却不是答案。所以到此为止，交给调用方按「没解出来」报原文；它前面
+      //   若有一份完整的（上一轮工具调用前的草稿），也已经过时，一并作废。
+      // - 话里一只落单的 `{`（「用 { 括起来」）：跳过它，后面的答案照样认。
+      if (_jsonObjectStart.hasMatch(text.substring(open))) return null;
+      from = open + 1;
+      continue;
+    }
+    // ⛔ 解不开也整段跳过，不往里钻：钻进去会把答案里的某一条筛选当成答案。
+    last = _tryDecodeObject(text.substring(span.start, span.end)) ?? last;
+    from = span.end;
+  }
+  return last;
 }
+
+/// 像一个 JSON 对象的开头：`{` 后面（隔着空白）紧跟一个键的引号，或直接合上。
+final RegExp _jsonObjectStart = RegExp(r'^\{\s*("|\})');
 
 Map<String, dynamic>? _tryDecodeObject(String text) {
   try {
@@ -68,8 +93,8 @@ String stripCodeFence(String raw) {
 /// ⛔ 不能用 `indexOf('{')` + `lastIndexOf('}')`：模型经常在 JSON 后面再补一句
 /// 带花括号的解释，那样会把两段之间的废话一起圈进来。也不能无视字符串——
 /// 值里出现的 `}`（比如 `"note": "a} b"`）会让计数提前归零。
-String? _firstBalancedObject(String text) {
-  final start = text.indexOf('{');
+({int start, int end})? _firstBalancedObject(String text, [int from = 0]) {
+  final start = text.indexOf('{', from);
   if (start < 0) return null;
 
   var depth = 0;
@@ -96,7 +121,7 @@ String? _firstBalancedObject(String text) {
       depth++;
     } else if (ch == '}') {
       depth--;
-      if (depth == 0) return text.substring(start, i + 1);
+      if (depth == 0) return (start: start, end: i + 1);
     }
   }
   return null;
