@@ -647,6 +647,9 @@ class _TranslationsSearchKo extends TranslationsSearchEn {
 	@override String get exactMatch => '정확히 일치';
 	@override String get exactMatchOnHint => '구문 전체로 정확히 일치시키며 중국어·일본어 제목도 함께 검색합니다. 탭하면 느슨한 검색으로 돌아갑니다.';
 	@override String get exactMatchOffHint => '느슨하게 일치 중 — iwara가 단어를 쪼갭니다. 탭하면 구문 전체를 정확히 일치시킵니다.';
+	@override String get tagExpansion => '태그로도 검색';
+	@override String tagExpansionOnHint({required Object tags}) => '태그 「${tags}」와 그 일본어·영어 이름으로도 검색합니다. 많은 게시물은 제목에 그 단어를 쓰지 않습니다.';
+	@override String tagExpansionOffHint({required Object tags}) => '입력한 단어로만 검색합니다. 켜면 태그 「${tags}」와 다른 언어 이름으로도 검색합니다.';
 	@override String get searchHistory => '검색 기록';
 	@override String get searchSuggestion => '검색 제안';
 	@override String get usedTimes => '사용 횟수';
@@ -5351,6 +5354,9 @@ extension on TranslationsKo {
 			'search.exactMatch' => '정확히 일치',
 			'search.exactMatchOnHint' => '구문 전체로 정확히 일치시키며 중국어·일본어 제목도 함께 검색합니다. 탭하면 느슨한 검색으로 돌아갑니다.',
 			'search.exactMatchOffHint' => '느슨하게 일치 중 — iwara가 단어를 쪼갭니다. 탭하면 구문 전체를 정확히 일치시킵니다.',
+			'search.tagExpansion' => '태그로도 검색',
+			'search.tagExpansionOnHint' => ({required Object tags}) => '태그 「${tags}」와 그 일본어·영어 이름으로도 검색합니다. 많은 게시물은 제목에 그 단어를 쓰지 않습니다.',
+			'search.tagExpansionOffHint' => ({required Object tags}) => '입력한 단어로만 검색합니다. 켜면 태그 「${tags}」와 다른 언어 이름으로도 검색합니다.',
 			'search.searchHistory' => '검색 기록',
 			'search.searchSuggestion' => '검색 제안',
 			'search.usedTimes' => '사용 횟수',
@@ -5397,11 +5403,11 @@ extension on TranslationsKo {
 			'settings.playbackSpeedSettings' => '재생 및 속도',
 			'settings.playbackBehaviorSettings' => '재생 동작',
 			'settings.enhancementSettings' => '극장 및 향상',
+			_ => null,
+		} ?? switch (path) {
 			'settings.fastForwardTime' => '빨리 감기 시간',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => '빨리 감기 시간은 양의 정수여야 합니다.',
 			'settings.rewindTime' => '되감기 시간',
-			_ => null,
-		} ?? switch (path) {
 			'settings.rewindTimeMustBeAPositiveInteger' => '되감기 시간은 양의 정수여야 합니다.',
 			'settings.longPressPlaybackSpeed' => '길게 누르기 재생 속도',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '길게 누르기 재생 속도는 양수여야 합니다.',
@@ -5911,11 +5917,11 @@ extension on TranslationsKo {
 			'settings.blockSettings.regexHelpIntro' => '정규식은 일반 키워드보다 제목을 더 유연하게 일치시킵니다. 몇 가지 일반적인 예시:',
 			'settings.blockSettings.regexHelpTapHint' => '예시를 탭하면 자동으로 입력됩니다.',
 			'settings.blockSettings.regexEx1Pattern' => '예고|티저|보너스',
+			_ => null,
+		} ?? switch (path) {
 			'settings.blockSettings.regexEx1Desc' => '다음 단어 중 하나와 일치합니다 ("|"는 "또는"을 의미)',
 			'settings.blockSettings.regexEx2Pattern' => '^\\[.*\\]',
 			'settings.blockSettings.regexEx2Desc' => '대괄호로 시작하는 제목',
-			_ => null,
-		} ?? switch (path) {
 			'settings.blockSettings.regexEx3Pattern' => '총집편\$',
 			'settings.blockSettings.regexEx3Desc' => '제목이 "총집편"으로 끝남',
 			'settings.blockSettings.regexEx4Pattern' => '제[0-9]+화',
@@ -6425,11 +6431,11 @@ extension on TranslationsKo {
 			'videoDetail.cast.deviceTypes.unknownDevice' => '알 수 없는 기기',
 			'videoDetail.cast.currentPlatformNotSupported' => '현재 플랫폼은 캐스트를 지원하지 않습니다',
 			'videoDetail.cast.unableToGetVideoUrl' => '동영상 URL을 가져올 수 없습니다. 나중에 다시 시도해 주세요',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.cast.stopCasting' => '캐스트 중지',
 			'videoDetail.cast.dlnaCastSheet.title' => '원격 캐스트',
 			'videoDetail.cast.dlnaCastSheet.close' => '닫기',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.dlnaCastSheet.searchingDevices' => '기기 검색 중...',
 			'videoDetail.cast.dlnaCastSheet.searchPrompt' => '검색 버튼을 클릭하여 캐스팅 기기를 다시 검색하세요',
 			'videoDetail.cast.dlnaCastSheet.searching' => '검색 중',
@@ -6939,11 +6945,11 @@ extension on TranslationsKo {
 			'download.relocation.galleryImages' => ({required Object count}) => '${count} images',
 			'download.relocation.unfinishedDownloading' => ({required Object percent}) => 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues',
 			'download.relocation.unfinishedPending' => 'Waiting to download: re-queued after the move',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused',
 			'download.relocation.unfinishedFailed' => 'Download failed: the downloaded part moves too',
 			'download.relocation.noDataYet' => 'Nothing downloaded yet, only the save location changes',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.missingGroup' => ({required Object count}) => '${count} item(s) with missing files',
 			'download.relocation.missingSkip' => 'Leave as is',
 			'download.relocation.missingRedownload' => 'Re-download to the destination',
@@ -7453,11 +7459,11 @@ extension on TranslationsKo {
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'Android 기기는 WEBM 형식 지원이 제한적입니다. 외부 플레이어를 사용하거나 WEBM을 지원하는 플레이어 앱을 다운로드하는 것을 권장합니다',
 			'mediaPlayer.currentDeviceCodecNotSupported' => '현재 기기는 이 동영상 형식의 코덱을 지원하지 않습니다',
 			'mediaPlayer.checkNetworkConnection' => '네트워크 연결을 확인하고 다시 시도해 주세요',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.appMayLackMediaPermission' => '앱에 필요한 미디어 재생 권한이 없을 수 있습니다',
 			'mediaPlayer.tryOtherVideoPlayer' => '다른 동영상 플레이어를 사용해 보세요',
 			'mediaPlayer.unrecognizedVideoFormat' => '인식할 수 없는 동영상 파일',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.unrecognizedVideoFormatSuggestion' => '링크가 만료되었거나 응답이 동영상이 아닐 수 있습니다. 다시 시도하거나 다른 앱으로 여세요.',
 			'mediaPlayer.accessDenied' => '서버가 이 요청을 거부했습니다(403)',
 			'mediaPlayer.accessDeniedSuggestion' => '재생 링크가 만료되었을 가능성이 높습니다. 재시도를 눌러 다시 가져오거나 다른 앱으로 여세요.',
@@ -7967,11 +7973,11 @@ extension on TranslationsKo {
 			'externalPlayer.sourceLocal' => '로컬 파일',
 			'externalPlayer.sourceOnline' => '직접 링크',
 			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => '직접 링크 · ${quality}',
+			_ => null,
+		} ?? switch (path) {
 			'externalPlayer.onlineLinkExpiryHint' => '직접 링크는 만료되므로 외부 플레이어가 중간에 멈출 수 있습니다. 먼저 다운로드하는 것이 안정적입니다.',
 			'externalPlayer.vrPlayerHint' => '선택기에 VR 플레이어가 없으면 동영상 링크 복사를 사용해 해당 플레이어 안에 붙여 넣으세요.',
 			'externalPlayer.noHandler' => '이 기기에서 동영상을 열 수 있는 앱이 없습니다',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.handoffFailed' => ({required Object message}) => '전달 실패: ${message}',
 			'externalPlayer.handoffFailedUnknown' => '전달 실패',
 			'externalPlayer.sourceUnavailable' => '현재 동영상 주소를 가져올 수 없습니다. 다시 시도해 주세요',
@@ -8481,11 +8487,11 @@ extension on TranslationsKo {
 			'ai.endpointPreview' => ({required Object url}) => 'Requests go to ${url}',
 			'ai.endpointTrailingSlash' => 'The trailing slash produces a doubled // in the path.',
 			'ai.endpointMissingVersion' => 'No version segment — most OpenAI-compatible endpoints need /v1.',
+			_ => null,
+		} ?? switch (path) {
 			'ai.modelOverrideHint' => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.',
 			'ai.followCatalog' => ({required Object value}) => 'Following the catalog: ${value}',
 			'ai.userOverride' => 'Overridden by you',
-			_ => null,
-		} ?? switch (path) {
 			'ai.sendTemperature' => 'Send temperature',
 			'ai.sendTemperatureHint' => 'Some endpoints reject a request that carries this parameter.',
 			'ai.maxTokensFromCatalog' => ({required Object tokens}) => 'Catalog says ${tokens}',

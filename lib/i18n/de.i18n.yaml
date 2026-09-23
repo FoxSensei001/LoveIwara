@@ -497,6 +497,9 @@ search:
   exactMatch: "Exakt"
   exactMatchOnHint: "Exakte Übereinstimmung der Phrase, zusätzlich werden chinesische und japanische Titel durchsucht. Tippen für eine lockerere Suche."
   exactMatchOffHint: "Lockere Übereinstimmung — Iwara zerlegt die Wörter. Tippen für exakte Phrase."
+  tagExpansion: "Auch nach Tag suchen"
+  tagExpansionOnHint: "Sucht zusätzlich nach dem Tag „${tags}“ und seinen japanischen/englischen Namen – viele Uploads nennen dein Wort nicht im Titel."
+  tagExpansionOffHint: "Sucht nur nach deinen Wörtern. Einschalten, um auch nach dem Tag „${tags}“ und seinen Namen in anderen Sprachen zu suchen."
   searchHistory: Suchverlauf
   searchSuggestion: Suchvorschläge
   usedTimes: Nutzungshäufigkeit

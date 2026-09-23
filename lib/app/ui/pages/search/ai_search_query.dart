@@ -270,11 +270,18 @@ String _systemPrompt(SearchSegment current, String currentSort) {
       'about tags or authors MUST become a filter.',
     )
     ..writeln(
-      '- When the request names a character, series or genre that is '
-      'plausibly a tag, add a tags filter. Write the tag in the user\'s own '
-      'words or as the English slug — the app resolves it against the real '
-      'Iwara tag dictionary and drops what it cannot resolve. Never invent a '
-      'slug.',
+      '- ⭐ When the request names a character, series or genre, write that '
+      'name in "query" as its own quoted phrase (the user\'s words, the '
+      'English name or the slug all work). The app recognises exact tag names '
+      'in the query and AUTOMATICALLY also searches that tag plus the name in '
+      'Japanese/English/Chinese, merging the results — a name in "query" '
+      'reaches tagged videos whose titles never mention it (measured: 原神 as '
+      'text alone finds 17 recent videos, with the automatic tag route 324). '
+      'Add a tags filter only to CONSTRAIN: a filter is ANDed into every one '
+      'of those searches, so it cuts out untagged matches. Write it in the '
+      'user\'s own words or as the English slug — the app resolves it against '
+      'the real Iwara tag dictionary and drops what it cannot resolve. Never '
+      'invent a slug.',
     )
     ..writeln(
       '- IN on one filter is OR (tags IN [a,b] = a or b); two filters on the '
@@ -293,8 +300,8 @@ String _systemPrompt(SearchSegment current, String currentSort) {
       '- ⭐ Because words AND, do NOT pile on context the user did not ask '
       'for. `"甘雨"` finds 119 videos; adding her series as `"原神" "甘雨"` '
       'cuts it to 10, because most uploaders never write the series name. '
-      'Search the most distinctive term and let a tags filter carry the '
-      'series if it really matters.',
+      'Search the most distinctive term; if it is a tag name the app '
+      'already expands it to the tag.',
     )
     ..writeln(
       '- Typo tolerance is erratic ("mliku" → 7263 hits, "mikuu" → 4). Write '
@@ -631,10 +638,16 @@ Future<Map<String, dynamic>> _runPreview(Map<String, dynamic> args) async {
   final type = (segment ?? SearchSegment.video).apiType;
 
   final tags = _previewTags(args);
-  final query = [
-    (args['query'] as String?)?.trim() ?? '',
-    if (tags.isNotEmpty) '{tags:[${tags.join(',')}]}',
-  ].where((e) => e.isNotEmpty).join(' ');
+  // ⛔ 自由文本必须在花括号前面，反过来文本会被引擎静默丢掉（见 composeQuery）。
+  // 模型自己在 query 里写的筛选也一并挪到后面。
+  final parts = splitQueryParts((args['query'] as String?)?.trim() ?? '');
+  final query = composeQuery(
+    parts.text,
+    [
+      parts.filters,
+      if (tags.isNotEmpty) '{tags:[${tags.join(',')}]}',
+    ].where((e) => e.isNotEmpty).join(' '),
+  );
 
   try {
     final response = await Get.find<ApiService>().get(

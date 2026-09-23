@@ -532,6 +532,10 @@ enum ConfigKey {
   POPULAR_SAVED_SEARCH_CONFIGS,
   // 搜索结果页的已保存搜索，存为 JSON：[savedSearch, ...]
   SEARCH_SAVED_QUERIES,
+  // 搜索结果页「精确匹配」胶囊的开关（CJK 关键词自动补引号 + 跨语言补路）
+  SEARCH_EXACT_MATCH,
+  // 搜索时把认出的标签名换成标签筛选 / 日英中文名补搜（标签胶囊的开关）
+  SEARCH_TAG_EXPANSION,
   // 已提醒过"处于网站默认标签黑名单"的用户名列表，存为 JSON：[username, ...]
   DEFAULT_BLACKLIST_REMINDER_SEEN_USERS,
   // AI 供应商多档案存储与用途绑定（P1 数据层）
@@ -855,6 +859,10 @@ extension ConfigKeyExtension on ConfigKey {
         return 'popular_saved_search_configs';
       case ConfigKey.SEARCH_SAVED_QUERIES:
         return 'search_saved_queries';
+      case ConfigKey.SEARCH_EXACT_MATCH:
+        return 'search_exact_match';
+      case ConfigKey.SEARCH_TAG_EXPANSION:
+        return 'search_tag_expansion';
       case ConfigKey.DEFAULT_BLACKLIST_REMINDER_SEEN_USERS:
         return 'default_blacklist_reminder_seen_users';
       case ConfigKey.AI_PROVIDER_PROFILES:
@@ -1225,6 +1233,10 @@ extension ConfigKeyExtension on ConfigKey {
         return <String, dynamic>{};
       case ConfigKey.SEARCH_SAVED_QUERIES:
         return <dynamic>[];
+      case ConfigKey.SEARCH_EXACT_MATCH:
+        return true;
+      case ConfigKey.SEARCH_TAG_EXPANSION:
+        return true;
       case ConfigKey.DEFAULT_BLACKLIST_REMINDER_SEEN_USERS:
         return <String>[];
       case ConfigKey.AI_PROVIDER_PROFILES:

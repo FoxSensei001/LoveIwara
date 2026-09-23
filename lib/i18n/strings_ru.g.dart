@@ -647,6 +647,9 @@ class _TranslationsSearchRu extends TranslationsSearchEn {
 	@override String get exactMatch => 'Точно';
 	@override String get exactMatchOnHint => 'Точное совпадение фразы, дополнительно ищем в китайских и японских заголовках. Нажмите для менее строгого поиска.';
 	@override String get exactMatchOffHint => 'Нестрогое совпадение — Iwara разбивает слова. Нажмите для точной фразы.';
+	@override String get tagExpansion => 'Искать и по тегу';
+	@override String tagExpansionOnHint({required Object tags}) => 'Также ищем по тегу «${tags}» и его японскому/английскому названию — во многих заголовках вашего слова нет.';
+	@override String tagExpansionOffHint({required Object tags}) => 'Ищем только ваши слова. Включите, чтобы искать также по тегу «${tags}» и его названиям на других языках.';
 	@override String get searchHistory => 'История поиска';
 	@override String get searchSuggestion => 'Подсказки поиска';
 	@override String get usedTimes => 'Использований';
@@ -5351,6 +5354,9 @@ extension on TranslationsRu {
 			'search.exactMatch' => 'Точно',
 			'search.exactMatchOnHint' => 'Точное совпадение фразы, дополнительно ищем в китайских и японских заголовках. Нажмите для менее строгого поиска.',
 			'search.exactMatchOffHint' => 'Нестрогое совпадение — Iwara разбивает слова. Нажмите для точной фразы.',
+			'search.tagExpansion' => 'Искать и по тегу',
+			'search.tagExpansionOnHint' => ({required Object tags}) => 'Также ищем по тегу «${tags}» и его японскому/английскому названию — во многих заголовках вашего слова нет.',
+			'search.tagExpansionOffHint' => ({required Object tags}) => 'Ищем только ваши слова. Включите, чтобы искать также по тегу «${tags}» и его названиям на других языках.',
 			'search.searchHistory' => 'История поиска',
 			'search.searchSuggestion' => 'Подсказки поиска',
 			'search.usedTimes' => 'Использований',
@@ -5397,11 +5403,11 @@ extension on TranslationsRu {
 			'settings.playbackSpeedSettings' => 'Скорость воспроизведения',
 			'settings.playbackBehaviorSettings' => 'Поведение воспроизведения',
 			'settings.enhancementSettings' => 'Кинотеатр и улучшение',
+			_ => null,
+		} ?? switch (path) {
 			'settings.fastForwardTime' => 'Время перемотки вперед',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => 'Время перемотки должно быть положительным целым числом.',
 			'settings.rewindTime' => 'Время перемотки назад',
-			_ => null,
-		} ?? switch (path) {
 			'settings.rewindTimeMustBeAPositiveInteger' => 'Время перемотки должно быть положительным целым числом.',
 			'settings.longPressPlaybackSpeed' => 'Скорость при долгом нажатии',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'Скорость при долгом нажатии должна быть положительным числом.',
@@ -5911,11 +5917,11 @@ extension on TranslationsRu {
 			'settings.blockSettings.regexHelpIntro' => 'Регулярные выражения позволяют фильтровать точнее обычных слов. Примеры:',
 			'settings.blockSettings.regexHelpTapHint' => 'Нажмите на пример, чтобы вставить его.',
 			'settings.blockSettings.regexEx1Pattern' => 'трейлер|тизер|бонус',
+			_ => null,
+		} ?? switch (path) {
 			'settings.blockSettings.regexEx1Desc' => 'Любое из этих слов («|» означает «или»)',
 			'settings.blockSettings.regexEx2Pattern' => '^\\[.*\\]',
 			'settings.blockSettings.regexEx2Desc' => 'Заголовки, начинающиеся с [скобок]',
-			_ => null,
-		} ?? switch (path) {
 			'settings.blockSettings.regexEx3Pattern' => 'Коллекция\$',
 			'settings.blockSettings.regexEx3Desc' => 'Заголовки, заканчивающиеся на «Коллекция»',
 			'settings.blockSettings.regexEx4Pattern' => 'Эп.[0-9]+',
@@ -6425,11 +6431,11 @@ extension on TranslationsRu {
 			'videoDetail.cast.deviceTypes.unknownDevice' => 'Неизвестное устройство',
 			'videoDetail.cast.currentPlatformNotSupported' => 'Трансляция не поддерживается на этой платформе',
 			'videoDetail.cast.unableToGetVideoUrl' => 'Не удалось получить адрес видео, повторите позже',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.cast.stopCasting' => 'Остановить трансляцию',
 			'videoDetail.cast.dlnaCastSheet.title' => 'Беспроводная трансляция',
 			'videoDetail.cast.dlnaCastSheet.close' => 'Закрыть',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.dlnaCastSheet.searchingDevices' => 'Поиск устройств...',
 			'videoDetail.cast.dlnaCastSheet.searchPrompt' => 'Нажмите кнопку для повторного поиска устройств трансляции',
 			'videoDetail.cast.dlnaCastSheet.searching' => 'Поиск',
@@ -6939,11 +6945,11 @@ extension on TranslationsRu {
 			'download.relocation.galleryImages' => ({required Object count}) => '${count} images',
 			'download.relocation.unfinishedDownloading' => ({required Object percent}) => 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues',
 			'download.relocation.unfinishedPending' => 'Waiting to download: re-queued after the move',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused',
 			'download.relocation.unfinishedFailed' => 'Download failed: the downloaded part moves too',
 			'download.relocation.noDataYet' => 'Nothing downloaded yet, only the save location changes',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.missingGroup' => ({required Object count}) => '${count} item(s) with missing files',
 			'download.relocation.missingSkip' => 'Leave as is',
 			'download.relocation.missingRedownload' => 'Re-download to the destination',
@@ -7453,11 +7459,11 @@ extension on TranslationsRu {
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'Устройства Android ограниченно поддерживают формат WEBM. Рекомендуется использовать внешний плеер или скачать приложение-плеер с поддержкой WEBM',
 			'mediaPlayer.currentDeviceCodecNotSupported' => 'Текущее устройство не поддерживает кодек для этого формата видео',
 			'mediaPlayer.checkNetworkConnection' => 'Проверьте подключение к сети и повторите попытку',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.appMayLackMediaPermission' => 'Возможно, у приложения нет необходимых разрешений на воспроизведение медиа',
 			'mediaPlayer.tryOtherVideoPlayer' => 'Попробуйте использовать другой видеоплеер',
 			'mediaPlayer.unrecognizedVideoFormat' => 'Нераспознанный видеофайл',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.unrecognizedVideoFormatSuggestion' => 'Возможно, ссылка устарела или ответ не является видео. Повторите попытку или откройте в другом приложении.',
 			'mediaPlayer.accessDenied' => 'Сервер отклонил этот запрос (403)',
 			'mediaPlayer.accessDeniedSuggestion' => 'Ссылка для воспроизведения, скорее всего, устарела. Нажмите «Повторить», чтобы получить её заново, или откройте в другом приложении.',
@@ -7967,11 +7973,11 @@ extension on TranslationsRu {
 			'externalPlayer.sourceLocal' => 'Локальный файл',
 			'externalPlayer.sourceOnline' => 'Прямая ссылка',
 			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => 'Прямая ссылка · ${quality}',
+			_ => null,
+		} ?? switch (path) {
 			'externalPlayer.onlineLinkExpiryHint' => 'Прямые ссылки истекают, поэтому внешний плеер может остановиться на середине. Надёжный способ — сначала скачать.',
 			'externalPlayer.vrPlayerHint' => 'Если вашего VR-плеера нет в списке выбора, используйте «Копировать ссылку на видео» и вставьте её в этом плеере.',
 			'externalPlayer.noHandler' => 'Ни одно приложение на этом устройстве не может открыть видео',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.handoffFailed' => ({required Object message}) => 'Не удалось передать: ${message}',
 			'externalPlayer.handoffFailedUnknown' => 'Не удалось передать',
 			'externalPlayer.sourceUnavailable' => 'Не удалось получить адрес текущего видео, повторите попытку',
@@ -8481,11 +8487,11 @@ extension on TranslationsRu {
 			'ai.endpointPreview' => ({required Object url}) => 'Requests go to ${url}',
 			'ai.endpointTrailingSlash' => 'The trailing slash produces a doubled // in the path.',
 			'ai.endpointMissingVersion' => 'No version segment — most OpenAI-compatible endpoints need /v1.',
+			_ => null,
+		} ?? switch (path) {
 			'ai.modelOverrideHint' => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.',
 			'ai.followCatalog' => ({required Object value}) => 'Following the catalog: ${value}',
 			'ai.userOverride' => 'Overridden by you',
-			_ => null,
-		} ?? switch (path) {
 			'ai.sendTemperature' => 'Send temperature',
 			'ai.sendTemperatureHint' => 'Some endpoints reject a request that carries this parameter.',
 			'ai.maxTokensFromCatalog' => ({required Object tokens}) => 'Catalog says ${tokens}',

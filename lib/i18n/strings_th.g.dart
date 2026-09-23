@@ -647,6 +647,9 @@ class _TranslationsSearchTh extends TranslationsSearchEn {
 	@override String get exactMatch => 'ตรงทุกคำ';
 	@override String get exactMatchOnHint => 'กำลังจับคู่ทั้งวลีแบบตรงทุกคำ และค้นหาชื่อเรื่องภาษาจีนกับญี่ปุ่นด้วย แตะเพื่อค้นแบบกว้างขึ้น';
 	@override String get exactMatchOffHint => 'จับคู่แบบหลวม — Iwara จะแยกคำออก แตะเพื่อจับคู่ทั้งวลีแบบตรงทุกคำ';
+	@override String get tagExpansion => 'ค้นหาตามแท็กด้วย';
+	@override String tagExpansionOnHint({required Object tags}) => 'กำลังค้นหาตามแท็ก “${tags}” และชื่อภาษาญี่ปุ่น/อังกฤษด้วย — หลายคลิปไม่ได้ใส่คำที่คุณค้นไว้ในชื่อเรื่อง';
+	@override String tagExpansionOffHint({required Object tags}) => 'ค้นหาเฉพาะคำที่คุณพิมพ์ เปิดเพื่อค้นหาตามแท็ก “${tags}” และชื่อในภาษาอื่นด้วย';
 	@override String get searchHistory => 'ประวัติการค้นหา';
 	@override String get searchSuggestion => 'คำแนะนำการค้นหา';
 	@override String get usedTimes => 'จำนวนครั้งที่ใช้';
@@ -5351,6 +5354,9 @@ extension on TranslationsTh {
 			'search.exactMatch' => 'ตรงทุกคำ',
 			'search.exactMatchOnHint' => 'กำลังจับคู่ทั้งวลีแบบตรงทุกคำ และค้นหาชื่อเรื่องภาษาจีนกับญี่ปุ่นด้วย แตะเพื่อค้นแบบกว้างขึ้น',
 			'search.exactMatchOffHint' => 'จับคู่แบบหลวม — Iwara จะแยกคำออก แตะเพื่อจับคู่ทั้งวลีแบบตรงทุกคำ',
+			'search.tagExpansion' => 'ค้นหาตามแท็กด้วย',
+			'search.tagExpansionOnHint' => ({required Object tags}) => 'กำลังค้นหาตามแท็ก “${tags}” และชื่อภาษาญี่ปุ่น/อังกฤษด้วย — หลายคลิปไม่ได้ใส่คำที่คุณค้นไว้ในชื่อเรื่อง',
+			'search.tagExpansionOffHint' => ({required Object tags}) => 'ค้นหาเฉพาะคำที่คุณพิมพ์ เปิดเพื่อค้นหาตามแท็ก “${tags}” และชื่อในภาษาอื่นด้วย',
 			'search.searchHistory' => 'ประวัติการค้นหา',
 			'search.searchSuggestion' => 'คำแนะนำการค้นหา',
 			'search.usedTimes' => 'จำนวนครั้งที่ใช้',
@@ -5397,11 +5403,11 @@ extension on TranslationsTh {
 			'settings.playbackSpeedSettings' => 'การเล่นและความเร็ว',
 			'settings.playbackBehaviorSettings' => 'พฤติกรรมการเล่น',
 			'settings.enhancementSettings' => 'โหมดโรงภาพยนตร์และการเพิ่มประสิทธิภาพ',
+			_ => null,
+		} ?? switch (path) {
 			'settings.fastForwardTime' => 'เวลาเดินหน้าอย่างเร็ว',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => 'เวลาเดินหน้าอย่างเร็วต้องเป็นจำนวนเต็มบวก',
 			'settings.rewindTime' => 'เวลาย้อนกลับ',
-			_ => null,
-		} ?? switch (path) {
 			'settings.rewindTimeMustBeAPositiveInteger' => 'เวลาย้อนกลับต้องเป็นจำนวนเต็มบวก',
 			'settings.longPressPlaybackSpeed' => 'ความเร็วการเล่นเมื่อกดค้าง',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'ความเร็วการเล่นเมื่อกดค้างต้องเป็นตัวเลขบวก',
@@ -5911,11 +5917,11 @@ extension on TranslationsTh {
 			'settings.blockSettings.regexHelpIntro' => 'นิพจน์ทั่วไปสามารถจับคู่ชื่อเรื่องได้อย่างยืดหยุ่นมากกว่าคำสำคัญธรรมดา ตัวอย่างทั่วไปบางส่วน:',
 			'settings.blockSettings.regexHelpTapHint' => 'แตะตัวอย่างเพื่อนำไปใช้',
 			'settings.blockSettings.regexEx1Pattern' => 'ตัวอย่าง|ทีเซอร์|โบนัส',
+			_ => null,
+		} ?? switch (path) {
 			'settings.blockSettings.regexEx1Desc' => 'ตรงกับคำใดคำหนึ่งเหล่านี้ ("|" หมายถึง "หรือ")',
 			'settings.blockSettings.regexEx2Pattern' => '^\\[.*\\]',
 			'settings.blockSettings.regexEx2Desc' => 'ชื่อเรื่องที่ขึ้นต้นด้วย [วงเล็บ]',
-			_ => null,
-		} ?? switch (path) {
 			'settings.blockSettings.regexEx3Pattern' => 'คอลเลกชัน\$',
 			'settings.blockSettings.regexEx3Desc' => 'ชื่อเรื่องที่ลงท้ายด้วย "Collection"',
 			'settings.blockSettings.regexEx4Pattern' => 'ตอนที่.',
@@ -6425,11 +6431,11 @@ extension on TranslationsTh {
 			'videoDetail.cast.deviceTypes.unknownDevice' => 'อุปกรณ์ที่ไม่รู้จัก',
 			'videoDetail.cast.currentPlatformNotSupported' => 'แพลตฟอร์มปัจจุบันไม่รองรับการแคสต์',
 			'videoDetail.cast.unableToGetVideoUrl' => 'ไม่สามารถรับที่อยู่วิดีโอได้ โปรดลองอีกครั้งในภายหลัง',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.cast.stopCasting' => 'หยุดแคสต์',
 			'videoDetail.cast.dlnaCastSheet.title' => 'รีโมตแคสต์',
 			'videoDetail.cast.dlnaCastSheet.close' => 'ปิด',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.dlnaCastSheet.searchingDevices' => 'กำลังค้นหาอุปกรณ์...',
 			'videoDetail.cast.dlnaCastSheet.searchPrompt' => 'คลิกปุ่มค้นหาเพื่อค้นหาอุปกรณ์แคสต์อีกครั้ง',
 			'videoDetail.cast.dlnaCastSheet.searching' => 'กำลังค้นหา',
@@ -6939,11 +6945,11 @@ extension on TranslationsTh {
 			'download.relocation.galleryImages' => ({required Object count}) => '${count} images',
 			'download.relocation.unfinishedDownloading' => ({required Object percent}) => 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues',
 			'download.relocation.unfinishedPending' => 'Waiting to download: re-queued after the move',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused',
 			'download.relocation.unfinishedFailed' => 'Download failed: the downloaded part moves too',
 			'download.relocation.noDataYet' => 'Nothing downloaded yet, only the save location changes',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.missingGroup' => ({required Object count}) => '${count} item(s) with missing files',
 			'download.relocation.missingSkip' => 'Leave as is',
 			'download.relocation.missingRedownload' => 'Re-download to the destination',
@@ -7453,11 +7459,11 @@ extension on TranslationsTh {
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'อุปกรณ์ Android มีการรองรับรูปแบบ WEBM อย่างจำกัด แนะนำให้ใช้เครื่องเล่นภายนอกหรือดาวน์โหลดแอปเครื่องเล่นที่รองรับ WEBM',
 			'mediaPlayer.currentDeviceCodecNotSupported' => 'อุปกรณ์ปัจจุบันไม่รองรับตัวแปลงสัญญาณสำหรับรูปแบบวิดีโอนี้',
 			'mediaPlayer.checkNetworkConnection' => 'โปรดตรวจสอบการเชื่อมต่อเครือข่ายของคุณแล้วลองใหม่อีกครั้ง',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.appMayLackMediaPermission' => 'แอปอาจไม่มีสิทธิ์ในการเล่นสื่อที่จำเป็น',
 			'mediaPlayer.tryOtherVideoPlayer' => 'โปรดลองใช้โปรแกรมเล่นวิดีโออื่น',
 			'mediaPlayer.unrecognizedVideoFormat' => 'ไม่รู้จักไฟล์วิดีโอ',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.unrecognizedVideoFormatSuggestion' => 'ลิงก์อาจหมดอายุแล้ว หรือการตอบกลับไม่ใช่วิดีโอ โปรดลองอีกครั้งหรือเปิดด้วยแอปอื่น',
 			'mediaPlayer.accessDenied' => 'เซิร์ฟเวอร์ปฏิเสธคำขอนี้ (403)',
 			'mediaPlayer.accessDeniedSuggestion' => 'ลิงก์เล่นน่าจะหมดอายุแล้ว แตะลองใหม่เพื่อดึงลิงก์อีกครั้ง หรือเปิดด้วยแอปอื่น',
@@ -7967,11 +7973,11 @@ extension on TranslationsTh {
 			'externalPlayer.sourceLocal' => 'ไฟล์ในเครื่อง',
 			'externalPlayer.sourceOnline' => 'ลิงก์ตรง',
 			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => 'ลิงก์ตรง · ${quality}',
+			_ => null,
+		} ?? switch (path) {
 			'externalPlayer.onlineLinkExpiryHint' => 'ลิงก์ตรงมีอายุจำกัด โปรแกรมเล่นภายนอกอาจหยุดกลางคันได้ การดาวน์โหลดไว้ก่อนเป็นวิธีที่เชื่อถือได้',
 			'externalPlayer.vrPlayerHint' => 'หากไม่มีโปรแกรมเล่น VR ของคุณในตัวเลือก ให้ใช้ คัดลอกลิงก์วิดีโอ แล้ววางในโปรแกรมเล่นนั้น',
 			'externalPlayer.noHandler' => 'ไม่มีแอปบนอุปกรณ์นี้ที่เปิดวิดีโอได้',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.handoffFailed' => ({required Object message}) => 'ส่งต่อไม่สำเร็จ: ${message}',
 			'externalPlayer.handoffFailedUnknown' => 'ส่งต่อไม่สำเร็จ',
 			'externalPlayer.sourceUnavailable' => 'ไม่สามารถดึงที่อยู่ของวิดีโอปัจจุบันได้ โปรดลองอีกครั้ง',
@@ -8481,11 +8487,11 @@ extension on TranslationsTh {
 			'ai.endpointPreview' => ({required Object url}) => 'Requests go to ${url}',
 			'ai.endpointTrailingSlash' => 'The trailing slash produces a doubled // in the path.',
 			'ai.endpointMissingVersion' => 'No version segment — most OpenAI-compatible endpoints need /v1.',
+			_ => null,
+		} ?? switch (path) {
 			'ai.modelOverrideHint' => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.',
 			'ai.followCatalog' => ({required Object value}) => 'Following the catalog: ${value}',
 			'ai.userOverride' => 'Overridden by you',
-			_ => null,
-		} ?? switch (path) {
 			'ai.sendTemperature' => 'Send temperature',
 			'ai.sendTemperatureHint' => 'Some endpoints reject a request that carries this parameter.',
 			'ai.maxTokensFromCatalog' => ({required Object tokens}) => 'Catalog says ${tokens}',

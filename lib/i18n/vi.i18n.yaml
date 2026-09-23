@@ -497,6 +497,9 @@ search:
   exactMatch: "Chính xác"
   exactMatchOnHint: "Đang khớp chính xác cụm từ, đồng thời tìm cả tiêu đề tiếng Trung và tiếng Nhật. Chạm để tìm rộng hơn."
   exactMatchOffHint: "Đang khớp lỏng — Iwara tách các từ ra. Chạm để khớp chính xác cụm từ."
+  tagExpansion: "Tìm cả theo thẻ"
+  tagExpansionOnHint: "Đang tìm thêm theo thẻ “${tags}” và tên tiếng Nhật/tiếng Anh của nó — nhiều video không ghi từ bạn tìm trong tiêu đề."
+  tagExpansionOffHint: "Chỉ tìm đúng từ bạn nhập. Bật để tìm thêm theo thẻ “${tags}” và tên của nó ở các ngôn ngữ khác."
   searchHistory: Lịch sử tìm kiếm
   searchSuggestion: Gợi ý tìm kiếm
   usedTimes: Số lần sử dụng

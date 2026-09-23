@@ -498,6 +498,9 @@ search:
   exactMatch: "完全一致"
   exactMatchOnHint: "フレーズ全体で完全一致し、中国語・日本語のタイトルも併せて検索しています。タップで緩い検索に戻します。"
   exactMatchOffHint: "緩い一致です（iwara が語を分割します）。タップでフレーズ全体の完全一致に。"
+  tagExpansion: "タグでも検索"
+  tagExpansionOnHint: "タグ「${tags}」とその日本語・英語名でも検索しています。多くの投稿はタイトルにその語を含みません。"
+  tagExpansionOffHint: "入力した語だけで検索しています。オンにするとタグ「${tags}」と各言語名でも検索します。"
   searchHistory: 検索履歴
   searchSuggestion: 検索提案
   usedTimes: 使用回数

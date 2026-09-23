@@ -497,6 +497,9 @@ search:
   exactMatch: "Exacto"
   exactMatchOnHint: "Coincidencia exacta de la frase, buscando también en títulos en chino y japonés. Toca para una búsqueda más amplia."
   exactMatchOffHint: "Coincidencia laxa: Iwara separa las palabras. Toca para la frase exacta."
+  tagExpansion: "Buscar también la etiqueta"
+  tagExpansionOnHint: "Buscando también la etiqueta «${tags}» y sus nombres en japonés/inglés: muchas subidas no ponen tu palabra en el título."
+  tagExpansionOffHint: "Solo se buscan tus palabras. Actívalo para incluir la etiqueta «${tags}» y sus nombres en otros idiomas."
   searchHistory: Historial de búsqueda
   searchSuggestion: Sugerencia de búsqueda
   usedTimes: Veces usado

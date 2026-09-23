@@ -497,6 +497,9 @@ search:
   exactMatch: "정확히 일치"
   exactMatchOnHint: "구문 전체로 정확히 일치시키며 중국어·일본어 제목도 함께 검색합니다. 탭하면 느슨한 검색으로 돌아갑니다."
   exactMatchOffHint: "느슨하게 일치 중 — iwara가 단어를 쪼갭니다. 탭하면 구문 전체를 정확히 일치시킵니다."
+  tagExpansion: "태그로도 검색"
+  tagExpansionOnHint: "태그 「${tags}」와 그 일본어·영어 이름으로도 검색합니다. 많은 게시물은 제목에 그 단어를 쓰지 않습니다."
+  tagExpansionOffHint: "입력한 단어로만 검색합니다. 켜면 태그 「${tags}」와 다른 언어 이름으로도 검색합니다."
   searchHistory: 검색 기록
   searchSuggestion: 검색 제안
   usedTimes: 사용 횟수

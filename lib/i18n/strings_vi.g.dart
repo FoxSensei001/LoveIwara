@@ -647,6 +647,9 @@ class _TranslationsSearchVi extends TranslationsSearchEn {
 	@override String get exactMatch => 'Chính xác';
 	@override String get exactMatchOnHint => 'Đang khớp chính xác cụm từ, đồng thời tìm cả tiêu đề tiếng Trung và tiếng Nhật. Chạm để tìm rộng hơn.';
 	@override String get exactMatchOffHint => 'Đang khớp lỏng — Iwara tách các từ ra. Chạm để khớp chính xác cụm từ.';
+	@override String get tagExpansion => 'Tìm cả theo thẻ';
+	@override String tagExpansionOnHint({required Object tags}) => 'Đang tìm thêm theo thẻ “${tags}” và tên tiếng Nhật/tiếng Anh của nó — nhiều video không ghi từ bạn tìm trong tiêu đề.';
+	@override String tagExpansionOffHint({required Object tags}) => 'Chỉ tìm đúng từ bạn nhập. Bật để tìm thêm theo thẻ “${tags}” và tên của nó ở các ngôn ngữ khác.';
 	@override String get searchHistory => 'Lịch sử tìm kiếm';
 	@override String get searchSuggestion => 'Gợi ý tìm kiếm';
 	@override String get usedTimes => 'Số lần sử dụng';
@@ -5351,6 +5354,9 @@ extension on TranslationsVi {
 			'search.exactMatch' => 'Chính xác',
 			'search.exactMatchOnHint' => 'Đang khớp chính xác cụm từ, đồng thời tìm cả tiêu đề tiếng Trung và tiếng Nhật. Chạm để tìm rộng hơn.',
 			'search.exactMatchOffHint' => 'Đang khớp lỏng — Iwara tách các từ ra. Chạm để khớp chính xác cụm từ.',
+			'search.tagExpansion' => 'Tìm cả theo thẻ',
+			'search.tagExpansionOnHint' => ({required Object tags}) => 'Đang tìm thêm theo thẻ “${tags}” và tên tiếng Nhật/tiếng Anh của nó — nhiều video không ghi từ bạn tìm trong tiêu đề.',
+			'search.tagExpansionOffHint' => ({required Object tags}) => 'Chỉ tìm đúng từ bạn nhập. Bật để tìm thêm theo thẻ “${tags}” và tên của nó ở các ngôn ngữ khác.',
 			'search.searchHistory' => 'Lịch sử tìm kiếm',
 			'search.searchSuggestion' => 'Gợi ý tìm kiếm',
 			'search.usedTimes' => 'Số lần sử dụng',
@@ -5397,11 +5403,11 @@ extension on TranslationsVi {
 			'settings.playbackSpeedSettings' => 'Phát và tốc độ',
 			'settings.playbackBehaviorSettings' => 'Hành vi phát',
 			'settings.enhancementSettings' => 'Rạp hát và nâng cao',
+			_ => null,
+		} ?? switch (path) {
 			'settings.fastForwardTime' => 'Thời gian tua tới',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => 'Thời gian tua tới phải là số nguyên dương.',
 			'settings.rewindTime' => 'Thời gian tua lại',
-			_ => null,
-		} ?? switch (path) {
 			'settings.rewindTimeMustBeAPositiveInteger' => 'Thời gian tua lại phải là số nguyên dương.',
 			'settings.longPressPlaybackSpeed' => 'Tốc độ phát khi nhấn giữ',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'Tốc độ phát khi nhấn giữ phải là số dương.',
@@ -5911,11 +5917,11 @@ extension on TranslationsVi {
 			'settings.blockSettings.regexHelpIntro' => 'Biểu thức chính quy khớp tiêu đề linh hoạt hơn từ khóa thông thường. Một số ví dụ phổ biến:',
 			'settings.blockSettings.regexHelpTapHint' => 'Nhấn vào một ví dụ để điền vào.',
 			'settings.blockSettings.regexEx1Pattern' => 'trailer|hậu trường|tặng kèm',
+			_ => null,
+		} ?? switch (path) {
 			'settings.blockSettings.regexEx1Desc' => 'Khớp với bất kỳ từ nào sau đây ("|" nghĩa là "hoặc")',
 			'settings.blockSettings.regexEx2Pattern' => '^\\[.*\\]',
 			'settings.blockSettings.regexEx2Desc' => 'Tiêu đề bắt đầu bằng [ngoặc vuông]',
-			_ => null,
-		} ?? switch (path) {
 			'settings.blockSettings.regexEx3Pattern' => 'Tuyển tập\$',
 			'settings.blockSettings.regexEx3Desc' => 'Tiêu đề kết thúc bằng "Tuyển tập"',
 			'settings.blockSettings.regexEx4Pattern' => 'Tập [0-9]+',
@@ -6425,11 +6431,11 @@ extension on TranslationsVi {
 			'videoDetail.cast.deviceTypes.unknownDevice' => 'Thiết bị không xác định',
 			'videoDetail.cast.currentPlatformNotSupported' => 'Nền tảng hiện tại không hỗ trợ truyền phát',
 			'videoDetail.cast.unableToGetVideoUrl' => 'Không lấy được URL video, vui lòng thử lại sau',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.cast.stopCasting' => 'Dừng truyền phát',
 			'videoDetail.cast.dlnaCastSheet.title' => 'Truyền phát từ xa',
 			'videoDetail.cast.dlnaCastSheet.close' => 'Đóng',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.dlnaCastSheet.searchingDevices' => 'Đang tìm thiết bị...',
 			'videoDetail.cast.dlnaCastSheet.searchPrompt' => 'Nhấn nút tìm kiếm để tìm lại thiết bị truyền phát',
 			'videoDetail.cast.dlnaCastSheet.searching' => 'Đang tìm kiếm',
@@ -6939,11 +6945,11 @@ extension on TranslationsVi {
 			'download.relocation.galleryImages' => ({required Object count}) => '${count} images',
 			'download.relocation.unfinishedDownloading' => ({required Object percent}) => 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues',
 			'download.relocation.unfinishedPending' => 'Waiting to download: re-queued after the move',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused',
 			'download.relocation.unfinishedFailed' => 'Download failed: the downloaded part moves too',
 			'download.relocation.noDataYet' => 'Nothing downloaded yet, only the save location changes',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.missingGroup' => ({required Object count}) => '${count} item(s) with missing files',
 			'download.relocation.missingSkip' => 'Leave as is',
 			'download.relocation.missingRedownload' => 'Re-download to the destination',
@@ -7453,11 +7459,11 @@ extension on TranslationsVi {
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'Thiết bị Android hỗ trợ hạn chế định dạng WEBM. Nên dùng trình phát ngoài hoặc tải ứng dụng trình phát hỗ trợ WEBM',
 			'mediaPlayer.currentDeviceCodecNotSupported' => 'Thiết bị hiện tại không hỗ trợ codec cho định dạng video này',
 			'mediaPlayer.checkNetworkConnection' => 'Vui lòng kiểm tra kết nối mạng và thử lại',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.appMayLackMediaPermission' => 'Ứng dụng có thể thiếu quyền phát media cần thiết',
 			'mediaPlayer.tryOtherVideoPlayer' => 'Vui lòng thử dùng trình phát video khác',
 			'mediaPlayer.unrecognizedVideoFormat' => 'Tệp video không nhận dạng được',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.unrecognizedVideoFormatSuggestion' => 'Liên kết có thể đã hết hạn, hoặc phản hồi không phải video. Hãy thử lại, hoặc mở bằng ứng dụng khác.',
 			'mediaPlayer.accessDenied' => 'Máy chủ từ chối yêu cầu này (403)',
 			'mediaPlayer.accessDeniedSuggestion' => 'Liên kết phát nhiều khả năng đã hết hạn. Nhấn Thử lại để lấy lại, hoặc mở bằng ứng dụng khác.',
@@ -7967,11 +7973,11 @@ extension on TranslationsVi {
 			'externalPlayer.sourceLocal' => 'Tệp cục bộ',
 			'externalPlayer.sourceOnline' => 'Liên kết trực tiếp',
 			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => 'Liên kết trực tiếp · ${quality}',
+			_ => null,
+		} ?? switch (path) {
 			'externalPlayer.onlineLinkExpiryHint' => 'Liên kết trực tiếp sẽ hết hạn nên trình phát ngoài có thể dừng giữa chừng. Tải xuống trước là cách đáng tin cậy hơn.',
 			'externalPlayer.vrPlayerHint' => 'Nếu trình phát VR của bạn không có trong bảng chọn, hãy dùng Sao chép liên kết video và dán vào trình phát đó.',
 			'externalPlayer.noHandler' => 'Không có ứng dụng nào trên thiết bị này mở được video',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.handoffFailed' => ({required Object message}) => 'Chuyển giao thất bại: ${message}',
 			'externalPlayer.handoffFailedUnknown' => 'Chuyển giao thất bại',
 			'externalPlayer.sourceUnavailable' => 'Không lấy được địa chỉ video hiện tại, vui lòng thử lại',
@@ -8481,11 +8487,11 @@ extension on TranslationsVi {
 			'ai.endpointPreview' => ({required Object url}) => 'Requests go to ${url}',
 			'ai.endpointTrailingSlash' => 'The trailing slash produces a doubled // in the path.',
 			'ai.endpointMissingVersion' => 'No version segment — most OpenAI-compatible endpoints need /v1.',
+			_ => null,
+		} ?? switch (path) {
 			'ai.modelOverrideHint' => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.',
 			'ai.followCatalog' => ({required Object value}) => 'Following the catalog: ${value}',
 			'ai.userOverride' => 'Overridden by you',
-			_ => null,
-		} ?? switch (path) {
 			'ai.sendTemperature' => 'Send temperature',
 			'ai.sendTemperatureHint' => 'Some endpoints reject a request that carries this parameter.',
 			'ai.maxTokensFromCatalog' => ({required Object tokens}) => 'Catalog says ${tokens}',

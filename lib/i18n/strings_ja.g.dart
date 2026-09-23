@@ -647,6 +647,9 @@ class _TranslationsSearchJa extends TranslationsSearchEn {
 	@override String get exactMatch => '完全一致';
 	@override String get exactMatchOnHint => 'フレーズ全体で完全一致し、中国語・日本語のタイトルも併せて検索しています。タップで緩い検索に戻します。';
 	@override String get exactMatchOffHint => '緩い一致です（iwara が語を分割します）。タップでフレーズ全体の完全一致に。';
+	@override String get tagExpansion => 'タグでも検索';
+	@override String tagExpansionOnHint({required Object tags}) => 'タグ「${tags}」とその日本語・英語名でも検索しています。多くの投稿はタイトルにその語を含みません。';
+	@override String tagExpansionOffHint({required Object tags}) => '入力した語だけで検索しています。オンにするとタグ「${tags}」と各言語名でも検索します。';
 	@override String get searchHistory => '検索履歴';
 	@override String get searchSuggestion => '検索提案';
 	@override String get usedTimes => '使用回数';
@@ -5351,6 +5354,9 @@ extension on TranslationsJa {
 			'search.exactMatch' => '完全一致',
 			'search.exactMatchOnHint' => 'フレーズ全体で完全一致し、中国語・日本語のタイトルも併せて検索しています。タップで緩い検索に戻します。',
 			'search.exactMatchOffHint' => '緩い一致です（iwara が語を分割します）。タップでフレーズ全体の完全一致に。',
+			'search.tagExpansion' => 'タグでも検索',
+			'search.tagExpansionOnHint' => ({required Object tags}) => 'タグ「${tags}」とその日本語・英語名でも検索しています。多くの投稿はタイトルにその語を含みません。',
+			'search.tagExpansionOffHint' => ({required Object tags}) => '入力した語だけで検索しています。オンにするとタグ「${tags}」と各言語名でも検索します。',
 			'search.searchHistory' => '検索履歴',
 			'search.searchSuggestion' => '検索提案',
 			'search.usedTimes' => '使用回数',
@@ -5397,11 +5403,11 @@ extension on TranslationsJa {
 			'settings.playbackSpeedSettings' => '再生と速度',
 			'settings.playbackBehaviorSettings' => '再生動作',
 			'settings.enhancementSettings' => 'シアターと画質強化',
+			_ => null,
+		} ?? switch (path) {
 			'settings.fastForwardTime' => '早送り時間',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => '早送り時間は正の整数でなければなりません。',
 			'settings.rewindTime' => '巻き戻し時間',
-			_ => null,
-		} ?? switch (path) {
 			'settings.rewindTimeMustBeAPositiveInteger' => '巻き戻し時間は正の整数でなければなりません。',
 			'settings.longPressPlaybackSpeed' => '長押し再生速度',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '長押し再生速度は正の数でなければなりません。',
@@ -5911,11 +5917,11 @@ extension on TranslationsJa {
 			'settings.blockSettings.regexHelpIntro' => '正規表現はキーワードより柔軟にタイトルを照合できます。よく使う例：',
 			'settings.blockSettings.regexHelpTapHint' => '例をタップするとそのまま入力されます。',
 			'settings.blockSettings.regexEx1Pattern' => '予告|特典|おまけ',
+			_ => null,
+		} ?? switch (path) {
 			'settings.blockSettings.regexEx1Desc' => '「|」でいずれかに一致（「または」の意味）',
 			'settings.blockSettings.regexEx2Pattern' => '^【.*】',
 			'settings.blockSettings.regexEx2Desc' => '【…】で始まるタイトルに一致',
-			_ => null,
-		} ?? switch (path) {
 			'settings.blockSettings.regexEx3Pattern' => '総集編\$',
 			'settings.blockSettings.regexEx3Desc' => '「総集編」で終わるタイトルに一致',
 			'settings.blockSettings.regexEx4Pattern' => '第.話',
@@ -6425,11 +6431,11 @@ extension on TranslationsJa {
 			'videoDetail.cast.deviceTypes.unknownDevice' => '不明なデバイス',
 			'videoDetail.cast.currentPlatformNotSupported' => '現在のプラットフォームはキャスト機能をサポートしていません',
 			'videoDetail.cast.unableToGetVideoUrl' => 'ビデオのURLを取得できません、後でもう一度お試しください',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.cast.stopCasting' => 'キャスト停止',
 			'videoDetail.cast.dlnaCastSheet.title' => 'リモートキャスト',
 			'videoDetail.cast.dlnaCastSheet.close' => '閉じる',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.dlnaCastSheet.searchingDevices' => 'デバイスを検索中...',
 			'videoDetail.cast.dlnaCastSheet.searchPrompt' => '検索ボタンをクリックしてキャストデバイスを再検索',
 			'videoDetail.cast.dlnaCastSheet.searching' => '検索中',
@@ -6939,11 +6945,11 @@ extension on TranslationsJa {
 			'download.relocation.galleryImages' => ({required Object count}) => '${count} 枚',
 			'download.relocation.unfinishedDownloading' => ({required Object percent}) => 'ダウンロード中 ${percent}%：一時停止してから途中のデータごと移動し、移動後に再開',
 			'download.relocation.unfinishedPending' => 'ダウンロード待ち：移動後にもう一度キューに入れます',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => '${percent}% で一時停止中：途中のデータごと移動し、一時停止のまま',
 			'download.relocation.unfinishedFailed' => 'ダウンロード失敗：途中のデータごと移動',
 			'download.relocation.noDataYet' => 'まだ何もダウンロードされていないため、保存先だけ変更します',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.missingGroup' => ({required Object count}) => 'ファイルが見つからない ${count} 件',
 			'download.relocation.missingSkip' => 'そのまま',
 			'download.relocation.missingRedownload' => '移動先に再ダウンロード',
@@ -7453,11 +7459,11 @@ extension on TranslationsJa {
 			'diagnostics.refreshMetrics' => '指標を更新',
 			'diagnostics.toolsSectionTitle' => 'ツール',
 			'diagnostics.privacyNotice' => 'ログにはアカウント情報やリクエストパラメータなどの機密情報が含まれる可能性があります。Issue に完全なログを公開添付せず、確認後にメールで送信してください。',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.exportLogsTitle' => 'ログをエクスポート',
 			'diagnostics.exportLogsSubtitle' => '送信前にプライバシー情報を確認してください',
 			'diagnostics.viewLogsTitle' => 'ログを表示',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.viewLogsSubtitle' => 'アプリの実行ログをリアルタイム表示',
 			'diagnostics.copySupportEmailTitle' => 'サポートメールをコピー',
 			'diagnostics.reportIssueTitle' => '問題を報告',
@@ -7967,11 +7973,11 @@ extension on TranslationsJa {
 			'externalPlayer.sourceLocal' => 'ローカルファイル',
 			'externalPlayer.sourceOnline' => '直リンク',
 			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => '直リンク · ${quality}',
+			_ => null,
+		} ?? switch (path) {
 			'externalPlayer.onlineLinkExpiryHint' => '直リンクには有効期限があり、外部プレイヤーで再生途中に切れることがあります。先にダウンロードしてから渡すのが確実です',
 			'externalPlayer.vrPlayerHint' => 'VR プレイヤーが選択画面に出てこない場合は「動画リンクをコピー」してプレイヤー内で貼り付けてください',
 			'externalPlayer.noHandler' => '動画を開けるアプリが見つかりません',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.handoffFailed' => ({required Object message}) => '受け渡しに失敗しました: ${message}',
 			'externalPlayer.handoffFailedUnknown' => '受け渡しに失敗しました',
 			'externalPlayer.sourceUnavailable' => '現在の動画のアドレスを取得できません。しばらくしてからお試しください',
@@ -8481,11 +8487,11 @@ extension on TranslationsJa {
 			'ai.endpointPreview' => ({required Object url}) => 'Requests go to ${url}',
 			'ai.endpointTrailingSlash' => 'The trailing slash produces a doubled // in the path.',
 			'ai.endpointMissingVersion' => 'No version segment — most OpenAI-compatible endpoints need /v1.',
+			_ => null,
+		} ?? switch (path) {
 			'ai.modelOverrideHint' => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.',
 			'ai.followCatalog' => ({required Object value}) => 'Following the catalog: ${value}',
 			'ai.userOverride' => 'Overridden by you',
-			_ => null,
-		} ?? switch (path) {
 			'ai.sendTemperature' => 'Send temperature',
 			'ai.sendTemperatureHint' => 'Some endpoints reject a request that carries this parameter.',
 			'ai.maxTokensFromCatalog' => ({required Object tokens}) => 'Catalog says ${tokens}',

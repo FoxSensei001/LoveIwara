@@ -1517,6 +1517,15 @@ class TranslationsSearchEn {
 	/// en: 'Loose matching — Iwara splits the words up. Tap to match the exact phrase.'
 	String get exactMatchOffHint => 'Loose matching — Iwara splits the words up. Tap to match the exact phrase.';
 
+	/// en: 'Also search the tag'
+	String get tagExpansion => 'Also search the tag';
+
+	/// en: 'Also searching the tag “${tags}” and its Japanese/English names — many uploads never put your word in the title.'
+	String tagExpansionOnHint({required Object tags}) => 'Also searching the tag “${tags}” and its Japanese/English names — many uploads never put your word in the title.';
+
+	/// en: 'Searching only your exact words. Turn on to also search the tag “${tags}” and its names in other languages.'
+	String tagExpansionOffHint({required Object tags}) => 'Searching only your exact words. Turn on to also search the tag “${tags}” and its names in other languages.';
+
 	/// en: 'Search History'
 	String get searchHistory => 'Search History';
 
@@ -12600,6 +12609,9 @@ extension on Translations {
 			'search.exactMatch' => 'Exact',
 			'search.exactMatchOnHint' => 'Matching the phrase exactly, and searching Chinese and Japanese titles too. Tap for a looser search.',
 			'search.exactMatchOffHint' => 'Loose matching — Iwara splits the words up. Tap to match the exact phrase.',
+			'search.tagExpansion' => 'Also search the tag',
+			'search.tagExpansionOnHint' => ({required Object tags}) => 'Also searching the tag “${tags}” and its Japanese/English names — many uploads never put your word in the title.',
+			'search.tagExpansionOffHint' => ({required Object tags}) => 'Searching only your exact words. Turn on to also search the tag “${tags}” and its names in other languages.',
 			'search.searchHistory' => 'Search History',
 			'search.searchSuggestion' => 'Search Suggestion',
 			'search.usedTimes' => 'Used Times',
@@ -12646,11 +12658,11 @@ extension on Translations {
 			'settings.playbackSpeedSettings' => 'Playback & Speed',
 			'settings.playbackBehaviorSettings' => 'Playback Behavior',
 			'settings.enhancementSettings' => 'Theater & Enhancement',
+			_ => null,
+		} ?? switch (path) {
 			'settings.fastForwardTime' => 'Fast Forward Time',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => 'Fast forward time must be a positive integer.',
 			'settings.rewindTime' => 'Rewind Time',
-			_ => null,
-		} ?? switch (path) {
 			'settings.rewindTimeMustBeAPositiveInteger' => 'Rewind time must be a positive integer.',
 			'settings.longPressPlaybackSpeed' => 'Long Press Playback Speed',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'Long press playback speed must be a positive number.',
@@ -13160,11 +13172,11 @@ extension on Translations {
 			'settings.blockSettings.regexHelpIntro' => 'A regular expression matches titles more flexibly than a plain keyword. Some common examples:',
 			'settings.blockSettings.regexHelpTapHint' => 'Tap an example to fill it in.',
 			'settings.blockSettings.regexEx1Pattern' => 'trailer|teaser|bonus',
+			_ => null,
+		} ?? switch (path) {
 			'settings.blockSettings.regexEx1Desc' => 'Match any one of these words ("|" means "or")',
 			'settings.blockSettings.regexEx2Pattern' => '^\\[.*\\]',
 			'settings.blockSettings.regexEx2Desc' => 'Titles that start with [brackets]',
-			_ => null,
-		} ?? switch (path) {
 			'settings.blockSettings.regexEx3Pattern' => 'Collection\$',
 			'settings.blockSettings.regexEx3Desc' => 'Titles that end with "Collection"',
 			'settings.blockSettings.regexEx4Pattern' => 'Ep\\.\\d+',
@@ -13674,11 +13686,11 @@ extension on Translations {
 			'videoDetail.cast.deviceTypes.unknownDevice' => 'Unknown Device',
 			'videoDetail.cast.currentPlatformNotSupported' => 'Current platform does not support casting',
 			'videoDetail.cast.unableToGetVideoUrl' => 'Unable to get video URL, please try again later',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.cast.stopCasting' => 'Stop casting',
 			'videoDetail.cast.dlnaCastSheet.title' => 'Remote Cast',
 			'videoDetail.cast.dlnaCastSheet.close' => 'Close',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.dlnaCastSheet.searchingDevices' => 'Searching for devices...',
 			'videoDetail.cast.dlnaCastSheet.searchPrompt' => 'Click search button to re-search for casting devices',
 			'videoDetail.cast.dlnaCastSheet.searching' => 'Searching',
@@ -14188,11 +14200,11 @@ extension on Translations {
 			'download.relocation.galleryImages' => ({required Object count}) => '${count} images',
 			'download.relocation.unfinishedDownloading' => ({required Object percent}) => 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues',
 			'download.relocation.unfinishedPending' => 'Waiting to download: re-queued after the move',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused',
 			'download.relocation.unfinishedFailed' => 'Download failed: the downloaded part moves too',
 			'download.relocation.noDataYet' => 'Nothing downloaded yet, only the save location changes',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.missingGroup' => ({required Object count}) => '${count} item(s) with missing files',
 			'download.relocation.missingSkip' => 'Leave as is',
 			'download.relocation.missingRedownload' => 'Re-download to the destination',
@@ -14702,11 +14714,11 @@ extension on Translations {
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'Android devices have limited support for WEBM format. It is recommended to use an external player or download a player app that supports WEBM',
 			'mediaPlayer.currentDeviceCodecNotSupported' => 'Current device does not support the codec for this video format',
 			'mediaPlayer.checkNetworkConnection' => 'Please check your network connection and try again',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.appMayLackMediaPermission' => 'The app may lack necessary media playback permissions',
 			'mediaPlayer.tryOtherVideoPlayer' => 'Please try using other video players',
 			'mediaPlayer.unrecognizedVideoFormat' => 'Unrecognized video file',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.unrecognizedVideoFormatSuggestion' => 'The link may have expired, or the response was not a video. Try again, or open it with another app.',
 			'mediaPlayer.accessDenied' => 'The server refused this request (403)',
 			'mediaPlayer.accessDeniedSuggestion' => 'The playback link has most likely expired. Tap Retry to fetch it again, or open it with another app.',
@@ -15216,11 +15228,11 @@ extension on Translations {
 			'externalPlayer.sourceLocal' => 'Local file',
 			'externalPlayer.sourceOnline' => 'Direct link',
 			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => 'Direct link · ${quality}',
+			_ => null,
+		} ?? switch (path) {
 			'externalPlayer.onlineLinkExpiryHint' => 'Direct links expire, so an external player may stop partway through. Downloading first is the reliable route.',
 			'externalPlayer.vrPlayerHint' => 'If your VR player is missing from the chooser, use Copy video link and paste it inside that player.',
 			'externalPlayer.noHandler' => 'No app on this device can open the video',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.handoffFailed' => ({required Object message}) => 'Handoff failed: ${message}',
 			'externalPlayer.handoffFailedUnknown' => 'Handoff failed',
 			'externalPlayer.sourceUnavailable' => 'Could not get the current video address, please try again',
@@ -15730,11 +15742,11 @@ extension on Translations {
 			'ai.endpointPreview' => ({required Object url}) => 'Requests go to ${url}',
 			'ai.endpointTrailingSlash' => 'The trailing slash produces a doubled // in the path.',
 			'ai.endpointMissingVersion' => 'No version segment — most OpenAI-compatible endpoints need /v1.',
+			_ => null,
+		} ?? switch (path) {
 			'ai.modelOverrideHint' => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.',
 			'ai.followCatalog' => ({required Object value}) => 'Following the catalog: ${value}',
 			'ai.userOverride' => 'Overridden by you',
-			_ => null,
-		} ?? switch (path) {
 			'ai.sendTemperature' => 'Send temperature',
 			'ai.sendTemperatureHint' => 'Some endpoints reject a request that carries this parameter.',
 			'ai.maxTokensFromCatalog' => ({required Object tokens}) => 'Catalog says ${tokens}',

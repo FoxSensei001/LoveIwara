@@ -647,6 +647,9 @@ class _TranslationsSearchZhTw extends TranslationsSearchEn {
 	@override String get exactMatch => '精確匹配';
 	@override String get exactMatchOnHint => '正按整個詞精確匹配，並額外搜尋中文與日文標題。點一下改回鬆散搜尋。';
 	@override String get exactMatchOffHint => '正在鬆散匹配——iwara 會把詞拆開。點一下改成精確匹配整個詞。';
+	@override String get tagExpansion => '依標籤補搜';
+	@override String tagExpansionOnHint({required Object tags}) => '同時依標籤「${tags}」及其日文、英文名搜尋——很多作品的標題裡根本沒有你搜的這個詞。';
+	@override String tagExpansionOffHint({required Object tags}) => '只搜尋你輸入的原文。開啟後會同時依標籤「${tags}」及其各語言名稱搜尋。';
 	@override String get searchHistory => '搜尋歷史';
 	@override String get searchSuggestion => '搜尋建議';
 	@override String get usedTimes => '使用次數';
@@ -5351,6 +5354,9 @@ extension on TranslationsZhTw {
 			'search.exactMatch' => '精確匹配',
 			'search.exactMatchOnHint' => '正按整個詞精確匹配，並額外搜尋中文與日文標題。點一下改回鬆散搜尋。',
 			'search.exactMatchOffHint' => '正在鬆散匹配——iwara 會把詞拆開。點一下改成精確匹配整個詞。',
+			'search.tagExpansion' => '依標籤補搜',
+			'search.tagExpansionOnHint' => ({required Object tags}) => '同時依標籤「${tags}」及其日文、英文名搜尋——很多作品的標題裡根本沒有你搜的這個詞。',
+			'search.tagExpansionOffHint' => ({required Object tags}) => '只搜尋你輸入的原文。開啟後會同時依標籤「${tags}」及其各語言名稱搜尋。',
 			'search.searchHistory' => '搜尋歷史',
 			'search.searchSuggestion' => '搜尋建議',
 			'search.usedTimes' => '使用次數',
@@ -5397,11 +5403,11 @@ extension on TranslationsZhTw {
 			'settings.playbackSpeedSettings' => '播放與倍速',
 			'settings.playbackBehaviorSettings' => '播放行為',
 			'settings.enhancementSettings' => '劇院與畫質增強',
+			_ => null,
+		} ?? switch (path) {
 			'settings.fastForwardTime' => '快進時間',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => '快進時間必須是正整數。',
 			'settings.rewindTime' => '快退時間',
-			_ => null,
-		} ?? switch (path) {
 			'settings.rewindTimeMustBeAPositiveInteger' => '快退時間必須是正整數。',
 			'settings.longPressPlaybackSpeed' => '長按播放倍速',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '長按播放倍速必須是正數。',
@@ -5911,11 +5917,11 @@ extension on TranslationsZhTw {
 			'settings.blockSettings.regexHelpIntro' => '正規能比關鍵字更靈活地比對標題。下面是幾個常見寫法：',
 			'settings.blockSettings.regexHelpTapHint' => '點擊範例即可直接填入。',
 			'settings.blockSettings.regexEx1Pattern' => '預告|花絮|彩蛋',
+			_ => null,
+		} ?? switch (path) {
 			'settings.blockSettings.regexEx1Desc' => '用「|」比對其中任一個詞（表示「或」）',
 			'settings.blockSettings.regexEx2Pattern' => '^【.*】',
 			'settings.blockSettings.regexEx2Desc' => '比對以【…】開頭的標題',
-			_ => null,
-		} ?? switch (path) {
 			'settings.blockSettings.regexEx3Pattern' => '合集\$',
 			'settings.blockSettings.regexEx3Desc' => '比對以「合集」結尾的標題',
 			'settings.blockSettings.regexEx4Pattern' => '第.話',
@@ -6425,11 +6431,11 @@ extension on TranslationsZhTw {
 			'videoDetail.startDownloading' => '開始下載',
 			'videoDetail.downloadFailed' => '下載失敗，請稍後再試',
 			'videoDetail.downloadSuccess' => '下載成功',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.download' => '下載',
 			'videoDetail.downloadManager' => '下載管理',
 			'videoDetail.videoLoadError' => '影片載入錯誤',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.resourceNotFound' => '資源未找到',
 			'videoDetail.authorNoOtherVideos' => '作者暫無其他影片',
 			'videoDetail.noRelatedVideos' => '暫無相關影片',
@@ -6939,11 +6945,11 @@ extension on TranslationsZhTw {
 			'download.relocation.reasonSourceLocked' => '檔案正被占用（如正在播放），舊位置刪不掉，本項已撤回，什麼都沒改。',
 			'download.relocation.reasonNoSpace' => '目標位置空間不足，其餘的已全部停止。',
 			'download.relocation.reasonVerifyFailed' => '複製出的檔案與原檔大小不一致，複製件已丟棄。',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.reasonIoError' => '讀寫檔案出錯，什麼都沒改。',
 			'download.relocation.systemMessage' => ({required Object message}) => '系統訊息：${message}',
 			'download.relocation.outsideTitle' => ({required Object count}) => '有 ${count} 項已下載內容不在這個目錄中',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.outsideSubtitle' => '它們在原位置照樣能播放。移到這裡可以把內容集中在一處。',
 			'download.relocation.moveHere' => '移到這裡',
 			'download.relocation.missingTitle' => '找不到檔案',
@@ -7453,11 +7459,11 @@ extension on TranslationsZhTw {
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => '位於 ${position}',
 			'mediaPlayer.notice.noIssuesRecorded' => '暫無問題記錄',
 			'mediaPlayer.notice.exportLogsAction' => '匯出日誌',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.infoSectionTitle' => '診斷資訊',
 			'diagnostics.appVersionLabel' => '應用版本',
 			'diagnostics.memoryUsage' => ({required Object memMB}) => '記憶體使用量: ${memMB}MB',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.deviceInfoUnavailable' => '無法取得裝置資訊',
 			'diagnostics.secureStorageLabel' => '安全儲存',
 			'diagnostics.secureStorageHealthy' => '可用',
@@ -7967,11 +7973,11 @@ extension on TranslationsZhTw {
 			'externalPlayer.sourceLocal' => '本機檔案',
 			'externalPlayer.sourceOnline' => '線上直連',
 			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => '線上直連 · ${quality}',
+			_ => null,
+		} ?? switch (path) {
 			'externalPlayer.onlineLinkExpiryHint' => '線上直連有時效，外部播放器可能播到一半失效；先下載再轉交最穩',
 			'externalPlayer.vrPlayerHint' => 'VR 播放器沒出現在選擇器裡的話，用「複製影片連結」再到播放器內貼上開啟',
 			'externalPlayer.noHandler' => '找不到能開啟影片的應用程式',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.handoffFailed' => ({required Object message}) => '轉交失敗：${message}',
 			'externalPlayer.handoffFailedUnknown' => '轉交失敗',
 			'externalPlayer.sourceUnavailable' => '拿不到目前影片的位址，請稍後重試',
@@ -8481,11 +8487,11 @@ extension on TranslationsZhTw {
 			'ai.endpointPreview' => ({required Object url}) => '實際會請求 ${url}',
 			'ai.endpointTrailingSlash' => '結尾這個斜線會讓路徑裡多出一個 //。',
 			'ai.endpointMissingVersion' => '沒有版本段——多數 OpenAI 相容端點要帶 /v1。',
+			_ => null,
+		} ?? switch (path) {
 			'ai.modelOverrideHint' => '下面每一項都可以不填。不動它就跟著模型自己的能力和內建目錄走。',
 			'ai.followCatalog' => ({required Object value}) => '跟隨目錄：${value}',
 			'ai.userOverride' => '你改過了',
-			_ => null,
-		} ?? switch (path) {
 			'ai.sendTemperature' => '下發 temperature',
 			'ai.sendTemperatureHint' => '有的端點收到這個參數會直接拒絕請求。',
 			'ai.maxTokensFromCatalog' => ({required Object tokens}) => '目錄裡寫的是 ${tokens}',

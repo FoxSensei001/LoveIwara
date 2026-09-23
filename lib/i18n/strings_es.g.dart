@@ -647,6 +647,9 @@ class _TranslationsSearchEs extends TranslationsSearchEn {
 	@override String get exactMatch => 'Exacto';
 	@override String get exactMatchOnHint => 'Coincidencia exacta de la frase, buscando también en títulos en chino y japonés. Toca para una búsqueda más amplia.';
 	@override String get exactMatchOffHint => 'Coincidencia laxa: Iwara separa las palabras. Toca para la frase exacta.';
+	@override String get tagExpansion => 'Buscar también la etiqueta';
+	@override String tagExpansionOnHint({required Object tags}) => 'Buscando también la etiqueta «${tags}» y sus nombres en japonés/inglés: muchas subidas no ponen tu palabra en el título.';
+	@override String tagExpansionOffHint({required Object tags}) => 'Solo se buscan tus palabras. Actívalo para incluir la etiqueta «${tags}» y sus nombres en otros idiomas.';
 	@override String get searchHistory => 'Historial de búsqueda';
 	@override String get searchSuggestion => 'Sugerencia de búsqueda';
 	@override String get usedTimes => 'Veces usado';
@@ -5351,6 +5354,9 @@ extension on TranslationsEs {
 			'search.exactMatch' => 'Exacto',
 			'search.exactMatchOnHint' => 'Coincidencia exacta de la frase, buscando también en títulos en chino y japonés. Toca para una búsqueda más amplia.',
 			'search.exactMatchOffHint' => 'Coincidencia laxa: Iwara separa las palabras. Toca para la frase exacta.',
+			'search.tagExpansion' => 'Buscar también la etiqueta',
+			'search.tagExpansionOnHint' => ({required Object tags}) => 'Buscando también la etiqueta «${tags}» y sus nombres en japonés/inglés: muchas subidas no ponen tu palabra en el título.',
+			'search.tagExpansionOffHint' => ({required Object tags}) => 'Solo se buscan tus palabras. Actívalo para incluir la etiqueta «${tags}» y sus nombres en otros idiomas.',
 			'search.searchHistory' => 'Historial de búsqueda',
 			'search.searchSuggestion' => 'Sugerencia de búsqueda',
 			'search.usedTimes' => 'Veces usado',
@@ -5397,11 +5403,11 @@ extension on TranslationsEs {
 			'settings.playbackSpeedSettings' => 'Reproducción y velocidad',
 			'settings.playbackBehaviorSettings' => 'Comportamiento de reproducción',
 			'settings.enhancementSettings' => 'Cine y mejoras',
+			_ => null,
+		} ?? switch (path) {
 			'settings.fastForwardTime' => 'Tiempo de avance rápido',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => 'El tiempo de avance rápido debe ser un número entero positivo.',
 			'settings.rewindTime' => 'Tiempo de retroceso',
-			_ => null,
-		} ?? switch (path) {
 			'settings.rewindTimeMustBeAPositiveInteger' => 'El tiempo de retroceso debe ser un número entero positivo.',
 			'settings.longPressPlaybackSpeed' => 'Velocidad de reproducción con pulsación larga',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'La velocidad de reproducción con pulsación larga debe ser un número positivo.',
@@ -5911,11 +5917,11 @@ extension on TranslationsEs {
 			'settings.blockSettings.regexHelpIntro' => 'Una expresión regular coincide con los títulos de forma más flexible que una palabra clave simple. Algunos ejemplos comunes:',
 			'settings.blockSettings.regexHelpTapHint' => 'Toque un ejemplo para rellenarlo.',
 			'settings.blockSettings.regexEx1Pattern' => 'tráiler|avance|extra',
+			_ => null,
+		} ?? switch (path) {
 			'settings.blockSettings.regexEx1Desc' => 'Coincide con cualquiera de estas palabras ("|" significa "o")',
 			'settings.blockSettings.regexEx2Pattern' => '^\\[.*\\]',
 			'settings.blockSettings.regexEx2Desc' => 'Títulos que empiezan con [corchetes]',
-			_ => null,
-		} ?? switch (path) {
 			'settings.blockSettings.regexEx3Pattern' => 'Colección\$',
 			'settings.blockSettings.regexEx3Desc' => 'Títulos que terminan con "Colección"',
 			'settings.blockSettings.regexEx4Pattern' => 'Ep.[0-9]+',
@@ -6425,11 +6431,11 @@ extension on TranslationsEs {
 			'videoDetail.cast.deviceTypes.unknownDevice' => 'Dispositivo desconocido',
 			'videoDetail.cast.currentPlatformNotSupported' => 'La plataforma actual no admite la transmisión',
 			'videoDetail.cast.unableToGetVideoUrl' => 'No se pudo obtener la URL del video; inténtelo de nuevo más tarde',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.cast.stopCasting' => 'Detener la transmisión',
 			'videoDetail.cast.dlnaCastSheet.title' => 'Transmisión remota',
 			'videoDetail.cast.dlnaCastSheet.close' => 'Cerrar',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.dlnaCastSheet.searchingDevices' => 'Buscando dispositivos...',
 			'videoDetail.cast.dlnaCastSheet.searchPrompt' => 'Pulse el botón de búsqueda para volver a buscar dispositivos de transmisión',
 			'videoDetail.cast.dlnaCastSheet.searching' => 'Buscando',
@@ -6939,11 +6945,11 @@ extension on TranslationsEs {
 			'download.relocation.galleryImages' => ({required Object count}) => '${count} images',
 			'download.relocation.unfinishedDownloading' => ({required Object percent}) => 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues',
 			'download.relocation.unfinishedPending' => 'Waiting to download: re-queued after the move',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused',
 			'download.relocation.unfinishedFailed' => 'Download failed: the downloaded part moves too',
 			'download.relocation.noDataYet' => 'Nothing downloaded yet, only the save location changes',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.missingGroup' => ({required Object count}) => '${count} item(s) with missing files',
 			'download.relocation.missingSkip' => 'Leave as is',
 			'download.relocation.missingRedownload' => 'Re-download to the destination',
@@ -7453,11 +7459,11 @@ extension on TranslationsEs {
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'Los dispositivos Android tienen una compatibilidad limitada con el formato WEBM. Se recomienda usar un reproductor externo o descargar una aplicación de reproducción compatible con WEBM',
 			'mediaPlayer.currentDeviceCodecNotSupported' => 'El dispositivo actual no admite el códec de este formato de vídeo',
 			'mediaPlayer.checkNetworkConnection' => 'Compruebe su conexión de red e inténtelo de nuevo',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.appMayLackMediaPermission' => 'Es posible que la aplicación no tenga los permisos necesarios para la reproducción multimedia',
 			'mediaPlayer.tryOtherVideoPlayer' => 'Pruebe con otros reproductores de vídeo',
 			'mediaPlayer.unrecognizedVideoFormat' => 'Archivo de vídeo no reconocido',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.unrecognizedVideoFormatSuggestion' => 'Es posible que el enlace haya caducado o que la respuesta no fuera un vídeo. Inténtelo de nuevo o ábralo con otra aplicación.',
 			'mediaPlayer.accessDenied' => 'El servidor rechazó esta solicitud (403)',
 			'mediaPlayer.accessDeniedSuggestion' => 'Es muy probable que el enlace de reproducción haya caducado. Pulse Reintentar para obtenerlo de nuevo o ábralo con otra aplicación.',
@@ -7967,11 +7973,11 @@ extension on TranslationsEs {
 			'externalPlayer.sourceLocal' => 'Archivo local',
 			'externalPlayer.sourceOnline' => 'Enlace directo',
 			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => 'Enlace directo · ${quality}',
+			_ => null,
+		} ?? switch (path) {
 			'externalPlayer.onlineLinkExpiryHint' => 'Los enlaces directos caducan, por lo que un reproductor externo puede detenerse a mitad. Descargarlo primero es la opción fiable.',
 			'externalPlayer.vrPlayerHint' => 'Si su reproductor de VR no aparece en el selector, use Copiar enlace del vídeo y péguelo en ese reproductor.',
 			'externalPlayer.noHandler' => 'Ninguna aplicación de este dispositivo puede abrir el vídeo',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.handoffFailed' => ({required Object message}) => 'No se pudo pasar: ${message}',
 			'externalPlayer.handoffFailedUnknown' => 'No se pudo pasar al reproductor externo',
 			'externalPlayer.sourceUnavailable' => 'No se pudo obtener la dirección del vídeo actual; inténtelo de nuevo',
@@ -8481,11 +8487,11 @@ extension on TranslationsEs {
 			'ai.endpointPreview' => ({required Object url}) => 'Requests go to ${url}',
 			'ai.endpointTrailingSlash' => 'The trailing slash produces a doubled // in the path.',
 			'ai.endpointMissingVersion' => 'No version segment — most OpenAI-compatible endpoints need /v1.',
+			_ => null,
+		} ?? switch (path) {
 			'ai.modelOverrideHint' => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.',
 			'ai.followCatalog' => ({required Object value}) => 'Following the catalog: ${value}',
 			'ai.userOverride' => 'Overridden by you',
-			_ => null,
-		} ?? switch (path) {
 			'ai.sendTemperature' => 'Send temperature',
 			'ai.sendTemperatureHint' => 'Some endpoints reject a request that carries this parameter.',
 			'ai.maxTokensFromCatalog' => ({required Object tokens}) => 'Catalog says ${tokens}',

@@ -647,6 +647,9 @@ class _TranslationsSearchZhCn extends TranslationsSearchEn {
 	@override String get exactMatch => '精确匹配';
 	@override String get exactMatchOnHint => '正按整个词精确匹配，并额外搜索中文与日文标题。点一下改回松散搜索。';
 	@override String get exactMatchOffHint => '正在松散匹配——iwara 会把词拆开。点一下改成精确匹配整个词。';
+	@override String get tagExpansion => '按标签补搜';
+	@override String tagExpansionOnHint({required Object tags}) => '同时按标签「${tags}」和它的日文、英文名搜索——很多作品的标题里根本没有你搜的这个词。';
+	@override String tagExpansionOffHint({required Object tags}) => '只搜你输入的原话。打开后会同时按标签「${tags}」及其各语言名搜索。';
 	@override String get searchHistory => '搜索历史';
 	@override String get searchSuggestion => '搜索建议';
 	@override String get usedTimes => '使用次数';
@@ -5351,6 +5354,9 @@ extension on TranslationsZhCn {
 			'search.exactMatch' => '精确匹配',
 			'search.exactMatchOnHint' => '正按整个词精确匹配，并额外搜索中文与日文标题。点一下改回松散搜索。',
 			'search.exactMatchOffHint' => '正在松散匹配——iwara 会把词拆开。点一下改成精确匹配整个词。',
+			'search.tagExpansion' => '按标签补搜',
+			'search.tagExpansionOnHint' => ({required Object tags}) => '同时按标签「${tags}」和它的日文、英文名搜索——很多作品的标题里根本没有你搜的这个词。',
+			'search.tagExpansionOffHint' => ({required Object tags}) => '只搜你输入的原话。打开后会同时按标签「${tags}」及其各语言名搜索。',
 			'search.searchHistory' => '搜索历史',
 			'search.searchSuggestion' => '搜索建议',
 			'search.usedTimes' => '使用次数',
@@ -5397,11 +5403,11 @@ extension on TranslationsZhCn {
 			'settings.playbackSpeedSettings' => '播放与倍速',
 			'settings.playbackBehaviorSettings' => '播放行为',
 			'settings.enhancementSettings' => '剧院与画质增强',
+			_ => null,
+		} ?? switch (path) {
 			'settings.fastForwardTime' => '快进时间',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => '快进时间必须是一个正整数。',
 			'settings.rewindTime' => '后退时间',
-			_ => null,
-		} ?? switch (path) {
 			'settings.rewindTimeMustBeAPositiveInteger' => '后退时间必须是一个正整数。',
 			'settings.longPressPlaybackSpeed' => '长按播放倍速',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '长按播放倍速必须是一个正数。',
@@ -5911,11 +5917,11 @@ extension on TranslationsZhCn {
 			'settings.blockSettings.regexHelpIntro' => '正则能比关键词更灵活地匹配标题。下面是几个常见写法：',
 			'settings.blockSettings.regexHelpTapHint' => '点击示例即可直接填入。',
 			'settings.blockSettings.regexEx1Pattern' => '预告|花絮|彩蛋',
+			_ => null,
+		} ?? switch (path) {
 			'settings.blockSettings.regexEx1Desc' => '用「|」匹配其中任意一个词（表示「或」）',
 			'settings.blockSettings.regexEx2Pattern' => '^【.*】',
 			'settings.blockSettings.regexEx2Desc' => '匹配以【…】开头的标题',
-			_ => null,
-		} ?? switch (path) {
 			'settings.blockSettings.regexEx3Pattern' => '合集\$',
 			'settings.blockSettings.regexEx3Desc' => '匹配以「合集」结尾的标题',
 			'settings.blockSettings.regexEx4Pattern' => '第.话',
@@ -6425,11 +6431,11 @@ extension on TranslationsZhCn {
 			'videoDetail.cast.deviceTypes.unknownDevice' => '未知设备',
 			'videoDetail.cast.currentPlatformNotSupported' => '当前平台不支持投屏功能',
 			'videoDetail.cast.unableToGetVideoUrl' => '无法获取视频地址，请稍后重试',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.cast.stopCasting' => '停止投屏',
 			'videoDetail.cast.dlnaCastSheet.title' => '远程投屏',
 			'videoDetail.cast.dlnaCastSheet.close' => '关闭',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.dlnaCastSheet.searchingDevices' => '正在搜索设备...',
 			'videoDetail.cast.dlnaCastSheet.searchPrompt' => '点击搜索按钮重新搜索投屏设备',
 			'videoDetail.cast.dlnaCastSheet.searching' => '搜索中',
@@ -6939,11 +6945,11 @@ extension on TranslationsZhCn {
 			'download.relocation.unfinishedDownloading' => ({required Object percent}) => '下载中 ${percent}%：先暂停，已下的部分一起搬，搬完自动继续',
 			'download.relocation.unfinishedPending' => '等待下载：搬完重新排队',
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => '已暂停于 ${percent}%：已下的部分一起搬，搬完仍保持暂停',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.unfinishedFailed' => '下载失败：已下的部分一起搬',
 			'download.relocation.noDataYet' => '还没有下载任何内容，只改保存位置',
 			'download.relocation.missingGroup' => ({required Object count}) => '找不到文件的 ${count} 项',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.missingSkip' => '不处理',
 			'download.relocation.missingRedownload' => '重新下载到目标位置',
 			'download.relocation.missingRemove' => '移除记录',
@@ -7453,11 +7459,11 @@ extension on TranslationsZhCn {
 			'diagnostics.refreshMetrics' => '刷新指标',
 			'diagnostics.toolsSectionTitle' => '工具',
 			'diagnostics.privacyNotice' => '日志可能包含账号、请求参数等敏感信息。请勿直接公开附加到 Issue，建议检查后通过邮箱发送。',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.exportLogsTitle' => '导出日志',
 			'diagnostics.exportLogsSubtitle' => '导出后请先检查隐私，再发送给开发者',
 			'diagnostics.viewLogsTitle' => '查看日志',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.viewLogsSubtitle' => '实时查看应用运行日志',
 			'diagnostics.copySupportEmailTitle' => '复制日志邮箱',
 			'diagnostics.reportIssueTitle' => '反馈问题',
@@ -7967,11 +7973,11 @@ extension on TranslationsZhCn {
 			'externalPlayer.sourceLocal' => '本地文件',
 			'externalPlayer.sourceOnline' => '在线直链',
 			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => '在线直链 · ${quality}',
+			_ => null,
+		} ?? switch (path) {
 			'externalPlayer.onlineLinkExpiryHint' => '在线直链有时效，外部播放器可能播到一半失效；先下载再转交最稳',
 			'externalPlayer.vrPlayerHint' => 'VR 播放器没出现在选择器里的话，用「复制视频链接」再到播放器内粘贴打开',
 			'externalPlayer.noHandler' => '没有找到能打开视频的应用',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.handoffFailed' => ({required Object message}) => '转交失败：${message}',
 			'externalPlayer.handoffFailedUnknown' => '转交失败',
 			'externalPlayer.sourceUnavailable' => '拿不到当前视频的地址，请稍后重试',
@@ -8481,11 +8487,11 @@ extension on TranslationsZhCn {
 			'ai.endpointPreview' => ({required Object url}) => '实际会请求 ${url}',
 			'ai.endpointTrailingSlash' => '结尾这个斜杠会让路径里多出一个 //。',
 			'ai.endpointMissingVersion' => '没有版本段——多数 OpenAI 兼容端点要带 /v1。',
+			_ => null,
+		} ?? switch (path) {
 			'ai.modelOverrideHint' => '下面每一项都可以不填。不动它就跟着模型自己的能力和内置目录走。',
 			'ai.followCatalog' => ({required Object value}) => '跟随目录：${value}',
 			'ai.userOverride' => '你改过了',
-			_ => null,
-		} ?? switch (path) {
 			'ai.sendTemperature' => '下发 temperature',
 			'ai.sendTemperatureHint' => '有的端点收到这个参数会直接拒绝请求。',
 			'ai.maxTokensFromCatalog' => ({required Object tokens}) => '目录里写的是 ${tokens}',

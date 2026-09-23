@@ -12,7 +12,8 @@ import 'search_repository.dart';
 /// 某个排序值能不能给归并当尺子。
 ///
 /// ⛔ `relevance`（以及不传 sort ＝ 服务端默认按相关度）下引擎**不返回分数**，
-/// 几路结果之间没有共同的尺子，归并会按一个不存在的顺序乱插。日期/播放/点赞
+/// 几路结果之间没有共同的尺子，按键归并会按一个不存在的顺序乱插——那时改为
+/// 按各路名次轮流取（见 [SearchRepository.sortKeyComparable]）。日期/播放/点赞
 /// 都是响应里带着的数值，可比。
 bool _sortIsMergeable(String? sort) =>
     sort == 'date' || sort == 'views' || sort == 'likes';
@@ -24,10 +25,20 @@ class VideoSearchRepository extends SearchRepository<Video> {
     : super(segment: SearchSegment.video.apiType);
 
   @override
-  bool get supportsCrossLanguageMerge => _sortIsMergeable(sortKey);
+  bool get supportsCrossLanguageMerge => true;
+
+  @override
+  bool get sortKeyComparable => _sortIsMergeable(sortKey);
 
   @override
   String? itemId(Video item) => item.id;
+
+  @override
+  String? itemTitle(Video item) => item.title;
+
+  @override
+  Iterable<String> itemTagIds(Video item) =>
+      item.tags?.map((t) => t.id) ?? const [];
 
   @override
   num? itemSortKey(Video item) => switch (sortKey) {
@@ -55,10 +66,19 @@ class ImageSearchRepository extends SearchRepository<ImageModel> {
     : super(segment: SearchSegment.image.apiType);
 
   @override
-  bool get supportsCrossLanguageMerge => _sortIsMergeable(sortKey);
+  bool get supportsCrossLanguageMerge => true;
+
+  @override
+  bool get sortKeyComparable => _sortIsMergeable(sortKey);
 
   @override
   String? itemId(ImageModel item) => item.id;
+
+  @override
+  String? itemTitle(ImageModel item) => item.title;
+
+  @override
+  Iterable<String> itemTagIds(ImageModel item) => item.tags.map((t) => t.id);
 
   @override
   num? itemSortKey(ImageModel item) => switch (sortKey) {

@@ -499,6 +499,9 @@ search:
   exactMatch: "精确匹配"
   exactMatchOnHint: "正按整个词精确匹配，并额外搜索中文与日文标题。点一下改回松散搜索。"
   exactMatchOffHint: "正在松散匹配——iwara 会把词拆开。点一下改成精确匹配整个词。"
+  tagExpansion: "按标签补搜"
+  tagExpansionOnHint: "同时按标签「${tags}」和它的日文、英文名搜索——很多作品的标题里根本没有你搜的这个词。"
+  tagExpansionOffHint: "只搜你输入的原话。打开后会同时按标签「${tags}」及其各语言名搜索。"
   searchHistory: 搜索历史
   searchSuggestion: 搜索建议
   usedTimes: 使用次数

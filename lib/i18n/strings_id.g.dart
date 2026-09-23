@@ -647,6 +647,9 @@ class _TranslationsSearchId extends TranslationsSearchEn {
 	@override String get exactMatch => 'Persis';
 	@override String get exactMatchOnHint => 'Mencocokkan frasa persis, sekaligus mencari judul berbahasa Mandarin dan Jepang. Ketuk untuk pencarian yang lebih longgar.';
 	@override String get exactMatchOffHint => 'Pencocokan longgar — Iwara memecah kata. Ketuk untuk frasa persis.';
+	@override String get tagExpansion => 'Cari juga tag';
+	@override String tagExpansionOnHint({required Object tags}) => 'Juga mencari tag “${tags}” dan nama Jepang/Inggrisnya — banyak unggahan tidak menulis kata Anda di judul.';
+	@override String tagExpansionOffHint({required Object tags}) => 'Hanya mencari kata Anda. Aktifkan untuk juga mencari tag “${tags}” dan namanya dalam bahasa lain.';
 	@override String get searchHistory => 'Riwayat Pencarian';
 	@override String get searchSuggestion => 'Saran Pencarian';
 	@override String get usedTimes => 'Jumlah Penggunaan';
@@ -5351,6 +5354,9 @@ extension on TranslationsId {
 			'search.exactMatch' => 'Persis',
 			'search.exactMatchOnHint' => 'Mencocokkan frasa persis, sekaligus mencari judul berbahasa Mandarin dan Jepang. Ketuk untuk pencarian yang lebih longgar.',
 			'search.exactMatchOffHint' => 'Pencocokan longgar — Iwara memecah kata. Ketuk untuk frasa persis.',
+			'search.tagExpansion' => 'Cari juga tag',
+			'search.tagExpansionOnHint' => ({required Object tags}) => 'Juga mencari tag “${tags}” dan nama Jepang/Inggrisnya — banyak unggahan tidak menulis kata Anda di judul.',
+			'search.tagExpansionOffHint' => ({required Object tags}) => 'Hanya mencari kata Anda. Aktifkan untuk juga mencari tag “${tags}” dan namanya dalam bahasa lain.',
 			'search.searchHistory' => 'Riwayat Pencarian',
 			'search.searchSuggestion' => 'Saran Pencarian',
 			'search.usedTimes' => 'Jumlah Penggunaan',
@@ -5397,11 +5403,11 @@ extension on TranslationsId {
 			'settings.playbackSpeedSettings' => 'Pemutaran & Kecepatan',
 			'settings.playbackBehaviorSettings' => 'Perilaku Pemutaran',
 			'settings.enhancementSettings' => 'Teater & Peningkatan',
+			_ => null,
+		} ?? switch (path) {
 			'settings.fastForwardTime' => 'Waktu Maju Cepat',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => 'Waktu maju cepat harus berupa bilangan bulat positif.',
 			'settings.rewindTime' => 'Waktu Mundur',
-			_ => null,
-		} ?? switch (path) {
 			'settings.rewindTimeMustBeAPositiveInteger' => 'Waktu mundur harus berupa bilangan bulat positif.',
 			'settings.longPressPlaybackSpeed' => 'Kecepatan Pemutaran Tekan Lama',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'Kecepatan pemutaran tekan lama harus berupa angka positif.',
@@ -5911,11 +5917,11 @@ extension on TranslationsId {
 			'settings.blockSettings.regexHelpIntro' => 'Ekspresi reguler mencocokkan judul lebih fleksibel daripada kata kunci biasa. Beberapa contoh umum:',
 			'settings.blockSettings.regexHelpTapHint' => 'Ketuk contoh untuk mengisinya.',
 			'settings.blockSettings.regexEx1Pattern' => 'trailer|teaser|bonus',
+			_ => null,
+		} ?? switch (path) {
 			'settings.blockSettings.regexEx1Desc' => 'Cocok dengan salah satu kata ini ("|" berarti "atau")',
 			'settings.blockSettings.regexEx2Pattern' => '^\\[.*\\]',
 			'settings.blockSettings.regexEx2Desc' => 'Judul yang diawali dengan [tanda kurung]',
-			_ => null,
-		} ?? switch (path) {
 			'settings.blockSettings.regexEx3Pattern' => 'Koleksi\$',
 			'settings.blockSettings.regexEx3Desc' => 'Judul yang diakhiri dengan "Koleksi"',
 			'settings.blockSettings.regexEx4Pattern' => 'Ep.[0-9]+',
@@ -6425,11 +6431,11 @@ extension on TranslationsId {
 			'videoDetail.cast.deviceTypes.unknownDevice' => 'Perangkat Tidak Dikenal',
 			'videoDetail.cast.currentPlatformNotSupported' => 'Platform saat ini tidak mendukung penyiaran',
 			'videoDetail.cast.unableToGetVideoUrl' => 'Tidak dapat memperoleh URL video, silakan coba lagi nanti',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.cast.stopCasting' => 'Hentikan penyiaran',
 			'videoDetail.cast.dlnaCastSheet.title' => 'Penyiaran Jarak Jauh',
 			'videoDetail.cast.dlnaCastSheet.close' => 'Tutup',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.dlnaCastSheet.searchingDevices' => 'Mencari perangkat...',
 			'videoDetail.cast.dlnaCastSheet.searchPrompt' => 'Klik tombol cari untuk mencari ulang perangkat penyiaran',
 			'videoDetail.cast.dlnaCastSheet.searching' => 'Mencari',
@@ -6939,11 +6945,11 @@ extension on TranslationsId {
 			'download.relocation.galleryImages' => ({required Object count}) => '${count} images',
 			'download.relocation.unfinishedDownloading' => ({required Object percent}) => 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues',
 			'download.relocation.unfinishedPending' => 'Waiting to download: re-queued after the move',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused',
 			'download.relocation.unfinishedFailed' => 'Download failed: the downloaded part moves too',
 			'download.relocation.noDataYet' => 'Nothing downloaded yet, only the save location changes',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.missingGroup' => ({required Object count}) => '${count} item(s) with missing files',
 			'download.relocation.missingSkip' => 'Leave as is',
 			'download.relocation.missingRedownload' => 'Re-download to the destination',
@@ -7453,11 +7459,11 @@ extension on TranslationsId {
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'Perangkat Android memiliki dukungan terbatas untuk format WEBM. Disarankan menggunakan pemutar eksternal atau mengunduh aplikasi pemutar yang mendukung WEBM',
 			'mediaPlayer.currentDeviceCodecNotSupported' => 'Perangkat saat ini tidak mendukung codec untuk format video ini',
 			'mediaPlayer.checkNetworkConnection' => 'Silakan periksa koneksi jaringan Anda dan coba lagi',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.appMayLackMediaPermission' => 'Aplikasi mungkin kekurangan izin pemutaran media yang diperlukan',
 			'mediaPlayer.tryOtherVideoPlayer' => 'Silakan coba gunakan pemutar video lain',
 			'mediaPlayer.unrecognizedVideoFormat' => 'Berkas video tidak dikenali',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.unrecognizedVideoFormatSuggestion' => 'Tautan mungkin sudah kedaluwarsa, atau responsnya bukan video. Coba lagi, atau buka dengan aplikasi lain.',
 			'mediaPlayer.accessDenied' => 'Server menolak permintaan ini (403)',
 			'mediaPlayer.accessDeniedSuggestion' => 'Tautan pemutaran kemungkinan besar sudah kedaluwarsa. Ketuk Coba Lagi untuk mengambilnya kembali, atau buka dengan aplikasi lain.',
@@ -7967,11 +7973,11 @@ extension on TranslationsId {
 			'externalPlayer.sourceLocal' => 'Berkas lokal',
 			'externalPlayer.sourceOnline' => 'Tautan langsung',
 			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => 'Tautan langsung · ${quality}',
+			_ => null,
+		} ?? switch (path) {
 			'externalPlayer.onlineLinkExpiryHint' => 'Tautan langsung dapat kedaluwarsa, sehingga pemutar eksternal mungkin berhenti di tengah jalan. Mengunduh terlebih dahulu adalah cara yang andal.',
 			'externalPlayer.vrPlayerHint' => 'Jika pemutar VR Anda tidak ada di pemilih, gunakan Salin tautan video lalu tempelkan di dalam pemutar tersebut.',
 			'externalPlayer.noHandler' => 'Tidak ada aplikasi di perangkat ini yang dapat membuka video',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.handoffFailed' => ({required Object message}) => 'Penyerahan gagal: ${message}',
 			'externalPlayer.handoffFailedUnknown' => 'Penyerahan gagal',
 			'externalPlayer.sourceUnavailable' => 'Tidak dapat mendapatkan alamat video saat ini, silakan coba lagi',
@@ -8481,11 +8487,11 @@ extension on TranslationsId {
 			'ai.endpointPreview' => ({required Object url}) => 'Requests go to ${url}',
 			'ai.endpointTrailingSlash' => 'The trailing slash produces a doubled // in the path.',
 			'ai.endpointMissingVersion' => 'No version segment — most OpenAI-compatible endpoints need /v1.',
+			_ => null,
+		} ?? switch (path) {
 			'ai.modelOverrideHint' => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.',
 			'ai.followCatalog' => ({required Object value}) => 'Following the catalog: ${value}',
 			'ai.userOverride' => 'Overridden by you',
-			_ => null,
-		} ?? switch (path) {
 			'ai.sendTemperature' => 'Send temperature',
 			'ai.sendTemperatureHint' => 'Some endpoints reject a request that carries this parameter.',
 			'ai.maxTokensFromCatalog' => ({required Object tokens}) => 'Catalog says ${tokens}',

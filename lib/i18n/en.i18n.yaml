@@ -497,6 +497,9 @@ search:
   exactMatch: "Exact"
   exactMatchOnHint: "Matching the phrase exactly, and searching Chinese and Japanese titles too. Tap for a looser search."
   exactMatchOffHint: "Loose matching — Iwara splits the words up. Tap to match the exact phrase."
+  tagExpansion: "Also search the tag"
+  tagExpansionOnHint: "Also searching the tag “${tags}” and its Japanese/English names — many uploads never put your word in the title."
+  tagExpansionOffHint: "Searching only your exact words. Turn on to also search the tag “${tags}” and its names in other languages."
   searchHistory: Search History
   searchSuggestion: Search Suggestion
   usedTimes: Used Times

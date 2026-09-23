@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/utils/rx_ever.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/tag_localization_service.dart';
+import 'package:i_iwara/app/services/tag_name_index.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/search_list_widgets.dart';
 import 'package:i_iwara/app/ui/widgets/glow_notification_widget.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -59,8 +62,32 @@ class SearchResultController extends GetxController {
   /// ⛔ 做成开关而不是闷头改：它确实会让结果变少，用户得看得见是什么让结果变少，
   /// 也得有一条退回去的路。所以搜索框下面那枚胶囊既是说明也是开关。
   ///
-  /// 只活在本次搜索会话里，不落盘——它是对**这个词**的临时取舍，不是一项偏好。
-  final RxBool exactMatch = true.obs;
+  /// ⭐ 落盘（[ConfigKey.SEARCH_EXACT_MATCH]）。早先当它是「对这个词的临时取舍」
+  /// 只活在会话里，结果用户关掉后每次新搜索又被悄悄打开——用户明确报过「它不会
+  /// 记忆我的开关状态」。关掉它的人要的是一种搜法，不是一次性的例外。
+  final RxBool exactMatch =
+      (Get.find<ConfigService>()[ConfigKey.SEARCH_EXACT_MATCH] != false).obs;
+
+  void toggleExactMatch() {
+    exactMatch.toggle();
+    Get.find<ConfigService>()[ConfigKey.SEARCH_EXACT_MATCH] = exactMatch.value;
+  }
+
+  /// 认出标签名时，要不要按标签与它的各语言名一并补搜（见 `planSearchRoutes`）。
+  ///
+  /// ⭐ 默认开、落盘。iwara 的文本搜索不搜标签，而大部分作品的标题里根本没有
+  /// 用户搜的那个词：近 30 天搜「原神」文本 17 条、标签 324 条。关掉它等于只搜
+  /// 原话，给「就想找标题里写着这几个字的」那种用户留条路。
+  final RxBool tagExpansion =
+      (Get.find<ConfigService>()[ConfigKey.SEARCH_TAG_EXPANSION] != false).obs;
+
+  void toggleTagExpansion() {
+    tagExpansion.toggle();
+    Get.find<ConfigService>()[ConfigKey.SEARCH_TAG_EXPANSION] =
+        tagExpansion.value;
+    // ⛔ 查询串没变，列表不会自己重建仓库（仓库只随 query 重建），得手动刷。
+    refreshSearch();
+  }
 
   // 筛选项状态管理
   final RxList<Filter> filters = <Filter>[].obs;
@@ -493,61 +520,139 @@ class _SearchResultState extends State<SearchResult> {
     );
   }
 
-  /// 「精确匹配」胶囊：关键词被自动补了引号时才在场，点一下就能退回松散搜索。
+  /// 搜索方式胶囊：说明「这个词被怎么发出去了」，同时是开关。
   ///
-  /// ⭐ 它同时是**说明**和**开关**。加引号会让结果明显变少（`初音ミク` 10746 条
-  /// → `"初音ミク"` 2143 条），闷头改会变成「怎么突然搜不到东西了」；摆出来，
-  /// 变少这件事就有了来由，也有了退路。
+  /// 两种形态，占同一个位子（header 只有一行，手机上摆不下两枚）：
+  /// - 认出了标签名 → 显示 `# 初音未来`，点开菜单里有两个开关：按标签补搜、
+  ///   精确匹配（后者只在 CJK 词会被补引号时出现）。
+  /// - 没认出标签、但 CJK 词会被补引号 → 就是原来那枚「精确匹配」，点一下切换。
   ///
-  /// ⛔ 关掉之后胶囊**不消失**，只是暗下去：消失了就再也开不回来，而这条路径
-  /// （松散搜完发现全是无关的，想再精确一次）恰恰是最常走的那条。
+  /// ⭐ 它同时是**说明**和**开关**。加引号会让结果变少、按标签补搜会冒出标题里
+  /// 没有这个词的作品——闷头改都会变成「怎么搜出这些」，摆出来就有了来由和退路。
+  ///
+  /// ⛔ 关掉之后胶囊**不消失**，只是暗下去：消失了就再也开不回来。
   Widget _buildExactMatchChip(BuildContext context) {
     final t = slang.Translations.of(context);
     final cs = Theme.of(context).colorScheme;
     return ValueListenableBuilder<TextEditingValue>(
       valueListenable: _searchController,
       builder: (context, value, _) => Obx(() {
-        // oreno3d 是另一个站的搜索，不吃 iwara 的引号语法。
-        final applicable =
-            searchController.selectedSegment.value != SearchSegment.oreno3d &&
-            willAutoQuote(value.text);
-        final on = searchController.exactMatch.value;
+        final segment = searchController.selectedSegment.value;
+        // oreno3d 是另一个站的搜索，不吃 iwara 的引号语法，也没有这套标签。
+        final iwara = segment != SearchSegment.oreno3d;
+        final quotable = iwara && willAutoQuote(value.text);
+        final tags = iwara
+            ? resolveQueryTags(
+                value.text,
+                apiType: segment.apiType,
+                resolveTag: TagLocalizationService.matchName,
+              )
+            : const <TagNameMatch>[];
+        final exactOn = searchController.exactMatch.value;
+        final tagOn = searchController.tagExpansion.value;
+
+        final Widget chip;
+        if (tags.isNotEmpty) {
+          final names = tags
+              .map((m) => TagLocalizationService.displayName(m.slugs.first))
+              .join('、');
+          chip = Builder(
+            builder: (anchorContext) => _searchModeCapsule(
+              cs,
+              on: tagOn,
+              icon: Icons.sell_outlined,
+              label: '# $names',
+              tooltip: tagOn
+                  ? t.search.tagExpansionOnHint(tags: names)
+                  : t.search.tagExpansionOffHint(tags: names),
+              onTap: () async {
+                final picked = await showGlassMenu<String>(
+                  anchorContext: anchorContext,
+                  entries: [
+                    GlassMenuOption<String>(
+                      value: 'tags',
+                      icon: Icons.sell_outlined,
+                      label: t.search.tagExpansion,
+                      description: tagOn
+                          ? t.search.tagExpansionOnHint(tags: names)
+                          : t.search.tagExpansionOffHint(tags: names),
+                      selected: tagOn,
+                    ),
+                    if (quotable)
+                      GlassMenuOption<String>(
+                        value: 'exact',
+                        icon: Icons.format_quote,
+                        label: t.search.exactMatch,
+                        description: exactOn
+                            ? t.search.exactMatchOnHint
+                            : t.search.exactMatchOffHint,
+                        selected: exactOn,
+                      ),
+                  ],
+                );
+                if (picked == 'tags') searchController.toggleTagExpansion();
+                if (picked == 'exact') searchController.toggleExactMatch();
+              },
+            ),
+          );
+        } else {
+          chip = _searchModeCapsule(
+            cs,
+            on: exactOn,
+            icon: exactOn ? Icons.format_quote : Icons.format_quote_outlined,
+            label: t.search.exactMatch,
+            tooltip: exactOn
+                ? t.search.exactMatchOnHint
+                : t.search.exactMatchOffHint,
+            onTap: searchController.toggleExactMatch,
+          );
+        }
+
         return GlassCapsuleReveal(
-          visible: applicable,
+          visible: quotable || tags.isNotEmpty,
           child: Row(
             mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(width: 8),
-              GlassSurface(
-                onTap: searchController.exactMatch.toggle,
-                tooltip: on
-                    ? t.search.exactMatchOnHint
-                    : t.search.exactMatchOffHint,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      on ? Icons.format_quote : Icons.format_quote_outlined,
-                      size: 16,
-                      color: on ? cs.primary : cs.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      t.search.exactMatch,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: on ? FontWeight.w600 : FontWeight.w400,
-                        color: on ? cs.primary : cs.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            children: [const SizedBox(width: 8), chip],
           ),
         );
       }),
+    );
+  }
+
+  Widget _searchModeCapsule(
+    ColorScheme cs, {
+    required bool on,
+    required IconData icon,
+    required String label,
+    required String tooltip,
+    required VoidCallback onTap,
+  }) {
+    final color = on ? cs.primary : cs.onSurfaceVariant;
+    return GlassSurface(
+      onTap: onTap,
+      tooltip: tooltip,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 6),
+          ConstrainedBox(
+            // 标签名可能很长（`蒂法·洛克哈特`、多个标签），别把关键词胶囊挤没了。
+            constraints: const BoxConstraints(maxWidth: 120),
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: on ? FontWeight.w600 : FontWeight.w400,
+                color: color,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

@@ -497,6 +497,9 @@ search:
   exactMatch: "Exact"
   exactMatchOnHint: "Correspondance exacte de la phrase, avec recherche aussi dans les titres chinois et japonais. Touchez pour une recherche plus large."
   exactMatchOffHint: "Correspondance large — Iwara découpe les mots. Touchez pour la phrase exacte."
+  tagExpansion: "Rechercher aussi le tag"
+  tagExpansionOnHint: "Recherche aussi le tag « ${tags} » et ses noms japonais/anglais — beaucoup de vidéos n’ont pas votre mot dans le titre."
+  tagExpansionOffHint: "Recherche uniquement vos mots. Activez pour inclure le tag « ${tags} » et ses noms dans d’autres langues."
   searchHistory: Historique de recherche
   searchSuggestion: Suggestion de recherche
   usedTimes: Nombre d'utilisations

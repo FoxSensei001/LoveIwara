@@ -7,6 +7,7 @@ import 'package:i_iwara/utils/rx_ever.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/tag_dictionary_refresh.dart';
+import 'package:i_iwara/app/services/tag_name_index.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -66,6 +67,9 @@ class TagLocalizationService extends GetxService {
   /// 最近一次成功从 CDN 刷新的时间；从未成功过为 null。
   final Rxn<DateTime> lastRefreshedAt = Rxn<DateTime>();
 
+  /// 全语言名称索引，供搜索按标签补路（见 [matchName]）。
+  TagNameIndex? _nameIndex;
+
   /// 当前 [_entries] 对应的语言 key，用于判断是否需要重建。
   String? _loadedLocaleKey;
 
@@ -104,6 +108,13 @@ class TagLocalizationService extends GetxService {
   static String displayNameWithId(String tagId) {
     if (!Get.isRegistered<TagLocalizationService>()) return prettifyId(tagId);
     return to.localizeWithId(tagId);
+  }
+
+  /// 注册安全的「这串字精确地是哪个标签的名字」：服务未就绪或不是标签名时返回
+  /// null。四种语言的名字都认，见 [TagNameIndex]。
+  static TagNameMatch? matchName(String text) {
+    if (!Get.isRegistered<TagLocalizationService>()) return null;
+    return to._nameIndex?.match(text);
   }
 
   /// 注册安全的本地搜索：服务未就绪时返回空列表。
@@ -164,9 +175,9 @@ class TagLocalizationService extends GetxService {
 
   /// 读取词库原始 JSON 文本：缓存的 CDN 快照与打包资源之间取更新的那份。
   Future<String?> _readSource() => _fetcher.readFreshest(
-        assetKey: CommonConstants.iwaraTagsLocalizationAsset,
-        countEntries: _countTags,
-      );
+    assetKey: CommonConstants.iwaraTagsLocalizationAsset,
+    countEntries: _countTags,
+  );
 
   void _scheduleCdnRefresh() {
     if (_cdnRefreshScheduled) return;
@@ -200,7 +211,7 @@ class TagLocalizationService extends GetxService {
     lastRefreshedAt.value = DateTime.now();
     LogUtils.i(
       '标签词库已从 CDN 刷新（$incoming，'
-      '${stale ? '远端更旧，已忽略' : (changed ? '已应用' : '无变化')}）',
+          '${stale ? '远端更旧，已忽略' : (changed ? '已应用' : '无变化')}）',
       '标签本地化',
     );
     return changed;
@@ -211,7 +222,6 @@ class TagLocalizationService extends GetxService {
 
   static int _countTags(Map<String, dynamic> decoded) =>
       (decoded['tags'] as Map?)?.length ?? 0;
-
 
   /// 解析原始 JSON，只为 [localeKey] 物化译名，重建精简映射。
   void _rebuild(String content, String localeKey) {
@@ -249,6 +259,9 @@ class TagLocalizationService extends GetxService {
       _entries
         ..clear()
         ..addAll(next);
+      // ⭐ 名称索引要**全语言**：中文用户搜「初音未来」要拿到日文名「初音ミク」去
+      // 补一路文本搜索。与上面那张只物化当前语言的表分开放，互不牵连。
+      _nameIndex = TagNameIndex.fromTags(tags);
       _loadedLocaleKey = localeKey;
       dataVersion.value++;
       LogUtils.i('标签词库已就绪（$localeKey，${_entries.length} 条）', '标签本地化');
@@ -280,10 +293,10 @@ class TagLocalizationService extends GetxService {
 
   /// 还原为 API 通用的 [Tag]（带正确的 type / sensitive）。
   Tag _toTag(String id, _SlimTag e) => Tag(
-        id: id,
-        type: e.ecchi ? MediaRating.ECCHI.value : MediaRating.GENERAL.value,
-        sensitive: e.sensitive,
-      );
+    id: id,
+    type: e.ecchi ? MediaRating.ECCHI.value : MediaRating.GENERAL.value,
+    sensitive: e.sensitive,
+  );
 
   /// 本地词库搜索：用「当前语言译名 / 原始 key」匹配，返回真实 [Tag]。
   ///

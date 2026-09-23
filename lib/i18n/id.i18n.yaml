@@ -497,6 +497,9 @@ search:
   exactMatch: "Persis"
   exactMatchOnHint: "Mencocokkan frasa persis, sekaligus mencari judul berbahasa Mandarin dan Jepang. Ketuk untuk pencarian yang lebih longgar."
   exactMatchOffHint: "Pencocokan longgar — Iwara memecah kata. Ketuk untuk frasa persis."
+  tagExpansion: "Cari juga tag"
+  tagExpansionOnHint: "Juga mencari tag “${tags}” dan nama Jepang/Inggrisnya — banyak unggahan tidak menulis kata Anda di judul."
+  tagExpansionOffHint: "Hanya mencari kata Anda. Aktifkan untuk juga mencari tag “${tags}” dan namanya dalam bahasa lain."
   searchHistory: Riwayat Pencarian
   searchSuggestion: Saran Pencarian
   usedTimes: Jumlah Penggunaan
