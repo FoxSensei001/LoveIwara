@@ -2402,9 +2402,6 @@ class TranslationsSettingsEn {
 	/// en: 'Let the AI write it'
 	String get signatureRecipeGroupAi => 'Let the AI write it';
 
-	/// en: 'This test run uses the sample context of a video page. When you actually post, the AI gets whatever you were looking at.'
-	String get signaturePromptSampleContext => 'This test run uses the sample context of a video page. When you actually post, the AI gets whatever you were looking at.';
-
 	/// en: 'Author and tags'
 	String get recipeAuthorTagsName => 'Author and tags';
 
@@ -2552,17 +2549,11 @@ class TranslationsSettingsEn {
 	/// en: '(generated when you send)'
 	String get signaturePendingValue => '(generated when you send)';
 
-	/// en: 'A line the AI writes on the spot, new for every comment, using the AI provider you set up. When you post from a video, gallery or forum page it also knows what you are looking at and can write about it.'
-	String get signatureAiHint => 'A line the AI writes on the spot, new for every comment, using the AI provider you set up. When you post from a video, gallery or forum page it also knows what you are looking at and can write about it.';
+	/// en: 'A line the AI writes on the spot, new for every comment, using the AI provider you set up. Open it to see what it can see and tell it what to write.'
+	String get signatureAiHint => 'A line the AI writes on the spot, new for every comment, using the AI provider you set up. Open it to see what it can see and tell it what to write.';
 
 	/// en: 'No AI provider configured yet, so this source stays hidden in the variable panel.'
 	String get signatureAiUnavailable => 'No AI provider configured yet, so this source stays hidden in the variable panel.';
-
-	/// en: 'Prompt'
-	String get signaturePromptTitle => 'Prompt';
-
-	/// en: 'This is what gets sent to the model. Rewrite it however you like — tone, length, subject. The rules already in there are the ones worth keeping.'
-	String get signaturePromptHint => 'This is what gets sent to the model. Rewrite it however you like — tone, length, subject. The rules already in there are the ones worth keeping.';
 
 	/// en: 'Restore default'
 	String get signaturePromptReset => 'Restore default';
@@ -2570,14 +2561,191 @@ class TranslationsSettingsEn {
 	/// en: 'Try it'
 	String get signaturePromptTry => 'Try it';
 
-	/// en: 'What it wrote'
-	String get signaturePromptSample => 'What it wrote';
-
-	/// en: 'is replaced with your interface language. Remove it and the line follows the prompt's language instead.'
-	String get signaturePromptLanguageHint => 'is replaced with your interface language. Remove it and the line follows the prompt\'s language instead.';
-
 	/// en: 'edited'
 	String get signaturePromptEdited => 'edited';
+
+	/// en: 'How the AI line is written'
+	String get signatureAiSheetTitle => 'How the AI line is written';
+
+	/// en: 'What the AI can see'
+	String get signatureAiSeeTitle => 'What the AI can see';
+
+	/// en: 'not available here'
+	String get signatureAiFactUnavailable => 'not available here';
+
+	/// en: 'Tap one to insert it into your instruction below.'
+	String get signatureAiFactTapHint => 'Tap one to insert it into your instruction below.';
+
+	/// en: 'Let it read what they said'
+	String get signatureAiReadReply => 'Let it read what they said';
+
+	/// en: 'When you reply to someone, also show it the text of their comment. Off by default: those are someone else's words.'
+	String get signatureAiReadReplyDesc => 'When you reply to someone, also show it the text of their comment. Off by default: those are someone else\'s words.';
+
+	/// en: 'Can't see: ${items}'
+	String signatureAiCannotSee({required Object items}) => 'Can\'t see: ${items}';
+
+	/// en: 'the comment you're writing'
+	String get signatureAiCannotSeeDraft => 'the comment you\'re writing';
+
+	/// en: 'what they said'
+	String get signatureAiCannotSeeReply => 'what they said';
+
+	/// en: 'your account'
+	String get signatureAiCannotSeeAccount => 'your account';
+
+	/// en: 'What it can see is sent only to the provider you set up in AI settings.'
+	String get signatureAiPrivacy => 'What it can see is sent only to the provider you set up in AI settings.';
+
+	/// en: 'What should it write'
+	String get signatureAiWhatTitle => 'What should it write';
+
+	/// en: 'A sentence or two in your own language is enough. Tap a chip above to insert it; anything this page can't provide simply disappears.'
+	String get signatureAiWhatHint => 'A sentence or two in your own language is enough. Tap a chip above to insert it; anything this page can\'t provide simply disappears.';
+
+	/// en: 'Filled in for "${scene}"'
+	String signatureAiWhatPreview({required Object scene}) => 'Filled in for "${scene}"';
+
+	/// en: 'Riff on what I'm looking at in one offhand line. Don't repeat the title.'
+	String get signatureAiDefaultInstruction => 'Riff on what I\'m looking at in one offhand line. Don\'t repeat the title.';
+
+	/// en: 'Format'
+	String get signatureAiFormatTitle => 'Format';
+
+	/// en: 'One line · no quotes · no attribution'
+	String get signatureAiFormatFixed => 'One line · no quotes · no attribution';
+
+	/// en: 'Length'
+	String get signatureAiLength => 'Length';
+
+	/// en: 'Short · ~40 chars'
+	String get signatureAiLengthShort => 'Short · ~40 chars';
+
+	/// en: 'Medium · ~70 chars'
+	String get signatureAiLengthMedium => 'Medium · ~70 chars';
+
+	/// en: 'Long · ~95 chars'
+	String get signatureAiLengthLong => 'Long · ~95 chars';
+
+	/// en: 'Language'
+	String get signatureAiLanguage => 'Language';
+
+	/// en: 'App language'
+	String get signatureAiLanguageUi => 'App language';
+
+	/// en: 'Match my comment'
+	String get signatureAiLanguageDraft => 'Match my comment';
+
+	/// en: 'Uses whatever script your comment is written in. The comment itself is never sent to the AI; if it can't tell, it uses the app language.'
+	String get signatureAiLanguageDraftHint => 'Uses whatever script your comment is written in. The comment itself is never sent to the AI; if it can\'t tell, it uses the app language.';
+
+	/// en: 'Allow emoji'
+	String get signatureAiAllowEmoji => 'Allow emoji';
+
+	/// en: 'Ideas'
+	String get signatureAiRecipesTitle => 'Ideas';
+
+	/// en: 'Tap one to use its instruction, then tweak it. The line underneath is a written example; tap Try it to see a real one.'
+	String get signatureAiRecipesHint => 'Tap one to use its instruction, then tweak it. The line underneath is a written example; tap Try it to see a real one.';
+
+	/// en: 'Example'
+	String get signatureAiExample => 'Example';
+
+	/// en: 'Turn on "Let it read what they said" above first'
+	String get signatureAiRecipeNeedsReply => 'Turn on "Let it read what they said" above first';
+
+	/// en: 'Try it'
+	String get signatureAiTryTitle => 'Try it';
+
+	/// en: 'Not tried yet. It will write one using the "${scene}" context.'
+	String signatureAiTryEmpty({required Object scene}) => 'Not tried yet. It will write one using the "${scene}" context.';
+
+	/// en: 'Set up an AI provider first to try it.'
+	String get signatureAiTryNeedsProvider => 'Set up an AI provider first to try it.';
+
+	/// en: 'What the AI actually receives'
+	String get signatureAiWireTitle => 'What the AI actually receives';
+
+	/// en: 'System prompt (built from the format above)'
+	String get signatureAiWireSystem => 'System prompt (built from the format above)';
+
+	/// en: 'User message (what it can see + your instruction)'
+	String get signatureAiWireUser => 'User message (what it can see + your instruction)';
+
+	/// en: 'The camera work is so much smoother than last time. New lighting too?'
+	String get signatureDemoReplyText => 'The camera work is so much smoother than last time. New lighting too?';
+
+	/// en: 'A quick reaction'
+	String get aiRecipeFeelName => 'A quick reaction';
+
+	/// en: 'Write the kind of line that slips out right after watching "%title%". Don't repeat the title.'
+	String get aiRecipeFeelInstruction => 'Write the kind of line that slips out right after watching "%title%". Don\'t repeat the title.';
+
+	/// en: 'Didn't know summer could look this quiet.'
+	String get aiRecipeFeelExample => 'Didn\'t know summer could look this quiet.';
+
+	/// en: 'Roast the title'
+	String get aiRecipeRoastName => 'Roast the title';
+
+	/// en: 'Roast the title "%title%" a little. Cheeky, not mean.'
+	String get aiRecipeRoastInstruction => 'Roast the title "%title%" a little. Cheeky, not mean.';
+
+	/// en: 'The title is braver than the video.'
+	String get aiRecipeRoastExample => 'The title is braver than the video.';
+
+	/// en: 'Hype the creator'
+	String get aiRecipePraiseName => 'Hype the creator';
+
+	/// en: 'Hype up %author% in one line. Be specific, and don't just shout their name.'
+	String get aiRecipePraiseInstruction => 'Hype up %author% in one line. Be specific, and don\'t just shout their name.';
+
+	/// en: 'That timing and taste can't be from this planet.'
+	String get aiRecipePraiseExample => 'That timing and taste can\'t be from this planet.';
+
+	/// en: '5-7-5 haiku'
+	String get aiRecipeHaikuName => '5-7-5 haiku';
+
+	/// en: 'Write a 5-7-5 haiku inspired by "%title%", with " / " between the three parts.'
+	String get aiRecipeHaikuInstruction => 'Write a 5-7-5 haiku inspired by "%title%", with " / " between the three parts.';
+
+	/// en: 'fan keeps on turning / screen light pooling on my face / night sinks one more inch'
+	String get aiRecipeHaikuExample => 'fan keeps on turning / screen light pooling on my face / night sinks one more inch';
+
+	/// en: 'Anime battle cry'
+	String get aiRecipeChuuniName => 'Anime battle cry';
+
+	/// en: 'Write a line an over-the-top anime character would shout, loosely tied to %tags%.'
+	String get aiRecipeChuuniInstruction => 'Write a line an over-the-top anime character would shout, loosely tied to %tags%.';
+
+	/// en: 'I'll take every last bit of this heat!'
+	String get aiRecipeChuuniExample => 'I\'ll take every last bit of this heat!';
+
+	/// en: 'Tag acrostic'
+	String get aiRecipeAcrosticName => 'Tag acrostic';
+
+	/// en: 'Work the words from %tags% into one sentence, in order, and make it read naturally.'
+	String get aiRecipeAcrosticInstruction => 'Work the words from %tags% into one sentence, in order, and make it read naturally.';
+
+	/// en: 'Every frame in 4K and my heart still can't keep up.'
+	String get aiRecipeAcrosticExample => 'Every frame in 4K and my heart still can\'t keep up.';
+
+	/// en: 'Time-of-day greeting'
+	String get aiRecipeGreetName => 'Time-of-day greeting';
+
+	/// en: 'It's %time% right now. Say hi in a way that fits the hour, then add a passing thought.'
+	String get aiRecipeGreetInstruction => 'It\'s %time% right now. Say hi in a way that fits the hour, then add a passing thought.';
+
+	/// en: '2 a.m. and still scrolling, so sleep is off the table again.'
+	String get aiRecipeGreetExample => '2 a.m. and still scrolling, so sleep is off the table again.';
+
+	/// en: 'Riff on their joke'
+	String get aiRecipeEchoName => 'Riff on their joke';
+
+	/// en: 'Pick up what %reply_to% just said and add one line that runs with it.'
+	String get aiRecipeEchoInstruction => 'Pick up what %reply_to% just said and add one line that runs with it.';
+
+	/// en: 'You're right, and I'm already on my third loop.'
+	String get aiRecipeEchoExample => 'You\'re right, and I\'m already on my third loop.';
 
 	/// en: 'Built-in variables'
 	String get signatureVariablesGroup => 'Built-in variables';
@@ -12933,7 +13101,6 @@ extension on Translations {
 			'settings.signatureRecipeGroupForum' => 'In the forum',
 			'settings.signatureRecipeGroupDaily' => 'A new line every day',
 			'settings.signatureRecipeGroupAi' => 'Let the AI write it',
-			'settings.signaturePromptSampleContext' => 'This test run uses the sample context of a video page. When you actually post, the AI gets whatever you were looking at.',
 			'settings.recipeAuthorTagsName' => 'Author and tags',
 			'settings.recipeAuthorTagsTemplate' => '%author% · %tags%',
 			'settings.recipeFloorName' => 'Replying to a floor',
@@ -12983,15 +13150,72 @@ extension on Translations {
 			'settings.signatureEditTextHint' => 'This is the signature already written into this comment — the quote line and the AI line are plain text now, edit them however you like. Clear it to drop the signature.',
 			'settings.signatureResolving' => ({required Object name}) => 'Generating ${name}…',
 			'settings.signaturePendingValue' => '(generated when you send)',
-			'settings.signatureAiHint' => 'A line the AI writes on the spot, new for every comment, using the AI provider you set up. When you post from a video, gallery or forum page it also knows what you are looking at and can write about it.',
+			'settings.signatureAiHint' => 'A line the AI writes on the spot, new for every comment, using the AI provider you set up. Open it to see what it can see and tell it what to write.',
 			'settings.signatureAiUnavailable' => 'No AI provider configured yet, so this source stays hidden in the variable panel.',
-			'settings.signaturePromptTitle' => 'Prompt',
-			'settings.signaturePromptHint' => 'This is what gets sent to the model. Rewrite it however you like — tone, length, subject. The rules already in there are the ones worth keeping.',
 			'settings.signaturePromptReset' => 'Restore default',
 			'settings.signaturePromptTry' => 'Try it',
-			'settings.signaturePromptSample' => 'What it wrote',
-			'settings.signaturePromptLanguageHint' => 'is replaced with your interface language. Remove it and the line follows the prompt\'s language instead.',
 			'settings.signaturePromptEdited' => 'edited',
+			'settings.signatureAiSheetTitle' => 'How the AI line is written',
+			'settings.signatureAiSeeTitle' => 'What the AI can see',
+			'settings.signatureAiFactUnavailable' => 'not available here',
+			'settings.signatureAiFactTapHint' => 'Tap one to insert it into your instruction below.',
+			'settings.signatureAiReadReply' => 'Let it read what they said',
+			'settings.signatureAiReadReplyDesc' => 'When you reply to someone, also show it the text of their comment. Off by default: those are someone else\'s words.',
+			'settings.signatureAiCannotSee' => ({required Object items}) => 'Can\'t see: ${items}',
+			'settings.signatureAiCannotSeeDraft' => 'the comment you\'re writing',
+			'settings.signatureAiCannotSeeReply' => 'what they said',
+			'settings.signatureAiCannotSeeAccount' => 'your account',
+			'settings.signatureAiPrivacy' => 'What it can see is sent only to the provider you set up in AI settings.',
+			'settings.signatureAiWhatTitle' => 'What should it write',
+			'settings.signatureAiWhatHint' => 'A sentence or two in your own language is enough. Tap a chip above to insert it; anything this page can\'t provide simply disappears.',
+			'settings.signatureAiWhatPreview' => ({required Object scene}) => 'Filled in for "${scene}"',
+			'settings.signatureAiDefaultInstruction' => 'Riff on what I\'m looking at in one offhand line. Don\'t repeat the title.',
+			'settings.signatureAiFormatTitle' => 'Format',
+			'settings.signatureAiFormatFixed' => 'One line · no quotes · no attribution',
+			'settings.signatureAiLength' => 'Length',
+			'settings.signatureAiLengthShort' => 'Short · ~40 chars',
+			'settings.signatureAiLengthMedium' => 'Medium · ~70 chars',
+			'settings.signatureAiLengthLong' => 'Long · ~95 chars',
+			'settings.signatureAiLanguage' => 'Language',
+			'settings.signatureAiLanguageUi' => 'App language',
+			'settings.signatureAiLanguageDraft' => 'Match my comment',
+			'settings.signatureAiLanguageDraftHint' => 'Uses whatever script your comment is written in. The comment itself is never sent to the AI; if it can\'t tell, it uses the app language.',
+			'settings.signatureAiAllowEmoji' => 'Allow emoji',
+			'settings.signatureAiRecipesTitle' => 'Ideas',
+			'settings.signatureAiRecipesHint' => 'Tap one to use its instruction, then tweak it. The line underneath is a written example; tap Try it to see a real one.',
+			'settings.signatureAiExample' => 'Example',
+			'settings.signatureAiRecipeNeedsReply' => 'Turn on "Let it read what they said" above first',
+			'settings.signatureAiTryTitle' => 'Try it',
+			'settings.signatureAiTryEmpty' => ({required Object scene}) => 'Not tried yet. It will write one using the "${scene}" context.',
+			'settings.signatureAiTryNeedsProvider' => 'Set up an AI provider first to try it.',
+			'settings.signatureAiWireTitle' => 'What the AI actually receives',
+			'settings.signatureAiWireSystem' => 'System prompt (built from the format above)',
+			'settings.signatureAiWireUser' => 'User message (what it can see + your instruction)',
+			'settings.signatureDemoReplyText' => 'The camera work is so much smoother than last time. New lighting too?',
+			'settings.aiRecipeFeelName' => 'A quick reaction',
+			'settings.aiRecipeFeelInstruction' => 'Write the kind of line that slips out right after watching "%title%". Don\'t repeat the title.',
+			'settings.aiRecipeFeelExample' => 'Didn\'t know summer could look this quiet.',
+			'settings.aiRecipeRoastName' => 'Roast the title',
+			'settings.aiRecipeRoastInstruction' => 'Roast the title "%title%" a little. Cheeky, not mean.',
+			'settings.aiRecipeRoastExample' => 'The title is braver than the video.',
+			'settings.aiRecipePraiseName' => 'Hype the creator',
+			'settings.aiRecipePraiseInstruction' => 'Hype up %author% in one line. Be specific, and don\'t just shout their name.',
+			'settings.aiRecipePraiseExample' => 'That timing and taste can\'t be from this planet.',
+			'settings.aiRecipeHaikuName' => '5-7-5 haiku',
+			'settings.aiRecipeHaikuInstruction' => 'Write a 5-7-5 haiku inspired by "%title%", with " / " between the three parts.',
+			'settings.aiRecipeHaikuExample' => 'fan keeps on turning / screen light pooling on my face / night sinks one more inch',
+			'settings.aiRecipeChuuniName' => 'Anime battle cry',
+			'settings.aiRecipeChuuniInstruction' => 'Write a line an over-the-top anime character would shout, loosely tied to %tags%.',
+			'settings.aiRecipeChuuniExample' => 'I\'ll take every last bit of this heat!',
+			'settings.aiRecipeAcrosticName' => 'Tag acrostic',
+			'settings.aiRecipeAcrosticInstruction' => 'Work the words from %tags% into one sentence, in order, and make it read naturally.',
+			'settings.aiRecipeAcrosticExample' => 'Every frame in 4K and my heart still can\'t keep up.',
+			'settings.aiRecipeGreetName' => 'Time-of-day greeting',
+			'settings.aiRecipeGreetInstruction' => 'It\'s %time% right now. Say hi in a way that fits the hour, then add a passing thought.',
+			'settings.aiRecipeGreetExample' => '2 a.m. and still scrolling, so sleep is off the table again.',
+			'settings.aiRecipeEchoName' => 'Riff on their joke',
+			'settings.aiRecipeEchoInstruction' => 'Pick up what %reply_to% just said and add one line that runs with it.',
+			'settings.aiRecipeEchoExample' => 'You\'re right, and I\'m already on my third loop.',
 			'settings.signatureVariablesGroup' => 'Built-in variables',
 			'settings.signatureNeedsNetwork' => 'Needs network',
 			'settings.signatureBuiltinSource' => 'Built-in',
@@ -13149,6 +13373,8 @@ extension on Translations {
 			'settings.enableHardwareAcceleration' => 'Enable Hardware Acceleration',
 			'settings.enableHardwareAccelerationInfo' => 'Enabling hardware acceleration can improve decoding performance, but some devices may not be compatible',
 			'settings.useOpenSLESAudioOutput' => 'Use OpenSLES Audio Output',
+			_ => null,
+		} ?? switch (path) {
 			'settings.useOpenSLESAudioOutputInfo' => 'Use low-latency audio output, may improve audio performance',
 			'settings.videoSyncAudio' => 'Audio Sync',
 			'settings.videoSyncDisplayResample' => 'Display Resample',
@@ -13205,8 +13431,6 @@ extension on Translations {
 			'settings.blockSettings.regexHelpIntro' => 'A regular expression matches titles more flexibly than a plain keyword. Some common examples:',
 			'settings.blockSettings.regexHelpTapHint' => 'Tap an example to fill it in.',
 			'settings.blockSettings.regexEx1Pattern' => 'trailer|teaser|bonus',
-			_ => null,
-		} ?? switch (path) {
 			'settings.blockSettings.regexEx1Desc' => 'Match any one of these words ("|" means "or")',
 			'settings.blockSettings.regexEx2Pattern' => '^\\[.*\\]',
 			'settings.blockSettings.regexEx2Desc' => 'Titles that start with [brackets]',
@@ -13663,6 +13887,8 @@ extension on Translations {
 			'videoDetail.videoPlayer' => 'Video Player',
 			'videoDetail.videoPlayerInfo' => 'Video Player Info',
 			'videoDetail.moreSettings' => 'More Settings',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.videoPlayerFeatureInfo' => 'Video Player Feature Info',
 			'videoDetail.autoRewind' => 'Auto Rewind',
 			'videoDetail.rewindAndFastForward' => 'Rewind and Fast Forward',
@@ -13719,8 +13945,6 @@ extension on Translations {
 			'videoDetail.cast.deviceTypes.unknownDevice' => 'Unknown Device',
 			'videoDetail.cast.currentPlatformNotSupported' => 'Current platform does not support casting',
 			'videoDetail.cast.unableToGetVideoUrl' => 'Unable to get video URL, please try again later',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.stopCasting' => 'Stop casting',
 			'videoDetail.cast.dlnaCastSheet.title' => 'Remote Cast',
 			'videoDetail.cast.dlnaCastSheet.close' => 'Close',
@@ -14177,6 +14401,8 @@ extension on Translations {
 			'download.relocation.statLeftover' => 'Left behind',
 			'download.relocation.sectionMove' => 'Will be moved',
 			'download.relocation.sectionSkip' => 'Will be skipped',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.sectionMoved' => 'Moved',
 			'download.relocation.sectionFailed' => 'Not moved (left where it was)',
 			'download.relocation.sectionLeftover' => 'Old folders not fully removed',
@@ -14233,8 +14459,6 @@ extension on Translations {
 			'download.relocation.galleryImages' => ({required Object count}) => '${count} images',
 			'download.relocation.unfinishedDownloading' => ({required Object percent}) => 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues',
 			'download.relocation.unfinishedPending' => 'Waiting to download: re-queued after the move',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused',
 			'download.relocation.unfinishedFailed' => 'Download failed: the downloaded part moves too',
 			'download.relocation.noDataYet' => 'Nothing downloaded yet, only the save location changes',
@@ -14691,6 +14915,8 @@ extension on Translations {
 			'layoutSettings.descriptionContent' => 'The configuration here will determine the number of columns displayed in video and gallery list pages. You can choose auto mode to let the system automatically adjust based on screen width, or choose manual mode to fix the column count.',
 			'layoutSettings.layoutMode' => 'Layout Mode',
 			'layoutSettings.reset' => 'Reset',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.autoMode' => 'Auto Mode',
 			'layoutSettings.autoModeDesc' => 'Automatically adjust based on screen width',
 			'layoutSettings.manualMode' => 'Manual Mode',
@@ -14747,8 +14973,6 @@ extension on Translations {
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'Android devices have limited support for WEBM format. It is recommended to use an external player or download a player app that supports WEBM',
 			'mediaPlayer.currentDeviceCodecNotSupported' => 'Current device does not support the codec for this video format',
 			'mediaPlayer.checkNetworkConnection' => 'Please check your network connection and try again',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.appMayLackMediaPermission' => 'The app may lack necessary media playback permissions',
 			'mediaPlayer.tryOtherVideoPlayer' => 'Please try using other video players',
 			'mediaPlayer.unrecognizedVideoFormat' => 'Unrecognized video file',
@@ -15205,6 +15429,8 @@ extension on Translations {
 			'siteMode.confirmUsing' => ({required Object site}) => 'After confirming, future requests will use ${site} mode.',
 			'siteMode.switched' => ({required Object site}) => 'Switched to ${site}. The app has been refreshed.',
 			'savedSearchConfig.title' => 'Saved Filters',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearchConfig.empty' => 'No saved filters yet',
 			'savedSearchConfig.saveTooltip' => 'Save current filter',
 			'savedSearchConfig.namePromptTitle' => 'Save Filter',
@@ -15261,8 +15487,6 @@ extension on Translations {
 			'externalPlayer.sourceLocal' => 'Local file',
 			'externalPlayer.sourceOnline' => 'Direct link',
 			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => 'Direct link · ${quality}',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.onlineLinkExpiryHint' => 'Direct links expire, so an external player may stop partway through. Downloading first is the reliable route.',
 			'externalPlayer.vrPlayerHint' => 'If your VR player is missing from the chooser, use Copy video link and paste it inside that player.',
 			'externalPlayer.noHandler' => 'No app on this device can open the video',
@@ -15719,6 +15943,8 @@ extension on Translations {
 			'ai.openSettings' => 'Open AI settings',
 			'ai.notConfigured' => 'Not configured',
 			'ai.searchTitle' => 'AI search',
+			_ => null,
+		} ?? switch (path) {
 			'ai.searchHint' => 'Describe what you are looking for; AI fills in the search terms and filters.',
 			'ai.searchPlaceholder' => 'e.g. recent MMD with over 10k views',
 			'ai.searchApply' => 'Search with these',
@@ -15775,8 +16001,6 @@ extension on Translations {
 			'ai.contextWindow' => ({required Object tokens}) => 'Context ${tokens}',
 			'ai.capFunctionCall' => 'Tools',
 			'ai.capReasoning' => 'Reasoning',
-			_ => null,
-		} ?? switch (path) {
 			'ai.capStructuredOutput' => 'JSON output',
 			'ai.capVision' => 'Vision',
 			'ai.capFileInput' => 'Files',

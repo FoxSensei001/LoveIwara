@@ -954,7 +954,6 @@ class _TranslationsSettingsVi extends TranslationsSettingsEn {
 	@override String get signatureRecipeGroupForum => 'Khi ở diễn đàn';
 	@override String get signatureRecipeGroupDaily => 'Mỗi ngày một câu';
 	@override String get signatureRecipeGroupAi => 'Để AI viết hộ';
-	@override String get signaturePromptSampleContext => 'Lần thử này dùng ngữ cảnh mẫu của trang video. Khi gửi thật, AI nhận đúng thứ bạn đang xem.';
 	@override String get recipeAuthorTagsName => 'Tác giả và thẻ';
 	@override String get recipeAuthorTagsTemplate => '%author% · %tags%';
 	@override String get recipeFloorName => 'Trả lời một tầng';
@@ -1004,15 +1003,72 @@ class _TranslationsSettingsVi extends TranslationsSettingsEn {
 	@override String get signatureEditTextHint => 'Đây là chữ ký đã có sẵn trong bình luận này — câu trích và ngày giờ giờ chỉ là chữ thường, sửa tuỳ ý. Xoá trống là bỏ chữ ký.';
 	@override String signatureResolving({required Object name}) => 'Đang tạo ${name}…';
 	@override String get signaturePendingValue => '(tạo khi gửi)';
-	@override String get signatureAiHint => 'Một câu do AI viết ngay lúc đó, mỗi bình luận một câu mới, dùng nhà cung cấp AI bạn đã thiết lập. Khi gửi từ trang video, thư viện ảnh hay diễn đàn, AI còn biết bạn đang xem gì và có thể viết theo.';
+	@override String get signatureAiHint => 'Một câu do AI viết ngay lúc đó, mỗi bình luận một câu mới, dùng nhà cung cấp AI bạn đã thiết lập. Mở ra để xem AI thấy được gì và cho nó biết cần viết gì.';
 	@override String get signatureAiUnavailable => 'Chưa thiết lập nhà cung cấp AI nên nguồn này không hiện trong bảng biến.';
-	@override String get signaturePromptTitle => 'Prompt';
-	@override String get signaturePromptHint => 'Đây là thứ được gửi cho mô hình. Viết lại tuỳ ý: giọng điệu, độ dài, chủ đề. Các quy tắc có sẵn trong đó nên giữ lại.';
 	@override String get signaturePromptReset => 'Khôi phục mặc định';
 	@override String get signaturePromptTry => 'Thử';
-	@override String get signaturePromptSample => 'Kết quả';
-	@override String get signaturePromptLanguageHint => 'sẽ được thay bằng ngôn ngữ giao diện. Bỏ nó đi thì câu sẽ theo ngôn ngữ của prompt.';
 	@override String get signaturePromptEdited => 'đã sửa';
+	@override String get signatureAiSheetTitle => 'Câu của AI được viết ra sao';
+	@override String get signatureAiSeeTitle => 'AI thấy được gì';
+	@override String get signatureAiFactUnavailable => 'không có ở đây';
+	@override String get signatureAiFactTapHint => 'Nhấn vào một mục để chèn vào yêu cầu bên dưới.';
+	@override String get signatureAiReadReply => 'Cho AI đọc cả lời của người kia';
+	@override String get signatureAiReadReplyDesc => 'Khi bạn trả lời ai đó, cũng cho AI xem nội dung bình luận của họ. Mặc định tắt: đó là lời của người khác.';
+	@override String signatureAiCannotSee({required Object items}) => 'Không thấy được: ${items}';
+	@override String get signatureAiCannotSeeDraft => 'bình luận bạn đang viết';
+	@override String get signatureAiCannotSeeReply => 'lời của người kia';
+	@override String get signatureAiCannotSeeAccount => 'thông tin tài khoản của bạn';
+	@override String get signatureAiPrivacy => 'Những gì AI thấy được chỉ gửi tới nhà cung cấp bạn đã thiết lập trong phần cài đặt AI.';
+	@override String get signatureAiWhatTitle => 'Muốn nó viết gì';
+	@override String get signatureAiWhatHint => 'Chỉ cần một hai câu bằng ngôn ngữ của bạn là đủ. Nhấn vào thẻ ở trên để chèn vào; thứ nào không dùng được trong tình huống này sẽ tự biến mất.';
+	@override String signatureAiWhatPreview({required Object scene}) => 'Sau khi điền cho "${scene}"';
+	@override String get signatureAiDefaultInstruction => 'Buông một câu tự nhiên về thứ tôi đang xem. Đừng lặp lại tiêu đề.';
+	@override String get signatureAiFormatTitle => 'Định dạng';
+	@override String get signatureAiFormatFixed => 'Chỉ một dòng · không dấu ngoặc kép · không có chữ ký';
+	@override String get signatureAiLength => 'Độ dài';
+	@override String get signatureAiLengthShort => 'Ngắn · ~40 ký tự';
+	@override String get signatureAiLengthMedium => 'Trung bình · ~70 ký tự';
+	@override String get signatureAiLengthLong => 'Dài · ~95 ký tự';
+	@override String get signatureAiLanguage => 'Ngôn ngữ';
+	@override String get signatureAiLanguageUi => 'Theo ứng dụng';
+	@override String get signatureAiLanguageDraft => 'Theo bình luận của tôi';
+	@override String get signatureAiLanguageDraftHint => 'Dùng đúng ngôn ngữ mà bình luận của bạn được viết. Nội dung bình luận không bao giờ được gửi cho AI; nếu không đoán được, AI dùng ngôn ngữ của ứng dụng.';
+	@override String get signatureAiAllowEmoji => 'Cho phép emoji';
+	@override String get signatureAiRecipesTitle => 'Ý tưởng';
+	@override String get signatureAiRecipesHint => 'Nhấn vào một ý tưởng để dùng yêu cầu của nó, rồi tuỳ chỉnh thêm. Dòng bên dưới là ví dụ viết sẵn; nhấn "Thử" để xem một câu thật.';
+	@override String get signatureAiExample => 'Ví dụ';
+	@override String get signatureAiRecipeNeedsReply => 'Hãy bật "Cho AI đọc cả lời của người kia" ở trên trước';
+	@override String get signatureAiTryTitle => 'Thử';
+	@override String signatureAiTryEmpty({required Object scene}) => 'Chưa thử lần nào. AI sẽ viết một câu theo bối cảnh "${scene}".';
+	@override String get signatureAiTryNeedsProvider => 'Hãy thiết lập nhà cung cấp AI trước để thử.';
+	@override String get signatureAiWireTitle => 'Những gì AI thực sự nhận được lần này';
+	@override String get signatureAiWireSystem => 'Prompt hệ thống (tạo từ định dạng ở trên)';
+	@override String get signatureAiWireUser => 'Tin nhắn người dùng (những gì thấy được + yêu cầu của bạn)';
+	@override String get signatureDemoReplyText => 'Lần này quay dựng mượt hơn hẳn lần trước. Đổi cả ánh sáng nữa hả?';
+	@override String get aiRecipeFeelName => 'Cảm xúc bất chợt';
+	@override String get aiRecipeFeelInstruction => 'Viết một câu kiểu buột miệng ngay sau khi xem xong "%title%". Đừng lặp lại tiêu đề.';
+	@override String get aiRecipeFeelExample => 'Không ngờ mùa hè lại có thể trông tĩnh lặng đến vậy.';
+	@override String get aiRecipeRoastName => 'Bỡn cợt tiêu đề';
+	@override String get aiRecipeRoastInstruction => 'Bỡn cợt một chút với tiêu đề "%title%". Tinh nghịch thôi, đừng cay nghiệt.';
+	@override String get aiRecipeRoastExample => 'Tiêu đề còn liều hơn cả video.';
+	@override String get aiRecipePraiseName => 'Tung hô tác giả';
+	@override String get aiRecipePraiseInstruction => 'Tung hô %author% trong một câu. Cụ thể vào, đừng chỉ hô tên.';
+	@override String get aiRecipePraiseExample => 'Nhịp độ và gu này chắc không phải người trái đất.';
+	@override String get aiRecipeHaikuName => 'Haiku 5-7-5';
+	@override String get aiRecipeHaikuInstruction => 'Viết một bài haiku 5-7-5 lấy cảm hứng từ "%title%", giữa ba phần ngăn bằng " / ".';
+	@override String get aiRecipeHaikuExample => 'quạt vẫn quay đều / ánh màn hình đọng trên mặt / đêm lún sâu thêm chút';
+	@override String get aiRecipeChuuniName => 'Câu hô kiểu anime';
+	@override String get aiRecipeChuuniInstruction => 'Viết một câu mà một nhân vật anime cường điệu sẽ hô lên, liên hệ lỏng lẻo với %tags%.';
+	@override String get aiRecipeChuuniExample => 'Cơn nhiệt này, ta xin nhận hết!';
+	@override String get aiRecipeAcrosticName => 'Ẩn thẻ trong câu';
+	@override String get aiRecipeAcrosticInstruction => 'Lồng các từ trong %tags% vào một câu theo đúng thứ tự, sao cho đọc lên tự nhiên.';
+	@override String get aiRecipeAcrosticExample => 'Mỗi khung hình đều 4K mà tim vẫn chưa theo kịp.';
+	@override String get aiRecipeGreetName => 'Chào theo thời điểm';
+	@override String get aiRecipeGreetInstruction => 'Bây giờ là %time%. Chào theo đúng thời điểm này, rồi thêm một suy nghĩ thoảng qua.';
+	@override String get aiRecipeGreetExample => '2 giờ sáng mà vẫn lướt, tối nay chắc lại thức trắng.';
+	@override String get aiRecipeEchoName => 'Nối trò đùa của họ';
+	@override String get aiRecipeEchoInstruction => 'Bắt lấy điều %reply_to% vừa nói và thêm một câu nối theo.';
+	@override String get aiRecipeEchoExample => 'Đúng vậy, mà tôi đã lặp lại lần thứ ba rồi.';
 	@override String get signatureVariablesGroup => 'Biến có sẵn';
 	@override String get signatureNeedsNetwork => 'Cần mạng';
 	@override String get signatureBuiltinSource => 'Có sẵn';
@@ -5656,7 +5712,6 @@ extension on TranslationsVi {
 			'settings.signatureRecipeGroupForum' => 'Khi ở diễn đàn',
 			'settings.signatureRecipeGroupDaily' => 'Mỗi ngày một câu',
 			'settings.signatureRecipeGroupAi' => 'Để AI viết hộ',
-			'settings.signaturePromptSampleContext' => 'Lần thử này dùng ngữ cảnh mẫu của trang video. Khi gửi thật, AI nhận đúng thứ bạn đang xem.',
 			'settings.recipeAuthorTagsName' => 'Tác giả và thẻ',
 			'settings.recipeAuthorTagsTemplate' => '%author% · %tags%',
 			'settings.recipeFloorName' => 'Trả lời một tầng',
@@ -5706,15 +5761,72 @@ extension on TranslationsVi {
 			'settings.signatureEditTextHint' => 'Đây là chữ ký đã có sẵn trong bình luận này — câu trích và ngày giờ giờ chỉ là chữ thường, sửa tuỳ ý. Xoá trống là bỏ chữ ký.',
 			'settings.signatureResolving' => ({required Object name}) => 'Đang tạo ${name}…',
 			'settings.signaturePendingValue' => '(tạo khi gửi)',
-			'settings.signatureAiHint' => 'Một câu do AI viết ngay lúc đó, mỗi bình luận một câu mới, dùng nhà cung cấp AI bạn đã thiết lập. Khi gửi từ trang video, thư viện ảnh hay diễn đàn, AI còn biết bạn đang xem gì và có thể viết theo.',
+			'settings.signatureAiHint' => 'Một câu do AI viết ngay lúc đó, mỗi bình luận một câu mới, dùng nhà cung cấp AI bạn đã thiết lập. Mở ra để xem AI thấy được gì và cho nó biết cần viết gì.',
 			'settings.signatureAiUnavailable' => 'Chưa thiết lập nhà cung cấp AI nên nguồn này không hiện trong bảng biến.',
-			'settings.signaturePromptTitle' => 'Prompt',
-			'settings.signaturePromptHint' => 'Đây là thứ được gửi cho mô hình. Viết lại tuỳ ý: giọng điệu, độ dài, chủ đề. Các quy tắc có sẵn trong đó nên giữ lại.',
 			'settings.signaturePromptReset' => 'Khôi phục mặc định',
 			'settings.signaturePromptTry' => 'Thử',
-			'settings.signaturePromptSample' => 'Kết quả',
-			'settings.signaturePromptLanguageHint' => 'sẽ được thay bằng ngôn ngữ giao diện. Bỏ nó đi thì câu sẽ theo ngôn ngữ của prompt.',
 			'settings.signaturePromptEdited' => 'đã sửa',
+			'settings.signatureAiSheetTitle' => 'Câu của AI được viết ra sao',
+			'settings.signatureAiSeeTitle' => 'AI thấy được gì',
+			'settings.signatureAiFactUnavailable' => 'không có ở đây',
+			'settings.signatureAiFactTapHint' => 'Nhấn vào một mục để chèn vào yêu cầu bên dưới.',
+			'settings.signatureAiReadReply' => 'Cho AI đọc cả lời của người kia',
+			'settings.signatureAiReadReplyDesc' => 'Khi bạn trả lời ai đó, cũng cho AI xem nội dung bình luận của họ. Mặc định tắt: đó là lời của người khác.',
+			'settings.signatureAiCannotSee' => ({required Object items}) => 'Không thấy được: ${items}',
+			'settings.signatureAiCannotSeeDraft' => 'bình luận bạn đang viết',
+			'settings.signatureAiCannotSeeReply' => 'lời của người kia',
+			'settings.signatureAiCannotSeeAccount' => 'thông tin tài khoản của bạn',
+			'settings.signatureAiPrivacy' => 'Những gì AI thấy được chỉ gửi tới nhà cung cấp bạn đã thiết lập trong phần cài đặt AI.',
+			'settings.signatureAiWhatTitle' => 'Muốn nó viết gì',
+			'settings.signatureAiWhatHint' => 'Chỉ cần một hai câu bằng ngôn ngữ của bạn là đủ. Nhấn vào thẻ ở trên để chèn vào; thứ nào không dùng được trong tình huống này sẽ tự biến mất.',
+			'settings.signatureAiWhatPreview' => ({required Object scene}) => 'Sau khi điền cho "${scene}"',
+			'settings.signatureAiDefaultInstruction' => 'Buông một câu tự nhiên về thứ tôi đang xem. Đừng lặp lại tiêu đề.',
+			'settings.signatureAiFormatTitle' => 'Định dạng',
+			'settings.signatureAiFormatFixed' => 'Chỉ một dòng · không dấu ngoặc kép · không có chữ ký',
+			'settings.signatureAiLength' => 'Độ dài',
+			'settings.signatureAiLengthShort' => 'Ngắn · ~40 ký tự',
+			'settings.signatureAiLengthMedium' => 'Trung bình · ~70 ký tự',
+			'settings.signatureAiLengthLong' => 'Dài · ~95 ký tự',
+			'settings.signatureAiLanguage' => 'Ngôn ngữ',
+			'settings.signatureAiLanguageUi' => 'Theo ứng dụng',
+			'settings.signatureAiLanguageDraft' => 'Theo bình luận của tôi',
+			'settings.signatureAiLanguageDraftHint' => 'Dùng đúng ngôn ngữ mà bình luận của bạn được viết. Nội dung bình luận không bao giờ được gửi cho AI; nếu không đoán được, AI dùng ngôn ngữ của ứng dụng.',
+			'settings.signatureAiAllowEmoji' => 'Cho phép emoji',
+			'settings.signatureAiRecipesTitle' => 'Ý tưởng',
+			'settings.signatureAiRecipesHint' => 'Nhấn vào một ý tưởng để dùng yêu cầu của nó, rồi tuỳ chỉnh thêm. Dòng bên dưới là ví dụ viết sẵn; nhấn "Thử" để xem một câu thật.',
+			'settings.signatureAiExample' => 'Ví dụ',
+			'settings.signatureAiRecipeNeedsReply' => 'Hãy bật "Cho AI đọc cả lời của người kia" ở trên trước',
+			'settings.signatureAiTryTitle' => 'Thử',
+			'settings.signatureAiTryEmpty' => ({required Object scene}) => 'Chưa thử lần nào. AI sẽ viết một câu theo bối cảnh "${scene}".',
+			'settings.signatureAiTryNeedsProvider' => 'Hãy thiết lập nhà cung cấp AI trước để thử.',
+			'settings.signatureAiWireTitle' => 'Những gì AI thực sự nhận được lần này',
+			'settings.signatureAiWireSystem' => 'Prompt hệ thống (tạo từ định dạng ở trên)',
+			'settings.signatureAiWireUser' => 'Tin nhắn người dùng (những gì thấy được + yêu cầu của bạn)',
+			'settings.signatureDemoReplyText' => 'Lần này quay dựng mượt hơn hẳn lần trước. Đổi cả ánh sáng nữa hả?',
+			'settings.aiRecipeFeelName' => 'Cảm xúc bất chợt',
+			'settings.aiRecipeFeelInstruction' => 'Viết một câu kiểu buột miệng ngay sau khi xem xong "%title%". Đừng lặp lại tiêu đề.',
+			'settings.aiRecipeFeelExample' => 'Không ngờ mùa hè lại có thể trông tĩnh lặng đến vậy.',
+			'settings.aiRecipeRoastName' => 'Bỡn cợt tiêu đề',
+			'settings.aiRecipeRoastInstruction' => 'Bỡn cợt một chút với tiêu đề "%title%". Tinh nghịch thôi, đừng cay nghiệt.',
+			'settings.aiRecipeRoastExample' => 'Tiêu đề còn liều hơn cả video.',
+			'settings.aiRecipePraiseName' => 'Tung hô tác giả',
+			'settings.aiRecipePraiseInstruction' => 'Tung hô %author% trong một câu. Cụ thể vào, đừng chỉ hô tên.',
+			'settings.aiRecipePraiseExample' => 'Nhịp độ và gu này chắc không phải người trái đất.',
+			'settings.aiRecipeHaikuName' => 'Haiku 5-7-5',
+			'settings.aiRecipeHaikuInstruction' => 'Viết một bài haiku 5-7-5 lấy cảm hứng từ "%title%", giữa ba phần ngăn bằng " / ".',
+			'settings.aiRecipeHaikuExample' => 'quạt vẫn quay đều / ánh màn hình đọng trên mặt / đêm lún sâu thêm chút',
+			'settings.aiRecipeChuuniName' => 'Câu hô kiểu anime',
+			'settings.aiRecipeChuuniInstruction' => 'Viết một câu mà một nhân vật anime cường điệu sẽ hô lên, liên hệ lỏng lẻo với %tags%.',
+			'settings.aiRecipeChuuniExample' => 'Cơn nhiệt này, ta xin nhận hết!',
+			'settings.aiRecipeAcrosticName' => 'Ẩn thẻ trong câu',
+			'settings.aiRecipeAcrosticInstruction' => 'Lồng các từ trong %tags% vào một câu theo đúng thứ tự, sao cho đọc lên tự nhiên.',
+			'settings.aiRecipeAcrosticExample' => 'Mỗi khung hình đều 4K mà tim vẫn chưa theo kịp.',
+			'settings.aiRecipeGreetName' => 'Chào theo thời điểm',
+			'settings.aiRecipeGreetInstruction' => 'Bây giờ là %time%. Chào theo đúng thời điểm này, rồi thêm một suy nghĩ thoảng qua.',
+			'settings.aiRecipeGreetExample' => '2 giờ sáng mà vẫn lướt, tối nay chắc lại thức trắng.',
+			'settings.aiRecipeEchoName' => 'Nối trò đùa của họ',
+			'settings.aiRecipeEchoInstruction' => 'Bắt lấy điều %reply_to% vừa nói và thêm một câu nối theo.',
+			'settings.aiRecipeEchoExample' => 'Đúng vậy, mà tôi đã lặp lại lần thứ ba rồi.',
 			'settings.signatureVariablesGroup' => 'Biến có sẵn',
 			'settings.signatureNeedsNetwork' => 'Cần mạng',
 			'settings.signatureBuiltinSource' => 'Có sẵn',
@@ -5872,6 +5984,8 @@ extension on TranslationsVi {
 			'settings.enableHardwareAcceleration' => 'Bật tăng tốc phần cứng',
 			'settings.enableHardwareAccelerationInfo' => 'Bật tăng tốc phần cứng có thể cải thiện hiệu năng giải mã, nhưng một số thiết bị có thể không tương thích',
 			'settings.useOpenSLESAudioOutput' => 'Dùng đầu ra âm thanh OpenSLES',
+			_ => null,
+		} ?? switch (path) {
 			'settings.useOpenSLESAudioOutputInfo' => 'Dùng đầu ra âm thanh độ trễ thấp, có thể cải thiện hiệu năng âm thanh',
 			'settings.videoSyncAudio' => 'Đồng bộ âm thanh',
 			'settings.videoSyncDisplayResample' => 'Lấy mẫu lại',
@@ -5928,8 +6042,6 @@ extension on TranslationsVi {
 			'settings.blockSettings.regexHelpIntro' => 'Biểu thức chính quy khớp tiêu đề linh hoạt hơn từ khóa thông thường. Một số ví dụ phổ biến:',
 			'settings.blockSettings.regexHelpTapHint' => 'Nhấn vào một ví dụ để điền vào.',
 			'settings.blockSettings.regexEx1Pattern' => 'trailer|hậu trường|tặng kèm',
-			_ => null,
-		} ?? switch (path) {
 			'settings.blockSettings.regexEx1Desc' => 'Khớp với bất kỳ từ nào sau đây ("|" nghĩa là "hoặc")',
 			'settings.blockSettings.regexEx2Pattern' => '^\\[.*\\]',
 			'settings.blockSettings.regexEx2Desc' => 'Tiêu đề bắt đầu bằng [ngoặc vuông]',
@@ -6386,6 +6498,8 @@ extension on TranslationsVi {
 			'videoDetail.videoPlayer' => 'Trình phát video',
 			'videoDetail.videoPlayerInfo' => 'Thông tin trình phát video',
 			'videoDetail.moreSettings' => 'Cài đặt thêm',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.videoPlayerFeatureInfo' => 'Thông tin tính năng trình phát video',
 			'videoDetail.autoRewind' => 'Tự động tua lại',
 			'videoDetail.rewindAndFastForward' => 'Tua lại và tua tới',
@@ -6442,8 +6556,6 @@ extension on TranslationsVi {
 			'videoDetail.cast.deviceTypes.unknownDevice' => 'Thiết bị không xác định',
 			'videoDetail.cast.currentPlatformNotSupported' => 'Nền tảng hiện tại không hỗ trợ truyền phát',
 			'videoDetail.cast.unableToGetVideoUrl' => 'Không lấy được URL video, vui lòng thử lại sau',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.stopCasting' => 'Dừng truyền phát',
 			'videoDetail.cast.dlnaCastSheet.title' => 'Truyền phát từ xa',
 			'videoDetail.cast.dlnaCastSheet.close' => 'Đóng',
@@ -6900,6 +7012,8 @@ extension on TranslationsVi {
 			'download.relocation.statLeftover' => 'Left behind',
 			'download.relocation.sectionMove' => 'Will be moved',
 			'download.relocation.sectionSkip' => 'Will be skipped',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.sectionMoved' => 'Moved',
 			'download.relocation.sectionFailed' => 'Not moved (left where it was)',
 			'download.relocation.sectionLeftover' => 'Old folders not fully removed',
@@ -6956,8 +7070,6 @@ extension on TranslationsVi {
 			'download.relocation.galleryImages' => ({required Object count}) => '${count} images',
 			'download.relocation.unfinishedDownloading' => ({required Object percent}) => 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues',
 			'download.relocation.unfinishedPending' => 'Waiting to download: re-queued after the move',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused',
 			'download.relocation.unfinishedFailed' => 'Download failed: the downloaded part moves too',
 			'download.relocation.noDataYet' => 'Nothing downloaded yet, only the save location changes',
@@ -7414,6 +7526,8 @@ extension on TranslationsVi {
 			'layoutSettings.descriptionContent' => 'Cấu hình tại đây quyết định số cột hiển thị trong trang danh sách video và thư viện. Có thể chọn chế độ tự động để hệ thống tự điều chỉnh theo chiều rộng màn hình, hoặc chọn chế độ thủ công để cố định số cột.',
 			'layoutSettings.layoutMode' => 'Chế độ bố cục',
 			'layoutSettings.reset' => 'Đặt lại',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.autoMode' => 'Chế độ tự động',
 			'layoutSettings.autoModeDesc' => 'Tự động điều chỉnh theo chiều rộng màn hình',
 			'layoutSettings.manualMode' => 'Chế độ thủ công',
@@ -7470,8 +7584,6 @@ extension on TranslationsVi {
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'Thiết bị Android hỗ trợ hạn chế định dạng WEBM. Nên dùng trình phát ngoài hoặc tải ứng dụng trình phát hỗ trợ WEBM',
 			'mediaPlayer.currentDeviceCodecNotSupported' => 'Thiết bị hiện tại không hỗ trợ codec cho định dạng video này',
 			'mediaPlayer.checkNetworkConnection' => 'Vui lòng kiểm tra kết nối mạng và thử lại',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.appMayLackMediaPermission' => 'Ứng dụng có thể thiếu quyền phát media cần thiết',
 			'mediaPlayer.tryOtherVideoPlayer' => 'Vui lòng thử dùng trình phát video khác',
 			'mediaPlayer.unrecognizedVideoFormat' => 'Tệp video không nhận dạng được',
@@ -7928,6 +8040,8 @@ extension on TranslationsVi {
 			'siteMode.confirmUsing' => ({required Object site}) => 'Sau khi xác nhận, các yêu cầu tiếp theo sẽ dùng chế độ ${site}.',
 			'siteMode.switched' => ({required Object site}) => 'Đã chuyển sang ${site}. Ứng dụng đã được làm mới.',
 			'savedSearchConfig.title' => 'Bộ lọc đã lưu',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearchConfig.empty' => 'Chưa có bộ lọc đã lưu',
 			'savedSearchConfig.saveTooltip' => 'Lưu bộ lọc hiện tại',
 			'savedSearchConfig.namePromptTitle' => 'Lưu bộ lọc',
@@ -7984,8 +8098,6 @@ extension on TranslationsVi {
 			'externalPlayer.sourceLocal' => 'Tệp cục bộ',
 			'externalPlayer.sourceOnline' => 'Liên kết trực tiếp',
 			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => 'Liên kết trực tiếp · ${quality}',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.onlineLinkExpiryHint' => 'Liên kết trực tiếp sẽ hết hạn nên trình phát ngoài có thể dừng giữa chừng. Tải xuống trước là cách đáng tin cậy hơn.',
 			'externalPlayer.vrPlayerHint' => 'Nếu trình phát VR của bạn không có trong bảng chọn, hãy dùng Sao chép liên kết video và dán vào trình phát đó.',
 			'externalPlayer.noHandler' => 'Không có ứng dụng nào trên thiết bị này mở được video',
@@ -8442,6 +8554,8 @@ extension on TranslationsVi {
 			'ai.openSettings' => 'Mở cài đặt AI',
 			'ai.notConfigured' => 'Chưa định cấu hình',
 			'ai.searchTitle' => 'Tìm kiếm AI',
+			_ => null,
+		} ?? switch (path) {
 			'ai.searchHint' => 'Mô tả nội dung bạn muốn tìm; AI sẽ điền các từ khóa tìm kiếm và bộ lọc.',
 			'ai.searchPlaceholder' => 'vd: MMD mới nhất có hơn 10k lượt xem',
 			'ai.searchApply' => 'Tìm kiếm bằng các điều kiện này',
@@ -8498,8 +8612,6 @@ extension on TranslationsVi {
 			'ai.contextWindow' => ({required Object tokens}) => 'Context ${tokens}',
 			'ai.capFunctionCall' => 'Tools',
 			'ai.capReasoning' => 'Reasoning',
-			_ => null,
-		} ?? switch (path) {
 			'ai.capStructuredOutput' => 'JSON output',
 			'ai.capVision' => 'Vision',
 			'ai.capFileInput' => 'Files',

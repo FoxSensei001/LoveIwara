@@ -82,14 +82,12 @@ class SignatureProvider {
   /// 数据源种类：[kindHttp]（默认，请求 HTTP 接口）或 [kindAi]（由 AI 生成）。
   final String kind;
 
-  /// [kindAi] 专用：用户改过的提示词，空串＝用出厂那份
-  /// （`SignatureAiPrompt.defaultTemplate`）。
+  /// [kindAi] 专用，**只剩迁移用途**：老版本把用户改过的整段英文提示词存在
+  /// 这里（一条 id 为 `ai_hitokoto` 的覆盖）。
   ///
-  /// ⭐ 里面可以写 `{language}`，求值时换成当前界面语言的英文名——和小尾巴
-  /// 模板同一套花括号语法，用户不必再学第二种写法。
-  ///
-  /// ⛔ 存空串而不是把默认那份抄进来：抄进去之后我们再改默认提示词，
-  /// 老用户永远停在旧版上，而他根本不知道自己"改过"。
+  /// 现在 AI 一言的设置在 `SignatureAiSettings`（自己的 ConfigKey）。
+  /// `SignatureService.aiSettings` 在新配置为空时把这里的文字迁成「写什么」，
+  /// 保存一次后这条覆盖就被删掉。新代码不要再往这里写。
   final String prompt;
 
   bool get isAi => kind == kindAi;

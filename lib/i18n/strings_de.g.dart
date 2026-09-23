@@ -954,7 +954,6 @@ class _TranslationsSettingsDe extends TranslationsSettingsEn {
 	@override String get signatureRecipeGroupForum => 'Im Forum';
 	@override String get signatureRecipeGroupDaily => 'Jeden Tag ein Satz';
 	@override String get signatureRecipeGroupAi => 'Die KI schreiben lassen';
-	@override String get signaturePromptSampleContext => 'Dieser Testlauf nutzt den Beispielkontext einer Videoseite. Beim echten Senden bekommt die KI das, was du gerade ansiehst.';
 	@override String get recipeAuthorTagsName => 'Autor und Tags';
 	@override String get recipeAuthorTagsTemplate => '%author% · %tags%';
 	@override String get recipeFloorName => 'Antwort auf einen Beitrag';
@@ -1004,15 +1003,72 @@ class _TranslationsSettingsDe extends TranslationsSettingsEn {
 	@override String get signatureEditTextHint => 'Das ist die Signatur, die bereits in diesem Kommentar steht — Spruch und Datum sind jetzt einfach Text, ändere sie beliebig. Leeren entfernt die Signatur.';
 	@override String signatureResolving({required Object name}) => 'Erzeuge ${name}…';
 	@override String get signaturePendingValue => '(wird beim Senden erzeugt)';
-	@override String get signatureAiHint => 'Ein Satz, den die KI spontan schreibt – für jeden Kommentar neu, über den von dir eingerichteten KI-Anbieter. Auf Video-, Galerie- und Forumseiten weiß sie außerdem, was du gerade ansiehst, und kann darauf eingehen.';
+	@override String get signatureAiHint => 'Ein Satz, den die KI spontan schreibt – für jeden Kommentar neu, mit dem von dir eingerichteten KI-Anbieter. Öffne es, um zu sehen, was sie sehen kann, und ihr zu sagen, was sie schreiben soll.';
 	@override String get signatureAiUnavailable => 'Noch kein KI-Anbieter eingerichtet, deshalb taucht diese Quelle nicht im Variablen-Panel auf.';
-	@override String get signaturePromptTitle => 'Prompt';
-	@override String get signaturePromptHint => 'Das geht so an das Modell. Schreib es um, wie du willst — Ton, Länge, Thema. Die Regeln, die schon drinstehen, lohnt es sich zu behalten.';
 	@override String get signaturePromptReset => 'Standard wiederherstellen';
 	@override String get signaturePromptTry => 'Ausprobieren';
-	@override String get signaturePromptSample => 'Das Ergebnis';
-	@override String get signaturePromptLanguageHint => 'wird durch deine Oberflächensprache ersetzt. Ohne das folgt die Zeile der Sprache des Prompts.';
 	@override String get signaturePromptEdited => 'geändert';
+	@override String get signatureAiSheetTitle => 'Wie die KI-Zeile geschrieben wird';
+	@override String get signatureAiSeeTitle => 'Was die KI sehen kann';
+	@override String get signatureAiFactUnavailable => 'hier nicht verfügbar';
+	@override String get signatureAiFactTapHint => 'Tippe auf einen Punkt, um ihn unten in deine Anweisung einzufügen.';
+	@override String get signatureAiReadReply => 'Auch die Antwort der anderen Person lesen lassen';
+	@override String get signatureAiReadReplyDesc => 'Wenn du jemandem antwortest, zeig ihr auch den Text des Kommentars. Standardmäßig aus: Das sind die Worte einer anderen Person.';
+	@override String signatureAiCannotSee({required Object items}) => 'Sieht nicht: ${items}';
+	@override String get signatureAiCannotSeeDraft => 'den Kommentar, den du gerade schreibst';
+	@override String get signatureAiCannotSeeReply => 'was die andere Person gesagt hat';
+	@override String get signatureAiCannotSeeAccount => 'deine Kontodaten';
+	@override String get signatureAiPrivacy => 'Was sie sehen kann, geht nur an den Anbieter, den du in den KI-Einstellungen eingerichtet hast.';
+	@override String get signatureAiWhatTitle => 'Was soll sie schreiben';
+	@override String get signatureAiWhatHint => 'Ein oder zwei Sätze in deinen eigenen Worten reichen. Tippe oben auf ein Chip, um es einzufügen; was hier nicht verfügbar ist, verschwindet einfach.';
+	@override String signatureAiWhatPreview({required Object scene}) => 'Eingesetzt für „${scene}“';
+	@override String get signatureAiDefaultInstruction => 'Kommentiere in einer beiläufigen Zeile, was ich mir gerade ansehe. Titel nicht wiederholen.';
+	@override String get signatureAiFormatTitle => 'Format';
+	@override String get signatureAiFormatFixed => 'Nur eine Zeile · keine Anführungszeichen · keine Signatur';
+	@override String get signatureAiLength => 'Länge';
+	@override String get signatureAiLengthShort => 'Kurz · ~40 Zeichen';
+	@override String get signatureAiLengthMedium => 'Mittel · ~70 Zeichen';
+	@override String get signatureAiLengthLong => 'Lang · ~95 Zeichen';
+	@override String get signatureAiLanguage => 'Sprache';
+	@override String get signatureAiLanguageUi => 'Wie die App';
+	@override String get signatureAiLanguageDraft => 'Wie mein Kommentar';
+	@override String get signatureAiLanguageDraftHint => 'Nutzt die Sprache, in der dein Kommentar geschrieben ist. Der Kommentar selbst wird nie an die KI gesendet; wenn sie es nicht erkennt, nimmt sie die Sprache der App.';
+	@override String get signatureAiAllowEmoji => 'Emoji erlauben';
+	@override String get signatureAiRecipesTitle => 'Ideen';
+	@override String get signatureAiRecipesHint => 'Tippe auf eine, um ihre Anweisung zu übernehmen, und passe sie dann an. Die Zeile darunter ist ein geschriebenes Beispiel; tippe auf „Ausprobieren“, um ein echtes zu sehen.';
+	@override String get signatureAiExample => 'Beispiel';
+	@override String get signatureAiRecipeNeedsReply => 'Schalte oben zuerst „Auch die Antwort der anderen Person lesen lassen“ ein';
+	@override String get signatureAiTryTitle => 'Ausprobieren';
+	@override String signatureAiTryEmpty({required Object scene}) => 'Noch nicht ausprobiert. Sie schreibt eine Zeile im Kontext von „${scene}“.';
+	@override String get signatureAiTryNeedsProvider => 'Richte zuerst einen KI-Anbieter ein, dann kannst du es ausprobieren.';
+	@override String get signatureAiWireTitle => 'Was die KI diesmal tatsächlich bekommt';
+	@override String get signatureAiWireSystem => 'Systemprompt (aus dem Format oben erstellt)';
+	@override String get signatureAiWireUser => 'Nutzernachricht (was sie sehen kann + deine Anweisung)';
+	@override String get signatureDemoReplyText => 'Die Kameraführung ist diesmal viel flüssiger als beim letzten Mal. Neue Beleuchtung auch?';
+	@override String get aiRecipeFeelName => 'Spontaner Eindruck';
+	@override String get aiRecipeFeelInstruction => 'Schreib eine Zeile, wie sie einem gleich nach dem Ansehen von „%title%“ herausrutscht. Titel nicht wiederholen.';
+	@override String get aiRecipeFeelExample => 'Wusste nicht, dass ein Sommer so ruhig aussehen kann.';
+	@override String get aiRecipeRoastName => 'Titel aufziehen';
+	@override String get aiRecipeRoastInstruction => 'Zieh den Titel „%title%“ ein bisschen auf. Frech, aber nicht gemein.';
+	@override String get aiRecipeRoastExample => 'Der Titel ist mutiger als das Video selbst.';
+	@override String get aiRecipePraiseName => 'Ersteller hypen';
+	@override String get aiRecipePraiseInstruction => 'Hype %author% in einer Zeile. Sei konkret, statt nur den Namen zu rufen.';
+	@override String get aiRecipePraiseExample => 'Dieses Timing und dieser Geschmack – kann unmöglich von diesem Planeten sein.';
+	@override String get aiRecipeHaikuName => '5-7-5-Haiku';
+	@override String get aiRecipeHaikuInstruction => 'Schreib ein 5-7-5-Haiku, inspiriert von „%title%“, mit „ / “ zwischen den drei Teilen.';
+	@override String get aiRecipeHaikuExample => 'Ventilator dreht sich / Bildschirmlicht auf meinem Gesicht / Nacht wird noch tiefer';
+	@override String get aiRecipeChuuniName => 'Anime-Kampfschrei';
+	@override String get aiRecipeChuuniInstruction => 'Schreib eine Zeile, die eine übertriebene Anime-Figur schreien würde, locker verbunden mit %tags%.';
+	@override String get aiRecipeChuuniExample => 'Ich nehme diese ganze Hitze auf mich!';
+	@override String get aiRecipeAcrosticName => 'Tag-Akrostichon';
+	@override String get aiRecipeAcrosticInstruction => 'Bau die Wörter aus %tags% der Reihe nach in einen Satz ein, der sich natürlich liest.';
+	@override String get aiRecipeAcrosticExample => 'Alles in 4K, und mein Herz kommt trotzdem nicht mit.';
+	@override String get aiRecipeGreetName => 'Gruß zur Tageszeit';
+	@override String get aiRecipeGreetInstruction => 'Es ist gerade %time%. Grüße passend zur Uhrzeit und häng einen kurzen Gedanken an.';
+	@override String get aiRecipeGreetExample => '2 Uhr nachts und immer noch am Scrollen, an Schlaf ist wohl wieder nicht zu denken.';
+	@override String get aiRecipeEchoName => 'Auf ihren Witz eingehen';
+	@override String get aiRecipeEchoInstruction => 'Greif auf, was %reply_to% gerade gesagt hat, und häng eine Zeile an, die daran anknüpft.';
+	@override String get aiRecipeEchoExample => 'Du hast recht, und ich bin schon in meiner dritten Runde.';
 	@override String get signatureVariablesGroup => 'Eingebaute Variablen';
 	@override String get signatureNeedsNetwork => 'Braucht Netz';
 	@override String get signatureBuiltinSource => 'Eingebaut';
@@ -5656,7 +5712,6 @@ extension on TranslationsDe {
 			'settings.signatureRecipeGroupForum' => 'Im Forum',
 			'settings.signatureRecipeGroupDaily' => 'Jeden Tag ein Satz',
 			'settings.signatureRecipeGroupAi' => 'Die KI schreiben lassen',
-			'settings.signaturePromptSampleContext' => 'Dieser Testlauf nutzt den Beispielkontext einer Videoseite. Beim echten Senden bekommt die KI das, was du gerade ansiehst.',
 			'settings.recipeAuthorTagsName' => 'Autor und Tags',
 			'settings.recipeAuthorTagsTemplate' => '%author% · %tags%',
 			'settings.recipeFloorName' => 'Antwort auf einen Beitrag',
@@ -5706,15 +5761,72 @@ extension on TranslationsDe {
 			'settings.signatureEditTextHint' => 'Das ist die Signatur, die bereits in diesem Kommentar steht — Spruch und Datum sind jetzt einfach Text, ändere sie beliebig. Leeren entfernt die Signatur.',
 			'settings.signatureResolving' => ({required Object name}) => 'Erzeuge ${name}…',
 			'settings.signaturePendingValue' => '(wird beim Senden erzeugt)',
-			'settings.signatureAiHint' => 'Ein Satz, den die KI spontan schreibt – für jeden Kommentar neu, über den von dir eingerichteten KI-Anbieter. Auf Video-, Galerie- und Forumseiten weiß sie außerdem, was du gerade ansiehst, und kann darauf eingehen.',
+			'settings.signatureAiHint' => 'Ein Satz, den die KI spontan schreibt – für jeden Kommentar neu, mit dem von dir eingerichteten KI-Anbieter. Öffne es, um zu sehen, was sie sehen kann, und ihr zu sagen, was sie schreiben soll.',
 			'settings.signatureAiUnavailable' => 'Noch kein KI-Anbieter eingerichtet, deshalb taucht diese Quelle nicht im Variablen-Panel auf.',
-			'settings.signaturePromptTitle' => 'Prompt',
-			'settings.signaturePromptHint' => 'Das geht so an das Modell. Schreib es um, wie du willst — Ton, Länge, Thema. Die Regeln, die schon drinstehen, lohnt es sich zu behalten.',
 			'settings.signaturePromptReset' => 'Standard wiederherstellen',
 			'settings.signaturePromptTry' => 'Ausprobieren',
-			'settings.signaturePromptSample' => 'Das Ergebnis',
-			'settings.signaturePromptLanguageHint' => 'wird durch deine Oberflächensprache ersetzt. Ohne das folgt die Zeile der Sprache des Prompts.',
 			'settings.signaturePromptEdited' => 'geändert',
+			'settings.signatureAiSheetTitle' => 'Wie die KI-Zeile geschrieben wird',
+			'settings.signatureAiSeeTitle' => 'Was die KI sehen kann',
+			'settings.signatureAiFactUnavailable' => 'hier nicht verfügbar',
+			'settings.signatureAiFactTapHint' => 'Tippe auf einen Punkt, um ihn unten in deine Anweisung einzufügen.',
+			'settings.signatureAiReadReply' => 'Auch die Antwort der anderen Person lesen lassen',
+			'settings.signatureAiReadReplyDesc' => 'Wenn du jemandem antwortest, zeig ihr auch den Text des Kommentars. Standardmäßig aus: Das sind die Worte einer anderen Person.',
+			'settings.signatureAiCannotSee' => ({required Object items}) => 'Sieht nicht: ${items}',
+			'settings.signatureAiCannotSeeDraft' => 'den Kommentar, den du gerade schreibst',
+			'settings.signatureAiCannotSeeReply' => 'was die andere Person gesagt hat',
+			'settings.signatureAiCannotSeeAccount' => 'deine Kontodaten',
+			'settings.signatureAiPrivacy' => 'Was sie sehen kann, geht nur an den Anbieter, den du in den KI-Einstellungen eingerichtet hast.',
+			'settings.signatureAiWhatTitle' => 'Was soll sie schreiben',
+			'settings.signatureAiWhatHint' => 'Ein oder zwei Sätze in deinen eigenen Worten reichen. Tippe oben auf ein Chip, um es einzufügen; was hier nicht verfügbar ist, verschwindet einfach.',
+			'settings.signatureAiWhatPreview' => ({required Object scene}) => 'Eingesetzt für „${scene}“',
+			'settings.signatureAiDefaultInstruction' => 'Kommentiere in einer beiläufigen Zeile, was ich mir gerade ansehe. Titel nicht wiederholen.',
+			'settings.signatureAiFormatTitle' => 'Format',
+			'settings.signatureAiFormatFixed' => 'Nur eine Zeile · keine Anführungszeichen · keine Signatur',
+			'settings.signatureAiLength' => 'Länge',
+			'settings.signatureAiLengthShort' => 'Kurz · ~40 Zeichen',
+			'settings.signatureAiLengthMedium' => 'Mittel · ~70 Zeichen',
+			'settings.signatureAiLengthLong' => 'Lang · ~95 Zeichen',
+			'settings.signatureAiLanguage' => 'Sprache',
+			'settings.signatureAiLanguageUi' => 'Wie die App',
+			'settings.signatureAiLanguageDraft' => 'Wie mein Kommentar',
+			'settings.signatureAiLanguageDraftHint' => 'Nutzt die Sprache, in der dein Kommentar geschrieben ist. Der Kommentar selbst wird nie an die KI gesendet; wenn sie es nicht erkennt, nimmt sie die Sprache der App.',
+			'settings.signatureAiAllowEmoji' => 'Emoji erlauben',
+			'settings.signatureAiRecipesTitle' => 'Ideen',
+			'settings.signatureAiRecipesHint' => 'Tippe auf eine, um ihre Anweisung zu übernehmen, und passe sie dann an. Die Zeile darunter ist ein geschriebenes Beispiel; tippe auf „Ausprobieren“, um ein echtes zu sehen.',
+			'settings.signatureAiExample' => 'Beispiel',
+			'settings.signatureAiRecipeNeedsReply' => 'Schalte oben zuerst „Auch die Antwort der anderen Person lesen lassen“ ein',
+			'settings.signatureAiTryTitle' => 'Ausprobieren',
+			'settings.signatureAiTryEmpty' => ({required Object scene}) => 'Noch nicht ausprobiert. Sie schreibt eine Zeile im Kontext von „${scene}“.',
+			'settings.signatureAiTryNeedsProvider' => 'Richte zuerst einen KI-Anbieter ein, dann kannst du es ausprobieren.',
+			'settings.signatureAiWireTitle' => 'Was die KI diesmal tatsächlich bekommt',
+			'settings.signatureAiWireSystem' => 'Systemprompt (aus dem Format oben erstellt)',
+			'settings.signatureAiWireUser' => 'Nutzernachricht (was sie sehen kann + deine Anweisung)',
+			'settings.signatureDemoReplyText' => 'Die Kameraführung ist diesmal viel flüssiger als beim letzten Mal. Neue Beleuchtung auch?',
+			'settings.aiRecipeFeelName' => 'Spontaner Eindruck',
+			'settings.aiRecipeFeelInstruction' => 'Schreib eine Zeile, wie sie einem gleich nach dem Ansehen von „%title%“ herausrutscht. Titel nicht wiederholen.',
+			'settings.aiRecipeFeelExample' => 'Wusste nicht, dass ein Sommer so ruhig aussehen kann.',
+			'settings.aiRecipeRoastName' => 'Titel aufziehen',
+			'settings.aiRecipeRoastInstruction' => 'Zieh den Titel „%title%“ ein bisschen auf. Frech, aber nicht gemein.',
+			'settings.aiRecipeRoastExample' => 'Der Titel ist mutiger als das Video selbst.',
+			'settings.aiRecipePraiseName' => 'Ersteller hypen',
+			'settings.aiRecipePraiseInstruction' => 'Hype %author% in einer Zeile. Sei konkret, statt nur den Namen zu rufen.',
+			'settings.aiRecipePraiseExample' => 'Dieses Timing und dieser Geschmack – kann unmöglich von diesem Planeten sein.',
+			'settings.aiRecipeHaikuName' => '5-7-5-Haiku',
+			'settings.aiRecipeHaikuInstruction' => 'Schreib ein 5-7-5-Haiku, inspiriert von „%title%“, mit „ / “ zwischen den drei Teilen.',
+			'settings.aiRecipeHaikuExample' => 'Ventilator dreht sich / Bildschirmlicht auf meinem Gesicht / Nacht wird noch tiefer',
+			'settings.aiRecipeChuuniName' => 'Anime-Kampfschrei',
+			'settings.aiRecipeChuuniInstruction' => 'Schreib eine Zeile, die eine übertriebene Anime-Figur schreien würde, locker verbunden mit %tags%.',
+			'settings.aiRecipeChuuniExample' => 'Ich nehme diese ganze Hitze auf mich!',
+			'settings.aiRecipeAcrosticName' => 'Tag-Akrostichon',
+			'settings.aiRecipeAcrosticInstruction' => 'Bau die Wörter aus %tags% der Reihe nach in einen Satz ein, der sich natürlich liest.',
+			'settings.aiRecipeAcrosticExample' => 'Alles in 4K, und mein Herz kommt trotzdem nicht mit.',
+			'settings.aiRecipeGreetName' => 'Gruß zur Tageszeit',
+			'settings.aiRecipeGreetInstruction' => 'Es ist gerade %time%. Grüße passend zur Uhrzeit und häng einen kurzen Gedanken an.',
+			'settings.aiRecipeGreetExample' => '2 Uhr nachts und immer noch am Scrollen, an Schlaf ist wohl wieder nicht zu denken.',
+			'settings.aiRecipeEchoName' => 'Auf ihren Witz eingehen',
+			'settings.aiRecipeEchoInstruction' => 'Greif auf, was %reply_to% gerade gesagt hat, und häng eine Zeile an, die daran anknüpft.',
+			'settings.aiRecipeEchoExample' => 'Du hast recht, und ich bin schon in meiner dritten Runde.',
 			'settings.signatureVariablesGroup' => 'Eingebaute Variablen',
 			'settings.signatureNeedsNetwork' => 'Braucht Netz',
 			'settings.signatureBuiltinSource' => 'Eingebaut',
@@ -5872,6 +5984,8 @@ extension on TranslationsDe {
 			'settings.enableHardwareAcceleration' => 'Hardwarebeschleunigung aktivieren',
 			'settings.enableHardwareAccelerationInfo' => 'Das Aktivieren der Hardwarebeschleunigung kann die Dekodierungsleistung verbessern, aber einige Geräte sind möglicherweise nicht kompatibel',
 			'settings.useOpenSLESAudioOutput' => 'OpenSLES-Audioausgabe verwenden',
+			_ => null,
+		} ?? switch (path) {
 			'settings.useOpenSLESAudioOutputInfo' => 'Audioausgabe mit niedriger Latenz verwenden, kann die Audioleistung verbessern',
 			'settings.videoSyncAudio' => 'Audio-Synchronisierung',
 			'settings.videoSyncDisplayResample' => 'Neuabtastung anzeigen',
@@ -5928,8 +6042,6 @@ extension on TranslationsDe {
 			'settings.blockSettings.regexHelpIntro' => 'Ein regulärer Ausdruck gleicht Titel flexibler ab als ein einfaches Stichwort. Einige gängige Beispiele:',
 			'settings.blockSettings.regexHelpTapHint' => 'Tippen Sie auf ein Beispiel, um es einzusetzen.',
 			'settings.blockSettings.regexEx1Pattern' => 'Vorschau|Teaser|Bonus',
-			_ => null,
-		} ?? switch (path) {
 			'settings.blockSettings.regexEx1Desc' => 'Entspricht einem dieser Wörter (| bedeutet „oder“)',
 			'settings.blockSettings.regexEx2Pattern' => '^\\[.*\\]',
 			'settings.blockSettings.regexEx2Desc' => 'Titel, die mit [Klammern] beginnen',
@@ -6386,6 +6498,8 @@ extension on TranslationsDe {
 			'videoDetail.videoPlayer' => 'Videoplayer',
 			'videoDetail.videoPlayerInfo' => 'Videoplayer-Info',
 			'videoDetail.moreSettings' => 'Weitere Einstellungen',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.videoPlayerFeatureInfo' => 'Funktionsinfo zum Videoplayer',
 			'videoDetail.autoRewind' => 'Automatisches Zurückspulen',
 			'videoDetail.rewindAndFastForward' => 'Zurückspulen und Vorspulen',
@@ -6442,8 +6556,6 @@ extension on TranslationsDe {
 			'videoDetail.cast.deviceTypes.unknownDevice' => 'Unbekanntes Gerät',
 			'videoDetail.cast.currentPlatformNotSupported' => 'Die aktuelle Plattform unterstützt keine Übertragung',
 			'videoDetail.cast.unableToGetVideoUrl' => 'Video-URL konnte nicht abgerufen werden, bitte später erneut versuchen',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.stopCasting' => 'Übertragung beenden',
 			'videoDetail.cast.dlnaCastSheet.title' => 'Remote-Übertragung',
 			'videoDetail.cast.dlnaCastSheet.close' => 'Schließen',
@@ -6900,6 +7012,8 @@ extension on TranslationsDe {
 			'download.relocation.statLeftover' => 'Left behind',
 			'download.relocation.sectionMove' => 'Will be moved',
 			'download.relocation.sectionSkip' => 'Will be skipped',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.sectionMoved' => 'Moved',
 			'download.relocation.sectionFailed' => 'Not moved (left where it was)',
 			'download.relocation.sectionLeftover' => 'Old folders not fully removed',
@@ -6956,8 +7070,6 @@ extension on TranslationsDe {
 			'download.relocation.galleryImages' => ({required Object count}) => '${count} images',
 			'download.relocation.unfinishedDownloading' => ({required Object percent}) => 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues',
 			'download.relocation.unfinishedPending' => 'Waiting to download: re-queued after the move',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused',
 			'download.relocation.unfinishedFailed' => 'Download failed: the downloaded part moves too',
 			'download.relocation.noDataYet' => 'Nothing downloaded yet, only the save location changes',
@@ -7414,6 +7526,8 @@ extension on TranslationsDe {
 			'layoutSettings.descriptionContent' => 'Die Konfiguration hier bestimmt die Anzahl der Spalten, die in den Video- und Galerielisten angezeigt werden. Sie können den automatischen Modus wählen, damit das System anhand der Bildschirmbreite automatisch anpasst, oder den manuellen Modus, um die Spaltenzahl festzulegen.',
 			'layoutSettings.layoutMode' => 'Layout-Modus',
 			'layoutSettings.reset' => 'Zurücksetzen',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.autoMode' => 'Automatischer Modus',
 			'layoutSettings.autoModeDesc' => 'Automatisch anhand der Bildschirmbreite anpassen',
 			'layoutSettings.manualMode' => 'Manueller Modus',
@@ -7470,8 +7584,6 @@ extension on TranslationsDe {
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'Android-Geräte unterstützen das WEBM-Format nur eingeschränkt. Es wird empfohlen, einen externen Player zu verwenden oder eine Player-App herunterzuladen, die WEBM unterstützt',
 			'mediaPlayer.currentDeviceCodecNotSupported' => 'Das aktuelle Gerät unterstützt den Codec für dieses Videoformat nicht',
 			'mediaPlayer.checkNetworkConnection' => 'Bitte prüfen Sie Ihre Netzwerkverbindung und versuchen Sie es erneut',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.appMayLackMediaPermission' => 'Der App fehlen möglicherweise die erforderlichen Berechtigungen für die Medienwiedergabe',
 			'mediaPlayer.tryOtherVideoPlayer' => 'Bitte versuchen Sie es mit anderen Video-Playern',
 			'mediaPlayer.unrecognizedVideoFormat' => 'Nicht erkannte Videodatei',
@@ -7928,6 +8040,8 @@ extension on TranslationsDe {
 			'siteMode.confirmUsing' => ({required Object site}) => 'Nach der Bestätigung verwenden zukünftige Anfragen den Modus ${site}.',
 			'siteMode.switched' => ({required Object site}) => 'Zu ${site} gewechselt. Die App wurde neu geladen.',
 			'savedSearchConfig.title' => 'Gespeicherte Filter',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearchConfig.empty' => 'Noch keine gespeicherten Filter',
 			'savedSearchConfig.saveTooltip' => 'Aktuellen Filter speichern',
 			'savedSearchConfig.namePromptTitle' => 'Filter speichern',
@@ -7984,8 +8098,6 @@ extension on TranslationsDe {
 			'externalPlayer.sourceLocal' => 'Lokale Datei',
 			'externalPlayer.sourceOnline' => 'Direkter Link',
 			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => 'Direkter Link · ${quality}',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.onlineLinkExpiryHint' => 'Direkte Links laufen ab, daher kann ein externer Player mittendrin abbrechen. Zuerst herunterzuladen ist der zuverlässige Weg.',
 			'externalPlayer.vrPlayerHint' => 'Wenn Ihr VR-Player in der Auswahl fehlt, verwenden Sie „Videolink kopieren“ und fügen Sie ihn in diesem Player ein.',
 			'externalPlayer.noHandler' => 'Keine App auf diesem Gerät kann das Video öffnen',
@@ -8442,6 +8554,8 @@ extension on TranslationsDe {
 			'ai.openSettings' => 'KI-Einstellungen öffnen',
 			'ai.notConfigured' => 'Nicht konfiguriert',
 			'ai.searchTitle' => 'KI-Suche',
+			_ => null,
+		} ?? switch (path) {
 			'ai.searchHint' => 'Beschreiben Sie, was Sie suchen. Die KI füllt Suchbegriffe und Filter automatisch aus.',
 			'ai.searchPlaceholder' => 'z. B. aktuelle MMDs mit über 10.000 Aufrufen',
 			'ai.searchApply' => 'Mit diesen Begriffen suchen',
@@ -8498,8 +8612,6 @@ extension on TranslationsDe {
 			'ai.contextWindow' => ({required Object tokens}) => 'Context ${tokens}',
 			'ai.capFunctionCall' => 'Tools',
 			'ai.capReasoning' => 'Reasoning',
-			_ => null,
-		} ?? switch (path) {
 			'ai.capStructuredOutput' => 'JSON output',
 			'ai.capVision' => 'Vision',
 			'ai.capFileInput' => 'Files',

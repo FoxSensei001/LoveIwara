@@ -373,6 +373,8 @@ class _CommentItemState extends State<CommentItem> {
         // 回复的上下文＝这一页的上下文（标题/作者/标签…）再加上「回给谁」。
         signatureContext: widget.controller!.signatureContext.withReplyTo(
           widget.comment.user?.name,
+          // 对方的原话：只有用户在 AI 一言里打开「读对方的原话」才会发出去。
+          text: CommentMarkup.parse(widget.comment.body).body,
         ),
         onSubmit: (text) async {
           if (text.trim().isEmpty) {

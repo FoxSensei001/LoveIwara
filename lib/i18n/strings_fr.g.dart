@@ -954,7 +954,6 @@ class _TranslationsSettingsFr extends TranslationsSettingsEn {
 	@override String get signatureRecipeGroupForum => 'Sur le forum';
 	@override String get signatureRecipeGroupDaily => 'Une phrase par jour';
 	@override String get signatureRecipeGroupAi => 'Laisser l’IA écrire';
-	@override String get signaturePromptSampleContext => 'Cet essai utilise le contexte d’exemple d’une page vidéo. À l’envoi réel, l’IA reçoit ce que tu regardes.';
 	@override String get recipeAuthorTagsName => 'Auteur et tags';
 	@override String get recipeAuthorTagsTemplate => '%author% · %tags%';
 	@override String get recipeFloorName => 'Répondre à un message';
@@ -1004,15 +1003,72 @@ class _TranslationsSettingsFr extends TranslationsSettingsEn {
 	@override String get signatureEditTextHint => 'Voici la signature déjà présente dans ce commentaire : la phrase et la date ne sont plus que du texte, modifie-les librement. Vide le champ pour la retirer.';
 	@override String signatureResolving({required Object name}) => 'Génération de ${name}…';
 	@override String get signaturePendingValue => '(généré à l\'envoi)';
-	@override String get signatureAiHint => 'Une phrase écrite par l\'IA sur le moment, différente à chaque commentaire, via le fournisseur d\'IA que vous avez configuré. Depuis une vidéo, une galerie ou le forum, elle sait aussi ce que vous regardez et peut s\'en inspirer.';
+	@override String get signatureAiHint => 'Une phrase que l\'IA écrit sur le moment, différente à chaque commentaire, via le fournisseur d\'IA que vous avez configuré. Ouvrez-le pour voir ce qu\'elle peut voir et lui dire quoi écrire.';
 	@override String get signatureAiUnavailable => 'Aucun fournisseur d\'IA configuré pour l\'instant, cette source n\'apparaît donc pas dans le panneau des variables.';
-	@override String get signaturePromptTitle => 'Prompt';
-	@override String get signaturePromptHint => 'Voici ce qui est envoyé au modèle. Réécris-le comme tu veux : ton, longueur, sujet. Les règles déjà présentes valent la peine d\'être gardées.';
 	@override String get signaturePromptReset => 'Rétablir par défaut';
 	@override String get signaturePromptTry => 'Essayer';
-	@override String get signaturePromptSample => 'Ce qu\'elle a écrit';
-	@override String get signaturePromptLanguageHint => 'est remplacé par la langue de ton interface. Sans lui, la phrase suit la langue du prompt.';
 	@override String get signaturePromptEdited => 'modifié';
+	@override String get signatureAiSheetTitle => 'Comment la phrase IA est écrite';
+	@override String get signatureAiSeeTitle => 'Ce que l\'IA peut voir';
+	@override String get signatureAiFactUnavailable => 'non disponible ici';
+	@override String get signatureAiFactTapHint => 'Appuyez sur un élément pour l\'insérer dans votre instruction ci-dessous.';
+	@override String get signatureAiReadReply => 'La laisser lire ce que la personne a dit';
+	@override String get signatureAiReadReplyDesc => 'Quand vous répondez à quelqu\'un, montrez-lui aussi le texte de son commentaire. Désactivé par défaut : ce sont les mots de quelqu\'un d\'autre.';
+	@override String signatureAiCannotSee({required Object items}) => 'Ne voit pas : ${items}';
+	@override String get signatureAiCannotSeeDraft => 'le commentaire que vous écrivez';
+	@override String get signatureAiCannotSeeReply => 'ce que la personne a dit';
+	@override String get signatureAiCannotSeeAccount => 'votre compte';
+	@override String get signatureAiPrivacy => 'Ce qu\'elle peut voir n\'est envoyé qu\'au fournisseur configuré dans les paramètres IA.';
+	@override String get signatureAiWhatTitle => 'Qu\'est-ce qu\'elle doit écrire';
+	@override String get signatureAiWhatHint => 'Une ou deux phrases dans votre langue suffisent. Appuyez sur une puce ci-dessus pour l\'insérer ; ce qui n\'est pas disponible ici disparaît simplement.';
+	@override String signatureAiWhatPreview({required Object scene}) => 'Rempli pour « ${scene} »';
+	@override String get signatureAiDefaultInstruction => 'Commentez en une ligne désinvolte ce que je regarde. Ne répétez pas le titre.';
+	@override String get signatureAiFormatTitle => 'Format';
+	@override String get signatureAiFormatFixed => 'Une seule ligne · sans guillemets · sans signature';
+	@override String get signatureAiLength => 'Longueur';
+	@override String get signatureAiLengthShort => 'Courte · ~40 caractères';
+	@override String get signatureAiLengthMedium => 'Moyenne · ~70 caractères';
+	@override String get signatureAiLengthLong => 'Longue · ~95 caractères';
+	@override String get signatureAiLanguage => 'Langue';
+	@override String get signatureAiLanguageUi => 'Comme l\'application';
+	@override String get signatureAiLanguageDraft => 'Comme mon commentaire';
+	@override String get signatureAiLanguageDraftHint => 'Utilise la langue dans laquelle votre commentaire est écrit. Le commentaire lui-même n\'est jamais envoyé à l\'IA ; si elle ne peut pas le deviner, elle utilise la langue de l\'application.';
+	@override String get signatureAiAllowEmoji => 'Autoriser les emoji';
+	@override String get signatureAiRecipesTitle => 'Idées';
+	@override String get signatureAiRecipesHint => 'Appuyez sur une idée pour reprendre son instruction, puis ajustez-la. La ligne en dessous est un exemple écrit ; appuyez sur « Essayer » pour en voir un vrai.';
+	@override String get signatureAiExample => 'Exemple';
+	@override String get signatureAiRecipeNeedsReply => 'Activez d\'abord « La laisser lire ce que la personne a dit » ci-dessus';
+	@override String get signatureAiTryTitle => 'Essayer';
+	@override String signatureAiTryEmpty({required Object scene}) => 'Pas encore essayé. Elle écrira une phrase avec le contexte de « ${scene} ».';
+	@override String get signatureAiTryNeedsProvider => 'Configure d\'abord un fournisseur d\'IA pour pouvoir l\'essayer.';
+	@override String get signatureAiWireTitle => 'Ce que l\'IA reçoit vraiment cette fois';
+	@override String get signatureAiWireSystem => 'Prompt système (généré à partir du format ci-dessus)';
+	@override String get signatureAiWireUser => 'Message utilisateur (ce qu\'elle peut voir + votre instruction)';
+	@override String get signatureDemoReplyText => 'Le travail de caméra est bien plus fluide que la dernière fois. Nouvel éclairage aussi ?';
+	@override String get aiRecipeFeelName => 'Une réaction à chaud';
+	@override String get aiRecipeFeelInstruction => 'Écrivez la phrase qui échapperait juste après avoir regardé « %title% ». Ne répétez pas le titre.';
+	@override String get aiRecipeFeelExample => 'Je ne savais pas que l\'été pouvait sembler aussi calme.';
+	@override String get aiRecipeRoastName => 'Charrier le titre';
+	@override String get aiRecipeRoastInstruction => 'Charriez un peu le titre « %title% ». Espiègle, pas méchant.';
+	@override String get aiRecipeRoastExample => 'Le titre est plus audacieux que la vidéo elle-même.';
+	@override String get aiRecipePraiseName => 'Mettre l\'auteur en avant';
+	@override String get aiRecipePraiseInstruction => 'Mettez %author% en avant en une phrase. Soyez précis, ne vous contentez pas de crier son nom.';
+	@override String get aiRecipePraiseExample => 'Ce timing et ce goût, ça ne peut pas venir de cette planète.';
+	@override String get aiRecipeHaikuName => 'Haïku 5-7-5';
+	@override String get aiRecipeHaikuInstruction => 'Écrivez un haïku 5-7-5 inspiré de « %title% », avec « / » entre les trois parties.';
+	@override String get aiRecipeHaikuExample => 'le ventilateur tourne / la lumière de l\'écran sur mon visage / la nuit s\'enfonce encore';
+	@override String get aiRecipeChuuniName => 'Cri de bataille anime';
+	@override String get aiRecipeChuuniInstruction => 'Écrivez une ligne qu\'un personnage d\'anime exagéré crierait, vaguement liée à %tags%.';
+	@override String get aiRecipeChuuniExample => 'Je prends toute cette chaleur, jusqu\'à la dernière goutte !';
+	@override String get aiRecipeAcrosticName => 'Acrostiche de tags';
+	@override String get aiRecipeAcrosticInstruction => 'Glissez les mots de %tags% dans une phrase, dans l\'ordre, et faites en sorte qu\'elle se lise naturellement.';
+	@override String get aiRecipeAcrosticExample => 'Chaque image en 4K, et mon cœur qui n\'arrive toujours pas à suivre.';
+	@override String get aiRecipeGreetName => 'Salutation selon l\'heure';
+	@override String get aiRecipeGreetInstruction => 'Il est %time% en ce moment. Saluez en fonction de l\'heure, puis ajoutez une pensée en passant.';
+	@override String get aiRecipeGreetExample => '2 h du matin et toujours en train de scroller, dormir n\'est visiblement pas au programme.';
+	@override String get aiRecipeEchoName => 'Rebondir sur sa blague';
+	@override String get aiRecipeEchoInstruction => 'Reprenez ce que %reply_to% vient de dire et ajoutez une ligne qui joue le jeu.';
+	@override String get aiRecipeEchoExample => 'Tu as raison, et j\'en suis déjà à mon troisième tour.';
 	@override String get signatureVariablesGroup => 'Variables intégrées';
 	@override String get signatureNeedsNetwork => 'Nécessite le réseau';
 	@override String get signatureBuiltinSource => 'Intégré';
@@ -5656,7 +5712,6 @@ extension on TranslationsFr {
 			'settings.signatureRecipeGroupForum' => 'Sur le forum',
 			'settings.signatureRecipeGroupDaily' => 'Une phrase par jour',
 			'settings.signatureRecipeGroupAi' => 'Laisser l’IA écrire',
-			'settings.signaturePromptSampleContext' => 'Cet essai utilise le contexte d’exemple d’une page vidéo. À l’envoi réel, l’IA reçoit ce que tu regardes.',
 			'settings.recipeAuthorTagsName' => 'Auteur et tags',
 			'settings.recipeAuthorTagsTemplate' => '%author% · %tags%',
 			'settings.recipeFloorName' => 'Répondre à un message',
@@ -5706,15 +5761,72 @@ extension on TranslationsFr {
 			'settings.signatureEditTextHint' => 'Voici la signature déjà présente dans ce commentaire : la phrase et la date ne sont plus que du texte, modifie-les librement. Vide le champ pour la retirer.',
 			'settings.signatureResolving' => ({required Object name}) => 'Génération de ${name}…',
 			'settings.signaturePendingValue' => '(généré à l\'envoi)',
-			'settings.signatureAiHint' => 'Une phrase écrite par l\'IA sur le moment, différente à chaque commentaire, via le fournisseur d\'IA que vous avez configuré. Depuis une vidéo, une galerie ou le forum, elle sait aussi ce que vous regardez et peut s\'en inspirer.',
+			'settings.signatureAiHint' => 'Une phrase que l\'IA écrit sur le moment, différente à chaque commentaire, via le fournisseur d\'IA que vous avez configuré. Ouvrez-le pour voir ce qu\'elle peut voir et lui dire quoi écrire.',
 			'settings.signatureAiUnavailable' => 'Aucun fournisseur d\'IA configuré pour l\'instant, cette source n\'apparaît donc pas dans le panneau des variables.',
-			'settings.signaturePromptTitle' => 'Prompt',
-			'settings.signaturePromptHint' => 'Voici ce qui est envoyé au modèle. Réécris-le comme tu veux : ton, longueur, sujet. Les règles déjà présentes valent la peine d\'être gardées.',
 			'settings.signaturePromptReset' => 'Rétablir par défaut',
 			'settings.signaturePromptTry' => 'Essayer',
-			'settings.signaturePromptSample' => 'Ce qu\'elle a écrit',
-			'settings.signaturePromptLanguageHint' => 'est remplacé par la langue de ton interface. Sans lui, la phrase suit la langue du prompt.',
 			'settings.signaturePromptEdited' => 'modifié',
+			'settings.signatureAiSheetTitle' => 'Comment la phrase IA est écrite',
+			'settings.signatureAiSeeTitle' => 'Ce que l\'IA peut voir',
+			'settings.signatureAiFactUnavailable' => 'non disponible ici',
+			'settings.signatureAiFactTapHint' => 'Appuyez sur un élément pour l\'insérer dans votre instruction ci-dessous.',
+			'settings.signatureAiReadReply' => 'La laisser lire ce que la personne a dit',
+			'settings.signatureAiReadReplyDesc' => 'Quand vous répondez à quelqu\'un, montrez-lui aussi le texte de son commentaire. Désactivé par défaut : ce sont les mots de quelqu\'un d\'autre.',
+			'settings.signatureAiCannotSee' => ({required Object items}) => 'Ne voit pas : ${items}',
+			'settings.signatureAiCannotSeeDraft' => 'le commentaire que vous écrivez',
+			'settings.signatureAiCannotSeeReply' => 'ce que la personne a dit',
+			'settings.signatureAiCannotSeeAccount' => 'votre compte',
+			'settings.signatureAiPrivacy' => 'Ce qu\'elle peut voir n\'est envoyé qu\'au fournisseur configuré dans les paramètres IA.',
+			'settings.signatureAiWhatTitle' => 'Qu\'est-ce qu\'elle doit écrire',
+			'settings.signatureAiWhatHint' => 'Une ou deux phrases dans votre langue suffisent. Appuyez sur une puce ci-dessus pour l\'insérer ; ce qui n\'est pas disponible ici disparaît simplement.',
+			'settings.signatureAiWhatPreview' => ({required Object scene}) => 'Rempli pour « ${scene} »',
+			'settings.signatureAiDefaultInstruction' => 'Commentez en une ligne désinvolte ce que je regarde. Ne répétez pas le titre.',
+			'settings.signatureAiFormatTitle' => 'Format',
+			'settings.signatureAiFormatFixed' => 'Une seule ligne · sans guillemets · sans signature',
+			'settings.signatureAiLength' => 'Longueur',
+			'settings.signatureAiLengthShort' => 'Courte · ~40 caractères',
+			'settings.signatureAiLengthMedium' => 'Moyenne · ~70 caractères',
+			'settings.signatureAiLengthLong' => 'Longue · ~95 caractères',
+			'settings.signatureAiLanguage' => 'Langue',
+			'settings.signatureAiLanguageUi' => 'Comme l\'application',
+			'settings.signatureAiLanguageDraft' => 'Comme mon commentaire',
+			'settings.signatureAiLanguageDraftHint' => 'Utilise la langue dans laquelle votre commentaire est écrit. Le commentaire lui-même n\'est jamais envoyé à l\'IA ; si elle ne peut pas le deviner, elle utilise la langue de l\'application.',
+			'settings.signatureAiAllowEmoji' => 'Autoriser les emoji',
+			'settings.signatureAiRecipesTitle' => 'Idées',
+			'settings.signatureAiRecipesHint' => 'Appuyez sur une idée pour reprendre son instruction, puis ajustez-la. La ligne en dessous est un exemple écrit ; appuyez sur « Essayer » pour en voir un vrai.',
+			'settings.signatureAiExample' => 'Exemple',
+			'settings.signatureAiRecipeNeedsReply' => 'Activez d\'abord « La laisser lire ce que la personne a dit » ci-dessus',
+			'settings.signatureAiTryTitle' => 'Essayer',
+			'settings.signatureAiTryEmpty' => ({required Object scene}) => 'Pas encore essayé. Elle écrira une phrase avec le contexte de « ${scene} ».',
+			'settings.signatureAiTryNeedsProvider' => 'Configure d\'abord un fournisseur d\'IA pour pouvoir l\'essayer.',
+			'settings.signatureAiWireTitle' => 'Ce que l\'IA reçoit vraiment cette fois',
+			'settings.signatureAiWireSystem' => 'Prompt système (généré à partir du format ci-dessus)',
+			'settings.signatureAiWireUser' => 'Message utilisateur (ce qu\'elle peut voir + votre instruction)',
+			'settings.signatureDemoReplyText' => 'Le travail de caméra est bien plus fluide que la dernière fois. Nouvel éclairage aussi ?',
+			'settings.aiRecipeFeelName' => 'Une réaction à chaud',
+			'settings.aiRecipeFeelInstruction' => 'Écrivez la phrase qui échapperait juste après avoir regardé « %title% ». Ne répétez pas le titre.',
+			'settings.aiRecipeFeelExample' => 'Je ne savais pas que l\'été pouvait sembler aussi calme.',
+			'settings.aiRecipeRoastName' => 'Charrier le titre',
+			'settings.aiRecipeRoastInstruction' => 'Charriez un peu le titre « %title% ». Espiègle, pas méchant.',
+			'settings.aiRecipeRoastExample' => 'Le titre est plus audacieux que la vidéo elle-même.',
+			'settings.aiRecipePraiseName' => 'Mettre l\'auteur en avant',
+			'settings.aiRecipePraiseInstruction' => 'Mettez %author% en avant en une phrase. Soyez précis, ne vous contentez pas de crier son nom.',
+			'settings.aiRecipePraiseExample' => 'Ce timing et ce goût, ça ne peut pas venir de cette planète.',
+			'settings.aiRecipeHaikuName' => 'Haïku 5-7-5',
+			'settings.aiRecipeHaikuInstruction' => 'Écrivez un haïku 5-7-5 inspiré de « %title% », avec « / » entre les trois parties.',
+			'settings.aiRecipeHaikuExample' => 'le ventilateur tourne / la lumière de l\'écran sur mon visage / la nuit s\'enfonce encore',
+			'settings.aiRecipeChuuniName' => 'Cri de bataille anime',
+			'settings.aiRecipeChuuniInstruction' => 'Écrivez une ligne qu\'un personnage d\'anime exagéré crierait, vaguement liée à %tags%.',
+			'settings.aiRecipeChuuniExample' => 'Je prends toute cette chaleur, jusqu\'à la dernière goutte !',
+			'settings.aiRecipeAcrosticName' => 'Acrostiche de tags',
+			'settings.aiRecipeAcrosticInstruction' => 'Glissez les mots de %tags% dans une phrase, dans l\'ordre, et faites en sorte qu\'elle se lise naturellement.',
+			'settings.aiRecipeAcrosticExample' => 'Chaque image en 4K, et mon cœur qui n\'arrive toujours pas à suivre.',
+			'settings.aiRecipeGreetName' => 'Salutation selon l\'heure',
+			'settings.aiRecipeGreetInstruction' => 'Il est %time% en ce moment. Saluez en fonction de l\'heure, puis ajoutez une pensée en passant.',
+			'settings.aiRecipeGreetExample' => '2 h du matin et toujours en train de scroller, dormir n\'est visiblement pas au programme.',
+			'settings.aiRecipeEchoName' => 'Rebondir sur sa blague',
+			'settings.aiRecipeEchoInstruction' => 'Reprenez ce que %reply_to% vient de dire et ajoutez une ligne qui joue le jeu.',
+			'settings.aiRecipeEchoExample' => 'Tu as raison, et j\'en suis déjà à mon troisième tour.',
 			'settings.signatureVariablesGroup' => 'Variables intégrées',
 			'settings.signatureNeedsNetwork' => 'Nécessite le réseau',
 			'settings.signatureBuiltinSource' => 'Intégré',
@@ -5872,6 +5984,8 @@ extension on TranslationsFr {
 			'settings.enableHardwareAcceleration' => 'Activer l\'accélération matérielle',
 			'settings.enableHardwareAccelerationInfo' => 'Activer l\'accélération matérielle peut améliorer les performances de décodage, mais certains appareils peuvent être incompatibles',
 			'settings.useOpenSLESAudioOutput' => 'Utiliser la sortie audio OpenSLES',
+			_ => null,
+		} ?? switch (path) {
 			'settings.useOpenSLESAudioOutputInfo' => 'Utiliser une sortie audio à faible latence, peut améliorer les performances audio',
 			'settings.videoSyncAudio' => 'Synchro audio',
 			'settings.videoSyncDisplayResample' => 'Afficher le rééchantillonnage',
@@ -5928,8 +6042,6 @@ extension on TranslationsFr {
 			'settings.blockSettings.regexHelpIntro' => 'Une expression régulière filtre les titres de façon plus souple qu\'un simple mot-clé. Voici quelques exemples courants :',
 			'settings.blockSettings.regexHelpTapHint' => 'Touchez un exemple pour le reprendre.',
 			'settings.blockSettings.regexEx1Pattern' => 'bande-annonce|teaser|bonus',
-			_ => null,
-		} ?? switch (path) {
 			'settings.blockSettings.regexEx1Desc' => 'Correspond à l\'un de ces mots ("|" signifie "ou")',
 			'settings.blockSettings.regexEx2Pattern' => '^\\[.*\\]',
 			'settings.blockSettings.regexEx2Desc' => 'Titres qui commencent par [crochets]',
@@ -6386,6 +6498,8 @@ extension on TranslationsFr {
 			'videoDetail.videoPlayer' => 'Lecteur vidéo',
 			'videoDetail.videoPlayerInfo' => 'Infos du lecteur vidéo',
 			'videoDetail.moreSettings' => 'Plus de paramètres',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.videoPlayerFeatureInfo' => 'Infos sur les fonctionnalités du lecteur',
 			'videoDetail.autoRewind' => 'Retour arrière auto.',
 			'videoDetail.rewindAndFastForward' => 'Retour et avance rapide',
@@ -6442,8 +6556,6 @@ extension on TranslationsFr {
 			'videoDetail.cast.deviceTypes.unknownDevice' => 'Appareil inconnu',
 			'videoDetail.cast.currentPlatformNotSupported' => 'La plateforme actuelle ne prend pas en charge la diffusion',
 			'videoDetail.cast.unableToGetVideoUrl' => 'Impossible d\'obtenir l\'URL de la vidéo, veuillez réessayer plus tard',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.stopCasting' => 'Arrêter la diffusion',
 			'videoDetail.cast.dlnaCastSheet.title' => 'Diffusion à distance',
 			'videoDetail.cast.dlnaCastSheet.close' => 'Fermer',
@@ -6900,6 +7012,8 @@ extension on TranslationsFr {
 			'download.relocation.statLeftover' => 'Left behind',
 			'download.relocation.sectionMove' => 'Will be moved',
 			'download.relocation.sectionSkip' => 'Will be skipped',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.sectionMoved' => 'Moved',
 			'download.relocation.sectionFailed' => 'Not moved (left where it was)',
 			'download.relocation.sectionLeftover' => 'Old folders not fully removed',
@@ -6956,8 +7070,6 @@ extension on TranslationsFr {
 			'download.relocation.galleryImages' => ({required Object count}) => '${count} images',
 			'download.relocation.unfinishedDownloading' => ({required Object percent}) => 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues',
 			'download.relocation.unfinishedPending' => 'Waiting to download: re-queued after the move',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused',
 			'download.relocation.unfinishedFailed' => 'Download failed: the downloaded part moves too',
 			'download.relocation.noDataYet' => 'Nothing downloaded yet, only the save location changes',
@@ -7414,6 +7526,8 @@ extension on TranslationsFr {
 			'layoutSettings.descriptionContent' => 'La configuration ici détermine le nombre de colonnes affichées dans les pages de liste de vidéos et de galeries. Vous pouvez choisir le mode automatique pour laisser le système s\'ajuster selon la largeur de l\'écran, ou le mode manuel pour fixer le nombre de colonnes.',
 			'layoutSettings.layoutMode' => 'Mode de disposition',
 			'layoutSettings.reset' => 'Réinitialiser',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.autoMode' => 'Mode automatique',
 			'layoutSettings.autoModeDesc' => 'Ajuster automatiquement selon la largeur de l\'écran',
 			'layoutSettings.manualMode' => 'Mode manuel',
@@ -7470,8 +7584,6 @@ extension on TranslationsFr {
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'Les appareils Android ne prennent que partiellement en charge le format WEBM. Il est recommandé d\'utiliser un lecteur externe ou de télécharger une application de lecture compatible WEBM',
 			'mediaPlayer.currentDeviceCodecNotSupported' => 'L\'appareil actuel ne prend pas en charge le codec de ce format vidéo',
 			'mediaPlayer.checkNetworkConnection' => 'Vérifiez votre connexion réseau et réessayez',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.appMayLackMediaPermission' => 'L\'application ne dispose peut-être pas des permissions nécessaires à la lecture multimédia',
 			'mediaPlayer.tryOtherVideoPlayer' => 'Essayez d\'utiliser d\'autres lecteurs vidéo',
 			'mediaPlayer.unrecognizedVideoFormat' => 'Fichier vidéo non reconnu',
@@ -7928,6 +8040,8 @@ extension on TranslationsFr {
 			'siteMode.confirmUsing' => ({required Object site}) => 'Après confirmation, les requêtes suivantes utiliseront le mode ${site}.',
 			'siteMode.switched' => ({required Object site}) => 'Passé à ${site}. L\'app a été actualisée.',
 			'savedSearchConfig.title' => 'Filtres enregistrés',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearchConfig.empty' => 'Aucun filtre enregistré',
 			'savedSearchConfig.saveTooltip' => 'Enregistrer le filtre actuel',
 			'savedSearchConfig.namePromptTitle' => 'Enregistrer le filtre',
@@ -7984,8 +8098,6 @@ extension on TranslationsFr {
 			'externalPlayer.sourceLocal' => 'Fichier local',
 			'externalPlayer.sourceOnline' => 'Lien direct',
 			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => 'Lien direct · ${quality}',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.onlineLinkExpiryHint' => 'Les liens directs expirent ; un lecteur externe peut donc s\'arrêter en cours de route. Télécharger d\'abord est la solution fiable.',
 			'externalPlayer.vrPlayerHint' => 'Si votre lecteur VR est absent du sélecteur, utilisez Copier le lien de la vidéo et collez-le dans ce lecteur.',
 			'externalPlayer.noHandler' => 'Aucune application de cet appareil ne peut ouvrir la vidéo',
@@ -8442,6 +8554,8 @@ extension on TranslationsFr {
 			'ai.openSettings' => 'Ouvrir les réglages d\'IA',
 			'ai.notConfigured' => 'Non configuré',
 			'ai.searchTitle' => 'Recherche IA',
+			_ => null,
+		} ?? switch (path) {
 			'ai.searchHint' => 'Décrivez ce que vous cherchez ; l\'IA complétera les termes de recherche et les filtres.',
 			'ai.searchPlaceholder' => 'ex. MMD récent avec plus de 10 000 vues',
 			'ai.searchApply' => 'Rechercher avec ces critères',
@@ -8498,8 +8612,6 @@ extension on TranslationsFr {
 			'ai.contextWindow' => ({required Object tokens}) => 'Context ${tokens}',
 			'ai.capFunctionCall' => 'Tools',
 			'ai.capReasoning' => 'Reasoning',
-			_ => null,
-		} ?? switch (path) {
 			'ai.capStructuredOutput' => 'JSON output',
 			'ai.capVision' => 'Vision',
 			'ai.capFileInput' => 'Files',

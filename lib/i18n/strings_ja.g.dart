@@ -954,7 +954,6 @@ class _TranslationsSettingsJa extends TranslationsSettingsEn {
 	@override String get signatureRecipeGroupForum => 'フォーラムで';
 	@override String get signatureRecipeGroupDaily => '毎日ひとこと';
 	@override String get signatureRecipeGroupAi => 'AI に書かせる';
-	@override String get signaturePromptSampleContext => 'この試し書きは「動画ページ」の見本文脈で動いています。実際の送信時は、そのとき見ていたものが AI に渡ります。';
 	@override String get recipeAuthorTagsName => '作者とタグ';
 	@override String get recipeAuthorTagsTemplate => '%author% · %tags%';
 	@override String get recipeFloorName => '階層への返信';
@@ -1004,15 +1003,72 @@ class _TranslationsSettingsJa extends TranslationsSettingsEn {
 	@override String get signatureEditTextHint => 'このコメントに既に書かれている署名です。一言も日付も今はただの文字なので自由に直せます。空にすれば署名なしになります。';
 	@override String signatureResolving({required Object name}) => '${name}を生成中…';
 	@override String get signaturePendingValue => '（送信時に生成）';
-	@override String get signatureAiHint => 'AIがその場で書く一文で、コメントごとに新しくなります。設定したAIプロバイダを使います。動画・ギャラリー・フォーラムから送るときは、今見ているものも踏まえて書きます。';
+	@override String get signatureAiHint => 'AIがその場で書く一文で、コメントごとに新しく生成されます。設定したAIプロバイダーを使います。開くと、AIが何を見られるかを確認し、何を書くか指示できます。';
 	@override String get signatureAiUnavailable => 'AI プロバイダーが未設定のため、変数パネルには表示されません。';
-	@override String get signaturePromptTitle => 'プロンプト';
-	@override String get signaturePromptHint => 'モデルに送られるのがこれです。口調も長さも題材も自由に書き換えてかまいません。既に入っているルールは残す価値があります。';
 	@override String get signaturePromptReset => '既定に戻す';
 	@override String get signaturePromptTry => '試す';
-	@override String get signaturePromptSample => '書かれたもの';
-	@override String get signaturePromptLanguageHint => 'は表示言語に置き換わります。削除するとプロンプトの言語に従います。';
 	@override String get signaturePromptEdited => '変更済み';
+	@override String get signatureAiSheetTitle => 'AIの一言はこう書かれる';
+	@override String get signatureAiSeeTitle => 'AIが見られるもの';
+	@override String get signatureAiFactUnavailable => 'ここでは取得できません';
+	@override String get signatureAiFactTapHint => 'タップすると下の指示に挿入されます。';
+	@override String get signatureAiReadReply => '相手のコメント本文も読ませる';
+	@override String get signatureAiReadReplyDesc => '誰かに返信するとき、その人のコメント本文も見せます。デフォルトはオフ。それは他の人が書いた言葉です。';
+	@override String signatureAiCannotSee({required Object items}) => '見えないもの：${items}';
+	@override String get signatureAiCannotSeeDraft => '今書いている本文';
+	@override String get signatureAiCannotSeeReply => '相手のコメント本文';
+	@override String get signatureAiCannotSeeAccount => 'あなたのアカウント情報';
+	@override String get signatureAiPrivacy => '見えるものは、AI設定で設定したプロバイダーにのみ送られます。';
+	@override String get signatureAiWhatTitle => '何を書いてほしいか';
+	@override String get signatureAiWhatHint => '自分の言葉で一言二言書けば十分です。上のチップをタップすると挿入されます。この場面で使えないものは自動的に消えます。';
+	@override String signatureAiWhatPreview({required Object scene}) => '「${scene}」に当てはめると';
+	@override String get signatureAiDefaultInstruction => '今見ているものについて、さらっと一言つぶやいてください。タイトルはそのまま繰り返さないで。';
+	@override String get signatureAiFormatTitle => 'フォーマット';
+	@override String get signatureAiFormatFixed => '一行のみ・引用符なし・署名なし';
+	@override String get signatureAiLength => '長さ';
+	@override String get signatureAiLengthShort => '短い · 約15字';
+	@override String get signatureAiLengthMedium => '普通 · 約30字';
+	@override String get signatureAiLengthLong => '長い · 約60字';
+	@override String get signatureAiLanguage => '言語';
+	@override String get signatureAiLanguageUi => 'アプリに合わせる';
+	@override String get signatureAiLanguageDraft => '本文に合わせる';
+	@override String get signatureAiLanguageDraftHint => 'このコメントが書かれている言語に合わせます。本文自体はAIに送られません。判別できない場合はアプリの言語になります。';
+	@override String get signatureAiAllowEmoji => '絵文字を許可';
+	@override String get signatureAiRecipesTitle => 'ネタ';
+	@override String get signatureAiRecipesHint => 'タップするとその指示に切り替わるので、あとはお好みで調整してください。下の一文は書いた例です。実際の生成を見たいなら「試す」をタップ。';
+	@override String get signatureAiExample => '例';
+	@override String get signatureAiRecipeNeedsReply => '先に上の「相手のコメント本文も読ませる」をオンにしてください';
+	@override String get signatureAiTryTitle => '試す';
+	@override String signatureAiTryEmpty({required Object scene}) => 'まだ試していません。「${scene}」の文脈で一文書きます。';
+	@override String get signatureAiTryNeedsProvider => 'AIプロバイダを設定すると試せます。';
+	@override String get signatureAiWireTitle => '今回AIに実際に届く内容';
+	@override String get signatureAiWireSystem => 'システムプロンプト（上のフォーマットから生成）';
+	@override String get signatureAiWireUser => 'ユーザーメッセージ（見えるもの＋あなたの指示）';
+	@override String get signatureDemoReplyText => '今回のカメラワーク、前回よりずっと滑らかですね。照明も変えました?';
+	@override String get aiRecipeFeelName => '見た直後の一言';
+	@override String get aiRecipeFeelInstruction => '《%title%》を見終わった直後にふと漏れそうな一言を書いてください。タイトルはそのまま繰り返さないで。';
+	@override String get aiRecipeFeelExample => '夏がこんなに静かに見えるなんて知らなかった。';
+	@override String get aiRecipeRoastName => 'タイトルを毒舌ツッコミ';
+	@override String get aiRecipeRoastInstruction => '《%title%》というタイトルに軽く毒舌でツッコんでください。ちょっと辛口だけど、本気で嫌味にはしないで。';
+	@override String get aiRecipeRoastExample => 'タイトルの方が内容より思い切ってる。';
+	@override String get aiRecipePraiseName => '作者をベタ褒め';
+	@override String get aiRecipePraiseInstruction => '%author% を一言でベタ褒めしてください。具体的に、名前を連呼するだけにはしないで。';
+	@override String get aiRecipePraiseExample => 'このセンスと手際、地球の人とは思えない。';
+	@override String get aiRecipeHaikuName => '五七五の俳句';
+	@override String get aiRecipeHaikuInstruction => '《%title%》にちなんだ五七五の俳句を、三句の間に「 / 」を入れて書いてください。';
+	@override String get aiRecipeHaikuExample => '回り続ける扇風機 / 画面の光が頬に落ちる / 夜がまた深くなる';
+	@override String get aiRecipeChuuniName => '中二セリフ';
+	@override String get aiRecipeChuuniInstruction => '中二病アニメのキャラが叫びそうな一言を、%tags% にゆるく絡めて書いてください。';
+	@override String get aiRecipeChuuniExample => 'この熱、すべて受け止めてやる。';
+	@override String get aiRecipeAcrosticName => 'タグ折り句';
+	@override String get aiRecipeAcrosticInstruction => '%tags% の言葉を順番に一つの文に織り込み、自然な一文にしてください。';
+	@override String get aiRecipeAcrosticExample => '夢の中もこの雰囲気で、4Kでもこのときめきは収まらない。';
+	@override String get aiRecipeGreetName => '時間帯の挨拶';
+	@override String get aiRecipeGreetInstruction => '今は %time% です。この時間帯に合わせて挨拶し、続けてさらっと一言添えてください。';
+	@override String get aiRecipeGreetExample => '深夜2時なのにまだスクロール、今夜も寝る気なさそう。';
+	@override String get aiRecipeEchoName => '相手のネタに乗る';
+	@override String get aiRecipeEchoInstruction => '%reply_to% がさっき言ったことを受けて、ノリを続ける一言を添えてください。';
+	@override String get aiRecipeEchoExample => 'その通りだけど、もう3周目なんだよね。';
 	@override String get signatureVariablesGroup => '組み込み変数';
 	@override String get signatureNeedsNetwork => 'ネットワークが必要';
 	@override String get signatureBuiltinSource => '標準';
@@ -5656,7 +5712,6 @@ extension on TranslationsJa {
 			'settings.signatureRecipeGroupForum' => 'フォーラムで',
 			'settings.signatureRecipeGroupDaily' => '毎日ひとこと',
 			'settings.signatureRecipeGroupAi' => 'AI に書かせる',
-			'settings.signaturePromptSampleContext' => 'この試し書きは「動画ページ」の見本文脈で動いています。実際の送信時は、そのとき見ていたものが AI に渡ります。',
 			'settings.recipeAuthorTagsName' => '作者とタグ',
 			'settings.recipeAuthorTagsTemplate' => '%author% · %tags%',
 			'settings.recipeFloorName' => '階層への返信',
@@ -5706,15 +5761,72 @@ extension on TranslationsJa {
 			'settings.signatureEditTextHint' => 'このコメントに既に書かれている署名です。一言も日付も今はただの文字なので自由に直せます。空にすれば署名なしになります。',
 			'settings.signatureResolving' => ({required Object name}) => '${name}を生成中…',
 			'settings.signaturePendingValue' => '（送信時に生成）',
-			'settings.signatureAiHint' => 'AIがその場で書く一文で、コメントごとに新しくなります。設定したAIプロバイダを使います。動画・ギャラリー・フォーラムから送るときは、今見ているものも踏まえて書きます。',
+			'settings.signatureAiHint' => 'AIがその場で書く一文で、コメントごとに新しく生成されます。設定したAIプロバイダーを使います。開くと、AIが何を見られるかを確認し、何を書くか指示できます。',
 			'settings.signatureAiUnavailable' => 'AI プロバイダーが未設定のため、変数パネルには表示されません。',
-			'settings.signaturePromptTitle' => 'プロンプト',
-			'settings.signaturePromptHint' => 'モデルに送られるのがこれです。口調も長さも題材も自由に書き換えてかまいません。既に入っているルールは残す価値があります。',
 			'settings.signaturePromptReset' => '既定に戻す',
 			'settings.signaturePromptTry' => '試す',
-			'settings.signaturePromptSample' => '書かれたもの',
-			'settings.signaturePromptLanguageHint' => 'は表示言語に置き換わります。削除するとプロンプトの言語に従います。',
 			'settings.signaturePromptEdited' => '変更済み',
+			'settings.signatureAiSheetTitle' => 'AIの一言はこう書かれる',
+			'settings.signatureAiSeeTitle' => 'AIが見られるもの',
+			'settings.signatureAiFactUnavailable' => 'ここでは取得できません',
+			'settings.signatureAiFactTapHint' => 'タップすると下の指示に挿入されます。',
+			'settings.signatureAiReadReply' => '相手のコメント本文も読ませる',
+			'settings.signatureAiReadReplyDesc' => '誰かに返信するとき、その人のコメント本文も見せます。デフォルトはオフ。それは他の人が書いた言葉です。',
+			'settings.signatureAiCannotSee' => ({required Object items}) => '見えないもの：${items}',
+			'settings.signatureAiCannotSeeDraft' => '今書いている本文',
+			'settings.signatureAiCannotSeeReply' => '相手のコメント本文',
+			'settings.signatureAiCannotSeeAccount' => 'あなたのアカウント情報',
+			'settings.signatureAiPrivacy' => '見えるものは、AI設定で設定したプロバイダーにのみ送られます。',
+			'settings.signatureAiWhatTitle' => '何を書いてほしいか',
+			'settings.signatureAiWhatHint' => '自分の言葉で一言二言書けば十分です。上のチップをタップすると挿入されます。この場面で使えないものは自動的に消えます。',
+			'settings.signatureAiWhatPreview' => ({required Object scene}) => '「${scene}」に当てはめると',
+			'settings.signatureAiDefaultInstruction' => '今見ているものについて、さらっと一言つぶやいてください。タイトルはそのまま繰り返さないで。',
+			'settings.signatureAiFormatTitle' => 'フォーマット',
+			'settings.signatureAiFormatFixed' => '一行のみ・引用符なし・署名なし',
+			'settings.signatureAiLength' => '長さ',
+			'settings.signatureAiLengthShort' => '短い · 約15字',
+			'settings.signatureAiLengthMedium' => '普通 · 約30字',
+			'settings.signatureAiLengthLong' => '長い · 約60字',
+			'settings.signatureAiLanguage' => '言語',
+			'settings.signatureAiLanguageUi' => 'アプリに合わせる',
+			'settings.signatureAiLanguageDraft' => '本文に合わせる',
+			'settings.signatureAiLanguageDraftHint' => 'このコメントが書かれている言語に合わせます。本文自体はAIに送られません。判別できない場合はアプリの言語になります。',
+			'settings.signatureAiAllowEmoji' => '絵文字を許可',
+			'settings.signatureAiRecipesTitle' => 'ネタ',
+			'settings.signatureAiRecipesHint' => 'タップするとその指示に切り替わるので、あとはお好みで調整してください。下の一文は書いた例です。実際の生成を見たいなら「試す」をタップ。',
+			'settings.signatureAiExample' => '例',
+			'settings.signatureAiRecipeNeedsReply' => '先に上の「相手のコメント本文も読ませる」をオンにしてください',
+			'settings.signatureAiTryTitle' => '試す',
+			'settings.signatureAiTryEmpty' => ({required Object scene}) => 'まだ試していません。「${scene}」の文脈で一文書きます。',
+			'settings.signatureAiTryNeedsProvider' => 'AIプロバイダを設定すると試せます。',
+			'settings.signatureAiWireTitle' => '今回AIに実際に届く内容',
+			'settings.signatureAiWireSystem' => 'システムプロンプト（上のフォーマットから生成）',
+			'settings.signatureAiWireUser' => 'ユーザーメッセージ（見えるもの＋あなたの指示）',
+			'settings.signatureDemoReplyText' => '今回のカメラワーク、前回よりずっと滑らかですね。照明も変えました?',
+			'settings.aiRecipeFeelName' => '見た直後の一言',
+			'settings.aiRecipeFeelInstruction' => '《%title%》を見終わった直後にふと漏れそうな一言を書いてください。タイトルはそのまま繰り返さないで。',
+			'settings.aiRecipeFeelExample' => '夏がこんなに静かに見えるなんて知らなかった。',
+			'settings.aiRecipeRoastName' => 'タイトルを毒舌ツッコミ',
+			'settings.aiRecipeRoastInstruction' => '《%title%》というタイトルに軽く毒舌でツッコんでください。ちょっと辛口だけど、本気で嫌味にはしないで。',
+			'settings.aiRecipeRoastExample' => 'タイトルの方が内容より思い切ってる。',
+			'settings.aiRecipePraiseName' => '作者をベタ褒め',
+			'settings.aiRecipePraiseInstruction' => '%author% を一言でベタ褒めしてください。具体的に、名前を連呼するだけにはしないで。',
+			'settings.aiRecipePraiseExample' => 'このセンスと手際、地球の人とは思えない。',
+			'settings.aiRecipeHaikuName' => '五七五の俳句',
+			'settings.aiRecipeHaikuInstruction' => '《%title%》にちなんだ五七五の俳句を、三句の間に「 / 」を入れて書いてください。',
+			'settings.aiRecipeHaikuExample' => '回り続ける扇風機 / 画面の光が頬に落ちる / 夜がまた深くなる',
+			'settings.aiRecipeChuuniName' => '中二セリフ',
+			'settings.aiRecipeChuuniInstruction' => '中二病アニメのキャラが叫びそうな一言を、%tags% にゆるく絡めて書いてください。',
+			'settings.aiRecipeChuuniExample' => 'この熱、すべて受け止めてやる。',
+			'settings.aiRecipeAcrosticName' => 'タグ折り句',
+			'settings.aiRecipeAcrosticInstruction' => '%tags% の言葉を順番に一つの文に織り込み、自然な一文にしてください。',
+			'settings.aiRecipeAcrosticExample' => '夢の中もこの雰囲気で、4Kでもこのときめきは収まらない。',
+			'settings.aiRecipeGreetName' => '時間帯の挨拶',
+			'settings.aiRecipeGreetInstruction' => '今は %time% です。この時間帯に合わせて挨拶し、続けてさらっと一言添えてください。',
+			'settings.aiRecipeGreetExample' => '深夜2時なのにまだスクロール、今夜も寝る気なさそう。',
+			'settings.aiRecipeEchoName' => '相手のネタに乗る',
+			'settings.aiRecipeEchoInstruction' => '%reply_to% がさっき言ったことを受けて、ノリを続ける一言を添えてください。',
+			'settings.aiRecipeEchoExample' => 'その通りだけど、もう3周目なんだよね。',
 			'settings.signatureVariablesGroup' => '組み込み変数',
 			'settings.signatureNeedsNetwork' => 'ネットワークが必要',
 			'settings.signatureBuiltinSource' => '標準',
@@ -5872,6 +5984,8 @@ extension on TranslationsJa {
 			'settings.enableHardwareAcceleration' => 'ハードウェアアクセラレーションを有効にする',
 			'settings.enableHardwareAccelerationInfo' => 'ハードウェアアクセラレーションを有効にすると、デコード性能が向上しますが、一部のデバイスでは互換性がない場合があります',
 			'settings.useOpenSLESAudioOutput' => 'OpenSLESオーディオ出力を使用',
+			_ => null,
+		} ?? switch (path) {
 			'settings.useOpenSLESAudioOutputInfo' => '低遅延オーディオ出力を使用し、オーディオ性能が向上する可能性があります',
 			'settings.videoSyncAudio' => 'オーディオ同期',
 			'settings.videoSyncDisplayResample' => 'ディスプレイリサンプル',
@@ -5928,8 +6042,6 @@ extension on TranslationsJa {
 			'settings.blockSettings.regexHelpIntro' => '正規表現はキーワードより柔軟にタイトルを照合できます。よく使う例：',
 			'settings.blockSettings.regexHelpTapHint' => '例をタップするとそのまま入力されます。',
 			'settings.blockSettings.regexEx1Pattern' => '予告|特典|おまけ',
-			_ => null,
-		} ?? switch (path) {
 			'settings.blockSettings.regexEx1Desc' => '「|」でいずれかに一致（「または」の意味）',
 			'settings.blockSettings.regexEx2Pattern' => '^【.*】',
 			'settings.blockSettings.regexEx2Desc' => '【…】で始まるタイトルに一致',
@@ -6386,6 +6498,8 @@ extension on TranslationsJa {
 			'videoDetail.videoPlayer' => 'ビデオプレーヤー',
 			'videoDetail.videoPlayerInfo' => 'プレーヤー情報',
 			'videoDetail.moreSettings' => 'さらに設定',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.videoPlayerFeatureInfo' => 'プレーヤー機能の紹介',
 			'videoDetail.autoRewind' => '自動リワインド',
 			'videoDetail.rewindAndFastForward' => '両側をダブルクリックして早送りまたは巻き戻し',
@@ -6442,8 +6556,6 @@ extension on TranslationsJa {
 			'videoDetail.cast.deviceTypes.unknownDevice' => '不明なデバイス',
 			'videoDetail.cast.currentPlatformNotSupported' => '現在のプラットフォームはキャスト機能をサポートしていません',
 			'videoDetail.cast.unableToGetVideoUrl' => 'ビデオのURLを取得できません、後でもう一度お試しください',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.stopCasting' => 'キャスト停止',
 			'videoDetail.cast.dlnaCastSheet.title' => 'リモートキャスト',
 			'videoDetail.cast.dlnaCastSheet.close' => '閉じる',
@@ -6900,6 +7012,8 @@ extension on TranslationsJa {
 			'download.relocation.statLeftover' => '残存',
 			'download.relocation.sectionMove' => '移動する項目',
 			'download.relocation.sectionSkip' => 'スキップする項目',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.sectionMoved' => '移動済み',
 			'download.relocation.sectionFailed' => '移動されなかった項目（元の場所のまま）',
 			'download.relocation.sectionLeftover' => '削除しきれなかった古いフォルダ',
@@ -6956,8 +7070,6 @@ extension on TranslationsJa {
 			'download.relocation.galleryImages' => ({required Object count}) => '${count} 枚',
 			'download.relocation.unfinishedDownloading' => ({required Object percent}) => 'ダウンロード中 ${percent}%：一時停止してから途中のデータごと移動し、移動後に再開',
 			'download.relocation.unfinishedPending' => 'ダウンロード待ち：移動後にもう一度キューに入れます',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => '${percent}% で一時停止中：途中のデータごと移動し、一時停止のまま',
 			'download.relocation.unfinishedFailed' => 'ダウンロード失敗：途中のデータごと移動',
 			'download.relocation.noDataYet' => 'まだ何もダウンロードされていないため、保存先だけ変更します',
@@ -7414,6 +7526,8 @@ extension on TranslationsJa {
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => 'ローカルビデオファイルが存在しません: ${path}',
 			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => 'ローカルビデオを再生できません: ${error}',
 			'mediaPlayer.unableToPlayNasVideo' => ({required Object error}) => 'NAS の動画を再生できません：${error}',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.dropVideoFileHere' => 'ここにビデオファイルをドロップして再生',
 			'mediaPlayer.supportedFormats' => '対応形式: MP4, MKV, AVI, MOV, WEBM など',
 			'mediaPlayer.noSupportedVideoFile' => 'サポートされているビデオファイルが見つかりません',
@@ -7470,8 +7584,6 @@ extension on TranslationsJa {
 			'diagnostics.refreshMetrics' => '指標を更新',
 			'diagnostics.toolsSectionTitle' => 'ツール',
 			'diagnostics.privacyNotice' => 'ログにはアカウント情報やリクエストパラメータなどの機密情報が含まれる可能性があります。Issue に完全なログを公開添付せず、確認後にメールで送信してください。',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.exportLogsTitle' => 'ログをエクスポート',
 			'diagnostics.exportLogsSubtitle' => '送信前にプライバシー情報を確認してください',
 			'diagnostics.viewLogsTitle' => 'ログを表示',
@@ -7928,6 +8040,8 @@ extension on TranslationsJa {
 			'siteMode.confirmUsing' => ({required Object site}) => '確認すると、以降のリクエストは ${site} モードを使用します。',
 			'siteMode.switched' => ({required Object site}) => '${site} に切り替えました。アプリは再読み込みされました。',
 			'savedSearchConfig.title' => '保存した絞り込み',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearchConfig.empty' => '保存した絞り込み設定はまだありません',
 			'savedSearchConfig.saveTooltip' => '現在の絞り込みを保存',
 			'savedSearchConfig.namePromptTitle' => '絞り込みを保存',
@@ -7984,8 +8098,6 @@ extension on TranslationsJa {
 			'externalPlayer.sourceLocal' => 'ローカルファイル',
 			'externalPlayer.sourceOnline' => '直リンク',
 			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => '直リンク · ${quality}',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.onlineLinkExpiryHint' => '直リンクには有効期限があり、外部プレイヤーで再生途中に切れることがあります。先にダウンロードしてから渡すのが確実です',
 			'externalPlayer.vrPlayerHint' => 'VR プレイヤーが選択画面に出てこない場合は「動画リンクをコピー」してプレイヤー内で貼り付けてください',
 			'externalPlayer.noHandler' => '動画を開けるアプリが見つかりません',
@@ -8442,6 +8554,8 @@ extension on TranslationsJa {
 			'ai.openSettings' => 'AI設定を開く',
 			'ai.notConfigured' => '未設定',
 			'ai.searchTitle' => 'AI検索',
+			_ => null,
+		} ?? switch (path) {
 			'ai.searchHint' => '探したいものを文章で説明すると、AIが検索キーワードと絞り込み条件を入力します。',
 			'ai.searchPlaceholder' => '例：再生回数1万回以上の最新MMD',
 			'ai.searchApply' => 'この条件で検索',
@@ -8498,8 +8612,6 @@ extension on TranslationsJa {
 			'ai.contextWindow' => ({required Object tokens}) => 'Context ${tokens}',
 			'ai.capFunctionCall' => 'Tools',
 			'ai.capReasoning' => 'Reasoning',
-			_ => null,
-		} ?? switch (path) {
 			'ai.capStructuredOutput' => 'JSON output',
 			'ai.capVision' => 'Vision',
 			'ai.capFileInput' => 'Files',

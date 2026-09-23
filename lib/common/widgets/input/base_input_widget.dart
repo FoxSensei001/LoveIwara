@@ -244,6 +244,11 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
     pinned: _pinnedSignatureValues,
   );
 
+  /// 要真去取值（发送 / 预览里点「生成」）时交出去的上下文：页面给的那份，
+  /// 再补上正在写的正文——只用来让 AI 一言「跟正文语言」，正文本身不外发。
+  SignatureContext get _contextForAi =>
+      widget.signatureContext.withDraft(widget.controller.text);
+
   /// 用户配置里那条小尾巴模板的原文。
   String get _signatureTemplate =>
       _configService[ConfigKey.SIGNATURE_CONTENT_KEY] as String;
@@ -327,7 +332,7 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
 
     final template = _signatureTemplate;
     final canRegenerate =
-        _signatureEnabled && _signatureService.needsNetwork(template);
+        _signatureEnabled && _signatureService.canRegenerate(template);
 
     MarkdownPreviewHelper.showPreview(
       context,
@@ -357,7 +362,7 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
     final template = _signatureTemplate;
     final fresh = await _signatureService.resolveProviderValues(
       template,
-      context: widget.signatureContext,
+      context: _contextForAi,
     );
     if (!mounted) return null;
     setState(() {
@@ -517,7 +522,7 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
         ? null
         : await _signatureService.render(
             _signatureTemplate,
-            context: widget.signatureContext,
+            context: _contextForAi,
             // 预览里点过「生成」就用他看见的那一句，别再取一次新的。
             pinned: _pinnedSignatureValues,
             onProgress: _onSignatureProgress,
@@ -541,11 +546,23 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
     // 不能动，所以砍小尾巴——砍到放不下就整条不要。
     // ⛔ 反过来（截正文、或者原样发出去让服务端拒绝）都等于「写了半天发不出
     // 去」，那比少一句签名严重得多。
-    final overflow = composed.length - widget.maxLength;
-    final room = signature.length - overflow - 1;
-    return build(
-      room >= 8 ? '${signature.substring(0, room).trimRight()}…' : null,
-    );
+    //
+    // ⛔ 按**字素**切，不按 UTF-16 下标：`substring` 会把 emoji 劈成半个代理
+    // 对，发出去是一个乱码方块。切完还要再量一遍——compose 会给多行小尾巴的
+    // 行尾补硬换行空格，切前算出来的溢出量不等于切后的，一次到位不保证放得下。
+    final chars = signature.characters;
+    var keep = chars.length;
+    var result = composed;
+    while (result.length > widget.maxLength) {
+      keep -= result.length - widget.maxLength + 1;
+      if (keep < 8) return build(null);
+      var cut = chars.take(keep).toString().trimRight();
+      // 切口正好落在转义符后面（`\[` 只剩 `\`）时，那个反斜杠会原样发出去。
+      final trailing = RegExp(r'\\+$').firstMatch(cut)?[0]?.length ?? 0;
+      if (trailing.isOdd) cut = cut.substring(0, cut.length - 1);
+      result = build('$cut…');
+    }
+    return result;
   }
 
   @override

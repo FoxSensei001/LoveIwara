@@ -15,6 +15,8 @@
 /// 这个文件是纯的、不碰网络也不碰时钟，好让它能被直接测。
 library;
 
+import 'package:flutter/widgets.dart' show StringCharacters;
+
 /// 模板拆出来的一段。
 sealed class SignatureToken {
   const SignatureToken();
@@ -141,7 +143,14 @@ class SignatureTemplate {
   ///
   /// 值为空串的变量一律消失——网络变量取不到时，小尾巴该是少一段，而不是
   /// 留一个空洞或者一串花括号发出去。
-  String render(Map<String, String> values, {bool keepUnknown = false}) {
+  ///
+  /// [literalKeys] 里的变量是**用户自己写的字**（`{pick:**好**|一般}` 的候选），
+  /// 只做换行 / 截断 / 行首处理，不转义行内 markdown——他写粗体就是要粗体。
+  String render(
+    Map<String, String> values, {
+    bool keepUnknown = false,
+    Set<String> literalKeys = const {},
+  }) {
     final buffer = StringBuffer();
     var atLineStart = true;
 
@@ -163,7 +172,11 @@ class SignatureTemplate {
             buffer.write(_gap);
             continue;
           }
-          final value = sanitizeValue(raw, escapeBlockStart: atLineStart);
+          final value = sanitizeValue(
+            raw,
+            escapeBlockStart: atLineStart,
+            escapeInline: !literalKeys.contains(token.key),
+          );
           if (value.isEmpty) {
             buffer.write(_gap);
             continue;
@@ -200,7 +213,9 @@ class SignatureTemplate {
   /// 区间符。同一串还被 [_runLength] 当普通字符集合用，所以里头不能有转义反斜杠。
   static const String _seps = '·•/|,，、:：;；—~～-';
   static final RegExp _danglingBefore = RegExp(
-    '[ \\t]*[$_seps]+[ \\t]*\uE000(?![^ \\t\uE000])',
+    // `(?<!\\)`：被 [_escapeInline] 转义过的标点是值的一部分，不是连接符；
+    // 吃掉它只会留下一个孤零零的反斜杠。
+    '[ \\t]*(?<!\\\\)[$_seps]+[ \\t]*\uE000(?![^ \\t\uE000])',
   );
   static final RegExp _danglingAfter = RegExp(
     '(?<![^ \\t\uE000])\uE000[ \\t]*[$_seps]+[ \\t]*',
@@ -243,28 +258,66 @@ class SignatureTemplate {
 
   /// 洗一个变量值，让它能安全地待在 markdown 小尾巴里。
   ///
-  /// 三件事，每件都堵过一个真会出事的口子：
+  /// 四件事，每件都堵过一个真会出事的口子：
   ///
   /// 1. **换行压成空格**。值里带换行会把小尾巴撑成多行，而多行小尾巴在评论区
   ///    那边的识别判据里是直接否决项（见 `CommentMarkup._detectFooter`），
   ///    自己的小尾巴反而认不出来了。
-  /// 2. **截断**。见 [maxVariableLength]。
-  /// 3. **行首块级标记转义**。值落在行首且以 `#` `>` `-` 开头时，markdown 会
+  /// 2. **截断**。见 [maxVariableLength]。按字素切，不劈开 emoji。
+  /// 3. **行内标记转义**，见 [_escapeInline]。
+  /// 4. **行首块级标记转义**。值落在行首且以 `#` `>` `-` 开头时，markdown 会
   ///    把它渲染成标题 / 引用 / 列表甚至分隔线——一条 `---` 开头的一言能把
   ///    小尾巴自己那条分隔线之后的结构整个搅乱。
-  static String sanitizeValue(String value, {bool escapeBlockStart = false}) {
+  static String sanitizeValue(
+    String value, {
+    bool escapeBlockStart = false,
+    bool escapeInline = true,
+  }) {
     var text = value.replaceAll(RegExp(r'\s*\n\s*'), ' ').trim();
     if (text.isEmpty) return '';
 
-    if (text.length > maxVariableLength) {
-      text = '${text.substring(0, maxVariableLength - 1).trimRight()}…';
+    final chars = text.characters;
+    if (chars.length > maxVariableLength) {
+      text = '${chars.take(maxVariableLength - 1).toString().trimRight()}…';
     }
 
-    if (escapeBlockStart && RegExp(r'^[#>\-+*=|]').hasMatch(text)) {
-      text = '\\$text';
+    if (escapeInline) text = _escapeInline(text);
+
+    if (escapeBlockStart) {
+      if (RegExp(r'^[#>\-+*=|]').hasMatch(text)) {
+        text = '\\$text';
+      } else {
+        // `1. ` 开头会变有序列表。反斜杠只能放在标点前（`\1` 不是转义，会原样
+        // 露出来），所以转的是后面那个点：`1\. `。
+        text = text.replaceFirstMapped(
+          RegExp(r'^(\d+)([.)])(?=\s|$)'),
+          (m) => '${m[1]}\\${m[2]}',
+        );
+      }
     }
     return text;
   }
+
+  /// 变量值里的行内 markdown 一律按字面发出去。
+  ///
+  /// ⛔ 值是**别人给的**：一言接口、用户随手接的地址、作品标题。它们会以用户
+  /// 的名义发到 iwara，而 iwara 网页端是真 markdown 渲染——一个接口回一句
+  /// `[点这里](https://…)` 或 `![](https://…)`，就是用户的评论里凭空多了一条
+  /// 链接 / 一张外链图。用户自己写在模板里的字不经过这里，想排版照样排。
+  ///
+  /// `~` 只转成对的 `~~`（删除线）：单个 `~` 在 markdown 里什么都不是，而
+  /// 「加油哦~」这种句尾波浪号满地都是——转了之后它会被 [_closeGaps] 当成悬空
+  /// 连接符吃掉、只剩一个反斜杠发出去。
+  ///
+  /// `_` 只转两侧不是字母数字的那种：`koikatsu_party` 这类标签在 markdown 里
+  /// 本来就不会变斜体，转了只会让编辑时满屏反斜杠。
+  static String _escapeInline(String text) => text
+      .replaceAllMapped(RegExp(r'[\\`*\[\]<]'), (m) => '\\${m[0]}')
+      .replaceAll('~~', r'\~\~')
+      .replaceAllMapped(
+        RegExp(r'(?<![A-Za-z0-9])_|_(?![A-Za-z0-9])'),
+        (m) => '\\_',
+      );
 
   /// 字面量部分（去掉空白）至少要有这么多字，模板才配拿去做识别用的正则。
   ///
@@ -329,7 +382,9 @@ class SignatureTemplate {
           buffer.write(_optionalRun(tail));
         case SignatureVariable():
           // `{0,}`（可为空）而不是 `{1,}`：网络变量取不到时那一段真的会没有。
-          buffer.write('[\\s\\S]{0,$maxVariableLength}?');
+          // 上限按 UTF-16 码元数：值是按**字素**截到 [maxVariableLength] 再转义
+          // 的，emoji 与反斜杠都会让码元数超出它，卡死的话自己的小尾巴认不回来。
+          buffer.write('[\\s\\S]{0,${maxVariableLength * 4}}?');
       }
     }
     buffer.write(r'\s*$');

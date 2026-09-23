@@ -13,6 +13,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
+import 'package:i_iwara/app/utils/comment_markup.dart';
 
 class CommentRepliesBottomSheet extends StatefulWidget {
   final Comment parentComment;
@@ -167,7 +168,10 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
         // 一串子回复）就只剩「回给谁」，其余变量照常自己消失。
         signatureContext:
             (widget.controller?.signatureContext ?? SignatureContext.empty)
-                .withReplyTo(widget.parentComment.user?.name),
+                .withReplyTo(
+                  widget.parentComment.user?.name,
+                  text: CommentMarkup.parse(widget.parentComment.body).body,
+                ),
         onSubmit: (text) async {
           if (text.trim().isEmpty) {
             showAppToast(

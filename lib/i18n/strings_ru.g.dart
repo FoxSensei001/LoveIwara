@@ -954,7 +954,6 @@ class _TranslationsSettingsRu extends TranslationsSettingsEn {
 	@override String get signatureRecipeGroupForum => 'На форуме';
 	@override String get signatureRecipeGroupDaily => 'Каждый день новая строка';
 	@override String get signatureRecipeGroupAi => 'Пусть напишет ИИ';
-	@override String get signaturePromptSampleContext => 'Этот пробный запуск использует пример контекста страницы видео. При реальной отправке ИИ получает то, что вы смотрите.';
 	@override String get recipeAuthorTagsName => 'Автор и теги';
 	@override String get recipeAuthorTagsTemplate => '%author% · %tags%';
 	@override String get recipeFloorName => 'Ответ на сообщение';
@@ -1004,15 +1003,72 @@ class _TranslationsSettingsRu extends TranslationsSettingsEn {
 	@override String get signatureEditTextHint => 'Это подпись, уже записанная в этот комментарий: фраза и дата теперь просто текст, правьте как угодно. Очистите поле, чтобы убрать подпись.';
 	@override String signatureResolving({required Object name}) => 'Создаём ${name}…';
 	@override String get signaturePendingValue => '(создаётся при отправке)';
-	@override String get signatureAiHint => 'Фраза, которую ИИ пишет на месте — своя для каждого комментария, через настроенного вами провайдера. На страницах видео, галереи и форума он ещё и знает, что вы сейчас смотрите, и может написать об этом.';
+	@override String get signatureAiHint => 'Фраза, которую ИИ пишет на месте — новая для каждого комментария, через настроенного вами провайдера. Откройте, чтобы увидеть, что он может видеть, и сказать, что писать.';
 	@override String get signatureAiUnavailable => 'Провайдер ИИ ещё не настроен, поэтому этот источник не показывается в панели переменных.';
-	@override String get signaturePromptTitle => 'Промпт';
-	@override String get signaturePromptHint => 'Именно это уходит модели. Перепишите как угодно: тон, длину, тему. Правила, которые уже есть, стоит оставить.';
 	@override String get signaturePromptReset => 'Сбросить по умолчанию';
 	@override String get signaturePromptTry => 'Попробовать';
-	@override String get signaturePromptSample => 'Что получилось';
-	@override String get signaturePromptLanguageHint => 'заменяется языком интерфейса. Без него строка пойдёт на языке промпта.';
 	@override String get signaturePromptEdited => 'изменён';
+	@override String get signatureAiSheetTitle => 'Как пишется фраза от ИИ';
+	@override String get signatureAiSeeTitle => 'Что видит ИИ';
+	@override String get signatureAiFactUnavailable => 'здесь недоступно';
+	@override String get signatureAiFactTapHint => 'Нажмите на пункт, чтобы вставить его в инструкцию ниже.';
+	@override String get signatureAiReadReply => 'Дать ему прочитать, что написал собеседник';
+	@override String get signatureAiReadReplyDesc => 'Когда вы отвечаете кому-то, показывать ИИ и текст его комментария. По умолчанию выключено: это чужие слова.';
+	@override String signatureAiCannotSee({required Object items}) => 'Не видит: ${items}';
+	@override String get signatureAiCannotSeeDraft => 'комментарий, который вы пишете';
+	@override String get signatureAiCannotSeeReply => 'что сказал собеседник';
+	@override String get signatureAiCannotSeeAccount => 'данные вашего аккаунта';
+	@override String get signatureAiPrivacy => 'То, что он видит, отправляется только провайдеру, настроенному в разделе ИИ.';
+	@override String get signatureAiWhatTitle => 'Что он должен написать';
+	@override String get signatureAiWhatHint => 'Достаточно одного-двух предложений на вашем языке. Нажмите на чип выше, чтобы вставить его; то, что недоступно в этой ситуации, просто исчезнет.';
+	@override String signatureAiWhatPreview({required Object scene}) => 'Подставлено для «${scene}»';
+	@override String get signatureAiDefaultInstruction => 'Прокомментируй в одной непринуждённой строке то, что я сейчас смотрю. Не повторяй название.';
+	@override String get signatureAiFormatTitle => 'Формат';
+	@override String get signatureAiFormatFixed => 'Только одна строка · без кавычек · без подписи';
+	@override String get signatureAiLength => 'Длина';
+	@override String get signatureAiLengthShort => 'Короткая · ~40 символов';
+	@override String get signatureAiLengthMedium => 'Средняя · ~70 символов';
+	@override String get signatureAiLengthLong => 'Длинная · ~95 символов';
+	@override String get signatureAiLanguage => 'Язык';
+	@override String get signatureAiLanguageUi => 'Как в приложении';
+	@override String get signatureAiLanguageDraft => 'Как в моём комментарии';
+	@override String get signatureAiLanguageDraftHint => 'Использует тот язык, на котором написан ваш комментарий. Сам комментарий никогда не отправляется ИИ; если язык не определить, используется язык приложения.';
+	@override String get signatureAiAllowEmoji => 'Разрешить эмодзи';
+	@override String get signatureAiRecipesTitle => 'Идеи';
+	@override String get signatureAiRecipesHint => 'Нажмите на карточку, чтобы взять её инструкцию, а затем подправьте её. Строка под ней — заранее написанный пример; нажмите «Попробовать», чтобы увидеть настоящий.';
+	@override String get signatureAiExample => 'Пример';
+	@override String get signatureAiRecipeNeedsReply => 'Сначала включите «Дать ему прочитать, что написал собеседник» выше';
+	@override String get signatureAiTryTitle => 'Попробовать';
+	@override String signatureAiTryEmpty({required Object scene}) => 'Ещё не пробовали. Он напишет строку с учётом контекста «${scene}».';
+	@override String get signatureAiTryNeedsProvider => 'Сначала настройте поставщика ИИ — тогда можно будет попробовать.';
+	@override String get signatureAiWireTitle => 'Что ИИ реально получит на этот раз';
+	@override String get signatureAiWireSystem => 'Системный промпт (собран из формата выше)';
+	@override String get signatureAiWireUser => 'Сообщение пользователя (то, что он видит + ваша инструкция)';
+	@override String get signatureDemoReplyText => 'На этот раз работа камеры куда плавнее, чем в прошлый раз. Освещение тоже поменяли?';
+	@override String get aiRecipeFeelName => 'Мгновенная реакция';
+	@override String get aiRecipeFeelInstruction => 'Напиши строку, которая вырвалась бы сразу после просмотра «%title%». Не повторяй название.';
+	@override String get aiRecipeFeelExample => 'Не знал, что лето может выглядеть настолько тихим.';
+	@override String get aiRecipeRoastName => 'Подколоть название';
+	@override String get aiRecipeRoastInstruction => 'Слегка подколи название «%title%». С юмором, но не зло.';
+	@override String get aiRecipeRoastExample => 'Название смелее самого видео.';
+	@override String get aiRecipePraiseName => 'Захвалить автора';
+	@override String get aiRecipePraiseInstruction => 'Захвали %author% в одной строке. Конкретно, а не просто выкрикивая имя.';
+	@override String get aiRecipePraiseExample => 'Такое чувство тайминга и вкуса — точно не с этой планеты.';
+	@override String get aiRecipeHaikuName => 'Хайку 5-7-5';
+	@override String get aiRecipeHaikuInstruction => 'Напиши хайку 5-7-5, навеянное «%title%», с « / » между тремя частями.';
+	@override String get aiRecipeHaikuExample => 'вентилятор всё крутится / свет экрана на лице / ночь становится глубже';
+	@override String get aiRecipeChuuniName => 'Клич из аниме';
+	@override String get aiRecipeChuuniInstruction => 'Напиши строку, которую выкрикнул бы пафосный аниме-персонаж, слабо связанную с %tags%.';
+	@override String get aiRecipeChuuniExample => 'Весь этот жар — я приму его целиком!';
+	@override String get aiRecipeAcrosticName => 'Акростих из тегов';
+	@override String get aiRecipeAcrosticInstruction => 'Впиши слова из %tags% по порядку в одно предложение так, чтобы оно звучало естественно.';
+	@override String get aiRecipeAcrosticExample => 'Каждый кадр в 4K, а сердце всё равно не успевает.';
+	@override String get aiRecipeGreetName => 'Приветствие по времени суток';
+	@override String get aiRecipeGreetInstruction => 'Сейчас %time%. Поздоровайся подходящим для этого времени образом и добавь мимолётную мысль.';
+	@override String get aiRecipeGreetExample => '2 ночи, а я всё ещё скроллю — сон сегодня, видимо, снова отменяется.';
+	@override String get aiRecipeEchoName => 'Подхватить их шутку';
+	@override String get aiRecipeEchoInstruction => 'Подхвати то, что только что сказал %reply_to%, и добавь строку, которая продолжает эту мысль.';
+	@override String get aiRecipeEchoExample => 'Ты прав, а я уже на третьем круге.';
 	@override String get signatureVariablesGroup => 'Встроенные переменные';
 	@override String get signatureNeedsNetwork => 'Нужна сеть';
 	@override String get signatureBuiltinSource => 'Встроенный';
@@ -5656,7 +5712,6 @@ extension on TranslationsRu {
 			'settings.signatureRecipeGroupForum' => 'На форуме',
 			'settings.signatureRecipeGroupDaily' => 'Каждый день новая строка',
 			'settings.signatureRecipeGroupAi' => 'Пусть напишет ИИ',
-			'settings.signaturePromptSampleContext' => 'Этот пробный запуск использует пример контекста страницы видео. При реальной отправке ИИ получает то, что вы смотрите.',
 			'settings.recipeAuthorTagsName' => 'Автор и теги',
 			'settings.recipeAuthorTagsTemplate' => '%author% · %tags%',
 			'settings.recipeFloorName' => 'Ответ на сообщение',
@@ -5706,15 +5761,72 @@ extension on TranslationsRu {
 			'settings.signatureEditTextHint' => 'Это подпись, уже записанная в этот комментарий: фраза и дата теперь просто текст, правьте как угодно. Очистите поле, чтобы убрать подпись.',
 			'settings.signatureResolving' => ({required Object name}) => 'Создаём ${name}…',
 			'settings.signaturePendingValue' => '(создаётся при отправке)',
-			'settings.signatureAiHint' => 'Фраза, которую ИИ пишет на месте — своя для каждого комментария, через настроенного вами провайдера. На страницах видео, галереи и форума он ещё и знает, что вы сейчас смотрите, и может написать об этом.',
+			'settings.signatureAiHint' => 'Фраза, которую ИИ пишет на месте — новая для каждого комментария, через настроенного вами провайдера. Откройте, чтобы увидеть, что он может видеть, и сказать, что писать.',
 			'settings.signatureAiUnavailable' => 'Провайдер ИИ ещё не настроен, поэтому этот источник не показывается в панели переменных.',
-			'settings.signaturePromptTitle' => 'Промпт',
-			'settings.signaturePromptHint' => 'Именно это уходит модели. Перепишите как угодно: тон, длину, тему. Правила, которые уже есть, стоит оставить.',
 			'settings.signaturePromptReset' => 'Сбросить по умолчанию',
 			'settings.signaturePromptTry' => 'Попробовать',
-			'settings.signaturePromptSample' => 'Что получилось',
-			'settings.signaturePromptLanguageHint' => 'заменяется языком интерфейса. Без него строка пойдёт на языке промпта.',
 			'settings.signaturePromptEdited' => 'изменён',
+			'settings.signatureAiSheetTitle' => 'Как пишется фраза от ИИ',
+			'settings.signatureAiSeeTitle' => 'Что видит ИИ',
+			'settings.signatureAiFactUnavailable' => 'здесь недоступно',
+			'settings.signatureAiFactTapHint' => 'Нажмите на пункт, чтобы вставить его в инструкцию ниже.',
+			'settings.signatureAiReadReply' => 'Дать ему прочитать, что написал собеседник',
+			'settings.signatureAiReadReplyDesc' => 'Когда вы отвечаете кому-то, показывать ИИ и текст его комментария. По умолчанию выключено: это чужие слова.',
+			'settings.signatureAiCannotSee' => ({required Object items}) => 'Не видит: ${items}',
+			'settings.signatureAiCannotSeeDraft' => 'комментарий, который вы пишете',
+			'settings.signatureAiCannotSeeReply' => 'что сказал собеседник',
+			'settings.signatureAiCannotSeeAccount' => 'данные вашего аккаунта',
+			'settings.signatureAiPrivacy' => 'То, что он видит, отправляется только провайдеру, настроенному в разделе ИИ.',
+			'settings.signatureAiWhatTitle' => 'Что он должен написать',
+			'settings.signatureAiWhatHint' => 'Достаточно одного-двух предложений на вашем языке. Нажмите на чип выше, чтобы вставить его; то, что недоступно в этой ситуации, просто исчезнет.',
+			'settings.signatureAiWhatPreview' => ({required Object scene}) => 'Подставлено для «${scene}»',
+			'settings.signatureAiDefaultInstruction' => 'Прокомментируй в одной непринуждённой строке то, что я сейчас смотрю. Не повторяй название.',
+			'settings.signatureAiFormatTitle' => 'Формат',
+			'settings.signatureAiFormatFixed' => 'Только одна строка · без кавычек · без подписи',
+			'settings.signatureAiLength' => 'Длина',
+			'settings.signatureAiLengthShort' => 'Короткая · ~40 символов',
+			'settings.signatureAiLengthMedium' => 'Средняя · ~70 символов',
+			'settings.signatureAiLengthLong' => 'Длинная · ~95 символов',
+			'settings.signatureAiLanguage' => 'Язык',
+			'settings.signatureAiLanguageUi' => 'Как в приложении',
+			'settings.signatureAiLanguageDraft' => 'Как в моём комментарии',
+			'settings.signatureAiLanguageDraftHint' => 'Использует тот язык, на котором написан ваш комментарий. Сам комментарий никогда не отправляется ИИ; если язык не определить, используется язык приложения.',
+			'settings.signatureAiAllowEmoji' => 'Разрешить эмодзи',
+			'settings.signatureAiRecipesTitle' => 'Идеи',
+			'settings.signatureAiRecipesHint' => 'Нажмите на карточку, чтобы взять её инструкцию, а затем подправьте её. Строка под ней — заранее написанный пример; нажмите «Попробовать», чтобы увидеть настоящий.',
+			'settings.signatureAiExample' => 'Пример',
+			'settings.signatureAiRecipeNeedsReply' => 'Сначала включите «Дать ему прочитать, что написал собеседник» выше',
+			'settings.signatureAiTryTitle' => 'Попробовать',
+			'settings.signatureAiTryEmpty' => ({required Object scene}) => 'Ещё не пробовали. Он напишет строку с учётом контекста «${scene}».',
+			'settings.signatureAiTryNeedsProvider' => 'Сначала настройте поставщика ИИ — тогда можно будет попробовать.',
+			'settings.signatureAiWireTitle' => 'Что ИИ реально получит на этот раз',
+			'settings.signatureAiWireSystem' => 'Системный промпт (собран из формата выше)',
+			'settings.signatureAiWireUser' => 'Сообщение пользователя (то, что он видит + ваша инструкция)',
+			'settings.signatureDemoReplyText' => 'На этот раз работа камеры куда плавнее, чем в прошлый раз. Освещение тоже поменяли?',
+			'settings.aiRecipeFeelName' => 'Мгновенная реакция',
+			'settings.aiRecipeFeelInstruction' => 'Напиши строку, которая вырвалась бы сразу после просмотра «%title%». Не повторяй название.',
+			'settings.aiRecipeFeelExample' => 'Не знал, что лето может выглядеть настолько тихим.',
+			'settings.aiRecipeRoastName' => 'Подколоть название',
+			'settings.aiRecipeRoastInstruction' => 'Слегка подколи название «%title%». С юмором, но не зло.',
+			'settings.aiRecipeRoastExample' => 'Название смелее самого видео.',
+			'settings.aiRecipePraiseName' => 'Захвалить автора',
+			'settings.aiRecipePraiseInstruction' => 'Захвали %author% в одной строке. Конкретно, а не просто выкрикивая имя.',
+			'settings.aiRecipePraiseExample' => 'Такое чувство тайминга и вкуса — точно не с этой планеты.',
+			'settings.aiRecipeHaikuName' => 'Хайку 5-7-5',
+			'settings.aiRecipeHaikuInstruction' => 'Напиши хайку 5-7-5, навеянное «%title%», с « / » между тремя частями.',
+			'settings.aiRecipeHaikuExample' => 'вентилятор всё крутится / свет экрана на лице / ночь становится глубже',
+			'settings.aiRecipeChuuniName' => 'Клич из аниме',
+			'settings.aiRecipeChuuniInstruction' => 'Напиши строку, которую выкрикнул бы пафосный аниме-персонаж, слабо связанную с %tags%.',
+			'settings.aiRecipeChuuniExample' => 'Весь этот жар — я приму его целиком!',
+			'settings.aiRecipeAcrosticName' => 'Акростих из тегов',
+			'settings.aiRecipeAcrosticInstruction' => 'Впиши слова из %tags% по порядку в одно предложение так, чтобы оно звучало естественно.',
+			'settings.aiRecipeAcrosticExample' => 'Каждый кадр в 4K, а сердце всё равно не успевает.',
+			'settings.aiRecipeGreetName' => 'Приветствие по времени суток',
+			'settings.aiRecipeGreetInstruction' => 'Сейчас %time%. Поздоровайся подходящим для этого времени образом и добавь мимолётную мысль.',
+			'settings.aiRecipeGreetExample' => '2 ночи, а я всё ещё скроллю — сон сегодня, видимо, снова отменяется.',
+			'settings.aiRecipeEchoName' => 'Подхватить их шутку',
+			'settings.aiRecipeEchoInstruction' => 'Подхвати то, что только что сказал %reply_to%, и добавь строку, которая продолжает эту мысль.',
+			'settings.aiRecipeEchoExample' => 'Ты прав, а я уже на третьем круге.',
 			'settings.signatureVariablesGroup' => 'Встроенные переменные',
 			'settings.signatureNeedsNetwork' => 'Нужна сеть',
 			'settings.signatureBuiltinSource' => 'Встроенный',
@@ -5872,6 +5984,8 @@ extension on TranslationsRu {
 			'settings.enableHardwareAcceleration' => 'Аппаратное ускорение',
 			'settings.enableHardwareAccelerationInfo' => 'Включение аппаратного ускорения может улучшить декодирование, но поддерживается не всеми устройствами',
 			'settings.useOpenSLESAudioOutput' => 'Использовать вывод OpenSLES',
+			_ => null,
+		} ?? switch (path) {
 			'settings.useOpenSLESAudioOutputInfo' => 'Низкая задержка звука, может улучшить воспроизведение аудио',
 			'settings.videoSyncAudio' => 'По звуку',
 			'settings.videoSyncDisplayResample' => 'Передискретизация дисплея',
@@ -5928,8 +6042,6 @@ extension on TranslationsRu {
 			'settings.blockSettings.regexHelpIntro' => 'Регулярные выражения позволяют фильтровать точнее обычных слов. Примеры:',
 			'settings.blockSettings.regexHelpTapHint' => 'Нажмите на пример, чтобы вставить его.',
 			'settings.blockSettings.regexEx1Pattern' => 'трейлер|тизер|бонус',
-			_ => null,
-		} ?? switch (path) {
 			'settings.blockSettings.regexEx1Desc' => 'Любое из этих слов («|» означает «или»)',
 			'settings.blockSettings.regexEx2Pattern' => '^\\[.*\\]',
 			'settings.blockSettings.regexEx2Desc' => 'Заголовки, начинающиеся с [скобок]',
@@ -6386,6 +6498,8 @@ extension on TranslationsRu {
 			'videoDetail.videoPlayer' => 'Видеоплеер',
 			'videoDetail.videoPlayerInfo' => 'О видеоплеере',
 			'videoDetail.moreSettings' => 'Дополнительные настройки',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.videoPlayerFeatureInfo' => 'О возможностях плеера',
 			'videoDetail.autoRewind' => 'Автоперемотка',
 			'videoDetail.rewindAndFastForward' => 'Перемотка назад и вперед',
@@ -6442,8 +6556,6 @@ extension on TranslationsRu {
 			'videoDetail.cast.deviceTypes.unknownDevice' => 'Неизвестное устройство',
 			'videoDetail.cast.currentPlatformNotSupported' => 'Трансляция не поддерживается на этой платформе',
 			'videoDetail.cast.unableToGetVideoUrl' => 'Не удалось получить адрес видео, повторите позже',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.stopCasting' => 'Остановить трансляцию',
 			'videoDetail.cast.dlnaCastSheet.title' => 'Беспроводная трансляция',
 			'videoDetail.cast.dlnaCastSheet.close' => 'Закрыть',
@@ -6900,6 +7012,8 @@ extension on TranslationsRu {
 			'download.relocation.statLeftover' => 'Left behind',
 			'download.relocation.sectionMove' => 'Will be moved',
 			'download.relocation.sectionSkip' => 'Will be skipped',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.sectionMoved' => 'Moved',
 			'download.relocation.sectionFailed' => 'Not moved (left where it was)',
 			'download.relocation.sectionLeftover' => 'Old folders not fully removed',
@@ -6956,8 +7070,6 @@ extension on TranslationsRu {
 			'download.relocation.galleryImages' => ({required Object count}) => '${count} images',
 			'download.relocation.unfinishedDownloading' => ({required Object percent}) => 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues',
 			'download.relocation.unfinishedPending' => 'Waiting to download: re-queued after the move',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused',
 			'download.relocation.unfinishedFailed' => 'Download failed: the downloaded part moves too',
 			'download.relocation.noDataYet' => 'Nothing downloaded yet, only the save location changes',
@@ -7414,6 +7526,8 @@ extension on TranslationsRu {
 			'layoutSettings.descriptionContent' => 'Настроенная здесь конфигурация определяет число столбцов на страницах списков видео и галерей. Выберите автоматический режим, чтобы система подстраивалась под ширину экрана, или ручной режим, чтобы зафиксировать число столбцов.',
 			'layoutSettings.layoutMode' => 'Режим макета',
 			'layoutSettings.reset' => 'Сбросить',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.autoMode' => 'Автоматический режим',
 			'layoutSettings.autoModeDesc' => 'Автоматически подстраивается под ширину экрана',
 			'layoutSettings.manualMode' => 'Ручной режим',
@@ -7470,8 +7584,6 @@ extension on TranslationsRu {
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'Устройства Android ограниченно поддерживают формат WEBM. Рекомендуется использовать внешний плеер или скачать приложение-плеер с поддержкой WEBM',
 			'mediaPlayer.currentDeviceCodecNotSupported' => 'Текущее устройство не поддерживает кодек для этого формата видео',
 			'mediaPlayer.checkNetworkConnection' => 'Проверьте подключение к сети и повторите попытку',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.appMayLackMediaPermission' => 'Возможно, у приложения нет необходимых разрешений на воспроизведение медиа',
 			'mediaPlayer.tryOtherVideoPlayer' => 'Попробуйте использовать другой видеоплеер',
 			'mediaPlayer.unrecognizedVideoFormat' => 'Нераспознанный видеофайл',
@@ -7928,6 +8040,8 @@ extension on TranslationsRu {
 			'siteMode.confirmUsing' => ({required Object site}) => 'После подтверждения будущие запросы будут использовать режим ${site}.',
 			'siteMode.switched' => ({required Object site}) => 'Переключено на ${site}. Приложение обновлено.',
 			'savedSearchConfig.title' => 'Сохранённые фильтры',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearchConfig.empty' => 'Сохранённых фильтров пока нет',
 			'savedSearchConfig.saveTooltip' => 'Сохранить текущий фильтр',
 			'savedSearchConfig.namePromptTitle' => 'Сохранить фильтр',
@@ -7984,8 +8098,6 @@ extension on TranslationsRu {
 			'externalPlayer.sourceLocal' => 'Локальный файл',
 			'externalPlayer.sourceOnline' => 'Прямая ссылка',
 			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => 'Прямая ссылка · ${quality}',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.onlineLinkExpiryHint' => 'Прямые ссылки истекают, поэтому внешний плеер может остановиться на середине. Надёжный способ — сначала скачать.',
 			'externalPlayer.vrPlayerHint' => 'Если вашего VR-плеера нет в списке выбора, используйте «Копировать ссылку на видео» и вставьте её в этом плеере.',
 			'externalPlayer.noHandler' => 'Ни одно приложение на этом устройстве не может открыть видео',
@@ -8442,6 +8554,8 @@ extension on TranslationsRu {
 			'ai.openSettings' => 'Открыть настройки ИИ',
 			'ai.notConfigured' => 'Не настроено',
 			'ai.searchTitle' => 'Поиск с ИИ',
+			_ => null,
+		} ?? switch (path) {
 			'ai.searchHint' => 'Опишите, что вы ищете, и ИИ сам заполнит поисковые запросы и фильтры.',
 			'ai.searchPlaceholder' => 'Например: недавние MMD с более 10 тыс. просмотров',
 			'ai.searchApply' => 'Искать по этим условиям',
@@ -8498,8 +8612,6 @@ extension on TranslationsRu {
 			'ai.contextWindow' => ({required Object tokens}) => 'Context ${tokens}',
 			'ai.capFunctionCall' => 'Tools',
 			'ai.capReasoning' => 'Reasoning',
-			_ => null,
-		} ?? switch (path) {
 			'ai.capStructuredOutput' => 'JSON output',
 			'ai.capVision' => 'Vision',
 			'ai.capFileInput' => 'Files',

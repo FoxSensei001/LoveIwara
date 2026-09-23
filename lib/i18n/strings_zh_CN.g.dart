@@ -954,7 +954,6 @@ class _TranslationsSettingsZhCn extends TranslationsSettingsEn {
 	@override String get signatureRecipeGroupForum => '逛论坛时';
 	@override String get signatureRecipeGroupDaily => '每天换一句';
 	@override String get signatureRecipeGroupAi => '交给 AI 写';
-	@override String get signaturePromptSampleContext => '这次试写按「在视频页」的示范上下文来。真发送时，AI 拿到的是你当时正看着的那件东西。';
 	@override String get recipeAuthorTagsName => '作者和标签';
 	@override String get recipeAuthorTagsTemplate => '%author% · %tags%';
 	@override String get recipeFloorName => '回某一楼';
@@ -1004,15 +1003,72 @@ class _TranslationsSettingsZhCn extends TranslationsSettingsEn {
 	@override String get signatureEditTextHint => '这是这条评论里已经写好的小尾巴——一言、日期这会儿都只是普通文字，随便改。清空就是不要小尾巴了。';
 	@override String signatureResolving({required Object name}) => '正在生成${name}…';
 	@override String get signaturePendingValue => '（发送时生成）';
-	@override String get signatureAiHint => '由 AI 现写的一句话，每条评论都是新的，用的是你配好的 AI 供应商。在视频、图库、论坛里发送时，它还知道你正看着什么，会照着那条内容写。';
+	@override String get signatureAiHint => '由 AI 现写的一句话，每条评论都是新的，用的是你配好的 AI 供应商。点开能看到它拿得到哪些信息，并告诉它写什么。';
 	@override String get signatureAiUnavailable => '还没配 AI 供应商，所以它暂时不会出现在变量面板里。';
-	@override String get signaturePromptTitle => '提示词';
-	@override String get signaturePromptHint => '这就是发给模型的那一段。语气、长短、写什么，随便改。里面已有的几条规矩值得留着。';
 	@override String get signaturePromptReset => '恢复默认';
 	@override String get signaturePromptTry => '试一下';
-	@override String get signaturePromptSample => '它写出来的';
-	@override String get signaturePromptLanguageHint => '会换成你的界面语言。删掉它，一言就会跟着提示词的语言走。';
 	@override String get signaturePromptEdited => '改过';
+	@override String get signatureAiSheetTitle => 'AI 一言怎么写';
+	@override String get signatureAiSeeTitle => 'AI 看得到什么';
+	@override String get signatureAiFactUnavailable => '这里给不出';
+	@override String get signatureAiFactTapHint => '点一项就把它插进下面的要求里。';
+	@override String get signatureAiReadReply => '让它读对方的原话';
+	@override String get signatureAiReadReplyDesc => '回复别人时，把对方那条评论的正文也给它看。默认关：那是别人写的字。';
+	@override String signatureAiCannotSee({required Object items}) => '看不到：${items}';
+	@override String get signatureAiCannotSeeDraft => '你正在写的正文';
+	@override String get signatureAiCannotSeeReply => '对方的原话';
+	@override String get signatureAiCannotSeeAccount => '你的账号信息';
+	@override String get signatureAiPrivacy => '看得到的这些只会发给你在 AI 设置里配的供应商。';
+	@override String get signatureAiWhatTitle => '你想让它写什么';
+	@override String get signatureAiWhatHint => '用你自己的语言写一两句就行。点上面的标签能插进来，这个场合给不出的会自己消失。';
+	@override String signatureAiWhatPreview({required Object scene}) => '按「${scene}」代入后';
+	@override String get signatureAiDefaultInstruction => '用一句话接着我在看的东西随口感慨一下，别复述标题。';
+	@override String get signatureAiFormatTitle => '格式';
+	@override String get signatureAiFormatFixed => '只写一行 · 不带引号 · 不带署名';
+	@override String get signatureAiLength => '长短';
+	@override String get signatureAiLengthShort => '短 · 约 15 字';
+	@override String get signatureAiLengthMedium => '中 · 约 30 字';
+	@override String get signatureAiLengthLong => '长 · 约 60 字';
+	@override String get signatureAiLanguage => '语言';
+	@override String get signatureAiLanguageUi => '跟界面';
+	@override String get signatureAiLanguageDraft => '跟正文';
+	@override String get signatureAiLanguageDraftHint => '看你这条评论写的是哪种文字就用哪种。正文本身不会发给 AI；看不出来时跟界面。';
+	@override String get signatureAiAllowEmoji => '允许 emoji';
+	@override String get signatureAiRecipesTitle => '玩法';
+	@override String get signatureAiRecipesHint => '点一张就换成它的要求，再照着改。下面那句是写好的示例，想看真的就点「试一下」。';
+	@override String get signatureAiExample => '示例';
+	@override String get signatureAiRecipeNeedsReply => '要先打开上面的「让它读对方的原话」';
+	@override String get signatureAiTryTitle => '试一下';
+	@override String signatureAiTryEmpty({required Object scene}) => '还没试过。会按「${scene}」的上下文写一句。';
+	@override String get signatureAiTryNeedsProvider => '配好 AI 供应商之后才能试。';
+	@override String get signatureAiWireTitle => '这次 AI 实际收到的';
+	@override String get signatureAiWireSystem => '系统提示词（由上面的格式生成）';
+	@override String get signatureAiWireUser => '用户消息（看得到的 + 你的要求）';
+	@override String get signatureDemoReplyText => '这次的运镜比上一部顺多了，灯光是不是也换过了？';
+	@override String get aiRecipeFeelName => '一句看后感';
+	@override String get aiRecipeFeelInstruction => '写一句像刚看完《%title%》随口冒出来的感慨，别复述标题。';
+	@override String get aiRecipeFeelExample => '看完才发现，原来夏天也能拍得这么安静。';
+	@override String get aiRecipeRoastName => '毒舌吐槽标题';
+	@override String get aiRecipeRoastInstruction => '毒舌吐槽一下《%title%》这个标题，损一点但别真的刻薄。';
+	@override String get aiRecipeRoastExample => '标题起得比内容本身大胆多了。';
+	@override String get aiRecipePraiseName => '彩虹屁夸作者';
+	@override String get aiRecipePraiseInstruction => '用一句彩虹屁夸夸 %author%，夸得具体一点，别直接喊名字。';
+	@override String get aiRecipePraiseExample => '这手速和审美，看起来都不像地球人。';
+	@override String get aiRecipeHaikuName => '五七五俳句';
+	@override String get aiRecipeHaikuInstruction => '照着《%title%》写一句五七五节奏的俳句，三段之间用「/」隔开。';
+	@override String get aiRecipeHaikuExample => '风扇转不停 / 屏幕的光落在脸上 / 夜又深一寸';
+	@override String get aiRecipeChuuniName => '中二台词';
+	@override String get aiRecipeChuuniInstruction => '写一句中二动漫角色会喊出来的台词，和 %tags% 沾点边。';
+	@override String get aiRecipeChuuniExample => '这份热度，我全部接下了。';
+	@override String get aiRecipeAcrosticName => '标签藏头';
+	@override String get aiRecipeAcrosticInstruction => '把 %tags% 里的词依次藏进句子里，写成一句通顺的话。';
+	@override String get aiRecipeAcrosticExample => '梦里都是这个调调，4K 也装不下这份心动。';
+	@override String get aiRecipeGreetName => '按时段问候';
+	@override String get aiRecipeGreetInstruction => '现在是 %time%，按这个时段打个招呼，再顺口感慨一句。';
+	@override String get aiRecipeGreetExample => '凌晨两点还在刷，看来今晚又不打算睡了。';
+	@override String get aiRecipeEchoName => '接对方的梗';
+	@override String get aiRecipeEchoInstruction => '接住 %reply_to% 刚才说的话，顺着往下补一句梗。';
+	@override String get aiRecipeEchoExample => '你说得对，但我已经循环第三遍了。';
 	@override String get signatureVariablesGroup => '内置变量';
 	@override String get signatureNeedsNetwork => '需要联网';
 	@override String get signatureBuiltinSource => '内置';
@@ -5656,7 +5712,6 @@ extension on TranslationsZhCn {
 			'settings.signatureRecipeGroupForum' => '逛论坛时',
 			'settings.signatureRecipeGroupDaily' => '每天换一句',
 			'settings.signatureRecipeGroupAi' => '交给 AI 写',
-			'settings.signaturePromptSampleContext' => '这次试写按「在视频页」的示范上下文来。真发送时，AI 拿到的是你当时正看着的那件东西。',
 			'settings.recipeAuthorTagsName' => '作者和标签',
 			'settings.recipeAuthorTagsTemplate' => '%author% · %tags%',
 			'settings.recipeFloorName' => '回某一楼',
@@ -5706,15 +5761,72 @@ extension on TranslationsZhCn {
 			'settings.signatureEditTextHint' => '这是这条评论里已经写好的小尾巴——一言、日期这会儿都只是普通文字，随便改。清空就是不要小尾巴了。',
 			'settings.signatureResolving' => ({required Object name}) => '正在生成${name}…',
 			'settings.signaturePendingValue' => '（发送时生成）',
-			'settings.signatureAiHint' => '由 AI 现写的一句话，每条评论都是新的，用的是你配好的 AI 供应商。在视频、图库、论坛里发送时，它还知道你正看着什么，会照着那条内容写。',
+			'settings.signatureAiHint' => '由 AI 现写的一句话，每条评论都是新的，用的是你配好的 AI 供应商。点开能看到它拿得到哪些信息，并告诉它写什么。',
 			'settings.signatureAiUnavailable' => '还没配 AI 供应商，所以它暂时不会出现在变量面板里。',
-			'settings.signaturePromptTitle' => '提示词',
-			'settings.signaturePromptHint' => '这就是发给模型的那一段。语气、长短、写什么，随便改。里面已有的几条规矩值得留着。',
 			'settings.signaturePromptReset' => '恢复默认',
 			'settings.signaturePromptTry' => '试一下',
-			'settings.signaturePromptSample' => '它写出来的',
-			'settings.signaturePromptLanguageHint' => '会换成你的界面语言。删掉它，一言就会跟着提示词的语言走。',
 			'settings.signaturePromptEdited' => '改过',
+			'settings.signatureAiSheetTitle' => 'AI 一言怎么写',
+			'settings.signatureAiSeeTitle' => 'AI 看得到什么',
+			'settings.signatureAiFactUnavailable' => '这里给不出',
+			'settings.signatureAiFactTapHint' => '点一项就把它插进下面的要求里。',
+			'settings.signatureAiReadReply' => '让它读对方的原话',
+			'settings.signatureAiReadReplyDesc' => '回复别人时，把对方那条评论的正文也给它看。默认关：那是别人写的字。',
+			'settings.signatureAiCannotSee' => ({required Object items}) => '看不到：${items}',
+			'settings.signatureAiCannotSeeDraft' => '你正在写的正文',
+			'settings.signatureAiCannotSeeReply' => '对方的原话',
+			'settings.signatureAiCannotSeeAccount' => '你的账号信息',
+			'settings.signatureAiPrivacy' => '看得到的这些只会发给你在 AI 设置里配的供应商。',
+			'settings.signatureAiWhatTitle' => '你想让它写什么',
+			'settings.signatureAiWhatHint' => '用你自己的语言写一两句就行。点上面的标签能插进来，这个场合给不出的会自己消失。',
+			'settings.signatureAiWhatPreview' => ({required Object scene}) => '按「${scene}」代入后',
+			'settings.signatureAiDefaultInstruction' => '用一句话接着我在看的东西随口感慨一下，别复述标题。',
+			'settings.signatureAiFormatTitle' => '格式',
+			'settings.signatureAiFormatFixed' => '只写一行 · 不带引号 · 不带署名',
+			'settings.signatureAiLength' => '长短',
+			'settings.signatureAiLengthShort' => '短 · 约 15 字',
+			'settings.signatureAiLengthMedium' => '中 · 约 30 字',
+			'settings.signatureAiLengthLong' => '长 · 约 60 字',
+			'settings.signatureAiLanguage' => '语言',
+			'settings.signatureAiLanguageUi' => '跟界面',
+			'settings.signatureAiLanguageDraft' => '跟正文',
+			'settings.signatureAiLanguageDraftHint' => '看你这条评论写的是哪种文字就用哪种。正文本身不会发给 AI；看不出来时跟界面。',
+			'settings.signatureAiAllowEmoji' => '允许 emoji',
+			'settings.signatureAiRecipesTitle' => '玩法',
+			'settings.signatureAiRecipesHint' => '点一张就换成它的要求，再照着改。下面那句是写好的示例，想看真的就点「试一下」。',
+			'settings.signatureAiExample' => '示例',
+			'settings.signatureAiRecipeNeedsReply' => '要先打开上面的「让它读对方的原话」',
+			'settings.signatureAiTryTitle' => '试一下',
+			'settings.signatureAiTryEmpty' => ({required Object scene}) => '还没试过。会按「${scene}」的上下文写一句。',
+			'settings.signatureAiTryNeedsProvider' => '配好 AI 供应商之后才能试。',
+			'settings.signatureAiWireTitle' => '这次 AI 实际收到的',
+			'settings.signatureAiWireSystem' => '系统提示词（由上面的格式生成）',
+			'settings.signatureAiWireUser' => '用户消息（看得到的 + 你的要求）',
+			'settings.signatureDemoReplyText' => '这次的运镜比上一部顺多了，灯光是不是也换过了？',
+			'settings.aiRecipeFeelName' => '一句看后感',
+			'settings.aiRecipeFeelInstruction' => '写一句像刚看完《%title%》随口冒出来的感慨，别复述标题。',
+			'settings.aiRecipeFeelExample' => '看完才发现，原来夏天也能拍得这么安静。',
+			'settings.aiRecipeRoastName' => '毒舌吐槽标题',
+			'settings.aiRecipeRoastInstruction' => '毒舌吐槽一下《%title%》这个标题，损一点但别真的刻薄。',
+			'settings.aiRecipeRoastExample' => '标题起得比内容本身大胆多了。',
+			'settings.aiRecipePraiseName' => '彩虹屁夸作者',
+			'settings.aiRecipePraiseInstruction' => '用一句彩虹屁夸夸 %author%，夸得具体一点，别直接喊名字。',
+			'settings.aiRecipePraiseExample' => '这手速和审美，看起来都不像地球人。',
+			'settings.aiRecipeHaikuName' => '五七五俳句',
+			'settings.aiRecipeHaikuInstruction' => '照着《%title%》写一句五七五节奏的俳句，三段之间用「/」隔开。',
+			'settings.aiRecipeHaikuExample' => '风扇转不停 / 屏幕的光落在脸上 / 夜又深一寸',
+			'settings.aiRecipeChuuniName' => '中二台词',
+			'settings.aiRecipeChuuniInstruction' => '写一句中二动漫角色会喊出来的台词，和 %tags% 沾点边。',
+			'settings.aiRecipeChuuniExample' => '这份热度，我全部接下了。',
+			'settings.aiRecipeAcrosticName' => '标签藏头',
+			'settings.aiRecipeAcrosticInstruction' => '把 %tags% 里的词依次藏进句子里，写成一句通顺的话。',
+			'settings.aiRecipeAcrosticExample' => '梦里都是这个调调，4K 也装不下这份心动。',
+			'settings.aiRecipeGreetName' => '按时段问候',
+			'settings.aiRecipeGreetInstruction' => '现在是 %time%，按这个时段打个招呼，再顺口感慨一句。',
+			'settings.aiRecipeGreetExample' => '凌晨两点还在刷，看来今晚又不打算睡了。',
+			'settings.aiRecipeEchoName' => '接对方的梗',
+			'settings.aiRecipeEchoInstruction' => '接住 %reply_to% 刚才说的话，顺着往下补一句梗。',
+			'settings.aiRecipeEchoExample' => '你说得对，但我已经循环第三遍了。',
 			'settings.signatureVariablesGroup' => '内置变量',
 			'settings.signatureNeedsNetwork' => '需要联网',
 			'settings.signatureBuiltinSource' => '内置',
@@ -5872,6 +5984,8 @@ extension on TranslationsZhCn {
 			'settings.enableHardwareAcceleration' => '启用硬件加速',
 			'settings.enableHardwareAccelerationInfo' => '开启硬件加速可以提高解码性能，但某些设备可能不兼容',
 			'settings.useOpenSLESAudioOutput' => '使用OpenSLES音频输出',
+			_ => null,
+		} ?? switch (path) {
 			'settings.useOpenSLESAudioOutputInfo' => '使用低延迟音频输出，可能提高音频性能',
 			'settings.videoSyncAudio' => '音频同步',
 			'settings.videoSyncDisplayResample' => '显示重采样',
@@ -5928,8 +6042,6 @@ extension on TranslationsZhCn {
 			'settings.blockSettings.regexHelpIntro' => '正则能比关键词更灵活地匹配标题。下面是几个常见写法：',
 			'settings.blockSettings.regexHelpTapHint' => '点击示例即可直接填入。',
 			'settings.blockSettings.regexEx1Pattern' => '预告|花絮|彩蛋',
-			_ => null,
-		} ?? switch (path) {
 			'settings.blockSettings.regexEx1Desc' => '用「|」匹配其中任意一个词（表示「或」）',
 			'settings.blockSettings.regexEx2Pattern' => '^【.*】',
 			'settings.blockSettings.regexEx2Desc' => '匹配以【…】开头的标题',
@@ -6386,6 +6498,8 @@ extension on TranslationsZhCn {
 			'videoDetail.videoPlayer' => '视频播放器',
 			'videoDetail.videoPlayerInfo' => '播放器信息',
 			'videoDetail.moreSettings' => '更多设置',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.videoPlayerFeatureInfo' => '播放器功能介绍',
 			'videoDetail.autoRewind' => '自动重播',
 			'videoDetail.rewindAndFastForward' => '左右两侧双击快进或后退',
@@ -6442,8 +6556,6 @@ extension on TranslationsZhCn {
 			'videoDetail.cast.deviceTypes.unknownDevice' => '未知设备',
 			'videoDetail.cast.currentPlatformNotSupported' => '当前平台不支持投屏功能',
 			'videoDetail.cast.unableToGetVideoUrl' => '无法获取视频地址，请稍后重试',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.stopCasting' => '停止投屏',
 			'videoDetail.cast.dlnaCastSheet.title' => '远程投屏',
 			'videoDetail.cast.dlnaCastSheet.close' => '关闭',
@@ -6900,6 +7012,8 @@ extension on TranslationsZhCn {
 			'download.relocation.sectionMove' => '将移动',
 			'download.relocation.sectionSkip' => '将跳过',
 			'download.relocation.sectionMoved' => '已移动',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.sectionFailed' => '未移动（仍在原处）',
 			'download.relocation.sectionLeftover' => '没删干净的旧文件夹',
 			'download.relocation.leftoverHint' => '新位置的那份是完整的，这些残留可以放心删除。',
@@ -6956,8 +7070,6 @@ extension on TranslationsZhCn {
 			'download.relocation.unfinishedDownloading' => ({required Object percent}) => '下载中 ${percent}%：先暂停，已下的部分一起搬，搬完自动继续',
 			'download.relocation.unfinishedPending' => '等待下载：搬完重新排队',
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => '已暂停于 ${percent}%：已下的部分一起搬，搬完仍保持暂停',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.unfinishedFailed' => '下载失败：已下的部分一起搬',
 			'download.relocation.noDataYet' => '还没有下载任何内容，只改保存位置',
 			'download.relocation.missingGroup' => ({required Object count}) => '找不到文件的 ${count} 项',
@@ -7414,6 +7526,8 @@ extension on TranslationsZhCn {
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => '本地视频文件不存在: ${path}',
 			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => '无法播放本地视频: ${error}',
 			'mediaPlayer.unableToPlayNasVideo' => ({required Object error}) => '无法播放 NAS 上的视频：${error}',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.dropVideoFileHere' => '拖放视频文件到此处播放',
 			'mediaPlayer.supportedFormats' => '支持格式: MP4, MKV, AVI, MOV, WEBM 等',
 			'mediaPlayer.noSupportedVideoFile' => '未找到支持的视频文件',
@@ -7470,8 +7584,6 @@ extension on TranslationsZhCn {
 			'diagnostics.refreshMetrics' => '刷新指标',
 			'diagnostics.toolsSectionTitle' => '工具',
 			'diagnostics.privacyNotice' => '日志可能包含账号、请求参数等敏感信息。请勿直接公开附加到 Issue，建议检查后通过邮箱发送。',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.exportLogsTitle' => '导出日志',
 			'diagnostics.exportLogsSubtitle' => '导出后请先检查隐私，再发送给开发者',
 			'diagnostics.viewLogsTitle' => '查看日志',
@@ -7928,6 +8040,8 @@ extension on TranslationsZhCn {
 			'siteMode.confirmUsing' => ({required Object site}) => '确认后，后续请求将统一使用 ${site} 模式。',
 			'siteMode.switched' => ({required Object site}) => '已切换到 ${site}，应用已刷新。',
 			'savedSearchConfig.title' => '已保存筛选',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearchConfig.empty' => '还没有保存的筛选配置',
 			'savedSearchConfig.saveTooltip' => '保存当前筛选',
 			'savedSearchConfig.namePromptTitle' => '保存筛选配置',
@@ -7984,8 +8098,6 @@ extension on TranslationsZhCn {
 			'externalPlayer.sourceLocal' => '本地文件',
 			'externalPlayer.sourceOnline' => '在线直链',
 			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => '在线直链 · ${quality}',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.onlineLinkExpiryHint' => '在线直链有时效，外部播放器可能播到一半失效；先下载再转交最稳',
 			'externalPlayer.vrPlayerHint' => 'VR 播放器没出现在选择器里的话，用「复制视频链接」再到播放器内粘贴打开',
 			'externalPlayer.noHandler' => '没有找到能打开视频的应用',
@@ -8442,6 +8554,8 @@ extension on TranslationsZhCn {
 			'ai.openSettings' => '前往 AI 设置',
 			'ai.notConfigured' => '未配置',
 			'ai.searchTitle' => 'AI 搜索',
+			_ => null,
+		} ?? switch (path) {
 			'ai.searchHint' => '用一句话描述你想找什么，AI 会替你填好搜索词和筛选条件。',
 			'ai.searchPlaceholder' => '例如：播放量过万的最新 MMD',
 			'ai.searchApply' => '用这些条件搜索',
@@ -8498,8 +8612,6 @@ extension on TranslationsZhCn {
 			'ai.contextWindow' => ({required Object tokens}) => '上下文 ${tokens}',
 			'ai.capFunctionCall' => '函数调用',
 			'ai.capReasoning' => '推理',
-			_ => null,
-		} ?? switch (path) {
 			'ai.capStructuredOutput' => 'JSON 输出',
 			'ai.capVision' => '看图',
 			'ai.capFileInput' => '读文件',

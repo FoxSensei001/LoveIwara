@@ -359,6 +359,7 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                 .withReplyTo(
                   widget.comment.user.name,
                   floor: widget.comment.replyNum + 1,
+                  text: CommentMarkup.parse(widget.comment.body).body,
                 ),
         quote: ReplyQuote(
           floor: widget.comment.replyNum + 1,

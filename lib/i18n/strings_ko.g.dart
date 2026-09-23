@@ -954,7 +954,6 @@ class _TranslationsSettingsKo extends TranslationsSettingsEn {
 	@override String get signatureRecipeGroupForum => '포럼에서';
 	@override String get signatureRecipeGroupDaily => '매일 한 문장';
 	@override String get signatureRecipeGroupAi => 'AI에게 맡기기';
-	@override String get signaturePromptSampleContext => '이번 시험 작성은 동영상 페이지의 예시 맥락을 씁니다. 실제로 보낼 때는 그때 보던 것이 AI에게 전달됩니다.';
 	@override String get recipeAuthorTagsName => '작성자와 태그';
 	@override String get recipeAuthorTagsTemplate => '%author% · %tags%';
 	@override String get recipeFloorName => '특정 층에 답글';
@@ -1004,15 +1003,72 @@ class _TranslationsSettingsKo extends TranslationsSettingsEn {
 	@override String get signatureEditTextHint => '이 댓글에 이미 적혀 있는 서명입니다. 한 줄 문구도 날짜도 지금은 그냥 글자라 마음대로 고칠 수 있습니다. 비우면 서명이 빠집니다.';
 	@override String signatureResolving({required Object name}) => '${name} 생성 중…';
 	@override String get signaturePendingValue => '(보낼 때 생성)';
-	@override String get signatureAiHint => 'AI가 그 자리에서 쓰는 한 문장으로, 댓글마다 새로 생성됩니다. 설정해 둔 AI 공급자를 사용합니다. 동영상·갤러리·포럼에서 보낼 때는 지금 보고 있는 것도 알고 그에 맞춰 씁니다.';
+	@override String get signatureAiHint => 'AI가 그 자리에서 쓰는 한 문장으로, 댓글마다 새로 생성됩니다. 설정해 둔 AI 공급자를 사용합니다. 열어보면 AI가 볼 수 있는 정보를 확인하고 무엇을 쓸지 알려줄 수 있어요.';
 	@override String get signatureAiUnavailable => 'AI 공급자가 아직 없어서 변수 패널에는 나타나지 않습니다.';
-	@override String get signaturePromptTitle => '프롬프트';
-	@override String get signaturePromptHint => '모델에 전달되는 내용입니다. 어조도 길이도 소재도 마음대로 고쳐도 됩니다. 이미 들어있는 규칙은 남겨두는 편이 좋습니다.';
 	@override String get signaturePromptReset => '기본값 복원';
 	@override String get signaturePromptTry => '시험해보기';
-	@override String get signaturePromptSample => '쓴 문장';
-	@override String get signaturePromptLanguageHint => '은(는) 인터페이스 언어로 바뀝니다. 지우면 프롬프트의 언어를 따릅니다.';
 	@override String get signaturePromptEdited => '수정됨';
+	@override String get signatureAiSheetTitle => 'AI 한 줄은 이렇게 쓰여요';
+	@override String get signatureAiSeeTitle => 'AI가 볼 수 있는 것';
+	@override String get signatureAiFactUnavailable => '여기서는 쓸 수 없음';
+	@override String get signatureAiFactTapHint => '탭하면 아래 지시문에 삽입됩니다.';
+	@override String get signatureAiReadReply => '상대방 댓글 원문도 읽게 하기';
+	@override String get signatureAiReadReplyDesc => '누군가에게 답글을 달 때 그 사람 댓글 본문도 보여줍니다. 기본은 꺼짐: 그건 다른 사람이 쓴 말이니까요.';
+	@override String signatureAiCannotSee({required Object items}) => '볼 수 없음: ${items}';
+	@override String get signatureAiCannotSeeDraft => '지금 작성 중인 댓글';
+	@override String get signatureAiCannotSeeReply => '상대방이 한 말';
+	@override String get signatureAiCannotSeeAccount => '내 계정 정보';
+	@override String get signatureAiPrivacy => 'AI가 볼 수 있는 정보는 AI 설정에서 지정한 공급자에게만 전송됩니다.';
+	@override String get signatureAiWhatTitle => '무엇을 쓰게 할까';
+	@override String get signatureAiWhatHint => '본인 언어로 한두 문장이면 충분해요. 위의 칩을 탭하면 삽입되고, 이 상황에서 쓸 수 없는 건 알아서 사라집니다.';
+	@override String signatureAiWhatPreview({required Object scene}) => '"${scene}"에 대입하면';
+	@override String get signatureAiDefaultInstruction => '지금 보고 있는 것에 대해 가볍게 한마디 던져 주세요. 제목은 그대로 반복하지 마세요.';
+	@override String get signatureAiFormatTitle => '형식';
+	@override String get signatureAiFormatFixed => '한 줄만 · 인용부호 없음 · 서명 없음';
+	@override String get signatureAiLength => '길이';
+	@override String get signatureAiLengthShort => '짧게 · 약 15자';
+	@override String get signatureAiLengthMedium => '보통 · 약 30자';
+	@override String get signatureAiLengthLong => '길게 · 약 60자';
+	@override String get signatureAiLanguage => '언어';
+	@override String get signatureAiLanguageUi => '앱 언어대로';
+	@override String get signatureAiLanguageDraft => '내 댓글대로';
+	@override String get signatureAiLanguageDraftHint => '댓글이 쓰인 언어를 그대로 따라갑니다. 댓글 본문 자체는 AI에 전송되지 않아요. 판단이 안 될 때는 앱 언어를 씁니다.';
+	@override String get signatureAiAllowEmoji => '이모지 허용';
+	@override String get signatureAiRecipesTitle => '아이디어';
+	@override String get signatureAiRecipesHint => '탭하면 그 지시문으로 바뀌니 그대로 손봐서 쓰세요. 아래 문장은 미리 적어 둔 예시고, 실제 결과가 궁금하면 "시험해보기"를 눌러보세요.';
+	@override String get signatureAiExample => '예시';
+	@override String get signatureAiRecipeNeedsReply => '먼저 위의 "상대방 댓글 원문도 읽게 하기"를 켜 주세요';
+	@override String get signatureAiTryTitle => '시험해보기';
+	@override String signatureAiTryEmpty({required Object scene}) => '아직 시험해 보지 않았어요. "${scene}" 상황에 맞춰 한 문장을 씁니다.';
+	@override String get signatureAiTryNeedsProvider => 'AI 제공자를 설정하면 시험해 볼 수 있어요.';
+	@override String get signatureAiWireTitle => '이번에 AI가 실제로 받는 내용';
+	@override String get signatureAiWireSystem => '시스템 프롬프트 (위 형식으로 생성됨)';
+	@override String get signatureAiWireUser => '사용자 메시지 (볼 수 있는 정보 + 내 지시문)';
+	@override String get signatureDemoReplyText => '이번 카메라 워크가 저번보다 훨씬 부드러워졌네요. 조명도 바꾸셨나요?';
+	@override String get aiRecipeFeelName => '본 직후 한마디';
+	@override String get aiRecipeFeelInstruction => '《%title%》를 막 보고 나서 툭 튀어나올 법한 한마디를 써 주세요. 제목은 그대로 반복하지 마세요.';
+	@override String get aiRecipeFeelExample => '여름이 이렇게 조용해 보일 수 있는지 몰랐다.';
+	@override String get aiRecipeRoastName => '제목 독설 놀리기';
+	@override String get aiRecipeRoastInstruction => '《%title%》라는 제목을 살짝 독설로 놀려 주세요. 짓궂게, 진짜 심하게는 말고.';
+	@override String get aiRecipeRoastExample => '제목이 영상보다 훨씬 과감하네.';
+	@override String get aiRecipePraiseName => '작가 무지개빛 칭찬';
+	@override String get aiRecipePraiseInstruction => '%author%를 한 줄로 화려하게 칭찬해 주세요. 구체적으로, 그냥 이름만 외치진 말고.';
+	@override String get aiRecipePraiseExample => '이 감각과 손놀림, 지구인 같지가 않네.';
+	@override String get aiRecipeHaikuName => '5-7-5 하이쿠';
+	@override String get aiRecipeHaikuInstruction => '《%title%》에서 착안한 5-7-5 하이쿠를 쓰고, 세 구절 사이는 " / "로 구분해 주세요.';
+	@override String get aiRecipeHaikuExample => '선풍기는 계속 돌고 / 화면 빛이 얼굴에 앉는다 / 밤이 한 치 더 깊어진다';
+	@override String get aiRecipeChuuniName => '중2병 대사';
+	@override String get aiRecipeChuuniInstruction => '중2병 애니 캐릭터가 외칠 법한 한마디를, %tags%와 살짝 연결해서 써 주세요.';
+	@override String get aiRecipeChuuniExample => '이 열기, 전부 내가 받아주지.';
+	@override String get aiRecipeAcrosticName => '태그 숨겨 쓰기';
+	@override String get aiRecipeAcrosticInstruction => '%tags%의 단어들을 순서대로 문장 속에 숨겨서, 자연스러운 한 문장으로 써 주세요.';
+	@override String get aiRecipeAcrosticExample => '꿈속에서도 이 분위기, 4K로도 이 설렘은 다 못 담아.';
+	@override String get aiRecipeGreetName => '시간대별 인사';
+	@override String get aiRecipeGreetInstruction => '지금은 %time%입니다. 이 시간대에 맞게 인사하고, 이어서 가볍게 한마디 더해 주세요.';
+	@override String get aiRecipeGreetExample => '새벽 2시에도 계속 보고 있으니, 오늘도 잠은 포기한 듯.';
+	@override String get aiRecipeEchoName => '상대방 드립 받기';
+	@override String get aiRecipeEchoInstruction => '%reply_to%가 방금 한 말을 받아서, 이어지는 드립 한마디를 더해 주세요.';
+	@override String get aiRecipeEchoExample => '맞는 말인데, 나 이미 세 번째 루프 도는 중이야.';
 	@override String get signatureVariablesGroup => '기본 변수';
 	@override String get signatureNeedsNetwork => '네트워크 필요';
 	@override String get signatureBuiltinSource => '기본';
@@ -5656,7 +5712,6 @@ extension on TranslationsKo {
 			'settings.signatureRecipeGroupForum' => '포럼에서',
 			'settings.signatureRecipeGroupDaily' => '매일 한 문장',
 			'settings.signatureRecipeGroupAi' => 'AI에게 맡기기',
-			'settings.signaturePromptSampleContext' => '이번 시험 작성은 동영상 페이지의 예시 맥락을 씁니다. 실제로 보낼 때는 그때 보던 것이 AI에게 전달됩니다.',
 			'settings.recipeAuthorTagsName' => '작성자와 태그',
 			'settings.recipeAuthorTagsTemplate' => '%author% · %tags%',
 			'settings.recipeFloorName' => '특정 층에 답글',
@@ -5706,15 +5761,72 @@ extension on TranslationsKo {
 			'settings.signatureEditTextHint' => '이 댓글에 이미 적혀 있는 서명입니다. 한 줄 문구도 날짜도 지금은 그냥 글자라 마음대로 고칠 수 있습니다. 비우면 서명이 빠집니다.',
 			'settings.signatureResolving' => ({required Object name}) => '${name} 생성 중…',
 			'settings.signaturePendingValue' => '(보낼 때 생성)',
-			'settings.signatureAiHint' => 'AI가 그 자리에서 쓰는 한 문장으로, 댓글마다 새로 생성됩니다. 설정해 둔 AI 공급자를 사용합니다. 동영상·갤러리·포럼에서 보낼 때는 지금 보고 있는 것도 알고 그에 맞춰 씁니다.',
+			'settings.signatureAiHint' => 'AI가 그 자리에서 쓰는 한 문장으로, 댓글마다 새로 생성됩니다. 설정해 둔 AI 공급자를 사용합니다. 열어보면 AI가 볼 수 있는 정보를 확인하고 무엇을 쓸지 알려줄 수 있어요.',
 			'settings.signatureAiUnavailable' => 'AI 공급자가 아직 없어서 변수 패널에는 나타나지 않습니다.',
-			'settings.signaturePromptTitle' => '프롬프트',
-			'settings.signaturePromptHint' => '모델에 전달되는 내용입니다. 어조도 길이도 소재도 마음대로 고쳐도 됩니다. 이미 들어있는 규칙은 남겨두는 편이 좋습니다.',
 			'settings.signaturePromptReset' => '기본값 복원',
 			'settings.signaturePromptTry' => '시험해보기',
-			'settings.signaturePromptSample' => '쓴 문장',
-			'settings.signaturePromptLanguageHint' => '은(는) 인터페이스 언어로 바뀝니다. 지우면 프롬프트의 언어를 따릅니다.',
 			'settings.signaturePromptEdited' => '수정됨',
+			'settings.signatureAiSheetTitle' => 'AI 한 줄은 이렇게 쓰여요',
+			'settings.signatureAiSeeTitle' => 'AI가 볼 수 있는 것',
+			'settings.signatureAiFactUnavailable' => '여기서는 쓸 수 없음',
+			'settings.signatureAiFactTapHint' => '탭하면 아래 지시문에 삽입됩니다.',
+			'settings.signatureAiReadReply' => '상대방 댓글 원문도 읽게 하기',
+			'settings.signatureAiReadReplyDesc' => '누군가에게 답글을 달 때 그 사람 댓글 본문도 보여줍니다. 기본은 꺼짐: 그건 다른 사람이 쓴 말이니까요.',
+			'settings.signatureAiCannotSee' => ({required Object items}) => '볼 수 없음: ${items}',
+			'settings.signatureAiCannotSeeDraft' => '지금 작성 중인 댓글',
+			'settings.signatureAiCannotSeeReply' => '상대방이 한 말',
+			'settings.signatureAiCannotSeeAccount' => '내 계정 정보',
+			'settings.signatureAiPrivacy' => 'AI가 볼 수 있는 정보는 AI 설정에서 지정한 공급자에게만 전송됩니다.',
+			'settings.signatureAiWhatTitle' => '무엇을 쓰게 할까',
+			'settings.signatureAiWhatHint' => '본인 언어로 한두 문장이면 충분해요. 위의 칩을 탭하면 삽입되고, 이 상황에서 쓸 수 없는 건 알아서 사라집니다.',
+			'settings.signatureAiWhatPreview' => ({required Object scene}) => '"${scene}"에 대입하면',
+			'settings.signatureAiDefaultInstruction' => '지금 보고 있는 것에 대해 가볍게 한마디 던져 주세요. 제목은 그대로 반복하지 마세요.',
+			'settings.signatureAiFormatTitle' => '형식',
+			'settings.signatureAiFormatFixed' => '한 줄만 · 인용부호 없음 · 서명 없음',
+			'settings.signatureAiLength' => '길이',
+			'settings.signatureAiLengthShort' => '짧게 · 약 15자',
+			'settings.signatureAiLengthMedium' => '보통 · 약 30자',
+			'settings.signatureAiLengthLong' => '길게 · 약 60자',
+			'settings.signatureAiLanguage' => '언어',
+			'settings.signatureAiLanguageUi' => '앱 언어대로',
+			'settings.signatureAiLanguageDraft' => '내 댓글대로',
+			'settings.signatureAiLanguageDraftHint' => '댓글이 쓰인 언어를 그대로 따라갑니다. 댓글 본문 자체는 AI에 전송되지 않아요. 판단이 안 될 때는 앱 언어를 씁니다.',
+			'settings.signatureAiAllowEmoji' => '이모지 허용',
+			'settings.signatureAiRecipesTitle' => '아이디어',
+			'settings.signatureAiRecipesHint' => '탭하면 그 지시문으로 바뀌니 그대로 손봐서 쓰세요. 아래 문장은 미리 적어 둔 예시고, 실제 결과가 궁금하면 "시험해보기"를 눌러보세요.',
+			'settings.signatureAiExample' => '예시',
+			'settings.signatureAiRecipeNeedsReply' => '먼저 위의 "상대방 댓글 원문도 읽게 하기"를 켜 주세요',
+			'settings.signatureAiTryTitle' => '시험해보기',
+			'settings.signatureAiTryEmpty' => ({required Object scene}) => '아직 시험해 보지 않았어요. "${scene}" 상황에 맞춰 한 문장을 씁니다.',
+			'settings.signatureAiTryNeedsProvider' => 'AI 제공자를 설정하면 시험해 볼 수 있어요.',
+			'settings.signatureAiWireTitle' => '이번에 AI가 실제로 받는 내용',
+			'settings.signatureAiWireSystem' => '시스템 프롬프트 (위 형식으로 생성됨)',
+			'settings.signatureAiWireUser' => '사용자 메시지 (볼 수 있는 정보 + 내 지시문)',
+			'settings.signatureDemoReplyText' => '이번 카메라 워크가 저번보다 훨씬 부드러워졌네요. 조명도 바꾸셨나요?',
+			'settings.aiRecipeFeelName' => '본 직후 한마디',
+			'settings.aiRecipeFeelInstruction' => '《%title%》를 막 보고 나서 툭 튀어나올 법한 한마디를 써 주세요. 제목은 그대로 반복하지 마세요.',
+			'settings.aiRecipeFeelExample' => '여름이 이렇게 조용해 보일 수 있는지 몰랐다.',
+			'settings.aiRecipeRoastName' => '제목 독설 놀리기',
+			'settings.aiRecipeRoastInstruction' => '《%title%》라는 제목을 살짝 독설로 놀려 주세요. 짓궂게, 진짜 심하게는 말고.',
+			'settings.aiRecipeRoastExample' => '제목이 영상보다 훨씬 과감하네.',
+			'settings.aiRecipePraiseName' => '작가 무지개빛 칭찬',
+			'settings.aiRecipePraiseInstruction' => '%author%를 한 줄로 화려하게 칭찬해 주세요. 구체적으로, 그냥 이름만 외치진 말고.',
+			'settings.aiRecipePraiseExample' => '이 감각과 손놀림, 지구인 같지가 않네.',
+			'settings.aiRecipeHaikuName' => '5-7-5 하이쿠',
+			'settings.aiRecipeHaikuInstruction' => '《%title%》에서 착안한 5-7-5 하이쿠를 쓰고, 세 구절 사이는 " / "로 구분해 주세요.',
+			'settings.aiRecipeHaikuExample' => '선풍기는 계속 돌고 / 화면 빛이 얼굴에 앉는다 / 밤이 한 치 더 깊어진다',
+			'settings.aiRecipeChuuniName' => '중2병 대사',
+			'settings.aiRecipeChuuniInstruction' => '중2병 애니 캐릭터가 외칠 법한 한마디를, %tags%와 살짝 연결해서 써 주세요.',
+			'settings.aiRecipeChuuniExample' => '이 열기, 전부 내가 받아주지.',
+			'settings.aiRecipeAcrosticName' => '태그 숨겨 쓰기',
+			'settings.aiRecipeAcrosticInstruction' => '%tags%의 단어들을 순서대로 문장 속에 숨겨서, 자연스러운 한 문장으로 써 주세요.',
+			'settings.aiRecipeAcrosticExample' => '꿈속에서도 이 분위기, 4K로도 이 설렘은 다 못 담아.',
+			'settings.aiRecipeGreetName' => '시간대별 인사',
+			'settings.aiRecipeGreetInstruction' => '지금은 %time%입니다. 이 시간대에 맞게 인사하고, 이어서 가볍게 한마디 더해 주세요.',
+			'settings.aiRecipeGreetExample' => '새벽 2시에도 계속 보고 있으니, 오늘도 잠은 포기한 듯.',
+			'settings.aiRecipeEchoName' => '상대방 드립 받기',
+			'settings.aiRecipeEchoInstruction' => '%reply_to%가 방금 한 말을 받아서, 이어지는 드립 한마디를 더해 주세요.',
+			'settings.aiRecipeEchoExample' => '맞는 말인데, 나 이미 세 번째 루프 도는 중이야.',
 			'settings.signatureVariablesGroup' => '기본 변수',
 			'settings.signatureNeedsNetwork' => '네트워크 필요',
 			'settings.signatureBuiltinSource' => '기본',
@@ -5872,6 +5984,8 @@ extension on TranslationsKo {
 			'settings.enableHardwareAcceleration' => '하드웨어 가속 사용',
 			'settings.enableHardwareAccelerationInfo' => '하드웨어 가속을 사용하면 디코딩 성능이 향상될 수 있지만 일부 기기는 호환되지 않을 수 있습니다',
 			'settings.useOpenSLESAudioOutput' => 'OpenSLES 오디오 출력 사용',
+			_ => null,
+		} ?? switch (path) {
 			'settings.useOpenSLESAudioOutputInfo' => '저지연 오디오 출력을 사용하여 오디오 성능을 개선할 수 있습니다',
 			'settings.videoSyncAudio' => '오디오 동기화',
 			'settings.videoSyncDisplayResample' => '리샘플 표시',
@@ -5928,8 +6042,6 @@ extension on TranslationsKo {
 			'settings.blockSettings.regexHelpIntro' => '정규식은 일반 키워드보다 제목을 더 유연하게 일치시킵니다. 몇 가지 일반적인 예시:',
 			'settings.blockSettings.regexHelpTapHint' => '예시를 탭하면 자동으로 입력됩니다.',
 			'settings.blockSettings.regexEx1Pattern' => '예고|티저|보너스',
-			_ => null,
-		} ?? switch (path) {
 			'settings.blockSettings.regexEx1Desc' => '다음 단어 중 하나와 일치합니다 ("|"는 "또는"을 의미)',
 			'settings.blockSettings.regexEx2Pattern' => '^\\[.*\\]',
 			'settings.blockSettings.regexEx2Desc' => '대괄호로 시작하는 제목',
@@ -6386,6 +6498,8 @@ extension on TranslationsKo {
 			'videoDetail.videoPlayer' => '동영상 플레이어',
 			'videoDetail.videoPlayerInfo' => '동영상 플레이어 정보',
 			'videoDetail.moreSettings' => '더 많은 설정',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.videoPlayerFeatureInfo' => '동영상 플레이어 기능 정보',
 			'videoDetail.autoRewind' => '자동 되감기',
 			'videoDetail.rewindAndFastForward' => '되감기 및 빨리 감기',
@@ -6442,8 +6556,6 @@ extension on TranslationsKo {
 			'videoDetail.cast.deviceTypes.unknownDevice' => '알 수 없는 기기',
 			'videoDetail.cast.currentPlatformNotSupported' => '현재 플랫폼은 캐스트를 지원하지 않습니다',
 			'videoDetail.cast.unableToGetVideoUrl' => '동영상 URL을 가져올 수 없습니다. 나중에 다시 시도해 주세요',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.stopCasting' => '캐스트 중지',
 			'videoDetail.cast.dlnaCastSheet.title' => '원격 캐스트',
 			'videoDetail.cast.dlnaCastSheet.close' => '닫기',
@@ -6900,6 +7012,8 @@ extension on TranslationsKo {
 			'download.relocation.statLeftover' => 'Left behind',
 			'download.relocation.sectionMove' => 'Will be moved',
 			'download.relocation.sectionSkip' => 'Will be skipped',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.sectionMoved' => 'Moved',
 			'download.relocation.sectionFailed' => 'Not moved (left where it was)',
 			'download.relocation.sectionLeftover' => 'Old folders not fully removed',
@@ -6956,8 +7070,6 @@ extension on TranslationsKo {
 			'download.relocation.galleryImages' => ({required Object count}) => '${count} images',
 			'download.relocation.unfinishedDownloading' => ({required Object percent}) => 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues',
 			'download.relocation.unfinishedPending' => 'Waiting to download: re-queued after the move',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused',
 			'download.relocation.unfinishedFailed' => 'Download failed: the downloaded part moves too',
 			'download.relocation.noDataYet' => 'Nothing downloaded yet, only the save location changes',
@@ -7414,6 +7526,8 @@ extension on TranslationsKo {
 			'layoutSettings.descriptionContent' => '여기서의 구성은 동영상 및 갤러리 목록 페이지에 표시되는 열 수를 결정합니다. 자동 모드를 선택하면 시스템이 화면 너비에 따라 자동으로 조정하고, 수동 모드를 선택하면 열 수를 고정할 수 있습니다.',
 			'layoutSettings.layoutMode' => '레이아웃 모드',
 			'layoutSettings.reset' => '초기화',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.autoMode' => '자동 모드',
 			'layoutSettings.autoModeDesc' => '화면 너비에 따라 자동으로 조정',
 			'layoutSettings.manualMode' => '수동 모드',
@@ -7470,8 +7584,6 @@ extension on TranslationsKo {
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'Android 기기는 WEBM 형식 지원이 제한적입니다. 외부 플레이어를 사용하거나 WEBM을 지원하는 플레이어 앱을 다운로드하는 것을 권장합니다',
 			'mediaPlayer.currentDeviceCodecNotSupported' => '현재 기기는 이 동영상 형식의 코덱을 지원하지 않습니다',
 			'mediaPlayer.checkNetworkConnection' => '네트워크 연결을 확인하고 다시 시도해 주세요',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.appMayLackMediaPermission' => '앱에 필요한 미디어 재생 권한이 없을 수 있습니다',
 			'mediaPlayer.tryOtherVideoPlayer' => '다른 동영상 플레이어를 사용해 보세요',
 			'mediaPlayer.unrecognizedVideoFormat' => '인식할 수 없는 동영상 파일',
@@ -7928,6 +8040,8 @@ extension on TranslationsKo {
 			'siteMode.confirmUsing' => ({required Object site}) => '확인하면 이후 요청은 ${site} 모드를 사용합니다.',
 			'siteMode.switched' => ({required Object site}) => '${site} 모드로 전환했습니다. 앱이 새로 고쳐졌습니다.',
 			'savedSearchConfig.title' => '저장된 필터',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearchConfig.empty' => '저장된 필터가 없습니다',
 			'savedSearchConfig.saveTooltip' => '현재 필터 저장',
 			'savedSearchConfig.namePromptTitle' => '필터 저장',
@@ -7984,8 +8098,6 @@ extension on TranslationsKo {
 			'externalPlayer.sourceLocal' => '로컬 파일',
 			'externalPlayer.sourceOnline' => '직접 링크',
 			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => '직접 링크 · ${quality}',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.onlineLinkExpiryHint' => '직접 링크는 만료되므로 외부 플레이어가 중간에 멈출 수 있습니다. 먼저 다운로드하는 것이 안정적입니다.',
 			'externalPlayer.vrPlayerHint' => '선택기에 VR 플레이어가 없으면 동영상 링크 복사를 사용해 해당 플레이어 안에 붙여 넣으세요.',
 			'externalPlayer.noHandler' => '이 기기에서 동영상을 열 수 있는 앱이 없습니다',
@@ -8442,6 +8554,8 @@ extension on TranslationsKo {
 			'ai.openSettings' => 'AI 설정 열기',
 			'ai.notConfigured' => '구성되지 않음',
 			'ai.searchTitle' => 'AI 검색',
+			_ => null,
+		} ?? switch (path) {
 			'ai.searchHint' => '찾고 있는 것을 설명하면 AI가 검색어와 필터를 자동으로 채워줍니다.',
 			'ai.searchPlaceholder' => '예: 조회수 1만 회 이상의 최신 MMD',
 			'ai.searchApply' => '이 조건으로 검색',
@@ -8498,8 +8612,6 @@ extension on TranslationsKo {
 			'ai.contextWindow' => ({required Object tokens}) => 'Context ${tokens}',
 			'ai.capFunctionCall' => 'Tools',
 			'ai.capReasoning' => 'Reasoning',
-			_ => null,
-		} ?? switch (path) {
 			'ai.capStructuredOutput' => 'JSON output',
 			'ai.capVision' => 'Vision',
 			'ai.capFileInput' => 'Files',

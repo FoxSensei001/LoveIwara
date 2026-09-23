@@ -954,7 +954,6 @@ class _TranslationsSettingsId extends TranslationsSettingsEn {
 	@override String get signatureRecipeGroupForum => 'Di forum';
 	@override String get signatureRecipeGroupDaily => 'Satu kalimat tiap hari';
 	@override String get signatureRecipeGroupAi => 'Biar AI yang menulis';
-	@override String get signaturePromptSampleContext => 'Uji coba ini memakai konteks contoh halaman video. Saat benar-benar mengirim, AI menerima apa pun yang sedang kamu lihat.';
 	@override String get recipeAuthorTagsName => 'Pembuat dan tag';
 	@override String get recipeAuthorTagsTemplate => '%author% · %tags%';
 	@override String get recipeFloorName => 'Membalas satu balasan';
@@ -1004,15 +1003,72 @@ class _TranslationsSettingsId extends TranslationsSettingsEn {
 	@override String get signatureEditTextHint => 'Ini tanda tangan yang sudah tertulis di komentar ini — kutipan dan tanggalnya kini hanya teks biasa, ubah sesukamu. Kosongkan untuk menghapusnya.';
 	@override String signatureResolving({required Object name}) => 'Membuat ${name}…';
 	@override String get signaturePendingValue => '(dibuat saat dikirim)';
-	@override String get signatureAiHint => 'Satu kalimat yang ditulis AI saat itu juga, selalu baru di tiap komentar, lewat penyedia AI yang kamu atur. Saat mengirim dari halaman video, galeri, atau forum, AI juga tahu apa yang sedang kamu lihat dan bisa menulis sesuai itu.';
+	@override String get signatureAiHint => 'Satu kalimat yang ditulis AI saat itu juga, selalu baru di tiap komentar, lewat penyedia AI yang kamu atur. Buka untuk lihat apa yang bisa dilihatnya, lalu beri tahu apa yang harus ditulis.';
 	@override String get signatureAiUnavailable => 'Belum ada penyedia AI yang diatur, jadi sumber ini tidak muncul di panel variabel.';
-	@override String get signaturePromptTitle => 'Prompt';
-	@override String get signaturePromptHint => 'Inilah yang dikirim ke model. Tulis ulang sesukamu: nada, panjang, temanya. Aturan yang sudah ada di dalamnya layak dipertahankan.';
 	@override String get signaturePromptReset => 'Kembalikan ke bawaan';
 	@override String get signaturePromptTry => 'Coba';
-	@override String get signaturePromptSample => 'Hasilnya';
-	@override String get signaturePromptLanguageHint => 'diganti dengan bahasa antarmukamu. Kalau dihapus, kalimatnya mengikuti bahasa prompt.';
 	@override String get signaturePromptEdited => 'diubah';
+	@override String get signatureAiSheetTitle => 'Cara kalimat AI ditulis';
+	@override String get signatureAiSeeTitle => 'Apa yang bisa dilihat AI';
+	@override String get signatureAiFactUnavailable => 'tidak tersedia di sini';
+	@override String get signatureAiFactTapHint => 'Ketuk salah satu untuk menyisipkannya ke instruksi di bawah.';
+	@override String get signatureAiReadReply => 'Biarkan AI membaca balasan mereka';
+	@override String get signatureAiReadReplyDesc => 'Saat kamu membalas seseorang, tunjukkan juga teks komentar mereka. Nonaktif secara default: itu kata-kata orang lain.';
+	@override String signatureAiCannotSee({required Object items}) => 'Tidak bisa melihat: ${items}';
+	@override String get signatureAiCannotSeeDraft => 'komentar yang sedang kamu tulis';
+	@override String get signatureAiCannotSeeReply => 'apa yang mereka katakan';
+	@override String get signatureAiCannotSeeAccount => 'informasi akunmu';
+	@override String get signatureAiPrivacy => 'Apa yang bisa dilihatnya hanya dikirim ke penyedia yang kamu atur di pengaturan AI.';
+	@override String get signatureAiWhatTitle => 'Apa yang harus ditulisnya';
+	@override String get signatureAiWhatHint => 'Satu atau dua kalimat dengan bahasamu sendiri sudah cukup. Ketuk chip di atas untuk menyisipkannya; yang tidak tersedia di sini akan hilang sendiri.';
+	@override String signatureAiWhatPreview({required Object scene}) => 'Setelah diisi untuk "${scene}"';
+	@override String get signatureAiDefaultInstruction => 'Komentari singkat apa yang sedang saya lihat dalam satu baris santai. Jangan ulangi judulnya.';
+	@override String get signatureAiFormatTitle => 'Format';
+	@override String get signatureAiFormatFixed => 'Satu baris saja · tanpa tanda kutip · tanpa tanda tangan';
+	@override String get signatureAiLength => 'Panjang';
+	@override String get signatureAiLengthShort => 'Pendek · ~40 karakter';
+	@override String get signatureAiLengthMedium => 'Sedang · ~70 karakter';
+	@override String get signatureAiLengthLong => 'Panjang · ~95 karakter';
+	@override String get signatureAiLanguage => 'Bahasa';
+	@override String get signatureAiLanguageUi => 'Ikut aplikasi';
+	@override String get signatureAiLanguageDraft => 'Ikut komentarku';
+	@override String get signatureAiLanguageDraftHint => 'Memakai bahasa apa pun yang kamu gunakan di komentar. Isi komentar sendiri tidak pernah dikirim ke AI; kalau tidak terbaca, AI memakai bahasa aplikasi.';
+	@override String get signatureAiAllowEmoji => 'Izinkan emoji';
+	@override String get signatureAiRecipesTitle => 'Ide';
+	@override String get signatureAiRecipesHint => 'Ketuk salah satu untuk memakai instruksinya, lalu sesuaikan. Baris di bawahnya adalah contoh yang ditulis manual; ketuk "Coba" untuk lihat hasil sungguhan.';
+	@override String get signatureAiExample => 'Contoh';
+	@override String get signatureAiRecipeNeedsReply => 'Aktifkan dulu "Biarkan AI membaca balasan mereka" di atas';
+	@override String get signatureAiTryTitle => 'Coba';
+	@override String signatureAiTryEmpty({required Object scene}) => 'Belum dicoba. AI akan menulis satu kalimat memakai konteks "${scene}".';
+	@override String get signatureAiTryNeedsProvider => 'Atur penyedia AI dulu agar bisa mencobanya.';
+	@override String get signatureAiWireTitle => 'Apa yang benar-benar diterima AI kali ini';
+	@override String get signatureAiWireSystem => 'Prompt sistem (dibuat dari format di atas)';
+	@override String get signatureAiWireUser => 'Pesan pengguna (apa yang bisa dilihat + instruksimu)';
+	@override String get signatureDemoReplyText => 'Pengambilan gambarnya jauh lebih mulus dari sebelumnya. Pencahayaannya juga diganti ya?';
+	@override String get aiRecipeFeelName => 'Kesan singkat';
+	@override String get aiRecipeFeelInstruction => 'Tulis kalimat yang spontan keluar begitu selesai menonton "%title%". Jangan ulangi judulnya.';
+	@override String get aiRecipeFeelExample => 'Baru tahu musim panas bisa terlihat sesunyi ini.';
+	@override String get aiRecipeRoastName => 'Sindir judulnya';
+	@override String get aiRecipeRoastInstruction => 'Sindir sedikit judul "%title%". Nakal, tapi jangan jahat.';
+	@override String get aiRecipeRoastExample => 'Judulnya lebih berani daripada isi videonya.';
+	@override String get aiRecipePraiseName => 'Puji kreatornya';
+	@override String get aiRecipePraiseInstruction => 'Puji %author% dalam satu kalimat. Buat spesifik, jangan cuma menyebut nama.';
+	@override String get aiRecipePraiseExample => 'Timing dan seleranya kayaknya bukan dari planet ini.';
+	@override String get aiRecipeHaikuName => 'Haiku 5-7-5';
+	@override String get aiRecipeHaikuInstruction => 'Tulis haiku 5-7-5 yang terinspirasi dari "%title%", dengan " / " di antara tiga bagiannya.';
+	@override String get aiRecipeHaikuExample => 'kipas terus berputar / cahaya layar di wajahku / malam makin dalam';
+	@override String get aiRecipeChuuniName => 'Teriakan anime lebay';
+	@override String get aiRecipeChuuniInstruction => 'Tulis satu baris yang bakal diteriakkan karakter anime yang lebay, dikaitkan santai dengan %tags%.';
+	@override String get aiRecipeChuuniExample => 'Semua panas ini, aku terima semuanya!';
+	@override String get aiRecipeAcrosticName => 'Akrostik tag';
+	@override String get aiRecipeAcrosticInstruction => 'Selipkan kata-kata dari %tags% berurutan ke dalam satu kalimat, dan buat terasa alami.';
+	@override String get aiRecipeAcrosticExample => 'Setiap frame 4K, dan jantungku masih belum bisa mengejar.';
+	@override String get aiRecipeGreetName => 'Sapaan sesuai waktu';
+	@override String get aiRecipeGreetInstruction => 'Sekarang jam %time%. Sapa sesuai waktunya, lalu tambahkan satu pikiran singkat.';
+	@override String get aiRecipeGreetExample => 'Jam 2 pagi masih scroll, kelihatannya malam ini juga nggak jadi tidur.';
+	@override String get aiRecipeEchoName => 'Sambung candaannya';
+	@override String get aiRecipeEchoInstruction => 'Tangkap apa yang baru dikatakan %reply_to%, lalu tambahkan satu baris yang menyambungnya.';
+	@override String get aiRecipeEchoExample => 'Kamu benar, dan aku sudah di putaran ketiga.';
 	@override String get signatureVariablesGroup => 'Variabel bawaan';
 	@override String get signatureNeedsNetwork => 'Perlu jaringan';
 	@override String get signatureBuiltinSource => 'Bawaan';
@@ -5656,7 +5712,6 @@ extension on TranslationsId {
 			'settings.signatureRecipeGroupForum' => 'Di forum',
 			'settings.signatureRecipeGroupDaily' => 'Satu kalimat tiap hari',
 			'settings.signatureRecipeGroupAi' => 'Biar AI yang menulis',
-			'settings.signaturePromptSampleContext' => 'Uji coba ini memakai konteks contoh halaman video. Saat benar-benar mengirim, AI menerima apa pun yang sedang kamu lihat.',
 			'settings.recipeAuthorTagsName' => 'Pembuat dan tag',
 			'settings.recipeAuthorTagsTemplate' => '%author% · %tags%',
 			'settings.recipeFloorName' => 'Membalas satu balasan',
@@ -5706,15 +5761,72 @@ extension on TranslationsId {
 			'settings.signatureEditTextHint' => 'Ini tanda tangan yang sudah tertulis di komentar ini — kutipan dan tanggalnya kini hanya teks biasa, ubah sesukamu. Kosongkan untuk menghapusnya.',
 			'settings.signatureResolving' => ({required Object name}) => 'Membuat ${name}…',
 			'settings.signaturePendingValue' => '(dibuat saat dikirim)',
-			'settings.signatureAiHint' => 'Satu kalimat yang ditulis AI saat itu juga, selalu baru di tiap komentar, lewat penyedia AI yang kamu atur. Saat mengirim dari halaman video, galeri, atau forum, AI juga tahu apa yang sedang kamu lihat dan bisa menulis sesuai itu.',
+			'settings.signatureAiHint' => 'Satu kalimat yang ditulis AI saat itu juga, selalu baru di tiap komentar, lewat penyedia AI yang kamu atur. Buka untuk lihat apa yang bisa dilihatnya, lalu beri tahu apa yang harus ditulis.',
 			'settings.signatureAiUnavailable' => 'Belum ada penyedia AI yang diatur, jadi sumber ini tidak muncul di panel variabel.',
-			'settings.signaturePromptTitle' => 'Prompt',
-			'settings.signaturePromptHint' => 'Inilah yang dikirim ke model. Tulis ulang sesukamu: nada, panjang, temanya. Aturan yang sudah ada di dalamnya layak dipertahankan.',
 			'settings.signaturePromptReset' => 'Kembalikan ke bawaan',
 			'settings.signaturePromptTry' => 'Coba',
-			'settings.signaturePromptSample' => 'Hasilnya',
-			'settings.signaturePromptLanguageHint' => 'diganti dengan bahasa antarmukamu. Kalau dihapus, kalimatnya mengikuti bahasa prompt.',
 			'settings.signaturePromptEdited' => 'diubah',
+			'settings.signatureAiSheetTitle' => 'Cara kalimat AI ditulis',
+			'settings.signatureAiSeeTitle' => 'Apa yang bisa dilihat AI',
+			'settings.signatureAiFactUnavailable' => 'tidak tersedia di sini',
+			'settings.signatureAiFactTapHint' => 'Ketuk salah satu untuk menyisipkannya ke instruksi di bawah.',
+			'settings.signatureAiReadReply' => 'Biarkan AI membaca balasan mereka',
+			'settings.signatureAiReadReplyDesc' => 'Saat kamu membalas seseorang, tunjukkan juga teks komentar mereka. Nonaktif secara default: itu kata-kata orang lain.',
+			'settings.signatureAiCannotSee' => ({required Object items}) => 'Tidak bisa melihat: ${items}',
+			'settings.signatureAiCannotSeeDraft' => 'komentar yang sedang kamu tulis',
+			'settings.signatureAiCannotSeeReply' => 'apa yang mereka katakan',
+			'settings.signatureAiCannotSeeAccount' => 'informasi akunmu',
+			'settings.signatureAiPrivacy' => 'Apa yang bisa dilihatnya hanya dikirim ke penyedia yang kamu atur di pengaturan AI.',
+			'settings.signatureAiWhatTitle' => 'Apa yang harus ditulisnya',
+			'settings.signatureAiWhatHint' => 'Satu atau dua kalimat dengan bahasamu sendiri sudah cukup. Ketuk chip di atas untuk menyisipkannya; yang tidak tersedia di sini akan hilang sendiri.',
+			'settings.signatureAiWhatPreview' => ({required Object scene}) => 'Setelah diisi untuk "${scene}"',
+			'settings.signatureAiDefaultInstruction' => 'Komentari singkat apa yang sedang saya lihat dalam satu baris santai. Jangan ulangi judulnya.',
+			'settings.signatureAiFormatTitle' => 'Format',
+			'settings.signatureAiFormatFixed' => 'Satu baris saja · tanpa tanda kutip · tanpa tanda tangan',
+			'settings.signatureAiLength' => 'Panjang',
+			'settings.signatureAiLengthShort' => 'Pendek · ~40 karakter',
+			'settings.signatureAiLengthMedium' => 'Sedang · ~70 karakter',
+			'settings.signatureAiLengthLong' => 'Panjang · ~95 karakter',
+			'settings.signatureAiLanguage' => 'Bahasa',
+			'settings.signatureAiLanguageUi' => 'Ikut aplikasi',
+			'settings.signatureAiLanguageDraft' => 'Ikut komentarku',
+			'settings.signatureAiLanguageDraftHint' => 'Memakai bahasa apa pun yang kamu gunakan di komentar. Isi komentar sendiri tidak pernah dikirim ke AI; kalau tidak terbaca, AI memakai bahasa aplikasi.',
+			'settings.signatureAiAllowEmoji' => 'Izinkan emoji',
+			'settings.signatureAiRecipesTitle' => 'Ide',
+			'settings.signatureAiRecipesHint' => 'Ketuk salah satu untuk memakai instruksinya, lalu sesuaikan. Baris di bawahnya adalah contoh yang ditulis manual; ketuk "Coba" untuk lihat hasil sungguhan.',
+			'settings.signatureAiExample' => 'Contoh',
+			'settings.signatureAiRecipeNeedsReply' => 'Aktifkan dulu "Biarkan AI membaca balasan mereka" di atas',
+			'settings.signatureAiTryTitle' => 'Coba',
+			'settings.signatureAiTryEmpty' => ({required Object scene}) => 'Belum dicoba. AI akan menulis satu kalimat memakai konteks "${scene}".',
+			'settings.signatureAiTryNeedsProvider' => 'Atur penyedia AI dulu agar bisa mencobanya.',
+			'settings.signatureAiWireTitle' => 'Apa yang benar-benar diterima AI kali ini',
+			'settings.signatureAiWireSystem' => 'Prompt sistem (dibuat dari format di atas)',
+			'settings.signatureAiWireUser' => 'Pesan pengguna (apa yang bisa dilihat + instruksimu)',
+			'settings.signatureDemoReplyText' => 'Pengambilan gambarnya jauh lebih mulus dari sebelumnya. Pencahayaannya juga diganti ya?',
+			'settings.aiRecipeFeelName' => 'Kesan singkat',
+			'settings.aiRecipeFeelInstruction' => 'Tulis kalimat yang spontan keluar begitu selesai menonton "%title%". Jangan ulangi judulnya.',
+			'settings.aiRecipeFeelExample' => 'Baru tahu musim panas bisa terlihat sesunyi ini.',
+			'settings.aiRecipeRoastName' => 'Sindir judulnya',
+			'settings.aiRecipeRoastInstruction' => 'Sindir sedikit judul "%title%". Nakal, tapi jangan jahat.',
+			'settings.aiRecipeRoastExample' => 'Judulnya lebih berani daripada isi videonya.',
+			'settings.aiRecipePraiseName' => 'Puji kreatornya',
+			'settings.aiRecipePraiseInstruction' => 'Puji %author% dalam satu kalimat. Buat spesifik, jangan cuma menyebut nama.',
+			'settings.aiRecipePraiseExample' => 'Timing dan seleranya kayaknya bukan dari planet ini.',
+			'settings.aiRecipeHaikuName' => 'Haiku 5-7-5',
+			'settings.aiRecipeHaikuInstruction' => 'Tulis haiku 5-7-5 yang terinspirasi dari "%title%", dengan " / " di antara tiga bagiannya.',
+			'settings.aiRecipeHaikuExample' => 'kipas terus berputar / cahaya layar di wajahku / malam makin dalam',
+			'settings.aiRecipeChuuniName' => 'Teriakan anime lebay',
+			'settings.aiRecipeChuuniInstruction' => 'Tulis satu baris yang bakal diteriakkan karakter anime yang lebay, dikaitkan santai dengan %tags%.',
+			'settings.aiRecipeChuuniExample' => 'Semua panas ini, aku terima semuanya!',
+			'settings.aiRecipeAcrosticName' => 'Akrostik tag',
+			'settings.aiRecipeAcrosticInstruction' => 'Selipkan kata-kata dari %tags% berurutan ke dalam satu kalimat, dan buat terasa alami.',
+			'settings.aiRecipeAcrosticExample' => 'Setiap frame 4K, dan jantungku masih belum bisa mengejar.',
+			'settings.aiRecipeGreetName' => 'Sapaan sesuai waktu',
+			'settings.aiRecipeGreetInstruction' => 'Sekarang jam %time%. Sapa sesuai waktunya, lalu tambahkan satu pikiran singkat.',
+			'settings.aiRecipeGreetExample' => 'Jam 2 pagi masih scroll, kelihatannya malam ini juga nggak jadi tidur.',
+			'settings.aiRecipeEchoName' => 'Sambung candaannya',
+			'settings.aiRecipeEchoInstruction' => 'Tangkap apa yang baru dikatakan %reply_to%, lalu tambahkan satu baris yang menyambungnya.',
+			'settings.aiRecipeEchoExample' => 'Kamu benar, dan aku sudah di putaran ketiga.',
 			'settings.signatureVariablesGroup' => 'Variabel bawaan',
 			'settings.signatureNeedsNetwork' => 'Perlu jaringan',
 			'settings.signatureBuiltinSource' => 'Bawaan',
@@ -5872,6 +5984,8 @@ extension on TranslationsId {
 			'settings.enableHardwareAcceleration' => 'Aktifkan Akselerasi Perangkat Keras',
 			'settings.enableHardwareAccelerationInfo' => 'Mengaktifkan akselerasi perangkat keras dapat meningkatkan kinerja dekode, tetapi beberapa perangkat mungkin tidak kompatibel',
 			'settings.useOpenSLESAudioOutput' => 'Gunakan Output Audio OpenSLES',
+			_ => null,
+		} ?? switch (path) {
 			'settings.useOpenSLESAudioOutputInfo' => 'Gunakan output audio latensi rendah, dapat meningkatkan kinerja audio',
 			'settings.videoSyncAudio' => 'Sinkron Audio',
 			'settings.videoSyncDisplayResample' => 'Tampilkan Resample',
@@ -5928,8 +6042,6 @@ extension on TranslationsId {
 			'settings.blockSettings.regexHelpIntro' => 'Ekspresi reguler mencocokkan judul lebih fleksibel daripada kata kunci biasa. Beberapa contoh umum:',
 			'settings.blockSettings.regexHelpTapHint' => 'Ketuk contoh untuk mengisinya.',
 			'settings.blockSettings.regexEx1Pattern' => 'trailer|teaser|bonus',
-			_ => null,
-		} ?? switch (path) {
 			'settings.blockSettings.regexEx1Desc' => 'Cocok dengan salah satu kata ini ("|" berarti "atau")',
 			'settings.blockSettings.regexEx2Pattern' => '^\\[.*\\]',
 			'settings.blockSettings.regexEx2Desc' => 'Judul yang diawali dengan [tanda kurung]',
@@ -6386,6 +6498,8 @@ extension on TranslationsId {
 			'videoDetail.videoPlayer' => 'Pemutar Video',
 			'videoDetail.videoPlayerInfo' => 'Info Pemutar Video',
 			'videoDetail.moreSettings' => 'Pengaturan Lainnya',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.videoPlayerFeatureInfo' => 'Info Fitur Pemutar Video',
 			'videoDetail.autoRewind' => 'Mundur Otomatis',
 			'videoDetail.rewindAndFastForward' => 'Mundur dan Maju Cepat',
@@ -6442,8 +6556,6 @@ extension on TranslationsId {
 			'videoDetail.cast.deviceTypes.unknownDevice' => 'Perangkat Tidak Dikenal',
 			'videoDetail.cast.currentPlatformNotSupported' => 'Platform saat ini tidak mendukung penyiaran',
 			'videoDetail.cast.unableToGetVideoUrl' => 'Tidak dapat memperoleh URL video, silakan coba lagi nanti',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.stopCasting' => 'Hentikan penyiaran',
 			'videoDetail.cast.dlnaCastSheet.title' => 'Penyiaran Jarak Jauh',
 			'videoDetail.cast.dlnaCastSheet.close' => 'Tutup',
@@ -6900,6 +7012,8 @@ extension on TranslationsId {
 			'download.relocation.statLeftover' => 'Left behind',
 			'download.relocation.sectionMove' => 'Will be moved',
 			'download.relocation.sectionSkip' => 'Will be skipped',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.sectionMoved' => 'Moved',
 			'download.relocation.sectionFailed' => 'Not moved (left where it was)',
 			'download.relocation.sectionLeftover' => 'Old folders not fully removed',
@@ -6956,8 +7070,6 @@ extension on TranslationsId {
 			'download.relocation.galleryImages' => ({required Object count}) => '${count} images',
 			'download.relocation.unfinishedDownloading' => ({required Object percent}) => 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues',
 			'download.relocation.unfinishedPending' => 'Waiting to download: re-queued after the move',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused',
 			'download.relocation.unfinishedFailed' => 'Download failed: the downloaded part moves too',
 			'download.relocation.noDataYet' => 'Nothing downloaded yet, only the save location changes',
@@ -7414,6 +7526,8 @@ extension on TranslationsId {
 			'layoutSettings.descriptionContent' => 'Konfigurasi di sini akan menentukan jumlah kolom yang ditampilkan pada halaman daftar video dan galeri. Anda dapat memilih mode otomatis agar sistem menyesuaikan secara otomatis berdasarkan lebar layar, atau memilih mode manual untuk menetapkan jumlah kolom.',
 			'layoutSettings.layoutMode' => 'Mode Tata Letak',
 			'layoutSettings.reset' => 'Atur Ulang',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.autoMode' => 'Mode Otomatis',
 			'layoutSettings.autoModeDesc' => 'Menyesuaikan secara otomatis berdasarkan lebar layar',
 			'layoutSettings.manualMode' => 'Mode Manual',
@@ -7470,8 +7584,6 @@ extension on TranslationsId {
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'Perangkat Android memiliki dukungan terbatas untuk format WEBM. Disarankan menggunakan pemutar eksternal atau mengunduh aplikasi pemutar yang mendukung WEBM',
 			'mediaPlayer.currentDeviceCodecNotSupported' => 'Perangkat saat ini tidak mendukung codec untuk format video ini',
 			'mediaPlayer.checkNetworkConnection' => 'Silakan periksa koneksi jaringan Anda dan coba lagi',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.appMayLackMediaPermission' => 'Aplikasi mungkin kekurangan izin pemutaran media yang diperlukan',
 			'mediaPlayer.tryOtherVideoPlayer' => 'Silakan coba gunakan pemutar video lain',
 			'mediaPlayer.unrecognizedVideoFormat' => 'Berkas video tidak dikenali',
@@ -7928,6 +8040,8 @@ extension on TranslationsId {
 			'siteMode.confirmUsing' => ({required Object site}) => 'Setelah dikonfirmasi, permintaan mendatang akan menggunakan mode ${site}.',
 			'siteMode.switched' => ({required Object site}) => 'Beralih ke ${site}. Aplikasi telah disegarkan.',
 			'savedSearchConfig.title' => 'Filter Tersimpan',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearchConfig.empty' => 'Belum ada filter tersimpan',
 			'savedSearchConfig.saveTooltip' => 'Simpan filter saat ini',
 			'savedSearchConfig.namePromptTitle' => 'Simpan Filter',
@@ -7984,8 +8098,6 @@ extension on TranslationsId {
 			'externalPlayer.sourceLocal' => 'Berkas lokal',
 			'externalPlayer.sourceOnline' => 'Tautan langsung',
 			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => 'Tautan langsung · ${quality}',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.onlineLinkExpiryHint' => 'Tautan langsung dapat kedaluwarsa, sehingga pemutar eksternal mungkin berhenti di tengah jalan. Mengunduh terlebih dahulu adalah cara yang andal.',
 			'externalPlayer.vrPlayerHint' => 'Jika pemutar VR Anda tidak ada di pemilih, gunakan Salin tautan video lalu tempelkan di dalam pemutar tersebut.',
 			'externalPlayer.noHandler' => 'Tidak ada aplikasi di perangkat ini yang dapat membuka video',
@@ -8442,6 +8554,8 @@ extension on TranslationsId {
 			'ai.openSettings' => 'Buka pengaturan AI',
 			'ai.notConfigured' => 'Belum dikonfigurasi',
 			'ai.searchTitle' => 'Pencarian AI',
+			_ => null,
+		} ?? switch (path) {
 			'ai.searchHint' => 'Jelaskan apa yang Anda cari; AI akan mengisi kata kunci pencarian dan filter.',
 			'ai.searchPlaceholder' => 'mis. MMD terbaru dengan lebih dari 10 rb tayangan',
 			'ai.searchApply' => 'Cari dengan kriteria ini',
@@ -8498,8 +8612,6 @@ extension on TranslationsId {
 			'ai.contextWindow' => ({required Object tokens}) => 'Context ${tokens}',
 			'ai.capFunctionCall' => 'Tools',
 			'ai.capReasoning' => 'Reasoning',
-			_ => null,
-		} ?? switch (path) {
 			'ai.capStructuredOutput' => 'JSON output',
 			'ai.capVision' => 'Vision',
 			'ai.capFileInput' => 'Files',

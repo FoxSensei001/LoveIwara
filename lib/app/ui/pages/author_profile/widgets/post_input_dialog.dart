@@ -162,8 +162,11 @@ class _PostInputDialogState extends State<PostInputDialog> {
     return _estimatedSignature;
   }
 
-  SignatureContext get _signatureContext =>
-      SignatureContext(title: _titleController.text);
+  SignatureContext get _signatureContext => SignatureContext(
+    title: _titleController.text,
+    // 只拿来判断正文是哪种文字（AI 一言「跟正文语言」），不外发。
+    draft: _bodyController.text,
+  );
 
   /// 用户配过小尾巴的内容没有。
   ///
@@ -187,7 +190,7 @@ class _PostInputDialogState extends State<PostInputDialog> {
       signature: _estimatedSignature,
       onRegenerateSignature:
           _signatureEnabled &&
-              _signatureService.needsNetwork(_signatureTemplate)
+              _signatureService.canRegenerate(_signatureTemplate)
           ? _regenerateSignature
           : null,
     );

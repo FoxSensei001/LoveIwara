@@ -281,7 +281,12 @@ class _VariableRow extends StatelessWidget {
           : ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 140),
               child: Text(
-                shown,
+                // 这里是纯 Text 不是 markdown：值里为发送而加的转义符（`\[`、
+                // `\_`）要摘掉，否则用户看到一串反斜杠。
+                shown.replaceAllMapped(
+                  RegExp(r'\\([\\`*\[\]<~_.)#>+\-=|])'),
+                  (m) => m[1]!,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.end,

@@ -5,10 +5,12 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show StringCharacters;
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:i_iwara/app/models/ai_task.model.dart';
+import 'package:i_iwara/app/models/signature_ai_settings.dart';
 import 'package:i_iwara/app/models/signature_provider.model.dart';
 import 'package:i_iwara/app/services/ai_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
@@ -40,6 +42,8 @@ class SignatureContext {
     this.floor,
     this.duration,
     this.playPosition,
+    this.replyText,
+    this.draft,
   });
 
   /// 正在看的那件东西的标题：视频 / 图库 / 投稿标题、论坛主题、正在写的帖子标题。
@@ -71,7 +75,34 @@ class SignatureContext {
   /// 不是打开输入框那一刻的。
   final Duration? Function()? playPosition;
 
+  /// 正在回复的那条评论的原话（去掉引用头与小尾巴之后的正文）。
+  ///
+  /// ⛔ 只给 AI 一言用，而且只在用户打开「让它读对方的原话」之后才发出去
+  /// （[SignatureAiSettings.readReplyText]）——那是别人写的字。它不是模板变量：
+  /// 把别人的整段话抄进自己的小尾巴没有意义。
+  final String? replyText;
+
+  /// 用户此刻正在写的正文。
+  ///
+  /// ⛔ **从不发给任何人**：只用来在本地看一眼它是哪种文字，好让 AI 一言
+  /// 「跟正文语言」（见 `SignatureAiPrompt.draftLanguageName`）。
+  final String? draft;
+
   static const SignatureContext empty = SignatureContext();
+
+  /// 补上「正在写的正文」。见 [draft]。
+  SignatureContext withDraft(String text) => SignatureContext(
+    title: title,
+    author: author,
+    tags: tags,
+    section: section,
+    replyTo: replyTo,
+    floor: floor,
+    duration: duration,
+    playPosition: playPosition,
+    replyText: replyText,
+    draft: text,
+  );
 
   /// `{tags}` 最多写出几条。
   static const int maxTags = 5;
@@ -80,9 +111,18 @@ class SignatureContext {
   ///
   /// 回复某一楼 / 某条评论时用：那条回复的上下文＝所在页面的上下文 + 回复对象，
   /// 没有理由让每个回复入口自己重新拼一份页面信息。
-  SignatureContext withReplyTo(String? who, {int? floor}) {
+  ///
+  /// [text] 是对方那条的原话，见 [replyText]。
+  SignatureContext withReplyTo(String? who, {int? floor, String? text}) {
     final trimmed = who?.trim();
-    if ((trimmed == null || trimmed.isEmpty) && floor == null) return this;
+    final said = text?.trim();
+    if ((trimmed == null || trimmed.isEmpty) &&
+        floor == null &&
+        (said == null || said.isEmpty)) {
+      return this;
+    }
+    // ⛔ 原话**整份替换**，不走 _copyWith 的「null＝不动」：回的是另一个人时，
+    // 留着上一个人的原话，AI 读到的就是别人的话。
     return SignatureContext(
       title: title,
       author: author,
@@ -92,6 +132,8 @@ class SignatureContext {
       floor: floor ?? this.floor,
       duration: duration,
       playPosition: playPosition,
+      replyText: (said == null || said.isEmpty) ? null : said,
+      draft: draft,
     );
   }
 
@@ -369,37 +411,113 @@ class SignatureService extends GetxService {
       Get.isRegistered<AiService>() &&
       Get.find<AiService>().isAvailable(AiTask.signature);
 
-  /// AI 一言那条源的**当前**样子：用户改过提示词就是改过的那份。
+  /// AI 一言的设置。
   ///
-  /// ⛔ 返回的是配置，不问可用性——设置页要在 AI 还没配好时也能编辑提示词，
-  /// 否则用户得先去配供应商才能看见这个功能存在。
-  SignatureProvider get aiProvider =>
-      customProviders.firstWhereOrNull(
-        (e) => e.id == SignatureProvider.aiHitokoto.id,
-      ) ??
-      SignatureProvider.aiHitokoto;
+  /// ⭐ 存在自己的 ConfigKey 里，不再挤进数据源那张列表的「同名覆盖」机制：
+  /// 那套是给「一个会返回一句话的地址」设计的，AI 一样都不占，硬塞进去先后
+  /// 踩出过三个静默失败（没地址被当坏数据、copyWith 带着 builtin 存不进去、
+  /// 供应商删掉后变成幽灵源）。
+  ///
+  /// 老用户改过的那份英文提示词还躺在数据源配置里：新配置空着时把它迁成
+  /// 「写什么」。它原本是一整段系统提示词，当作要求交给模型照样读得懂。
+  SignatureAiSettings get aiSettings {
+    final stored = SignatureAiSettings.tryDecode(
+      _config[ConfigKey.SIGNATURE_AI_SETTINGS_KEY] as String?,
+    );
+    if (stored != null) return stored;
+    final legacy = customProviders
+        .firstWhereOrNull((e) => e.id == SignatureProvider.aiHitokoto.id)
+        ?.prompt
+        .trim();
+    return (legacy == null || legacy.isEmpty)
+        ? SignatureAiSettings.defaults
+        : SignatureAiSettings(instruction: legacy);
+  }
 
-  /// 改写 AI 一言的提示词。传空串＝恢复出厂（把那条覆盖整条删掉）。
-  Future<void> saveAiPrompt(String prompt) async {
-    final next = customProviders
-        .where((e) => e.id != SignatureProvider.aiHitokoto.id)
-        .toList();
-    final trimmed = prompt.trim();
-    if (trimmed.isNotEmpty && trimmed != SignatureAiPrompt.defaultTemplate) {
-      // ⛔ 不能写 `aiHitokoto.copyWith(...)`：copyWith 会把 `builtin: true`
-      // 一起带过来，而 encodeList 明确不存内置源——那样保存会全程静默失败，
-      // 界面上还显示改好了。必须自己搭一条 builtin=false 的。
-      next.add(
-        SignatureProvider(
-          id: SignatureProvider.aiHitokoto.id,
-          name: SignatureProvider.aiHitokoto.name,
-          url: '',
-          kind: SignatureProvider.kindAi,
-          prompt: trimmed,
-        ),
+  /// 保存 AI 一言的设置，顺手把数据源配置里那份老提示词摘掉——它已经迁过来了，
+  /// 留着的话「恢复默认」之后下次读又会把它迁回来。
+  Future<void> saveAiSettings(SignatureAiSettings settings) async {
+    await _config.setSetting(
+      ConfigKey.SIGNATURE_AI_SETTINGS_KEY,
+      settings.encode(),
+    );
+    final custom = customProviders;
+    if (custom.any((e) => e.id == SignatureProvider.aiHitokoto.id)) {
+      await saveCustomProviders(
+        custom.where((e) => e.id != SignatureProvider.aiHitokoto.id).toList(),
       );
     }
-    await saveCustomProviders(next);
+  }
+
+  /// 这一次要发给 AI 的两段原文。发送与设置页「这次 AI 实际收到的」共用。
+  ///
+  /// [instruction] 里的变量（`{title}`、`{time}`…）按 [context] 当场代入，
+  /// 填不出的整段消失——和小尾巴模板同一套规则，用户不必学第二种写法。
+  SignatureAiMessages buildAiMessages(
+    SignatureAiSettings settings, {
+    SignatureContext context = SignatureContext.empty,
+  }) {
+    final localeTag = slang.LocaleSettings.currentLocale.languageTag;
+    final language = settings.language == SignatureAiLanguage.draft
+        ? (SignatureAiPrompt.draftLanguageName(context.draft, localeTag) ??
+              SignatureAiPrompt.languageNameOf(localeTag))
+        : SignatureAiPrompt.languageNameOf(localeTag);
+
+    final raw = settings.instruction.trim().isEmpty
+        ? slang.t.settings.signatureAiDefaultInstruction
+        : settings.instruction;
+    final instruction = renderAiInstruction(
+      raw.replaceAll(SignatureAiPrompt.languagePlaceholder, language),
+      context,
+    );
+
+    String? reply;
+    if (settings.readReplyText) {
+      final text = context.replyText?.trim() ?? '';
+      if (text.isNotEmpty) {
+        final chars = text.characters;
+        reply = chars.length > SignatureAiPrompt.maxReplyTextLength
+            ? '${chars.take(SignatureAiPrompt.maxReplyTextLength)}…'
+            : text;
+      }
+    }
+
+    return SignatureAiMessages(
+      system: SignatureAiPrompt.systemPrompt(settings, language),
+      user: SignatureAiPrompt.userMessage(
+        facts: context.toPromptFacts(),
+        instruction: instruction,
+        replyText: reply,
+      ),
+    );
+  }
+
+  /// 把「写什么」里的变量代入。只认本地能算的（日期时间 + 上下文），数据源
+  /// 变量在这里没有意义（不会为了写一句提示词先去打一次别人的接口），
+  /// 当作取不到、整段消失。
+  ///
+  /// 不转义 markdown：这句话是说给模型听的，不会被发到评论区。
+  String renderAiInstruction(String instruction, SignatureContext context) {
+    final parsed = SignatureTemplate.parse(instruction);
+    final values = <String, String>{};
+    for (final variable in parsed.variables) {
+      final local = _resolveLocal(variable, context);
+      if (local != null) values[variable.key] = local;
+    }
+    return parsed.render(
+      values,
+      literalKeys: {for (final v in parsed.variables) v.key},
+    );
+  }
+
+  /// 按一份（可能还没保存的）设置让 AI 写一句。设置页「试一下」用它：
+  /// 试的是**输入框里当前这份**，不是已保存的那份。
+  Future<String?> fetchAiWith(
+    SignatureAiSettings settings, {
+    SignatureContext context = SignatureContext.empty,
+  }) async {
+    final raw = await _fetchAiValue(settings, context);
+    return raw.isEmpty ? null : raw;
   }
 
   /// 这个 id 是不是内置源的位子（＝删掉只是恢复默认，不是真删）。
@@ -450,7 +568,13 @@ class SignatureService extends GetxService {
     // 值混进来的话，进度一开始就不是 0/N，读起来像是漏了几步。
     final remote = <SignatureVariable>[];
     for (final variable in parsed.variables) {
-      // 本地变量优先现算；钉住的值只对网络变量生效。
+      // 钉住的值只对「每次不一样」的变量生效（网络变量 + `{pick}`）；日期、
+      // 上下文这些照常现算。
+      final pinnedRandom = _pinnedRandom(variable, pinned);
+      if (pinnedRandom != null) {
+        values[variable.key] = pinnedRandom;
+        continue;
+      }
       final local = _resolveLocal(variable, context);
       if (local != null) {
         values[variable.key] = local;
@@ -494,21 +618,24 @@ class SignatureService extends GetxService {
       }),
     );
 
-    return parsed.render(values, keepUnknown: keepUnknown);
+    return parsed.render(
+      values,
+      keepUnknown: keepUnknown,
+      literalKeys: _literalKeysOf(parsed),
+    );
   }
 
   /// 一个变量在进度里怎么称呼：优先用数据源的显示名，认不出就用变量名自己。
   String _labelOf(SignatureVariable variable) =>
       providerOf(variable.name)?.displayName ?? variable.name;
 
-  /// 把模板里**所有数据源变量**现取一遍，返回 key → 取到的值。
+  /// 把模板里**每次求值都不一样**的变量现取一遍，返回 key → 取到的值。
   ///
   /// 预览里那枚「生成 / 换一句」按的就是它。与 [render] 共用 [_resolveGuarded]，
-  /// 所以超时、失败回退上次值这三道兜底完全一样——预览里能取到的，发送时
-  /// 一定也能取到。
+  /// 所以超时、失败兜底完全一样——预览里能取到的，发送时一定也能取到。
   ///
-  /// 只跑网络变量：本地变量没有「生成」这回事，把它们一起算进来只会让
-  /// `{date}` 被钉在点预览的那一刻。
+  /// 「每次不一样」＝数据源变量 + `{pick}`（见 [_isRandomLocal]）。日期、上下文
+  /// 这些没有「生成」这回事，一起算进来只会让 `{date}` 被钉在点预览的那一刻。
   Future<Map<String, String>> resolveProviderValues(
     String template, {
     SignatureContext context = SignatureContext.empty,
@@ -517,15 +644,42 @@ class SignatureService extends GetxService {
     final out = <String, String>{};
 
     await Future.wait(
-      parsed.variables.where((v) => _resolveLocal(v, context) == null).map((
-        variable,
-      ) async {
-        final value = await _resolveGuarded(variable, context);
-        if (value != null && value.isNotEmpty) out[variable.key] = value;
-      }),
+      parsed.variables
+          .where((v) => _isRandomLocal(v) || _resolveLocal(v, context) == null)
+          .map((variable) async {
+            final value = _isRandomLocal(variable)
+                ? _resolveLocal(variable, context)
+                : await _resolveGuarded(variable, context);
+            if (value != null && value.isNotEmpty) out[variable.key] = value;
+          }),
     );
 
     return out;
+  }
+
+  /// 本地算、但**每算一次都不一样**的变量。
+  ///
+  /// ⛔ 它们和一言是同一类问题：预览里摆着「好」，发出去是「不想说」，而且
+  /// 字数统计每敲一个字都跟着跳。所以它们和数据源变量一样走「钉住」那一套
+  /// ——预览里写「发送时生成」、点「生成」才定下来、定下来之后发送原样发出。
+  static bool _isRandomLocal(SignatureVariable variable) =>
+      variable.name == 'pick';
+
+  /// 值是**用户自己写的字**的那些变量（`{pick}` 的候选），渲染时不转义行内
+  /// markdown。见 [SignatureTemplate.render] 的 `literalKeys`。
+  static Set<String> _literalKeysOf(SignatureTemplate parsed) => {
+    for (final v in parsed.variables)
+      if (_isRandomLocal(v)) v.key,
+  };
+
+  /// [pinned] 里这个变量已经定下来的值；它不是「每次不一样」的那类就不理会。
+  String? _pinnedRandom(
+    SignatureVariable variable,
+    Map<String, String>? pinned,
+  ) {
+    if (!_isRandomLocal(variable)) return null;
+    final pin = pinned?[variable.key];
+    return (pin != null && pin.isNotEmpty) ? pin : null;
   }
 
   /// 同步估算：本地变量照常算，网络变量按 [fill] 说的办。
@@ -551,6 +705,19 @@ class SignatureService extends GetxService {
     final values = <String, String>{};
 
     for (final variable in parsed.variables) {
+      final pinnedRandom = _pinnedRandom(variable, pinned);
+      if (pinnedRandom != null) {
+        values[variable.key] = pinnedRandom;
+        continue;
+      }
+      // `{pick}` 还没定下来：算长度按最长那个候选（额度宁可少给几个字），
+      // 发送前的预览写「发送时生成」——理由同网络变量那一档。样例档照常随机。
+      if (_isRandomLocal(variable) && fill != SignatureFill.sample) {
+        values[variable.key] = fill == SignatureFill.pending
+            ? slang.t.settings.signaturePendingValue
+            : _longestPick(variable);
+        continue;
+      }
       final local = _resolveLocal(variable, context);
       if (local != null) {
         // ⛔ 上下文变量在设置页里**本来就算不出值**——那儿没有「正在看的作品」。
@@ -586,7 +753,11 @@ class SignatureService extends GetxService {
       }
     }
 
-    return parsed.render(values, keepUnknown: true);
+    return parsed.render(
+      values,
+      keepUnknown: true,
+      literalKeys: _literalKeysOf(parsed),
+    );
   }
 
   /// 某个数据源**上一次成功取到**的那句话，没取到过就是 null。
@@ -603,6 +774,18 @@ class SignatureService extends GetxService {
     ).variables.any((v) => ids.contains(v.name));
   }
 
+  /// 预览里要不要摆那枚「生成 / 换一句」：模板里有没有每次都不一样的变量
+  /// （数据源 + `{pick}`）。没有的话那枚钮按下去什么都不会变，只会让人以为坏了。
+  bool canRegenerate(String template) =>
+      needsNetwork(template) ||
+      SignatureTemplate.parse(template).variables.any(_isRandomLocal);
+
+  /// `{pick:a|b|c}` 里最长的那个候选。算额度用。
+  static String _longestPick(SignatureVariable variable) => (variable.arg ?? '')
+      .split('|')
+      .map((e) => e.trim())
+      .fold('', (a, b) => b.length > a.length ? b : a);
+
   // ------------------------------------------------------------------ 求值
 
   Future<String?> _resolveGuarded(
@@ -614,9 +797,8 @@ class SignatureService extends GetxService {
 
     // ⛔ 超时按**源的种类**取，不是一个全局常数：AI 源要跑模型推理，
     // 拿接口源的预算去掐它等于让它永远超时。见 [_aiTimeout]。
-    final budget = providerOf(variable.name)?.isAi == true
-        ? _aiTimeout + _timeoutSlack
-        : _httpTimeout;
+    final isAi = providerOf(variable.name)?.isAi == true;
+    final budget = isAi ? _aiTimeout + _timeoutSlack : _httpTimeout;
 
     try {
       final fetched = await _resolveRemote(variable, context).timeout(budget);
@@ -627,6 +809,11 @@ class SignatureService extends GetxService {
     } catch (e) {
       LogUtils.w('小尾巴变量 ${variable.raw} 取值失败：$e', 'SignatureService');
     }
+
+    // ⛔ AI 源不兜底：它那句话是**照着当时在看的东西**现写的，缓存按变量名
+    // 存、不认上下文——在视频 B 底下超时，退回去的是写给视频 A 的那句，
+    // 标题、作者都对不上。宁可这一段消失。
+    if (isAi) return null;
 
     // 兜底：上一次成功的值。宁可发一句昨天的话，也不要让小尾巴凭空缺一块。
     return _lastGood[variable.key];
@@ -673,8 +860,10 @@ class SignatureService extends GetxService {
         if (total == null || total <= Duration.zero) return '';
         return CommonUtils.formatDuration(total);
       case 'playtime':
-        // 写成 `12:34`：评论区的时间节点识别认的就是这个写法，用户的小尾巴
-        // 因此顺手变成一个能点的跳转点（见 `CommonUtils.parseTimestamp`）。
+        // 写成 `12:34`。⚠️ 它在小尾巴里**不会**变成可点的跳转点：时间节点
+        // 只在 CustomMarkdownBody 拿到 onTimestampSeek 时才识别，而脚注
+        // （CommentFooterLine）没有接这个回调。要接的话得先想清楚 `{time}`
+        // 的 `14:05`、`{duration}` 的 `04:26` 同样长这个样子，会被一起认成跳转。
         final position = context.playPosition?.call();
         if (position == null || position <= Duration.zero) return '';
         return CommonUtils.formatDuration(position);
@@ -801,7 +990,7 @@ class SignatureService extends GetxService {
     SignatureProvider provider, {
     SignatureContext context = SignatureContext.empty,
   }) async {
-    if (provider.isAi) return _fetchAiValue(provider, context);
+    if (provider.isAi) return _fetchAiValue(aiSettings, context);
     final uri = provider.resolvedUri();
     final response = await _dio.getUri<String>(uri);
     final status = response.statusCode ?? 0;
@@ -822,7 +1011,7 @@ class SignatureService extends GetxService {
   ///
   /// ⛔ 失败或空结果必须返回空串，不抛出异常，由上层自然落到三道兜底。
   Future<String> _fetchAiValue(
-    SignatureProvider provider,
+    SignatureAiSettings settings,
     SignatureContext context,
   ) async {
     if (!Get.isRegistered<AiService>()) return '';
@@ -830,11 +1019,11 @@ class SignatureService extends GetxService {
     if (!aiService.isAvailable(AiTask.signature)) return '';
 
     try {
-      final localeTag = slang.LocaleSettings.currentLocale.languageTag;
+      final messages = buildAiMessages(settings, context: context);
       final req = AiRequest(
         task: AiTask.signature,
-        input: SignatureAiPrompt.userPromptFor(context.toPromptFacts()),
-        system: SignatureAiPrompt.render(provider.prompt, localeTag),
+        input: messages.user,
+        system: messages.system,
         // ⛔ 显式给预算，别用 AiService 的 90s 默认值：发送那一刻评论在等这句
         // 话。内层先到（外面留了 [_timeoutSlack]），错误信息才说得出是哪一步。
         timeout: _aiTimeout,

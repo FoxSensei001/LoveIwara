@@ -227,6 +227,9 @@ SignatureSceneSet _buildScenes(slang.Translations t, _SceneFacts facts) {
           playPosition: () => played,
           // 视频页也答得出「正在回复谁」——回复投稿人是最常见的那一种。
           replyTo: videoAuthor,
+          // 对方原话没有「最近看过的」可取，一律用示范那句。只有 AI 一言打开
+          // 「读对方的原话」时才用得上。
+          replyText: s.signatureDemoReplyText,
         ),
       ),
       SignatureScene(
@@ -238,6 +241,7 @@ SignatureSceneSet _buildScenes(slang.Translations t, _SceneFacts facts) {
           author: threadAuthor,
           section: threadSection,
           replyTo: threadAuthor,
+          replyText: s.signatureDemoReplyText,
           // 楼层只有论坛数得出。给一个不是 1 的数，好让人看出它真的是楼号。
           floor: 7,
         ),

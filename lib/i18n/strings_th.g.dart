@@ -954,7 +954,6 @@ class _TranslationsSettingsTh extends TranslationsSettingsEn {
 	@override String get signatureRecipeGroupForum => 'ตอนอยู่ในฟอรัม';
 	@override String get signatureRecipeGroupDaily => 'วันละหนึ่งประโยค';
 	@override String get signatureRecipeGroupAi => 'ให้ AI เขียนให้';
-	@override String get signaturePromptSampleContext => 'การลองเขียนครั้งนี้ใช้บริบทตัวอย่างของหน้าวิดีโอ เวลาส่งจริง AI จะได้รับสิ่งที่คุณกำลังดูอยู่';
 	@override String get recipeAuthorTagsName => 'ผู้สร้างและแท็ก';
 	@override String get recipeAuthorTagsTemplate => '%author% · %tags%';
 	@override String get recipeFloorName => 'ตอบชั้นที่ระบุ';
@@ -1004,15 +1003,72 @@ class _TranslationsSettingsTh extends TranslationsSettingsEn {
 	@override String get signatureEditTextHint => 'นี่คือลายเซ็นที่เขียนอยู่ในความเห็นนี้แล้ว ทั้งวรรคทองและวันที่ตอนนี้เป็นแค่ข้อความธรรมดา แก้ได้ตามใจ ล้างให้ว่างคือไม่เอาลายเซ็น';
 	@override String signatureResolving({required Object name}) => 'กำลังสร้าง ${name}…';
 	@override String get signaturePendingValue => '(สร้างตอนส่ง)';
-	@override String get signatureAiHint => 'ประโยคที่ AI เขียนสด ใหม่ทุกความคิดเห็น โดยใช้ผู้ให้บริการ AI ที่คุณตั้งไว้ เมื่อส่งจากหน้าวิดีโอ แกลเลอรี หรือฟอรัม AI จะรู้ด้วยว่าคุณกำลังดูอะไรและเขียนให้เข้ากับสิ่งนั้น';
+	@override String get signatureAiHint => 'ประโยคที่ AI เขียนสด ๆ ใหม่ทุกความคิดเห็น โดยใช้ผู้ให้บริการ AI ที่คุณตั้งไว้ เปิดดูเพื่อดูว่า AI เห็นอะไรได้บ้าง แล้วบอกมันว่าให้เขียนอะไร';
 	@override String get signatureAiUnavailable => 'ยังไม่ได้ตั้งค่าผู้ให้บริการ AI แหล่งนี้จึงยังไม่ปรากฏในแผงตัวแปร';
-	@override String get signaturePromptTitle => 'พรอมต์';
-	@override String get signaturePromptHint => 'นี่คือสิ่งที่ส่งให้โมเดล เขียนใหม่ได้ตามใจ ทั้งน้ำเสียง ความยาว และหัวข้อ กฎที่มีอยู่แล้วควรเก็บไว้';
 	@override String get signaturePromptReset => 'คืนค่าเริ่มต้น';
 	@override String get signaturePromptTry => 'ลองดู';
-	@override String get signaturePromptSample => 'สิ่งที่เขียนออกมา';
-	@override String get signaturePromptLanguageHint => 'จะถูกแทนด้วยภาษาอินเทอร์เฟซของคุณ ถ้าลบออก ข้อความจะใช้ภาษาตามพรอมต์';
 	@override String get signaturePromptEdited => 'แก้แล้ว';
+	@override String get signatureAiSheetTitle => 'AI เขียนประโยคนี้ยังไง';
+	@override String get signatureAiSeeTitle => 'AI เห็นอะไรได้บ้าง';
+	@override String get signatureAiFactUnavailable => 'ใช้ไม่ได้ตรงนี้';
+	@override String get signatureAiFactTapHint => 'แตะรายการเพื่อแทรกลงในคำสั่งด้านล่าง';
+	@override String get signatureAiReadReply => 'ให้ AI อ่านสิ่งที่อีกฝ่ายพิมพ์ด้วย';
+	@override String get signatureAiReadReplyDesc => 'เมื่อคุณตอบกลับใคร ให้ AI เห็นเนื้อความคอมเมนต์ของเขาด้วย ปิดไว้เป็นค่าเริ่มต้น เพราะนั่นเป็นคำพูดของคนอื่น';
+	@override String signatureAiCannotSee({required Object items}) => 'มองไม่เห็น: ${items}';
+	@override String get signatureAiCannotSeeDraft => 'คอมเมนต์ที่คุณกำลังพิมพ์';
+	@override String get signatureAiCannotSeeReply => 'สิ่งที่อีกฝ่ายพิมพ์';
+	@override String get signatureAiCannotSeeAccount => 'ข้อมูลบัญชีของคุณ';
+	@override String get signatureAiPrivacy => 'สิ่งที่ AI เห็นจะถูกส่งไปยังผู้ให้บริการที่คุณตั้งไว้ในหน้าตั้งค่า AI เท่านั้น';
+	@override String get signatureAiWhatTitle => 'อยากให้มันเขียนอะไร';
+	@override String get signatureAiWhatHint => 'แค่หนึ่งหรือสองประโยคด้วยภาษาของคุณเองก็พอ แตะชิปด้านบนเพื่อแทรกเข้าไป สิ่งที่ใช้ไม่ได้ในสถานการณ์นี้จะหายไปเอง';
+	@override String signatureAiWhatPreview({required Object scene}) => 'แทนค่าสำหรับ "${scene}" แล้ว';
+	@override String get signatureAiDefaultInstruction => 'พูดถึงสิ่งที่ฉันกำลังดูแบบสั้น ๆ เนียน ๆ สักหนึ่งบรรทัด อย่าพูดชื่อเรื่องซ้ำ';
+	@override String get signatureAiFormatTitle => 'รูปแบบ';
+	@override String get signatureAiFormatFixed => 'เขียนบรรทัดเดียว · ไม่มีเครื่องหมายคำพูด · ไม่มีลายเซ็น';
+	@override String get signatureAiLength => 'ความยาว';
+	@override String get signatureAiLengthShort => 'สั้น · ประมาณ 40 ตัวอักษร';
+	@override String get signatureAiLengthMedium => 'กลาง · ประมาณ 70 ตัวอักษร';
+	@override String get signatureAiLengthLong => 'ยาว · ประมาณ 95 ตัวอักษร';
+	@override String get signatureAiLanguage => 'ภาษา';
+	@override String get signatureAiLanguageUi => 'ตามภาษาแอป';
+	@override String get signatureAiLanguageDraft => 'ตามคอมเมนต์ของฉัน';
+	@override String get signatureAiLanguageDraftHint => 'ใช้ภาษาเดียวกับที่คอมเมนต์ของคุณเขียนไว้ ตัวคอมเมนต์เองจะไม่ถูกส่งไปให้ AI เลย ถ้าดูไม่ออกจะใช้ภาษาของแอปแทน';
+	@override String get signatureAiAllowEmoji => 'อนุญาตอิโมจิ';
+	@override String get signatureAiRecipesTitle => 'ไอเดีย';
+	@override String get signatureAiRecipesHint => 'แตะการ์ดเพื่อเปลี่ยนไปใช้คำสั่งนั้น แล้วค่อยปรับแก้เอง บรรทัดด้านล่างเป็นตัวอย่างที่เขียนไว้ล่วงหน้า อยากเห็นของจริงให้แตะ "ลองดู"';
+	@override String get signatureAiExample => 'ตัวอย่าง';
+	@override String get signatureAiRecipeNeedsReply => 'ต้องเปิด "ให้ AI อ่านสิ่งที่อีกฝ่ายพิมพ์ด้วย" ด้านบนก่อน';
+	@override String get signatureAiTryTitle => 'ลองดู';
+	@override String signatureAiTryEmpty({required Object scene}) => 'ยังไม่ได้ลอง จะเขียนโดยใช้บริบทของ "${scene}"';
+	@override String get signatureAiTryNeedsProvider => 'ตั้งค่าผู้ให้บริการ AI ก่อนจึงจะลองได้';
+	@override String get signatureAiWireTitle => 'สิ่งที่ AI ได้รับจริง ๆ ครั้งนี้';
+	@override String get signatureAiWireSystem => 'system prompt (สร้างจากรูปแบบด้านบน)';
+	@override String get signatureAiWireUser => 'ข้อความจากผู้ใช้ (สิ่งที่เห็นได้ + คำสั่งของคุณ)';
+	@override String get signatureDemoReplyText => 'การจัดกล้องครั้งนี้ลื่นไหลกว่าครั้งก่อนมาก เปลี่ยนไฟด้วยหรือเปล่า?';
+	@override String get aiRecipeFeelName => 'ความรู้สึกทันทีที่ดูจบ';
+	@override String get aiRecipeFeelInstruction => 'เขียนประโยคที่หลุดออกมาทันทีหลังดู "%title%" จบ อย่าพูดชื่อเรื่องซ้ำ';
+	@override String get aiRecipeFeelExample => 'ไม่นึกว่าฤดูร้อนจะดูเงียบสงบได้ถึงขนาดนี้';
+	@override String get aiRecipeRoastName => 'แซะชื่อเรื่อง';
+	@override String get aiRecipeRoastInstruction => 'แซะชื่อเรื่อง "%title%" นิดหน่อย กวน ๆ แต่ไม่ถึงกับแรง';
+	@override String get aiRecipeRoastExample => 'ชื่อเรื่องกล้ากว่าตัวเนื้อหาซะอีก';
+	@override String get aiRecipePraiseName => 'ยกยอผู้สร้าง';
+	@override String get aiRecipePraiseInstruction => 'ยกยอ %author% สักหนึ่งบรรทัด ให้เจาะจงหน่อย ไม่ใช่แค่ตะโกนชื่อ';
+	@override String get aiRecipePraiseExample => 'จังหวะและรสนิยมแบบนี้ ไม่น่าใช่คนโลกนี้';
+	@override String get aiRecipeHaikuName => 'ไฮกุ 5-7-5';
+	@override String get aiRecipeHaikuInstruction => 'เขียนไฮกุ 5-7-5 ที่ได้แรงบันดาลใจจาก "%title%" โดยแบ่งสามช่วงด้วย " / "';
+	@override String get aiRecipeHaikuExample => 'พัดลมหมุนไม่หยุด / แสงจอตกลงบนใบหน้า / คืนลึกลงอีกนิด';
+	@override String get aiRecipeChuuniName => 'บทพูดสายจึ้น';
+	@override String get aiRecipeChuuniInstruction => 'เขียนบทพูดที่ตัวละครอนิเมะสายจึ้นจะตะโกนออกมา โดยโยงเบา ๆ กับ %tags%';
+	@override String get aiRecipeChuuniExample => 'ความร้อนแรงนี้ ข้าขอรับไว้ทั้งหมด!';
+	@override String get aiRecipeAcrosticName => 'ซ่อนแท็กในประโยค';
+	@override String get aiRecipeAcrosticInstruction => 'ซ่อนคำจาก %tags% ไว้ในประโยคตามลำดับ แล้วให้อ่านลื่นเป็นธรรมชาติ';
+	@override String get aiRecipeAcrosticExample => 'แม้แต่ในฝันก็ยังเป็นบรรยากาศนี้ ต่อให้ 4K ก็เก็บความฟินไว้ไม่หมด';
+	@override String get aiRecipeGreetName => 'คำทักตามช่วงเวลา';
+	@override String get aiRecipeGreetInstruction => 'ตอนนี้เวลา %time% ทักทายให้เข้ากับช่วงเวลานี้ แล้วเติมความคิดสั้น ๆ ต่ออีกนิด';
+	@override String get aiRecipeGreetExample => 'ตีสองแล้วยังไถหน้าจออยู่เลย คืนนี้ท่าจะไม่ได้นอนอีกแล้ว';
+	@override String get aiRecipeEchoName => 'รับมุกต่อจากอีกฝ่าย';
+	@override String get aiRecipeEchoInstruction => 'รับสิ่งที่ %reply_to% พูดไว้เมื่อกี้ แล้วต่อมุกอีกหนึ่งบรรทัด';
+	@override String get aiRecipeEchoExample => 'พูดถูกเลย แต่ฉันวนมารอบที่สามแล้ว';
 	@override String get signatureVariablesGroup => 'ตัวแปรในตัว';
 	@override String get signatureNeedsNetwork => 'ต้องใช้เครือข่าย';
 	@override String get signatureBuiltinSource => 'ในตัว';
@@ -5656,7 +5712,6 @@ extension on TranslationsTh {
 			'settings.signatureRecipeGroupForum' => 'ตอนอยู่ในฟอรัม',
 			'settings.signatureRecipeGroupDaily' => 'วันละหนึ่งประโยค',
 			'settings.signatureRecipeGroupAi' => 'ให้ AI เขียนให้',
-			'settings.signaturePromptSampleContext' => 'การลองเขียนครั้งนี้ใช้บริบทตัวอย่างของหน้าวิดีโอ เวลาส่งจริง AI จะได้รับสิ่งที่คุณกำลังดูอยู่',
 			'settings.recipeAuthorTagsName' => 'ผู้สร้างและแท็ก',
 			'settings.recipeAuthorTagsTemplate' => '%author% · %tags%',
 			'settings.recipeFloorName' => 'ตอบชั้นที่ระบุ',
@@ -5706,15 +5761,72 @@ extension on TranslationsTh {
 			'settings.signatureEditTextHint' => 'นี่คือลายเซ็นที่เขียนอยู่ในความเห็นนี้แล้ว ทั้งวรรคทองและวันที่ตอนนี้เป็นแค่ข้อความธรรมดา แก้ได้ตามใจ ล้างให้ว่างคือไม่เอาลายเซ็น',
 			'settings.signatureResolving' => ({required Object name}) => 'กำลังสร้าง ${name}…',
 			'settings.signaturePendingValue' => '(สร้างตอนส่ง)',
-			'settings.signatureAiHint' => 'ประโยคที่ AI เขียนสด ใหม่ทุกความคิดเห็น โดยใช้ผู้ให้บริการ AI ที่คุณตั้งไว้ เมื่อส่งจากหน้าวิดีโอ แกลเลอรี หรือฟอรัม AI จะรู้ด้วยว่าคุณกำลังดูอะไรและเขียนให้เข้ากับสิ่งนั้น',
+			'settings.signatureAiHint' => 'ประโยคที่ AI เขียนสด ๆ ใหม่ทุกความคิดเห็น โดยใช้ผู้ให้บริการ AI ที่คุณตั้งไว้ เปิดดูเพื่อดูว่า AI เห็นอะไรได้บ้าง แล้วบอกมันว่าให้เขียนอะไร',
 			'settings.signatureAiUnavailable' => 'ยังไม่ได้ตั้งค่าผู้ให้บริการ AI แหล่งนี้จึงยังไม่ปรากฏในแผงตัวแปร',
-			'settings.signaturePromptTitle' => 'พรอมต์',
-			'settings.signaturePromptHint' => 'นี่คือสิ่งที่ส่งให้โมเดล เขียนใหม่ได้ตามใจ ทั้งน้ำเสียง ความยาว และหัวข้อ กฎที่มีอยู่แล้วควรเก็บไว้',
 			'settings.signaturePromptReset' => 'คืนค่าเริ่มต้น',
 			'settings.signaturePromptTry' => 'ลองดู',
-			'settings.signaturePromptSample' => 'สิ่งที่เขียนออกมา',
-			'settings.signaturePromptLanguageHint' => 'จะถูกแทนด้วยภาษาอินเทอร์เฟซของคุณ ถ้าลบออก ข้อความจะใช้ภาษาตามพรอมต์',
 			'settings.signaturePromptEdited' => 'แก้แล้ว',
+			'settings.signatureAiSheetTitle' => 'AI เขียนประโยคนี้ยังไง',
+			'settings.signatureAiSeeTitle' => 'AI เห็นอะไรได้บ้าง',
+			'settings.signatureAiFactUnavailable' => 'ใช้ไม่ได้ตรงนี้',
+			'settings.signatureAiFactTapHint' => 'แตะรายการเพื่อแทรกลงในคำสั่งด้านล่าง',
+			'settings.signatureAiReadReply' => 'ให้ AI อ่านสิ่งที่อีกฝ่ายพิมพ์ด้วย',
+			'settings.signatureAiReadReplyDesc' => 'เมื่อคุณตอบกลับใคร ให้ AI เห็นเนื้อความคอมเมนต์ของเขาด้วย ปิดไว้เป็นค่าเริ่มต้น เพราะนั่นเป็นคำพูดของคนอื่น',
+			'settings.signatureAiCannotSee' => ({required Object items}) => 'มองไม่เห็น: ${items}',
+			'settings.signatureAiCannotSeeDraft' => 'คอมเมนต์ที่คุณกำลังพิมพ์',
+			'settings.signatureAiCannotSeeReply' => 'สิ่งที่อีกฝ่ายพิมพ์',
+			'settings.signatureAiCannotSeeAccount' => 'ข้อมูลบัญชีของคุณ',
+			'settings.signatureAiPrivacy' => 'สิ่งที่ AI เห็นจะถูกส่งไปยังผู้ให้บริการที่คุณตั้งไว้ในหน้าตั้งค่า AI เท่านั้น',
+			'settings.signatureAiWhatTitle' => 'อยากให้มันเขียนอะไร',
+			'settings.signatureAiWhatHint' => 'แค่หนึ่งหรือสองประโยคด้วยภาษาของคุณเองก็พอ แตะชิปด้านบนเพื่อแทรกเข้าไป สิ่งที่ใช้ไม่ได้ในสถานการณ์นี้จะหายไปเอง',
+			'settings.signatureAiWhatPreview' => ({required Object scene}) => 'แทนค่าสำหรับ "${scene}" แล้ว',
+			'settings.signatureAiDefaultInstruction' => 'พูดถึงสิ่งที่ฉันกำลังดูแบบสั้น ๆ เนียน ๆ สักหนึ่งบรรทัด อย่าพูดชื่อเรื่องซ้ำ',
+			'settings.signatureAiFormatTitle' => 'รูปแบบ',
+			'settings.signatureAiFormatFixed' => 'เขียนบรรทัดเดียว · ไม่มีเครื่องหมายคำพูด · ไม่มีลายเซ็น',
+			'settings.signatureAiLength' => 'ความยาว',
+			'settings.signatureAiLengthShort' => 'สั้น · ประมาณ 40 ตัวอักษร',
+			'settings.signatureAiLengthMedium' => 'กลาง · ประมาณ 70 ตัวอักษร',
+			'settings.signatureAiLengthLong' => 'ยาว · ประมาณ 95 ตัวอักษร',
+			'settings.signatureAiLanguage' => 'ภาษา',
+			'settings.signatureAiLanguageUi' => 'ตามภาษาแอป',
+			'settings.signatureAiLanguageDraft' => 'ตามคอมเมนต์ของฉัน',
+			'settings.signatureAiLanguageDraftHint' => 'ใช้ภาษาเดียวกับที่คอมเมนต์ของคุณเขียนไว้ ตัวคอมเมนต์เองจะไม่ถูกส่งไปให้ AI เลย ถ้าดูไม่ออกจะใช้ภาษาของแอปแทน',
+			'settings.signatureAiAllowEmoji' => 'อนุญาตอิโมจิ',
+			'settings.signatureAiRecipesTitle' => 'ไอเดีย',
+			'settings.signatureAiRecipesHint' => 'แตะการ์ดเพื่อเปลี่ยนไปใช้คำสั่งนั้น แล้วค่อยปรับแก้เอง บรรทัดด้านล่างเป็นตัวอย่างที่เขียนไว้ล่วงหน้า อยากเห็นของจริงให้แตะ "ลองดู"',
+			'settings.signatureAiExample' => 'ตัวอย่าง',
+			'settings.signatureAiRecipeNeedsReply' => 'ต้องเปิด "ให้ AI อ่านสิ่งที่อีกฝ่ายพิมพ์ด้วย" ด้านบนก่อน',
+			'settings.signatureAiTryTitle' => 'ลองดู',
+			'settings.signatureAiTryEmpty' => ({required Object scene}) => 'ยังไม่ได้ลอง จะเขียนโดยใช้บริบทของ "${scene}"',
+			'settings.signatureAiTryNeedsProvider' => 'ตั้งค่าผู้ให้บริการ AI ก่อนจึงจะลองได้',
+			'settings.signatureAiWireTitle' => 'สิ่งที่ AI ได้รับจริง ๆ ครั้งนี้',
+			'settings.signatureAiWireSystem' => 'system prompt (สร้างจากรูปแบบด้านบน)',
+			'settings.signatureAiWireUser' => 'ข้อความจากผู้ใช้ (สิ่งที่เห็นได้ + คำสั่งของคุณ)',
+			'settings.signatureDemoReplyText' => 'การจัดกล้องครั้งนี้ลื่นไหลกว่าครั้งก่อนมาก เปลี่ยนไฟด้วยหรือเปล่า?',
+			'settings.aiRecipeFeelName' => 'ความรู้สึกทันทีที่ดูจบ',
+			'settings.aiRecipeFeelInstruction' => 'เขียนประโยคที่หลุดออกมาทันทีหลังดู "%title%" จบ อย่าพูดชื่อเรื่องซ้ำ',
+			'settings.aiRecipeFeelExample' => 'ไม่นึกว่าฤดูร้อนจะดูเงียบสงบได้ถึงขนาดนี้',
+			'settings.aiRecipeRoastName' => 'แซะชื่อเรื่อง',
+			'settings.aiRecipeRoastInstruction' => 'แซะชื่อเรื่อง "%title%" นิดหน่อย กวน ๆ แต่ไม่ถึงกับแรง',
+			'settings.aiRecipeRoastExample' => 'ชื่อเรื่องกล้ากว่าตัวเนื้อหาซะอีก',
+			'settings.aiRecipePraiseName' => 'ยกยอผู้สร้าง',
+			'settings.aiRecipePraiseInstruction' => 'ยกยอ %author% สักหนึ่งบรรทัด ให้เจาะจงหน่อย ไม่ใช่แค่ตะโกนชื่อ',
+			'settings.aiRecipePraiseExample' => 'จังหวะและรสนิยมแบบนี้ ไม่น่าใช่คนโลกนี้',
+			'settings.aiRecipeHaikuName' => 'ไฮกุ 5-7-5',
+			'settings.aiRecipeHaikuInstruction' => 'เขียนไฮกุ 5-7-5 ที่ได้แรงบันดาลใจจาก "%title%" โดยแบ่งสามช่วงด้วย " / "',
+			'settings.aiRecipeHaikuExample' => 'พัดลมหมุนไม่หยุด / แสงจอตกลงบนใบหน้า / คืนลึกลงอีกนิด',
+			'settings.aiRecipeChuuniName' => 'บทพูดสายจึ้น',
+			'settings.aiRecipeChuuniInstruction' => 'เขียนบทพูดที่ตัวละครอนิเมะสายจึ้นจะตะโกนออกมา โดยโยงเบา ๆ กับ %tags%',
+			'settings.aiRecipeChuuniExample' => 'ความร้อนแรงนี้ ข้าขอรับไว้ทั้งหมด!',
+			'settings.aiRecipeAcrosticName' => 'ซ่อนแท็กในประโยค',
+			'settings.aiRecipeAcrosticInstruction' => 'ซ่อนคำจาก %tags% ไว้ในประโยคตามลำดับ แล้วให้อ่านลื่นเป็นธรรมชาติ',
+			'settings.aiRecipeAcrosticExample' => 'แม้แต่ในฝันก็ยังเป็นบรรยากาศนี้ ต่อให้ 4K ก็เก็บความฟินไว้ไม่หมด',
+			'settings.aiRecipeGreetName' => 'คำทักตามช่วงเวลา',
+			'settings.aiRecipeGreetInstruction' => 'ตอนนี้เวลา %time% ทักทายให้เข้ากับช่วงเวลานี้ แล้วเติมความคิดสั้น ๆ ต่ออีกนิด',
+			'settings.aiRecipeGreetExample' => 'ตีสองแล้วยังไถหน้าจออยู่เลย คืนนี้ท่าจะไม่ได้นอนอีกแล้ว',
+			'settings.aiRecipeEchoName' => 'รับมุกต่อจากอีกฝ่าย',
+			'settings.aiRecipeEchoInstruction' => 'รับสิ่งที่ %reply_to% พูดไว้เมื่อกี้ แล้วต่อมุกอีกหนึ่งบรรทัด',
+			'settings.aiRecipeEchoExample' => 'พูดถูกเลย แต่ฉันวนมารอบที่สามแล้ว',
 			'settings.signatureVariablesGroup' => 'ตัวแปรในตัว',
 			'settings.signatureNeedsNetwork' => 'ต้องใช้เครือข่าย',
 			'settings.signatureBuiltinSource' => 'ในตัว',
@@ -5872,6 +5984,8 @@ extension on TranslationsTh {
 			'settings.enableHardwareAcceleration' => 'เปิดใช้การเร่งความเร็วด้วยฮาร์ดแวร์',
 			'settings.enableHardwareAccelerationInfo' => 'การเปิดใช้การเร่งความเร็วด้วยฮาร์ดแวร์สามารถปรับปรุงประสิทธิภาพการถอดรหัสได้ แต่อุปกรณ์บางรุ่นอาจไม่รองรับ',
 			'settings.useOpenSLESAudioOutput' => 'ใช้เอาต์พุตเสียง OpenSLES',
+			_ => null,
+		} ?? switch (path) {
 			'settings.useOpenSLESAudioOutputInfo' => 'ใช้เอาต์พุตเสียงที่มีความหน่วงต่ำ อาจช่วยปรับปรุงประสิทธิภาพของเสียงได้',
 			'settings.videoSyncAudio' => 'การซิงค์เสียง',
 			'settings.videoSyncDisplayResample' => 'การสุ่มตัวอย่างใหม่ในการแสดงผล',
@@ -5928,8 +6042,6 @@ extension on TranslationsTh {
 			'settings.blockSettings.regexHelpIntro' => 'นิพจน์ทั่วไปสามารถจับคู่ชื่อเรื่องได้อย่างยืดหยุ่นมากกว่าคำสำคัญธรรมดา ตัวอย่างทั่วไปบางส่วน:',
 			'settings.blockSettings.regexHelpTapHint' => 'แตะตัวอย่างเพื่อนำไปใช้',
 			'settings.blockSettings.regexEx1Pattern' => 'ตัวอย่าง|ทีเซอร์|โบนัส',
-			_ => null,
-		} ?? switch (path) {
 			'settings.blockSettings.regexEx1Desc' => 'ตรงกับคำใดคำหนึ่งเหล่านี้ ("|" หมายถึง "หรือ")',
 			'settings.blockSettings.regexEx2Pattern' => '^\\[.*\\]',
 			'settings.blockSettings.regexEx2Desc' => 'ชื่อเรื่องที่ขึ้นต้นด้วย [วงเล็บ]',
@@ -6386,6 +6498,8 @@ extension on TranslationsTh {
 			'videoDetail.videoPlayer' => 'เครื่องเล่นวิดีโอ',
 			'videoDetail.videoPlayerInfo' => 'ข้อมูลเครื่องเล่นวิดีโอ',
 			'videoDetail.moreSettings' => 'การตั้งค่าเพิ่มเติม',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.videoPlayerFeatureInfo' => 'ข้อมูลฟีเจอร์ของเครื่องเล่นวิดีโอ',
 			'videoDetail.autoRewind' => 'กรอถอยหลังอัตโนมัติ',
 			'videoDetail.rewindAndFastForward' => 'ย้อนกลับและเดินหน้าอย่างเร็ว',
@@ -6442,8 +6556,6 @@ extension on TranslationsTh {
 			'videoDetail.cast.deviceTypes.unknownDevice' => 'อุปกรณ์ที่ไม่รู้จัก',
 			'videoDetail.cast.currentPlatformNotSupported' => 'แพลตฟอร์มปัจจุบันไม่รองรับการแคสต์',
 			'videoDetail.cast.unableToGetVideoUrl' => 'ไม่สามารถรับที่อยู่วิดีโอได้ โปรดลองอีกครั้งในภายหลัง',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.cast.stopCasting' => 'หยุดแคสต์',
 			'videoDetail.cast.dlnaCastSheet.title' => 'รีโมตแคสต์',
 			'videoDetail.cast.dlnaCastSheet.close' => 'ปิด',
@@ -6900,6 +7012,8 @@ extension on TranslationsTh {
 			'download.relocation.statLeftover' => 'Left behind',
 			'download.relocation.sectionMove' => 'Will be moved',
 			'download.relocation.sectionSkip' => 'Will be skipped',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.sectionMoved' => 'Moved',
 			'download.relocation.sectionFailed' => 'Not moved (left where it was)',
 			'download.relocation.sectionLeftover' => 'Old folders not fully removed',
@@ -6956,8 +7070,6 @@ extension on TranslationsTh {
 			'download.relocation.galleryImages' => ({required Object count}) => '${count} images',
 			'download.relocation.unfinishedDownloading' => ({required Object percent}) => 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues',
 			'download.relocation.unfinishedPending' => 'Waiting to download: re-queued after the move',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused',
 			'download.relocation.unfinishedFailed' => 'Download failed: the downloaded part moves too',
 			'download.relocation.noDataYet' => 'Nothing downloaded yet, only the save location changes',
@@ -7414,6 +7526,8 @@ extension on TranslationsTh {
 			'layoutSettings.descriptionContent' => 'การกำหนดค่าที่นี่จะเป็นตัวกำหนดจำนวนคอลัมน์ที่แสดงในหน้ารายการวิดีโอและแกลเลอรี คุณสามารถเลือกโหมดอัตโนมัติเพื่อให้ระบบปรับตามความกว้างหน้าจอโดยอัตโนมัติ หรือเลือกโหมดกำหนดเองเพื่อกำหนดจำนวนคอลัมน์แบบคงที่',
 			'layoutSettings.layoutMode' => 'โหมดเลย์เอาต์',
 			'layoutSettings.reset' => 'รีเซ็ต',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.autoMode' => 'โหมดอัตโนมัติ',
 			'layoutSettings.autoModeDesc' => 'ปรับโดยอัตโนมัติตามความกว้างของหน้าจอ',
 			'layoutSettings.manualMode' => 'โหมดกำหนดเอง',
@@ -7470,8 +7584,6 @@ extension on TranslationsTh {
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'อุปกรณ์ Android มีการรองรับรูปแบบ WEBM อย่างจำกัด แนะนำให้ใช้เครื่องเล่นภายนอกหรือดาวน์โหลดแอปเครื่องเล่นที่รองรับ WEBM',
 			'mediaPlayer.currentDeviceCodecNotSupported' => 'อุปกรณ์ปัจจุบันไม่รองรับตัวแปลงสัญญาณสำหรับรูปแบบวิดีโอนี้',
 			'mediaPlayer.checkNetworkConnection' => 'โปรดตรวจสอบการเชื่อมต่อเครือข่ายของคุณแล้วลองใหม่อีกครั้ง',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.appMayLackMediaPermission' => 'แอปอาจไม่มีสิทธิ์ในการเล่นสื่อที่จำเป็น',
 			'mediaPlayer.tryOtherVideoPlayer' => 'โปรดลองใช้โปรแกรมเล่นวิดีโออื่น',
 			'mediaPlayer.unrecognizedVideoFormat' => 'ไม่รู้จักไฟล์วิดีโอ',
@@ -7928,6 +8040,8 @@ extension on TranslationsTh {
 			'siteMode.confirmUsing' => ({required Object site}) => 'หลังยืนยัน คำขอต่อๆ ไปจะใช้โหมด ${site}',
 			'siteMode.switched' => ({required Object site}) => 'สลับเป็น ${site} แล้ว แอปได้รีเฟรชเรียบร้อย',
 			'savedSearchConfig.title' => 'ตัวกรองที่บันทึกไว้',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearchConfig.empty' => 'ยังไม่มีตัวกรองที่บันทึกไว้',
 			'savedSearchConfig.saveTooltip' => 'บันทึกตัวกรองปัจจุบัน',
 			'savedSearchConfig.namePromptTitle' => 'บันทึกตัวกรอง',
@@ -7984,8 +8098,6 @@ extension on TranslationsTh {
 			'externalPlayer.sourceLocal' => 'ไฟล์ในเครื่อง',
 			'externalPlayer.sourceOnline' => 'ลิงก์ตรง',
 			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => 'ลิงก์ตรง · ${quality}',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.onlineLinkExpiryHint' => 'ลิงก์ตรงมีอายุจำกัด โปรแกรมเล่นภายนอกอาจหยุดกลางคันได้ การดาวน์โหลดไว้ก่อนเป็นวิธีที่เชื่อถือได้',
 			'externalPlayer.vrPlayerHint' => 'หากไม่มีโปรแกรมเล่น VR ของคุณในตัวเลือก ให้ใช้ คัดลอกลิงก์วิดีโอ แล้ววางในโปรแกรมเล่นนั้น',
 			'externalPlayer.noHandler' => 'ไม่มีแอปบนอุปกรณ์นี้ที่เปิดวิดีโอได้',
@@ -8442,6 +8554,8 @@ extension on TranslationsTh {
 			'ai.openSettings' => 'เปิดการตั้งค่า AI',
 			'ai.notConfigured' => 'ยังไม่ได้กำหนดค่า',
 			'ai.searchTitle' => 'ค้นหาด้วย AI',
+			_ => null,
+		} ?? switch (path) {
 			'ai.searchHint' => 'อธิบายสิ่งที่คุณกำลังค้นหา แล้ว AI จะช่วยกรอกคำค้นหาและตัวกรองให้',
 			'ai.searchPlaceholder' => 'เช่น MMD ล่าสุดที่มียอดดูมากกว่า 10,000 ครั้ง',
 			'ai.searchApply' => 'ค้นหาด้วยเงื่อนไขเหล่านี้',
@@ -8498,8 +8612,6 @@ extension on TranslationsTh {
 			'ai.contextWindow' => ({required Object tokens}) => 'Context ${tokens}',
 			'ai.capFunctionCall' => 'Tools',
 			'ai.capReasoning' => 'Reasoning',
-			_ => null,
-		} ?? switch (path) {
 			'ai.capStructuredOutput' => 'JSON output',
 			'ai.capVision' => 'Vision',
 			'ai.capFileInput' => 'Files',

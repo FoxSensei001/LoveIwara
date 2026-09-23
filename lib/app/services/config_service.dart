@@ -445,6 +445,7 @@ enum ConfigKey {
   SIGNATURE_CUSTOM_SOURCES_KEY, // 小尾巴的自定义数据源列表（JSON）
   SIGNATURE_VALUE_CACHE_KEY, // 小尾巴网络变量上一次成功取到的值（JSON）
   SIGNATURE_AUTO_TRANSLATE_KEY, // 小尾巴取回的话是否自动翻译成界面语言
+  SIGNATURE_AI_SETTINGS_KEY, // AI 一言的设置（写什么 + 格式开关，JSON）
   ENABLE_VIBRATION, // 是否开启震动
   SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN, // 是否在工具栏隐藏时显示进度条
   SHOW_FULLSCREEN_UP_NEXT_HINT, // 是否显示播放器右缘那枚「接着看」把手（**不限全屏**；它是视频池抽屉的唯一入口）
@@ -723,6 +724,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'signature_value_cache';
       case ConfigKey.SIGNATURE_AUTO_TRANSLATE_KEY:
         return 'signature_auto_translate';
+      case ConfigKey.SIGNATURE_AI_SETTINGS_KEY:
+        return 'signature_ai_settings';
       case ConfigKey.ENABLE_VIBRATION:
         return 'enable_vibration';
       case ConfigKey.SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN:
@@ -1063,6 +1066,10 @@ extension ConfigKeyExtension on ConfigKey {
         // 补——让它跟在用户能编辑的内容里，正是旧版语法被改坏的入口。
         // 老用户配置里带 '\n\n---' 的值照常能用，compose 与编辑器都会剥掉。
         return 'Sent from ${CommonConstants.applicationNickname}';
+      case ConfigKey.SIGNATURE_AI_SETTINGS_KEY:
+        // 空串＝没配过，全用出厂值（见 SignatureAiSettings）。老用户改过的那份
+        // 英文提示词还躺在 SIGNATURE_CUSTOM_SOURCES_KEY 里，读的时候迁过来。
+        return '';
       case ConfigKey.SIGNATURE_CUSTOM_SOURCES_KEY:
         // `[{"id":"weather","name":"天气","url":"...","path":"data.text"}]`
         return '[]';

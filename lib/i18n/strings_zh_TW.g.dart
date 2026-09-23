@@ -954,7 +954,6 @@ class _TranslationsSettingsZhTw extends TranslationsSettingsEn {
 	@override String get signatureRecipeGroupForum => '逛論壇時';
 	@override String get signatureRecipeGroupDaily => '每天換一句';
 	@override String get signatureRecipeGroupAi => '交給 AI 寫';
-	@override String get signaturePromptSampleContext => '這次試寫按「在影片頁」的示範上下文來。真正發送時，AI 拿到的是你當時正看著的那件東西。';
 	@override String get recipeAuthorTagsName => '作者和標籤';
 	@override String get recipeAuthorTagsTemplate => '%author% · %tags%';
 	@override String get recipeFloorName => '回某一樓';
@@ -1004,15 +1003,72 @@ class _TranslationsSettingsZhTw extends TranslationsSettingsEn {
 	@override String get signatureEditTextHint => '這是這則留言裡已經寫好的小尾巴——一言、日期這會兒都只是普通文字，隨便改。清空就是不要小尾巴了。';
 	@override String signatureResolving({required Object name}) => '正在產生${name}…';
 	@override String get signaturePendingValue => '（發送時產生）';
-	@override String get signatureAiHint => '由 AI 現寫的一句話，每則留言都是新的，用的是你設定好的 AI 供應商。在影片、圖庫、論壇送出時，它還知道你正在看什麼，會照著那則內容寫。';
+	@override String get signatureAiHint => '由 AI 現寫的一句話，每則留言都是新的，用的是你設定好的 AI 供應商。點開能看到它拿得到哪些資訊，並告訴它要寫什麼。';
 	@override String get signatureAiUnavailable => '還沒配 AI 供應商，所以它暫時不會出現在變數面板裡。';
-	@override String get signaturePromptTitle => '提示詞';
-	@override String get signaturePromptHint => '這就是發給模型的那一段。語氣、長短、寫什麼，隨便改。裡面已有的幾條規矩值得留著。';
 	@override String get signaturePromptReset => '恢復預設';
 	@override String get signaturePromptTry => '試一下';
-	@override String get signaturePromptSample => '它寫出來的';
-	@override String get signaturePromptLanguageHint => '會換成你的介面語言。刪掉它，一言就會跟著提示詞的語言走。';
 	@override String get signaturePromptEdited => '改過';
+	@override String get signatureAiSheetTitle => 'AI 一言怎麼寫';
+	@override String get signatureAiSeeTitle => 'AI 看得到什麼';
+	@override String get signatureAiFactUnavailable => '這裡給不出';
+	@override String get signatureAiFactTapHint => '點一項就把它插進下面的要求裡。';
+	@override String get signatureAiReadReply => '讓它讀對方的原文';
+	@override String get signatureAiReadReplyDesc => '回覆別人時，把對方那則留言的內容也給它看。預設關閉：那是別人寫的字。';
+	@override String signatureAiCannotSee({required Object items}) => '看不到：${items}';
+	@override String get signatureAiCannotSeeDraft => '你正在寫的內容';
+	@override String get signatureAiCannotSeeReply => '對方的原文';
+	@override String get signatureAiCannotSeeAccount => '你的帳號資訊';
+	@override String get signatureAiPrivacy => '看得到的這些只會傳給你在 AI 設定裡配置的供應商。';
+	@override String get signatureAiWhatTitle => '你想讓它寫什麼';
+	@override String get signatureAiWhatHint => '用你自己的話寫一兩句就好。點上面的標籤能插進來，這個場合給不出的會自己消失。';
+	@override String signatureAiWhatPreview({required Object scene}) => '代入「${scene}」後';
+	@override String get signatureAiDefaultInstruction => '用一句話接著我在看的東西隨口感慨一下，別複述標題。';
+	@override String get signatureAiFormatTitle => '格式';
+	@override String get signatureAiFormatFixed => '只寫一行 · 不帶引號 · 不帶署名';
+	@override String get signatureAiLength => '長短';
+	@override String get signatureAiLengthShort => '短 · 約 15 字';
+	@override String get signatureAiLengthMedium => '中 · 約 30 字';
+	@override String get signatureAiLengthLong => '長 · 約 60 字';
+	@override String get signatureAiLanguage => '語言';
+	@override String get signatureAiLanguageUi => '跟介面';
+	@override String get signatureAiLanguageDraft => '跟內文';
+	@override String get signatureAiLanguageDraftHint => '看你這則留言寫的是哪種文字就用哪種。內文本身不會傳給 AI；看不出來時跟介面。';
+	@override String get signatureAiAllowEmoji => '允許 emoji';
+	@override String get signatureAiRecipesTitle => '玩法';
+	@override String get signatureAiRecipesHint => '點一張就換成它的要求，再照著改。下面那句是寫好的示例，想看真的就點「試一下」。';
+	@override String get signatureAiExample => '示例';
+	@override String get signatureAiRecipeNeedsReply => '要先打開上面的「讓它讀對方的原文」';
+	@override String get signatureAiTryTitle => '試一下';
+	@override String signatureAiTryEmpty({required Object scene}) => '還沒試過。會按「${scene}」的情境寫一句。';
+	@override String get signatureAiTryNeedsProvider => '設定好 AI 供應商之後才能試。';
+	@override String get signatureAiWireTitle => '這次 AI 實際收到的';
+	@override String get signatureAiWireSystem => '系統提示詞（由上面的格式產生）';
+	@override String get signatureAiWireUser => '使用者訊息（看得到的 + 你的要求）';
+	@override String get signatureDemoReplyText => '這次的運鏡比上一部順多了，燈光是不是也換過了？';
+	@override String get aiRecipeFeelName => '一句看後感';
+	@override String get aiRecipeFeelInstruction => '寫一句像剛看完《%title%》隨口冒出來的感慨，別複述標題。';
+	@override String get aiRecipeFeelExample => '看完才發現，原來夏天也能拍得這麼安靜。';
+	@override String get aiRecipeRoastName => '毒舌吐槽標題';
+	@override String get aiRecipeRoastInstruction => '毒舌吐槽一下《%title%》這個標題，損一點但別真的刻薄。';
+	@override String get aiRecipeRoastExample => '標題取得比內容本身還大膽。';
+	@override String get aiRecipePraiseName => '彩虹屁誇作者';
+	@override String get aiRecipePraiseInstruction => '用一句彩虹屁誇誇 %author%，誇得具體一點，別直接喊名字。';
+	@override String get aiRecipePraiseExample => '這手速跟審美，看起來都不像地球人。';
+	@override String get aiRecipeHaikuName => '五七五俳句';
+	@override String get aiRecipeHaikuInstruction => '照著《%title%》寫一句五七五節奏的俳句，三段之間用「/」隔開。';
+	@override String get aiRecipeHaikuExample => '風扇轉不停 / 螢幕的光落在臉上 / 夜又深一寸';
+	@override String get aiRecipeChuuniName => '中二台詞';
+	@override String get aiRecipeChuuniInstruction => '寫一句中二動漫角色會喊出來的台詞，和 %tags% 沾點邊。';
+	@override String get aiRecipeChuuniExample => '這份熱度，我全部接下了。';
+	@override String get aiRecipeAcrosticName => '標籤藏頭';
+	@override String get aiRecipeAcrosticInstruction => '把 %tags% 裡的詞依序藏進句子裡，寫成一句通順的話。';
+	@override String get aiRecipeAcrosticExample => '夢裡都是這個調調，4K 也裝不下這份心動。';
+	@override String get aiRecipeGreetName => '按時段問候';
+	@override String get aiRecipeGreetInstruction => '現在是 %time%，按這個時段打個招呼，再順口感慨一句。';
+	@override String get aiRecipeGreetExample => '凌晨兩點還在刷，看來今晚又不打算睡了。';
+	@override String get aiRecipeEchoName => '接對方的梗';
+	@override String get aiRecipeEchoInstruction => '接住 %reply_to% 剛才說的話，順著往下補一句梗。';
+	@override String get aiRecipeEchoExample => '你說得對，但我已經循環第三遍了。';
 	@override String get signatureVariablesGroup => '內建變數';
 	@override String get signatureNeedsNetwork => '需要連網';
 	@override String get signatureBuiltinSource => '內建';
@@ -5656,7 +5712,6 @@ extension on TranslationsZhTw {
 			'settings.signatureRecipeGroupForum' => '逛論壇時',
 			'settings.signatureRecipeGroupDaily' => '每天換一句',
 			'settings.signatureRecipeGroupAi' => '交給 AI 寫',
-			'settings.signaturePromptSampleContext' => '這次試寫按「在影片頁」的示範上下文來。真正發送時，AI 拿到的是你當時正看著的那件東西。',
 			'settings.recipeAuthorTagsName' => '作者和標籤',
 			'settings.recipeAuthorTagsTemplate' => '%author% · %tags%',
 			'settings.recipeFloorName' => '回某一樓',
@@ -5706,15 +5761,72 @@ extension on TranslationsZhTw {
 			'settings.signatureEditTextHint' => '這是這則留言裡已經寫好的小尾巴——一言、日期這會兒都只是普通文字，隨便改。清空就是不要小尾巴了。',
 			'settings.signatureResolving' => ({required Object name}) => '正在產生${name}…',
 			'settings.signaturePendingValue' => '（發送時產生）',
-			'settings.signatureAiHint' => '由 AI 現寫的一句話，每則留言都是新的，用的是你設定好的 AI 供應商。在影片、圖庫、論壇送出時，它還知道你正在看什麼，會照著那則內容寫。',
+			'settings.signatureAiHint' => '由 AI 現寫的一句話，每則留言都是新的，用的是你設定好的 AI 供應商。點開能看到它拿得到哪些資訊，並告訴它要寫什麼。',
 			'settings.signatureAiUnavailable' => '還沒配 AI 供應商，所以它暫時不會出現在變數面板裡。',
-			'settings.signaturePromptTitle' => '提示詞',
-			'settings.signaturePromptHint' => '這就是發給模型的那一段。語氣、長短、寫什麼，隨便改。裡面已有的幾條規矩值得留著。',
 			'settings.signaturePromptReset' => '恢復預設',
 			'settings.signaturePromptTry' => '試一下',
-			'settings.signaturePromptSample' => '它寫出來的',
-			'settings.signaturePromptLanguageHint' => '會換成你的介面語言。刪掉它，一言就會跟著提示詞的語言走。',
 			'settings.signaturePromptEdited' => '改過',
+			'settings.signatureAiSheetTitle' => 'AI 一言怎麼寫',
+			'settings.signatureAiSeeTitle' => 'AI 看得到什麼',
+			'settings.signatureAiFactUnavailable' => '這裡給不出',
+			'settings.signatureAiFactTapHint' => '點一項就把它插進下面的要求裡。',
+			'settings.signatureAiReadReply' => '讓它讀對方的原文',
+			'settings.signatureAiReadReplyDesc' => '回覆別人時，把對方那則留言的內容也給它看。預設關閉：那是別人寫的字。',
+			'settings.signatureAiCannotSee' => ({required Object items}) => '看不到：${items}',
+			'settings.signatureAiCannotSeeDraft' => '你正在寫的內容',
+			'settings.signatureAiCannotSeeReply' => '對方的原文',
+			'settings.signatureAiCannotSeeAccount' => '你的帳號資訊',
+			'settings.signatureAiPrivacy' => '看得到的這些只會傳給你在 AI 設定裡配置的供應商。',
+			'settings.signatureAiWhatTitle' => '你想讓它寫什麼',
+			'settings.signatureAiWhatHint' => '用你自己的話寫一兩句就好。點上面的標籤能插進來，這個場合給不出的會自己消失。',
+			'settings.signatureAiWhatPreview' => ({required Object scene}) => '代入「${scene}」後',
+			'settings.signatureAiDefaultInstruction' => '用一句話接著我在看的東西隨口感慨一下，別複述標題。',
+			'settings.signatureAiFormatTitle' => '格式',
+			'settings.signatureAiFormatFixed' => '只寫一行 · 不帶引號 · 不帶署名',
+			'settings.signatureAiLength' => '長短',
+			'settings.signatureAiLengthShort' => '短 · 約 15 字',
+			'settings.signatureAiLengthMedium' => '中 · 約 30 字',
+			'settings.signatureAiLengthLong' => '長 · 約 60 字',
+			'settings.signatureAiLanguage' => '語言',
+			'settings.signatureAiLanguageUi' => '跟介面',
+			'settings.signatureAiLanguageDraft' => '跟內文',
+			'settings.signatureAiLanguageDraftHint' => '看你這則留言寫的是哪種文字就用哪種。內文本身不會傳給 AI；看不出來時跟介面。',
+			'settings.signatureAiAllowEmoji' => '允許 emoji',
+			'settings.signatureAiRecipesTitle' => '玩法',
+			'settings.signatureAiRecipesHint' => '點一張就換成它的要求，再照著改。下面那句是寫好的示例，想看真的就點「試一下」。',
+			'settings.signatureAiExample' => '示例',
+			'settings.signatureAiRecipeNeedsReply' => '要先打開上面的「讓它讀對方的原文」',
+			'settings.signatureAiTryTitle' => '試一下',
+			'settings.signatureAiTryEmpty' => ({required Object scene}) => '還沒試過。會按「${scene}」的情境寫一句。',
+			'settings.signatureAiTryNeedsProvider' => '設定好 AI 供應商之後才能試。',
+			'settings.signatureAiWireTitle' => '這次 AI 實際收到的',
+			'settings.signatureAiWireSystem' => '系統提示詞（由上面的格式產生）',
+			'settings.signatureAiWireUser' => '使用者訊息（看得到的 + 你的要求）',
+			'settings.signatureDemoReplyText' => '這次的運鏡比上一部順多了，燈光是不是也換過了？',
+			'settings.aiRecipeFeelName' => '一句看後感',
+			'settings.aiRecipeFeelInstruction' => '寫一句像剛看完《%title%》隨口冒出來的感慨，別複述標題。',
+			'settings.aiRecipeFeelExample' => '看完才發現，原來夏天也能拍得這麼安靜。',
+			'settings.aiRecipeRoastName' => '毒舌吐槽標題',
+			'settings.aiRecipeRoastInstruction' => '毒舌吐槽一下《%title%》這個標題，損一點但別真的刻薄。',
+			'settings.aiRecipeRoastExample' => '標題取得比內容本身還大膽。',
+			'settings.aiRecipePraiseName' => '彩虹屁誇作者',
+			'settings.aiRecipePraiseInstruction' => '用一句彩虹屁誇誇 %author%，誇得具體一點，別直接喊名字。',
+			'settings.aiRecipePraiseExample' => '這手速跟審美，看起來都不像地球人。',
+			'settings.aiRecipeHaikuName' => '五七五俳句',
+			'settings.aiRecipeHaikuInstruction' => '照著《%title%》寫一句五七五節奏的俳句，三段之間用「/」隔開。',
+			'settings.aiRecipeHaikuExample' => '風扇轉不停 / 螢幕的光落在臉上 / 夜又深一寸',
+			'settings.aiRecipeChuuniName' => '中二台詞',
+			'settings.aiRecipeChuuniInstruction' => '寫一句中二動漫角色會喊出來的台詞，和 %tags% 沾點邊。',
+			'settings.aiRecipeChuuniExample' => '這份熱度，我全部接下了。',
+			'settings.aiRecipeAcrosticName' => '標籤藏頭',
+			'settings.aiRecipeAcrosticInstruction' => '把 %tags% 裡的詞依序藏進句子裡，寫成一句通順的話。',
+			'settings.aiRecipeAcrosticExample' => '夢裡都是這個調調，4K 也裝不下這份心動。',
+			'settings.aiRecipeGreetName' => '按時段問候',
+			'settings.aiRecipeGreetInstruction' => '現在是 %time%，按這個時段打個招呼，再順口感慨一句。',
+			'settings.aiRecipeGreetExample' => '凌晨兩點還在刷，看來今晚又不打算睡了。',
+			'settings.aiRecipeEchoName' => '接對方的梗',
+			'settings.aiRecipeEchoInstruction' => '接住 %reply_to% 剛才說的話，順著往下補一句梗。',
+			'settings.aiRecipeEchoExample' => '你說得對，但我已經循環第三遍了。',
 			'settings.signatureVariablesGroup' => '內建變數',
 			'settings.signatureNeedsNetwork' => '需要連網',
 			'settings.signatureBuiltinSource' => '內建',
@@ -5872,6 +5984,8 @@ extension on TranslationsZhTw {
 			'settings.enableHardwareAcceleration' => '啟用硬體加速',
 			'settings.enableHardwareAccelerationInfo' => '開啟硬體加速可以提高解碼效能，但某些裝置可能不相容',
 			'settings.useOpenSLESAudioOutput' => '使用OpenSLES音訊輸出',
+			_ => null,
+		} ?? switch (path) {
 			'settings.useOpenSLESAudioOutputInfo' => '使用低延遲音訊輸出，可能提高音頻效能',
 			'settings.videoSyncAudio' => '音訊同步',
 			'settings.videoSyncDisplayResample' => '顯示重採樣',
@@ -5928,8 +6042,6 @@ extension on TranslationsZhTw {
 			'settings.blockSettings.regexHelpIntro' => '正規能比關鍵字更靈活地比對標題。下面是幾個常見寫法：',
 			'settings.blockSettings.regexHelpTapHint' => '點擊範例即可直接填入。',
 			'settings.blockSettings.regexEx1Pattern' => '預告|花絮|彩蛋',
-			_ => null,
-		} ?? switch (path) {
 			'settings.blockSettings.regexEx1Desc' => '用「|」比對其中任一個詞（表示「或」）',
 			'settings.blockSettings.regexEx2Pattern' => '^【.*】',
 			'settings.blockSettings.regexEx2Desc' => '比對以【…】開頭的標題',
@@ -6386,6 +6498,8 @@ extension on TranslationsZhTw {
 			'videoDetail.gestureGuide.quest.browseTitle' => '用搖桿翻閱圖庫',
 			'videoDetail.gestureGuide.quest.browseBody' => '任一搖桿向左或向右撥動，查看上一項或下一項，按住可連續翻閱。也可以用射線點選膠片列中的縮圖。',
 			'videoDetail.gestureGuide.quest.browseHint' => '圖庫中的影片也按「項」翻閱。射線指向控制面板時，搖桿用於捲動面板。',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.swipeTitle' => '按住畫面，橫拖翻頁',
 			'videoDetail.gestureGuide.quest.swipeBody' => '對準大圖，按住食指扳機向左拖動，出現翻頁提示後放開，進入下一項；向右拖則返回上一項。捏合拖動也可以。',
 			'videoDetail.gestureGuide.quest.swipeHint' => '圖片在 1× 時才能橫拖翻頁，圖庫裡的影片也支援。拖動時舞台保持原位，放開才換圖。',
@@ -6442,8 +6556,6 @@ extension on TranslationsZhTw {
 			'videoDetail.startDownloading' => '開始下載',
 			'videoDetail.downloadFailed' => '下載失敗，請稍後再試',
 			'videoDetail.downloadSuccess' => '下載成功',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.download' => '下載',
 			'videoDetail.downloadManager' => '下載管理',
 			'videoDetail.videoLoadError' => '影片載入錯誤',
@@ -6900,6 +7012,8 @@ extension on TranslationsZhTw {
 			'download.deleteByDate.notSet' => '未設定',
 			'download.deleteByDate.daysUnit' => '天',
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => '刪除 ${days} 天以前建立的任務',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.noMatch' => '沒有符合條件的任務',
 			'download.deleteByDate.invalidRange' => '開始日期不能晚於結束日期',
 			'download.deleteByDate.confirmTitle' => '確認刪除',
@@ -6956,8 +7070,6 @@ extension on TranslationsZhTw {
 			'download.relocation.reasonSourceLocked' => '檔案正被占用（如正在播放），舊位置刪不掉，本項已撤回，什麼都沒改。',
 			'download.relocation.reasonNoSpace' => '目標位置空間不足，其餘的已全部停止。',
 			'download.relocation.reasonVerifyFailed' => '複製出的檔案與原檔大小不一致，複製件已丟棄。',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.reasonIoError' => '讀寫檔案出錯，什麼都沒改。',
 			'download.relocation.systemMessage' => ({required Object message}) => '系統訊息：${message}',
 			'download.relocation.outsideTitle' => ({required Object count}) => '有 ${count} 項已下載內容不在這個目錄中',
@@ -7414,6 +7526,8 @@ extension on TranslationsZhTw {
 			'mediaPlayer.suggestion' => '建議',
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'Android裝置對WEBM格式支援有限，建議使用外部播放器或下載支援WEBM的播放器應用',
 			'mediaPlayer.currentDeviceCodecNotSupported' => '目前裝置不支援此影片格式的編解碼器',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.checkNetworkConnection' => '請檢查網路連線後重試',
 			'mediaPlayer.appMayLackMediaPermission' => '應用可能缺少必要的媒體播放權限',
 			'mediaPlayer.tryOtherVideoPlayer' => '請嘗試使用其他影片播放器',
@@ -7470,8 +7584,6 @@ extension on TranslationsZhTw {
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => '位於 ${position}',
 			'mediaPlayer.notice.noIssuesRecorded' => '暫無問題記錄',
 			'mediaPlayer.notice.exportLogsAction' => '匯出日誌',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.infoSectionTitle' => '診斷資訊',
 			'diagnostics.appVersionLabel' => '應用版本',
 			'diagnostics.memoryUsage' => ({required Object memMB}) => '記憶體使用量: ${memMB}MB',
@@ -7928,6 +8040,8 @@ extension on TranslationsZhTw {
 			'siteMode.confirmUsing' => ({required Object site}) => '確認後，後續請求將統一使用 ${site} 模式。',
 			'siteMode.switched' => ({required Object site}) => '已切換到 ${site}，應用已重新整理。',
 			'savedSearchConfig.title' => '已儲存篩選',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearchConfig.empty' => '還沒有儲存的篩選設定',
 			'savedSearchConfig.saveTooltip' => '儲存目前篩選',
 			'savedSearchConfig.namePromptTitle' => '儲存篩選設定',
@@ -7984,8 +8098,6 @@ extension on TranslationsZhTw {
 			'externalPlayer.sourceLocal' => '本機檔案',
 			'externalPlayer.sourceOnline' => '線上直連',
 			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => '線上直連 · ${quality}',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.onlineLinkExpiryHint' => '線上直連有時效，外部播放器可能播到一半失效；先下載再轉交最穩',
 			'externalPlayer.vrPlayerHint' => 'VR 播放器沒出現在選擇器裡的話，用「複製影片連結」再到播放器內貼上開啟',
 			'externalPlayer.noHandler' => '找不到能開啟影片的應用程式',
@@ -8442,6 +8554,8 @@ extension on TranslationsZhTw {
 			'ai.openSettings' => '前往 AI 設定',
 			'ai.notConfigured' => '未設定',
 			'ai.searchTitle' => 'AI 搜尋',
+			_ => null,
+		} ?? switch (path) {
 			'ai.searchHint' => '用一句話描述你想找什麼，AI 會替你填好搜尋詞和篩選條件。',
 			'ai.searchPlaceholder' => '例如：播放量破萬的最新 MMD',
 			'ai.searchApply' => '用這些條件搜尋',
@@ -8498,8 +8612,6 @@ extension on TranslationsZhTw {
 			'ai.contextWindow' => ({required Object tokens}) => '上下文 ${tokens}',
 			'ai.capFunctionCall' => '函式呼叫',
 			'ai.capReasoning' => '推理',
-			_ => null,
-		} ?? switch (path) {
 			'ai.capStructuredOutput' => 'JSON 輸出',
 			'ai.capVision' => '看圖',
 			'ai.capFileInput' => '讀檔案',

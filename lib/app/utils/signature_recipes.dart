@@ -56,8 +56,14 @@ class SignatureRecipe {
 /// `%name%` → `{name}`。参数照样带得过去（`%pick:a|b%`）。
 final RegExp _markerPattern = RegExp(r'%([A-Za-z_][^%]*)%');
 
-String _toTemplate(String text) =>
+///
+/// ⛔ 文案里写 `%title%` 不写 `{title}`：slang 会把花括号当插值参数，
+/// `tool/i18n_check.dart` 也会把它当占位符逐语言比对。AI 一言的玩法卡片同样
+/// 走这一条。
+String signatureTemplateFromI18n(String text) =>
     text.replaceAllMapped(_markerPattern, (m) => '{${m.group(1)}}');
+
+String _toTemplate(String text) => signatureTemplateFromI18n(text);
 
 String signatureRecipeGroupLabel(
   slang.Translations t,
