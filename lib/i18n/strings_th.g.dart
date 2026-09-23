@@ -2988,7 +2988,9 @@ class _TranslationsAiTh extends TranslationsAiEn {
 	@override String get searchToolTagMissing => 'ไม่ใช่แท็ก';
 	@override String searchToolFindUser({required Object name}) => 'ค้นหาผู้สร้าง ${name}';
 	@override String searchToolUsersFound({required Object count, required Object users}) => '${count} คน · ${users}';
-	@override String searchPreviewEstimate({required Object count}) => 'ทดลองค้น: ประมาณ ${count} รายการ';
+	@override String get searchPlanTitle => 'แผนการค้นหา';
+	@override String searchPlanEstimate({required Object count}) => 'ประมาณ ${count} รายการ';
+	@override String searchToolCount({required Object count}) => 'ค้น ${count} ครั้ง';
 	@override String get searchWillExpandTags => 'ค้นหาแท็กเหล่านี้ด้วย';
 	@override String get searchTraceReasoning => 'การให้เหตุผล';
 	@override String searchFiltersDropped({required Object count}) => 'ลบตัวกรอง ${count} รายการที่ไม่มีในส่วนนี้แล้ว';
@@ -8466,7 +8468,9 @@ extension on TranslationsTh {
 			'ai.searchToolTagMissing' => 'ไม่ใช่แท็ก',
 			'ai.searchToolFindUser' => ({required Object name}) => 'ค้นหาผู้สร้าง ${name}',
 			'ai.searchToolUsersFound' => ({required Object count, required Object users}) => '${count} คน · ${users}',
-			'ai.searchPreviewEstimate' => ({required Object count}) => 'ทดลองค้น: ประมาณ ${count} รายการ',
+			'ai.searchPlanTitle' => 'แผนการค้นหา',
+			'ai.searchPlanEstimate' => ({required Object count}) => 'ประมาณ ${count} รายการ',
+			'ai.searchToolCount' => ({required Object count}) => 'ค้น ${count} ครั้ง',
 			'ai.searchWillExpandTags' => 'ค้นหาแท็กเหล่านี้ด้วย',
 			'ai.searchTraceReasoning' => 'การให้เหตุผล',
 			'ai.searchFiltersDropped' => ({required Object count}) => 'ลบตัวกรอง ${count} รายการที่ไม่มีในส่วนนี้แล้ว',
@@ -8494,10 +8498,10 @@ extension on TranslationsTh {
 			'ai.contextWindow' => ({required Object tokens}) => 'Context ${tokens}',
 			'ai.capFunctionCall' => 'Tools',
 			'ai.capReasoning' => 'Reasoning',
-			'ai.capStructuredOutput' => 'JSON output',
-			'ai.capVision' => 'Vision',
 			_ => null,
 		} ?? switch (path) {
+			'ai.capStructuredOutput' => 'JSON output',
+			'ai.capVision' => 'Vision',
 			'ai.capFileInput' => 'Files',
 			'ai.triOn' => 'On',
 			'ai.triOff' => 'Off',

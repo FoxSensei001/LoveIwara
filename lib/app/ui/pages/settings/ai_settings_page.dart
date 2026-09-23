@@ -12,6 +12,7 @@ import 'package:i_iwara/app/ui/pages/settings/settings_section.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/ai_provider_wizard.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/widgets/ai/ai_ui_parts.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_dropdown_field.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -210,18 +211,10 @@ class _AiSettingsPageState extends State<AiSettingsPage> {
                           final stat = _aiService.usageOf(task);
                           return GlassSettingTile(
                             title: Text(title),
-                            subtitle: Text(
-                              // ⛔ token 一律走 formatTokenCount：这里的量级是
-                              // 几万到几百万，裸数字要数位数才知道是 16 万还是
-                              // 160 万。
-                              '${t.ai.usageCalls}: ${stat.calls}  •  '
-                              '${t.ai.usageTokens}: '
-                              '${formatTokenCount(stat.totalTokens)}  •  '
-                              '${t.ai.usageFailures}: ${stat.failures}',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: cs.onSurfaceVariant,
-                              ),
+                            trailing: _UsageStatsRow(
+                              calls: stat.calls,
+                              tokens: stat.totalTokens,
+                              failures: stat.failures,
                             ),
                           );
                         },
@@ -243,11 +236,18 @@ class _AiSettingsPageState extends State<AiSettingsPage> {
                 final snapshot = Get.isRegistered<AiCatalogService>()
                     ? AiCatalogService.to.snapshot.value
                     : null;
-                return _hint(
-                  cs,
-                  snapshot == null
-                      ? t.ai.catalogMissing
-                      : t.ai.catalogVersion(version: snapshot.toString()),
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: snapshot == null
+                      ? AiNoticeLine(t.ai.catalogMissing, tone: AiTone.warning)
+                      : Text(
+                          t.ai.catalogVersion(version: snapshot.toString()),
+                          style: TextStyle(
+                            fontSize: 12,
+                            height: 1.35,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
                 );
               }),
             ]),
@@ -338,8 +338,9 @@ class _BindingRow extends StatelessWidget {
 
 /// 供应商列表里的一行。
 ///
-/// 左边一枚状态点：⛔ 「配没配好」必须是**看得见**的，否则用户要点进每一家才
-/// 知道哪一家缺密钥。
+/// ⛔ 「配没配好」必须是**看得见**的，否则用户要点进每一家才知道哪一家缺
+/// 密钥——但不能只靠一枚 10px 的圆点：色弱用户分不清红绿点，而且圆点撑不起
+/// 「这条配置用不了」这么重要的事。改用带字的 [AiTag]。
 class _ProviderRow extends StatelessWidget {
   const _ProviderRow({
     super.key,
@@ -363,24 +364,17 @@ class _ProviderRow extends StatelessWidget {
     final kind = provider.kind ?? catalog?.kind ?? AiProviderKind.openai;
     final needsKey = catalog?.needsApiKey ?? AiProviderKind.needsApiKey(kind);
     final ready = !needsKey || hasKey;
-
-    final subtitle = [
-      modelCount == 0
-          ? t.ai.noModels
-          : t.ai.providerModelCount(count: modelCount),
-      if (!ready) t.ai.missingApiKey,
-    ].join(' · ');
+    final modelCountText = modelCount == 0
+        ? t.ai.noModels
+        : t.ai.providerModelCount(count: modelCount);
 
     return GlassSettingTile(
-      leading: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Icon(
-          ready ? Icons.circle : Icons.circle_outlined,
-          size: 10,
-          color: !provider.enabled
-              ? cs.onSurfaceVariant.withValues(alpha: 0.5)
-              : (ready ? Colors.green : cs.error),
-        ),
+      leading: Icon(
+        Icons.hub_outlined,
+        size: 20,
+        color: provider.enabled
+            ? cs.onSurfaceVariant
+            : cs.onSurfaceVariant.withValues(alpha: 0.38),
       ),
       title: Row(
         children: [
@@ -399,30 +393,92 @@ class _ProviderRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 6),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-            decoration: BoxDecoration(
-              color: cs.secondaryContainer.withValues(alpha: 0.7),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              AiProviderKind.displayName(kind),
-              style: TextStyle(fontSize: 10, color: cs.onSecondaryContainer),
-            ),
-          ),
+          AiTag(AiProviderKind.displayName(kind)),
         ],
       ),
-      subtitle: Text(
-        subtitle,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          fontSize: 12,
-          color: ready ? cs.onSurfaceVariant : cs.error,
-        ),
+      subtitle: Wrap(
+        spacing: 6,
+        runSpacing: 4,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text(
+            modelCountText,
+            style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+          ),
+          if (!ready)
+            AiTag(
+              t.ai.missingApiKey,
+              tone: AiTone.error,
+              icon: Icons.key_off_outlined,
+            ),
+          if (!provider.enabled) AiTag(t.translation.disabled),
+        ],
       ),
       trailing: const Icon(Icons.chevron_right, size: 20),
       onTap: onTap,
+    );
+  }
+}
+
+/// 用量那一行的三列数字：调用 / token / 失败，各自「大字 + 小字说明」。
+///
+/// ⭐ 换掉原来 `calls • tokens • failures` 拼一整行的写法：三个量级不同的数字
+/// 挤在一句话里，眼睛要先找分隔符才认得出哪个是哪个；分成三列各自标好名字，
+/// 一眼就能扫到「失败数是不是 0」。
+class _UsageStatsRow extends StatelessWidget {
+  const _UsageStatsRow({
+    required this.calls,
+    required this.tokens,
+    required this.failures,
+  });
+
+  final int calls;
+  final int tokens;
+  final int failures;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final cs = Theme.of(context).colorScheme;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _stat(cs, formatTokenCount(calls), t.ai.usageCalls, cs.onSurface),
+        const SizedBox(width: 14),
+        _stat(cs, formatTokenCount(tokens), t.ai.usageTokens, cs.onSurface),
+        const SizedBox(width: 14),
+        _stat(
+          cs,
+          formatTokenCount(failures),
+          t.ai.usageFailures,
+          failures > 0 ? cs.error : cs.onSurface,
+        ),
+      ],
+    );
+  }
+
+  Widget _stat(ColorScheme cs, String value, String caption, Color color) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: color,
+          ),
+        ),
+        Text(
+          caption,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant),
+        ),
+      ],
     );
   }
 }

@@ -2988,7 +2988,9 @@ class _TranslationsAiId extends TranslationsAiEn {
 	@override String get searchToolTagMissing => 'bukan tag';
 	@override String searchToolFindUser({required Object name}) => 'Mencari pembuat ${name}';
 	@override String searchToolUsersFound({required Object count, required Object users}) => '${count} pengguna · ${users}';
-	@override String searchPreviewEstimate({required Object count}) => 'Uji coba: sekitar ${count} hasil';
+	@override String get searchPlanTitle => 'Rencana pencarian';
+	@override String searchPlanEstimate({required Object count}) => 'Sekitar ${count} hasil';
+	@override String searchToolCount({required Object count}) => '${count} kueri';
 	@override String get searchWillExpandTags => 'Juga mencari tag ini';
 	@override String get searchTraceReasoning => 'Penalaran';
 	@override String searchFiltersDropped({required Object count}) => '${count} filter yang tidak ada di bagian ini telah dihapus.';
@@ -8466,7 +8468,9 @@ extension on TranslationsId {
 			'ai.searchToolTagMissing' => 'bukan tag',
 			'ai.searchToolFindUser' => ({required Object name}) => 'Mencari pembuat ${name}',
 			'ai.searchToolUsersFound' => ({required Object count, required Object users}) => '${count} pengguna · ${users}',
-			'ai.searchPreviewEstimate' => ({required Object count}) => 'Uji coba: sekitar ${count} hasil',
+			'ai.searchPlanTitle' => 'Rencana pencarian',
+			'ai.searchPlanEstimate' => ({required Object count}) => 'Sekitar ${count} hasil',
+			'ai.searchToolCount' => ({required Object count}) => '${count} kueri',
 			'ai.searchWillExpandTags' => 'Juga mencari tag ini',
 			'ai.searchTraceReasoning' => 'Penalaran',
 			'ai.searchFiltersDropped' => ({required Object count}) => '${count} filter yang tidak ada di bagian ini telah dihapus.',
@@ -8494,10 +8498,10 @@ extension on TranslationsId {
 			'ai.contextWindow' => ({required Object tokens}) => 'Context ${tokens}',
 			'ai.capFunctionCall' => 'Tools',
 			'ai.capReasoning' => 'Reasoning',
-			'ai.capStructuredOutput' => 'JSON output',
-			'ai.capVision' => 'Vision',
 			_ => null,
 		} ?? switch (path) {
+			'ai.capStructuredOutput' => 'JSON output',
+			'ai.capVision' => 'Vision',
 			'ai.capFileInput' => 'Files',
 			'ai.triOn' => 'On',
 			'ai.triOff' => 'Off',

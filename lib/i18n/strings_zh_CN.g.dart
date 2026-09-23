@@ -2988,7 +2988,9 @@ class _TranslationsAiZhCn extends TranslationsAiEn {
 	@override String get searchToolTagMissing => '词库里没有';
 	@override String searchToolFindUser({required Object name}) => '查作者 ${name}';
 	@override String searchToolUsersFound({required Object count, required Object users}) => '${count} 位 · ${users}';
-	@override String searchPreviewEstimate({required Object count}) => '试搜过：约 ${count} 条';
+	@override String get searchPlanTitle => '搜索方案';
+	@override String searchPlanEstimate({required Object count}) => '约 ${count} 条';
+	@override String searchToolCount({required Object count}) => '查了 ${count} 次';
 	@override String get searchWillExpandTags => '会自动按标签补搜';
 	@override String get searchTraceReasoning => '推理';
 	@override String searchFiltersDropped({required Object count}) => '已移除 ${count} 条本板块没有的筛选。';
@@ -8466,7 +8468,9 @@ extension on TranslationsZhCn {
 			'ai.searchToolTagMissing' => '词库里没有',
 			'ai.searchToolFindUser' => ({required Object name}) => '查作者 ${name}',
 			'ai.searchToolUsersFound' => ({required Object count, required Object users}) => '${count} 位 · ${users}',
-			'ai.searchPreviewEstimate' => ({required Object count}) => '试搜过：约 ${count} 条',
+			'ai.searchPlanTitle' => '搜索方案',
+			'ai.searchPlanEstimate' => ({required Object count}) => '约 ${count} 条',
+			'ai.searchToolCount' => ({required Object count}) => '查了 ${count} 次',
 			'ai.searchWillExpandTags' => '会自动按标签补搜',
 			'ai.searchTraceReasoning' => '推理',
 			'ai.searchFiltersDropped' => ({required Object count}) => '已移除 ${count} 条本板块没有的筛选。',
@@ -8494,10 +8498,10 @@ extension on TranslationsZhCn {
 			'ai.contextWindow' => ({required Object tokens}) => '上下文 ${tokens}',
 			'ai.capFunctionCall' => '函数调用',
 			'ai.capReasoning' => '推理',
-			'ai.capStructuredOutput' => 'JSON 输出',
-			'ai.capVision' => '看图',
 			_ => null,
 		} ?? switch (path) {
+			'ai.capStructuredOutput' => 'JSON 输出',
+			'ai.capVision' => '看图',
 			'ai.capFileInput' => '读文件',
 			'ai.triOn' => '开',
 			'ai.triOff' => '关',

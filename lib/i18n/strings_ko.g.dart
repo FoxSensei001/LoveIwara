@@ -2988,7 +2988,9 @@ class _TranslationsAiKo extends TranslationsAiEn {
 	@override String get searchToolTagMissing => '태그 없음';
 	@override String searchToolFindUser({required Object name}) => '작성자 조회 ${name}';
 	@override String searchToolUsersFound({required Object count, required Object users}) => '${count}명 · ${users}';
-	@override String searchPreviewEstimate({required Object count}) => '미리 검색: 약 ${count}개';
+	@override String get searchPlanTitle => '검색 계획';
+	@override String searchPlanEstimate({required Object count}) => '약 ${count}개';
+	@override String searchToolCount({required Object count}) => '${count}회 조회';
 	@override String get searchWillExpandTags => '이 태그로도 자동 검색';
 	@override String get searchTraceReasoning => '추론';
 	@override String searchFiltersDropped({required Object count}) => '이 섹션에 없는 필터 ${count}개를 제거했습니다.';
@@ -8466,7 +8468,9 @@ extension on TranslationsKo {
 			'ai.searchToolTagMissing' => '태그 없음',
 			'ai.searchToolFindUser' => ({required Object name}) => '작성자 조회 ${name}',
 			'ai.searchToolUsersFound' => ({required Object count, required Object users}) => '${count}명 · ${users}',
-			'ai.searchPreviewEstimate' => ({required Object count}) => '미리 검색: 약 ${count}개',
+			'ai.searchPlanTitle' => '검색 계획',
+			'ai.searchPlanEstimate' => ({required Object count}) => '약 ${count}개',
+			'ai.searchToolCount' => ({required Object count}) => '${count}회 조회',
 			'ai.searchWillExpandTags' => '이 태그로도 자동 검색',
 			'ai.searchTraceReasoning' => '추론',
 			'ai.searchFiltersDropped' => ({required Object count}) => '이 섹션에 없는 필터 ${count}개를 제거했습니다.',
@@ -8494,10 +8498,10 @@ extension on TranslationsKo {
 			'ai.contextWindow' => ({required Object tokens}) => 'Context ${tokens}',
 			'ai.capFunctionCall' => 'Tools',
 			'ai.capReasoning' => 'Reasoning',
-			'ai.capStructuredOutput' => 'JSON output',
-			'ai.capVision' => 'Vision',
 			_ => null,
 		} ?? switch (path) {
+			'ai.capStructuredOutput' => 'JSON output',
+			'ai.capVision' => 'Vision',
 			'ai.capFileInput' => 'Files',
 			'ai.triOn' => 'On',
 			'ai.triOff' => 'Off',

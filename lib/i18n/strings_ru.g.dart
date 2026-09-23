@@ -2988,7 +2988,9 @@ class _TranslationsAiRu extends TranslationsAiEn {
 	@override String get searchToolTagMissing => 'не тег';
 	@override String searchToolFindUser({required Object name}) => 'Поиск автора ${name}';
 	@override String searchToolUsersFound({required Object count, required Object users}) => 'Пользователей: ${count} · ${users}';
-	@override String searchPreviewEstimate({required Object count}) => 'Пробный поиск: около ${count}';
+	@override String get searchPlanTitle => 'План поиска';
+	@override String searchPlanEstimate({required Object count}) => 'Около ${count}';
+	@override String searchToolCount({required Object count}) => 'Запросов: ${count}';
 	@override String get searchWillExpandTags => 'Также ищет по этим тегам';
 	@override String get searchTraceReasoning => 'Рассуждение';
 	@override String searchFiltersDropped({required Object count}) => 'Удалено фильтров, которых нет в этом разделе: ${count}.';
@@ -8466,7 +8468,9 @@ extension on TranslationsRu {
 			'ai.searchToolTagMissing' => 'не тег',
 			'ai.searchToolFindUser' => ({required Object name}) => 'Поиск автора ${name}',
 			'ai.searchToolUsersFound' => ({required Object count, required Object users}) => 'Пользователей: ${count} · ${users}',
-			'ai.searchPreviewEstimate' => ({required Object count}) => 'Пробный поиск: около ${count}',
+			'ai.searchPlanTitle' => 'План поиска',
+			'ai.searchPlanEstimate' => ({required Object count}) => 'Около ${count}',
+			'ai.searchToolCount' => ({required Object count}) => 'Запросов: ${count}',
 			'ai.searchWillExpandTags' => 'Также ищет по этим тегам',
 			'ai.searchTraceReasoning' => 'Рассуждение',
 			'ai.searchFiltersDropped' => ({required Object count}) => 'Удалено фильтров, которых нет в этом разделе: ${count}.',
@@ -8494,10 +8498,10 @@ extension on TranslationsRu {
 			'ai.contextWindow' => ({required Object tokens}) => 'Context ${tokens}',
 			'ai.capFunctionCall' => 'Tools',
 			'ai.capReasoning' => 'Reasoning',
-			'ai.capStructuredOutput' => 'JSON output',
-			'ai.capVision' => 'Vision',
 			_ => null,
 		} ?? switch (path) {
+			'ai.capStructuredOutput' => 'JSON output',
+			'ai.capVision' => 'Vision',
 			'ai.capFileInput' => 'Files',
 			'ai.triOn' => 'On',
 			'ai.triOff' => 'Off',

@@ -2988,7 +2988,9 @@ class _TranslationsAiJa extends TranslationsAiEn {
 	@override String get searchToolTagMissing => 'タグなし';
 	@override String searchToolFindUser({required Object name}) => '作者を検索 ${name}';
 	@override String searchToolUsersFound({required Object count, required Object users}) => '${count} 人 · ${users}';
-	@override String searchPreviewEstimate({required Object count}) => '試し検索：約 ${count} 件';
+	@override String get searchPlanTitle => '検索プラン';
+	@override String searchPlanEstimate({required Object count}) => '約 ${count} 件';
+	@override String searchToolCount({required Object count}) => '${count} 回照会';
 	@override String get searchWillExpandTags => 'このタグでも自動検索';
 	@override String get searchTraceReasoning => '推論';
 	@override String searchFiltersDropped({required Object count}) => 'このセクションに無い絞り込みを ${count} 件削除しました。';
@@ -8466,7 +8468,9 @@ extension on TranslationsJa {
 			'ai.searchToolTagMissing' => 'タグなし',
 			'ai.searchToolFindUser' => ({required Object name}) => '作者を検索 ${name}',
 			'ai.searchToolUsersFound' => ({required Object count, required Object users}) => '${count} 人 · ${users}',
-			'ai.searchPreviewEstimate' => ({required Object count}) => '試し検索：約 ${count} 件',
+			'ai.searchPlanTitle' => '検索プラン',
+			'ai.searchPlanEstimate' => ({required Object count}) => '約 ${count} 件',
+			'ai.searchToolCount' => ({required Object count}) => '${count} 回照会',
 			'ai.searchWillExpandTags' => 'このタグでも自動検索',
 			'ai.searchTraceReasoning' => '推論',
 			'ai.searchFiltersDropped' => ({required Object count}) => 'このセクションに無い絞り込みを ${count} 件削除しました。',
@@ -8494,10 +8498,10 @@ extension on TranslationsJa {
 			'ai.contextWindow' => ({required Object tokens}) => 'Context ${tokens}',
 			'ai.capFunctionCall' => 'Tools',
 			'ai.capReasoning' => 'Reasoning',
-			'ai.capStructuredOutput' => 'JSON output',
-			'ai.capVision' => 'Vision',
 			_ => null,
 		} ?? switch (path) {
+			'ai.capStructuredOutput' => 'JSON output',
+			'ai.capVision' => 'Vision',
 			'ai.capFileInput' => 'Files',
 			'ai.triOn' => 'On',
 			'ai.triOff' => 'Off',

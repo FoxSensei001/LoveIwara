@@ -10,9 +10,11 @@ import 'package:i_iwara/app/ui/pages/search/ai_search_query.dart';
 import 'package:i_iwara/app/ui/pages/search/iwara_search_syntax.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_row_widget.dart';
+import 'package:i_iwara/app/ui/widgets/ai/ai_ui_parts.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_dropdown_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
@@ -333,15 +335,6 @@ class _AiSearchSheetState extends State<_AiSearchSheet> {
               footerExtent + 16,
             ),
             children: [
-              Text(
-                t.ai.searchHint,
-                style: TextStyle(
-                  fontSize: 12,
-                  height: 1.35,
-                  color: cs.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 12),
               GlassInputSurface(
                 child: TextField(
                   controller: _controller,
@@ -370,21 +363,50 @@ class _AiSearchSheetState extends State<_AiSearchSheet> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // 跑的过程中把模型正在说的话摆出来。⛔ 一个不动的转圈
-                    // 既说不清"是不是卡死了"，也说不清"它有没有听懂"，而
-                    // 这类请求动辄十几二十秒（还可能在降级重试）。
-                    if (_running)
-                      _ThinkingPanel(
-                        progress: _progress,
-                        startedAt: _startedAt,
+                    // 说明只在还没跑过时有用：跑起来之后下面那条过程就是说明，
+                    // 结果出来后它更只是压在方案卡上面的一段灰字。
+                    if (!_running && !_hasResult && _error == null)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(4, 10, 4, 0),
+                        child: Text(
+                          t.ai.searchHint,
+                          style: TextStyle(
+                            fontSize: 12,
+                            height: 1.4,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
                       ),
-                    if (_error != null) _buildError(cs, _error!),
-                    if (_hasResult) _buildResult(t, cs),
+                    // ⭐ 跑的时候与跑完之后是**同一条**：收口前是两块（跑的时候一
+                    // 张带限高滚动框的面板，跑完换成一行折叠的「思考过程」），
+                    // 同一段记录换个壳再出现一次，展开后还是框里套框的第二层
+                    // 滚动。现在它原地从「正在试搜…」变成「过程 · 查了 3 次 ·
+                    // 8.2s」，展开就是整段摊在弹窗里，跟着弹窗一起滚。
+                    //
                     // 跑完仍然留着回看：结果不对时，这段是唯一能分清
-                    // "我没说清"还是"它理解错了"的东西。
-                    // 只交了 JSON 的模型剪完是空的：别留一行点开什么都没有的折叠行。
-                    if (!_running && _TraceView.hasContent(_trace))
-                      _buildThinkingLog(t, cs),
+                    // "我没说清"还是"它理解错了"的东西。只交了 JSON 的模型剪完
+                    // 是空的：别留一行点开什么都没有的折叠行。
+                    if (_running || _TraceView.hasContent(_trace))
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: _ProcessSection(
+                          progress: _progress,
+                          running: _running,
+                          startedAt: _startedAt,
+                          took: _took,
+                          trace: _trace,
+                          expanded: _thinkingExpanded,
+                          onToggle: () => setState(
+                            () => _thinkingExpanded = !_thinkingExpanded,
+                          ),
+                        ),
+                      ),
+                    if (_error != null)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(4, 12, 4, 0),
+                        child: AiNoticeLine(_error!),
+                      ),
+                    if (_hasResult) _buildResult(t, cs),
                   ],
                 ),
               ),
@@ -430,27 +452,13 @@ class _AiSearchSheetState extends State<_AiSearchSheet> {
     );
   }
 
-  Widget _buildError(ColorScheme cs, String message) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.error_outline, size: 15, color: cs.error),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              message,
-              style: TextStyle(fontSize: 12, height: 1.35, color: cs.error),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 把解析结果摊开，并且**允许改**：关键词是输入框，板块与排序点得动，
-  /// 每条筛选就是筛选抽屉里那张卡（同一个 [FilterRowWidget]）。
+  /// 「搜索方案」卡：把解析结果摊开，并且**允许改**——关键词是输入框，板块与
+  /// 排序是两只下拉胶囊，每条筛选就是筛选抽屉里那张卡（同一个
+  /// [FilterRowWidget]）。
+  ///
+  /// ⭐ 卡头的大字是**试搜过的条数**：用户决定按不按「应用」，看的就是这个数
+  /// （0 条说明有条件把结果杀光了）。收口前它是卡片最底下一行 11px 的小字，
+  /// 排在关键词、两行板块/排序、两条提示后面。
   ///
   /// ⛔ 不要只显示「已生成 3 个条件」——用户没法判断对不对，也就没法决定要不要
   /// 按下去。摊开来看才是这一步存在的理由；模型给的是初稿，不是判决。
@@ -465,110 +473,144 @@ class _AiSearchSheetState extends State<_AiSearchSheet> {
       _segment,
     ).firstWhereOrNull((o) => o.value == effectiveSort)?.label;
 
+    final keyword = _queryController.text;
+    final tags = aiSearchRecognizedTags(keyword, _segment);
+    // ⛔ 试搜数字只在表单**原样**就是试搜过的那一份时才摆：用户改了一个字它就
+    // 不再是这份表的结果，留着只会骗人。
+    final preview = _preview;
+    final estimate =
+        preview != null &&
+            preview.matches(
+              segment: _segment,
+              keyword: keyword,
+              filters: _filters,
+              sort: _sort,
+              currentSegment: widget.segment,
+              currentSort: widget.currentSort,
+            )
+        ? preview
+        : null;
+
     return Padding(
       padding: const EdgeInsets.only(top: 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-            decoration: BoxDecoration(
-              color: cs.surfaceContainerHighest.withValues(alpha: 0.45),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: cs.outlineVariant.withValues(alpha: 0.5),
-              ),
-            ),
+          AiInfoCard(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
+                _buildPlanHeadline(t, cs, estimate),
+                const SizedBox(height: 10),
+                GlassInputSurface(
+                  child: TextField(
+                    controller: _queryController,
+                    maxLines: 1,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    // 关键词一变，卡头的条数与「关键词不作数」的提醒要跟着
+                    // 出现/消失。
+                    onChanged: (_) => setState(() {}),
+                    onSubmitted: (_) => _apply(),
+                    decoration: glassFieldDecoration(
+                      context,
+                      hint: t.ai.searchPlaceholder,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
                   children: [
-                    Icon(Icons.search, size: 14, color: cs.primary),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: GlassInputSurface(
-                        child: TextField(
-                          controller: _queryController,
-                          maxLines: 1,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          // 关键词一变，下面那条「这个排序下关键词不作数」的
-                          // 提醒要跟着出现/消失。
-                          onChanged: (_) => setState(() {}),
-                          onSubmitted: (_) => _apply(),
-                          decoration: glassFieldDecoration(
-                            context,
-                            hint: t.ai.searchPlaceholder,
-                          ),
-                        ),
-                      ),
+                    // ⛔ 换板块必须明说。按下去之后页面整个换了个索引，不声不响
+                    // 的话用户只会以为自己点错了。点它就能换回来（或换去别处）。
+                    GlassDropdownPill(
+                      height: _pillHeight,
+                      icon: Icons.swap_horiz,
+                      label: _segment == widget.segment
+                          ? searchSegmentLabel(_segment, t)
+                          : t.ai.searchSwitchSegment(
+                              segment: searchSegmentLabel(_segment, t),
+                            ),
+                      onTap: _pickSegment,
+                    ),
+                    GlassDropdownPill(
+                      height: _pillHeight,
+                      icon: Icons.sort,
+                      label: sortLabel ?? t.common.sort,
+                      onTap: _pickSort,
                     ),
                   ],
                 ),
-                // ⛔ 换板块必须明说。按下去之后页面整个换了个索引，不声不响的话
-                // 用户只会以为自己点错了。点它就能换回来（或换去别处）。
-                Builder(
-                  builder: (anchorContext) => _buildChip(
-                    cs,
-                    Icons.swap_horiz,
-                    _segment == widget.segment
-                        ? searchSegmentLabel(_segment, t)
-                        : t.ai.searchSwitchSegment(
-                            segment: searchSegmentLabel(_segment, t),
-                          ),
-                    emphasized: _segment != widget.segment,
-                    onTap: () => _pickSegment(anchorContext),
-                  ),
-                ),
-                Builder(
-                  builder: (anchorContext) => _buildChip(
-                    cs,
-                    Icons.sort,
-                    '${t.common.sort}: ${sortLabel ?? '—'}',
-                    onTap: () => _pickSort(anchorContext),
-                  ),
-                ),
-                if (_keywordNeedsQuotes)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(Icons.info_outline, size: 13, color: cs.tertiary),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            t.ai.searchKeywordNeedsQuotes,
-                            style: TextStyle(
-                              fontSize: 11,
-                              height: 1.35,
-                              color: cs.tertiary,
-                            ),
+                // 出现与消失都要有过渡：这两行跟着关键词/排序实时变。
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeOutCubic,
+                  alignment: Alignment.topCenter,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // ⭐ 这是 AI 搜索与「按标签补搜」接上的那一处：用户看不出
+                      // `"原神"` 按下去其实还会按 #原神 标签补搜的话（那才是大头：
+                      // 文本 17 条、标签 324 条），会以为模型只给了一个词。
+                      if (tags.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: Wrap(
+                            spacing: 4,
+                            runSpacing: 4,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(right: 2),
+                                child: Text(
+                                  t.ai.searchWillExpandTags,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: cs.onSurfaceVariant,
+                                  ),
+                                ),
+                              ),
+                              for (final match in tags)
+                                AiTag(
+                                  '#${TagLocalizationService.displayName(match.slugs.first)}',
+                                  tone: AiTone.accent,
+                                ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                      if (_keywordNeedsQuotes)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: AiNoticeLine(
+                            t.ai.searchKeywordNeedsQuotes,
+                            tone: AiTone.warning,
+                          ),
+                        ),
+                    ],
                   ),
-                ..._buildEnhancementLines(t, cs),
+                ),
               ],
             ),
           ),
           if (_filters.isNotEmpty && fields.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            Text(
-              t.ai.searchFilters,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: cs.onSurfaceVariant,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 16, 4, 4),
+              child: Text(
+                '${t.ai.searchFilters} · ${_filters.length}',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: cs.onSurfaceVariant,
+                ),
               ),
             ),
-            const SizedBox(height: 4),
             Form(
               key: _formKey,
               child: Column(
@@ -593,251 +635,122 @@ class _AiSearchSheetState extends State<_AiSearchSheet> {
     );
   }
 
-  /// 按下去之后搜索增强会替他做什么、试搜过是什么样——跟着表单实时变。
+  /// 卡头：小标题「搜索方案」+ 试搜过的条数（大字）+ 前几条的标题。
   ///
-  /// ⭐ 这是 AI 搜索与「按标签补搜」接上的那一处：早先结果区只摆关键词，用户
-  /// 看不出 `"原神"` 按下去其实还会按 #原神 标签补搜（那才是大头：文本 17 条、
-  /// 标签 324 条），也看不出模型试搜过的数字还作不作数。
-  ///
-  /// ⛔ 试搜数字只在表单**原样**就是试搜过的那一份时才摆：用户改了一个字它就
-  /// 不再是这份表的结果，留着只会骗人。
-  List<Widget> _buildEnhancementLines(slang.Translations t, ColorScheme cs) {
-    final keyword = _queryController.text;
-    final tags = aiSearchRecognizedTags(keyword, _segment);
-    final preview = _preview;
-    final previewValid =
-        preview != null &&
-        preview.matches(
-          segment: _segment,
-          keyword: keyword,
-          filters: _filters,
-          sort: _sort,
-          currentSegment: widget.segment,
-          currentSort: widget.currentSort,
-        );
-
-    return [
-      if (tags.isNotEmpty)
-        Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: Wrap(
-            spacing: 6,
-            runSpacing: 4,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Icon(Icons.sell_outlined, size: 13, color: cs.primary),
-              Text(
-                t.ai.searchWillExpandTags,
-                style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
-              ),
-              for (final match in tags)
-                Text(
-                  '#${TagLocalizationService.displayName(match.slugs.first)}',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: cs.primary,
-                  ),
-                ),
-            ],
-          ),
-        ),
-      // 有出有入：改了表之后这行要淡出去，不是一帧消失。
-      AnimatedSize(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOutCubic,
-        alignment: Alignment.topCenter,
-        child: previewValid
-            ? Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 1),
-                      child: Icon(
-                        Icons.fact_check_outlined,
-                        size: 13,
-                        color: cs.primary,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: t.ai.searchPreviewEstimate(
-                                count: preview.total,
-                              ),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            if (preview.titles.isNotEmpty)
-                              TextSpan(
-                                text: '  ${preview.titles.take(3).join(' / ')}',
-                                style: TextStyle(color: cs.onSurfaceVariant),
-                              ),
-                          ],
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 11,
-                          height: 1.4,
-                          color: cs.onSurface,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            : const SizedBox(width: double.infinity),
-      ),
-    ];
-  }
-
-  /// 结果区里「板块 / 排序」那种一行小标记。给了 [onTap] 就是可点的。
-  Widget _buildChip(
+  /// 改了表之后条数不再作数，卡头退回只剩小标题——换档要有过渡。
+  Widget _buildPlanHeadline(
+    slang.Translations t,
     ColorScheme cs,
-    IconData icon,
-    String text, {
-    bool emphasized = false,
-    VoidCallback? onTap,
-  }) {
-    final color = emphasized ? cs.primary : cs.onSurfaceVariant;
-    final row = Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 13, color: color),
-        const SizedBox(width: 6),
-        Expanded(
-          child: Text(
-            text,
-            style: TextStyle(
-              fontSize: 12,
-              height: 1.3,
-              color: color,
-              fontWeight: emphasized ? FontWeight.w600 : FontWeight.normal,
-            ),
-          ),
-        ),
-        if (onTap != null) Icon(Icons.arrow_drop_down, size: 16, color: color),
-      ],
-    );
-
-    return Padding(
-      padding: const EdgeInsets.only(top: 6),
-      child: onTap == null
-          ? row
-          // 点按吐的是玻璃菜单，所以要声明 opensOverlay：长按也能开，并且手指
-          // 能接力划到某一条再松手（组件没法自己预知 onTap 干什么）。
-          : GlassTapArea(
-              onTap: onTap,
-              opensOverlay: true,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2),
-                child: row,
-              ),
-            ),
-    );
-  }
-
-  /// 跑完之后留下的那一行「思考过程 · 8.2s」，点开看全文。
-  ///
-  /// 默认收起：多数时候结果是对的，没人要看这段；但结果不对时它是唯一的线索，
-  /// 所以不能跑完就扔。
-  Widget _buildThinkingLog(slang.Translations t, ColorScheme cs) {
-    final seconds = _took == null
-        ? null
-        : (_took!.inMilliseconds / 1000).toStringAsFixed(1);
-    final label = seconds == null
-        ? t.ai.searchThinking
-        : '${t.ai.searchThinking} · ${seconds}s';
-
-    return Padding(
-      padding: const EdgeInsets.only(top: 10),
+    AiSearchPreview? estimate,
+  ) {
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOutCubic,
+      alignment: Alignment.topLeft,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          GlassTapArea(
-            onTap: () => setState(() => _thinkingExpanded = !_thinkingExpanded),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 3),
-              child: Row(
-                children: [
-                  AnimatedRotation(
-                    turns: _thinkingExpanded ? 0.25 : 0,
-                    duration: const Duration(milliseconds: 180),
-                    curve: Curves.easeOutCubic,
-                    child: Icon(
-                      Icons.chevron_right,
-                      size: 15,
-                      color: cs.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: cs.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
+          Text(
+            t.ai.searchPlanTitle,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.3,
+              color: cs.onSurfaceVariant,
             ),
           ),
-          // 出现与消失都要有过渡，不硬切。
-          AnimatedSize(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeOutCubic,
-            alignment: Alignment.topCenter,
-            child: _thinkingExpanded
-                ? Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    child: _TraceView(
-                      trace: _trace,
-                      maxHeight: 320,
-                      live: false,
-                    ),
-                  )
-                : const SizedBox(width: double.infinity),
-          ),
+          if (estimate != null) ...[
+            const SizedBox(height: 2),
+            Text(
+              t.ai.searchPlanEstimate(count: estimate.total),
+              style: TextStyle(
+                fontSize: 22,
+                height: 1.25,
+                fontWeight: FontWeight.w700,
+                // 0 条是这张卡最要紧的警告：一眼看得出有条件把结果杀光了。
+                color: estimate.total == 0 ? cs.error : cs.onSurface,
+              ),
+            ),
+            if (estimate.titles.isNotEmpty)
+              Text(
+                estimate.titles.take(3).join(' / '),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+              ),
+          ],
         ],
       ),
     );
   }
 }
 
-/// 跑的过程中那一块：转圈 + 已用秒数 + 模型正在写的字。
+/// 方案卡里下拉胶囊的高度。比全站默认的 44 矮一档：它们摆在卡片里、紧挨着
+/// 输入框，44 高的一排会比关键词本身还抢眼。
+const double _pillHeight = 36;
+
+/// 「过程」一条：跑的时候与跑完之后是同一个东西。
+///
+/// - 跑的时候：转圈 + 此刻在干什么 + 已用秒数；收起时底下露一行最新的动静
+///   （最后一次试搜/最后一句推理），展开就是整段过程；
+/// - 跑完：「思考过程 · 查了 3 次 · 8.2s」，默认收起，点开整段摊开。
+///
+/// ⛔ 展开后**不限高、不自己滚**：它摆在弹窗的列表里，限高就是列表里再套一个
+/// 能滚的框，两层滚动互相抢手势（2026-09-23 用户点名）。
 ///
 /// ⭐ 单独一个 widget，是为了让 120ms 一拍的重建只落在这里——外面那张弹窗上
 /// 还有个正在被输入法编辑的输入框，跟着一起重建既浪费又容易出怪事。
-class _ThinkingPanel extends StatefulWidget {
-  const _ThinkingPanel({required this.progress, required this.startedAt});
+class _ProcessSection extends StatefulWidget {
+  const _ProcessSection({
+    required this.progress,
+    required this.running,
+    required this.startedAt,
+    required this.took,
+    required this.trace,
+    required this.expanded,
+    required this.onToggle,
+  });
 
   final ValueListenable<AiProgress?> progress;
+  final bool running;
   final DateTime? startedAt;
+  final Duration? took;
+
+  /// 跑完之后的那份记录（跑的时候以 [progress] 里的为准）。
+  final List<AiTraceEntry> trace;
+  final bool expanded;
+  final VoidCallback onToggle;
 
   @override
-  State<_ThinkingPanel> createState() => _ThinkingPanelState();
+  State<_ProcessSection> createState() => _ProcessSectionState();
 }
 
-class _ThinkingPanelState extends State<_ThinkingPanel> {
+class _ProcessSectionState extends State<_ProcessSection> {
   Timer? _ticker;
 
   @override
   void initState() {
     super.initState();
-    // 秒数一秒一跳。⛔ 别跟着帧走：这块在场的时间可能有半分钟，而它只是个
-    // 计时器（本项目已经在「透明度 0 的常驻转圈把整应用拖到满帧重绘」上栽过）。
-    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) setState(() {});
-    });
+    _syncTicker();
+  }
+
+  @override
+  void didUpdateWidget(_ProcessSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.running != widget.running) _syncTicker();
+  }
+
+  /// 秒数一秒一跳，只在跑的时候跳。⛔ 别跟着帧走：这块在场的时间可能有半分钟，
+  /// 而它只是个计时器（本项目已经在「透明度 0 的常驻转圈把整应用拖到满帧重绘」
+  /// 上栽过）。
+  void _syncTicker() {
+    _ticker?.cancel();
+    _ticker = widget.running
+        ? Timer.periodic(const Duration(seconds: 1), (_) {
+            if (mounted) setState(() {});
+          })
+        : null;
   }
 
   @override
@@ -848,126 +761,228 @@ class _ThinkingPanelState extends State<_ThinkingPanel> {
 
   @override
   Widget build(BuildContext context) {
+    if (!widget.running) return _build(context, null);
+    return ValueListenableBuilder<AiProgress?>(
+      valueListenable: widget.progress,
+      builder: (context, progress, _) => _build(context, progress),
+    );
+  }
+
+  Widget _build(BuildContext context, AiProgress? progress) {
     final t = slang.Translations.of(context);
     final cs = Theme.of(context).colorScheme;
-    final started = widget.startedAt;
-    final elapsed = started == null
-        ? null
-        : DateTime.now().difference(started).inSeconds;
+    final running = widget.running;
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 14),
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-        decoration: BoxDecoration(
-          color: cs.surfaceContainerHighest.withValues(alpha: 0.45),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-        ),
-        child: ValueListenableBuilder<AiProgress?>(
-          valueListenable: widget.progress,
-          builder: (context, progress, _) {
-            final calls = progress?.toolCalls ?? const <AiToolCall>[];
-            // ⭐ 服务内部有两层自动重来（流式降级、去掉工具再跑），每一层最长
-            // 都要一两分钟。不把它说出来，界面就是一行不动的字加一个转圈——
-            // 2026-09-21 用户报障「出错了也一点反应没有」。
-            final notice = progress?.notice ?? '';
-            final stage = progress?.stage ?? AiStage.waiting;
-            final retrying = stage == AiStage.retrying;
-            // ⛔ 正文只取过程记录，**不用 draft**：结构化调用的 draft 末尾是那坨
-            // 正在成形的 JSON，它解析完就在下面的结果区里逐条摊开了。过程记录里
-            // 的正文段已经剪掉 JSON（[AiTraceEntry.prose]）。
-            final trace = progress?.trace ?? const <AiTraceEntry>[];
-            final label = _stageLabel(t, stage, progress?.draft ?? '', calls);
+    // ⛔ 正文只取过程记录，**不用 draft**：结构化调用的 draft 末尾是那坨
+    // 正在成形的 JSON，它解析完就在方案卡里逐条摊开了。过程记录里的正文段
+    // 已经剪掉 JSON（[AiTraceEntry.prose]）。
+    final trace = running
+        ? (progress?.trace ?? const <AiTraceEntry>[])
+        : widget.trace;
+    final calls = progress?.toolCalls ?? const <AiToolCall>[];
+    final stage = progress?.stage ?? AiStage.waiting;
+    // ⭐ 服务内部有两层自动重来（流式降级、去掉工具再跑），每一层最长都要一两
+    // 分钟。不把它说出来，界面就是一行不动的字加一个转圈——2026-09-21 用户
+    // 报障「出错了也一点反应没有」。
+    final retrying = running && stage == AiStage.retrying;
+    final notice = running ? (progress?.notice ?? '') : '';
+    final hasTrace = _TraceView.hasContent(trace);
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
+    final String label;
+    final String meta;
+    if (running) {
+      label = _stageLabel(t, stage, progress?.draft ?? '', calls);
+      final started = widget.startedAt;
+      meta = started == null
+          ? ''
+          : '${DateTime.now().difference(started).inSeconds}s';
+    } else {
+      label = t.ai.searchThinking;
+      final toolCount = trace.where((e) => e.kind == AiTraceKind.tool).length;
+      final took = widget.took;
+      meta = [
+        if (toolCount > 0) t.ai.searchToolCount(count: toolCount),
+        if (took != null) '${(took.inMilliseconds / 1000).toStringAsFixed(1)}s',
+      ].join(' · ');
+    }
+
+    final accent = retrying ? cs.error : cs.onSurfaceVariant;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GlassTapArea(
+          // 还没出字的时候没什么可展开的（原生结构化那条路根本拿不到流）。
+          onTap: hasTrace ? widget.onToggle : null,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            child: Row(
               children: [
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 12,
-                      height: 12,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 1.6,
-                        color: retrying ? cs.error : cs.primary,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      // 有出有入：换阶段是这块唯一会动的东西，硬切等于没换。
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 200),
-                        switchInCurve: Curves.easeOutCubic,
-                        switchOutCurve: Curves.easeOutCubic,
-                        // ⛔ 默认的 layoutBuilder 是**居中**的 Stack：摆在 Row 的
-                        // Expanded 里，换档那 200ms 里新旧两句话会一起跳到中间
-                        // 再跳回来，看起来像界面抽了一下。
-                        layoutBuilder: (current, previous) => Stack(
-                          alignment: AlignmentDirectional.centerStart,
-                          children: [...previous, ?current],
-                        ),
-                        child: Text(
-                          label,
-                          // ⛔ key 必须跟着文案走：AnimatedSwitcher 认的是
-                          // widget 身份，不给 key 的话「正在推理…」换成
-                          // 「正在试搜…」是同一个 Text，一帧硬切过去。
-                          key: ValueKey(label),
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: retrying ? cs.error : cs.onSurfaceVariant,
+                SizedBox(
+                  width: 14,
+                  height: 14,
+                  // 有出有入：跑完那一下转圈换成对勾，不是一帧消失。
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 200),
+                    child: running
+                        ? Padding(
+                            key: const ValueKey('spin'),
+                            padding: const EdgeInsets.all(1),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 1.6,
+                              color: retrying ? cs.error : cs.primary,
+                            ),
+                          )
+                        : Icon(
+                            Icons.psychology_alt_outlined,
+                            key: const ValueKey('done'),
+                            size: 14,
+                            color: cs.onSurfaceVariant,
                           ),
-                        ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  // 有出有入：换阶段是这块唯一会动的东西，硬切等于没换。
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 200),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeOutCubic,
+                    // ⛔ 默认的 layoutBuilder 是**居中**的 Stack：摆在 Row 的
+                    // Expanded 里，换档那 200ms 里新旧两句话会一起跳到中间
+                    // 再跳回来，看起来像界面抽了一下。
+                    layoutBuilder: (current, previous) => Stack(
+                      alignment: AlignmentDirectional.centerStart,
+                      children: [...previous, ?current],
+                    ),
+                    child: Text(
+                      label,
+                      // ⛔ key 必须跟着文案走：AnimatedSwitcher 认的是
+                      // widget 身份，不给 key 的话「正在推理…」换成
+                      // 「正在试搜…」是同一个 Text，一帧硬切过去。
+                      key: ValueKey(label),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: accent,
                       ),
                     ),
-                    if (elapsed != null)
-                      Text(
-                        '${elapsed}s',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: cs.onSurfaceVariant,
-                        ),
-                      ),
-                  ],
+                  ),
                 ),
-                // 出现与消失都要有过渡，不硬切。
-                AnimatedSize(
-                  duration: const Duration(milliseconds: 180),
-                  curve: Curves.easeOutCubic,
-                  alignment: Alignment.topCenter,
-                  child: (!_TraceView.hasContent(trace) && notice.isEmpty)
-                      // 还没出字（原生结构化那条路根本拿不到流）：只有上面那行。
-                      ? const SizedBox(width: double.infinity)
-                      : Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // ⭐ 失败原因摆在最上面：用户要凭它决定还等不等
-                            // （端点 500 值得等一下，密钥错了等到天亮也没用）。
-                            if (notice.isNotEmpty)
-                              _NoticeLine(reason: notice, cs: cs),
-                            // ⭐ 想、查、再想，按发生的先后排成一串：看得出哪次
-                            // 试搜是为了验证哪个念头、查到之后又改了什么主意。
-                            if (_TraceView.hasContent(trace))
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4),
-                                child: _TraceView(
-                                  trace: trace,
-                                  maxHeight: 200,
-                                  live: true,
-                                ),
-                              ),
-                          ],
-                        ),
+                if (meta.isNotEmpty) ...[
+                  const SizedBox(width: 8),
+                  Text(
+                    meta,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+                // 能展开才画箭头；有出有入。
+                AnimatedOpacity(
+                  duration: const Duration(milliseconds: 200),
+                  opacity: hasTrace ? 1 : 0,
+                  child: AnimatedRotation(
+                    turns: widget.expanded ? 0.25 : 0,
+                    duration: const Duration(milliseconds: 180),
+                    curve: Curves.easeOutCubic,
+                    child: Icon(
+                      Icons.chevron_right,
+                      size: 18,
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
                 ),
               ],
-            );
-          },
+            ),
+          ),
         ),
+        // 出现与消失都要有过渡，不硬切。
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
+          alignment: Alignment.topCenter,
+          child: Padding(
+            // 与标题文字对齐（图标 14 + 间距 8 + 外边 4）。
+            padding: const EdgeInsets.only(left: 26),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // ⭐ 失败原因摆在最上面：用户要凭它决定还等不等（端点 500 值得
+                // 等一下，密钥错了等到天亮也没用）。
+                if (notice.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: AiNoticeLine(
+                      t.ai.searchRetryReason(reason: notice.trim()),
+                      maxLines: 3,
+                    ),
+                  ),
+                if (hasTrace && widget.expanded)
+                  // ⭐ 想、查、再想，按发生的先后排成一串：看得出哪次试搜是为了
+                  // 验证哪个念头、查到之后又改了什么主意。
+                  _TraceView(trace: trace)
+                else if (hasTrace && running)
+                  // 收起时只露最新的一行动静：证明它在干活，又不把弹窗撑长。
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: _LatestTraceLine(trace: trace),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 过程收起时露出来的那一行：最后一段记录的最后一句。
+class _LatestTraceLine extends StatelessWidget {
+  const _LatestTraceLine({required this.trace});
+
+  final List<AiTraceEntry> trace;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    AiTraceEntry? last;
+    for (final e in trace.reversed) {
+      if (_TraceView._visible(e)) {
+        last = e;
+        break;
+      }
+    }
+    if (last == null) return const SizedBox.shrink();
+    final text = switch (last.kind) {
+      AiTraceKind.tool =>
+        last.call!.result == null
+            ? last.call!.call
+            : '${last.call!.call} → ${last.call!.result}',
+      AiTraceKind.reasoning => _lastLine(last.text),
+      AiTraceKind.narration => _lastLine(last.prose),
+    };
+    return Text(
+      text,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(
+        fontSize: 11.5,
+        height: 1.4,
+        color: cs.onSurfaceVariant.withValues(alpha: 0.85),
       ),
     );
+  }
+
+  static String _lastLine(String s) {
+    final lines = s.trim().split('\n').where((l) => l.trim().isNotEmpty);
+    return lines.isEmpty ? '' : lines.last.trim();
   }
 }
 
@@ -1000,43 +1015,6 @@ String _stageLabel(
   AiStage.retrying => t.ai.searchRetrying,
 };
 
-/// 「上一次为什么没成」那一行。
-///
-/// ⛔ 原因要**原样**摆出来（截断但不改写）：这句话的唯一用途就是让用户看出
-/// 是端点在 500 还是自己的密钥不对，换成一句「出错了」等于什么都没说。
-class _NoticeLine extends StatelessWidget {
-  const _NoticeLine({required this.reason, required this.cs});
-
-  final String reason;
-  final ColorScheme cs;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = slang.Translations.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(top: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 1),
-            child: Icon(Icons.error_outline, size: 12, color: cs.error),
-          ),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              t.ai.searchRetryReason(reason: reason.trim()),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 11, height: 1.4, color: cs.error),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 /// 过程记录：推理、模型说的话、工具调用，按时间排成一串。
 ///
 /// ⭐ 为什么不再是「工具一块、思维链一块」：模型是边想边查的，拆开摆就只剩
@@ -1048,17 +1026,9 @@ class _NoticeLine extends StatelessWidget {
 /// - 说的话（非推理模型「先说再答」那几句 / 工具之间的旁白）：正常字色；
 /// - 工具调用：一行，查什么在左、查到什么在右。
 class _TraceView extends StatelessWidget {
-  const _TraceView({
-    required this.trace,
-    required this.maxHeight,
-    required this.live,
-  });
+  const _TraceView({required this.trace});
 
   final List<AiTraceEntry> trace;
-  final double maxHeight;
-
-  /// 正在跑：贴着最后一行滚（字在往下长）。
-  final bool live;
 
   /// 有没有东西可画。正文段剪掉 JSON 之后可能是空的（只交了 JSON 的模型）。
   static bool hasContent(List<AiTraceEntry> trace) => trace.any(_visible);
@@ -1074,41 +1044,31 @@ class _TraceView extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final t = slang.Translations.of(context);
     final visible = trace.where(_visible).toList();
-    // 滚动跟随按「内容长了没有」判：条数 + 最后一段的长度。
-    final last = visible.isEmpty ? null : visible.last;
-    final revision =
-        '${visible.length}:${last?.text.length}:${last?.call?.result}';
-
-    return _FadingScroll(
-      maxHeight: maxHeight,
-      follow: live,
-      revision: revision,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (final entry in visible)
-            Padding(
-              padding: const EdgeInsets.only(top: 6),
-              child: switch (entry.kind) {
-                AiTraceKind.tool => _ToolCallLine(call: entry.call!),
-                AiTraceKind.reasoning => _ReasoningBlock(
-                  label: t.ai.searchTraceReasoning,
-                  text: entry.text.trim(),
-                  cs: cs,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final entry in visible)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: switch (entry.kind) {
+              AiTraceKind.tool => _ToolCallLine(call: entry.call!),
+              AiTraceKind.reasoning => _ReasoningBlock(
+                label: t.ai.searchTraceReasoning,
+                text: entry.text.trim(),
+                cs: cs,
+              ),
+              AiTraceKind.narration => Text(
+                entry.prose,
+                style: TextStyle(
+                  fontSize: 12,
+                  height: 1.5,
+                  color: cs.onSurface.withValues(alpha: 0.88),
                 ),
-                AiTraceKind.narration => Text(
-                  entry.prose,
-                  style: TextStyle(
-                    fontSize: 12,
-                    height: 1.5,
-                    color: cs.onSurface.withValues(alpha: 0.88),
-                  ),
-                ),
-              },
-            ),
-        ],
-      ),
+              ),
+            },
+          ),
+      ],
     );
   }
 }
@@ -1233,133 +1193,6 @@ class _ToolCallLine extends StatelessWidget {
     );
   }
 }
-
-/// 一块限高、可滚、上下按需渐隐的区域。[follow] 为真时始终贴着最后一行。
-///
-/// [revision] 变了＝内容变了：跟随模式下滚到底，否则只重算两头的渐隐。
-class _FadingScroll extends StatefulWidget {
-  const _FadingScroll({
-    required this.child,
-    required this.revision,
-    required this.maxHeight,
-    required this.follow,
-  });
-
-  final Widget child;
-  final Object revision;
-  final double maxHeight;
-  final bool follow;
-
-  @override
-  State<_FadingScroll> createState() => _FadingScrollState();
-}
-
-class _FadingScrollState extends State<_FadingScroll> {
-  final ScrollController _scroll = ScrollController();
-
-  /// 内容有没有溢出到这一头之外。两头各自判：只在**真的还有字被藏起来**的那
-  /// 一侧画渐隐，否则滚到顶还淡掉第一行，看起来像少了半句话。
-  bool _overflowTop = false;
-  bool _overflowBottom = false;
-
-  @override
-  void didUpdateWidget(_FadingScroll oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.revision == oldWidget.revision) return;
-    if (widget.follow) {
-      _stickToBottom();
-    } else {
-      _syncEdgesAfterFrame();
-    }
-  }
-
-  /// ⛔ 要等这一帧布局完才知道新的最大滚动量——内容是刚加上去的，现在问到的
-  /// 还是上一帧的高度，贴不到底。
-  void _stickToBottom() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !_scroll.hasClients) return;
-      _scroll.jumpTo(_scroll.position.maxScrollExtent);
-      _syncEdges();
-    });
-  }
-
-  void _syncEdgesAfterFrame() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _syncEdges();
-    });
-  }
-
-  void _syncEdges() {
-    if (!_scroll.hasClients) return;
-    final p = _scroll.position;
-    // 1px 容差：maxScrollExtent 是浮点算出来的，严格比较会在贴底那一帧抖。
-    final top = p.pixels > p.minScrollExtent + 1;
-    final bottom = p.pixels < p.maxScrollExtent - 1;
-    if (top != _overflowTop || bottom != _overflowBottom) {
-      setState(() {
-        _overflowTop = top;
-        _overflowBottom = bottom;
-      });
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.follow) {
-      _stickToBottom();
-    } else {
-      _syncEdgesAfterFrame();
-    }
-  }
-
-  @override
-  void dispose() {
-    _scroll.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // 渐隐带按像素折算成比例：这块的高度是定的，写死 stop 会让两处高度不同的
-    // 渐隐看起来不是一回事。
-    final fade = (_fadeExtent / widget.maxHeight).clamp(0.0, 0.4);
-
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxHeight: widget.maxHeight),
-      // ⭐ 上下渐隐而不是硬裁：这块字是**流过去的**，被切掉半行的边缘读起来
-      // 像日志尾巴；淡出去才像"还在继续"。ShaderMask 只在思考块在场时有，
-      // 不是常驻图层。
-      child: ShaderMask(
-        blendMode: BlendMode.dstIn,
-        shaderCallback: (rect) => LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            _overflowTop ? const Color(0x00FFFFFF) : const Color(0xFFFFFFFF),
-            const Color(0xFFFFFFFF),
-            const Color(0xFFFFFFFF),
-            _overflowBottom ? const Color(0x00FFFFFF) : const Color(0xFFFFFFFF),
-          ],
-          stops: [0, fade, 1 - fade, 1],
-        ).createShader(rect),
-        child: NotificationListener<ScrollNotification>(
-          onNotification: (_) {
-            _syncEdges();
-            return false;
-          },
-          child: SingleChildScrollView(
-            controller: _scroll,
-            child: widget.child,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// 思考文本上下那条渐隐带的高度。
-const double _fadeExtent = 16;
 
 /// AI 搜索现在能不能用（有没有一份配好的供应商档案）。
 ///

@@ -7578,8 +7578,14 @@ class TranslationsAiEn {
 	/// en: '${count} users · ${users}'
 	String searchToolUsersFound({required Object count, required Object users}) => '${count} users · ${users}';
 
-	/// en: 'Previewed: about ${count} results'
-	String searchPreviewEstimate({required Object count}) => 'Previewed: about ${count} results';
+	/// en: 'Search plan'
+	String get searchPlanTitle => 'Search plan';
+
+	/// en: 'About ${count} results'
+	String searchPlanEstimate({required Object count}) => 'About ${count} results';
+
+	/// en: '${count} lookups'
+	String searchToolCount({required Object count}) => '${count} lookups';
 
 	/// en: 'Also searches these tags'
 	String get searchWillExpandTags => 'Also searches these tags';
@@ -15739,7 +15745,9 @@ extension on Translations {
 			'ai.searchToolTagMissing' => 'not a tag',
 			'ai.searchToolFindUser' => ({required Object name}) => 'Looking up author ${name}',
 			'ai.searchToolUsersFound' => ({required Object count, required Object users}) => '${count} users · ${users}',
-			'ai.searchPreviewEstimate' => ({required Object count}) => 'Previewed: about ${count} results',
+			'ai.searchPlanTitle' => 'Search plan',
+			'ai.searchPlanEstimate' => ({required Object count}) => 'About ${count} results',
+			'ai.searchToolCount' => ({required Object count}) => '${count} lookups',
 			'ai.searchWillExpandTags' => 'Also searches these tags',
 			'ai.searchTraceReasoning' => 'Reasoning',
 			'ai.searchFiltersDropped' => ({required Object count}) => 'Removed ${count} filter(s) this section does not have.',
@@ -15767,10 +15775,10 @@ extension on Translations {
 			'ai.contextWindow' => ({required Object tokens}) => 'Context ${tokens}',
 			'ai.capFunctionCall' => 'Tools',
 			'ai.capReasoning' => 'Reasoning',
-			'ai.capStructuredOutput' => 'JSON output',
-			'ai.capVision' => 'Vision',
 			_ => null,
 		} ?? switch (path) {
+			'ai.capStructuredOutput' => 'JSON output',
+			'ai.capVision' => 'Vision',
 			'ai.capFileInput' => 'Files',
 			'ai.triOn' => 'On',
 			'ai.triOff' => 'Off',

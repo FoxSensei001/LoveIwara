@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/signature_provider.model.dart';
 import 'package:i_iwara/app/services/signature_service.dart';
+import 'package:i_iwara/app/ui/widgets/ai/ai_ui_parts.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -99,122 +100,103 @@ class _SignatureAiBodyState extends State<SignatureAiBody> {
             ),
           ),
           const SizedBox(height: 12),
-          Material(
-            color: cs.surfaceContainerHighest.withValues(alpha: 0.45),
+          // ⭐ AiInfoCard 只管视觉（底色 + 细边 + 圆角 12），点击涟漪另外套一层
+          // 同圆角的 Material/InkWell——AiInfoCard 本身是个不接手势的 Container。
+          ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              onTap: _editPrompt,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 10, 6, 10),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  t.settings.signatureAiSourceName,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
+            child: Material(
+              type: MaterialType.transparency,
+              child: InkWell(
+                onTap: _editPrompt,
+                child: AiInfoCard(
+                  padding: const EdgeInsets.fromLTRB(12, 10, 6, 10),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    t.settings.signatureAiSourceName,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              if (customized) ...[
-                                const SizedBox(width: 6),
-                                _Tag(text: t.settings.signaturePromptEdited),
+                                if (customized) ...[
+                                  const SizedBox(width: 6),
+                                  AiTag(t.settings.signaturePromptEdited),
+                                ],
                               ],
+                            ),
+                            const SizedBox(height: 2),
+                            // 模板里怎么引用它。和数据源那张列表同一个读法。
+                            Text(
+                              '{${SignatureProvider.aiHitokoto.id}}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontFamily: 'monospace',
+                                color: cs.primary,
+                              ),
+                            ),
+                            // AI 没配好时这里说的是「为什么它现在不会出现在变量
+                            // 面板里」——提示词照样能编辑，不把入口藏掉。
+                            if (!available) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                t.settings.signatureAiUnavailable,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  height: 1.3,
+                                  color: cs.onSurfaceVariant,
+                                ),
+                              ),
+                            ] else if (subtitle != null &&
+                                subtitle.isNotEmpty) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                subtitle,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  height: 1.3,
+                                  color: _failed != null
+                                      ? cs.error
+                                      : cs.onSurfaceVariant,
+                                ),
+                              ),
                             ],
-                          ),
-                          const SizedBox(height: 2),
-                          // 模板里怎么引用它。和数据源那张列表同一个读法。
-                          Text(
-                            '{${SignatureProvider.aiHitokoto.id}}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontFamily: 'monospace',
-                              color: cs.primary,
-                            ),
-                          ),
-                          // AI 没配好时这里说的是「为什么它现在不会出现在变量
-                          // 面板里」——提示词照样能编辑，不把入口藏掉。
-                          if (!available) ...[
-                            const SizedBox(height: 2),
-                            Text(
-                              t.settings.signatureAiUnavailable,
-                              style: TextStyle(
-                                fontSize: 11,
-                                height: 1.3,
-                                color: cs.onSurfaceVariant,
-                              ),
-                            ),
-                          ] else if (subtitle != null &&
-                              subtitle.isNotEmpty) ...[
-                            const SizedBox(height: 2),
-                            Text(
-                              subtitle,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 11,
-                                height: 1.3,
-                                color: _failed != null
-                                    ? cs.error
-                                    : cs.onSurfaceVariant,
-                              ),
-                            ),
                           ],
-                        ],
+                        ),
                       ),
-                    ),
-                    // AI 不可用时测试必然失败，摆一枚点了只会报错的钮没有意义。
-                    if (available)
-                      GlassAsyncIconButton(
-                        icon: const Icon(Icons.play_arrow_outlined),
-                        tooltip: t.settings.signatureSourceTest,
+                      // AI 不可用时测试必然失败，摆一枚点了只会报错的钮没有意义。
+                      if (available)
+                        GlassAsyncIconButton(
+                          icon: const Icon(Icons.play_arrow_outlined),
+                          tooltip: t.settings.signatureSourceTest,
+                          standalone: true,
+                          onPressed: _test,
+                        ),
+                      GlassIconButton(
+                        icon: const Icon(Icons.edit_outlined),
+                        tooltip: t.settings.signaturePromptTitle,
                         standalone: true,
-                        onPressed: _test,
+                        onPressed: _editPrompt,
                       ),
-                    GlassIconButton(
-                      icon: const Icon(Icons.edit_outlined),
-                      tooltip: t.settings.signaturePromptTitle,
-                      standalone: true,
-                      onPressed: _editPrompt,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _Tag extends StatelessWidget {
-  const _Tag({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-      decoration: BoxDecoration(
-        color: cs.secondaryContainer.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(fontSize: 10, color: cs.onSecondaryContainer),
       ),
     );
   }
@@ -440,21 +422,13 @@ class _SignatureAiPromptSheetState extends State<_SignatureAiPromptSheet> {
                   ),
                 ),
                 const SizedBox(height: 6),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    _error ?? _sample!,
-                    style: TextStyle(
-                      fontSize: 13,
-                      height: 1.35,
-                      color: _error != null ? cs.error : null,
-                    ),
-                  ),
+                AiInfoCard(
+                  child: _error != null
+                      ? AiNoticeLine(_error!, tone: AiTone.error)
+                      : Text(
+                          _sample!,
+                          style: const TextStyle(fontSize: 13, height: 1.35),
+                        ),
                 ),
                 if (_error == null) ...[
                   const SizedBox(height: 6),

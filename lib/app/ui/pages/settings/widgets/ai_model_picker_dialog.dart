@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/services/ai_catalog_service.dart';
+import 'package:i_iwara/app/ui/widgets/ai/ai_ui_parts.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_picker_dialog.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -81,7 +82,6 @@ class _AiModelPickerDialogState extends State<_AiModelPickerDialog> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    final cs = Theme.of(context).colorScheme;
     final items = _filtered;
 
     return GlassPickerDialog(
@@ -107,29 +107,13 @@ class _AiModelPickerDialogState extends State<_AiModelPickerDialog> {
         itemBuilder: (context, index) {
           final modelId = items[index];
           final catalog = AiCatalogService.modelOf(modelId);
-          return CheckboxListTile(
-            dense: true,
-            contentPadding: EdgeInsets.zero,
-            value: _selected.contains(modelId),
-            title: Text(
-              catalog?.name ?? modelId,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 14),
-            ),
-            subtitle: Text(
-              modelId,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 11,
-                fontFamily: 'monospace',
-                color: cs.onSurfaceVariant,
-              ),
-            ),
+          return AiModelCheckRow(
+            title: catalog?.name ?? modelId,
+            modelId: modelId,
+            checked: _selected.contains(modelId),
             onChanged: (checked) {
               setState(() {
-                if (checked ?? false) {
+                if (checked) {
                   _selected.add(modelId);
                 } else {
                   _selected.remove(modelId);

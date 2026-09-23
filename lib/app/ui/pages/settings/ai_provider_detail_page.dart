@@ -13,6 +13,7 @@ import 'package:i_iwara/app/ui/pages/settings/widgets/ai_model_editor.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/ai_model_picker_dialog.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/widgets/ai/ai_ui_parts.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
@@ -481,9 +482,20 @@ class _AiProviderDetailPageState extends State<AiProviderDetailPage> {
           SliverFillRemaining(
             hasScrollBody: false,
             child: Center(
-              child: Text(
-                t.ai.providerGone,
-                style: TextStyle(color: cs.onSurfaceVariant),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.link_off,
+                    size: 40,
+                    color: cs.onSurfaceVariant.withValues(alpha: 0.6),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    t.ai.providerGone,
+                    style: TextStyle(color: cs.onSurfaceVariant),
+                  ),
+                ],
               ),
             ),
           ),
@@ -773,15 +785,11 @@ class _AiProviderDetailPageState extends State<AiProviderDetailPage> {
                     ? const SizedBox(width: double.infinity)
                     : Padding(
                         padding: const EdgeInsets.only(top: 12, left: 4),
-                        child: Text(
+                        child: AiNoticeLine(
                           _noticeError ?? _noticeOk!,
-                          style: TextStyle(
-                            fontSize: 12,
-                            height: 1.35,
-                            color: _noticeError != null
-                                ? cs.error
-                                : Colors.green,
-                          ),
+                          tone: _noticeError != null
+                              ? AiTone.error
+                              : AiTone.success,
                         ),
                       ),
               ),
@@ -850,58 +858,41 @@ class _AiProviderDetailPageState extends State<AiProviderDetailPage> {
     TextInputType? keyboardType,
     Widget? footer,
   }) {
-    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 10, 12, 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: cs.onSurfaceVariant,
-                  ),
+      child: AiLabeledField(
+        label: label,
+        trailing: onReset == null
+            ? null
+            : GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.settings_backup_restore, size: 18),
+                tooltip: slang.Translations.of(context).ai.resetToDefault,
+                onPressed: onReset,
+              ),
+        footer: footer,
+        child: Row(
+          children: [
+            Expanded(
+              child: GlassInputSurface(
+                child: TextField(
+                  controller: controller,
+                  obscureText: obscure,
+                  keyboardType: keyboardType,
+                  onChanged: (_) => setState(() {}),
+                  style: monospace
+                      ? const TextStyle(fontFamily: 'monospace')
+                      : null,
+                  decoration: glassFieldDecoration(context, hint: hint),
                 ),
               ),
-              if (onReset != null)
-                GlassIconButton(
-                  standalone: true,
-                  icon: const Icon(Icons.settings_backup_restore, size: 18),
-                  tooltip: slang.Translations.of(context).ai.resetToDefault,
-                  onPressed: onReset,
-                ),
+            ),
+            for (final widget in trailing) ...[
+              const SizedBox(width: 6),
+              widget,
             ],
-          ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              Expanded(
-                child: GlassInputSurface(
-                  child: TextField(
-                    controller: controller,
-                    obscureText: obscure,
-                    keyboardType: keyboardType,
-                    onChanged: (_) => setState(() {}),
-                    style: monospace
-                        ? const TextStyle(fontFamily: 'monospace')
-                        : null,
-                    decoration: glassFieldDecoration(context, hint: hint),
-                  ),
-                ),
-              ),
-              for (final widget in trailing) ...[
-                const SizedBox(width: 6),
-                widget,
-              ],
-            ],
-          ),
-          if (footer != null) ...[const SizedBox(height: 6), footer],
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1054,7 +1045,7 @@ class _ModelRow extends StatelessWidget {
         title.isEmpty ? t.ai.serverDefaultModel : title,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: const TextStyle(fontWeight: FontWeight.w600),
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
       ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1067,7 +1058,7 @@ class _ModelRow extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 fontFamily: 'monospace',
-                color: cs.primary,
+                color: cs.onSurfaceVariant,
               ),
             ),
           const SizedBox(height: 4),
@@ -1084,10 +1075,15 @@ class _ModelRow extends StatelessWidget {
               runSpacing: 4,
               children: [
                 for (final cap in catalog.capabilities)
-                  _CapChip(label: _capLabel(t, cap)),
+                  AiTag(
+                    _capLabel(t, cap),
+                    tone: cap == AiModelCapability.reasoning
+                        ? AiTone.accent
+                        : AiTone.neutral,
+                  ),
                 if (catalog.contextWindow != null)
-                  _CapChip(
-                    label: t.ai.contextWindow(
+                  AiTag(
+                    t.ai.contextWindow(
                       tokens: formatTokenCount(catalog.contextWindow!),
                     ),
                   ),
@@ -1124,28 +1120,6 @@ class _ModelRow extends StatelessWidget {
         AiModelCapability.vision => t.ai.capVision,
         AiModelCapability.fileInput => t.ai.capFileInput,
       };
-}
-
-class _CapChip extends StatelessWidget {
-  const _CapChip({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant),
-      ),
-    );
-  }
 }
 
 /// 三态选择器：跟随目录 / 强制开 / 强制关。

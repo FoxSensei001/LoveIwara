@@ -5,6 +5,8 @@ import 'package:i_iwara/app/models/ai_task.model.dart';
 import 'package:i_iwara/app/services/ai_catalog_service.dart';
 import 'package:i_iwara/app/services/ai_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/ai_endpoint_preview.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
+import 'package:i_iwara/app/ui/widgets/ai/ai_ui_parts.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -331,7 +333,7 @@ class _AiProviderWizardSheetState extends State<_AiProviderWizardSheet> {
                   _Step.verify => _verifyBody(t),
                 },
               ),
-              _errorBlock(theme.colorScheme),
+              _errorBlock(),
             ],
           ),
     );
@@ -442,38 +444,37 @@ class _AiProviderWizardSheetState extends State<_AiProviderWizardSheet> {
               style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
             ),
           ),
-        for (final provider in matched)
-          ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-            title: Text(
-              provider.name,
-              style: const TextStyle(fontWeight: FontWeight.w600),
+        GlassSettingSection(
+          children: [
+            for (final provider in matched)
+              GlassSettingTile(
+                title: Text(
+                  provider.name,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  provider.baseUrl.isEmpty
+                      ? AiProviderKind.displayName(provider.kind)
+                      : provider.baseUrl,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                trailing: const Icon(Icons.chevron_right, size: 20),
+                onTap: () => _pick(provider),
+              ),
+            // ⛔ 永远排最后：第一屏不该是空白表单。用户想要的是「一个能用的
+            // AI」，让他从 baseUrl 开始填是把我们的实现细节当成了他的任务。
+            GlassSettingTile(
+              icon: Icons.add_link,
+              title: Text(
+                t.ai.customProvider,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              subtitle: Text(t.ai.customProviderHint),
+              trailing: const Icon(Icons.chevron_right, size: 20),
+              onTap: () => _pick(null),
             ),
-            subtitle: Text(
-              provider.baseUrl.isEmpty
-                  ? AiProviderKind.displayName(provider.kind)
-                  : provider.baseUrl,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
-            ),
-            trailing: const Icon(Icons.chevron_right, size: 20),
-            onTap: () => _pick(provider),
-          ),
-        // ⛔ 永远排最后：第一屏不该是空白表单。用户想要的是「一个能用的 AI」，
-        // 让他从 baseUrl 开始填是把我们的实现细节当成了他的任务。
-        ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-          title: Text(
-            t.ai.customProvider,
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
-          subtitle: Text(
-            t.ai.customProviderHint,
-            style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
-          ),
-          trailing: const Icon(Icons.chevron_right, size: 20),
-          onTap: () => _pick(null),
+          ],
         ),
       ],
     );
@@ -482,66 +483,72 @@ class _AiProviderWizardSheetState extends State<_AiProviderWizardSheet> {
   // ── 第二步：密钥 ───────────────────────────────────────────────────────
 
   Widget _apiKeyBody(slang.Translations t) {
-    final cs = Theme.of(context).colorScheme;
     final keyUrl = _catalog?.apiKeyUrl;
     return Column(
       key: const ValueKey('key'),
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _label(cs, t.ai.providerNameLabel),
-        GlassInputSurface(
-          child: TextField(
-            controller: _nameController,
-            decoration: glassFieldDecoration(
-              context,
-              hint: _catalog?.name ?? t.ai.customProvider,
+        AiLabeledField(
+          label: t.ai.providerNameLabel,
+          child: GlassInputSurface(
+            child: TextField(
+              controller: _nameController,
+              decoration: glassFieldDecoration(
+                context,
+                hint: _catalog?.name ?? t.ai.customProvider,
+              ),
             ),
           ),
         ),
         const SizedBox(height: 14),
-        _label(cs, t.ai.apiKey),
-        GlassInputSurface(
-          child: TextField(
-            controller: _apiKeyController,
-            obscureText: true,
-            autofocus: true,
-            onChanged: (_) => setState(() {}),
-            decoration: glassFieldDecoration(context, hint: t.ai.apiKey),
-          ),
-        ),
-        if (keyUrl != null) ...[
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: GlassTextActionButton(
-              label: t.ai.getApiKey,
-              onPressed: () async {
-                final uri = Uri.tryParse(keyUrl);
-                if (uri != null) {
-                  await launchUrl(uri, mode: LaunchMode.externalApplication);
-                }
-              },
+        AiLabeledField(
+          label: t.ai.apiKey,
+          footer: keyUrl == null
+              ? null
+              : Align(
+                  alignment: Alignment.centerLeft,
+                  child: GlassTextActionButton(
+                    label: t.ai.getApiKey,
+                    onPressed: () async {
+                      final uri = Uri.tryParse(keyUrl);
+                      if (uri != null) {
+                        await launchUrl(
+                          uri,
+                          mode: LaunchMode.externalApplication,
+                        );
+                      }
+                    },
+                  ),
+                ),
+          child: GlassInputSurface(
+            child: TextField(
+              controller: _apiKeyController,
+              obscureText: true,
+              autofocus: true,
+              onChanged: (_) => setState(() {}),
+              decoration: glassFieldDecoration(context, hint: t.ai.apiKey),
             ),
           ),
-        ],
+        ),
         // 自定义端点那条必须自己填地址；目录里那几家默认继承，也允许改。
         const SizedBox(height: 14),
-        _label(cs, t.ai.baseUrl),
-        GlassInputSurface(
-          child: TextField(
-            controller: _baseUrlController,
-            keyboardType: TextInputType.url,
-            onChanged: (_) => setState(() {}),
-            style: const TextStyle(fontFamily: 'monospace'),
-            decoration: glassFieldDecoration(
-              context,
-              hint: _catalog?.baseUrl ?? 'https://api.example.com/v1',
+        AiLabeledField(
+          label: t.ai.baseUrl,
+          footer: AiEndpointPreview(kind: _kind, baseUrl: _effectiveBaseUrl),
+          child: GlassInputSurface(
+            child: TextField(
+              controller: _baseUrlController,
+              keyboardType: TextInputType.url,
+              onChanged: (_) => setState(() {}),
+              style: const TextStyle(fontFamily: 'monospace'),
+              decoration: glassFieldDecoration(
+                context,
+                hint: _catalog?.baseUrl ?? 'https://api.example.com/v1',
+              ),
             ),
           ),
         ),
-        const SizedBox(height: 6),
-        AiEndpointPreview(kind: _kind, baseUrl: _effectiveBaseUrl),
       ],
     );
   }
@@ -595,28 +602,12 @@ class _AiProviderWizardSheetState extends State<_AiProviderWizardSheet> {
             ),
           ),
         for (final model in options)
-          CheckboxListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-            dense: true,
-            value: _selectedModels.contains(model),
-            title: Text(
-              AiCatalogService.modelOf(model)?.name ?? model,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 14),
-            ),
-            subtitle: Text(
-              model,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 11,
-                fontFamily: 'monospace',
-                color: cs.onSurfaceVariant,
-              ),
-            ),
+          AiModelCheckRow(
+            title: AiCatalogService.modelOf(model)?.name ?? model,
+            modelId: model,
+            checked: _selectedModels.contains(model),
             onChanged: (checked) => setState(() {
-              if (checked ?? false) {
+              if (checked) {
                 _selectedModels.add(model);
               } else {
                 _selectedModels.remove(model);
@@ -653,7 +644,7 @@ class _AiProviderWizardSheetState extends State<_AiProviderWizardSheet> {
           // ⭐ 这一格**警告不是失败**：端点不认 json_schema 时我们会走提示词
           // 契约那条路，AI 搜索照样能用，只是慢一点。说成「失败」会让用户
           // 以为这家不能用。
-          warnHint: t.ai.wizardCheckSchemaWarn,
+          hint: t.ai.wizardCheckSchemaWarn,
         ),
       ],
     );
@@ -663,7 +654,7 @@ class _AiProviderWizardSheetState extends State<_AiProviderWizardSheet> {
     String label,
     _CheckState state,
     ColorScheme cs, {
-    String? warnHint,
+    String? hint,
   }) {
     final icon = switch (state) {
       _CheckState.pending => Icon(
@@ -676,10 +667,10 @@ class _AiProviderWizardSheetState extends State<_AiProviderWizardSheet> {
         height: 18,
         child: CircularProgressIndicator(strokeWidth: 2),
       ),
-      _CheckState.ok => const Icon(
+      _CheckState.ok => Icon(
         Icons.check_circle,
         size: 18,
-        color: Colors.green,
+        color: Colors.green.shade600,
       ),
       _CheckState.warn => Icon(
         Icons.error_outline,
@@ -700,16 +691,16 @@ class _AiProviderWizardSheetState extends State<_AiProviderWizardSheet> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(label, style: const TextStyle(fontSize: 13)),
-                if (state == _CheckState.warn && warnHint != null)
+                if ((state == _CheckState.warn ||
+                        state == _CheckState.failed) &&
+                    hint != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
-                    child: Text(
-                      warnHint,
-                      style: TextStyle(
-                        fontSize: 11,
-                        height: 1.35,
-                        color: cs.onSurfaceVariant,
-                      ),
+                    child: AiNoticeLine(
+                      hint,
+                      tone: state == _CheckState.warn
+                          ? AiTone.warning
+                          : AiTone.error,
                     ),
                   ),
               ],
@@ -720,7 +711,7 @@ class _AiProviderWizardSheetState extends State<_AiProviderWizardSheet> {
     );
   }
 
-  Widget _errorBlock(ColorScheme cs) => AnimatedSize(
+  Widget _errorBlock() => AnimatedSize(
     duration: const Duration(milliseconds: 200),
     curve: Curves.easeOutCubic,
     alignment: Alignment.topCenter,
@@ -728,22 +719,7 @@ class _AiProviderWizardSheetState extends State<_AiProviderWizardSheet> {
         ? const SizedBox(width: double.infinity)
         : Padding(
             padding: const EdgeInsets.only(top: 12),
-            child: Text(
-              _error!,
-              style: TextStyle(fontSize: 12, height: 1.35, color: cs.error),
-            ),
+            child: AiNoticeLine(_error!, tone: AiTone.error),
           ),
-  );
-
-  Widget _label(ColorScheme cs, String text) => Padding(
-    padding: const EdgeInsets.only(bottom: 6),
-    child: Text(
-      text,
-      style: TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-        color: cs.onSurfaceVariant,
-      ),
-    ),
   );
 }

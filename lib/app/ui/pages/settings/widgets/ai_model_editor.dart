@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/ai_provider.model.dart';
 import 'package:i_iwara/app/services/ai_catalog_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
+import 'package:i_iwara/app/ui/widgets/ai/ai_ui_parts.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -143,13 +144,15 @@ class _AiModelEditorSheetState extends State<_AiModelEditorSheet> {
                 ),
               ),
               const SizedBox(height: 12),
-              _label(cs, t.ai.providerNameLabel),
-              GlassInputSurface(
-                child: TextField(
-                  controller: _nameController,
-                  decoration: glassFieldDecoration(
-                    context,
-                    hint: catalog?.name ?? widget.model.modelId,
+              AiLabeledField(
+                label: t.ai.providerNameLabel,
+                child: GlassInputSurface(
+                  child: TextField(
+                    controller: _nameController,
+                    decoration: glassFieldDecoration(
+                      context,
+                      hint: catalog?.name ?? widget.model.modelId,
+                    ),
                   ),
                 ),
               ),
@@ -199,59 +202,43 @@ class _AiModelEditorSheetState extends State<_AiModelEditorSheet> {
               ),
               if (canTemp && (_sendTemperature ?? true)) ...[
                 const SizedBox(height: 14),
-                _label(cs, t.ai.temperature),
-                GlassInputSurface(
-                  child: TextField(
-                    controller: _temperatureController,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    decoration: glassFieldDecoration(
-                      context,
-                      hint: AiDefaults.temperature.toString(),
+                AiLabeledField(
+                  label: t.ai.temperature,
+                  child: GlassInputSurface(
+                    child: TextField(
+                      controller: _temperatureController,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      decoration: glassFieldDecoration(
+                        context,
+                        hint: AiDefaults.temperature.toString(),
+                      ),
                     ),
                   ),
                 ),
               ],
               const SizedBox(height: 14),
-              _label(cs, t.ai.maxTokens),
-              GlassInputSurface(
-                child: TextField(
-                  controller: _maxTokensController,
-                  keyboardType: TextInputType.number,
-                  decoration: glassFieldDecoration(
-                    context,
-                    hint: catalog?.maxOutputTokens != null
-                        ? t.ai.maxTokensFromCatalog(
-                            tokens: catalog!.maxOutputTokens!,
-                          )
-                        : t.ai.maxTokensAuto,
+              AiLabeledField(
+                label: t.ai.maxTokens,
+                footer: Text(t.ai.maxTokensHint),
+                child: GlassInputSurface(
+                  child: TextField(
+                    controller: _maxTokensController,
+                    keyboardType: TextInputType.number,
+                    decoration: glassFieldDecoration(
+                      context,
+                      hint: catalog?.maxOutputTokens != null
+                          ? t.ai.maxTokensFromCatalog(
+                              tokens: catalog!.maxOutputTokens!,
+                            )
+                          : t.ai.maxTokensAuto,
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                t.ai.maxTokensHint,
-                style: TextStyle(
-                  fontSize: 11,
-                  height: 1.35,
-                  color: cs.onSurfaceVariant,
                 ),
               ),
             ],
           ),
     );
   }
-
-  Widget _label(ColorScheme cs, String text) => Padding(
-    padding: const EdgeInsets.only(bottom: 6),
-    child: Text(
-      text,
-      style: TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-        color: cs.onSurfaceVariant,
-      ),
-    ),
-  );
 }

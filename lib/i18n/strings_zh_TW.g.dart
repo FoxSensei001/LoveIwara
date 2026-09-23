@@ -2988,7 +2988,9 @@ class _TranslationsAiZhTw extends TranslationsAiEn {
 	@override String get searchToolTagMissing => '詞庫裡沒有';
 	@override String searchToolFindUser({required Object name}) => '查作者 ${name}';
 	@override String searchToolUsersFound({required Object count, required Object users}) => '${count} 位 · ${users}';
-	@override String searchPreviewEstimate({required Object count}) => '試搜過：約 ${count} 筆';
+	@override String get searchPlanTitle => '搜尋方案';
+	@override String searchPlanEstimate({required Object count}) => '約 ${count} 筆';
+	@override String searchToolCount({required Object count}) => '查了 ${count} 次';
 	@override String get searchWillExpandTags => '會自動按標籤補搜';
 	@override String get searchTraceReasoning => '推理';
 	@override String searchFiltersDropped({required Object count}) => '已移除 ${count} 條本板塊沒有的篩選。';
@@ -8466,7 +8468,9 @@ extension on TranslationsZhTw {
 			'ai.searchToolTagMissing' => '詞庫裡沒有',
 			'ai.searchToolFindUser' => ({required Object name}) => '查作者 ${name}',
 			'ai.searchToolUsersFound' => ({required Object count, required Object users}) => '${count} 位 · ${users}',
-			'ai.searchPreviewEstimate' => ({required Object count}) => '試搜過：約 ${count} 筆',
+			'ai.searchPlanTitle' => '搜尋方案',
+			'ai.searchPlanEstimate' => ({required Object count}) => '約 ${count} 筆',
+			'ai.searchToolCount' => ({required Object count}) => '查了 ${count} 次',
 			'ai.searchWillExpandTags' => '會自動按標籤補搜',
 			'ai.searchTraceReasoning' => '推理',
 			'ai.searchFiltersDropped' => ({required Object count}) => '已移除 ${count} 條本板塊沒有的篩選。',
@@ -8494,10 +8498,10 @@ extension on TranslationsZhTw {
 			'ai.contextWindow' => ({required Object tokens}) => '上下文 ${tokens}',
 			'ai.capFunctionCall' => '函式呼叫',
 			'ai.capReasoning' => '推理',
-			'ai.capStructuredOutput' => 'JSON 輸出',
-			'ai.capVision' => '看圖',
 			_ => null,
 		} ?? switch (path) {
+			'ai.capStructuredOutput' => 'JSON 輸出',
+			'ai.capVision' => '看圖',
 			'ai.capFileInput' => '讀檔案',
 			'ai.triOn' => '開',
 			'ai.triOff' => '關',
