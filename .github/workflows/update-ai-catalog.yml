@@ -1,0 +1,142 @@
+name: Update AI Catalog
+
+# 定期从 Cherry Studio 的 provider-registry（MIT）重抓内置 AI 供应商目录，有变化才提交到 master。
+# App 从 jsDelivr 读 master 上的 tool/data/ai_catalog/ai_catalog.min.json，所以推上去就热更新，
+# 不用发版。出处、许可与人工重抓步骤见 tool/data/ai_catalog/SOURCES.md。
+#
+# ⛔ 提交身份写死成仓库一直在用的那一个。别换成 github-actions[bot] 或别的邮箱：
+# 本仓库全部历史的作者/提交者都是这一个身份。
+
+on:
+  schedule:
+    - cron: '17 19 * * 0'   # 每周一 03:17（北京时间）
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-ai-catalog
+  cancel-in-progress: false
+
+env:
+  COMMIT_NAME: miximixihuabulaji
+  COMMIT_EMAIL: miximixihuabulaji@proton.me
+  UPSTREAM: https://github.com/CherryHQ/cherry-studio.git
+  CATALOG_CDN: https://purge.jsdelivr.net/gh/FoxSensei001/LoveIwara@master/tool/data/ai_catalog/ai_catalog.min.json
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: master
+
+      # 生成脚本只用 dart:io / dart:convert，不需要 Flutter，也不需要 pub get
+      # （不给空的 package_config 的话，dart 会去解析整个 Flutter 工程的依赖）。
+      - uses: dart-lang/setup-dart@v1
+
+      - name: Fetch upstream provider-registry
+        id: upstream
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --filter=blob:none --sparse "$UPSTREAM" "$RUNNER_TEMP/cs"
+          git -C "$RUNNER_TEMP/cs" sparse-checkout set --skip-checks packages/provider-registry
+          echo "sha=$(git -C "$RUNNER_TEMP/cs" rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "date=$(git -C "$RUNNER_TEMP/cs" log -1 --format=%cs)" >> "$GITHUB_OUTPUT"
+          # 许可是能派生的前提：哪天上游子包改了许可，宁可停下来也不要继续搬数据。
+          grep -q '"license": "MIT"' "$RUNNER_TEMP/cs/packages/provider-registry/package.json" \
+            || { echo "::error::provider-registry 不再声明 MIT，停止更新"; exit 1; }
+
+      - name: Rebuild catalog
+        run: |
+          set -euo pipefail
+          cp assets/data/ai_catalog.min.json "$RUNNER_TEMP/old.min.json"
+          echo '{"configVersion":2,"packages":[]}' > "$RUNNER_TEMP/package_config.json"
+          dart --packages="$RUNNER_TEMP/package_config.json" \
+            tool/data/ai_catalog/fetch_ai_catalog.dart \
+            --from "$RUNNER_TEMP/cs/packages/provider-registry"
+
+      # SOURCES.md 里「重抓后要核对」的三条，在这里自动核对，不过就不提交。
+      - name: Sanity checks
+        id: check
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, re, sys
+          old = json.load(open(os.environ['RUNNER_TEMP'] + '/old.min.json'))
+          new = json.load(open('assets/data/ai_catalog.min.json'))
+          errors = []
+          for key in ('openai', 'anthropic', 'gemini', 'deepseek', 'ollama'):
+              if key not in new['providers']:
+                  errors.append(f'关键供应商 {key} 不见了')
+          # 漏掉一条 kind 判定会成批丢供应商，数量暴跌就当成出错。
+          if len(new['providers']) < len(old['providers']) * 0.8:
+              errors.append(f"供应商 {len(old['providers'])} → {len(new['providers'])}，跌得太多")
+          if len(new['models']) < len(old['models']) * 0.8:
+              errors.append(f"模型 {len(old['models'])} → {len(new['models'])}，跌得太多")
+          referral = [(p, v) for p, pv in new['providers'].items()
+                      for v in (pv.get('w') or {}).values()
+                      if re.search(r'/i/|invite|referr|utm_', v, re.I)]
+          if referral:
+              errors.append(f'混进了返利链接：{referral}')
+          if errors:
+              for e in errors:
+                  print(f'::error::{e}')
+              sys.exit(1)
+
+          # 提交信息里的变更摘要
+          op, np_ = set(old['providers']), set(new['providers'])
+          om, nm = old['models'], new['models']
+          lines = [f"供应商 {len(op)} → {len(np_)}，模型 {len(om)} → {len(nm)}"]
+          def names(keys, table):
+              return '、'.join(table[k].get('n', k) for k in sorted(keys))
+          if np_ - op: lines.append('新增供应商：' + names(np_ - op, new['providers']))
+          if op - np_: lines.append('移除供应商：' + names(op - np_, old['providers']))
+          if set(nm) - set(om): lines.append('新增模型：' + names(set(nm) - set(om), nm))
+          if set(om) - set(nm): lines.append('移除模型：' + names(set(om) - set(nm), om))
+          changed = sorted(k for k in nm if k in om and nm[k] != om[k])
+          if changed: lines.append('有变动：' + names(changed, nm))
+          open(os.environ['RUNNER_TEMP'] + '/summary.txt', 'w').write('\n'.join(lines) + '\n')
+          PY
+
+      - name: Commit and push
+        env:
+          UPSTREAM_SHA: ${{ steps.upstream.outputs.sha }}
+          UPSTREAM_DATE: ${{ steps.upstream.outputs.date }}
+        run: |
+          set -euo pipefail
+          # rev 只按载荷算：上游有提交但目录内容没变时，产物一个字节都不动，这里直接收工。
+          if git diff --quiet -- assets/data/ai_catalog.min.json tool/data/ai_catalog/; then
+            echo "目录没有变化"
+            exit 0
+          fi
+
+          # 把 SOURCES.md 表格里的出处跟着更新
+          python3 - <<'PY'
+          import json, os, re
+          path = 'tool/data/ai_catalog/SOURCES.md'
+          up = json.load(open('assets/data/ai_catalog.min.json'))['upstream']
+          s = open(path, encoding='utf-8').read()
+          s = re.sub(r'(\| 本次抓取的 commit \| )`[0-9a-f]+`（[^）]*）',
+                     lambda m: f"{m.group(1)}`{os.environ['UPSTREAM_SHA']}`（{os.environ['UPSTREAM_DATE']}）", s)
+          s = re.sub(r'(\| `providers\.json` version \| )`[^`]*`', lambda m: f"{m.group(1)}`{up['providers']}`", s)
+          s = re.sub(r'(\| `models\.json` version \| )`[^`]*`', lambda m: f"{m.group(1)}`{up['models']}`", s)
+          open(path, 'w', encoding='utf-8').write(s)
+          PY
+
+          git config user.name "$COMMIT_NAME"
+          git config user.email "$COMMIT_EMAIL"
+          git add assets/data/ai_catalog.min.json tool/data/ai_catalog/
+          {
+            echo "chore(ai): 自动重抓内置供应商目录（Cherry Studio provider-registry @ ${UPSTREAM_SHA:0:7}）"
+            echo
+            cat "$RUNNER_TEMP/summary.txt"
+          } | git commit -F -
+          # 跑的这段时间里 master 可能有人推过，先变基再推。
+          git pull --rebase origin master
+          git push origin HEAD:master
+
+          # jsDelivr 对分支地址缓存最多 12 小时，主动清一下让 App 尽快拿到。清不掉也不算失败。
+          curl -fsS "$CATALOG_CDN" || echo "::warning::jsDelivr 缓存清理失败，最迟 12 小时后自然生效"
