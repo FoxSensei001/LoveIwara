@@ -626,6 +626,19 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
           return;
         }
 
+        // 总数在翻页途中缩水了：点「末页」时页码条按估计的总数算（多路归并的
+        // 并集只能估，服务端 count 也会变），拿到手才发现并集没那么大。退到
+        // 真实的末页，别停在「7/6 没有更多数据了」的空页上。
+        if (!isTotalUnknownThisFetch &&
+            items.isEmpty &&
+            page > 0 &&
+            totalItems > 0 &&
+            page >= totalPages) {
+          isLoading = false;
+          await _loadPaginatedData(totalPages - 1);
+          return;
+        }
+
         // 添加过渡动画效果
         if (items.isNotEmpty &&
             paginatedItems.isNotEmpty &&
