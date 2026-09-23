@@ -1086,7 +1086,7 @@ settings:
   # Content blocking
   blockSettings:
     title: Content Block
-    subtitle: Automatically hide videos and galleries whose title matches a keyword or pattern, or that come from a blocked user. All matching happens on your device — nothing is uploaded.
+    subtitle: Automatically hide videos and galleries whose title matches a keyword or pattern, that carry a blocked tag, or that come from a blocked user. All matching happens on your device — nothing is uploaded.
     blocked: Blocked
     reveal: Show
     reblock: Block again
@@ -1095,6 +1095,7 @@ settings:
     reasonKeyword: 'Title contains "${value}"'
     reasonRegex: 'Title matches "${value}"'
     reasonUser: From a blocked user
+    reasonTag: 'Tagged "${value}"'
     addRule: Add rule
     editRule: Edit rule
     deleteRule: Delete rule
@@ -1102,6 +1103,7 @@ settings:
     keyword: Keyword
     regex: Regex
     userId: User
+    tag: Tag
     value: Text to match
     caseSensitive: Case sensitive
     regexHint: e.g. trailer|teaser
@@ -1113,6 +1115,12 @@ settings:
     blockUserConfirm: 'Block "${name}"? Their videos and galleries will be hidden from lists and search.'
     userBlocked: User blocked
     userUnblocked: User unblocked
+    selectTags: Select tags
+    tagRequired: Select at least one tag
+    blockTag: Block this tag locally
+    unblockTag: Unblock this tag
+    tagBlocked: Tag blocked
+    tagUnblocked: Tag unblocked
     exportRules: Export
     importRules: Import
     importExport: Import / Export

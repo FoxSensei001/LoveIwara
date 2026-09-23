@@ -1086,7 +1086,7 @@ settings:
   # Content blocking
   blockSettings:
     title: Inhaltsblockierung
-    subtitle: Videos und Galerien automatisch ausblenden, deren Titel einem Stichwort oder Muster entspricht oder die von einem blockierten Nutzer stammen. Der gesamte Abgleich erfolgt auf Ihrem Gerät — nichts wird hochgeladen.
+    subtitle: Videos und Galerien automatisch ausblenden, deren Titel einem Stichwort oder Muster entspricht, die einen blockierten Tag tragen oder die von einem blockierten Nutzer stammen. Der gesamte Abgleich erfolgt auf Ihrem Gerät — nichts wird hochgeladen.
     blocked: Blockiert
     reveal: Anzeigen
     reblock: Erneut blockieren
@@ -1095,6 +1095,7 @@ settings:
     reasonKeyword: 'Titel enthält „${value}“'
     reasonRegex: 'Titel entspricht „${value}“'
     reasonUser: Von einem blockierten Nutzer
+    reasonTag: 'Mit Tag „${value}“'
     addRule: Regel hinzufügen
     editRule: Regel bearbeiten
     deleteRule: Regel löschen
@@ -1102,6 +1103,7 @@ settings:
     keyword: Stichwort
     regex: Regex
     userId: Nutzer
+    tag: Tag
     value: Abzugleichender Text
     caseSensitive: Groß-/Kleinschreibung beachten
     regexHint: z. B. Vorschau|Teaser
@@ -1113,6 +1115,12 @@ settings:
     blockUserConfirm: '„${name}“ blockieren? Deren Videos und Galerien werden in Listen und Suchergebnissen ausgeblendet.'
     userBlocked: Nutzer blockiert
     userUnblocked: Blockierung des Nutzers aufgehoben
+    selectTags: Tags auswählen
+    tagRequired: Mindestens einen Tag auswählen
+    blockTag: Diesen Tag lokal blockieren
+    unblockTag: Blockierung dieses Tags aufheben
+    tagBlocked: Tag blockiert
+    tagUnblocked: Tag-Blockierung aufgehoben
     exportRules: Exportieren
     importRules: Importieren
     importExport: Import / Export

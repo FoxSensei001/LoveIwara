@@ -1086,7 +1086,7 @@ settings:
   # Content blocking
   blockSettings:
     title: 콘텐츠 차단
-    subtitle: 제목이 키워드나 패턴과 일치하거나 차단된 사용자의 콘텐츠인 동영상과 갤러리를 자동으로 숨깁니다. 모든 일치 처리는 기기에서 이루어지며 아무것도 업로드되지 않습니다.
+    subtitle: 제목이 키워드나 패턴과 일치하거나, 차단된 태그가 붙어 있거나, 차단된 사용자의 콘텐츠인 동영상과 갤러리를 자동으로 숨깁니다. 모든 일치 처리는 기기에서 이루어지며 아무것도 업로드되지 않습니다.
     blocked: 차단됨
     reveal: 표시
     reblock: 다시 차단
@@ -1095,6 +1095,7 @@ settings:
     reasonKeyword: '제목에 "${value}" 포함'
     reasonRegex: '제목이 "${value}"과 일치'
     reasonUser: 차단된 사용자
+    reasonTag: '태그 「${value}」 포함'
     addRule: 규칙 추가
     editRule: 규칙 편집
     deleteRule: 규칙 삭제
@@ -1102,6 +1103,7 @@ settings:
     keyword: 키워드
     regex: 정규식
     userId: 사용자
+    tag: 태그
     value: 일치할 텍스트
     caseSensitive: 대소문자 구분
     regexHint: "예: 예고|티저"
@@ -1113,6 +1115,12 @@ settings:
     blockUserConfirm: '"${name}"님을 차단하시겠습니까? 해당 사용자의 동영상과 갤러리가 목록과 검색에서 숨겨집니다.'
     userBlocked: 사용자를 차단했습니다
     userUnblocked: 사용자 차단을 해제했습니다
+    selectTags: 태그 선택
+    tagRequired: 태그를 하나 이상 선택하세요
+    blockTag: 이 태그를 로컬에서 차단
+    unblockTag: 이 태그 차단 해제
+    tagBlocked: 태그를 차단했습니다
+    tagUnblocked: 태그 차단을 해제했습니다
     exportRules: 내보내기
     importRules: 가져오기
     importExport: 가져오기 / 내보내기

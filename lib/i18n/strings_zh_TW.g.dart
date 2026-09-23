@@ -3273,7 +3273,7 @@ class _TranslationsSettingsBlockSettingsZhTw extends TranslationsSettingsBlockSe
 
 	// Translations
 	@override String get title => '內容封鎖';
-	@override String get subtitle => '當影片或圖庫的標題命中關鍵字或正規，或來自被封鎖的使用者時，自動隱藏。所有比對都在本機完成，不會上傳。';
+	@override String get subtitle => '當影片或圖庫的標題命中關鍵字或正規、帶有被封鎖的標籤，或來自被封鎖的使用者時，自動隱藏。所有比對都在本機完成，不會上傳。';
 	@override String get blocked => '已封鎖';
 	@override String get reveal => '顯示';
 	@override String get reblock => '重新封鎖';
@@ -3282,6 +3282,7 @@ class _TranslationsSettingsBlockSettingsZhTw extends TranslationsSettingsBlockSe
 	@override String reasonKeyword({required Object value}) => '標題包含「${value}」';
 	@override String reasonRegex({required Object value}) => '標題符合正規「${value}」';
 	@override String get reasonUser => '來自已封鎖的使用者';
+	@override String reasonTag({required Object value}) => '帶有標籤「${value}」';
 	@override String get addRule => '新增規則';
 	@override String get editRule => '編輯規則';
 	@override String get deleteRule => '刪除規則';
@@ -3289,6 +3290,7 @@ class _TranslationsSettingsBlockSettingsZhTw extends TranslationsSettingsBlockSe
 	@override String get keyword => '關鍵字';
 	@override String get regex => '正規';
 	@override String get userId => '使用者';
+	@override String get tag => '標籤';
 	@override String get value => '要比對的內容';
 	@override String get caseSensitive => '區分大小寫';
 	@override String get regexHint => '例如 預告|花絮';
@@ -3300,6 +3302,12 @@ class _TranslationsSettingsBlockSettingsZhTw extends TranslationsSettingsBlockSe
 	@override String blockUserConfirm({required Object name}) => '確定封鎖「${name}」嗎？TA 的影片和圖庫會在清單和搜尋中被隱藏。';
 	@override String get userBlocked => '已封鎖該使用者';
 	@override String get userUnblocked => '已取消封鎖';
+	@override String get selectTags => '選擇標籤';
+	@override String get tagRequired => '請至少選擇一個標籤';
+	@override String get blockTag => '本機封鎖此標籤';
+	@override String get unblockTag => '取消封鎖此標籤';
+	@override String get tagBlocked => '已封鎖該標籤';
+	@override String get tagUnblocked => '已取消封鎖該標籤';
 	@override String get exportRules => '匯出';
 	@override String get importRules => '匯入';
 	@override String get importExport => '匯入 / 匯出';
@@ -6003,7 +6011,7 @@ extension on TranslationsZhTw {
 			'settings.gallerySettings.defaultViewerQuality' => '預設清晰度',
 			'settings.gallerySettings.defaultViewerQualityDesc' => '開啟圖庫檢視器時預設顯示哪一種清晰度。',
 			'settings.blockSettings.title' => '內容封鎖',
-			'settings.blockSettings.subtitle' => '當影片或圖庫的標題命中關鍵字或正規，或來自被封鎖的使用者時，自動隱藏。所有比對都在本機完成，不會上傳。',
+			'settings.blockSettings.subtitle' => '當影片或圖庫的標題命中關鍵字或正規、帶有被封鎖的標籤，或來自被封鎖的使用者時，自動隱藏。所有比對都在本機完成，不會上傳。',
 			'settings.blockSettings.blocked' => '已封鎖',
 			'settings.blockSettings.reveal' => '顯示',
 			'settings.blockSettings.reblock' => '重新封鎖',
@@ -6012,6 +6020,7 @@ extension on TranslationsZhTw {
 			'settings.blockSettings.reasonKeyword' => ({required Object value}) => '標題包含「${value}」',
 			'settings.blockSettings.reasonRegex' => ({required Object value}) => '標題符合正規「${value}」',
 			'settings.blockSettings.reasonUser' => '來自已封鎖的使用者',
+			'settings.blockSettings.reasonTag' => ({required Object value}) => '帶有標籤「${value}」',
 			'settings.blockSettings.addRule' => '新增規則',
 			'settings.blockSettings.editRule' => '編輯規則',
 			'settings.blockSettings.deleteRule' => '刪除規則',
@@ -6019,6 +6028,7 @@ extension on TranslationsZhTw {
 			'settings.blockSettings.keyword' => '關鍵字',
 			'settings.blockSettings.regex' => '正規',
 			'settings.blockSettings.userId' => '使用者',
+			'settings.blockSettings.tag' => '標籤',
 			'settings.blockSettings.value' => '要比對的內容',
 			'settings.blockSettings.caseSensitive' => '區分大小寫',
 			'settings.blockSettings.regexHint' => '例如 預告|花絮',
@@ -6030,6 +6040,12 @@ extension on TranslationsZhTw {
 			'settings.blockSettings.blockUserConfirm' => ({required Object name}) => '確定封鎖「${name}」嗎？TA 的影片和圖庫會在清單和搜尋中被隱藏。',
 			'settings.blockSettings.userBlocked' => '已封鎖該使用者',
 			'settings.blockSettings.userUnblocked' => '已取消封鎖',
+			'settings.blockSettings.selectTags' => '選擇標籤',
+			'settings.blockSettings.tagRequired' => '請至少選擇一個標籤',
+			'settings.blockSettings.blockTag' => '本機封鎖此標籤',
+			'settings.blockSettings.unblockTag' => '取消封鎖此標籤',
+			'settings.blockSettings.tagBlocked' => '已封鎖該標籤',
+			'settings.blockSettings.tagUnblocked' => '已取消封鎖該標籤',
 			'settings.blockSettings.exportRules' => '匯出',
 			'settings.blockSettings.importRules' => '匯入',
 			'settings.blockSettings.importExport' => '匯入 / 匯出',
@@ -6490,6 +6506,8 @@ extension on TranslationsZhTw {
 			'videoDetail.gestureGuide.quest.panelBody' => '將射線移到控制面板外，輕扣並放開食指扳機，切換面板的顯示狀態。用手時，在面板外輕捏一下也可以。',
 			'videoDetail.gestureGuide.quest.panelHint' => '短按後放開即可。按住拖動是在操作畫面或視窗，不會切換面板。',
 			'videoDetail.gestureGuide.quest.playTitle' => '播放與暫停',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.playBody' => '射線離開控制面板後，按右手 A 或左手 X，切換影片播放與暫停。也可以直接點控制面板上的播放按鈕。',
 			'videoDetail.gestureGuide.quest.playHint' => '這是預設快捷鍵，可在空間播放器設定中關閉。射線停在面板上時，按鍵優先操作面板。',
 			'videoDetail.gestureGuide.quest.seekTitle' => '用搖桿調整進度',
@@ -6498,8 +6516,6 @@ extension on TranslationsZhTw {
 			'videoDetail.gestureGuide.quest.browseTitle' => '用搖桿翻閱圖庫',
 			'videoDetail.gestureGuide.quest.browseBody' => '任一搖桿向左或向右撥動，查看上一項或下一項，按住可連續翻閱。也可以用射線點選膠片列中的縮圖。',
 			'videoDetail.gestureGuide.quest.browseHint' => '圖庫中的影片也按「項」翻閱。射線指向控制面板時，搖桿用於捲動面板。',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.swipeTitle' => '按住畫面，橫拖翻頁',
 			'videoDetail.gestureGuide.quest.swipeBody' => '對準大圖，按住食指扳機向左拖動，出現翻頁提示後放開，進入下一項；向右拖則返回上一項。捏合拖動也可以。',
 			'videoDetail.gestureGuide.quest.swipeHint' => '圖片在 1× 時才能橫拖翻頁，圖庫裡的影片也支援。拖動時舞台保持原位，放開才換圖。',
@@ -7004,6 +7020,8 @@ extension on TranslationsZhTw {
 			'download.noMatchingTasks' => '沒有符合的任務',
 			'download.deleteByDate.menuTitle' => '依日期刪除',
 			'download.deleteByDate.dialogTitle' => '依日期刪除',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.description' => '依建立日期批次刪除下載任務。被佔用的檔案會略過；檔案已不存在的任務會一併清理。',
 			'download.deleteByDate.modeRange' => '日期區間',
 			'download.deleteByDate.modeDays' => '多少天以前',
@@ -7012,8 +7030,6 @@ extension on TranslationsZhTw {
 			'download.deleteByDate.notSet' => '未設定',
 			'download.deleteByDate.daysUnit' => '天',
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => '刪除 ${days} 天以前建立的任務',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.noMatch' => '沒有符合條件的任務',
 			'download.deleteByDate.invalidRange' => '開始日期不能晚於結束日期',
 			'download.deleteByDate.confirmTitle' => '確認刪除',
@@ -7518,6 +7534,8 @@ extension on TranslationsZhTw {
 			'mediaPlayer.videoCodecNotSupported' => '影片編解碼器不支援',
 			'mediaPlayer.networkConnectionIssue' => '網路連線問題',
 			'mediaPlayer.insufficientPermission' => '權限不足',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.unsupportedVideoFormat' => '不支援的影片格式',
 			'mediaPlayer.retry' => '重試',
 			'mediaPlayer.externalPlayer' => '外部播放器',
@@ -7526,8 +7544,6 @@ extension on TranslationsZhTw {
 			'mediaPlayer.suggestion' => '建議',
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'Android裝置對WEBM格式支援有限，建議使用外部播放器或下載支援WEBM的播放器應用',
 			'mediaPlayer.currentDeviceCodecNotSupported' => '目前裝置不支援此影片格式的編解碼器',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.checkNetworkConnection' => '請檢查網路連線後重試',
 			'mediaPlayer.appMayLackMediaPermission' => '應用可能缺少必要的媒體播放權限',
 			'mediaPlayer.tryOtherVideoPlayer' => '請嘗試使用其他影片播放器',
@@ -8032,6 +8048,8 @@ extension on TranslationsZhTw {
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => '目前 ${currentSite} · 點擊切換到 ${nextSite}',
 			'siteMode.dialogTitle' => '切換站點模式',
 			'siteMode.dialogDescription' => '切換後會重新整理整個應用，並重設先前已載入的清單與頁面狀態。',
+			_ => null,
+		} ?? switch (path) {
 			'siteMode.chooseLinkTargetTitle' => '選擇連結目標站點',
 			'siteMode.chooseLinkTargetDescription' => '此連結未包含網域，請選擇要前往主站還是 AI 站。',
 			'siteMode.chooseLinkTargetHint' => '進入後，此頁面及其後續詳情請求會沿用你選擇的站點。',
@@ -8040,8 +8058,6 @@ extension on TranslationsZhTw {
 			'siteMode.confirmUsing' => ({required Object site}) => '確認後，後續請求將統一使用 ${site} 模式。',
 			'siteMode.switched' => ({required Object site}) => '已切換到 ${site}，應用已重新整理。',
 			'savedSearchConfig.title' => '已儲存篩選',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.empty' => '還沒有儲存的篩選設定',
 			'savedSearchConfig.saveTooltip' => '儲存目前篩選',
 			'savedSearchConfig.namePromptTitle' => '儲存篩選設定',
@@ -8546,6 +8562,8 @@ extension on TranslationsZhTw {
 			'ai.taskSignature' => '小尾巴',
 			'ai.taskAuto' => '自動',
 			'ai.usage' => '用量',
+			_ => null,
+		} ?? switch (path) {
 			'ai.usageCalls' => '呼叫',
 			'ai.usageTokens' => 'token',
 			'ai.usageFailures' => '失敗',
@@ -8554,8 +8572,6 @@ extension on TranslationsZhTw {
 			'ai.openSettings' => '前往 AI 設定',
 			'ai.notConfigured' => '未設定',
 			'ai.searchTitle' => 'AI 搜尋',
-			_ => null,
-		} ?? switch (path) {
 			'ai.searchHint' => '用一句話描述你想找什麼，AI 會替你填好搜尋詞和篩選條件。',
 			'ai.searchPlaceholder' => '例如：播放量破萬的最新 MMD',
 			'ai.searchApply' => '用這些條件搜尋',

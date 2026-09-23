@@ -3273,7 +3273,7 @@ class _TranslationsSettingsBlockSettingsEs extends TranslationsSettingsBlockSett
 
 	// Translations
 	@override String get title => 'Bloqueo de contenido';
-	@override String get subtitle => 'Ocultar automáticamente los videos y galerías cuyo título coincida con una palabra clave o un patrón, o que provengan de un usuario bloqueado. Toda la coincidencia se realiza en su dispositivo; no se sube nada.';
+	@override String get subtitle => 'Ocultar automáticamente los videos y galerías cuyo título coincida con una palabra clave o un patrón, que lleven una etiqueta bloqueada o que provengan de un usuario bloqueado. Toda la coincidencia se realiza en su dispositivo; no se sube nada.';
 	@override String get blocked => 'Bloqueado';
 	@override String get reveal => 'Mostrar';
 	@override String get reblock => 'Bloquear de nuevo';
@@ -3282,6 +3282,7 @@ class _TranslationsSettingsBlockSettingsEs extends TranslationsSettingsBlockSett
 	@override String reasonKeyword({required Object value}) => 'El título contiene "${value}"';
 	@override String reasonRegex({required Object value}) => 'El título coincide con "${value}"';
 	@override String get reasonUser => 'De un usuario bloqueado';
+	@override String reasonTag({required Object value}) => 'Con la etiqueta «${value}»';
 	@override String get addRule => 'Añadir regla';
 	@override String get editRule => 'Editar regla';
 	@override String get deleteRule => 'Eliminar regla';
@@ -3289,6 +3290,7 @@ class _TranslationsSettingsBlockSettingsEs extends TranslationsSettingsBlockSett
 	@override String get keyword => 'Palabra clave';
 	@override String get regex => 'Regex';
 	@override String get userId => 'Usuario';
+	@override String get tag => 'Etiqueta';
 	@override String get value => 'Texto que debe coincidir';
 	@override String get caseSensitive => 'Sensible a mayúsculas';
 	@override String get regexHint => 'p. ej. trailer|teaser';
@@ -3300,6 +3302,12 @@ class _TranslationsSettingsBlockSettingsEs extends TranslationsSettingsBlockSett
 	@override String blockUserConfirm({required Object name}) => '¿Bloquear a "${name}"? Sus videos y galerías se ocultarán de las listas y la búsqueda.';
 	@override String get userBlocked => 'Usuario bloqueado';
 	@override String get userUnblocked => 'Usuario desbloqueado';
+	@override String get selectTags => 'Seleccionar etiquetas';
+	@override String get tagRequired => 'Selecciona al menos una etiqueta';
+	@override String get blockTag => 'Bloquear esta etiqueta localmente';
+	@override String get unblockTag => 'Desbloquear esta etiqueta';
+	@override String get tagBlocked => 'Etiqueta bloqueada';
+	@override String get tagUnblocked => 'Etiqueta desbloqueada';
 	@override String get exportRules => 'Exportar';
 	@override String get importRules => 'Importar';
 	@override String get importExport => 'Importar / Exportar';
@@ -6003,7 +6011,7 @@ extension on TranslationsEs {
 			'settings.gallerySettings.defaultViewerQuality' => 'Calidad predeterminada del visor',
 			'settings.gallerySettings.defaultViewerQualityDesc' => 'Elija qué calidad de imagen mostrar de forma predeterminada al abrir el visor de la galería.',
 			'settings.blockSettings.title' => 'Bloqueo de contenido',
-			'settings.blockSettings.subtitle' => 'Ocultar automáticamente los videos y galerías cuyo título coincida con una palabra clave o un patrón, o que provengan de un usuario bloqueado. Toda la coincidencia se realiza en su dispositivo; no se sube nada.',
+			'settings.blockSettings.subtitle' => 'Ocultar automáticamente los videos y galerías cuyo título coincida con una palabra clave o un patrón, que lleven una etiqueta bloqueada o que provengan de un usuario bloqueado. Toda la coincidencia se realiza en su dispositivo; no se sube nada.',
 			'settings.blockSettings.blocked' => 'Bloqueado',
 			'settings.blockSettings.reveal' => 'Mostrar',
 			'settings.blockSettings.reblock' => 'Bloquear de nuevo',
@@ -6012,6 +6020,7 @@ extension on TranslationsEs {
 			'settings.blockSettings.reasonKeyword' => ({required Object value}) => 'El título contiene "${value}"',
 			'settings.blockSettings.reasonRegex' => ({required Object value}) => 'El título coincide con "${value}"',
 			'settings.blockSettings.reasonUser' => 'De un usuario bloqueado',
+			'settings.blockSettings.reasonTag' => ({required Object value}) => 'Con la etiqueta «${value}»',
 			'settings.blockSettings.addRule' => 'Añadir regla',
 			'settings.blockSettings.editRule' => 'Editar regla',
 			'settings.blockSettings.deleteRule' => 'Eliminar regla',
@@ -6019,6 +6028,7 @@ extension on TranslationsEs {
 			'settings.blockSettings.keyword' => 'Palabra clave',
 			'settings.blockSettings.regex' => 'Regex',
 			'settings.blockSettings.userId' => 'Usuario',
+			'settings.blockSettings.tag' => 'Etiqueta',
 			'settings.blockSettings.value' => 'Texto que debe coincidir',
 			'settings.blockSettings.caseSensitive' => 'Sensible a mayúsculas',
 			'settings.blockSettings.regexHint' => 'p. ej. trailer|teaser',
@@ -6030,6 +6040,12 @@ extension on TranslationsEs {
 			'settings.blockSettings.blockUserConfirm' => ({required Object name}) => '¿Bloquear a "${name}"? Sus videos y galerías se ocultarán de las listas y la búsqueda.',
 			'settings.blockSettings.userBlocked' => 'Usuario bloqueado',
 			'settings.blockSettings.userUnblocked' => 'Usuario desbloqueado',
+			'settings.blockSettings.selectTags' => 'Seleccionar etiquetas',
+			'settings.blockSettings.tagRequired' => 'Selecciona al menos una etiqueta',
+			'settings.blockSettings.blockTag' => 'Bloquear esta etiqueta localmente',
+			'settings.blockSettings.unblockTag' => 'Desbloquear esta etiqueta',
+			'settings.blockSettings.tagBlocked' => 'Etiqueta bloqueada',
+			'settings.blockSettings.tagUnblocked' => 'Etiqueta desbloqueada',
 			'settings.blockSettings.exportRules' => 'Exportar',
 			'settings.blockSettings.importRules' => 'Importar',
 			'settings.blockSettings.importExport' => 'Importar / Exportar',
@@ -6490,6 +6506,8 @@ extension on TranslationsEs {
 			'videoDetail.gestureGuide.quest.resizeHint' => 'Funciona en la ventana de la aplicación, el panel de control y la pantalla. La ventana de la aplicación cambia de ancho y alto; las pantallas conservan su relación de aspecto.',
 			'videoDetail.gestureGuide.quest.navigationTitle' => 'Volver y abrir los ajustes',
 			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y retrocede un nivel: cierra una ventana emergente o vuelve al inicio del panel, oculta el panel y luego vuelve a la aplicación. El botón Menú izquierdo abre los ajustes espaciales.',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.navigationHint' => 'El botón Meta derecho pertenece al sistema. El recentrado del sistema devuelve la vista al frente conservando el tamaño y la distancia de la pantalla.',
 			'videoDetail.gestureGuide.quest.handsTitle' => 'Use las manos',
 			'videoDetail.gestureGuide.quest.handsBody' => 'Con el seguimiento de manos activado, apunte el rayo del sistema a un botón, pellizque con el pulgar y el índice y suelte. Use el panel para la reproducción, la búsqueda y la navegación por la galería.',
@@ -6498,8 +6516,6 @@ extension on TranslationsEs {
 			'videoDetail.videoPlayer' => 'Reproductor de video',
 			'videoDetail.videoPlayerInfo' => 'Información del reproductor de video',
 			'videoDetail.moreSettings' => 'Más ajustes',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.videoPlayerFeatureInfo' => 'Información de funciones del reproductor de video',
 			'videoDetail.autoRewind' => 'Retroceso automático',
 			'videoDetail.rewindAndFastForward' => 'Retroceder y avanzar',
@@ -7004,6 +7020,8 @@ extension on TranslationsEs {
 			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
 			'download.relocation.alreadyRunning' => 'Another move is already in progress',
 			'download.relocation.destination' => 'Destination',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.statMove' => 'To move',
 			'download.relocation.statSkip' => 'Skipped',
 			'download.relocation.statRenamed' => 'Renamed',
@@ -7012,8 +7030,6 @@ extension on TranslationsEs {
 			'download.relocation.statLeftover' => 'Left behind',
 			'download.relocation.sectionMove' => 'Will be moved',
 			'download.relocation.sectionSkip' => 'Will be skipped',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.sectionMoved' => 'Moved',
 			'download.relocation.sectionFailed' => 'Not moved (left where it was)',
 			'download.relocation.sectionLeftover' => 'Old folders not fully removed',
@@ -7518,6 +7534,8 @@ extension on TranslationsEs {
 			'displaySettings.layoutSettings' => 'Ajustes de diseño',
 			'displaySettings.layoutSettingsDesc' => 'Personalice el número de columnas y la configuración de puntos de corte',
 			'displaySettings.gridLayout' => 'Diseño de cuadrícula',
+			_ => null,
+		} ?? switch (path) {
 			'displaySettings.navigationOrderSettings' => 'Ajustes del orden de navegación',
 			'displaySettings.customNavigationOrder' => 'Orden de navegación personalizado',
 			'displaySettings.customNavigationOrderDesc' => 'Ajuste el orden de visualización de las páginas en la barra de navegación inferior y la barra lateral',
@@ -7526,8 +7544,6 @@ extension on TranslationsEs {
 			'layoutSettings.descriptionContent' => 'La configuración de aquí determina el número de columnas que se muestran en las páginas de lista de vídeos y galerías. Puede elegir el modo automático para que el sistema se ajuste según el ancho de pantalla, o el modo manual para fijar el número de columnas.',
 			'layoutSettings.layoutMode' => 'Modo de diseño',
 			'layoutSettings.reset' => 'Restablecer',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.autoMode' => 'Modo automático',
 			'layoutSettings.autoModeDesc' => 'Ajustar automáticamente según el ancho de pantalla',
 			'layoutSettings.manualMode' => 'Modo manual',
@@ -8032,6 +8048,8 @@ extension on TranslationsEs {
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => 'Actual: ${currentSite} · Toque para cambiar a ${nextSite}',
 			'siteMode.dialogTitle' => 'Cambiar el modo de sitio',
 			'siteMode.dialogDescription' => 'El cambio actualizará toda la aplicación y restablecerá las listas y el estado de página cargados previamente.',
+			_ => null,
+		} ?? switch (path) {
 			'siteMode.chooseLinkTargetTitle' => 'Elegir sitio de destino',
 			'siteMode.chooseLinkTargetDescription' => 'Este enlace no incluye un dominio. Elija si desea abrirlo en Principal o en AI.',
 			'siteMode.chooseLinkTargetHint' => 'Una vez abierta, esta página y sus solicitudes de detalle posteriores seguirán usando el sitio seleccionado.',
@@ -8040,8 +8058,6 @@ extension on TranslationsEs {
 			'siteMode.confirmUsing' => ({required Object site}) => 'Tras confirmar, las solicitudes futuras usarán el modo ${site}.',
 			'siteMode.switched' => ({required Object site}) => 'Se cambió a ${site}. La aplicación se ha actualizado.',
 			'savedSearchConfig.title' => 'Filtros guardados',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.empty' => 'Aún no hay filtros guardados',
 			'savedSearchConfig.saveTooltip' => 'Guardar filtro actual',
 			'savedSearchConfig.namePromptTitle' => 'Guardar filtro',
@@ -8546,6 +8562,8 @@ extension on TranslationsEs {
 			'ai.taskSignature' => 'Firma',
 			'ai.taskAuto' => 'Automático',
 			'ai.usage' => 'Uso',
+			_ => null,
+		} ?? switch (path) {
 			'ai.usageCalls' => 'Llamadas',
 			'ai.usageTokens' => 'Tokens consumidos',
 			'ai.usageFailures' => 'Errores',
@@ -8554,8 +8572,6 @@ extension on TranslationsEs {
 			'ai.openSettings' => 'Abrir ajustes de IA',
 			'ai.notConfigured' => 'No configurado',
 			'ai.searchTitle' => 'Búsqueda con IA',
-			_ => null,
-		} ?? switch (path) {
 			'ai.searchHint' => 'Describe lo que buscas; la IA completará los términos de búsqueda y los filtros.',
 			'ai.searchPlaceholder' => 'p. ej. MMD recientes con más de 10.000 visitas',
 			'ai.searchApply' => 'Buscar con estos criterios',

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/models/block_rule.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/tag_localization_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
@@ -33,6 +34,10 @@ class BlockedMediaOverlay extends StatelessWidget {
         return t.reasonRegex(value: match.rule.value);
       case BlockRuleType.keyword:
         return t.reasonKeyword(value: match.rule.value);
+      case BlockRuleType.tag:
+        return t.reasonTag(
+          value: TagLocalizationService.displayName(match.rule.value),
+        );
     }
   }
 
@@ -44,6 +49,8 @@ class BlockedMediaOverlay extends StatelessWidget {
         return Icons.code;
       case BlockRuleType.userId:
         return Icons.person_off_outlined;
+      case BlockRuleType.tag:
+        return Icons.label_off_outlined;
     }
   }
 

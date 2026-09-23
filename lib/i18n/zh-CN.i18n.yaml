@@ -1088,7 +1088,7 @@ settings:
   # 内容屏蔽
   blockSettings:
     title: 内容屏蔽
-    subtitle: 当视频或图库的标题命中关键词或正则，或来自被屏蔽的用户时，自动隐藏。所有匹配都在本地完成，不会上传。
+    subtitle: 当视频或图库的标题命中关键词或正则、带有被屏蔽的标签，或来自被屏蔽的用户时，自动隐藏。所有匹配都在本地完成，不会上传。
     blocked: 已屏蔽
     reveal: 显示
     reblock: 重新屏蔽
@@ -1097,6 +1097,7 @@ settings:
     reasonKeyword: '标题包含「${value}」'
     reasonRegex: '标题匹配正则「${value}」'
     reasonUser: 来自已屏蔽的用户
+    reasonTag: '带有标签「${value}」'
     addRule: 添加规则
     editRule: 编辑规则
     deleteRule: 删除规则
@@ -1104,6 +1105,7 @@ settings:
     keyword: 关键词
     regex: 正则
     userId: 用户
+    tag: 标签
     value: 要匹配的内容
     caseSensitive: 区分大小写
     regexHint: 例如 预告|花絮
@@ -1115,6 +1117,12 @@ settings:
     blockUserConfirm: '确定屏蔽「${name}」吗？TA 的视频和图库会在列表和搜索中被隐藏。'
     userBlocked: 已屏蔽该用户
     userUnblocked: 已取消屏蔽
+    selectTags: 选择标签
+    tagRequired: 请至少选择一个标签
+    blockTag: 本地屏蔽此标签
+    unblockTag: 取消屏蔽此标签
+    tagBlocked: 已屏蔽该标签
+    tagUnblocked: 已取消屏蔽该标签
     exportRules: 导出
     importRules: 导入
     importExport: 导入 / 导出

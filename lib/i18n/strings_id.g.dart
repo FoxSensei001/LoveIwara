@@ -3273,7 +3273,7 @@ class _TranslationsSettingsBlockSettingsId extends TranslationsSettingsBlockSett
 
 	// Translations
 	@override String get title => 'Blokir Konten';
-	@override String get subtitle => 'Secara otomatis menyembunyikan video dan galeri yang judulnya cocok dengan kata kunci atau pola, atau yang berasal dari pengguna yang diblokir. Semua pencocokan dilakukan di perangkat Anda — tidak ada yang diunggah.';
+	@override String get subtitle => 'Secara otomatis menyembunyikan video dan galeri yang judulnya cocok dengan kata kunci atau pola, yang memiliki tag yang diblokir, atau yang berasal dari pengguna yang diblokir. Semua pencocokan dilakukan di perangkat Anda — tidak ada yang diunggah.';
 	@override String get blocked => 'Diblokir';
 	@override String get reveal => 'Tampilkan';
 	@override String get reblock => 'Blokir lagi';
@@ -3282,6 +3282,7 @@ class _TranslationsSettingsBlockSettingsId extends TranslationsSettingsBlockSett
 	@override String reasonKeyword({required Object value}) => 'Judul mengandung "${value}"';
 	@override String reasonRegex({required Object value}) => 'Judul cocok dengan "${value}"';
 	@override String get reasonUser => 'Dari pengguna yang diblokir';
+	@override String reasonTag({required Object value}) => 'Memiliki tag "${value}"';
 	@override String get addRule => 'Tambah aturan';
 	@override String get editRule => 'Edit aturan';
 	@override String get deleteRule => 'Hapus aturan';
@@ -3289,6 +3290,7 @@ class _TranslationsSettingsBlockSettingsId extends TranslationsSettingsBlockSett
 	@override String get keyword => 'Kata Kunci';
 	@override String get regex => 'Regex';
 	@override String get userId => 'Pengguna';
+	@override String get tag => 'Tag';
 	@override String get value => 'Teks yang dicocokkan';
 	@override String get caseSensitive => 'Peka huruf besar-kecil';
 	@override String get regexHint => 'mis. trailer|teaser';
@@ -3300,6 +3302,12 @@ class _TranslationsSettingsBlockSettingsId extends TranslationsSettingsBlockSett
 	@override String blockUserConfirm({required Object name}) => 'Blokir "${name}"? Video dan galeri mereka akan disembunyikan dari daftar dan pencarian.';
 	@override String get userBlocked => 'Pengguna diblokir';
 	@override String get userUnblocked => 'Blokir pengguna dibuka';
+	@override String get selectTags => 'Pilih tag';
+	@override String get tagRequired => 'Pilih setidaknya satu tag';
+	@override String get blockTag => 'Blokir tag ini secara lokal';
+	@override String get unblockTag => 'Buka blokir tag ini';
+	@override String get tagBlocked => 'Tag diblokir';
+	@override String get tagUnblocked => 'Blokir tag dibuka';
 	@override String get exportRules => 'Ekspor';
 	@override String get importRules => 'Impor';
 	@override String get importExport => 'Impor / Ekspor';
@@ -6003,7 +6011,7 @@ extension on TranslationsId {
 			'settings.gallerySettings.defaultViewerQuality' => 'Kualitas penampil bawaan',
 			'settings.gallerySettings.defaultViewerQualityDesc' => 'Pilih kualitas gambar mana yang ditampilkan secara bawaan saat membuka penampil galeri.',
 			'settings.blockSettings.title' => 'Blokir Konten',
-			'settings.blockSettings.subtitle' => 'Secara otomatis menyembunyikan video dan galeri yang judulnya cocok dengan kata kunci atau pola, atau yang berasal dari pengguna yang diblokir. Semua pencocokan dilakukan di perangkat Anda — tidak ada yang diunggah.',
+			'settings.blockSettings.subtitle' => 'Secara otomatis menyembunyikan video dan galeri yang judulnya cocok dengan kata kunci atau pola, yang memiliki tag yang diblokir, atau yang berasal dari pengguna yang diblokir. Semua pencocokan dilakukan di perangkat Anda — tidak ada yang diunggah.',
 			'settings.blockSettings.blocked' => 'Diblokir',
 			'settings.blockSettings.reveal' => 'Tampilkan',
 			'settings.blockSettings.reblock' => 'Blokir lagi',
@@ -6012,6 +6020,7 @@ extension on TranslationsId {
 			'settings.blockSettings.reasonKeyword' => ({required Object value}) => 'Judul mengandung "${value}"',
 			'settings.blockSettings.reasonRegex' => ({required Object value}) => 'Judul cocok dengan "${value}"',
 			'settings.blockSettings.reasonUser' => 'Dari pengguna yang diblokir',
+			'settings.blockSettings.reasonTag' => ({required Object value}) => 'Memiliki tag "${value}"',
 			'settings.blockSettings.addRule' => 'Tambah aturan',
 			'settings.blockSettings.editRule' => 'Edit aturan',
 			'settings.blockSettings.deleteRule' => 'Hapus aturan',
@@ -6019,6 +6028,7 @@ extension on TranslationsId {
 			'settings.blockSettings.keyword' => 'Kata Kunci',
 			'settings.blockSettings.regex' => 'Regex',
 			'settings.blockSettings.userId' => 'Pengguna',
+			'settings.blockSettings.tag' => 'Tag',
 			'settings.blockSettings.value' => 'Teks yang dicocokkan',
 			'settings.blockSettings.caseSensitive' => 'Peka huruf besar-kecil',
 			'settings.blockSettings.regexHint' => 'mis. trailer|teaser',
@@ -6030,6 +6040,12 @@ extension on TranslationsId {
 			'settings.blockSettings.blockUserConfirm' => ({required Object name}) => 'Blokir "${name}"? Video dan galeri mereka akan disembunyikan dari daftar dan pencarian.',
 			'settings.blockSettings.userBlocked' => 'Pengguna diblokir',
 			'settings.blockSettings.userUnblocked' => 'Blokir pengguna dibuka',
+			'settings.blockSettings.selectTags' => 'Pilih tag',
+			'settings.blockSettings.tagRequired' => 'Pilih setidaknya satu tag',
+			'settings.blockSettings.blockTag' => 'Blokir tag ini secara lokal',
+			'settings.blockSettings.unblockTag' => 'Buka blokir tag ini',
+			'settings.blockSettings.tagBlocked' => 'Tag diblokir',
+			'settings.blockSettings.tagUnblocked' => 'Blokir tag dibuka',
 			'settings.blockSettings.exportRules' => 'Ekspor',
 			'settings.blockSettings.importRules' => 'Impor',
 			'settings.blockSettings.importExport' => 'Impor / Ekspor',
@@ -6490,6 +6506,8 @@ extension on TranslationsId {
 			'videoDetail.gestureGuide.quest.resizeHint' => 'Berfungsi pada jendela aplikasi, panel kontrol, dan layar. Jendela aplikasi mengubah lebar dan tinggi; layar mempertahankan rasio aspeknya.',
 			'videoDetail.gestureGuide.quest.navigationTitle' => 'Kembali dan buka pengaturan',
 			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y kembali satu tingkat: menutup popup atau kembali ke beranda panel, menyembunyikan panel, lalu kembali ke aplikasi. Tombol Menu kiri membuka pengaturan spasial.',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.navigationHint' => 'Tombol Meta kanan milik sistem. Pemusatan ulang sistem membawa tampilan kembali ke depan sambil mempertahankan ukuran dan jarak layar.',
 			'videoDetail.gestureGuide.quest.handsTitle' => 'Gunakan tangan Anda',
 			'videoDetail.gestureGuide.quest.handsBody' => 'Dengan pelacakan tangan aktif, arahkan sinar sistem ke tombol, cubit ibu jari dan telunjuk Anda, lalu lepaskan. Gunakan panel untuk pemutaran, pencarian, dan navigasi galeri.',
@@ -6498,8 +6516,6 @@ extension on TranslationsId {
 			'videoDetail.videoPlayer' => 'Pemutar Video',
 			'videoDetail.videoPlayerInfo' => 'Info Pemutar Video',
 			'videoDetail.moreSettings' => 'Pengaturan Lainnya',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.videoPlayerFeatureInfo' => 'Info Fitur Pemutar Video',
 			'videoDetail.autoRewind' => 'Mundur Otomatis',
 			'videoDetail.rewindAndFastForward' => 'Mundur dan Maju Cepat',
@@ -7004,6 +7020,8 @@ extension on TranslationsId {
 			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
 			'download.relocation.alreadyRunning' => 'Another move is already in progress',
 			'download.relocation.destination' => 'Destination',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.statMove' => 'To move',
 			'download.relocation.statSkip' => 'Skipped',
 			'download.relocation.statRenamed' => 'Renamed',
@@ -7012,8 +7030,6 @@ extension on TranslationsId {
 			'download.relocation.statLeftover' => 'Left behind',
 			'download.relocation.sectionMove' => 'Will be moved',
 			'download.relocation.sectionSkip' => 'Will be skipped',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.sectionMoved' => 'Moved',
 			'download.relocation.sectionFailed' => 'Not moved (left where it was)',
 			'download.relocation.sectionLeftover' => 'Old folders not fully removed',
@@ -7518,6 +7534,8 @@ extension on TranslationsId {
 			'displaySettings.layoutSettings' => 'Pengaturan Tata Letak',
 			'displaySettings.layoutSettingsDesc' => 'Sesuaikan jumlah kolom dan konfigurasi titik henti',
 			'displaySettings.gridLayout' => 'Tata Letak Kisi',
+			_ => null,
+		} ?? switch (path) {
 			'displaySettings.navigationOrderSettings' => 'Pengaturan Urutan Navigasi',
 			'displaySettings.customNavigationOrder' => 'Urutan Navigasi Kustom',
 			'displaySettings.customNavigationOrderDesc' => 'Sesuaikan urutan tampilan halaman pada bilah navigasi bawah dan bilah samping',
@@ -7526,8 +7544,6 @@ extension on TranslationsId {
 			'layoutSettings.descriptionContent' => 'Konfigurasi di sini akan menentukan jumlah kolom yang ditampilkan pada halaman daftar video dan galeri. Anda dapat memilih mode otomatis agar sistem menyesuaikan secara otomatis berdasarkan lebar layar, atau memilih mode manual untuk menetapkan jumlah kolom.',
 			'layoutSettings.layoutMode' => 'Mode Tata Letak',
 			'layoutSettings.reset' => 'Atur Ulang',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.autoMode' => 'Mode Otomatis',
 			'layoutSettings.autoModeDesc' => 'Menyesuaikan secara otomatis berdasarkan lebar layar',
 			'layoutSettings.manualMode' => 'Mode Manual',
@@ -8032,6 +8048,8 @@ extension on TranslationsId {
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => 'Saat ini ${currentSite} · Ketuk untuk beralih ke ${nextSite}',
 			'siteMode.dialogTitle' => 'Beralih Mode Situs',
 			'siteMode.dialogDescription' => 'Beralih akan menyegarkan seluruh aplikasi dan mengatur ulang daftar serta status halaman yang dimuat sebelumnya.',
+			_ => null,
+		} ?? switch (path) {
 			'siteMode.chooseLinkTargetTitle' => 'Pilih Situs Tujuan',
 			'siteMode.chooseLinkTargetDescription' => 'Tautan ini tidak menyertakan domain. Silakan pilih apakah akan membukanya di Main atau AI.',
 			'siteMode.chooseLinkTargetHint' => 'Setelah dibuka, halaman ini dan permintaan detail lanjutannya akan terus menggunakan situs yang dipilih.',
@@ -8040,8 +8058,6 @@ extension on TranslationsId {
 			'siteMode.confirmUsing' => ({required Object site}) => 'Setelah dikonfirmasi, permintaan mendatang akan menggunakan mode ${site}.',
 			'siteMode.switched' => ({required Object site}) => 'Beralih ke ${site}. Aplikasi telah disegarkan.',
 			'savedSearchConfig.title' => 'Filter Tersimpan',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.empty' => 'Belum ada filter tersimpan',
 			'savedSearchConfig.saveTooltip' => 'Simpan filter saat ini',
 			'savedSearchConfig.namePromptTitle' => 'Simpan Filter',
@@ -8546,6 +8562,8 @@ extension on TranslationsId {
 			'ai.taskSignature' => 'Tanda tangan',
 			'ai.taskAuto' => 'Otomatis',
 			'ai.usage' => 'Penggunaan',
+			_ => null,
+		} ?? switch (path) {
 			'ai.usageCalls' => 'Panggilan',
 			'ai.usageTokens' => 'Jumlah token',
 			'ai.usageFailures' => 'Gagal',
@@ -8554,8 +8572,6 @@ extension on TranslationsId {
 			'ai.openSettings' => 'Buka pengaturan AI',
 			'ai.notConfigured' => 'Belum dikonfigurasi',
 			'ai.searchTitle' => 'Pencarian AI',
-			_ => null,
-		} ?? switch (path) {
 			'ai.searchHint' => 'Jelaskan apa yang Anda cari; AI akan mengisi kata kunci pencarian dan filter.',
 			'ai.searchPlaceholder' => 'mis. MMD terbaru dengan lebih dari 10 rb tayangan',
 			'ai.searchApply' => 'Cari dengan kriteria ini',

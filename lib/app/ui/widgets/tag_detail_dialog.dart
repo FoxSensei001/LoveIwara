@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:i_iwara/app/models/tag.model.dart';
+import 'package:i_iwara/app/services/content_block_service.dart';
 import 'package:i_iwara/app/services/tag_localization_service.dart';
 import 'package:i_iwara/app/services/oreno3d_localization_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
@@ -34,7 +36,10 @@ Future<void> showTagDetailDialog(BuildContext context, Tag tag) {
     Builder(
       builder: (context) {
         final t = slang.Translations.of(context);
-        return GlassAlertDialog(
+        final blockService = Get.isRegistered<ContentBlockService>()
+            ? Get.find<ContentBlockService>()
+            : null;
+        Widget buildDialog() => GlassAlertDialog(
           title: t.common.tagInfo,
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -54,11 +59,40 @@ Future<void> showTagDetailDialog(BuildContext context, Tag tag) {
             ],
           ),
           actions: [
+            if (blockService != null)
+              _tagLocalBlockAction(blockService, tag.id),
             GlassDialogAction.pop(label: t.common.close, emphasized: false),
           ],
         );
+        // 服务没注册时不读任何 Rx，不能套 Obx（否则报 improper use）
+        return blockService == null ? buildDialog() : Obx(buildDialog);
       },
     ),
+  );
+}
+
+/// 标签详情弹窗里的「本地屏蔽 / 取消屏蔽此标签」动作（写入本地内容屏蔽规则，
+/// 不碰 Iwara 账号上的标签黑名单）。点完即生效、弹窗不关，外层 Obx 让按钮跟着翻面。
+///
+/// 读了 [ContentBlockService.rules]，必须在 Obx 里调用。
+GlassDialogAction _tagLocalBlockAction(
+  ContentBlockService service,
+  String tagId,
+) {
+  final t = slang.t.settings.blockSettings;
+  final blocked = service.isTagBlocked(tagId);
+  return GlassDialogAction(
+    label: blocked ? t.unblockTag : t.blockTag,
+    emphasized: false,
+    onPressed: () async {
+      if (blocked) {
+        await service.unblockTag(tagId);
+        showAppToast(t.tagUnblocked, type: AppToastType.success);
+      } else {
+        await service.blockTags([tagId]);
+        showAppToast(t.tagBlocked, type: AppToastType.success);
+      }
+    },
   );
 }
 

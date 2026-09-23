@@ -3273,7 +3273,7 @@ class _TranslationsSettingsBlockSettingsZhCn extends TranslationsSettingsBlockSe
 
 	// Translations
 	@override String get title => '内容屏蔽';
-	@override String get subtitle => '当视频或图库的标题命中关键词或正则，或来自被屏蔽的用户时，自动隐藏。所有匹配都在本地完成，不会上传。';
+	@override String get subtitle => '当视频或图库的标题命中关键词或正则、带有被屏蔽的标签，或来自被屏蔽的用户时，自动隐藏。所有匹配都在本地完成，不会上传。';
 	@override String get blocked => '已屏蔽';
 	@override String get reveal => '显示';
 	@override String get reblock => '重新屏蔽';
@@ -3282,6 +3282,7 @@ class _TranslationsSettingsBlockSettingsZhCn extends TranslationsSettingsBlockSe
 	@override String reasonKeyword({required Object value}) => '标题包含「${value}」';
 	@override String reasonRegex({required Object value}) => '标题匹配正则「${value}」';
 	@override String get reasonUser => '来自已屏蔽的用户';
+	@override String reasonTag({required Object value}) => '带有标签「${value}」';
 	@override String get addRule => '添加规则';
 	@override String get editRule => '编辑规则';
 	@override String get deleteRule => '删除规则';
@@ -3289,6 +3290,7 @@ class _TranslationsSettingsBlockSettingsZhCn extends TranslationsSettingsBlockSe
 	@override String get keyword => '关键词';
 	@override String get regex => '正则';
 	@override String get userId => '用户';
+	@override String get tag => '标签';
 	@override String get value => '要匹配的内容';
 	@override String get caseSensitive => '区分大小写';
 	@override String get regexHint => '例如 预告|花絮';
@@ -3300,6 +3302,12 @@ class _TranslationsSettingsBlockSettingsZhCn extends TranslationsSettingsBlockSe
 	@override String blockUserConfirm({required Object name}) => '确定屏蔽「${name}」吗？TA 的视频和图库会在列表和搜索中被隐藏。';
 	@override String get userBlocked => '已屏蔽该用户';
 	@override String get userUnblocked => '已取消屏蔽';
+	@override String get selectTags => '选择标签';
+	@override String get tagRequired => '请至少选择一个标签';
+	@override String get blockTag => '本地屏蔽此标签';
+	@override String get unblockTag => '取消屏蔽此标签';
+	@override String get tagBlocked => '已屏蔽该标签';
+	@override String get tagUnblocked => '已取消屏蔽该标签';
 	@override String get exportRules => '导出';
 	@override String get importRules => '导入';
 	@override String get importExport => '导入 / 导出';
@@ -6003,7 +6011,7 @@ extension on TranslationsZhCn {
 			'settings.gallerySettings.defaultViewerQuality' => '默认清晰度',
 			'settings.gallerySettings.defaultViewerQualityDesc' => '打开图库查看器时默认显示哪一种清晰度。',
 			'settings.blockSettings.title' => '内容屏蔽',
-			'settings.blockSettings.subtitle' => '当视频或图库的标题命中关键词或正则，或来自被屏蔽的用户时，自动隐藏。所有匹配都在本地完成，不会上传。',
+			'settings.blockSettings.subtitle' => '当视频或图库的标题命中关键词或正则、带有被屏蔽的标签，或来自被屏蔽的用户时，自动隐藏。所有匹配都在本地完成，不会上传。',
 			'settings.blockSettings.blocked' => '已屏蔽',
 			'settings.blockSettings.reveal' => '显示',
 			'settings.blockSettings.reblock' => '重新屏蔽',
@@ -6012,6 +6020,7 @@ extension on TranslationsZhCn {
 			'settings.blockSettings.reasonKeyword' => ({required Object value}) => '标题包含「${value}」',
 			'settings.blockSettings.reasonRegex' => ({required Object value}) => '标题匹配正则「${value}」',
 			'settings.blockSettings.reasonUser' => '来自已屏蔽的用户',
+			'settings.blockSettings.reasonTag' => ({required Object value}) => '带有标签「${value}」',
 			'settings.blockSettings.addRule' => '添加规则',
 			'settings.blockSettings.editRule' => '编辑规则',
 			'settings.blockSettings.deleteRule' => '删除规则',
@@ -6019,6 +6028,7 @@ extension on TranslationsZhCn {
 			'settings.blockSettings.keyword' => '关键词',
 			'settings.blockSettings.regex' => '正则',
 			'settings.blockSettings.userId' => '用户',
+			'settings.blockSettings.tag' => '标签',
 			'settings.blockSettings.value' => '要匹配的内容',
 			'settings.blockSettings.caseSensitive' => '区分大小写',
 			'settings.blockSettings.regexHint' => '例如 预告|花絮',
@@ -6030,6 +6040,12 @@ extension on TranslationsZhCn {
 			'settings.blockSettings.blockUserConfirm' => ({required Object name}) => '确定屏蔽「${name}」吗？TA 的视频和图库会在列表和搜索中被隐藏。',
 			'settings.blockSettings.userBlocked' => '已屏蔽该用户',
 			'settings.blockSettings.userUnblocked' => '已取消屏蔽',
+			'settings.blockSettings.selectTags' => '选择标签',
+			'settings.blockSettings.tagRequired' => '请至少选择一个标签',
+			'settings.blockSettings.blockTag' => '本地屏蔽此标签',
+			'settings.blockSettings.unblockTag' => '取消屏蔽此标签',
+			'settings.blockSettings.tagBlocked' => '已屏蔽该标签',
+			'settings.blockSettings.tagUnblocked' => '已取消屏蔽该标签',
 			'settings.blockSettings.exportRules' => '导出',
 			'settings.blockSettings.importRules' => '导入',
 			'settings.blockSettings.importExport' => '导入 / 导出',
@@ -6490,6 +6506,8 @@ extension on TranslationsZhCn {
 			'videoDetail.gestureGuide.quest.resizeHint' => '应用窗口、控制面板和幕布使用同一套操作。应用窗口可调整宽高，幕布保持画面比例。',
 			'videoDetail.gestureGuide.quest.navigationTitle' => '返回与空间设置',
 			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y 每次返回一层：先关浮层或返回面板主页，再收起面板，最后回到应用。左手 Menu 键可直接唤出空间设置。',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.navigationHint' => '右手 Meta 键由系统处理。使用系统回正可把视线前方重新设为中心，保留幕布大小和距离。',
 			'videoDetail.gestureGuide.quest.handsTitle' => '放下手柄，用手操作',
 			'videoDetail.gestureGuide.quest.handsBody' => '开启手势追踪后，用系统射线瞄准按钮，食指与拇指捏合并松开即可选择。播放、进度和图库翻页都可通过控制面板操作。',
@@ -6498,8 +6516,6 @@ extension on TranslationsZhCn {
 			'videoDetail.videoPlayer' => '视频播放器',
 			'videoDetail.videoPlayerInfo' => '播放器信息',
 			'videoDetail.moreSettings' => '更多设置',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.videoPlayerFeatureInfo' => '播放器功能介绍',
 			'videoDetail.autoRewind' => '自动重播',
 			'videoDetail.rewindAndFastForward' => '左右两侧双击快进或后退',
@@ -7004,6 +7020,8 @@ extension on TranslationsZhCn {
 			'download.relocation.alreadyRunning' => '已有一个移动任务在进行',
 			'download.relocation.destination' => '目标位置',
 			'download.relocation.statMove' => '将移动',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.statSkip' => '跳过',
 			'download.relocation.statRenamed' => '改名',
 			'download.relocation.statMoved' => '已移动',
@@ -7012,8 +7030,6 @@ extension on TranslationsZhCn {
 			'download.relocation.sectionMove' => '将移动',
 			'download.relocation.sectionSkip' => '将跳过',
 			'download.relocation.sectionMoved' => '已移动',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.sectionFailed' => '未移动（仍在原处）',
 			'download.relocation.sectionLeftover' => '没删干净的旧文件夹',
 			'download.relocation.leftoverHint' => '新位置的那份是完整的，这些残留可以放心删除。',
@@ -7518,6 +7534,8 @@ extension on TranslationsZhCn {
 			'mediaPlayer.connectionFailed' => '连接失败',
 			'mediaPlayer.connectionTimeout' => '连接超时',
 			'mediaPlayer.networkError' => '网络错误',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.sslError' => 'SSL证书错误',
 			'mediaPlayer.testCompleted' => '测速完成',
 			'mediaPlayer.local' => '本地',
@@ -7526,8 +7544,6 @@ extension on TranslationsZhCn {
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => '本地视频文件不存在: ${path}',
 			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => '无法播放本地视频: ${error}',
 			'mediaPlayer.unableToPlayNasVideo' => ({required Object error}) => '无法播放 NAS 上的视频：${error}',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.dropVideoFileHere' => '拖放视频文件到此处播放',
 			'mediaPlayer.supportedFormats' => '支持格式: MP4, MKV, AVI, MOV, WEBM 等',
 			'mediaPlayer.noSupportedVideoFile' => '未找到支持的视频文件',
@@ -8032,6 +8048,8 @@ extension on TranslationsZhCn {
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => '当前 ${currentSite} · 点击切换到 ${nextSite}',
 			'siteMode.dialogTitle' => '切换站点模式',
 			'siteMode.dialogDescription' => '切换后会刷新整个应用，并重置之前已加载的列表和页面状态。',
+			_ => null,
+		} ?? switch (path) {
 			'siteMode.chooseLinkTargetTitle' => '选择链接目标站点',
 			'siteMode.chooseLinkTargetDescription' => '此链接未包含域名，请选择要跳往主站还是 AI 站。',
 			'siteMode.chooseLinkTargetHint' => '进入后，该页面及其后续详情请求会沿用你选择的站点。',
@@ -8040,8 +8058,6 @@ extension on TranslationsZhCn {
 			'siteMode.confirmUsing' => ({required Object site}) => '确认后，后续请求将统一使用 ${site} 模式。',
 			'siteMode.switched' => ({required Object site}) => '已切换到 ${site}，应用已刷新。',
 			'savedSearchConfig.title' => '已保存筛选',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.empty' => '还没有保存的筛选配置',
 			'savedSearchConfig.saveTooltip' => '保存当前筛选',
 			'savedSearchConfig.namePromptTitle' => '保存筛选配置',
@@ -8546,6 +8562,8 @@ extension on TranslationsZhCn {
 			'ai.taskSignature' => '小尾巴',
 			'ai.taskAuto' => '自动',
 			'ai.usage' => '用量',
+			_ => null,
+		} ?? switch (path) {
 			'ai.usageCalls' => '调用',
 			'ai.usageTokens' => 'token',
 			'ai.usageFailures' => '失败',
@@ -8554,8 +8572,6 @@ extension on TranslationsZhCn {
 			'ai.openSettings' => '前往 AI 设置',
 			'ai.notConfigured' => '未配置',
 			'ai.searchTitle' => 'AI 搜索',
-			_ => null,
-		} ?? switch (path) {
 			'ai.searchHint' => '用一句话描述你想找什么，AI 会替你填好搜索词和筛选条件。',
 			'ai.searchPlaceholder' => '例如：播放量过万的最新 MMD',
 			'ai.searchApply' => '用这些条件搜索',

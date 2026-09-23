@@ -3273,7 +3273,7 @@ class _TranslationsSettingsBlockSettingsJa extends TranslationsSettingsBlockSett
 
 	// Translations
 	@override String get title => 'コンテンツブロック';
-	@override String get subtitle => 'タイトルがキーワードや正規表現に一致する、またはブロックしたユーザーの投稿を自動的に非表示にします。判定はすべて端末内で行われ、アップロードされません。';
+	@override String get subtitle => 'タイトルがキーワードや正規表現に一致する、ブロックしたタグが付いている、またはブロックしたユーザーの投稿を自動的に非表示にします。判定はすべて端末内で行われ、アップロードされません。';
 	@override String get blocked => 'ブロック済み';
 	@override String get reveal => '表示';
 	@override String get reblock => '再ブロック';
@@ -3282,6 +3282,7 @@ class _TranslationsSettingsBlockSettingsJa extends TranslationsSettingsBlockSett
 	@override String reasonKeyword({required Object value}) => 'タイトルに「${value}」を含む';
 	@override String reasonRegex({required Object value}) => 'タイトルが正規表現「${value}」に一致';
 	@override String get reasonUser => 'ブロックしたユーザー';
+	@override String reasonTag({required Object value}) => 'タグ「${value}」が付いています';
 	@override String get addRule => 'ルールを追加';
 	@override String get editRule => 'ルールを編集';
 	@override String get deleteRule => 'ルールを削除';
@@ -3289,6 +3290,7 @@ class _TranslationsSettingsBlockSettingsJa extends TranslationsSettingsBlockSett
 	@override String get keyword => 'キーワード';
 	@override String get regex => '正規表現';
 	@override String get userId => 'ユーザー';
+	@override String get tag => 'タグ';
 	@override String get value => '一致させる内容';
 	@override String get caseSensitive => '大文字小文字を区別';
 	@override String get regexHint => '例 予告|特典';
@@ -3300,6 +3302,12 @@ class _TranslationsSettingsBlockSettingsJa extends TranslationsSettingsBlockSett
 	@override String blockUserConfirm({required Object name}) => '「${name}」をブロックしますか？その動画とギャラリーは一覧と検索で非表示になります。';
 	@override String get userBlocked => 'ユーザーをブロックしました';
 	@override String get userUnblocked => 'ブロックを解除しました';
+	@override String get selectTags => 'タグを選択';
+	@override String get tagRequired => 'タグを 1 つ以上選択してください';
+	@override String get blockTag => 'このタグをローカルでブロック';
+	@override String get unblockTag => 'このタグのブロックを解除';
+	@override String get tagBlocked => 'タグをブロックしました';
+	@override String get tagUnblocked => 'タグのブロックを解除しました';
 	@override String get exportRules => 'エクスポート';
 	@override String get importRules => 'インポート';
 	@override String get importExport => 'インポート / エクスポート';
@@ -6003,7 +6011,7 @@ extension on TranslationsJa {
 			'settings.gallerySettings.defaultViewerQuality' => 'デフォルト画質',
 			'settings.gallerySettings.defaultViewerQualityDesc' => 'ギャラリービューアを開いたときに表示する画質を選択します。',
 			'settings.blockSettings.title' => 'コンテンツブロック',
-			'settings.blockSettings.subtitle' => 'タイトルがキーワードや正規表現に一致する、またはブロックしたユーザーの投稿を自動的に非表示にします。判定はすべて端末内で行われ、アップロードされません。',
+			'settings.blockSettings.subtitle' => 'タイトルがキーワードや正規表現に一致する、ブロックしたタグが付いている、またはブロックしたユーザーの投稿を自動的に非表示にします。判定はすべて端末内で行われ、アップロードされません。',
 			'settings.blockSettings.blocked' => 'ブロック済み',
 			'settings.blockSettings.reveal' => '表示',
 			'settings.blockSettings.reblock' => '再ブロック',
@@ -6012,6 +6020,7 @@ extension on TranslationsJa {
 			'settings.blockSettings.reasonKeyword' => ({required Object value}) => 'タイトルに「${value}」を含む',
 			'settings.blockSettings.reasonRegex' => ({required Object value}) => 'タイトルが正規表現「${value}」に一致',
 			'settings.blockSettings.reasonUser' => 'ブロックしたユーザー',
+			'settings.blockSettings.reasonTag' => ({required Object value}) => 'タグ「${value}」が付いています',
 			'settings.blockSettings.addRule' => 'ルールを追加',
 			'settings.blockSettings.editRule' => 'ルールを編集',
 			'settings.blockSettings.deleteRule' => 'ルールを削除',
@@ -6019,6 +6028,7 @@ extension on TranslationsJa {
 			'settings.blockSettings.keyword' => 'キーワード',
 			'settings.blockSettings.regex' => '正規表現',
 			'settings.blockSettings.userId' => 'ユーザー',
+			'settings.blockSettings.tag' => 'タグ',
 			'settings.blockSettings.value' => '一致させる内容',
 			'settings.blockSettings.caseSensitive' => '大文字小文字を区別',
 			'settings.blockSettings.regexHint' => '例 予告|特典',
@@ -6030,6 +6040,12 @@ extension on TranslationsJa {
 			'settings.blockSettings.blockUserConfirm' => ({required Object name}) => '「${name}」をブロックしますか？その動画とギャラリーは一覧と検索で非表示になります。',
 			'settings.blockSettings.userBlocked' => 'ユーザーをブロックしました',
 			'settings.blockSettings.userUnblocked' => 'ブロックを解除しました',
+			'settings.blockSettings.selectTags' => 'タグを選択',
+			'settings.blockSettings.tagRequired' => 'タグを 1 つ以上選択してください',
+			'settings.blockSettings.blockTag' => 'このタグをローカルでブロック',
+			'settings.blockSettings.unblockTag' => 'このタグのブロックを解除',
+			'settings.blockSettings.tagBlocked' => 'タグをブロックしました',
+			'settings.blockSettings.tagUnblocked' => 'タグのブロックを解除しました',
 			'settings.blockSettings.exportRules' => 'エクスポート',
 			'settings.blockSettings.importRules' => 'インポート',
 			'settings.blockSettings.importExport' => 'インポート / エクスポート',
@@ -6490,6 +6506,8 @@ extension on TranslationsJa {
 			'videoDetail.gestureGuide.quest.resizeHint' => 'アプリ、操作パネル、スクリーンで共通の操作です。アプリの幅と高さは自由に変えられ、スクリーンは縦横比を保ちます。',
 			'videoDetail.gestureGuide.quest.navigationTitle' => '戻る・空間設定を開く',
 			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y はポップアップを閉じる、パネルのホームへ戻る、パネルを隠す、アプリへ戻る、の順で一段ずつ戻ります。左手の Menu で空間設定を開けます。',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.navigationHint' => '右手の Meta ボタンはシステム用です。システムの視点リセットで正面に戻せます。スクリーンの大きさと距離は保たれます。',
 			'videoDetail.gestureGuide.quest.handsTitle' => 'コントローラーなしで操作',
 			'videoDetail.gestureGuide.quest.handsBody' => 'ハンドトラッキングを有効にし、システムのレイをボタンに合わせ、親指と人差し指をピンチして離します。再生、シーク、画像送りはパネルで操作できます。',
@@ -6498,8 +6516,6 @@ extension on TranslationsJa {
 			'videoDetail.videoPlayer' => 'ビデオプレーヤー',
 			'videoDetail.videoPlayerInfo' => 'プレーヤー情報',
 			'videoDetail.moreSettings' => 'さらに設定',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.videoPlayerFeatureInfo' => 'プレーヤー機能の紹介',
 			'videoDetail.autoRewind' => '自動リワインド',
 			'videoDetail.rewindAndFastForward' => '両側をダブルクリックして早送りまたは巻き戻し',
@@ -7004,6 +7020,8 @@ extension on TranslationsJa {
 			'download.relocation.cancelled' => '停止しました。移動済みの項目はすべて完全です。',
 			'download.relocation.alreadyRunning' => '別の移動がすでに実行中です',
 			'download.relocation.destination' => '移動先',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.statMove' => '移動予定',
 			'download.relocation.statSkip' => 'スキップ',
 			'download.relocation.statRenamed' => '名前変更',
@@ -7012,8 +7030,6 @@ extension on TranslationsJa {
 			'download.relocation.statLeftover' => '残存',
 			'download.relocation.sectionMove' => '移動する項目',
 			'download.relocation.sectionSkip' => 'スキップする項目',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.sectionMoved' => '移動済み',
 			'download.relocation.sectionFailed' => '移動されなかった項目（元の場所のまま）',
 			'download.relocation.sectionLeftover' => '削除しきれなかった古いフォルダ',
@@ -7518,6 +7534,8 @@ extension on TranslationsJa {
 			'mediaPlayer.connectionFailed' => '接続失敗',
 			'mediaPlayer.connectionTimeout' => '接続タイムアウト',
 			'mediaPlayer.networkError' => 'ネットワークエラー',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.sslError' => 'SSL証明書エラー',
 			'mediaPlayer.testCompleted' => 'テスト完了',
 			'mediaPlayer.local' => 'ローカル',
@@ -7526,8 +7544,6 @@ extension on TranslationsJa {
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => 'ローカルビデオファイルが存在しません: ${path}',
 			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => 'ローカルビデオを再生できません: ${error}',
 			'mediaPlayer.unableToPlayNasVideo' => ({required Object error}) => 'NAS の動画を再生できません：${error}',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.dropVideoFileHere' => 'ここにビデオファイルをドロップして再生',
 			'mediaPlayer.supportedFormats' => '対応形式: MP4, MKV, AVI, MOV, WEBM など',
 			'mediaPlayer.noSupportedVideoFile' => 'サポートされているビデオファイルが見つかりません',
@@ -8032,6 +8048,8 @@ extension on TranslationsJa {
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => '現在 ${currentSite} ・ タップして ${nextSite} に切り替え',
 			'siteMode.dialogTitle' => 'サイトモードを切り替え',
 			'siteMode.dialogDescription' => '切り替えると、アプリ全体が再読み込みされ、これまでに読み込んだリストやページ状態がリセットされます。',
+			_ => null,
+		} ?? switch (path) {
 			'siteMode.chooseLinkTargetTitle' => 'リンク先サイトを選択',
 			'siteMode.chooseLinkTargetDescription' => 'このリンクにはドメインが含まれていません。メインサイトか AI サイトのどちらで開くか選択してください。',
 			'siteMode.chooseLinkTargetHint' => '開いた後、このページと後続の詳細リクエストは選択したサイトを使い続けます。',
@@ -8040,8 +8058,6 @@ extension on TranslationsJa {
 			'siteMode.confirmUsing' => ({required Object site}) => '確認すると、以降のリクエストは ${site} モードを使用します。',
 			'siteMode.switched' => ({required Object site}) => '${site} に切り替えました。アプリは再読み込みされました。',
 			'savedSearchConfig.title' => '保存した絞り込み',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.empty' => '保存した絞り込み設定はまだありません',
 			'savedSearchConfig.saveTooltip' => '現在の絞り込みを保存',
 			'savedSearchConfig.namePromptTitle' => '絞り込みを保存',
@@ -8546,6 +8562,8 @@ extension on TranslationsJa {
 			'ai.taskSignature' => '署名',
 			'ai.taskAuto' => '自動',
 			'ai.usage' => '使用状況',
+			_ => null,
+		} ?? switch (path) {
 			'ai.usageCalls' => '呼び出し回数',
 			'ai.usageTokens' => 'トークン数',
 			'ai.usageFailures' => '失敗',
@@ -8554,8 +8572,6 @@ extension on TranslationsJa {
 			'ai.openSettings' => 'AI設定を開く',
 			'ai.notConfigured' => '未設定',
 			'ai.searchTitle' => 'AI検索',
-			_ => null,
-		} ?? switch (path) {
 			'ai.searchHint' => '探したいものを文章で説明すると、AIが検索キーワードと絞り込み条件を入力します。',
 			'ai.searchPlaceholder' => '例：再生回数1万回以上の最新MMD',
 			'ai.searchApply' => 'この条件で検索',

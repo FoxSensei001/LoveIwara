@@ -3273,7 +3273,7 @@ class _TranslationsSettingsBlockSettingsKo extends TranslationsSettingsBlockSett
 
 	// Translations
 	@override String get title => '콘텐츠 차단';
-	@override String get subtitle => '제목이 키워드나 패턴과 일치하거나 차단된 사용자의 콘텐츠인 동영상과 갤러리를 자동으로 숨깁니다. 모든 일치 처리는 기기에서 이루어지며 아무것도 업로드되지 않습니다.';
+	@override String get subtitle => '제목이 키워드나 패턴과 일치하거나, 차단된 태그가 붙어 있거나, 차단된 사용자의 콘텐츠인 동영상과 갤러리를 자동으로 숨깁니다. 모든 일치 처리는 기기에서 이루어지며 아무것도 업로드되지 않습니다.';
 	@override String get blocked => '차단됨';
 	@override String get reveal => '표시';
 	@override String get reblock => '다시 차단';
@@ -3282,6 +3282,7 @@ class _TranslationsSettingsBlockSettingsKo extends TranslationsSettingsBlockSett
 	@override String reasonKeyword({required Object value}) => '제목에 "${value}" 포함';
 	@override String reasonRegex({required Object value}) => '제목이 "${value}"과 일치';
 	@override String get reasonUser => '차단된 사용자';
+	@override String reasonTag({required Object value}) => '태그 「${value}」 포함';
 	@override String get addRule => '규칙 추가';
 	@override String get editRule => '규칙 편집';
 	@override String get deleteRule => '규칙 삭제';
@@ -3289,6 +3290,7 @@ class _TranslationsSettingsBlockSettingsKo extends TranslationsSettingsBlockSett
 	@override String get keyword => '키워드';
 	@override String get regex => '정규식';
 	@override String get userId => '사용자';
+	@override String get tag => '태그';
 	@override String get value => '일치할 텍스트';
 	@override String get caseSensitive => '대소문자 구분';
 	@override String get regexHint => '예: 예고|티저';
@@ -3300,6 +3302,12 @@ class _TranslationsSettingsBlockSettingsKo extends TranslationsSettingsBlockSett
 	@override String blockUserConfirm({required Object name}) => '"${name}"님을 차단하시겠습니까? 해당 사용자의 동영상과 갤러리가 목록과 검색에서 숨겨집니다.';
 	@override String get userBlocked => '사용자를 차단했습니다';
 	@override String get userUnblocked => '사용자 차단을 해제했습니다';
+	@override String get selectTags => '태그 선택';
+	@override String get tagRequired => '태그를 하나 이상 선택하세요';
+	@override String get blockTag => '이 태그를 로컬에서 차단';
+	@override String get unblockTag => '이 태그 차단 해제';
+	@override String get tagBlocked => '태그를 차단했습니다';
+	@override String get tagUnblocked => '태그 차단을 해제했습니다';
 	@override String get exportRules => '내보내기';
 	@override String get importRules => '가져오기';
 	@override String get importExport => '가져오기 / 내보내기';
@@ -6003,7 +6011,7 @@ extension on TranslationsKo {
 			'settings.gallerySettings.defaultViewerQuality' => '기본 뷰어 화질',
 			'settings.gallerySettings.defaultViewerQualityDesc' => '갤러리 뷰어를 열 때 기본으로 표시할 이미지 화질을 선택합니다.',
 			'settings.blockSettings.title' => '콘텐츠 차단',
-			'settings.blockSettings.subtitle' => '제목이 키워드나 패턴과 일치하거나 차단된 사용자의 콘텐츠인 동영상과 갤러리를 자동으로 숨깁니다. 모든 일치 처리는 기기에서 이루어지며 아무것도 업로드되지 않습니다.',
+			'settings.blockSettings.subtitle' => '제목이 키워드나 패턴과 일치하거나, 차단된 태그가 붙어 있거나, 차단된 사용자의 콘텐츠인 동영상과 갤러리를 자동으로 숨깁니다. 모든 일치 처리는 기기에서 이루어지며 아무것도 업로드되지 않습니다.',
 			'settings.blockSettings.blocked' => '차단됨',
 			'settings.blockSettings.reveal' => '표시',
 			'settings.blockSettings.reblock' => '다시 차단',
@@ -6012,6 +6020,7 @@ extension on TranslationsKo {
 			'settings.blockSettings.reasonKeyword' => ({required Object value}) => '제목에 "${value}" 포함',
 			'settings.blockSettings.reasonRegex' => ({required Object value}) => '제목이 "${value}"과 일치',
 			'settings.blockSettings.reasonUser' => '차단된 사용자',
+			'settings.blockSettings.reasonTag' => ({required Object value}) => '태그 「${value}」 포함',
 			'settings.blockSettings.addRule' => '규칙 추가',
 			'settings.blockSettings.editRule' => '규칙 편집',
 			'settings.blockSettings.deleteRule' => '규칙 삭제',
@@ -6019,6 +6028,7 @@ extension on TranslationsKo {
 			'settings.blockSettings.keyword' => '키워드',
 			'settings.blockSettings.regex' => '정규식',
 			'settings.blockSettings.userId' => '사용자',
+			'settings.blockSettings.tag' => '태그',
 			'settings.blockSettings.value' => '일치할 텍스트',
 			'settings.blockSettings.caseSensitive' => '대소문자 구분',
 			'settings.blockSettings.regexHint' => '예: 예고|티저',
@@ -6030,6 +6040,12 @@ extension on TranslationsKo {
 			'settings.blockSettings.blockUserConfirm' => ({required Object name}) => '"${name}"님을 차단하시겠습니까? 해당 사용자의 동영상과 갤러리가 목록과 검색에서 숨겨집니다.',
 			'settings.blockSettings.userBlocked' => '사용자를 차단했습니다',
 			'settings.blockSettings.userUnblocked' => '사용자 차단을 해제했습니다',
+			'settings.blockSettings.selectTags' => '태그 선택',
+			'settings.blockSettings.tagRequired' => '태그를 하나 이상 선택하세요',
+			'settings.blockSettings.blockTag' => '이 태그를 로컬에서 차단',
+			'settings.blockSettings.unblockTag' => '이 태그 차단 해제',
+			'settings.blockSettings.tagBlocked' => '태그를 차단했습니다',
+			'settings.blockSettings.tagUnblocked' => '태그 차단을 해제했습니다',
 			'settings.blockSettings.exportRules' => '내보내기',
 			'settings.blockSettings.importRules' => '가져오기',
 			'settings.blockSettings.importExport' => '가져오기 / 내보내기',
@@ -6490,6 +6506,8 @@ extension on TranslationsKo {
 			'videoDetail.gestureGuide.quest.resizeHint' => '앱 창, 컨트롤 패널, 화면에서 작동합니다. 앱 창은 너비와 높이가 바뀌고, 화면은 화면 비율을 유지합니다.',
 			'videoDetail.gestureGuide.quest.navigationTitle' => '뒤로 가기 및 설정 열기',
 			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y는 한 단계 뒤로 갑니다: 팝업을 닫거나 패널 홈으로 돌아가고, 패널을 숨긴 다음 앱으로 돌아갑니다. 왼쪽 Menu 버튼은 공간 설정을 엽니다.',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.navigationHint' => '오른쪽 Meta 버튼은 시스템에 속합니다. 시스템 리센터는 화면 크기와 거리를 유지하면서 시야를 정면으로 되돌립니다.',
 			'videoDetail.gestureGuide.quest.handsTitle' => '손 사용하기',
 			'videoDetail.gestureGuide.quest.handsBody' => '핸드 트래킹을 켜고 시스템 광선을 버튼에 맞춘 뒤 엄지와 검지를 집었다가 놓으세요. 재생, 탐색, 갤러리 이동은 패널을 사용하세요.',
@@ -6498,8 +6516,6 @@ extension on TranslationsKo {
 			'videoDetail.videoPlayer' => '동영상 플레이어',
 			'videoDetail.videoPlayerInfo' => '동영상 플레이어 정보',
 			'videoDetail.moreSettings' => '더 많은 설정',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.videoPlayerFeatureInfo' => '동영상 플레이어 기능 정보',
 			'videoDetail.autoRewind' => '자동 되감기',
 			'videoDetail.rewindAndFastForward' => '되감기 및 빨리 감기',
@@ -7004,6 +7020,8 @@ extension on TranslationsKo {
 			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
 			'download.relocation.alreadyRunning' => 'Another move is already in progress',
 			'download.relocation.destination' => 'Destination',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.statMove' => 'To move',
 			'download.relocation.statSkip' => 'Skipped',
 			'download.relocation.statRenamed' => 'Renamed',
@@ -7012,8 +7030,6 @@ extension on TranslationsKo {
 			'download.relocation.statLeftover' => 'Left behind',
 			'download.relocation.sectionMove' => 'Will be moved',
 			'download.relocation.sectionSkip' => 'Will be skipped',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.sectionMoved' => 'Moved',
 			'download.relocation.sectionFailed' => 'Not moved (left where it was)',
 			'download.relocation.sectionLeftover' => 'Old folders not fully removed',
@@ -7518,6 +7534,8 @@ extension on TranslationsKo {
 			'displaySettings.layoutSettings' => '레이아웃 설정',
 			'displaySettings.layoutSettingsDesc' => '열 수와 중단점 구성을 사용자 지정합니다',
 			'displaySettings.gridLayout' => '그리드 레이아웃',
+			_ => null,
+		} ?? switch (path) {
 			'displaySettings.navigationOrderSettings' => '내비게이션 순서 설정',
 			'displaySettings.customNavigationOrder' => '내비게이션 순서 사용자 지정',
 			'displaySettings.customNavigationOrderDesc' => '하단 내비게이션 바와 사이드바에서 페이지 표시 순서를 조정합니다',
@@ -7526,8 +7544,6 @@ extension on TranslationsKo {
 			'layoutSettings.descriptionContent' => '여기서의 구성은 동영상 및 갤러리 목록 페이지에 표시되는 열 수를 결정합니다. 자동 모드를 선택하면 시스템이 화면 너비에 따라 자동으로 조정하고, 수동 모드를 선택하면 열 수를 고정할 수 있습니다.',
 			'layoutSettings.layoutMode' => '레이아웃 모드',
 			'layoutSettings.reset' => '초기화',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.autoMode' => '자동 모드',
 			'layoutSettings.autoModeDesc' => '화면 너비에 따라 자동으로 조정',
 			'layoutSettings.manualMode' => '수동 모드',
@@ -8032,6 +8048,8 @@ extension on TranslationsKo {
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => '현재 ${currentSite} · 탭하여 ${nextSite} 모드로 전환',
 			'siteMode.dialogTitle' => '사이트 모드 전환',
 			'siteMode.dialogDescription' => '전환하면 앱 전체가 새로 고쳐지고 이전에 불러온 목록과 페이지 상태가 초기화됩니다.',
+			_ => null,
+		} ?? switch (path) {
 			'siteMode.chooseLinkTargetTitle' => '대상 사이트 선택',
 			'siteMode.chooseLinkTargetDescription' => '이 링크에는 도메인이 없습니다. 메인 또는 AI로 열지 선택하세요.',
 			'siteMode.chooseLinkTargetHint' => '한 번 열면 이 페이지와 이후 세부 요청이 선택한 사이트를 계속 사용합니다.',
@@ -8040,8 +8058,6 @@ extension on TranslationsKo {
 			'siteMode.confirmUsing' => ({required Object site}) => '확인하면 이후 요청은 ${site} 모드를 사용합니다.',
 			'siteMode.switched' => ({required Object site}) => '${site} 모드로 전환했습니다. 앱이 새로 고쳐졌습니다.',
 			'savedSearchConfig.title' => '저장된 필터',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.empty' => '저장된 필터가 없습니다',
 			'savedSearchConfig.saveTooltip' => '현재 필터 저장',
 			'savedSearchConfig.namePromptTitle' => '필터 저장',
@@ -8546,6 +8562,8 @@ extension on TranslationsKo {
 			'ai.taskSignature' => '서명',
 			'ai.taskAuto' => '자동',
 			'ai.usage' => '사용량',
+			_ => null,
+		} ?? switch (path) {
 			'ai.usageCalls' => '호출',
 			'ai.usageTokens' => '토큰',
 			'ai.usageFailures' => '실패',
@@ -8554,8 +8572,6 @@ extension on TranslationsKo {
 			'ai.openSettings' => 'AI 설정 열기',
 			'ai.notConfigured' => '구성되지 않음',
 			'ai.searchTitle' => 'AI 검색',
-			_ => null,
-		} ?? switch (path) {
 			'ai.searchHint' => '찾고 있는 것을 설명하면 AI가 검색어와 필터를 자동으로 채워줍니다.',
 			'ai.searchPlaceholder' => '예: 조회수 1만 회 이상의 최신 MMD',
 			'ai.searchApply' => '이 조건으로 검색',

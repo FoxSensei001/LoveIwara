@@ -1086,7 +1086,7 @@ settings:
   # Content blocking
   blockSettings:
     title: Blokir Konten
-    subtitle: Secara otomatis menyembunyikan video dan galeri yang judulnya cocok dengan kata kunci atau pola, atau yang berasal dari pengguna yang diblokir. Semua pencocokan dilakukan di perangkat Anda — tidak ada yang diunggah.
+    subtitle: Secara otomatis menyembunyikan video dan galeri yang judulnya cocok dengan kata kunci atau pola, yang memiliki tag yang diblokir, atau yang berasal dari pengguna yang diblokir. Semua pencocokan dilakukan di perangkat Anda — tidak ada yang diunggah.
     blocked: Diblokir
     reveal: Tampilkan
     reblock: Blokir lagi
@@ -1095,6 +1095,7 @@ settings:
     reasonKeyword: 'Judul mengandung "${value}"'
     reasonRegex: 'Judul cocok dengan "${value}"'
     reasonUser: Dari pengguna yang diblokir
+    reasonTag: 'Memiliki tag "${value}"'
     addRule: Tambah aturan
     editRule: Edit aturan
     deleteRule: Hapus aturan
@@ -1102,6 +1103,7 @@ settings:
     keyword: Kata Kunci
     regex: Regex
     userId: Pengguna
+    tag: Tag
     value: Teks yang dicocokkan
     caseSensitive: Peka huruf besar-kecil
     regexHint: mis. trailer|teaser
@@ -1113,6 +1115,12 @@ settings:
     blockUserConfirm: 'Blokir "${name}"? Video dan galeri mereka akan disembunyikan dari daftar dan pencarian.'
     userBlocked: Pengguna diblokir
     userUnblocked: Blokir pengguna dibuka
+    selectTags: Pilih tag
+    tagRequired: Pilih setidaknya satu tag
+    blockTag: Blokir tag ini secara lokal
+    unblockTag: Buka blokir tag ini
+    tagBlocked: Tag diblokir
+    tagUnblocked: Blokir tag dibuka
     exportRules: Ekspor
     importRules: Impor
     importExport: Impor / Ekspor

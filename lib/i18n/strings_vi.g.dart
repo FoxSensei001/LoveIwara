@@ -3273,7 +3273,7 @@ class _TranslationsSettingsBlockSettingsVi extends TranslationsSettingsBlockSett
 
 	// Translations
 	@override String get title => 'Chặn nội dung';
-	@override String get subtitle => 'Tự động ẩn video và thư viện có tiêu đề khớp với từ khóa hoặc mẫu, hoặc đến từ người dùng bị chặn. Mọi quá trình khớp đều diễn ra trên thiết bị của bạn — không có gì được tải lên.';
+	@override String get subtitle => 'Tự động ẩn video và thư viện có tiêu đề khớp với từ khóa hoặc mẫu, mang thẻ bị chặn, hoặc đến từ người dùng bị chặn. Mọi quá trình khớp đều diễn ra trên thiết bị của bạn — không có gì được tải lên.';
 	@override String get blocked => 'Đã chặn';
 	@override String get reveal => 'Hiện';
 	@override String get reblock => 'Chặn lại';
@@ -3282,6 +3282,7 @@ class _TranslationsSettingsBlockSettingsVi extends TranslationsSettingsBlockSett
 	@override String reasonKeyword({required Object value}) => 'Tiêu đề chứa "${value}"';
 	@override String reasonRegex({required Object value}) => 'Tiêu đề khớp "${value}"';
 	@override String get reasonUser => 'Từ người dùng bị chặn';
+	@override String reasonTag({required Object value}) => 'Có thẻ "${value}"';
 	@override String get addRule => 'Thêm quy tắc';
 	@override String get editRule => 'Chỉnh sửa quy tắc';
 	@override String get deleteRule => 'Xóa quy tắc';
@@ -3289,6 +3290,7 @@ class _TranslationsSettingsBlockSettingsVi extends TranslationsSettingsBlockSett
 	@override String get keyword => 'Từ khóa';
 	@override String get regex => 'Regex';
 	@override String get userId => 'Người dùng';
+	@override String get tag => 'Thẻ';
 	@override String get value => 'Văn bản cần khớp';
 	@override String get caseSensitive => 'Phân biệt chữ hoa chữ thường';
 	@override String get regexHint => 'ví dụ: trailer|hậu trường';
@@ -3300,6 +3302,12 @@ class _TranslationsSettingsBlockSettingsVi extends TranslationsSettingsBlockSett
 	@override String blockUserConfirm({required Object name}) => 'Chặn "${name}"? Video và thư viện của họ sẽ bị ẩn khỏi danh sách và tìm kiếm.';
 	@override String get userBlocked => 'Đã chặn người dùng';
 	@override String get userUnblocked => 'Đã bỏ chặn người dùng';
+	@override String get selectTags => 'Chọn thẻ';
+	@override String get tagRequired => 'Hãy chọn ít nhất một thẻ';
+	@override String get blockTag => 'Chặn thẻ này trên máy';
+	@override String get unblockTag => 'Bỏ chặn thẻ này';
+	@override String get tagBlocked => 'Đã chặn thẻ';
+	@override String get tagUnblocked => 'Đã bỏ chặn thẻ';
 	@override String get exportRules => 'Xuất';
 	@override String get importRules => 'Nhập';
 	@override String get importExport => 'Nhập / Xuất';
@@ -6003,7 +6011,7 @@ extension on TranslationsVi {
 			'settings.gallerySettings.defaultViewerQuality' => 'Chất lượng xem mặc định',
 			'settings.gallerySettings.defaultViewerQualityDesc' => 'Chọn chất lượng hình ảnh hiển thị mặc định khi mở trình xem thư viện.',
 			'settings.blockSettings.title' => 'Chặn nội dung',
-			'settings.blockSettings.subtitle' => 'Tự động ẩn video và thư viện có tiêu đề khớp với từ khóa hoặc mẫu, hoặc đến từ người dùng bị chặn. Mọi quá trình khớp đều diễn ra trên thiết bị của bạn — không có gì được tải lên.',
+			'settings.blockSettings.subtitle' => 'Tự động ẩn video và thư viện có tiêu đề khớp với từ khóa hoặc mẫu, mang thẻ bị chặn, hoặc đến từ người dùng bị chặn. Mọi quá trình khớp đều diễn ra trên thiết bị của bạn — không có gì được tải lên.',
 			'settings.blockSettings.blocked' => 'Đã chặn',
 			'settings.blockSettings.reveal' => 'Hiện',
 			'settings.blockSettings.reblock' => 'Chặn lại',
@@ -6012,6 +6020,7 @@ extension on TranslationsVi {
 			'settings.blockSettings.reasonKeyword' => ({required Object value}) => 'Tiêu đề chứa "${value}"',
 			'settings.blockSettings.reasonRegex' => ({required Object value}) => 'Tiêu đề khớp "${value}"',
 			'settings.blockSettings.reasonUser' => 'Từ người dùng bị chặn',
+			'settings.blockSettings.reasonTag' => ({required Object value}) => 'Có thẻ "${value}"',
 			'settings.blockSettings.addRule' => 'Thêm quy tắc',
 			'settings.blockSettings.editRule' => 'Chỉnh sửa quy tắc',
 			'settings.blockSettings.deleteRule' => 'Xóa quy tắc',
@@ -6019,6 +6028,7 @@ extension on TranslationsVi {
 			'settings.blockSettings.keyword' => 'Từ khóa',
 			'settings.blockSettings.regex' => 'Regex',
 			'settings.blockSettings.userId' => 'Người dùng',
+			'settings.blockSettings.tag' => 'Thẻ',
 			'settings.blockSettings.value' => 'Văn bản cần khớp',
 			'settings.blockSettings.caseSensitive' => 'Phân biệt chữ hoa chữ thường',
 			'settings.blockSettings.regexHint' => 'ví dụ: trailer|hậu trường',
@@ -6030,6 +6040,12 @@ extension on TranslationsVi {
 			'settings.blockSettings.blockUserConfirm' => ({required Object name}) => 'Chặn "${name}"? Video và thư viện của họ sẽ bị ẩn khỏi danh sách và tìm kiếm.',
 			'settings.blockSettings.userBlocked' => 'Đã chặn người dùng',
 			'settings.blockSettings.userUnblocked' => 'Đã bỏ chặn người dùng',
+			'settings.blockSettings.selectTags' => 'Chọn thẻ',
+			'settings.blockSettings.tagRequired' => 'Hãy chọn ít nhất một thẻ',
+			'settings.blockSettings.blockTag' => 'Chặn thẻ này trên máy',
+			'settings.blockSettings.unblockTag' => 'Bỏ chặn thẻ này',
+			'settings.blockSettings.tagBlocked' => 'Đã chặn thẻ',
+			'settings.blockSettings.tagUnblocked' => 'Đã bỏ chặn thẻ',
 			'settings.blockSettings.exportRules' => 'Xuất',
 			'settings.blockSettings.importRules' => 'Nhập',
 			'settings.blockSettings.importExport' => 'Nhập / Xuất',
@@ -6490,6 +6506,8 @@ extension on TranslationsVi {
 			'videoDetail.gestureGuide.quest.resizeHint' => 'Hoạt động trên cửa sổ ứng dụng, bảng điều khiển và màn hình. Cửa sổ ứng dụng thay đổi chiều rộng và chiều cao; màn hình giữ nguyên tỉ lệ khung hình.',
 			'videoDetail.gestureGuide.quest.navigationTitle' => 'Quay lại và mở cài đặt',
 			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y lùi một cấp: đóng cửa sổ bật lên hoặc quay về trang chính của bảng, ẩn bảng, rồi quay về ứng dụng. Nút Menu bên trái mở cài đặt không gian.',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.navigationHint' => 'Nút Meta bên phải thuộc về hệ thống. Chức năng định vị lại của hệ thống đưa tầm nhìn về phía trước trong khi giữ nguyên kích thước và khoảng cách màn hình.',
 			'videoDetail.gestureGuide.quest.handsTitle' => 'Dùng bàn tay',
 			'videoDetail.gestureGuide.quest.handsBody' => 'Khi bật theo dõi bàn tay, hướng tia của hệ thống vào một nút, chụm ngón cái và ngón trỏ, rồi thả ra. Dùng bảng để phát, tua và điều hướng thư viện.',
@@ -6498,8 +6516,6 @@ extension on TranslationsVi {
 			'videoDetail.videoPlayer' => 'Trình phát video',
 			'videoDetail.videoPlayerInfo' => 'Thông tin trình phát video',
 			'videoDetail.moreSettings' => 'Cài đặt thêm',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.videoPlayerFeatureInfo' => 'Thông tin tính năng trình phát video',
 			'videoDetail.autoRewind' => 'Tự động tua lại',
 			'videoDetail.rewindAndFastForward' => 'Tua lại và tua tới',
@@ -7004,6 +7020,8 @@ extension on TranslationsVi {
 			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
 			'download.relocation.alreadyRunning' => 'Another move is already in progress',
 			'download.relocation.destination' => 'Destination',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.statMove' => 'To move',
 			'download.relocation.statSkip' => 'Skipped',
 			'download.relocation.statRenamed' => 'Renamed',
@@ -7012,8 +7030,6 @@ extension on TranslationsVi {
 			'download.relocation.statLeftover' => 'Left behind',
 			'download.relocation.sectionMove' => 'Will be moved',
 			'download.relocation.sectionSkip' => 'Will be skipped',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.sectionMoved' => 'Moved',
 			'download.relocation.sectionFailed' => 'Not moved (left where it was)',
 			'download.relocation.sectionLeftover' => 'Old folders not fully removed',
@@ -7518,6 +7534,8 @@ extension on TranslationsVi {
 			'displaySettings.layoutSettings' => 'Cài đặt bố cục',
 			'displaySettings.layoutSettingsDesc' => 'Tùy chỉnh số cột và cấu hình điểm ngắt',
 			'displaySettings.gridLayout' => 'Bố cục lưới',
+			_ => null,
+		} ?? switch (path) {
 			'displaySettings.navigationOrderSettings' => 'Cài đặt thứ tự điều hướng',
 			'displaySettings.customNavigationOrder' => 'Thứ tự điều hướng tùy chỉnh',
 			'displaySettings.customNavigationOrderDesc' => 'Điều chỉnh thứ tự hiển thị của các trang trong thanh điều hướng dưới và thanh bên',
@@ -7526,8 +7544,6 @@ extension on TranslationsVi {
 			'layoutSettings.descriptionContent' => 'Cấu hình tại đây quyết định số cột hiển thị trong trang danh sách video và thư viện. Có thể chọn chế độ tự động để hệ thống tự điều chỉnh theo chiều rộng màn hình, hoặc chọn chế độ thủ công để cố định số cột.',
 			'layoutSettings.layoutMode' => 'Chế độ bố cục',
 			'layoutSettings.reset' => 'Đặt lại',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.autoMode' => 'Chế độ tự động',
 			'layoutSettings.autoModeDesc' => 'Tự động điều chỉnh theo chiều rộng màn hình',
 			'layoutSettings.manualMode' => 'Chế độ thủ công',
@@ -8032,6 +8048,8 @@ extension on TranslationsVi {
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => 'Hiện tại ${currentSite} · Nhấn để chuyển sang ${nextSite}',
 			'siteMode.dialogTitle' => 'Chuyển chế độ trang',
 			'siteMode.dialogDescription' => 'Việc chuyển đổi sẽ làm mới toàn bộ ứng dụng và đặt lại các danh sách cùng trạng thái trang đã tải trước đó.',
+			_ => null,
+		} ?? switch (path) {
 			'siteMode.chooseLinkTargetTitle' => 'Chọn trang đích',
 			'siteMode.chooseLinkTargetDescription' => 'Liên kết này không bao gồm tên miền. Vui lòng chọn mở trong Main hay AI.',
 			'siteMode.chooseLinkTargetHint' => 'Sau khi mở, trang này và các yêu cầu chi tiết tiếp theo sẽ tiếp tục dùng trang đã chọn.',
@@ -8040,8 +8058,6 @@ extension on TranslationsVi {
 			'siteMode.confirmUsing' => ({required Object site}) => 'Sau khi xác nhận, các yêu cầu tiếp theo sẽ dùng chế độ ${site}.',
 			'siteMode.switched' => ({required Object site}) => 'Đã chuyển sang ${site}. Ứng dụng đã được làm mới.',
 			'savedSearchConfig.title' => 'Bộ lọc đã lưu',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.empty' => 'Chưa có bộ lọc đã lưu',
 			'savedSearchConfig.saveTooltip' => 'Lưu bộ lọc hiện tại',
 			'savedSearchConfig.namePromptTitle' => 'Lưu bộ lọc',
@@ -8546,6 +8562,8 @@ extension on TranslationsVi {
 			'ai.taskSignature' => 'Chữ ký',
 			'ai.taskAuto' => 'Tự động',
 			'ai.usage' => 'Mức sử dụng',
+			_ => null,
+		} ?? switch (path) {
 			'ai.usageCalls' => 'Lượt gọi',
 			'ai.usageTokens' => 'Số token',
 			'ai.usageFailures' => 'Thất bại',
@@ -8554,8 +8572,6 @@ extension on TranslationsVi {
 			'ai.openSettings' => 'Mở cài đặt AI',
 			'ai.notConfigured' => 'Chưa định cấu hình',
 			'ai.searchTitle' => 'Tìm kiếm AI',
-			_ => null,
-		} ?? switch (path) {
 			'ai.searchHint' => 'Mô tả nội dung bạn muốn tìm; AI sẽ điền các từ khóa tìm kiếm và bộ lọc.',
 			'ai.searchPlaceholder' => 'vd: MMD mới nhất có hơn 10k lượt xem',
 			'ai.searchApply' => 'Tìm kiếm bằng các điều kiện này',

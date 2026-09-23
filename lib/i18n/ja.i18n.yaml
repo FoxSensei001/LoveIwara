@@ -1087,7 +1087,7 @@ settings:
   # コンテンツブロック
   blockSettings:
     title: コンテンツブロック
-    subtitle: タイトルがキーワードや正規表現に一致する、またはブロックしたユーザーの投稿を自動的に非表示にします。判定はすべて端末内で行われ、アップロードされません。
+    subtitle: タイトルがキーワードや正規表現に一致する、ブロックしたタグが付いている、またはブロックしたユーザーの投稿を自動的に非表示にします。判定はすべて端末内で行われ、アップロードされません。
     blocked: ブロック済み
     reveal: 表示
     reblock: 再ブロック
@@ -1096,6 +1096,7 @@ settings:
     reasonKeyword: 'タイトルに「${value}」を含む'
     reasonRegex: 'タイトルが正規表現「${value}」に一致'
     reasonUser: ブロックしたユーザー
+    reasonTag: 'タグ「${value}」が付いています'
     addRule: ルールを追加
     editRule: ルールを編集
     deleteRule: ルールを削除
@@ -1103,6 +1104,7 @@ settings:
     keyword: キーワード
     regex: 正規表現
     userId: ユーザー
+    tag: タグ
     value: 一致させる内容
     caseSensitive: 大文字小文字を区別
     regexHint: 例 予告|特典
@@ -1114,6 +1116,12 @@ settings:
     blockUserConfirm: '「${name}」をブロックしますか？その動画とギャラリーは一覧と検索で非表示になります。'
     userBlocked: ユーザーをブロックしました
     userUnblocked: ブロックを解除しました
+    selectTags: タグを選択
+    tagRequired: タグを 1 つ以上選択してください
+    blockTag: このタグをローカルでブロック
+    unblockTag: このタグのブロックを解除
+    tagBlocked: タグをブロックしました
+    tagUnblocked: タグのブロックを解除しました
     exportRules: エクスポート
     importRules: インポート
     importExport: インポート / エクスポート

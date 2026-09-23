@@ -2,7 +2,9 @@
 /// - [keyword]：对视频/图库标题进行包含匹配（可选区分大小写）。
 /// - [regex]：对标题进行正则匹配（可选区分大小写）。
 /// - [userId]：按作者用户 ID 精确屏蔽。
-enum BlockRuleType { keyword, regex, userId }
+/// - [tag]：按 Iwara 标签 id（原始 key，如 `3d_custom_girl`）精确屏蔽，
+///   卡片带有该标签即命中。
+enum BlockRuleType { keyword, regex, userId, tag }
 
 extension BlockRuleTypeX on BlockRuleType {
   String get storageValue {
@@ -13,6 +15,8 @@ extension BlockRuleTypeX on BlockRuleType {
         return 'regex';
       case BlockRuleType.userId:
         return 'userId';
+      case BlockRuleType.tag:
+        return 'tag';
     }
   }
 
@@ -22,6 +26,8 @@ extension BlockRuleTypeX on BlockRuleType {
         return BlockRuleType.regex;
       case 'userId':
         return BlockRuleType.userId;
+      case 'tag':
+        return BlockRuleType.tag;
       case 'keyword':
       default:
         return BlockRuleType.keyword;
@@ -35,7 +41,7 @@ class BlockRule {
   final String id;
   final BlockRuleType type;
 
-  /// 规则值：关键词文本 / 正则表达式 / 用户 ID。
+  /// 规则值：关键词文本 / 正则表达式 / 用户 ID / 标签 id。
   final String value;
 
   /// 可选展示名。userId 规则用于存用户名，便于设置页展示。

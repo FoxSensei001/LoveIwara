@@ -8325,8 +8325,8 @@ class TranslationsSettingsBlockSettingsEn {
 	/// en: 'Content Block'
 	String get title => 'Content Block';
 
-	/// en: 'Automatically hide videos and galleries whose title matches a keyword or pattern, or that come from a blocked user. All matching happens on your device — nothing is uploaded.'
-	String get subtitle => 'Automatically hide videos and galleries whose title matches a keyword or pattern, or that come from a blocked user. All matching happens on your device — nothing is uploaded.';
+	/// en: 'Automatically hide videos and galleries whose title matches a keyword or pattern, that carry a blocked tag, or that come from a blocked user. All matching happens on your device — nothing is uploaded.'
+	String get subtitle => 'Automatically hide videos and galleries whose title matches a keyword or pattern, that carry a blocked tag, or that come from a blocked user. All matching happens on your device — nothing is uploaded.';
 
 	/// en: 'Blocked'
 	String get blocked => 'Blocked';
@@ -8352,6 +8352,9 @@ class TranslationsSettingsBlockSettingsEn {
 	/// en: 'From a blocked user'
 	String get reasonUser => 'From a blocked user';
 
+	/// en: 'Tagged "${value}"'
+	String reasonTag({required Object value}) => 'Tagged "${value}"';
+
 	/// en: 'Add rule'
 	String get addRule => 'Add rule';
 
@@ -8372,6 +8375,9 @@ class TranslationsSettingsBlockSettingsEn {
 
 	/// en: 'User'
 	String get userId => 'User';
+
+	/// en: 'Tag'
+	String get tag => 'Tag';
 
 	/// en: 'Text to match'
 	String get value => 'Text to match';
@@ -8405,6 +8411,24 @@ class TranslationsSettingsBlockSettingsEn {
 
 	/// en: 'User unblocked'
 	String get userUnblocked => 'User unblocked';
+
+	/// en: 'Select tags'
+	String get selectTags => 'Select tags';
+
+	/// en: 'Select at least one tag'
+	String get tagRequired => 'Select at least one tag';
+
+	/// en: 'Block this tag locally'
+	String get blockTag => 'Block this tag locally';
+
+	/// en: 'Unblock this tag'
+	String get unblockTag => 'Unblock this tag';
+
+	/// en: 'Tag blocked'
+	String get tagBlocked => 'Tag blocked';
+
+	/// en: 'Tag unblocked'
+	String get tagUnblocked => 'Tag unblocked';
 
 	/// en: 'Export'
 	String get exportRules => 'Export';
@@ -13392,7 +13416,7 @@ extension on Translations {
 			'settings.gallerySettings.defaultViewerQuality' => 'Default viewer quality',
 			'settings.gallerySettings.defaultViewerQualityDesc' => 'Choose which image quality to show by default when opening the gallery viewer.',
 			'settings.blockSettings.title' => 'Content Block',
-			'settings.blockSettings.subtitle' => 'Automatically hide videos and galleries whose title matches a keyword or pattern, or that come from a blocked user. All matching happens on your device — nothing is uploaded.',
+			'settings.blockSettings.subtitle' => 'Automatically hide videos and galleries whose title matches a keyword or pattern, that carry a blocked tag, or that come from a blocked user. All matching happens on your device — nothing is uploaded.',
 			'settings.blockSettings.blocked' => 'Blocked',
 			'settings.blockSettings.reveal' => 'Show',
 			'settings.blockSettings.reblock' => 'Block again',
@@ -13401,6 +13425,7 @@ extension on Translations {
 			'settings.blockSettings.reasonKeyword' => ({required Object value}) => 'Title contains "${value}"',
 			'settings.blockSettings.reasonRegex' => ({required Object value}) => 'Title matches "${value}"',
 			'settings.blockSettings.reasonUser' => 'From a blocked user',
+			'settings.blockSettings.reasonTag' => ({required Object value}) => 'Tagged "${value}"',
 			'settings.blockSettings.addRule' => 'Add rule',
 			'settings.blockSettings.editRule' => 'Edit rule',
 			'settings.blockSettings.deleteRule' => 'Delete rule',
@@ -13408,6 +13433,7 @@ extension on Translations {
 			'settings.blockSettings.keyword' => 'Keyword',
 			'settings.blockSettings.regex' => 'Regex',
 			'settings.blockSettings.userId' => 'User',
+			'settings.blockSettings.tag' => 'Tag',
 			'settings.blockSettings.value' => 'Text to match',
 			'settings.blockSettings.caseSensitive' => 'Case sensitive',
 			'settings.blockSettings.regexHint' => 'e.g. trailer|teaser',
@@ -13419,6 +13445,12 @@ extension on Translations {
 			'settings.blockSettings.blockUserConfirm' => ({required Object name}) => 'Block "${name}"? Their videos and galleries will be hidden from lists and search.',
 			'settings.blockSettings.userBlocked' => 'User blocked',
 			'settings.blockSettings.userUnblocked' => 'User unblocked',
+			'settings.blockSettings.selectTags' => 'Select tags',
+			'settings.blockSettings.tagRequired' => 'Select at least one tag',
+			'settings.blockSettings.blockTag' => 'Block this tag locally',
+			'settings.blockSettings.unblockTag' => 'Unblock this tag',
+			'settings.blockSettings.tagBlocked' => 'Tag blocked',
+			'settings.blockSettings.tagUnblocked' => 'Tag unblocked',
 			'settings.blockSettings.exportRules' => 'Export',
 			'settings.blockSettings.importRules' => 'Import',
 			'settings.blockSettings.importExport' => 'Import / Export',
@@ -13879,6 +13911,8 @@ extension on Translations {
 			'videoDetail.gestureGuide.quest.resizeHint' => 'Works on the app window, control panel and screen. The app window changes width and height; screens keep their aspect ratio.',
 			'videoDetail.gestureGuide.quest.navigationTitle' => 'Go back and open settings',
 			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y goes back one level: close a popup or return to the panel home, hide the panel, then return to the app. The left Menu button opens spatial settings.',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.navigationHint' => 'The right Meta button belongs to the system. System recenter brings the view back in front while preserving screen size and distance.',
 			'videoDetail.gestureGuide.quest.handsTitle' => 'Use your hands',
 			'videoDetail.gestureGuide.quest.handsBody' => 'With hand tracking enabled, aim the system ray at a button, pinch your thumb and index finger, then release. Use the panel for playback, seeking and gallery navigation.',
@@ -13887,8 +13921,6 @@ extension on Translations {
 			'videoDetail.videoPlayer' => 'Video Player',
 			'videoDetail.videoPlayerInfo' => 'Video Player Info',
 			'videoDetail.moreSettings' => 'More Settings',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.videoPlayerFeatureInfo' => 'Video Player Feature Info',
 			'videoDetail.autoRewind' => 'Auto Rewind',
 			'videoDetail.rewindAndFastForward' => 'Rewind and Fast Forward',
@@ -14393,6 +14425,8 @@ extension on Translations {
 			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
 			'download.relocation.alreadyRunning' => 'Another move is already in progress',
 			'download.relocation.destination' => 'Destination',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.statMove' => 'To move',
 			'download.relocation.statSkip' => 'Skipped',
 			'download.relocation.statRenamed' => 'Renamed',
@@ -14401,8 +14435,6 @@ extension on Translations {
 			'download.relocation.statLeftover' => 'Left behind',
 			'download.relocation.sectionMove' => 'Will be moved',
 			'download.relocation.sectionSkip' => 'Will be skipped',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.sectionMoved' => 'Moved',
 			'download.relocation.sectionFailed' => 'Not moved (left where it was)',
 			'download.relocation.sectionLeftover' => 'Old folders not fully removed',
@@ -14907,6 +14939,8 @@ extension on Translations {
 			'displaySettings.layoutSettings' => 'Layout Settings',
 			'displaySettings.layoutSettingsDesc' => 'Customize column count and breakpoint configuration',
 			'displaySettings.gridLayout' => 'Grid Layout',
+			_ => null,
+		} ?? switch (path) {
 			'displaySettings.navigationOrderSettings' => 'Navigation Order Settings',
 			'displaySettings.customNavigationOrder' => 'Custom Navigation Order',
 			'displaySettings.customNavigationOrderDesc' => 'Adjust the display order of pages in the bottom navigation bar and sidebar',
@@ -14915,8 +14949,6 @@ extension on Translations {
 			'layoutSettings.descriptionContent' => 'The configuration here will determine the number of columns displayed in video and gallery list pages. You can choose auto mode to let the system automatically adjust based on screen width, or choose manual mode to fix the column count.',
 			'layoutSettings.layoutMode' => 'Layout Mode',
 			'layoutSettings.reset' => 'Reset',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.autoMode' => 'Auto Mode',
 			'layoutSettings.autoModeDesc' => 'Automatically adjust based on screen width',
 			'layoutSettings.manualMode' => 'Manual Mode',
@@ -15421,6 +15453,8 @@ extension on Translations {
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => 'Current ${currentSite} · Tap to switch to ${nextSite}',
 			'siteMode.dialogTitle' => 'Switch Site Mode',
 			'siteMode.dialogDescription' => 'Switching will refresh the entire app and reset previously loaded lists and page state.',
+			_ => null,
+		} ?? switch (path) {
 			'siteMode.chooseLinkTargetTitle' => 'Choose Target Site',
 			'siteMode.chooseLinkTargetDescription' => 'This link does not include a domain. Please choose whether to open it in Main or AI.',
 			'siteMode.chooseLinkTargetHint' => 'Once opened, this page and its follow-up detail requests will continue using the selected site.',
@@ -15429,8 +15463,6 @@ extension on Translations {
 			'siteMode.confirmUsing' => ({required Object site}) => 'After confirming, future requests will use ${site} mode.',
 			'siteMode.switched' => ({required Object site}) => 'Switched to ${site}. The app has been refreshed.',
 			'savedSearchConfig.title' => 'Saved Filters',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.empty' => 'No saved filters yet',
 			'savedSearchConfig.saveTooltip' => 'Save current filter',
 			'savedSearchConfig.namePromptTitle' => 'Save Filter',
@@ -15935,6 +15967,8 @@ extension on Translations {
 			'ai.taskSignature' => 'Signature',
 			'ai.taskAuto' => 'Automatic',
 			'ai.usage' => 'Usage',
+			_ => null,
+		} ?? switch (path) {
 			'ai.usageCalls' => 'Calls',
 			'ai.usageTokens' => 'Tokens',
 			'ai.usageFailures' => 'Failures',
@@ -15943,8 +15977,6 @@ extension on Translations {
 			'ai.openSettings' => 'Open AI settings',
 			'ai.notConfigured' => 'Not configured',
 			'ai.searchTitle' => 'AI search',
-			_ => null,
-		} ?? switch (path) {
 			'ai.searchHint' => 'Describe what you are looking for; AI fills in the search terms and filters.',
 			'ai.searchPlaceholder' => 'e.g. recent MMD with over 10k views',
 			'ai.searchApply' => 'Search with these',

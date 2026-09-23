@@ -1087,7 +1087,7 @@ settings:
   # 內容封鎖
   blockSettings:
     title: 內容封鎖
-    subtitle: 當影片或圖庫的標題命中關鍵字或正規，或來自被封鎖的使用者時，自動隱藏。所有比對都在本機完成，不會上傳。
+    subtitle: 當影片或圖庫的標題命中關鍵字或正規、帶有被封鎖的標籤，或來自被封鎖的使用者時，自動隱藏。所有比對都在本機完成，不會上傳。
     blocked: 已封鎖
     reveal: 顯示
     reblock: 重新封鎖
@@ -1096,6 +1096,7 @@ settings:
     reasonKeyword: '標題包含「${value}」'
     reasonRegex: '標題符合正規「${value}」'
     reasonUser: 來自已封鎖的使用者
+    reasonTag: '帶有標籤「${value}」'
     addRule: 新增規則
     editRule: 編輯規則
     deleteRule: 刪除規則
@@ -1103,6 +1104,7 @@ settings:
     keyword: 關鍵字
     regex: 正規
     userId: 使用者
+    tag: 標籤
     value: 要比對的內容
     caseSensitive: 區分大小寫
     regexHint: 例如 預告|花絮
@@ -1114,6 +1116,12 @@ settings:
     blockUserConfirm: '確定封鎖「${name}」嗎？TA 的影片和圖庫會在清單和搜尋中被隱藏。'
     userBlocked: 已封鎖該使用者
     userUnblocked: 已取消封鎖
+    selectTags: 選擇標籤
+    tagRequired: 請至少選擇一個標籤
+    blockTag: 本機封鎖此標籤
+    unblockTag: 取消封鎖此標籤
+    tagBlocked: 已封鎖該標籤
+    tagUnblocked: 已取消封鎖該標籤
     exportRules: 匯出
     importRules: 匯入
     importExport: 匯入 / 匯出

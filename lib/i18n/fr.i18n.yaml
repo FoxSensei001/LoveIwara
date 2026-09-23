@@ -1086,7 +1086,7 @@ settings:
   # Content blocking
   blockSettings:
     title: Blocage de contenu
-    subtitle: Masquer automatiquement les vidéos et galeries dont le titre correspond à un mot-clé ou à un motif, ou qui proviennent d'un utilisateur bloqué. Tout le filtrage a lieu sur votre appareil — rien n'est envoyé.
+    subtitle: Masquer automatiquement les vidéos et galeries dont le titre correspond à un mot-clé ou à un motif, qui portent un tag bloqué ou qui proviennent d'un utilisateur bloqué. Tout le filtrage a lieu sur votre appareil — rien n'est envoyé.
     blocked: Bloqué
     reveal: Afficher
     reblock: Bloquer à nouveau
@@ -1095,6 +1095,7 @@ settings:
     reasonKeyword: 'Le titre contient « ${value} »'
     reasonRegex: 'Le titre correspond à « ${value} »'
     reasonUser: D'un utilisateur bloqué
+    reasonTag: 'Avec le tag « ${value} »'
     addRule: Ajouter une règle
     editRule: Modifier la règle
     deleteRule: Supprimer la règle
@@ -1102,6 +1103,7 @@ settings:
     keyword: Mot-clé
     regex: Regex
     userId: Utilisateur
+    tag: Tag
     value: Texte à faire correspondre
     caseSensitive: Sensible à la casse
     regexHint: ex. trailer|teaser
@@ -1113,6 +1115,12 @@ settings:
     blockUserConfirm: 'Bloquer « ${name} » ? Ses vidéos et galeries seront masquées des listes et de la recherche.'
     userBlocked: Utilisateur bloqué
     userUnblocked: Utilisateur débloqué
+    selectTags: Choisir des tags
+    tagRequired: Choisissez au moins un tag
+    blockTag: Bloquer ce tag localement
+    unblockTag: Débloquer ce tag
+    tagBlocked: Tag bloqué
+    tagUnblocked: Tag débloqué
     exportRules: Exporter
     importRules: Importer
     importExport: Importer / Exporter

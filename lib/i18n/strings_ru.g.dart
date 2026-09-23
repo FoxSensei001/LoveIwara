@@ -3273,7 +3273,7 @@ class _TranslationsSettingsBlockSettingsRu extends TranslationsSettingsBlockSett
 
 	// Translations
 	@override String get title => 'Блокировка контента';
-	@override String get subtitle => 'Автоматически скрывать видео и галереи по ключевым словам в заголовке или от заблокированных авторов. Фильтрация работает локально на устройстве.';
+	@override String get subtitle => 'Автоматически скрывать видео и галереи по ключевым словам в заголовке, с заблокированными тегами или от заблокированных авторов. Фильтрация работает локально на устройстве.';
 	@override String get blocked => 'Заблокировано';
 	@override String get reveal => 'Показать';
 	@override String get reblock => 'Заблокировать снова';
@@ -3282,6 +3282,7 @@ class _TranslationsSettingsBlockSettingsRu extends TranslationsSettingsBlockSett
 	@override String reasonKeyword({required Object value}) => 'Заголовок содержит «${value}»';
 	@override String reasonRegex({required Object value}) => 'Заголовок соответствует «${value}»';
 	@override String get reasonUser => 'От заблокированного автора';
+	@override String reasonTag({required Object value}) => 'С тегом «${value}»';
 	@override String get addRule => 'Добавить правило';
 	@override String get editRule => 'Изменить правило';
 	@override String get deleteRule => 'Удалить правило';
@@ -3289,6 +3290,7 @@ class _TranslationsSettingsBlockSettingsRu extends TranslationsSettingsBlockSett
 	@override String get keyword => 'Ключевое слово';
 	@override String get regex => 'Регулярное выражение';
 	@override String get userId => 'Пользователь';
+	@override String get tag => 'Тег';
 	@override String get value => 'Текст для совпадения';
 	@override String get caseSensitive => 'С учетом регистра';
 	@override String get regexHint => 'напр. trailer|teaser';
@@ -3300,6 +3302,12 @@ class _TranslationsSettingsBlockSettingsRu extends TranslationsSettingsBlockSett
 	@override String blockUserConfirm({required Object name}) => 'Заблокировать «${name}»? Публикации автора будут скрыты из списков и поиска.';
 	@override String get userBlocked => 'Пользователь заблокирован';
 	@override String get userUnblocked => 'Пользователь разблокирован';
+	@override String get selectTags => 'Выбрать теги';
+	@override String get tagRequired => 'Выберите хотя бы один тег';
+	@override String get blockTag => 'Заблокировать тег локально';
+	@override String get unblockTag => 'Разблокировать тег';
+	@override String get tagBlocked => 'Тег заблокирован';
+	@override String get tagUnblocked => 'Тег разблокирован';
 	@override String get exportRules => 'Экспорт';
 	@override String get importRules => 'Импорт';
 	@override String get importExport => 'Импорт / Экспорт';
@@ -6003,7 +6011,7 @@ extension on TranslationsRu {
 			'settings.gallerySettings.defaultViewerQuality' => 'Качество при открытии',
 			'settings.gallerySettings.defaultViewerQualityDesc' => 'Качество изображений по умолчанию при открытии галереи.',
 			'settings.blockSettings.title' => 'Блокировка контента',
-			'settings.blockSettings.subtitle' => 'Автоматически скрывать видео и галереи по ключевым словам в заголовке или от заблокированных авторов. Фильтрация работает локально на устройстве.',
+			'settings.blockSettings.subtitle' => 'Автоматически скрывать видео и галереи по ключевым словам в заголовке, с заблокированными тегами или от заблокированных авторов. Фильтрация работает локально на устройстве.',
 			'settings.blockSettings.blocked' => 'Заблокировано',
 			'settings.blockSettings.reveal' => 'Показать',
 			'settings.blockSettings.reblock' => 'Заблокировать снова',
@@ -6012,6 +6020,7 @@ extension on TranslationsRu {
 			'settings.blockSettings.reasonKeyword' => ({required Object value}) => 'Заголовок содержит «${value}»',
 			'settings.blockSettings.reasonRegex' => ({required Object value}) => 'Заголовок соответствует «${value}»',
 			'settings.blockSettings.reasonUser' => 'От заблокированного автора',
+			'settings.blockSettings.reasonTag' => ({required Object value}) => 'С тегом «${value}»',
 			'settings.blockSettings.addRule' => 'Добавить правило',
 			'settings.blockSettings.editRule' => 'Изменить правило',
 			'settings.blockSettings.deleteRule' => 'Удалить правило',
@@ -6019,6 +6028,7 @@ extension on TranslationsRu {
 			'settings.blockSettings.keyword' => 'Ключевое слово',
 			'settings.blockSettings.regex' => 'Регулярное выражение',
 			'settings.blockSettings.userId' => 'Пользователь',
+			'settings.blockSettings.tag' => 'Тег',
 			'settings.blockSettings.value' => 'Текст для совпадения',
 			'settings.blockSettings.caseSensitive' => 'С учетом регистра',
 			'settings.blockSettings.regexHint' => 'напр. trailer|teaser',
@@ -6030,6 +6040,12 @@ extension on TranslationsRu {
 			'settings.blockSettings.blockUserConfirm' => ({required Object name}) => 'Заблокировать «${name}»? Публикации автора будут скрыты из списков и поиска.',
 			'settings.blockSettings.userBlocked' => 'Пользователь заблокирован',
 			'settings.blockSettings.userUnblocked' => 'Пользователь разблокирован',
+			'settings.blockSettings.selectTags' => 'Выбрать теги',
+			'settings.blockSettings.tagRequired' => 'Выберите хотя бы один тег',
+			'settings.blockSettings.blockTag' => 'Заблокировать тег локально',
+			'settings.blockSettings.unblockTag' => 'Разблокировать тег',
+			'settings.blockSettings.tagBlocked' => 'Тег заблокирован',
+			'settings.blockSettings.tagUnblocked' => 'Тег разблокирован',
 			'settings.blockSettings.exportRules' => 'Экспорт',
 			'settings.blockSettings.importRules' => 'Импорт',
 			'settings.blockSettings.importExport' => 'Импорт / Экспорт',
@@ -6490,6 +6506,8 @@ extension on TranslationsRu {
 			'videoDetail.gestureGuide.quest.resizeHint' => 'Работает для окна приложения, панели управления и экрана. Окно меняет ширину и высоту; экран сохраняет пропорции.',
 			'videoDetail.gestureGuide.quest.navigationTitle' => 'Назад и открытие настроек',
 			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y возвращает на шаг назад: закрывает всплывающее окно, скрывает панель и возвращает в приложение. Левая кнопка меню открывает настройки пространства.',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.navigationHint' => 'Правая кнопка Meta зарезервирована системой. Системное центрирование возвращает экран перед вами с сохранением размера и расстояния.',
 			'videoDetail.gestureGuide.quest.handsTitle' => 'Управление руками',
 			'videoDetail.gestureGuide.quest.handsBody' => 'При включенном отслеживании рук наведите системный луч на кнопку, сомкните большой и указательный пальцы (щипок) и разомкните. Панель служит для воспроизведения, перемотки и галереи.',
@@ -6498,8 +6516,6 @@ extension on TranslationsRu {
 			'videoDetail.videoPlayer' => 'Видеоплеер',
 			'videoDetail.videoPlayerInfo' => 'О видеоплеере',
 			'videoDetail.moreSettings' => 'Дополнительные настройки',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.videoPlayerFeatureInfo' => 'О возможностях плеера',
 			'videoDetail.autoRewind' => 'Автоперемотка',
 			'videoDetail.rewindAndFastForward' => 'Перемотка назад и вперед',
@@ -7004,6 +7020,8 @@ extension on TranslationsRu {
 			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
 			'download.relocation.alreadyRunning' => 'Another move is already in progress',
 			'download.relocation.destination' => 'Destination',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.statMove' => 'To move',
 			'download.relocation.statSkip' => 'Skipped',
 			'download.relocation.statRenamed' => 'Renamed',
@@ -7012,8 +7030,6 @@ extension on TranslationsRu {
 			'download.relocation.statLeftover' => 'Left behind',
 			'download.relocation.sectionMove' => 'Will be moved',
 			'download.relocation.sectionSkip' => 'Will be skipped',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.sectionMoved' => 'Moved',
 			'download.relocation.sectionFailed' => 'Not moved (left where it was)',
 			'download.relocation.sectionLeftover' => 'Old folders not fully removed',
@@ -7518,6 +7534,8 @@ extension on TranslationsRu {
 			'displaySettings.layoutSettings' => 'Настройки макета',
 			'displaySettings.layoutSettingsDesc' => 'Настройте число столбцов и точки перелома',
 			'displaySettings.gridLayout' => 'Сетка',
+			_ => null,
+		} ?? switch (path) {
 			'displaySettings.navigationOrderSettings' => 'Настройки порядка навигации',
 			'displaySettings.customNavigationOrder' => 'Свой порядок навигации',
 			'displaySettings.customNavigationOrderDesc' => 'Настройте порядок отображения страниц на нижней панели навигации и в боковом меню',
@@ -7526,8 +7544,6 @@ extension on TranslationsRu {
 			'layoutSettings.descriptionContent' => 'Настроенная здесь конфигурация определяет число столбцов на страницах списков видео и галерей. Выберите автоматический режим, чтобы система подстраивалась под ширину экрана, или ручной режим, чтобы зафиксировать число столбцов.',
 			'layoutSettings.layoutMode' => 'Режим макета',
 			'layoutSettings.reset' => 'Сбросить',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.autoMode' => 'Автоматический режим',
 			'layoutSettings.autoModeDesc' => 'Автоматически подстраивается под ширину экрана',
 			'layoutSettings.manualMode' => 'Ручной режим',
@@ -8032,6 +8048,8 @@ extension on TranslationsRu {
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => 'Текущий ${currentSite} · нажмите, чтобы переключиться на ${nextSite}',
 			'siteMode.dialogTitle' => 'Переключить режим сайта',
 			'siteMode.dialogDescription' => 'Переключение обновит всё приложение и сбросит ранее загруженные списки и состояние страниц.',
+			_ => null,
+		} ?? switch (path) {
 			'siteMode.chooseLinkTargetTitle' => 'Выберите целевой сайт',
 			'siteMode.chooseLinkTargetDescription' => 'Эта ссылка не содержит домена. Выберите, открыть её в «Основном» или «AI».',
 			'siteMode.chooseLinkTargetHint' => 'После открытия эта страница и последующие запросы деталей продолжат использовать выбранный сайт.',
@@ -8040,8 +8058,6 @@ extension on TranslationsRu {
 			'siteMode.confirmUsing' => ({required Object site}) => 'После подтверждения будущие запросы будут использовать режим ${site}.',
 			'siteMode.switched' => ({required Object site}) => 'Переключено на ${site}. Приложение обновлено.',
 			'savedSearchConfig.title' => 'Сохранённые фильтры',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.empty' => 'Сохранённых фильтров пока нет',
 			'savedSearchConfig.saveTooltip' => 'Сохранить текущий фильтр',
 			'savedSearchConfig.namePromptTitle' => 'Сохранить фильтр',
@@ -8546,6 +8562,8 @@ extension on TranslationsRu {
 			'ai.taskSignature' => 'Подпись',
 			'ai.taskAuto' => 'Автоматически',
 			'ai.usage' => 'Использование',
+			_ => null,
+		} ?? switch (path) {
 			'ai.usageCalls' => 'Вызовы',
 			'ai.usageTokens' => 'Токены',
 			'ai.usageFailures' => 'Ошибки',
@@ -8554,8 +8572,6 @@ extension on TranslationsRu {
 			'ai.openSettings' => 'Открыть настройки ИИ',
 			'ai.notConfigured' => 'Не настроено',
 			'ai.searchTitle' => 'Поиск с ИИ',
-			_ => null,
-		} ?? switch (path) {
 			'ai.searchHint' => 'Опишите, что вы ищете, и ИИ сам заполнит поисковые запросы и фильтры.',
 			'ai.searchPlaceholder' => 'Например: недавние MMD с более 10 тыс. просмотров',
 			'ai.searchApply' => 'Искать по этим условиям',

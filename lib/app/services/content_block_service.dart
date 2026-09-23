@@ -78,10 +78,18 @@ class ContentBlockService extends GetxService {
 
   // ----------------------------- 匹配 -----------------------------
 
-  /// 检查给定标题 / 作者 ID 是否命中任一启用的规则。命中返回首条 [BlockMatch]，否则 null。
-  BlockMatch? check({String? title, String? authorId}) {
+  /// 检查给定标题 / 作者 ID / 标签是否命中任一启用的规则。命中返回首条 [BlockMatch]，否则 null。
+  ///
+  /// [tagIds] 是媒体所带标签的原始 key，大小写不敏感地与标签规则比对。
+  BlockMatch? check({
+    String? title,
+    String? authorId,
+    Iterable<String>? tagIds,
+  }) {
     if (rules.isEmpty) return null;
     final normalizedTitle = title?.trim() ?? '';
+    // 只有真碰到标签规则才建集合，绝大多数卡片（没配标签规则）零开销。
+    Set<String>? tagSet;
     for (final rule in rules) {
       if (!rule.enabled) continue;
       switch (rule.type) {
@@ -101,6 +109,13 @@ class ContentBlockService extends GetxService {
         case BlockRuleType.regex:
           if (normalizedTitle.isEmpty) break;
           if (_matchRegex(normalizedTitle, rule)) {
+            return BlockMatch(rule);
+          }
+          break;
+        case BlockRuleType.tag:
+          if (tagIds == null) break;
+          tagSet ??= {for (final id in tagIds) id.toLowerCase()};
+          if (tagSet.contains(rule.value.toLowerCase())) {
             return BlockMatch(rule);
           }
           break;
@@ -224,6 +239,60 @@ class ContentBlockService extends GetxService {
   Future<void> unblockUser(String userId) async {
     rules.removeWhere(
       (r) => r.type == BlockRuleType.userId && r.value == userId,
+    );
+    await _persist();
+  }
+
+  // ----------------------------- 标签屏蔽 -----------------------------
+
+  BlockRule? _findTagRule(String tagId) {
+    final key = tagId.toLowerCase();
+    return rules.firstWhereOrNull(
+      (r) => r.type == BlockRuleType.tag && r.value.toLowerCase() == key,
+    );
+  }
+
+  bool isTagBlocked(String? tagId) {
+    if (tagId == null || tagId.isEmpty) return false;
+    return _findTagRule(tagId)?.enabled ?? false;
+  }
+
+  /// 批量屏蔽标签：已有同名规则的只确保启用，其余新增。返回新增条数。
+  Future<int> blockTags(Iterable<String> tagIds) async {
+    var added = 0;
+    var changed = false;
+    final createdAt = DateTime.now().millisecondsSinceEpoch;
+    for (final raw in tagIds) {
+      final tagId = raw.trim();
+      if (tagId.isEmpty) continue;
+      final existing = _findTagRule(tagId);
+      if (existing != null) {
+        if (!existing.enabled) {
+          final index = rules.indexWhere((r) => r.id == existing.id);
+          rules[index] = existing.copyWith(enabled: true);
+          changed = true;
+        }
+        continue;
+      }
+      rules.add(
+        BlockRule(
+          id: _genId(),
+          type: BlockRuleType.tag,
+          value: tagId,
+          createdAt: createdAt,
+        ),
+      );
+      added++;
+      changed = true;
+    }
+    if (changed) await _persist();
+    return added;
+  }
+
+  Future<void> unblockTag(String tagId) async {
+    final key = tagId.toLowerCase();
+    rules.removeWhere(
+      (r) => r.type == BlockRuleType.tag && r.value.toLowerCase() == key,
     );
     await _persist();
   }

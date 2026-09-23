@@ -8,6 +8,8 @@ import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/content_block_service.dart';
 import 'package:i_iwara/app/services/conversation_service.dart';
+import 'package:i_iwara/app/services/tag_localization_service.dart';
+import 'package:i_iwara/app/ui/pages/tag_blacklist/widgets/black_list_search_tag_dialog.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
@@ -85,6 +87,13 @@ class _BlockSettingsPageState extends State<BlockSettingsPage>
       _RuleEditorSheet(
         existing: existing,
         initialType: initialType,
+        onSubmitTags: (tagIds) async {
+          await _service.blockTags(tagIds);
+          final targetIndex = BlockRuleType.values.indexOf(BlockRuleType.tag);
+          if (_tabController.index != targetIndex) {
+            _tabController.animateTo(targetIndex);
+          }
+        },
         onSubmit: (rule) async {
           if (existing == null) {
             await _service.addRule(
@@ -449,6 +458,8 @@ String _typeLabel(BlockRuleType type) {
       return t.regex;
     case BlockRuleType.userId:
       return t.userId;
+    case BlockRuleType.tag:
+      return t.tag;
   }
 }
 
@@ -460,6 +471,8 @@ IconData _typeIcon(BlockRuleType type) {
       return Icons.code;
     case BlockRuleType.userId:
       return Icons.person_off_outlined;
+    case BlockRuleType.tag:
+      return Icons.label_off_outlined;
   }
 }
 
@@ -481,12 +494,18 @@ class _RuleTile extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final t = slang.t.settings.blockSettings;
-    final titleText = rule.type == BlockRuleType.userId
-        ? (rule.label?.isNotEmpty == true ? rule.label! : rule.value)
-        : rule.value;
+    final titleText = switch (rule.type) {
+      BlockRuleType.userId =>
+        rule.label?.isNotEmpty == true ? rule.label! : rule.value,
+      BlockRuleType.tag => TagLocalizationService.displayName(rule.value),
+      _ => rule.value,
+    };
     final subtitleParts = <String>[];
     if (rule.type == BlockRuleType.userId) {
       subtitleParts.add(rule.value);
+    } else if (rule.type == BlockRuleType.tag) {
+      // 有译名时补一行原始 key，便于和网页端对照
+      if (titleText != rule.value) subtitleParts.add(rule.value);
     } else if (rule.caseSensitive) {
       subtitleParts.add(t.caseSensitive);
     }
@@ -631,10 +650,15 @@ class _RuleEditorSheet extends StatefulWidget {
   final BlockRuleType? initialType;
   final Future<void> Function(BlockRule rule) onSubmit;
 
+  /// 新增标签规则：一次可选多个标签，交给服务端去重后批量写入。
+  /// 编辑已有标签规则仍走 [onSubmit]（只替换这一条的标签）。
+  final Future<void> Function(List<String> tagIds) onSubmitTags;
+
   const _RuleEditorSheet({
     this.existing,
     this.initialType,
     required this.onSubmit,
+    required this.onSubmitTags,
   });
 
   @override
@@ -652,6 +676,9 @@ class _RuleEditorSheetState extends State<_RuleEditorSheet> {
   String? _selectedUserName;
   String? _selectedUserAvatarUrl;
 
+  // tag 类型选中的标签 id（新增可多选；编辑已有规则时只保留一个）
+  final List<String> _selectedTagIds = [];
+
   ContentBlockService get _service => Get.find<ContentBlockService>();
 
   @override
@@ -660,7 +687,9 @@ class _RuleEditorSheetState extends State<_RuleEditorSheet> {
     _type =
         widget.existing?.type ?? widget.initialType ?? BlockRuleType.keyword;
     _valueController = TextEditingController(
-      text: widget.existing?.type == BlockRuleType.userId
+      text:
+          widget.existing?.type == BlockRuleType.userId ||
+              widget.existing?.type == BlockRuleType.tag
           ? ''
           : widget.existing?.value ?? '',
     );
@@ -668,6 +697,9 @@ class _RuleEditorSheetState extends State<_RuleEditorSheet> {
     if (widget.existing?.type == BlockRuleType.userId) {
       _selectedUserId = widget.existing!.value;
       _selectedUserName = widget.existing!.label;
+    }
+    if (widget.existing?.type == BlockRuleType.tag) {
+      _selectedTagIds.add(widget.existing!.value);
     }
   }
 
@@ -885,6 +917,99 @@ class _RuleEditorSheetState extends State<_RuleEditorSheet> {
     );
   }
 
+  bool get _isEditingTag => widget.existing?.type == BlockRuleType.tag;
+
+  void _openTagSearch() {
+    showAppDialog(
+      BlackListTagSearchDialog(
+        onSave: (tags) async {
+          setState(() {
+            if (_isEditingTag) {
+              // 编辑单条规则：换成新选的第一个标签
+              _selectedTagIds
+                ..clear()
+                ..add(tags.first.id);
+            } else {
+              for (final tag in tags) {
+                if (!_selectedTagIds.contains(tag.id)) {
+                  _selectedTagIds.add(tag.id);
+                }
+              }
+            }
+            _error = null;
+          });
+          return true;
+        },
+      ),
+    );
+  }
+
+  /// tag 类型的取值区域：已选标签 chips + 搜索选择入口 + 校验错误提示。
+  Widget _buildTagField(
+    BuildContext context,
+    ThemeData theme,
+    slang.TranslationsSettingsBlockSettingsEn t,
+  ) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: _openTagSearch,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: _error != null
+                    ? theme.colorScheme.error
+                    : theme.dividerColor,
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.label_outline),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    t.selectTags,
+                    style: TextStyle(color: theme.hintColor),
+                  ),
+                ),
+                const Icon(Icons.search),
+              ],
+            ),
+          ),
+        ),
+        if (_selectedTagIds.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            children: [
+              for (final id in _selectedTagIds)
+                InputChip(
+                  label: Text(TagLocalizationService.displayNameWithId(id)),
+                  // 编辑单条规则时不允许删空，换标签走上面的选择入口
+                  onDeleted: _isEditingTag
+                      ? null
+                      : () => setState(() => _selectedTagIds.remove(id)),
+                ),
+            ],
+          ),
+        ],
+        if (_error != null) ...[
+          const SizedBox(height: 6),
+          Text(
+            _error!,
+            style: TextStyle(color: theme.colorScheme.error, fontSize: 12),
+          ),
+        ],
+      ],
+    );
+  }
+
   /// 关键词 / 正则类型的取值区域：文本输入框（正则带帮助入口）+ 大小写开关。
   Widget _buildValueField(
     BuildContext context,
@@ -974,6 +1099,38 @@ class _RuleEditorSheetState extends State<_RuleEditorSheet> {
       return;
     }
 
+    if (_type == BlockRuleType.tag) {
+      if (_selectedTagIds.isEmpty) {
+        setState(() => _error = t.tagRequired);
+        return;
+      }
+      final existing = widget.existing;
+      AppService.tryPop();
+      if (existing != null && existing.type == BlockRuleType.tag) {
+        widget.onSubmit(
+          existing.copyWith(value: _selectedTagIds.first, caseSensitive: false),
+        );
+      } else if (existing != null) {
+        // 把别的类型的规则改成标签规则：原规则换成首个标签，其余追加
+        // 重新构造而不是 copyWith：userId 规则的 label 存的是用户名，不能带过来
+        widget.onSubmit(
+          BlockRule(
+            id: existing.id,
+            type: BlockRuleType.tag,
+            value: _selectedTagIds.first,
+            enabled: existing.enabled,
+            createdAt: existing.createdAt,
+          ),
+        );
+        if (_selectedTagIds.length > 1) {
+          widget.onSubmitTags(_selectedTagIds.sublist(1));
+        }
+      } else {
+        widget.onSubmitTags(List.of(_selectedTagIds));
+      }
+      return;
+    }
+
     final value = _valueController.text.trim();
     if (value.isEmpty) {
       setState(() => _error = t.valueRequired);
@@ -1006,6 +1163,7 @@ class _RuleEditorSheetState extends State<_RuleEditorSheet> {
     final theme = Theme.of(context);
     final isRegex = _type == BlockRuleType.regex;
     final isUser = _type == BlockRuleType.userId;
+    final isTag = _type == BlockRuleType.tag;
     // 同时兼顾键盘与底部安全区（手势条/导航条），见 computeSheetBottomInset。
     final bottomPad = computeSheetBottomInset(context);
 
@@ -1096,6 +1254,8 @@ class _RuleEditorSheetState extends State<_RuleEditorSheet> {
                       key: ValueKey(_type),
                       child: isUser
                           ? _buildUserField(context, theme)
+                          : isTag
+                          ? _buildTagField(context, theme, t)
                           : _buildValueField(context, theme, t, isRegex),
                     ),
                   ),

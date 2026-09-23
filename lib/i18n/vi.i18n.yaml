@@ -1086,7 +1086,7 @@ settings:
   # Content blocking
   blockSettings:
     title: Chặn nội dung
-    subtitle: Tự động ẩn video và thư viện có tiêu đề khớp với từ khóa hoặc mẫu, hoặc đến từ người dùng bị chặn. Mọi quá trình khớp đều diễn ra trên thiết bị của bạn — không có gì được tải lên.
+    subtitle: Tự động ẩn video và thư viện có tiêu đề khớp với từ khóa hoặc mẫu, mang thẻ bị chặn, hoặc đến từ người dùng bị chặn. Mọi quá trình khớp đều diễn ra trên thiết bị của bạn — không có gì được tải lên.
     blocked: Đã chặn
     reveal: Hiện
     reblock: Chặn lại
@@ -1095,6 +1095,7 @@ settings:
     reasonKeyword: 'Tiêu đề chứa "${value}"'
     reasonRegex: 'Tiêu đề khớp "${value}"'
     reasonUser: Từ người dùng bị chặn
+    reasonTag: 'Có thẻ "${value}"'
     addRule: Thêm quy tắc
     editRule: Chỉnh sửa quy tắc
     deleteRule: Xóa quy tắc
@@ -1102,6 +1103,7 @@ settings:
     keyword: Từ khóa
     regex: Regex
     userId: Người dùng
+    tag: Thẻ
     value: Văn bản cần khớp
     caseSensitive: Phân biệt chữ hoa chữ thường
     regexHint: "ví dụ: trailer|hậu trường"
@@ -1113,6 +1115,12 @@ settings:
     blockUserConfirm: 'Chặn "${name}"? Video và thư viện của họ sẽ bị ẩn khỏi danh sách và tìm kiếm.'
     userBlocked: Đã chặn người dùng
     userUnblocked: Đã bỏ chặn người dùng
+    selectTags: Chọn thẻ
+    tagRequired: Hãy chọn ít nhất một thẻ
+    blockTag: Chặn thẻ này trên máy
+    unblockTag: Bỏ chặn thẻ này
+    tagBlocked: Đã chặn thẻ
+    tagUnblocked: Đã bỏ chặn thẻ
     exportRules: Xuất
     importRules: Nhập
     importExport: Nhập / Xuất

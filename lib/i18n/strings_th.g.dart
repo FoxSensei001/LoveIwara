@@ -3273,7 +3273,7 @@ class _TranslationsSettingsBlockSettingsTh extends TranslationsSettingsBlockSett
 
 	// Translations
 	@override String get title => 'การบล็อกเนื้อหา';
-	@override String get subtitle => 'ซ่อนวิดีโอและแกลเลอรีที่มีชื่อเรื่องตรงกับคำสำคัญหรือรูปแบบ หรือมาจากผู้ใช้ที่ถูกบล็อกโดยอัตโนมัติ การจับคู่ทั้งหมดเกิดขึ้นบนอุปกรณ์ของคุณ — ไม่มีการอัปโหลดข้อมูลใดๆ';
+	@override String get subtitle => 'ซ่อนวิดีโอและแกลเลอรีที่มีชื่อเรื่องตรงกับคำสำคัญหรือรูปแบบ มีแท็กที่ถูกบล็อก หรือมาจากผู้ใช้ที่ถูกบล็อกโดยอัตโนมัติ การจับคู่ทั้งหมดเกิดขึ้นบนอุปกรณ์ของคุณ — ไม่มีการอัปโหลดข้อมูลใดๆ';
 	@override String get blocked => 'บล็อกแล้ว';
 	@override String get reveal => 'แสดง';
 	@override String get reblock => 'บล็อกอีกครั้ง';
@@ -3282,6 +3282,7 @@ class _TranslationsSettingsBlockSettingsTh extends TranslationsSettingsBlockSett
 	@override String reasonKeyword({required Object value}) => 'ชื่อเรื่องประกอบด้วย "${value}"';
 	@override String reasonRegex({required Object value}) => 'ชื่อเรื่องตรงกับนิพจน์ "${value}"';
 	@override String get reasonUser => 'มาจากผู้ใช้ที่ถูกบล็อก';
+	@override String reasonTag({required Object value}) => 'มีแท็ก「${value}」';
 	@override String get addRule => 'เพิ่มกฎ';
 	@override String get editRule => 'แก้ไขกฎ';
 	@override String get deleteRule => 'ลบกฎ';
@@ -3289,6 +3290,7 @@ class _TranslationsSettingsBlockSettingsTh extends TranslationsSettingsBlockSett
 	@override String get keyword => 'คำสำคัญ';
 	@override String get regex => 'นิพจน์ทั่วไป (Regex)';
 	@override String get userId => 'ผู้ใช้';
+	@override String get tag => 'แท็ก';
 	@override String get value => 'ข้อความที่ต้องการจับคู่';
 	@override String get caseSensitive => 'ตรงตามตัวพิมพ์ใหญ่-เล็ก';
 	@override String get regexHint => 'เช่น trailer|teaser';
@@ -3300,6 +3302,12 @@ class _TranslationsSettingsBlockSettingsTh extends TranslationsSettingsBlockSett
 	@override String blockUserConfirm({required Object name}) => 'บล็อก "${name}" หรือไม่? วิดีโอและแกลเลอรีของพวกเขาจะถูกซ่อนจากรายการและการค้นหา';
 	@override String get userBlocked => 'บล็อกผู้ใช้แล้ว';
 	@override String get userUnblocked => 'เลิกบล็อกผู้ใช้แล้ว';
+	@override String get selectTags => 'เลือกแท็ก';
+	@override String get tagRequired => 'เลือกแท็กอย่างน้อยหนึ่งรายการ';
+	@override String get blockTag => 'บล็อกแท็กนี้ในเครื่อง';
+	@override String get unblockTag => 'เลิกบล็อกแท็กนี้';
+	@override String get tagBlocked => 'บล็อกแท็กแล้ว';
+	@override String get tagUnblocked => 'เลิกบล็อกแท็กแล้ว';
 	@override String get exportRules => 'ส่งออก';
 	@override String get importRules => 'นำเข้า';
 	@override String get importExport => 'นำเข้า / ส่งออก';
@@ -6003,7 +6011,7 @@ extension on TranslationsTh {
 			'settings.gallerySettings.defaultViewerQuality' => 'คุณภาพเริ่มต้นของโปรแกรมดู',
 			'settings.gallerySettings.defaultViewerQualityDesc' => 'เลือกคุณภาพของรูปภาพที่จะแสดงเป็นค่าเริ่มต้นเมื่อเปิดโปรแกรมดูแกลเลอรี',
 			'settings.blockSettings.title' => 'การบล็อกเนื้อหา',
-			'settings.blockSettings.subtitle' => 'ซ่อนวิดีโอและแกลเลอรีที่มีชื่อเรื่องตรงกับคำสำคัญหรือรูปแบบ หรือมาจากผู้ใช้ที่ถูกบล็อกโดยอัตโนมัติ การจับคู่ทั้งหมดเกิดขึ้นบนอุปกรณ์ของคุณ — ไม่มีการอัปโหลดข้อมูลใดๆ',
+			'settings.blockSettings.subtitle' => 'ซ่อนวิดีโอและแกลเลอรีที่มีชื่อเรื่องตรงกับคำสำคัญหรือรูปแบบ มีแท็กที่ถูกบล็อก หรือมาจากผู้ใช้ที่ถูกบล็อกโดยอัตโนมัติ การจับคู่ทั้งหมดเกิดขึ้นบนอุปกรณ์ของคุณ — ไม่มีการอัปโหลดข้อมูลใดๆ',
 			'settings.blockSettings.blocked' => 'บล็อกแล้ว',
 			'settings.blockSettings.reveal' => 'แสดง',
 			'settings.blockSettings.reblock' => 'บล็อกอีกครั้ง',
@@ -6012,6 +6020,7 @@ extension on TranslationsTh {
 			'settings.blockSettings.reasonKeyword' => ({required Object value}) => 'ชื่อเรื่องประกอบด้วย "${value}"',
 			'settings.blockSettings.reasonRegex' => ({required Object value}) => 'ชื่อเรื่องตรงกับนิพจน์ "${value}"',
 			'settings.blockSettings.reasonUser' => 'มาจากผู้ใช้ที่ถูกบล็อก',
+			'settings.blockSettings.reasonTag' => ({required Object value}) => 'มีแท็ก「${value}」',
 			'settings.blockSettings.addRule' => 'เพิ่มกฎ',
 			'settings.blockSettings.editRule' => 'แก้ไขกฎ',
 			'settings.blockSettings.deleteRule' => 'ลบกฎ',
@@ -6019,6 +6028,7 @@ extension on TranslationsTh {
 			'settings.blockSettings.keyword' => 'คำสำคัญ',
 			'settings.blockSettings.regex' => 'นิพจน์ทั่วไป (Regex)',
 			'settings.blockSettings.userId' => 'ผู้ใช้',
+			'settings.blockSettings.tag' => 'แท็ก',
 			'settings.blockSettings.value' => 'ข้อความที่ต้องการจับคู่',
 			'settings.blockSettings.caseSensitive' => 'ตรงตามตัวพิมพ์ใหญ่-เล็ก',
 			'settings.blockSettings.regexHint' => 'เช่น trailer|teaser',
@@ -6030,6 +6040,12 @@ extension on TranslationsTh {
 			'settings.blockSettings.blockUserConfirm' => ({required Object name}) => 'บล็อก "${name}" หรือไม่? วิดีโอและแกลเลอรีของพวกเขาจะถูกซ่อนจากรายการและการค้นหา',
 			'settings.blockSettings.userBlocked' => 'บล็อกผู้ใช้แล้ว',
 			'settings.blockSettings.userUnblocked' => 'เลิกบล็อกผู้ใช้แล้ว',
+			'settings.blockSettings.selectTags' => 'เลือกแท็ก',
+			'settings.blockSettings.tagRequired' => 'เลือกแท็กอย่างน้อยหนึ่งรายการ',
+			'settings.blockSettings.blockTag' => 'บล็อกแท็กนี้ในเครื่อง',
+			'settings.blockSettings.unblockTag' => 'เลิกบล็อกแท็กนี้',
+			'settings.blockSettings.tagBlocked' => 'บล็อกแท็กแล้ว',
+			'settings.blockSettings.tagUnblocked' => 'เลิกบล็อกแท็กแล้ว',
 			'settings.blockSettings.exportRules' => 'ส่งออก',
 			'settings.blockSettings.importRules' => 'นำเข้า',
 			'settings.blockSettings.importExport' => 'นำเข้า / ส่งออก',
@@ -6490,6 +6506,8 @@ extension on TranslationsTh {
 			'videoDetail.gestureGuide.quest.resizeHint' => 'ใช้ได้กับหน้าต่างแอป แผงควบคุม และหน้าจอ หน้าต่างแอปสามารถปรับความกว้างและความสูงได้ ส่วนหน้าจอจะรักษาอัตราส่วนภาพไว้',
 			'videoDetail.gestureGuide.quest.navigationTitle' => 'ย้อนกลับและเปิดการตั้งค่า',
 			'videoDetail.gestureGuide.quest.navigationBody' => 'ปุ่ม B / Y ใช้ย้อนกลับหนึ่งระดับ: ปิดป๊อปอัปหรือกลับสู่หน้าแรกของแผงควบคุม ซ่อนแผงควบคุม แล้วกลับสู่แอป ปุ่ม Menu ด้านซ้ายเปิดการตั้งค่าเชิงพื้นที่',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.navigationHint' => 'ปุ่ม Meta ด้านขวาเป็นของระบบ การตั้งศูนย์ระบบใหม่จะนำมุมมองกลับมาอยู่ข้างหน้าโดยยังคงขนาดและระยะห่างของหน้าจอไว้',
 			'videoDetail.gestureGuide.quest.handsTitle' => 'ใช้มือของคุณ',
 			'videoDetail.gestureGuide.quest.handsBody' => 'เมื่อเปิดใช้งานการติดตามมือ ให้เล็งลำแสงของระบบไปที่ปุ่ม จีบนิ้วหัวแม่มือและนิ้วชี้เข้าหากัน แล้วปล่อย ใช้แผงควบคุมสำหรับการเล่น การเลื่อนหาตำแหน่ง และการนำทางแกลเลอรี',
@@ -6498,8 +6516,6 @@ extension on TranslationsTh {
 			'videoDetail.videoPlayer' => 'เครื่องเล่นวิดีโอ',
 			'videoDetail.videoPlayerInfo' => 'ข้อมูลเครื่องเล่นวิดีโอ',
 			'videoDetail.moreSettings' => 'การตั้งค่าเพิ่มเติม',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.videoPlayerFeatureInfo' => 'ข้อมูลฟีเจอร์ของเครื่องเล่นวิดีโอ',
 			'videoDetail.autoRewind' => 'กรอถอยหลังอัตโนมัติ',
 			'videoDetail.rewindAndFastForward' => 'ย้อนกลับและเดินหน้าอย่างเร็ว',
@@ -7004,6 +7020,8 @@ extension on TranslationsTh {
 			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
 			'download.relocation.alreadyRunning' => 'Another move is already in progress',
 			'download.relocation.destination' => 'Destination',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.statMove' => 'To move',
 			'download.relocation.statSkip' => 'Skipped',
 			'download.relocation.statRenamed' => 'Renamed',
@@ -7012,8 +7030,6 @@ extension on TranslationsTh {
 			'download.relocation.statLeftover' => 'Left behind',
 			'download.relocation.sectionMove' => 'Will be moved',
 			'download.relocation.sectionSkip' => 'Will be skipped',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.sectionMoved' => 'Moved',
 			'download.relocation.sectionFailed' => 'Not moved (left where it was)',
 			'download.relocation.sectionLeftover' => 'Old folders not fully removed',
@@ -7518,6 +7534,8 @@ extension on TranslationsTh {
 			'displaySettings.layoutSettings' => 'การตั้งค่าเลย์เอาต์',
 			'displaySettings.layoutSettingsDesc' => 'ปรับแต่งจำนวนคอลัมน์และการกำหนดค่าจุดแบ่งหน้าจอ (Breakpoint)',
 			'displaySettings.gridLayout' => 'เลย์เอาต์ตาราง',
+			_ => null,
+		} ?? switch (path) {
 			'displaySettings.navigationOrderSettings' => 'การตั้งค่าลำดับการนำทาง',
 			'displaySettings.customNavigationOrder' => 'กำหนดลำดับการนำทางเอง',
 			'displaySettings.customNavigationOrderDesc' => 'ปรับลำดับการแสดงผลของหน้าต่างๆ ในแถบนำทางด้านล่างและแถบด้านข้าง',
@@ -7526,8 +7544,6 @@ extension on TranslationsTh {
 			'layoutSettings.descriptionContent' => 'การกำหนดค่าที่นี่จะเป็นตัวกำหนดจำนวนคอลัมน์ที่แสดงในหน้ารายการวิดีโอและแกลเลอรี คุณสามารถเลือกโหมดอัตโนมัติเพื่อให้ระบบปรับตามความกว้างหน้าจอโดยอัตโนมัติ หรือเลือกโหมดกำหนดเองเพื่อกำหนดจำนวนคอลัมน์แบบคงที่',
 			'layoutSettings.layoutMode' => 'โหมดเลย์เอาต์',
 			'layoutSettings.reset' => 'รีเซ็ต',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.autoMode' => 'โหมดอัตโนมัติ',
 			'layoutSettings.autoModeDesc' => 'ปรับโดยอัตโนมัติตามความกว้างของหน้าจอ',
 			'layoutSettings.manualMode' => 'โหมดกำหนดเอง',
@@ -8032,6 +8048,8 @@ extension on TranslationsTh {
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => 'ปัจจุบัน ${currentSite} · แตะเพื่อสลับเป็น ${nextSite}',
 			'siteMode.dialogTitle' => 'สลับโหมดไซต์',
 			'siteMode.dialogDescription' => 'การสลับจะรีเฟรชทั้งแอป และรีเซ็ตรายการที่โหลดไว้ก่อนหน้ากับสถานะของหน้า',
+			_ => null,
+		} ?? switch (path) {
 			'siteMode.chooseLinkTargetTitle' => 'เลือกไซต์ปลายทาง',
 			'siteMode.chooseLinkTargetDescription' => 'ลิงก์นี้ไม่มีโดเมน โปรดเลือกว่าจะเปิดในไซต์หลักหรือ AI',
 			'siteMode.chooseLinkTargetHint' => 'เมื่อเปิดแล้ว หน้านี้และคำขอรายละเอียดที่ตามมาจะใช้ไซต์ที่เลือกต่อไป',
@@ -8040,8 +8058,6 @@ extension on TranslationsTh {
 			'siteMode.confirmUsing' => ({required Object site}) => 'หลังยืนยัน คำขอต่อๆ ไปจะใช้โหมด ${site}',
 			'siteMode.switched' => ({required Object site}) => 'สลับเป็น ${site} แล้ว แอปได้รีเฟรชเรียบร้อย',
 			'savedSearchConfig.title' => 'ตัวกรองที่บันทึกไว้',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.empty' => 'ยังไม่มีตัวกรองที่บันทึกไว้',
 			'savedSearchConfig.saveTooltip' => 'บันทึกตัวกรองปัจจุบัน',
 			'savedSearchConfig.namePromptTitle' => 'บันทึกตัวกรอง',
@@ -8546,6 +8562,8 @@ extension on TranslationsTh {
 			'ai.taskSignature' => 'ลายเซ็น',
 			'ai.taskAuto' => 'อัตโนมัติ',
 			'ai.usage' => 'การใช้งาน',
+			_ => null,
+		} ?? switch (path) {
 			'ai.usageCalls' => 'การเรียกใช้',
 			'ai.usageTokens' => 'โทเค็น',
 			'ai.usageFailures' => 'ล้มเหลว',
@@ -8554,8 +8572,6 @@ extension on TranslationsTh {
 			'ai.openSettings' => 'เปิดการตั้งค่า AI',
 			'ai.notConfigured' => 'ยังไม่ได้กำหนดค่า',
 			'ai.searchTitle' => 'ค้นหาด้วย AI',
-			_ => null,
-		} ?? switch (path) {
 			'ai.searchHint' => 'อธิบายสิ่งที่คุณกำลังค้นหา แล้ว AI จะช่วยกรอกคำค้นหาและตัวกรองให้',
 			'ai.searchPlaceholder' => 'เช่น MMD ล่าสุดที่มียอดดูมากกว่า 10,000 ครั้ง',
 			'ai.searchApply' => 'ค้นหาด้วยเงื่อนไขเหล่านี้',

@@ -162,6 +162,7 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget>
       final match = Get.find<ContentBlockService>().check(
         title: widget.video.title,
         authorId: widget.video.user?.id,
+        tagIds: widget.video.tags?.map((tag) => tag.id),
       );
       // 未被屏蔽且未经历过揭示：直接走快路径渲染普通卡片，
       // 避免为绝大多数正常卡片挂载 Stack + IgnorePointer + BlockedMediaOverlayFade
