@@ -8973,6 +8973,9 @@ class TranslationsSettingsDownloadSettingsEn {
 	/// en: 'Title'
 	String get variableTitle => 'Title';
 
+	/// en: 'Plain-text title (no symbols; for external storage)'
+	String get variableTitletext => 'Plain-text title (no symbols; for external storage)';
+
 	/// en: 'Author first-seen name (stable across renames)'
 	String get variableAuthorcache => 'Author first-seen name (stable across renames)';
 
@@ -12032,6 +12035,9 @@ class TranslationsSettingsDownloadSettingsPathTemplateEditorEn {
 	/// en: 'Time'
 	String get trayCategoryTime => 'Time';
 
+	/// en: 'Plain-text title'
+	String get chipTitletext => 'Plain-text title';
+
 	/// en: 'Author · fixed'
 	String get chipAuthorcache => 'Author · fixed';
 
@@ -13648,6 +13654,7 @@ extension on Translations {
 			'settings.downloadSettings.downloadPathSetTo' => 'Download path set to',
 			'settings.downloadSettings.setPathFailed' => 'Failed to set path',
 			'settings.downloadSettings.variableTitle' => 'Title',
+			'settings.downloadSettings.variableTitletext' => 'Plain-text title (no symbols; for external storage)',
 			'settings.downloadSettings.variableAuthorcache' => 'Author first-seen name (stable across renames)',
 			'settings.downloadSettings.variableAuthor' => 'Author name',
 			'settings.downloadSettings.variableUsername' => 'Author username',
@@ -13704,6 +13711,7 @@ extension on Translations {
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => 'Content',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => 'Author',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => 'Time',
+			'settings.downloadSettings.pathTemplateEditor.chipTitletext' => 'Plain-text title',
 			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => 'Author · fixed',
 			'settings.downloadSettings.pathTemplateEditor.chipDate' => 'Date',
 			'settings.downloadSettings.pathTemplateEditor.chipTime' => 'Time',
@@ -13909,10 +13917,10 @@ extension on Translations {
 			'videoDetail.gestureGuide.quest.resizeTitle' => 'Use the edges and corners',
 			'videoDetail.gestureGuide.quest.resizeBody' => 'The frame lights up as your ray approaches an edge. Hold the trigger or pinch on an edge to move the window; drag a corner to resize it.',
 			'videoDetail.gestureGuide.quest.resizeHint' => 'Works on the app window, control panel and screen. The app window changes width and height; screens keep their aspect ratio.',
-			'videoDetail.gestureGuide.quest.navigationTitle' => 'Go back and open settings',
-			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y goes back one level: close a popup or return to the panel home, hide the panel, then return to the app. The left Menu button opens spatial settings.',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.navigationTitle' => 'Go back and open settings',
+			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y goes back one level: close a popup or return to the panel home, hide the panel, then return to the app. The left Menu button opens spatial settings.',
 			'videoDetail.gestureGuide.quest.navigationHint' => 'The right Meta button belongs to the system. System recenter brings the view back in front while preserving screen size and distance.',
 			'videoDetail.gestureGuide.quest.handsTitle' => 'Use your hands',
 			'videoDetail.gestureGuide.quest.handsBody' => 'With hand tracking enabled, aim the system ray at a button, pinch your thumb and index finger, then release. Use the panel for playback, seeking and gallery navigation.',
@@ -14423,10 +14431,10 @@ extension on Translations {
 			'download.relocation.resultTitle' => 'Move finished',
 			'download.relocation.resultMoved' => ({required Object count}) => '${count} item(s) moved',
 			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
-			'download.relocation.alreadyRunning' => 'Another move is already in progress',
-			'download.relocation.destination' => 'Destination',
 			_ => null,
 		} ?? switch (path) {
+			'download.relocation.alreadyRunning' => 'Another move is already in progress',
+			'download.relocation.destination' => 'Destination',
 			'download.relocation.statMove' => 'To move',
 			'download.relocation.statSkip' => 'Skipped',
 			'download.relocation.statRenamed' => 'Renamed',
@@ -14937,10 +14945,10 @@ extension on Translations {
 			'news.openInBrowser' => 'Open in Browser',
 			'displaySettings.title' => 'Display Settings',
 			'displaySettings.layoutSettings' => 'Layout Settings',
-			'displaySettings.layoutSettingsDesc' => 'Customize column count and breakpoint configuration',
-			'displaySettings.gridLayout' => 'Grid Layout',
 			_ => null,
 		} ?? switch (path) {
+			'displaySettings.layoutSettingsDesc' => 'Customize column count and breakpoint configuration',
+			'displaySettings.gridLayout' => 'Grid Layout',
 			'displaySettings.navigationOrderSettings' => 'Navigation Order Settings',
 			'displaySettings.customNavigationOrder' => 'Custom Navigation Order',
 			'displaySettings.customNavigationOrderDesc' => 'Adjust the display order of pages in the bottom navigation bar and sidebar',
@@ -15451,10 +15459,10 @@ extension on Translations {
 			'siteMode.mainSite' => 'Main',
 			'siteMode.aiSite' => 'AI',
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => 'Current ${currentSite} · Tap to switch to ${nextSite}',
-			'siteMode.dialogTitle' => 'Switch Site Mode',
-			'siteMode.dialogDescription' => 'Switching will refresh the entire app and reset previously loaded lists and page state.',
 			_ => null,
 		} ?? switch (path) {
+			'siteMode.dialogTitle' => 'Switch Site Mode',
+			'siteMode.dialogDescription' => 'Switching will refresh the entire app and reset previously loaded lists and page state.',
 			'siteMode.chooseLinkTargetTitle' => 'Choose Target Site',
 			'siteMode.chooseLinkTargetDescription' => 'This link does not include a domain. Please choose whether to open it in Main or AI.',
 			'siteMode.chooseLinkTargetHint' => 'Once opened, this page and its follow-up detail requests will continue using the selected site.',
@@ -15965,10 +15973,10 @@ extension on Translations {
 			'ai.taskTranslate' => 'Translation',
 			'ai.taskSearch' => 'AI search',
 			'ai.taskSignature' => 'Signature',
-			'ai.taskAuto' => 'Automatic',
-			'ai.usage' => 'Usage',
 			_ => null,
 		} ?? switch (path) {
+			'ai.taskAuto' => 'Automatic',
+			'ai.usage' => 'Usage',
 			'ai.usageCalls' => 'Calls',
 			'ai.usageTokens' => 'Tokens',
 			'ai.usageFailures' => 'Failures',

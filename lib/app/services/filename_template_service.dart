@@ -11,6 +11,7 @@ import 'package:path/path.dart' as path;
 /// 文件命名模板服务
 /// 支持的变量：
 /// %title - 标题
+/// %titletext - 纯文本标题（过滤符号及补充平面字符，适用于受限外置存储）
 /// %authorcache - 作者首见名（按作者 ID 缓存第一次见到的显示名，改名不漂移）
 /// %author - 作者名称（实时跟随改名）
 /// %username - 作者用户名
@@ -335,6 +336,11 @@ class FilenameTemplateService extends GetxService {
     required bool writeAuthorCache,
   }) {
     var result = input;
+    // %titletext 以 %title 为前缀，必须先替换长 token。
+    result = result.replaceAll(
+      '%titletext',
+      _plainTextTitle(video.title ?? 'video'),
+    );
     result = result.replaceAll('%title', _sanitize(video.title ?? 'video'));
     result = result.replaceAll(
       '%authorcache',
@@ -368,6 +374,7 @@ class FilenameTemplateService extends GetxService {
     required bool writeAuthorCache,
   }) {
     var result = input;
+    result = result.replaceAll('%titletext', _plainTextTitle(gallery.title));
     result = result.replaceAll('%title', _sanitize(gallery.title));
     result = result.replaceAll(
       '%authorcache',
@@ -400,6 +407,10 @@ class FilenameTemplateService extends GetxService {
     required bool writeAuthorCache,
   }) {
     var result = input;
+    result = result.replaceAll(
+      '%titletext',
+      _plainTextTitle(title.isNotEmpty ? title : 'image'),
+    );
     result = result.replaceAll(
       '%title',
       _sanitize(title.isNotEmpty ? title : 'image'),
@@ -482,6 +493,18 @@ class FilenameTemplateService extends GetxService {
   /// 清理文件名中的非法字符
   String _sanitize(String input) {
     return sanitizePathSegment(input, fallback: 'unknown', maxLength: 100);
+  }
+
+  /// 受限外置存储的可选标题：只保留 BMP 内的文字、数字、组合标记和空白。
+  /// 不修改普通 %title；emoji 的变体选择符/键帽标记也一并去掉。
+  static String _plainTextTitle(String input) {
+    final text = input
+        .replaceAll(
+          RegExp(r'[\u{10000}-\u{10FFFF}\uFE00-\uFE0F\u20E3]', unicode: true),
+          '',
+        )
+        .replaceAll(RegExp(r'[^\p{L}\p{N}\p{M}\s]', unicode: true), '');
+    return sanitizePathSegment(text, fallback: 'unknown', maxLength: 100);
   }
 
   /// 将任意模板输出压缩成单个安全路径片段。
@@ -620,6 +643,10 @@ class FilenameTemplateService extends GetxService {
         slang.t.settings.downloadSettings.variableTitle,
       ),
       TemplateVariable(
+        '%titletext',
+        slang.t.settings.downloadSettings.variableTitletext,
+      ),
+      TemplateVariable(
         '%authorcache',
         slang.t.settings.downloadSettings.variableAuthorcache,
       ),
@@ -688,6 +715,7 @@ class FilenameTemplateService extends GetxService {
     final current = now ?? DateTime.now();
     return {
       'title': '夏夜花火',
+      'titletext': '夏夜花火',
       'author': '花火師さん',
       'authorcache': '花火師さん',
       'username': 'hanabi_master',

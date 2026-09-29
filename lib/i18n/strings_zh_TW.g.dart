@@ -3501,6 +3501,7 @@ class _TranslationsSettingsDownloadSettingsZhTw extends TranslationsSettingsDown
 	@override String get downloadPathSetTo => '下載路徑已設定為';
 	@override String get setPathFailed => '設定路徑失敗';
 	@override String get variableTitle => '標題';
+	@override String get variableTitletext => '純文字標題（過濾特殊符號，適用於外置儲存）';
 	@override String get variableAuthorcache => '作者首見名（作者改名不漂移）';
 	@override String get variableAuthor => '作者名稱';
 	@override String get variableUsername => '作者使用者名稱';
@@ -4828,6 +4829,7 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorZhTw extends Transl
 	@override String get trayCategoryContent => '內容';
 	@override String get trayCategoryAuthor => '作者';
 	@override String get trayCategoryTime => '時間';
+	@override String get chipTitletext => '純文字標題';
 	@override String get chipAuthorcache => '作者名·固定';
 	@override String get chipDate => '日期';
 	@override String get chipTime => '時間';
@@ -6243,6 +6245,7 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.downloadPathSetTo' => '下載路徑已設定為',
 			'settings.downloadSettings.setPathFailed' => '設定路徑失敗',
 			'settings.downloadSettings.variableTitle' => '標題',
+			'settings.downloadSettings.variableTitletext' => '純文字標題（過濾特殊符號，適用於外置儲存）',
 			'settings.downloadSettings.variableAuthorcache' => '作者首見名（作者改名不漂移）',
 			'settings.downloadSettings.variableAuthor' => '作者名稱',
 			'settings.downloadSettings.variableUsername' => '作者使用者名稱',
@@ -6299,6 +6302,7 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => '內容',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => '作者',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => '時間',
+			'settings.downloadSettings.pathTemplateEditor.chipTitletext' => '純文字標題',
 			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => '作者名·固定',
 			'settings.downloadSettings.pathTemplateEditor.chipDate' => '日期',
 			'settings.downloadSettings.pathTemplateEditor.chipTime' => '時間',
@@ -6504,10 +6508,10 @@ extension on TranslationsZhTw {
 			'videoDetail.gestureGuide.quest.selectHint' => '食指扳機在圓盤背面；控制器內側的側握鍵用於抓取視窗。',
 			'videoDetail.gestureGuide.quest.panelTitle' => '喚出或收起面板',
 			'videoDetail.gestureGuide.quest.panelBody' => '將射線移到控制面板外，輕扣並放開食指扳機，切換面板的顯示狀態。用手時，在面板外輕捏一下也可以。',
-			'videoDetail.gestureGuide.quest.panelHint' => '短按後放開即可。按住拖動是在操作畫面或視窗，不會切換面板。',
-			'videoDetail.gestureGuide.quest.playTitle' => '播放與暫停',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.panelHint' => '短按後放開即可。按住拖動是在操作畫面或視窗，不會切換面板。',
+			'videoDetail.gestureGuide.quest.playTitle' => '播放與暫停',
 			'videoDetail.gestureGuide.quest.playBody' => '射線離開控制面板後，按右手 A 或左手 X，切換影片播放與暫停。也可以直接點控制面板上的播放按鈕。',
 			'videoDetail.gestureGuide.quest.playHint' => '這是預設快捷鍵，可在空間播放器設定中關閉。射線停在面板上時，按鍵優先操作面板。',
 			'videoDetail.gestureGuide.quest.seekTitle' => '用搖桿調整進度',
@@ -7018,10 +7022,10 @@ extension on TranslationsZhTw {
 			'download.notice.dismiss' => '忽略',
 			'download.emptyTaskList' => '暫無下載任務',
 			'download.noMatchingTasks' => '沒有符合的任務',
-			'download.deleteByDate.menuTitle' => '依日期刪除',
-			'download.deleteByDate.dialogTitle' => '依日期刪除',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.menuTitle' => '依日期刪除',
+			'download.deleteByDate.dialogTitle' => '依日期刪除',
 			'download.deleteByDate.description' => '依建立日期批次刪除下載任務。被佔用的檔案會略過；檔案已不存在的任務會一併清理。',
 			'download.deleteByDate.modeRange' => '日期區間',
 			'download.deleteByDate.modeDays' => '多少天以前',
@@ -7532,10 +7536,10 @@ extension on TranslationsZhTw {
 			'mediaPlayer.videoPlayerError' => '影片播放器錯誤',
 			'mediaPlayer.videoLoadFailed' => '影片載入失敗',
 			'mediaPlayer.videoCodecNotSupported' => '影片編解碼器不支援',
-			'mediaPlayer.networkConnectionIssue' => '網路連線問題',
-			'mediaPlayer.insufficientPermission' => '權限不足',
 			_ => null,
 		} ?? switch (path) {
+			'mediaPlayer.networkConnectionIssue' => '網路連線問題',
+			'mediaPlayer.insufficientPermission' => '權限不足',
 			'mediaPlayer.unsupportedVideoFormat' => '不支援的影片格式',
 			'mediaPlayer.retry' => '重試',
 			'mediaPlayer.externalPlayer' => '外部播放器',
@@ -8046,10 +8050,10 @@ extension on TranslationsZhTw {
 			'siteMode.mainSite' => '主站',
 			'siteMode.aiSite' => 'AI站',
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => '目前 ${currentSite} · 點擊切換到 ${nextSite}',
-			'siteMode.dialogTitle' => '切換站點模式',
-			'siteMode.dialogDescription' => '切換後會重新整理整個應用，並重設先前已載入的清單與頁面狀態。',
 			_ => null,
 		} ?? switch (path) {
+			'siteMode.dialogTitle' => '切換站點模式',
+			'siteMode.dialogDescription' => '切換後會重新整理整個應用，並重設先前已載入的清單與頁面狀態。',
 			'siteMode.chooseLinkTargetTitle' => '選擇連結目標站點',
 			'siteMode.chooseLinkTargetDescription' => '此連結未包含網域，請選擇要前往主站還是 AI 站。',
 			'siteMode.chooseLinkTargetHint' => '進入後，此頁面及其後續詳情請求會沿用你選擇的站點。',
@@ -8560,10 +8564,10 @@ extension on TranslationsZhTw {
 			'ai.taskTranslate' => '翻譯',
 			'ai.taskSearch' => 'AI 搜尋',
 			'ai.taskSignature' => '小尾巴',
-			'ai.taskAuto' => '自動',
-			'ai.usage' => '用量',
 			_ => null,
 		} ?? switch (path) {
+			'ai.taskAuto' => '自動',
+			'ai.usage' => '用量',
 			'ai.usageCalls' => '呼叫',
 			'ai.usageTokens' => 'token',
 			'ai.usageFailures' => '失敗',

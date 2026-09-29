@@ -1330,6 +1330,7 @@ settings:
     setPathFailed: Failed to set path
     # Filename template variables
     variableTitle: Title
+    variableTitletext: Plain-text title (no symbols; for external storage)
     variableAuthorcache: Author first-seen name (stable across renames)
     variableAuthor: Author name
     variableUsername: Author username
@@ -1389,6 +1390,7 @@ settings:
       trayCategoryContent: Content
       trayCategoryAuthor: Author
       trayCategoryTime: Time
+      chipTitletext: Plain-text title
       chipAuthorcache: 'Author · fixed'
       chipDate: Date
       chipTime: Time

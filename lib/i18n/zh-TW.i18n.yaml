@@ -1331,6 +1331,7 @@ settings:
     setPathFailed: 設定路徑失敗
     # 檔案命名範本變數
     variableTitle: 標題
+    variableTitletext: 純文字標題（過濾特殊符號，適用於外置儲存）
     variableAuthorcache: '作者首見名（作者改名不漂移）'
     variableAuthor: 作者名稱
     variableUsername: 作者使用者名稱
@@ -1389,6 +1390,7 @@ settings:
       trayCategoryContent: '內容'
       trayCategoryAuthor: '作者'
       trayCategoryTime: '時間'
+      chipTitletext: 純文字標題
       chipAuthorcache: '作者名·固定'
       chipDate: 日期
       chipTime: 時間

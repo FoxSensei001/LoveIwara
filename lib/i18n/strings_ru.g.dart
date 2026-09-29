@@ -3501,6 +3501,7 @@ class _TranslationsSettingsDownloadSettingsRu extends TranslationsSettingsDownlo
 	@override String get downloadPathSetTo => 'Путь загрузки установлен в';
 	@override String get setPathFailed => 'Не удалось установить путь';
 	@override String get variableTitle => 'Название';
+	@override String get variableTitletext => 'Текстовый заголовок (без символов, для внешнего накопителя)';
 	@override String get variableAuthorcache => 'Первое имя автора (стабильно при смене никнейма)';
 	@override String get variableAuthor => 'Имя автора';
 	@override String get variableUsername => 'Имя пользователя автора';
@@ -4828,6 +4829,7 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorRu extends Translat
 	@override String get trayCategoryContent => 'Содержимое';
 	@override String get trayCategoryAuthor => 'Автор';
 	@override String get trayCategoryTime => 'Время';
+	@override String get chipTitletext => 'Текстовый заголовок';
 	@override String get chipAuthorcache => 'Имя автора·фикс.';
 	@override String get chipDate => 'Дата';
 	@override String get chipTime => 'Время';
@@ -6243,6 +6245,7 @@ extension on TranslationsRu {
 			'settings.downloadSettings.downloadPathSetTo' => 'Путь загрузки установлен в',
 			'settings.downloadSettings.setPathFailed' => 'Не удалось установить путь',
 			'settings.downloadSettings.variableTitle' => 'Название',
+			'settings.downloadSettings.variableTitletext' => 'Текстовый заголовок (без символов, для внешнего накопителя)',
 			'settings.downloadSettings.variableAuthorcache' => 'Первое имя автора (стабильно при смене никнейма)',
 			'settings.downloadSettings.variableAuthor' => 'Имя автора',
 			'settings.downloadSettings.variableUsername' => 'Имя пользователя автора',
@@ -6299,6 +6302,7 @@ extension on TranslationsRu {
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => 'Содержимое',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => 'Автор',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => 'Время',
+			'settings.downloadSettings.pathTemplateEditor.chipTitletext' => 'Текстовый заголовок',
 			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => 'Имя автора·фикс.',
 			'settings.downloadSettings.pathTemplateEditor.chipDate' => 'Дата',
 			'settings.downloadSettings.pathTemplateEditor.chipTime' => 'Время',
@@ -6504,10 +6508,10 @@ extension on TranslationsRu {
 			'videoDetail.gestureGuide.quest.resizeTitle' => 'Края и углы',
 			'videoDetail.gestureGuide.quest.resizeBody' => 'Рамка подсвечивается при приближении луча к краю. Зажмите триггер или щипок на краю для перемещения; потяните за угол для масштабирования.',
 			'videoDetail.gestureGuide.quest.resizeHint' => 'Работает для окна приложения, панели управления и экрана. Окно меняет ширину и высоту; экран сохраняет пропорции.',
-			'videoDetail.gestureGuide.quest.navigationTitle' => 'Назад и открытие настроек',
-			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y возвращает на шаг назад: закрывает всплывающее окно, скрывает панель и возвращает в приложение. Левая кнопка меню открывает настройки пространства.',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.navigationTitle' => 'Назад и открытие настроек',
+			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y возвращает на шаг назад: закрывает всплывающее окно, скрывает панель и возвращает в приложение. Левая кнопка меню открывает настройки пространства.',
 			'videoDetail.gestureGuide.quest.navigationHint' => 'Правая кнопка Meta зарезервирована системой. Системное центрирование возвращает экран перед вами с сохранением размера и расстояния.',
 			'videoDetail.gestureGuide.quest.handsTitle' => 'Управление руками',
 			'videoDetail.gestureGuide.quest.handsBody' => 'При включенном отслеживании рук наведите системный луч на кнопку, сомкните большой и указательный пальцы (щипок) и разомкните. Панель служит для воспроизведения, перемотки и галереи.',
@@ -7018,10 +7022,10 @@ extension on TranslationsRu {
 			'download.relocation.resultTitle' => 'Move finished',
 			'download.relocation.resultMoved' => ({required Object count}) => '${count} item(s) moved',
 			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
-			'download.relocation.alreadyRunning' => 'Another move is already in progress',
-			'download.relocation.destination' => 'Destination',
 			_ => null,
 		} ?? switch (path) {
+			'download.relocation.alreadyRunning' => 'Another move is already in progress',
+			'download.relocation.destination' => 'Destination',
 			'download.relocation.statMove' => 'To move',
 			'download.relocation.statSkip' => 'Skipped',
 			'download.relocation.statRenamed' => 'Renamed',
@@ -7532,10 +7536,10 @@ extension on TranslationsRu {
 			'news.openInBrowser' => 'Открыть в браузере',
 			'displaySettings.title' => 'Настройки отображения',
 			'displaySettings.layoutSettings' => 'Настройки макета',
-			'displaySettings.layoutSettingsDesc' => 'Настройте число столбцов и точки перелома',
-			'displaySettings.gridLayout' => 'Сетка',
 			_ => null,
 		} ?? switch (path) {
+			'displaySettings.layoutSettingsDesc' => 'Настройте число столбцов и точки перелома',
+			'displaySettings.gridLayout' => 'Сетка',
 			'displaySettings.navigationOrderSettings' => 'Настройки порядка навигации',
 			'displaySettings.customNavigationOrder' => 'Свой порядок навигации',
 			'displaySettings.customNavigationOrderDesc' => 'Настройте порядок отображения страниц на нижней панели навигации и в боковом меню',
@@ -8046,10 +8050,10 @@ extension on TranslationsRu {
 			'siteMode.mainSite' => 'Основной',
 			'siteMode.aiSite' => 'AI',
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => 'Текущий ${currentSite} · нажмите, чтобы переключиться на ${nextSite}',
-			'siteMode.dialogTitle' => 'Переключить режим сайта',
-			'siteMode.dialogDescription' => 'Переключение обновит всё приложение и сбросит ранее загруженные списки и состояние страниц.',
 			_ => null,
 		} ?? switch (path) {
+			'siteMode.dialogTitle' => 'Переключить режим сайта',
+			'siteMode.dialogDescription' => 'Переключение обновит всё приложение и сбросит ранее загруженные списки и состояние страниц.',
 			'siteMode.chooseLinkTargetTitle' => 'Выберите целевой сайт',
 			'siteMode.chooseLinkTargetDescription' => 'Эта ссылка не содержит домена. Выберите, открыть её в «Основном» или «AI».',
 			'siteMode.chooseLinkTargetHint' => 'После открытия эта страница и последующие запросы деталей продолжат использовать выбранный сайт.',
@@ -8560,10 +8564,10 @@ extension on TranslationsRu {
 			'ai.taskTranslate' => 'Перевод',
 			'ai.taskSearch' => 'Поиск с ИИ',
 			'ai.taskSignature' => 'Подпись',
-			'ai.taskAuto' => 'Автоматически',
-			'ai.usage' => 'Использование',
 			_ => null,
 		} ?? switch (path) {
+			'ai.taskAuto' => 'Автоматически',
+			'ai.usage' => 'Использование',
 			'ai.usageCalls' => 'Вызовы',
 			'ai.usageTokens' => 'Токены',
 			'ai.usageFailures' => 'Ошибки',

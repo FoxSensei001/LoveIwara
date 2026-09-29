@@ -3501,6 +3501,7 @@ class _TranslationsSettingsDownloadSettingsFr extends TranslationsSettingsDownlo
 	@override String get downloadPathSetTo => 'Chemin de téléchargement défini sur';
 	@override String get setPathFailed => 'Échec de la définition du chemin';
 	@override String get variableTitle => 'Titre';
+	@override String get variableTitletext => 'Titre en texte seul (sans symboles, pour stockage externe)';
 	@override String get variableAuthorcache => 'Premier nom vu de l\'auteur (stable malgré les renommages)';
 	@override String get variableAuthor => 'Nom de l\'auteur';
 	@override String get variableUsername => 'Nom d\'utilisateur de l\'auteur';
@@ -4828,6 +4829,7 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorFr extends Translat
 	@override String get trayCategoryContent => 'Contenu';
 	@override String get trayCategoryAuthor => 'Auteur';
 	@override String get trayCategoryTime => 'Temps';
+	@override String get chipTitletext => 'Titre texte';
 	@override String get chipAuthorcache => 'Nom de lauteur·fixe';
 	@override String get chipDate => 'Date';
 	@override String get chipTime => 'Heure';
@@ -6243,6 +6245,7 @@ extension on TranslationsFr {
 			'settings.downloadSettings.downloadPathSetTo' => 'Chemin de téléchargement défini sur',
 			'settings.downloadSettings.setPathFailed' => 'Échec de la définition du chemin',
 			'settings.downloadSettings.variableTitle' => 'Titre',
+			'settings.downloadSettings.variableTitletext' => 'Titre en texte seul (sans symboles, pour stockage externe)',
 			'settings.downloadSettings.variableAuthorcache' => 'Premier nom vu de l\'auteur (stable malgré les renommages)',
 			'settings.downloadSettings.variableAuthor' => 'Nom de l\'auteur',
 			'settings.downloadSettings.variableUsername' => 'Nom d\'utilisateur de l\'auteur',
@@ -6299,6 +6302,7 @@ extension on TranslationsFr {
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => 'Contenu',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => 'Auteur',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => 'Temps',
+			'settings.downloadSettings.pathTemplateEditor.chipTitletext' => 'Titre texte',
 			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => 'Nom de lauteur·fixe',
 			'settings.downloadSettings.pathTemplateEditor.chipDate' => 'Date',
 			'settings.downloadSettings.pathTemplateEditor.chipTime' => 'Heure',
@@ -6504,10 +6508,10 @@ extension on TranslationsFr {
 			'videoDetail.gestureGuide.quest.resizeTitle' => 'Utiliser les bords et les coins',
 			'videoDetail.gestureGuide.quest.resizeBody' => 'Le cadre s\'illumine lorsque le rayon approche d\'un bord. Maintenez la gâchette ou pincez sur un bord pour déplacer la fenêtre ; faites glisser un coin pour la redimensionner.',
 			'videoDetail.gestureGuide.quest.resizeHint' => 'Fonctionne sur la fenêtre de l\'app, le panneau de contrôle et l\'écran. La fenêtre de l\'app change de largeur et de hauteur ; les écrans conservent leurs proportions.',
-			'videoDetail.gestureGuide.quest.navigationTitle' => 'Revenir en arrière et ouvrir les paramètres',
-			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y revient d\'un niveau : ferme une fenêtre contextuelle ou revient à l\'accueil du panneau, masque le panneau, puis revient à l\'app. Le bouton Menu gauche ouvre les paramètres spatiaux.',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.navigationTitle' => 'Revenir en arrière et ouvrir les paramètres',
+			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y revient d\'un niveau : ferme une fenêtre contextuelle ou revient à l\'accueil du panneau, masque le panneau, puis revient à l\'app. Le bouton Menu gauche ouvre les paramètres spatiaux.',
 			'videoDetail.gestureGuide.quest.navigationHint' => 'Le bouton Meta droit appartient au système. Le recentrage système ramène la vue devant en conservant la taille et la distance de l\'écran.',
 			'videoDetail.gestureGuide.quest.handsTitle' => 'Utiliser vos mains',
 			'videoDetail.gestureGuide.quest.handsBody' => 'Lorsque le suivi des mains est activé, visez un bouton avec le rayon du système, pincez le pouce et l\'index, puis relâchez. Utilisez le panneau pour la lecture, la navigation et les galeries.',
@@ -7018,10 +7022,10 @@ extension on TranslationsFr {
 			'download.relocation.resultTitle' => 'Move finished',
 			'download.relocation.resultMoved' => ({required Object count}) => '${count} item(s) moved',
 			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
-			'download.relocation.alreadyRunning' => 'Another move is already in progress',
-			'download.relocation.destination' => 'Destination',
 			_ => null,
 		} ?? switch (path) {
+			'download.relocation.alreadyRunning' => 'Another move is already in progress',
+			'download.relocation.destination' => 'Destination',
 			'download.relocation.statMove' => 'To move',
 			'download.relocation.statSkip' => 'Skipped',
 			'download.relocation.statRenamed' => 'Renamed',
@@ -7532,10 +7536,10 @@ extension on TranslationsFr {
 			'news.openInBrowser' => 'Ouvrir dans le navigateur',
 			'displaySettings.title' => 'Réglages d\'affichage',
 			'displaySettings.layoutSettings' => 'Réglages de disposition',
-			'displaySettings.layoutSettingsDesc' => 'Personnalisez le nombre de colonnes et la configuration des points de rupture',
-			'displaySettings.gridLayout' => 'Disposition en grille',
 			_ => null,
 		} ?? switch (path) {
+			'displaySettings.layoutSettingsDesc' => 'Personnalisez le nombre de colonnes et la configuration des points de rupture',
+			'displaySettings.gridLayout' => 'Disposition en grille',
 			'displaySettings.navigationOrderSettings' => 'Réglages de l\'ordre de navigation',
 			'displaySettings.customNavigationOrder' => 'Ordre de navigation personnalisé',
 			'displaySettings.customNavigationOrderDesc' => 'Ajustez l\'ordre d\'affichage des pages dans la barre de navigation inférieure et la barre latérale',
@@ -8046,10 +8050,10 @@ extension on TranslationsFr {
 			'siteMode.mainSite' => 'Principal',
 			'siteMode.aiSite' => 'AI',
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => 'Actuel : ${currentSite} · Touchez pour passer à ${nextSite}',
-			'siteMode.dialogTitle' => 'Changer de mode de site',
-			'siteMode.dialogDescription' => 'Le changement actualisera toute l\'app et réinitialisera les listes et l\'état des pages chargés précédemment.',
 			_ => null,
 		} ?? switch (path) {
+			'siteMode.dialogTitle' => 'Changer de mode de site',
+			'siteMode.dialogDescription' => 'Le changement actualisera toute l\'app et réinitialisera les listes et l\'état des pages chargés précédemment.',
 			'siteMode.chooseLinkTargetTitle' => 'Choisir le site cible',
 			'siteMode.chooseLinkTargetDescription' => 'Ce lien n\'inclut pas de domaine. Choisissez de l\'ouvrir dans Principal ou AI.',
 			'siteMode.chooseLinkTargetHint' => 'Une fois ouvert, cette page et les requêtes de détail suivantes continueront d\'utiliser le site sélectionné.',
@@ -8560,10 +8564,10 @@ extension on TranslationsFr {
 			'ai.taskTranslate' => 'Traduction',
 			'ai.taskSearch' => 'Recherche IA',
 			'ai.taskSignature' => 'Signature de message',
-			'ai.taskAuto' => 'Automatique',
-			'ai.usage' => 'Utilisation',
 			_ => null,
 		} ?? switch (path) {
+			'ai.taskAuto' => 'Automatique',
+			'ai.usage' => 'Utilisation',
 			'ai.usageCalls' => 'Appels',
 			'ai.usageTokens' => 'Nombre de tokens',
 			'ai.usageFailures' => 'Échecs',

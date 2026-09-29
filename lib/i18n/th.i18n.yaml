@@ -1330,6 +1330,7 @@ settings:
     setPathFailed: ตั้งค่าเส้นทางล้มเหลว
     # Filename template variables
     variableTitle: ชื่อเรื่อง
+    variableTitletext: ชื่อแบบข้อความ (ไม่มีสัญลักษณ์ สำหรับพื้นที่จัดเก็บภายนอก)
     variableAuthorcache: 'ชื่อแรกที่เคยเห็นของผู้สร้าง (ไม่เปลี่ยนตามการเปลี่ยนชื่อ)'
     variableAuthor: ชื่อผู้สร้าง
     variableUsername: ชื่อผู้ใช้ของผู้สร้าง
@@ -1388,6 +1389,7 @@ settings:
       trayCategoryContent: 'เนื้อหา'
       trayCategoryAuthor: 'ผู้สร้าง'
       trayCategoryTime: 'เวลา'
+      chipTitletext: ชื่อแบบข้อความ
       chipAuthorcache: 'ชื่อผู้สร้าง·คงที่'
       chipDate: วันที่
       chipTime: เวลา

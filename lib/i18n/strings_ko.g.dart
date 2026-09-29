@@ -3501,6 +3501,7 @@ class _TranslationsSettingsDownloadSettingsKo extends TranslationsSettingsDownlo
 	@override String get downloadPathSetTo => '다운로드 경로가 다음으로 설정됨';
 	@override String get setPathFailed => '경로 설정에 실패했습니다';
 	@override String get variableTitle => '제목';
+	@override String get variableTitletext => '텍스트 제목 (기호 제외, 외부 저장소용)';
 	@override String get variableAuthorcache => '작성자 첫 이름(이름이 바뀌어도 유지)';
 	@override String get variableAuthor => '작성자 이름';
 	@override String get variableUsername => '작성자 사용자 이름';
@@ -4828,6 +4829,7 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorKo extends Translat
 	@override String get trayCategoryContent => '콘텐츠';
 	@override String get trayCategoryAuthor => '작성자';
 	@override String get trayCategoryTime => '시간';
+	@override String get chipTitletext => '텍스트 제목';
 	@override String get chipAuthorcache => '작성자 이름·고정';
 	@override String get chipDate => '날짜';
 	@override String get chipTime => '시간';
@@ -6243,6 +6245,7 @@ extension on TranslationsKo {
 			'settings.downloadSettings.downloadPathSetTo' => '다운로드 경로가 다음으로 설정됨',
 			'settings.downloadSettings.setPathFailed' => '경로 설정에 실패했습니다',
 			'settings.downloadSettings.variableTitle' => '제목',
+			'settings.downloadSettings.variableTitletext' => '텍스트 제목 (기호 제외, 외부 저장소용)',
 			'settings.downloadSettings.variableAuthorcache' => '작성자 첫 이름(이름이 바뀌어도 유지)',
 			'settings.downloadSettings.variableAuthor' => '작성자 이름',
 			'settings.downloadSettings.variableUsername' => '작성자 사용자 이름',
@@ -6299,6 +6302,7 @@ extension on TranslationsKo {
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => '콘텐츠',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => '작성자',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => '시간',
+			'settings.downloadSettings.pathTemplateEditor.chipTitletext' => '텍스트 제목',
 			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => '작성자 이름·고정',
 			'settings.downloadSettings.pathTemplateEditor.chipDate' => '날짜',
 			'settings.downloadSettings.pathTemplateEditor.chipTime' => '시간',
@@ -6504,10 +6508,10 @@ extension on TranslationsKo {
 			'videoDetail.gestureGuide.quest.resizeTitle' => '가장자리와 모서리 사용',
 			'videoDetail.gestureGuide.quest.resizeBody' => '광선이 가장자리에 가까워지면 프레임이 빛납니다. 가장자리에서 트리거를 누르거나 집으면 창이 이동하고, 모서리를 끌면 크기가 조절됩니다.',
 			'videoDetail.gestureGuide.quest.resizeHint' => '앱 창, 컨트롤 패널, 화면에서 작동합니다. 앱 창은 너비와 높이가 바뀌고, 화면은 화면 비율을 유지합니다.',
-			'videoDetail.gestureGuide.quest.navigationTitle' => '뒤로 가기 및 설정 열기',
-			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y는 한 단계 뒤로 갑니다: 팝업을 닫거나 패널 홈으로 돌아가고, 패널을 숨긴 다음 앱으로 돌아갑니다. 왼쪽 Menu 버튼은 공간 설정을 엽니다.',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.navigationTitle' => '뒤로 가기 및 설정 열기',
+			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y는 한 단계 뒤로 갑니다: 팝업을 닫거나 패널 홈으로 돌아가고, 패널을 숨긴 다음 앱으로 돌아갑니다. 왼쪽 Menu 버튼은 공간 설정을 엽니다.',
 			'videoDetail.gestureGuide.quest.navigationHint' => '오른쪽 Meta 버튼은 시스템에 속합니다. 시스템 리센터는 화면 크기와 거리를 유지하면서 시야를 정면으로 되돌립니다.',
 			'videoDetail.gestureGuide.quest.handsTitle' => '손 사용하기',
 			'videoDetail.gestureGuide.quest.handsBody' => '핸드 트래킹을 켜고 시스템 광선을 버튼에 맞춘 뒤 엄지와 검지를 집었다가 놓으세요. 재생, 탐색, 갤러리 이동은 패널을 사용하세요.',
@@ -7018,10 +7022,10 @@ extension on TranslationsKo {
 			'download.relocation.resultTitle' => 'Move finished',
 			'download.relocation.resultMoved' => ({required Object count}) => '${count} item(s) moved',
 			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
-			'download.relocation.alreadyRunning' => 'Another move is already in progress',
-			'download.relocation.destination' => 'Destination',
 			_ => null,
 		} ?? switch (path) {
+			'download.relocation.alreadyRunning' => 'Another move is already in progress',
+			'download.relocation.destination' => 'Destination',
 			'download.relocation.statMove' => 'To move',
 			'download.relocation.statSkip' => 'Skipped',
 			'download.relocation.statRenamed' => 'Renamed',
@@ -7532,10 +7536,10 @@ extension on TranslationsKo {
 			'news.openInBrowser' => '브라우저에서 열기',
 			'displaySettings.title' => '화면 설정',
 			'displaySettings.layoutSettings' => '레이아웃 설정',
-			'displaySettings.layoutSettingsDesc' => '열 수와 중단점 구성을 사용자 지정합니다',
-			'displaySettings.gridLayout' => '그리드 레이아웃',
 			_ => null,
 		} ?? switch (path) {
+			'displaySettings.layoutSettingsDesc' => '열 수와 중단점 구성을 사용자 지정합니다',
+			'displaySettings.gridLayout' => '그리드 레이아웃',
 			'displaySettings.navigationOrderSettings' => '내비게이션 순서 설정',
 			'displaySettings.customNavigationOrder' => '내비게이션 순서 사용자 지정',
 			'displaySettings.customNavigationOrderDesc' => '하단 내비게이션 바와 사이드바에서 페이지 표시 순서를 조정합니다',
@@ -8046,10 +8050,10 @@ extension on TranslationsKo {
 			'siteMode.mainSite' => '메인',
 			'siteMode.aiSite' => 'AI',
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => '현재 ${currentSite} · 탭하여 ${nextSite} 모드로 전환',
-			'siteMode.dialogTitle' => '사이트 모드 전환',
-			'siteMode.dialogDescription' => '전환하면 앱 전체가 새로 고쳐지고 이전에 불러온 목록과 페이지 상태가 초기화됩니다.',
 			_ => null,
 		} ?? switch (path) {
+			'siteMode.dialogTitle' => '사이트 모드 전환',
+			'siteMode.dialogDescription' => '전환하면 앱 전체가 새로 고쳐지고 이전에 불러온 목록과 페이지 상태가 초기화됩니다.',
 			'siteMode.chooseLinkTargetTitle' => '대상 사이트 선택',
 			'siteMode.chooseLinkTargetDescription' => '이 링크에는 도메인이 없습니다. 메인 또는 AI로 열지 선택하세요.',
 			'siteMode.chooseLinkTargetHint' => '한 번 열면 이 페이지와 이후 세부 요청이 선택한 사이트를 계속 사용합니다.',
@@ -8560,10 +8564,10 @@ extension on TranslationsKo {
 			'ai.taskTranslate' => '번역',
 			'ai.taskSearch' => 'AI 검색',
 			'ai.taskSignature' => '서명',
-			'ai.taskAuto' => '자동',
-			'ai.usage' => '사용량',
 			_ => null,
 		} ?? switch (path) {
+			'ai.taskAuto' => '자동',
+			'ai.usage' => '사용량',
 			'ai.usageCalls' => '호출',
 			'ai.usageTokens' => '토큰',
 			'ai.usageFailures' => '실패',

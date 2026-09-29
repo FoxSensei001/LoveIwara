@@ -1331,6 +1331,7 @@ settings:
     setPathFailed: パスの設定に失敗しました
     # ファイル名テンプレート変数
     variableTitle: タイトル
+    variableTitletext: テキストのみのタイトル（記号なし・外部ストレージ用）
     variableAuthorcache: '作者の初回名（改名しても変わりません）'
     variableAuthor: 作者名
     variableUsername: 作者ユーザー名
@@ -1389,6 +1390,7 @@ settings:
       trayCategoryContent: 'コンテンツ'
       trayCategoryAuthor: '作者'
       trayCategoryTime: '日時'
+      chipTitletext: テキストタイトル
       chipAuthorcache: '作者名・固定'
       chipDate: 日付
       chipTime: 時刻

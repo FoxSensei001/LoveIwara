@@ -1330,6 +1330,7 @@ settings:
     setPathFailed: Pfad konnte nicht festgelegt werden
     # Filename template variables
     variableTitle: Titel
+    variableTitletext: Reiner Texttitel (ohne Symbole, für externen Speicher)
     variableAuthorcache: 'Erster gesehener Autorenname (stabil bei Umbenennungen)'
     variableAuthor: Name des Autors
     variableUsername: Benutzername des Autors
@@ -1388,6 +1389,7 @@ settings:
       trayCategoryContent: 'Inhalt'
       trayCategoryAuthor: 'Autor'
       trayCategoryTime: 'Zeit'
+      chipTitletext: Texttitel
       chipAuthorcache: 'Autorenname·fest'
       chipDate: Datum
       chipTime: Uhrzeit

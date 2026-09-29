@@ -1330,6 +1330,7 @@ settings:
     setPathFailed: Не удалось установить путь
     # Filename template variables
     variableTitle: Название
+    variableTitletext: Текстовый заголовок (без символов, для внешнего накопителя)
     variableAuthorcache: 'Первое имя автора (стабильно при смене никнейма)'
     variableAuthor: Имя автора
     variableUsername: Имя пользователя автора
@@ -1388,6 +1389,7 @@ settings:
       trayCategoryContent: 'Содержимое'
       trayCategoryAuthor: 'Автор'
       trayCategoryTime: 'Время'
+      chipTitletext: Текстовый заголовок
       chipAuthorcache: 'Имя автора·фикс.'
       chipDate: Дата
       chipTime: Время

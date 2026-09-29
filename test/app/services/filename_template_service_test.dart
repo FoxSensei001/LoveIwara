@@ -11,6 +11,88 @@ import 'package:i_iwara/db/migrations/migration_v46_author_folder_cache.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 void main() {
+  group('Plain-text titles for external storage (issue #132)', () {
+    final service = FilenameTemplateService();
+
+    test('filters symbols before rendering video folders and filenames', () {
+      final video = Video(id: 'v132', title: '夏夜💕🦊 花火♥️★ 1️⃣');
+      expect(
+        service.generateVideoPathSegments(
+          template: '%titletext/%titletext_%id_%quality',
+          video: video,
+          quality: '1080',
+        ),
+        ['夏夜 花火 1', '夏夜 花火 1_v132_1080.mp4'],
+      );
+    });
+
+    test('supports galleries and images with multilingual text', () {
+      const title = 'Café e\u0301 ミク 한글 123💕🦊';
+      const plain = 'Café e\u0301 ミク 한글 123';
+      expect(
+        service.generateGalleryPathSegments(
+          template: '%titletext/%id',
+          gallery: ImageModel(id: 'g132', title: title),
+        ),
+        [plain, 'g132'],
+      );
+      expect(
+        service.generateImagePathSegments(
+          template: '%titletext/%titletext_%filename',
+          title: title,
+          authorName: null,
+          authorUsername: null,
+          id: 'i132',
+          originalFilename: 'photo.jpg',
+        ),
+        [plain, '${plain}_photo.jpg'],
+      );
+    });
+
+    test('removes punctuation, invisible controls and non-BMP letters', () {
+      expect(
+        service.generateVideoFilename(
+          template: '%titletext_%id',
+          video: Video(id: 'v132', title: '../A\u200DB★\u{20000} - 42!'),
+          quality: 'Source',
+        ),
+        'AB 42_v132.mp4',
+      );
+    });
+
+    test('uses a nonempty fallback and leaves regular title opt-in intact', () {
+      final video = Video(id: 'v132', title: '💕🦊');
+      expect(
+        service.generateVideoFilename(
+          template: '%titletext_%id',
+          video: video,
+          quality: 'Source',
+        ),
+        'unknown_v132.mp4',
+      );
+      expect(
+        service.generateVideoFilename(
+          template: '%title',
+          video: video,
+          quality: 'Source',
+        ),
+        '💕🦊.mp4',
+      );
+    });
+
+    test('exposes the variable and renders its preview', () {
+      expect(
+        service.getSupportedVariables().map((v) => v.variable),
+        contains('%titletext'),
+      );
+      expect(service.validateTemplate('%titletext/%id'), isTrue);
+      expect(
+        FilenameTemplateService.renderSamplePathSegments('%titletext_%id'),
+        ['夏夜花火_abc123'],
+      );
+    });
+  });
+
   group('FilenameTemplateService path safety', () {
     late FilenameTemplateService service;
 

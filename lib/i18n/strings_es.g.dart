@@ -3501,6 +3501,7 @@ class _TranslationsSettingsDownloadSettingsEs extends TranslationsSettingsDownlo
 	@override String get downloadPathSetTo => 'Ruta de descarga establecida en';
 	@override String get setPathFailed => 'No se pudo establecer la ruta';
 	@override String get variableTitle => 'Título';
+	@override String get variableTitletext => 'Título de texto (sin símbolos, para almacenamiento externo)';
 	@override String get variableAuthorcache => 'Primer nombre visto del autor (estable aunque cambie el nombre)';
 	@override String get variableAuthor => 'Nombre del autor';
 	@override String get variableUsername => 'Nombre de usuario del autor';
@@ -4828,6 +4829,7 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorEs extends Translat
 	@override String get trayCategoryContent => 'Contenido';
 	@override String get trayCategoryAuthor => 'Autor';
 	@override String get trayCategoryTime => 'Tiempo';
+	@override String get chipTitletext => 'Título de texto';
 	@override String get chipAuthorcache => 'Nombre del autor·fijo';
 	@override String get chipDate => 'Fecha';
 	@override String get chipTime => 'Hora';
@@ -6243,6 +6245,7 @@ extension on TranslationsEs {
 			'settings.downloadSettings.downloadPathSetTo' => 'Ruta de descarga establecida en',
 			'settings.downloadSettings.setPathFailed' => 'No se pudo establecer la ruta',
 			'settings.downloadSettings.variableTitle' => 'Título',
+			'settings.downloadSettings.variableTitletext' => 'Título de texto (sin símbolos, para almacenamiento externo)',
 			'settings.downloadSettings.variableAuthorcache' => 'Primer nombre visto del autor (estable aunque cambie el nombre)',
 			'settings.downloadSettings.variableAuthor' => 'Nombre del autor',
 			'settings.downloadSettings.variableUsername' => 'Nombre de usuario del autor',
@@ -6299,6 +6302,7 @@ extension on TranslationsEs {
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => 'Contenido',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => 'Autor',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => 'Tiempo',
+			'settings.downloadSettings.pathTemplateEditor.chipTitletext' => 'Título de texto',
 			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => 'Nombre del autor·fijo',
 			'settings.downloadSettings.pathTemplateEditor.chipDate' => 'Fecha',
 			'settings.downloadSettings.pathTemplateEditor.chipTime' => 'Hora',
@@ -6504,10 +6508,10 @@ extension on TranslationsEs {
 			'videoDetail.gestureGuide.quest.resizeTitle' => 'Usar los bordes y las esquinas',
 			'videoDetail.gestureGuide.quest.resizeBody' => 'El marco se ilumina a medida que el rayo se acerca a un borde. Mantenga el gatillo o pellizque en un borde para mover la ventana; arrastre una esquina para redimensionarla.',
 			'videoDetail.gestureGuide.quest.resizeHint' => 'Funciona en la ventana de la aplicación, el panel de control y la pantalla. La ventana de la aplicación cambia de ancho y alto; las pantallas conservan su relación de aspecto.',
-			'videoDetail.gestureGuide.quest.navigationTitle' => 'Volver y abrir los ajustes',
-			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y retrocede un nivel: cierra una ventana emergente o vuelve al inicio del panel, oculta el panel y luego vuelve a la aplicación. El botón Menú izquierdo abre los ajustes espaciales.',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.navigationTitle' => 'Volver y abrir los ajustes',
+			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y retrocede un nivel: cierra una ventana emergente o vuelve al inicio del panel, oculta el panel y luego vuelve a la aplicación. El botón Menú izquierdo abre los ajustes espaciales.',
 			'videoDetail.gestureGuide.quest.navigationHint' => 'El botón Meta derecho pertenece al sistema. El recentrado del sistema devuelve la vista al frente conservando el tamaño y la distancia de la pantalla.',
 			'videoDetail.gestureGuide.quest.handsTitle' => 'Use las manos',
 			'videoDetail.gestureGuide.quest.handsBody' => 'Con el seguimiento de manos activado, apunte el rayo del sistema a un botón, pellizque con el pulgar y el índice y suelte. Use el panel para la reproducción, la búsqueda y la navegación por la galería.',
@@ -7018,10 +7022,10 @@ extension on TranslationsEs {
 			'download.relocation.resultTitle' => 'Move finished',
 			'download.relocation.resultMoved' => ({required Object count}) => '${count} item(s) moved',
 			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
-			'download.relocation.alreadyRunning' => 'Another move is already in progress',
-			'download.relocation.destination' => 'Destination',
 			_ => null,
 		} ?? switch (path) {
+			'download.relocation.alreadyRunning' => 'Another move is already in progress',
+			'download.relocation.destination' => 'Destination',
 			'download.relocation.statMove' => 'To move',
 			'download.relocation.statSkip' => 'Skipped',
 			'download.relocation.statRenamed' => 'Renamed',
@@ -7532,10 +7536,10 @@ extension on TranslationsEs {
 			'news.openInBrowser' => 'Abrir en el navegador',
 			'displaySettings.title' => 'Ajustes de pantalla',
 			'displaySettings.layoutSettings' => 'Ajustes de diseño',
-			'displaySettings.layoutSettingsDesc' => 'Personalice el número de columnas y la configuración de puntos de corte',
-			'displaySettings.gridLayout' => 'Diseño de cuadrícula',
 			_ => null,
 		} ?? switch (path) {
+			'displaySettings.layoutSettingsDesc' => 'Personalice el número de columnas y la configuración de puntos de corte',
+			'displaySettings.gridLayout' => 'Diseño de cuadrícula',
 			'displaySettings.navigationOrderSettings' => 'Ajustes del orden de navegación',
 			'displaySettings.customNavigationOrder' => 'Orden de navegación personalizado',
 			'displaySettings.customNavigationOrderDesc' => 'Ajuste el orden de visualización de las páginas en la barra de navegación inferior y la barra lateral',
@@ -8046,10 +8050,10 @@ extension on TranslationsEs {
 			'siteMode.mainSite' => 'Principal',
 			'siteMode.aiSite' => 'AI',
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => 'Actual: ${currentSite} · Toque para cambiar a ${nextSite}',
-			'siteMode.dialogTitle' => 'Cambiar el modo de sitio',
-			'siteMode.dialogDescription' => 'El cambio actualizará toda la aplicación y restablecerá las listas y el estado de página cargados previamente.',
 			_ => null,
 		} ?? switch (path) {
+			'siteMode.dialogTitle' => 'Cambiar el modo de sitio',
+			'siteMode.dialogDescription' => 'El cambio actualizará toda la aplicación y restablecerá las listas y el estado de página cargados previamente.',
 			'siteMode.chooseLinkTargetTitle' => 'Elegir sitio de destino',
 			'siteMode.chooseLinkTargetDescription' => 'Este enlace no incluye un dominio. Elija si desea abrirlo en Principal o en AI.',
 			'siteMode.chooseLinkTargetHint' => 'Una vez abierta, esta página y sus solicitudes de detalle posteriores seguirán usando el sitio seleccionado.',
@@ -8560,10 +8564,10 @@ extension on TranslationsEs {
 			'ai.taskTranslate' => 'Traducción',
 			'ai.taskSearch' => 'Búsqueda con IA',
 			'ai.taskSignature' => 'Firma',
-			'ai.taskAuto' => 'Automático',
-			'ai.usage' => 'Uso',
 			_ => null,
 		} ?? switch (path) {
+			'ai.taskAuto' => 'Automático',
+			'ai.usage' => 'Uso',
 			'ai.usageCalls' => 'Llamadas',
 			'ai.usageTokens' => 'Tokens consumidos',
 			'ai.usageFailures' => 'Errores',

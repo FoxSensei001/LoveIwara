@@ -1299,6 +1299,11 @@ class _PathTemplateEditorPageState extends State<PathTemplateEditorPage> {
     final v = t.settings.downloadSettings;
     return [
       _TrayChipSpec('title', _TrayCategory.content, (_) => v.variableTitle),
+      _TrayChipSpec(
+        'titletext',
+        _TrayCategory.content,
+        (_) => e.chipTitletext,
+      ),
       _TrayChipSpec('quality', _TrayCategory.content, (_) => v.variableQuality),
       _TrayChipSpec('id', _TrayCategory.content, (_) => v.variableId),
       _TrayChipSpec(

@@ -3501,6 +3501,7 @@ class _TranslationsSettingsDownloadSettingsVi extends TranslationsSettingsDownlo
 	@override String get downloadPathSetTo => 'Đã đặt đường dẫn tải xuống thành';
 	@override String get setPathFailed => 'Đặt đường dẫn thất bại';
 	@override String get variableTitle => 'Tiêu đề';
+	@override String get variableTitletext => 'Tiêu đề văn bản (không ký hiệu, cho bộ nhớ ngoài)';
 	@override String get variableAuthorcache => 'Tên đầu tiên của tác giả (không đổi khi tác giả đổi tên)';
 	@override String get variableAuthor => 'Tên tác giả';
 	@override String get variableUsername => 'Tên người dùng tác giả';
@@ -4828,6 +4829,7 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorVi extends Translat
 	@override String get trayCategoryContent => 'Nội dung';
 	@override String get trayCategoryAuthor => 'Tác giả';
 	@override String get trayCategoryTime => 'Thời gian';
+	@override String get chipTitletext => 'Tiêu đề văn bản';
 	@override String get chipAuthorcache => 'Tên tác giả·cố định';
 	@override String get chipDate => 'Ngày';
 	@override String get chipTime => 'Giờ';
@@ -6243,6 +6245,7 @@ extension on TranslationsVi {
 			'settings.downloadSettings.downloadPathSetTo' => 'Đã đặt đường dẫn tải xuống thành',
 			'settings.downloadSettings.setPathFailed' => 'Đặt đường dẫn thất bại',
 			'settings.downloadSettings.variableTitle' => 'Tiêu đề',
+			'settings.downloadSettings.variableTitletext' => 'Tiêu đề văn bản (không ký hiệu, cho bộ nhớ ngoài)',
 			'settings.downloadSettings.variableAuthorcache' => 'Tên đầu tiên của tác giả (không đổi khi tác giả đổi tên)',
 			'settings.downloadSettings.variableAuthor' => 'Tên tác giả',
 			'settings.downloadSettings.variableUsername' => 'Tên người dùng tác giả',
@@ -6299,6 +6302,7 @@ extension on TranslationsVi {
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => 'Nội dung',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => 'Tác giả',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => 'Thời gian',
+			'settings.downloadSettings.pathTemplateEditor.chipTitletext' => 'Tiêu đề văn bản',
 			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => 'Tên tác giả·cố định',
 			'settings.downloadSettings.pathTemplateEditor.chipDate' => 'Ngày',
 			'settings.downloadSettings.pathTemplateEditor.chipTime' => 'Giờ',
@@ -6504,10 +6508,10 @@ extension on TranslationsVi {
 			'videoDetail.gestureGuide.quest.resizeTitle' => 'Dùng các cạnh và góc',
 			'videoDetail.gestureGuide.quest.resizeBody' => 'Khung sẽ sáng lên khi tia của bạn tiến gần một cạnh. Giữ cò hoặc chụm vào một cạnh để di chuyển cửa sổ; kéo một góc để đổi kích thước.',
 			'videoDetail.gestureGuide.quest.resizeHint' => 'Hoạt động trên cửa sổ ứng dụng, bảng điều khiển và màn hình. Cửa sổ ứng dụng thay đổi chiều rộng và chiều cao; màn hình giữ nguyên tỉ lệ khung hình.',
-			'videoDetail.gestureGuide.quest.navigationTitle' => 'Quay lại và mở cài đặt',
-			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y lùi một cấp: đóng cửa sổ bật lên hoặc quay về trang chính của bảng, ẩn bảng, rồi quay về ứng dụng. Nút Menu bên trái mở cài đặt không gian.',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.navigationTitle' => 'Quay lại và mở cài đặt',
+			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y lùi một cấp: đóng cửa sổ bật lên hoặc quay về trang chính của bảng, ẩn bảng, rồi quay về ứng dụng. Nút Menu bên trái mở cài đặt không gian.',
 			'videoDetail.gestureGuide.quest.navigationHint' => 'Nút Meta bên phải thuộc về hệ thống. Chức năng định vị lại của hệ thống đưa tầm nhìn về phía trước trong khi giữ nguyên kích thước và khoảng cách màn hình.',
 			'videoDetail.gestureGuide.quest.handsTitle' => 'Dùng bàn tay',
 			'videoDetail.gestureGuide.quest.handsBody' => 'Khi bật theo dõi bàn tay, hướng tia của hệ thống vào một nút, chụm ngón cái và ngón trỏ, rồi thả ra. Dùng bảng để phát, tua và điều hướng thư viện.',
@@ -7018,10 +7022,10 @@ extension on TranslationsVi {
 			'download.relocation.resultTitle' => 'Move finished',
 			'download.relocation.resultMoved' => ({required Object count}) => '${count} item(s) moved',
 			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
-			'download.relocation.alreadyRunning' => 'Another move is already in progress',
-			'download.relocation.destination' => 'Destination',
 			_ => null,
 		} ?? switch (path) {
+			'download.relocation.alreadyRunning' => 'Another move is already in progress',
+			'download.relocation.destination' => 'Destination',
 			'download.relocation.statMove' => 'To move',
 			'download.relocation.statSkip' => 'Skipped',
 			'download.relocation.statRenamed' => 'Renamed',
@@ -7532,10 +7536,10 @@ extension on TranslationsVi {
 			'news.openInBrowser' => 'Mở trong trình duyệt',
 			'displaySettings.title' => 'Cài đặt hiển thị',
 			'displaySettings.layoutSettings' => 'Cài đặt bố cục',
-			'displaySettings.layoutSettingsDesc' => 'Tùy chỉnh số cột và cấu hình điểm ngắt',
-			'displaySettings.gridLayout' => 'Bố cục lưới',
 			_ => null,
 		} ?? switch (path) {
+			'displaySettings.layoutSettingsDesc' => 'Tùy chỉnh số cột và cấu hình điểm ngắt',
+			'displaySettings.gridLayout' => 'Bố cục lưới',
 			'displaySettings.navigationOrderSettings' => 'Cài đặt thứ tự điều hướng',
 			'displaySettings.customNavigationOrder' => 'Thứ tự điều hướng tùy chỉnh',
 			'displaySettings.customNavigationOrderDesc' => 'Điều chỉnh thứ tự hiển thị của các trang trong thanh điều hướng dưới và thanh bên',
@@ -8046,10 +8050,10 @@ extension on TranslationsVi {
 			'siteMode.mainSite' => 'Main',
 			'siteMode.aiSite' => 'AI',
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => 'Hiện tại ${currentSite} · Nhấn để chuyển sang ${nextSite}',
-			'siteMode.dialogTitle' => 'Chuyển chế độ trang',
-			'siteMode.dialogDescription' => 'Việc chuyển đổi sẽ làm mới toàn bộ ứng dụng và đặt lại các danh sách cùng trạng thái trang đã tải trước đó.',
 			_ => null,
 		} ?? switch (path) {
+			'siteMode.dialogTitle' => 'Chuyển chế độ trang',
+			'siteMode.dialogDescription' => 'Việc chuyển đổi sẽ làm mới toàn bộ ứng dụng và đặt lại các danh sách cùng trạng thái trang đã tải trước đó.',
 			'siteMode.chooseLinkTargetTitle' => 'Chọn trang đích',
 			'siteMode.chooseLinkTargetDescription' => 'Liên kết này không bao gồm tên miền. Vui lòng chọn mở trong Main hay AI.',
 			'siteMode.chooseLinkTargetHint' => 'Sau khi mở, trang này và các yêu cầu chi tiết tiếp theo sẽ tiếp tục dùng trang đã chọn.',
@@ -8560,10 +8564,10 @@ extension on TranslationsVi {
 			'ai.taskTranslate' => 'Dịch thuật',
 			'ai.taskSearch' => 'Tìm kiếm AI',
 			'ai.taskSignature' => 'Chữ ký',
-			'ai.taskAuto' => 'Tự động',
-			'ai.usage' => 'Mức sử dụng',
 			_ => null,
 		} ?? switch (path) {
+			'ai.taskAuto' => 'Tự động',
+			'ai.usage' => 'Mức sử dụng',
 			'ai.usageCalls' => 'Lượt gọi',
 			'ai.usageTokens' => 'Số token',
 			'ai.usageFailures' => 'Thất bại',

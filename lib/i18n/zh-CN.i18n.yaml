@@ -1332,6 +1332,7 @@ settings:
     setPathFailed: 设置路径失败
     # 文件命名模板变量
     variableTitle: 标题
+    variableTitletext: 纯文本标题（过滤特殊符号，适用于外置存储）
     variableAuthorcache: 作者首见名（作者改名不漂移）
     variableAuthor: 作者名称
     variableUsername: 作者用户名
@@ -1391,6 +1392,7 @@ settings:
       trayCategoryContent: 内容
       trayCategoryAuthor: 作者
       trayCategoryTime: 时间
+      chipTitletext: 纯文本标题
       chipAuthorcache: 作者名·固定
       chipDate: 日期
       chipTime: 时间

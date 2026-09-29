@@ -1330,6 +1330,7 @@ settings:
     setPathFailed: Đặt đường dẫn thất bại
     # Filename template variables
     variableTitle: Tiêu đề
+    variableTitletext: Tiêu đề văn bản (không ký hiệu, cho bộ nhớ ngoài)
     variableAuthorcache: 'Tên đầu tiên của tác giả (không đổi khi tác giả đổi tên)'
     variableAuthor: Tên tác giả
     variableUsername: Tên người dùng tác giả
@@ -1388,6 +1389,7 @@ settings:
       trayCategoryContent: 'Nội dung'
       trayCategoryAuthor: 'Tác giả'
       trayCategoryTime: 'Thời gian'
+      chipTitletext: Tiêu đề văn bản
       chipAuthorcache: 'Tên tác giả·cố định'
       chipDate: Ngày
       chipTime: Giờ

@@ -3501,6 +3501,7 @@ class _TranslationsSettingsDownloadSettingsJa extends TranslationsSettingsDownlo
 	@override String get downloadPathSetTo => 'ダウンロードパスが設定されました';
 	@override String get setPathFailed => 'パスの設定に失敗しました';
 	@override String get variableTitle => 'タイトル';
+	@override String get variableTitletext => 'テキストのみのタイトル（記号なし・外部ストレージ用）';
 	@override String get variableAuthorcache => '作者の初回名（改名しても変わりません）';
 	@override String get variableAuthor => '作者名';
 	@override String get variableUsername => '作者ユーザー名';
@@ -4828,6 +4829,7 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorJa extends Translat
 	@override String get trayCategoryContent => 'コンテンツ';
 	@override String get trayCategoryAuthor => '作者';
 	@override String get trayCategoryTime => '日時';
+	@override String get chipTitletext => 'テキストタイトル';
 	@override String get chipAuthorcache => '作者名・固定';
 	@override String get chipDate => '日付';
 	@override String get chipTime => '時刻';
@@ -6243,6 +6245,7 @@ extension on TranslationsJa {
 			'settings.downloadSettings.downloadPathSetTo' => 'ダウンロードパスが設定されました',
 			'settings.downloadSettings.setPathFailed' => 'パスの設定に失敗しました',
 			'settings.downloadSettings.variableTitle' => 'タイトル',
+			'settings.downloadSettings.variableTitletext' => 'テキストのみのタイトル（記号なし・外部ストレージ用）',
 			'settings.downloadSettings.variableAuthorcache' => '作者の初回名（改名しても変わりません）',
 			'settings.downloadSettings.variableAuthor' => '作者名',
 			'settings.downloadSettings.variableUsername' => '作者ユーザー名',
@@ -6299,6 +6302,7 @@ extension on TranslationsJa {
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => 'コンテンツ',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => '作者',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => '日時',
+			'settings.downloadSettings.pathTemplateEditor.chipTitletext' => 'テキストタイトル',
 			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => '作者名・固定',
 			'settings.downloadSettings.pathTemplateEditor.chipDate' => '日付',
 			'settings.downloadSettings.pathTemplateEditor.chipTime' => '時刻',
@@ -6504,10 +6508,10 @@ extension on TranslationsJa {
 			'videoDetail.gestureGuide.quest.resizeTitle' => '枠や角をドラッグ',
 			'videoDetail.gestureGuide.quest.resizeBody' => 'レイを端に近づけると枠が光ります。端をトリガーやピンチでつかむと移動、角をつかんでドラッグするとサイズ変更ができます。',
 			'videoDetail.gestureGuide.quest.resizeHint' => 'アプリ、操作パネル、スクリーンで共通の操作です。アプリの幅と高さは自由に変えられ、スクリーンは縦横比を保ちます。',
-			'videoDetail.gestureGuide.quest.navigationTitle' => '戻る・空間設定を開く',
-			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y はポップアップを閉じる、パネルのホームへ戻る、パネルを隠す、アプリへ戻る、の順で一段ずつ戻ります。左手の Menu で空間設定を開けます。',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.navigationTitle' => '戻る・空間設定を開く',
+			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y はポップアップを閉じる、パネルのホームへ戻る、パネルを隠す、アプリへ戻る、の順で一段ずつ戻ります。左手の Menu で空間設定を開けます。',
 			'videoDetail.gestureGuide.quest.navigationHint' => '右手の Meta ボタンはシステム用です。システムの視点リセットで正面に戻せます。スクリーンの大きさと距離は保たれます。',
 			'videoDetail.gestureGuide.quest.handsTitle' => 'コントローラーなしで操作',
 			'videoDetail.gestureGuide.quest.handsBody' => 'ハンドトラッキングを有効にし、システムのレイをボタンに合わせ、親指と人差し指をピンチして離します。再生、シーク、画像送りはパネルで操作できます。',
@@ -7018,10 +7022,10 @@ extension on TranslationsJa {
 			'download.relocation.resultTitle' => '移動が完了しました',
 			'download.relocation.resultMoved' => ({required Object count}) => '${count} 件を移動しました',
 			'download.relocation.cancelled' => '停止しました。移動済みの項目はすべて完全です。',
-			'download.relocation.alreadyRunning' => '別の移動がすでに実行中です',
-			'download.relocation.destination' => '移動先',
 			_ => null,
 		} ?? switch (path) {
+			'download.relocation.alreadyRunning' => '別の移動がすでに実行中です',
+			'download.relocation.destination' => '移動先',
 			'download.relocation.statMove' => '移動予定',
 			'download.relocation.statSkip' => 'スキップ',
 			'download.relocation.statRenamed' => '名前変更',
@@ -7532,10 +7536,10 @@ extension on TranslationsJa {
 			'mediaPlayer.serverCount' => ({required Object count}) => '合計 ${count} 台のサーバー',
 			'mediaPlayer.statusCode' => ({required Object code}) => 'ステータスコード: ${code}',
 			'mediaPlayer.connectionFailed' => '接続失敗',
-			'mediaPlayer.connectionTimeout' => '接続タイムアウト',
-			'mediaPlayer.networkError' => 'ネットワークエラー',
 			_ => null,
 		} ?? switch (path) {
+			'mediaPlayer.connectionTimeout' => '接続タイムアウト',
+			'mediaPlayer.networkError' => 'ネットワークエラー',
 			'mediaPlayer.sslError' => 'SSL証明書エラー',
 			'mediaPlayer.testCompleted' => 'テスト完了',
 			'mediaPlayer.local' => 'ローカル',
@@ -8046,10 +8050,10 @@ extension on TranslationsJa {
 			'siteMode.mainSite' => 'メイン',
 			'siteMode.aiSite' => 'AI',
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => '現在 ${currentSite} ・ タップして ${nextSite} に切り替え',
-			'siteMode.dialogTitle' => 'サイトモードを切り替え',
-			'siteMode.dialogDescription' => '切り替えると、アプリ全体が再読み込みされ、これまでに読み込んだリストやページ状態がリセットされます。',
 			_ => null,
 		} ?? switch (path) {
+			'siteMode.dialogTitle' => 'サイトモードを切り替え',
+			'siteMode.dialogDescription' => '切り替えると、アプリ全体が再読み込みされ、これまでに読み込んだリストやページ状態がリセットされます。',
 			'siteMode.chooseLinkTargetTitle' => 'リンク先サイトを選択',
 			'siteMode.chooseLinkTargetDescription' => 'このリンクにはドメインが含まれていません。メインサイトか AI サイトのどちらで開くか選択してください。',
 			'siteMode.chooseLinkTargetHint' => '開いた後、このページと後続の詳細リクエストは選択したサイトを使い続けます。',
@@ -8560,10 +8564,10 @@ extension on TranslationsJa {
 			'ai.taskTranslate' => '翻訳',
 			'ai.taskSearch' => 'AI検索',
 			'ai.taskSignature' => '署名',
-			'ai.taskAuto' => '自動',
-			'ai.usage' => '使用状況',
 			_ => null,
 		} ?? switch (path) {
+			'ai.taskAuto' => '自動',
+			'ai.usage' => '使用状況',
 			'ai.usageCalls' => '呼び出し回数',
 			'ai.usageTokens' => 'トークン数',
 			'ai.usageFailures' => '失敗',

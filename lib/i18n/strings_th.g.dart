@@ -3501,6 +3501,7 @@ class _TranslationsSettingsDownloadSettingsTh extends TranslationsSettingsDownlo
 	@override String get downloadPathSetTo => 'ตั้งค่าเส้นทางดาวน์โหลดเป็น';
 	@override String get setPathFailed => 'ตั้งค่าเส้นทางล้มเหลว';
 	@override String get variableTitle => 'ชื่อเรื่อง';
+	@override String get variableTitletext => 'ชื่อแบบข้อความ (ไม่มีสัญลักษณ์ สำหรับพื้นที่จัดเก็บภายนอก)';
 	@override String get variableAuthorcache => 'ชื่อแรกที่เคยเห็นของผู้สร้าง (ไม่เปลี่ยนตามการเปลี่ยนชื่อ)';
 	@override String get variableAuthor => 'ชื่อผู้สร้าง';
 	@override String get variableUsername => 'ชื่อผู้ใช้ของผู้สร้าง';
@@ -4828,6 +4829,7 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorTh extends Translat
 	@override String get trayCategoryContent => 'เนื้อหา';
 	@override String get trayCategoryAuthor => 'ผู้สร้าง';
 	@override String get trayCategoryTime => 'เวลา';
+	@override String get chipTitletext => 'ชื่อแบบข้อความ';
 	@override String get chipAuthorcache => 'ชื่อผู้สร้าง·คงที่';
 	@override String get chipDate => 'วันที่';
 	@override String get chipTime => 'เวลา';
@@ -6243,6 +6245,7 @@ extension on TranslationsTh {
 			'settings.downloadSettings.downloadPathSetTo' => 'ตั้งค่าเส้นทางดาวน์โหลดเป็น',
 			'settings.downloadSettings.setPathFailed' => 'ตั้งค่าเส้นทางล้มเหลว',
 			'settings.downloadSettings.variableTitle' => 'ชื่อเรื่อง',
+			'settings.downloadSettings.variableTitletext' => 'ชื่อแบบข้อความ (ไม่มีสัญลักษณ์ สำหรับพื้นที่จัดเก็บภายนอก)',
 			'settings.downloadSettings.variableAuthorcache' => 'ชื่อแรกที่เคยเห็นของผู้สร้าง (ไม่เปลี่ยนตามการเปลี่ยนชื่อ)',
 			'settings.downloadSettings.variableAuthor' => 'ชื่อผู้สร้าง',
 			'settings.downloadSettings.variableUsername' => 'ชื่อผู้ใช้ของผู้สร้าง',
@@ -6299,6 +6302,7 @@ extension on TranslationsTh {
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => 'เนื้อหา',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => 'ผู้สร้าง',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => 'เวลา',
+			'settings.downloadSettings.pathTemplateEditor.chipTitletext' => 'ชื่อแบบข้อความ',
 			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => 'ชื่อผู้สร้าง·คงที่',
 			'settings.downloadSettings.pathTemplateEditor.chipDate' => 'วันที่',
 			'settings.downloadSettings.pathTemplateEditor.chipTime' => 'เวลา',
@@ -6504,10 +6508,10 @@ extension on TranslationsTh {
 			'videoDetail.gestureGuide.quest.resizeTitle' => 'ใช้ขอบและมุม',
 			'videoDetail.gestureGuide.quest.resizeBody' => 'กรอบจะสว่างขึ้นเมื่อลำแสงของคุณเข้าใกล้ขอบ กดไกชี้ค้างไว้หรือจีบนิ้วที่ขอบเพื่อย้ายหน้าต่าง ลากมุมเพื่อปรับขนาด',
 			'videoDetail.gestureGuide.quest.resizeHint' => 'ใช้ได้กับหน้าต่างแอป แผงควบคุม และหน้าจอ หน้าต่างแอปสามารถปรับความกว้างและความสูงได้ ส่วนหน้าจอจะรักษาอัตราส่วนภาพไว้',
-			'videoDetail.gestureGuide.quest.navigationTitle' => 'ย้อนกลับและเปิดการตั้งค่า',
-			'videoDetail.gestureGuide.quest.navigationBody' => 'ปุ่ม B / Y ใช้ย้อนกลับหนึ่งระดับ: ปิดป๊อปอัปหรือกลับสู่หน้าแรกของแผงควบคุม ซ่อนแผงควบคุม แล้วกลับสู่แอป ปุ่ม Menu ด้านซ้ายเปิดการตั้งค่าเชิงพื้นที่',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.navigationTitle' => 'ย้อนกลับและเปิดการตั้งค่า',
+			'videoDetail.gestureGuide.quest.navigationBody' => 'ปุ่ม B / Y ใช้ย้อนกลับหนึ่งระดับ: ปิดป๊อปอัปหรือกลับสู่หน้าแรกของแผงควบคุม ซ่อนแผงควบคุม แล้วกลับสู่แอป ปุ่ม Menu ด้านซ้ายเปิดการตั้งค่าเชิงพื้นที่',
 			'videoDetail.gestureGuide.quest.navigationHint' => 'ปุ่ม Meta ด้านขวาเป็นของระบบ การตั้งศูนย์ระบบใหม่จะนำมุมมองกลับมาอยู่ข้างหน้าโดยยังคงขนาดและระยะห่างของหน้าจอไว้',
 			'videoDetail.gestureGuide.quest.handsTitle' => 'ใช้มือของคุณ',
 			'videoDetail.gestureGuide.quest.handsBody' => 'เมื่อเปิดใช้งานการติดตามมือ ให้เล็งลำแสงของระบบไปที่ปุ่ม จีบนิ้วหัวแม่มือและนิ้วชี้เข้าหากัน แล้วปล่อย ใช้แผงควบคุมสำหรับการเล่น การเลื่อนหาตำแหน่ง และการนำทางแกลเลอรี',
@@ -7018,10 +7022,10 @@ extension on TranslationsTh {
 			'download.relocation.resultTitle' => 'Move finished',
 			'download.relocation.resultMoved' => ({required Object count}) => '${count} item(s) moved',
 			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
-			'download.relocation.alreadyRunning' => 'Another move is already in progress',
-			'download.relocation.destination' => 'Destination',
 			_ => null,
 		} ?? switch (path) {
+			'download.relocation.alreadyRunning' => 'Another move is already in progress',
+			'download.relocation.destination' => 'Destination',
 			'download.relocation.statMove' => 'To move',
 			'download.relocation.statSkip' => 'Skipped',
 			'download.relocation.statRenamed' => 'Renamed',
@@ -7532,10 +7536,10 @@ extension on TranslationsTh {
 			'news.openInBrowser' => 'เปิดในเบราว์เซอร์',
 			'displaySettings.title' => 'การตั้งค่าการแสดงผล',
 			'displaySettings.layoutSettings' => 'การตั้งค่าเลย์เอาต์',
-			'displaySettings.layoutSettingsDesc' => 'ปรับแต่งจำนวนคอลัมน์และการกำหนดค่าจุดแบ่งหน้าจอ (Breakpoint)',
-			'displaySettings.gridLayout' => 'เลย์เอาต์ตาราง',
 			_ => null,
 		} ?? switch (path) {
+			'displaySettings.layoutSettingsDesc' => 'ปรับแต่งจำนวนคอลัมน์และการกำหนดค่าจุดแบ่งหน้าจอ (Breakpoint)',
+			'displaySettings.gridLayout' => 'เลย์เอาต์ตาราง',
 			'displaySettings.navigationOrderSettings' => 'การตั้งค่าลำดับการนำทาง',
 			'displaySettings.customNavigationOrder' => 'กำหนดลำดับการนำทางเอง',
 			'displaySettings.customNavigationOrderDesc' => 'ปรับลำดับการแสดงผลของหน้าต่างๆ ในแถบนำทางด้านล่างและแถบด้านข้าง',
@@ -8046,10 +8050,10 @@ extension on TranslationsTh {
 			'siteMode.mainSite' => 'ไซต์หลัก',
 			'siteMode.aiSite' => 'AI',
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => 'ปัจจุบัน ${currentSite} · แตะเพื่อสลับเป็น ${nextSite}',
-			'siteMode.dialogTitle' => 'สลับโหมดไซต์',
-			'siteMode.dialogDescription' => 'การสลับจะรีเฟรชทั้งแอป และรีเซ็ตรายการที่โหลดไว้ก่อนหน้ากับสถานะของหน้า',
 			_ => null,
 		} ?? switch (path) {
+			'siteMode.dialogTitle' => 'สลับโหมดไซต์',
+			'siteMode.dialogDescription' => 'การสลับจะรีเฟรชทั้งแอป และรีเซ็ตรายการที่โหลดไว้ก่อนหน้ากับสถานะของหน้า',
 			'siteMode.chooseLinkTargetTitle' => 'เลือกไซต์ปลายทาง',
 			'siteMode.chooseLinkTargetDescription' => 'ลิงก์นี้ไม่มีโดเมน โปรดเลือกว่าจะเปิดในไซต์หลักหรือ AI',
 			'siteMode.chooseLinkTargetHint' => 'เมื่อเปิดแล้ว หน้านี้และคำขอรายละเอียดที่ตามมาจะใช้ไซต์ที่เลือกต่อไป',
@@ -8560,10 +8564,10 @@ extension on TranslationsTh {
 			'ai.taskTranslate' => 'การแปล',
 			'ai.taskSearch' => 'ค้นหาด้วย AI',
 			'ai.taskSignature' => 'ลายเซ็น',
-			'ai.taskAuto' => 'อัตโนมัติ',
-			'ai.usage' => 'การใช้งาน',
 			_ => null,
 		} ?? switch (path) {
+			'ai.taskAuto' => 'อัตโนมัติ',
+			'ai.usage' => 'การใช้งาน',
 			'ai.usageCalls' => 'การเรียกใช้',
 			'ai.usageTokens' => 'โทเค็น',
 			'ai.usageFailures' => 'ล้มเหลว',

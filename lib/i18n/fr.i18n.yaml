@@ -1330,6 +1330,7 @@ settings:
     setPathFailed: Échec de la définition du chemin
     # Filename template variables
     variableTitle: Titre
+    variableTitletext: Titre en texte seul (sans symboles, pour stockage externe)
     variableAuthorcache: 'Premier nom vu de l''auteur (stable malgré les renommages)'
     variableAuthor: Nom de l'auteur
     variableUsername: Nom d'utilisateur de l'auteur
@@ -1388,6 +1389,7 @@ settings:
       trayCategoryContent: 'Contenu'
       trayCategoryAuthor: 'Auteur'
       trayCategoryTime: 'Temps'
+      chipTitletext: Titre texte
       chipAuthorcache: 'Nom de lauteur·fixe'
       chipDate: Date
       chipTime: Heure

@@ -1330,6 +1330,7 @@ settings:
     setPathFailed: 경로 설정에 실패했습니다
     # Filename template variables
     variableTitle: 제목
+    variableTitletext: 텍스트 제목 (기호 제외, 외부 저장소용)
     variableAuthorcache: '작성자 첫 이름(이름이 바뀌어도 유지)'
     variableAuthor: 작성자 이름
     variableUsername: 작성자 사용자 이름
@@ -1388,6 +1389,7 @@ settings:
       trayCategoryContent: '콘텐츠'
       trayCategoryAuthor: '작성자'
       trayCategoryTime: '시간'
+      chipTitletext: 텍스트 제목
       chipAuthorcache: '작성자 이름·고정'
       chipDate: 날짜
       chipTime: 시간

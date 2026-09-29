@@ -1330,6 +1330,7 @@ settings:
     setPathFailed: No se pudo establecer la ruta
     # Filename template variables
     variableTitle: Título
+    variableTitletext: Título de texto (sin símbolos, para almacenamiento externo)
     variableAuthorcache: 'Primer nombre visto del autor (estable aunque cambie el nombre)'
     variableAuthor: Nombre del autor
     variableUsername: Nombre de usuario del autor
@@ -1388,6 +1389,7 @@ settings:
       trayCategoryContent: 'Contenido'
       trayCategoryAuthor: 'Autor'
       trayCategoryTime: 'Tiempo'
+      chipTitletext: Título de texto
       chipAuthorcache: 'Nombre del autor·fijo'
       chipDate: Fecha
       chipTime: Hora

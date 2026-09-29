@@ -1330,6 +1330,7 @@ settings:
     setPathFailed: Gagal mengatur jalur
     # Filename template variables
     variableTitle: Judul
+    variableTitletext: Judul teks saja (tanpa simbol, untuk penyimpanan eksternal)
     variableAuthorcache: 'Nama pertama penulis (stabil meski nama diganti)'
     variableAuthor: Nama penulis
     variableUsername: Nama pengguna penulis
@@ -1388,6 +1389,7 @@ settings:
       trayCategoryContent: 'Konten'
       trayCategoryAuthor: 'Penulis'
       trayCategoryTime: 'Waktu'
+      chipTitletext: Judul teks
       chipAuthorcache: 'Nama penulis·tetap'
       chipDate: Tanggal
       chipTime: Waktu

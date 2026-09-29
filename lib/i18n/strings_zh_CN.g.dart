@@ -3501,6 +3501,7 @@ class _TranslationsSettingsDownloadSettingsZhCn extends TranslationsSettingsDown
 	@override String get downloadPathSetTo => '下载路径已设置为';
 	@override String get setPathFailed => '设置路径失败';
 	@override String get variableTitle => '标题';
+	@override String get variableTitletext => '纯文本标题（过滤特殊符号，适用于外置存储）';
 	@override String get variableAuthorcache => '作者首见名（作者改名不漂移）';
 	@override String get variableAuthor => '作者名称';
 	@override String get variableUsername => '作者用户名';
@@ -4828,6 +4829,7 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorZhCn extends Transl
 	@override String get trayCategoryContent => '内容';
 	@override String get trayCategoryAuthor => '作者';
 	@override String get trayCategoryTime => '时间';
+	@override String get chipTitletext => '纯文本标题';
 	@override String get chipAuthorcache => '作者名·固定';
 	@override String get chipDate => '日期';
 	@override String get chipTime => '时间';
@@ -6243,6 +6245,7 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.downloadPathSetTo' => '下载路径已设置为',
 			'settings.downloadSettings.setPathFailed' => '设置路径失败',
 			'settings.downloadSettings.variableTitle' => '标题',
+			'settings.downloadSettings.variableTitletext' => '纯文本标题（过滤特殊符号，适用于外置存储）',
 			'settings.downloadSettings.variableAuthorcache' => '作者首见名（作者改名不漂移）',
 			'settings.downloadSettings.variableAuthor' => '作者名称',
 			'settings.downloadSettings.variableUsername' => '作者用户名',
@@ -6299,6 +6302,7 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => '内容',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => '作者',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => '时间',
+			'settings.downloadSettings.pathTemplateEditor.chipTitletext' => '纯文本标题',
 			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => '作者名·固定',
 			'settings.downloadSettings.pathTemplateEditor.chipDate' => '日期',
 			'settings.downloadSettings.pathTemplateEditor.chipTime' => '时间',
@@ -6504,10 +6508,10 @@ extension on TranslationsZhCn {
 			'videoDetail.gestureGuide.quest.resizeTitle' => '拖动窗边与窗角',
 			'videoDetail.gestureGuide.quest.resizeBody' => '射线靠近窗边时会亮起边框。对准边缘，按住扳机或捏合可移动窗口；对准角落，按住拖动可改变大小。',
 			'videoDetail.gestureGuide.quest.resizeHint' => '应用窗口、控制面板和幕布使用同一套操作。应用窗口可调整宽高，幕布保持画面比例。',
-			'videoDetail.gestureGuide.quest.navigationTitle' => '返回与空间设置',
-			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y 每次返回一层：先关浮层或返回面板主页，再收起面板，最后回到应用。左手 Menu 键可直接唤出空间设置。',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.navigationTitle' => '返回与空间设置',
+			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y 每次返回一层：先关浮层或返回面板主页，再收起面板，最后回到应用。左手 Menu 键可直接唤出空间设置。',
 			'videoDetail.gestureGuide.quest.navigationHint' => '右手 Meta 键由系统处理。使用系统回正可把视线前方重新设为中心，保留幕布大小和距离。',
 			'videoDetail.gestureGuide.quest.handsTitle' => '放下手柄，用手操作',
 			'videoDetail.gestureGuide.quest.handsBody' => '开启手势追踪后，用系统射线瞄准按钮，食指与拇指捏合并松开即可选择。播放、进度和图库翻页都可通过控制面板操作。',
@@ -7018,10 +7022,10 @@ extension on TranslationsZhCn {
 			'download.relocation.resultMoved' => ({required Object count}) => '已移动 ${count} 项',
 			'download.relocation.cancelled' => '已停止。已移动的项目都是完整的。',
 			'download.relocation.alreadyRunning' => '已有一个移动任务在进行',
-			'download.relocation.destination' => '目标位置',
-			'download.relocation.statMove' => '将移动',
 			_ => null,
 		} ?? switch (path) {
+			'download.relocation.destination' => '目标位置',
+			'download.relocation.statMove' => '将移动',
 			'download.relocation.statSkip' => '跳过',
 			'download.relocation.statRenamed' => '改名',
 			'download.relocation.statMoved' => '已移动',
@@ -7532,10 +7536,10 @@ extension on TranslationsZhCn {
 			'mediaPlayer.serverCount' => ({required Object count}) => '共 ${count} 个服务器',
 			'mediaPlayer.statusCode' => ({required Object code}) => '状态码: ${code}',
 			'mediaPlayer.connectionFailed' => '连接失败',
-			'mediaPlayer.connectionTimeout' => '连接超时',
-			'mediaPlayer.networkError' => '网络错误',
 			_ => null,
 		} ?? switch (path) {
+			'mediaPlayer.connectionTimeout' => '连接超时',
+			'mediaPlayer.networkError' => '网络错误',
 			'mediaPlayer.sslError' => 'SSL证书错误',
 			'mediaPlayer.testCompleted' => '测速完成',
 			'mediaPlayer.local' => '本地',
@@ -8046,10 +8050,10 @@ extension on TranslationsZhCn {
 			'siteMode.mainSite' => '主站',
 			'siteMode.aiSite' => 'AI站',
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => '当前 ${currentSite} · 点击切换到 ${nextSite}',
-			'siteMode.dialogTitle' => '切换站点模式',
-			'siteMode.dialogDescription' => '切换后会刷新整个应用，并重置之前已加载的列表和页面状态。',
 			_ => null,
 		} ?? switch (path) {
+			'siteMode.dialogTitle' => '切换站点模式',
+			'siteMode.dialogDescription' => '切换后会刷新整个应用，并重置之前已加载的列表和页面状态。',
 			'siteMode.chooseLinkTargetTitle' => '选择链接目标站点',
 			'siteMode.chooseLinkTargetDescription' => '此链接未包含域名，请选择要跳往主站还是 AI 站。',
 			'siteMode.chooseLinkTargetHint' => '进入后，该页面及其后续详情请求会沿用你选择的站点。',
@@ -8560,10 +8564,10 @@ extension on TranslationsZhCn {
 			'ai.taskTranslate' => '翻译',
 			'ai.taskSearch' => 'AI 搜索',
 			'ai.taskSignature' => '小尾巴',
-			'ai.taskAuto' => '自动',
-			'ai.usage' => '用量',
 			_ => null,
 		} ?? switch (path) {
+			'ai.taskAuto' => '自动',
+			'ai.usage' => '用量',
 			'ai.usageCalls' => '调用',
 			'ai.usageTokens' => 'token',
 			'ai.usageFailures' => '失败',

@@ -3501,6 +3501,7 @@ class _TranslationsSettingsDownloadSettingsId extends TranslationsSettingsDownlo
 	@override String get downloadPathSetTo => 'Jalur unduhan diatur ke';
 	@override String get setPathFailed => 'Gagal mengatur jalur';
 	@override String get variableTitle => 'Judul';
+	@override String get variableTitletext => 'Judul teks saja (tanpa simbol, untuk penyimpanan eksternal)';
 	@override String get variableAuthorcache => 'Nama pertama penulis (stabil meski nama diganti)';
 	@override String get variableAuthor => 'Nama penulis';
 	@override String get variableUsername => 'Nama pengguna penulis';
@@ -4828,6 +4829,7 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorId extends Translat
 	@override String get trayCategoryContent => 'Konten';
 	@override String get trayCategoryAuthor => 'Penulis';
 	@override String get trayCategoryTime => 'Waktu';
+	@override String get chipTitletext => 'Judul teks';
 	@override String get chipAuthorcache => 'Nama penulis·tetap';
 	@override String get chipDate => 'Tanggal';
 	@override String get chipTime => 'Waktu';
@@ -6243,6 +6245,7 @@ extension on TranslationsId {
 			'settings.downloadSettings.downloadPathSetTo' => 'Jalur unduhan diatur ke',
 			'settings.downloadSettings.setPathFailed' => 'Gagal mengatur jalur',
 			'settings.downloadSettings.variableTitle' => 'Judul',
+			'settings.downloadSettings.variableTitletext' => 'Judul teks saja (tanpa simbol, untuk penyimpanan eksternal)',
 			'settings.downloadSettings.variableAuthorcache' => 'Nama pertama penulis (stabil meski nama diganti)',
 			'settings.downloadSettings.variableAuthor' => 'Nama penulis',
 			'settings.downloadSettings.variableUsername' => 'Nama pengguna penulis',
@@ -6299,6 +6302,7 @@ extension on TranslationsId {
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => 'Konten',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => 'Penulis',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => 'Waktu',
+			'settings.downloadSettings.pathTemplateEditor.chipTitletext' => 'Judul teks',
 			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => 'Nama penulis·tetap',
 			'settings.downloadSettings.pathTemplateEditor.chipDate' => 'Tanggal',
 			'settings.downloadSettings.pathTemplateEditor.chipTime' => 'Waktu',
@@ -6504,10 +6508,10 @@ extension on TranslationsId {
 			'videoDetail.gestureGuide.quest.resizeTitle' => 'Gunakan tepi dan sudut',
 			'videoDetail.gestureGuide.quest.resizeBody' => 'Bingkai akan menyala saat sinar Anda mendekati tepi. Tahan pemicu atau cubit pada tepi untuk memindahkan jendela; seret sudut untuk mengubah ukurannya.',
 			'videoDetail.gestureGuide.quest.resizeHint' => 'Berfungsi pada jendela aplikasi, panel kontrol, dan layar. Jendela aplikasi mengubah lebar dan tinggi; layar mempertahankan rasio aspeknya.',
-			'videoDetail.gestureGuide.quest.navigationTitle' => 'Kembali dan buka pengaturan',
-			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y kembali satu tingkat: menutup popup atau kembali ke beranda panel, menyembunyikan panel, lalu kembali ke aplikasi. Tombol Menu kiri membuka pengaturan spasial.',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.navigationTitle' => 'Kembali dan buka pengaturan',
+			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y kembali satu tingkat: menutup popup atau kembali ke beranda panel, menyembunyikan panel, lalu kembali ke aplikasi. Tombol Menu kiri membuka pengaturan spasial.',
 			'videoDetail.gestureGuide.quest.navigationHint' => 'Tombol Meta kanan milik sistem. Pemusatan ulang sistem membawa tampilan kembali ke depan sambil mempertahankan ukuran dan jarak layar.',
 			'videoDetail.gestureGuide.quest.handsTitle' => 'Gunakan tangan Anda',
 			'videoDetail.gestureGuide.quest.handsBody' => 'Dengan pelacakan tangan aktif, arahkan sinar sistem ke tombol, cubit ibu jari dan telunjuk Anda, lalu lepaskan. Gunakan panel untuk pemutaran, pencarian, dan navigasi galeri.',
@@ -7018,10 +7022,10 @@ extension on TranslationsId {
 			'download.relocation.resultTitle' => 'Move finished',
 			'download.relocation.resultMoved' => ({required Object count}) => '${count} item(s) moved',
 			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
-			'download.relocation.alreadyRunning' => 'Another move is already in progress',
-			'download.relocation.destination' => 'Destination',
 			_ => null,
 		} ?? switch (path) {
+			'download.relocation.alreadyRunning' => 'Another move is already in progress',
+			'download.relocation.destination' => 'Destination',
 			'download.relocation.statMove' => 'To move',
 			'download.relocation.statSkip' => 'Skipped',
 			'download.relocation.statRenamed' => 'Renamed',
@@ -7532,10 +7536,10 @@ extension on TranslationsId {
 			'news.openInBrowser' => 'Buka di Peramban',
 			'displaySettings.title' => 'Pengaturan Tampilan',
 			'displaySettings.layoutSettings' => 'Pengaturan Tata Letak',
-			'displaySettings.layoutSettingsDesc' => 'Sesuaikan jumlah kolom dan konfigurasi titik henti',
-			'displaySettings.gridLayout' => 'Tata Letak Kisi',
 			_ => null,
 		} ?? switch (path) {
+			'displaySettings.layoutSettingsDesc' => 'Sesuaikan jumlah kolom dan konfigurasi titik henti',
+			'displaySettings.gridLayout' => 'Tata Letak Kisi',
 			'displaySettings.navigationOrderSettings' => 'Pengaturan Urutan Navigasi',
 			'displaySettings.customNavigationOrder' => 'Urutan Navigasi Kustom',
 			'displaySettings.customNavigationOrderDesc' => 'Sesuaikan urutan tampilan halaman pada bilah navigasi bawah dan bilah samping',
@@ -8046,10 +8050,10 @@ extension on TranslationsId {
 			'siteMode.mainSite' => 'Main',
 			'siteMode.aiSite' => 'AI',
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => 'Saat ini ${currentSite} · Ketuk untuk beralih ke ${nextSite}',
-			'siteMode.dialogTitle' => 'Beralih Mode Situs',
-			'siteMode.dialogDescription' => 'Beralih akan menyegarkan seluruh aplikasi dan mengatur ulang daftar serta status halaman yang dimuat sebelumnya.',
 			_ => null,
 		} ?? switch (path) {
+			'siteMode.dialogTitle' => 'Beralih Mode Situs',
+			'siteMode.dialogDescription' => 'Beralih akan menyegarkan seluruh aplikasi dan mengatur ulang daftar serta status halaman yang dimuat sebelumnya.',
 			'siteMode.chooseLinkTargetTitle' => 'Pilih Situs Tujuan',
 			'siteMode.chooseLinkTargetDescription' => 'Tautan ini tidak menyertakan domain. Silakan pilih apakah akan membukanya di Main atau AI.',
 			'siteMode.chooseLinkTargetHint' => 'Setelah dibuka, halaman ini dan permintaan detail lanjutannya akan terus menggunakan situs yang dipilih.',
@@ -8560,10 +8564,10 @@ extension on TranslationsId {
 			'ai.taskTranslate' => 'Terjemahan',
 			'ai.taskSearch' => 'Pencarian AI',
 			'ai.taskSignature' => 'Tanda tangan',
-			'ai.taskAuto' => 'Otomatis',
-			'ai.usage' => 'Penggunaan',
 			_ => null,
 		} ?? switch (path) {
+			'ai.taskAuto' => 'Otomatis',
+			'ai.usage' => 'Penggunaan',
 			'ai.usageCalls' => 'Panggilan',
 			'ai.usageTokens' => 'Jumlah token',
 			'ai.usageFailures' => 'Gagal',
