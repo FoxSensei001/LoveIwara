@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "rev": "6fdf09e1b1a2ef57",
-  "builtAt": "2026-09-23T07:14:37.449707Z",
-  "count": 654,
+  "rev": "98e8142769208843",
+  "builtAt": "2026-10-04T20:13:43.764692Z",
+  "count": 657,
   "upstream": {
     "source": "CherryHQ/cherry-studio @ packages/provider-registry (MIT)",
-    "providers": "2707d81b155c6c98",
-    "models": "b266093d9b453039"
+    "providers": "a97aae2405a78d18",
+    "models": "463bf245f0915754"
   },
   "providers": {
     "silicon": {
@@ -1857,6 +1857,18 @@
       "w": 1000000,
       "o": 128000
     },
+    "claude-sonnet-5-5": {
+      "n": "Claude Sonnet 5.5",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 128000
+    },
     "claude-sonnet-latest": {
       "n": "Anthropic Claude Sonnet Latest",
       "c": [
@@ -3496,6 +3508,15 @@
       "w": 1048576,
       "o": 524288
     },
+    "minimax-m3-1-flash-preview": {
+      "n": "MiniMax-M3.1-Flash-Preview",
+      "c": [
+        "fc",
+        "rs",
+        "vi"
+      ],
+      "w": 1000000
+    },
     "codestral": {
       "n": "Codestral (latest)",
       "c": [
@@ -4924,6 +4945,17 @@
       ],
       "w": 400000,
       "o": 272000
+    },
+    "gpt-6-1-sol": {
+      "n": "GPT-6.1 Sol",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1050000,
+      "o": 128000
     },
     "gpt-6-astra": {
       "n": "GPT-6 Astra",
