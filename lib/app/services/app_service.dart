@@ -36,7 +36,9 @@ import 'pop_coordinator.dart';
 
 class AppService extends GetxService {
   // 默认标题栏高度
-  static const double titleBarHeight = 26.0;
+  // macOS 下红绿灯（原生按钮，AX 帧 [8,8 16×16]）的圆心在窗口顶部下 16pt，
+  // 标题栏要和它同心，所以取 32；其它平台保持 26。
+  static final double titleBarHeight = GetPlatform.isMacOS ? 32.0 : 26.0;
 
   final RxBool _showTitleBar = false.obs; // 是否显示标题栏 [ 全局使用 ]
   final RxBool _showRailNavi = true.obs; // 是否显示侧边栏 [ Home路由下使用 ]

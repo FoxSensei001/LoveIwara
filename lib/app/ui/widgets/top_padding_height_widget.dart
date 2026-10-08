@@ -14,7 +14,7 @@ class TopPaddingHeightWidget extends StatelessWidget {
     if (GetPlatform.isDesktop) {
       return Obx(() {
         if (appService.showTitleBar) {
-          return const SizedBox(height: AppService.titleBarHeight);
+          return SizedBox(height: AppService.titleBarHeight);
         } else {
           return const SizedBox(height: 0);
         }
