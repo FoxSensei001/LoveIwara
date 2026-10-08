@@ -159,6 +159,14 @@ Got a request? Open an [Issue](https://github.com/FoxSensei001/LoveIwara/issues)
 
 ## 📸 Screenshots
 
+### 🥽 Meta Quest
+
+| The screen and its control panel | A gallery: one stage plus a film strip |
+|:-------------------------:|:-------------------------:|
+|<img src="docs/imgs/vr_video.jpg" width="420">|<img src="docs/imgs/gallery_quest.jpg" width="420">|
+
+### 📱 Phone & Desktop
+
 Screenshots use sample data and placeholder images. [Regenerate screenshots](docs/imgs/README.md).
 
 | | |

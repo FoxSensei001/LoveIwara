@@ -159,6 +159,14 @@ Hast du einen Wunsch? Eröffne ein [Issue](https://github.com/FoxSensei001/LoveI
 
 ## 📸 Screenshots
 
+### 🥽 Meta Quest
+
+| Der Bildschirm und sein Steuerungspanel | Eine Galerie: eine Bühne plus ein Filmstreifen |
+|:-------------------------:|:-------------------------:|
+|<img src="../imgs/vr_video.jpg" width="420">|<img src="../imgs/gallery_quest.jpg" width="420">|
+
+### 📱 Smartphone & Desktop
+
 Die Screenshots verwenden Beispieldaten und Platzhalterbilder. [Screenshots neu erstellen](../imgs/README.md).
 
 | | |

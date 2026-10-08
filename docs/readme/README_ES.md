@@ -159,6 +159,14 @@ Aparte de eso: las descargas siguen marcadas como beta, y Linux se compila pero 
 
 ## 📸 Capturas de pantalla
 
+### 🥽 Meta Quest
+
+| La pantalla y su panel de control | Una galería: un escenario más una tira de miniaturas |
+|:-------------------------:|:-------------------------:|
+|<img src="../imgs/vr_video.jpg" width="420">|<img src="../imgs/gallery_quest.jpg" width="420">|
+
+### 📱 Teléfono y escritorio
+
 Las capturas usan datos de ejemplo e imágenes de muestra. [Regenerar las capturas](../imgs/README.md).
 
 | | |

@@ -159,6 +159,14 @@ Có yêu cầu gì không? Hãy mở một [Issue](https://github.com/FoxSensei0
 
 ## 📸 Ảnh chụp màn hình
 
+### 🥽 Meta Quest
+
+| Màn hình và panel điều khiển của nó | Một thư viện ảnh: một sân khấu cùng một dải phim |
+|:-------------------------:|:-------------------------:|
+|<img src="../imgs/vr_video.jpg" width="420">|<img src="../imgs/gallery_quest.jpg" width="420">|
+
+### 📱 Điện thoại & Desktop
+
 Ảnh chụp sử dụng dữ liệu mẫu và hình ảnh placeholder. [Tạo lại ảnh chụp](../imgs/README.md).
 
 | | |

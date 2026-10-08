@@ -159,6 +159,14 @@ Punya permintaan? Buka [Issue](https://github.com/FoxSensei001/LoveIwara/issues)
 
 ## 📸 Tangkapan Layar
 
+### 🥽 Meta Quest
+
+| Layar dan panel kontrolnya | Sebuah galeri: satu panggung ditambah strip film |
+|:-------------------------:|:-------------------------:|
+|<img src="../imgs/vr_video.jpg" width="420">|<img src="../imgs/gallery_quest.jpg" width="420">|
+
+### 📱 Ponsel & Desktop
+
 Tangkapan layar menggunakan data contoh dan gambar placeholder. [Buat ulang tangkapan layar](../imgs/README.md).
 
 | | |

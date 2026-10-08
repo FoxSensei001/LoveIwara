@@ -159,6 +159,14 @@ Une demande ? Ouvrez une [Issue](https://github.com/FoxSensei001/LoveIwara/issue
 
 ## 📸 Captures d'écran
 
+### 🥽 Meta Quest
+
+| L'écran et son panneau de contrôle | Une galerie : une scène plus une bande de pellicule |
+|:-------------------------:|:-------------------------:|
+|<img src="../imgs/vr_video.jpg" width="420">|<img src="../imgs/gallery_quest.jpg" width="420">|
+
+### 📱 Téléphone et bureau
+
 Les captures utilisent des données de démonstration et des images de remplacement. [Régénérer les captures](../imgs/README.md).
 
 | | |
