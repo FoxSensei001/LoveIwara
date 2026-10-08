@@ -575,6 +575,23 @@ settings:
   testProxyFailedWithStatusCode: 'プロキシリクエストが失敗しました。ステータスコード: ${code}'
   testProxyFailedWithException: 'プロキシリクエスト中にエラーが発生しました: ${exception}'
   proxyConfig: プロキシ設定
+  proxyEditor:
+    description: "プロキシアプリやサーバーのアドレスと HTTP ポートを入力してください。"
+    hostLabel: "サーバーアドレス"
+    portLabel: "ポート"
+    fieldsHelp: "IP アドレスまたはドメイン名と、プロキシアプリの HTTP または混合ポートを使用してください。貼り付けた URL は自動で分割されます。サブスクリプションのリンクは非対応です。"
+    hostRequired: "サーバーアドレスを入力してください。"
+    invalidHost: "127.0.0.1 や proxy.example.com などの IP アドレスまたはドメイン名を入力してください。"
+    portRequired: "ポートを入力してください。"
+    invalidPort: "1～65535 のポート番号を入力してください。"
+    useSystemProxy: "${address} を使用"
+    saved: "保存済み"
+    testConnection: "接続をテスト"
+    testing: "テスト中…"
+    testSuccess: "このプロキシから Google に接続できました。テストではプロキシを有効にしません。"
+    testFailure: "このプロキシから Google に接続できません。プロキシアプリの起動状態とアドレス、HTTP ポートを確認してください。"
+    enabled: "再起動後に保存済みのプロキシを使用します。"
+    disabled: "現在のネットワーク接続を使用します。"
   thisIsHttpProxyAddress: ここにHTTPプロキシアドレスを入力してください
   checkProxy: プロキシを確認
   proxyAddress: プロキシアドレス

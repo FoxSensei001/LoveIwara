@@ -739,6 +739,7 @@ class _TranslationsSettingsKo extends TranslationsSettingsEn {
 	@override String testProxyFailedWithStatusCode({required Object code}) => '프록시 테스트 실패, 상태 코드: ${code}';
 	@override String testProxyFailedWithException({required Object exception}) => '프록시 테스트 실패, 예외: ${exception}';
 	@override String get proxyConfig => '프록시 설정';
+	@override late final _TranslationsSettingsProxyEditorKo proxyEditor = _TranslationsSettingsProxyEditorKo._(_root);
 	@override String get thisIsHttpProxyAddress => '이것은 http 프록시 주소입니다';
 	@override String get checkProxy => '프록시 확인';
 	@override String get proxyAddress => '프록시 주소';
@@ -3165,6 +3166,31 @@ class _TranslationsErrorsNetworkKo extends TranslationsErrorsNetworkEn {
 	@override String get sslConnectionFailed => 'SSL 연결 실패, 네트워크 설정을 확인해 주세요';
 }
 
+// Path: settings.proxyEditor
+class _TranslationsSettingsProxyEditorKo extends TranslationsSettingsProxyEditorEn {
+	_TranslationsSettingsProxyEditorKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get description => '프록시 앱이나 서버의 주소와 HTTP 포트를 입력하세요.';
+	@override String get hostLabel => '서버 주소';
+	@override String get portLabel => '포트';
+	@override String get fieldsHelp => 'IP 주소 또는 도메인 이름과 프록시 앱의 HTTP 또는 혼합 포트를 사용하세요. 붙여넣은 URL은 자동으로 분리됩니다. 구독 링크는 지원하지 않습니다.';
+	@override String get hostRequired => '서버 주소를 입력하세요.';
+	@override String get invalidHost => '127.0.0.1 또는 proxy.example.com과 같은 IP 주소나 도메인을 입력하세요.';
+	@override String get portRequired => '포트를 입력하세요.';
+	@override String get invalidPort => '1–65535 범위의 포트를 입력하세요.';
+	@override String useSystemProxy({required Object address}) => '${address} 사용';
+	@override String get saved => '저장됨';
+	@override String get testConnection => '연결 테스트';
+	@override String get testing => '테스트 중…';
+	@override String get testSuccess => '이 프록시로 Google에 접속할 수 있습니다. 테스트는 프록시를 활성화하지 않습니다.';
+	@override String get testFailure => '이 프록시로 Google에 접속할 수 없습니다. 프록시 앱 실행 여부와 주소, HTTP 포트를 확인하세요.';
+	@override String get enabled => '재시작 후 저장된 프록시를 사용합니다.';
+	@override String get disabled => '현재 네트워크 연결을 사용합니다.';
+}
+
 // Path: settings.keybinding
 class _TranslationsSettingsKeybindingKo extends TranslationsSettingsKeybindingEn {
 	_TranslationsSettingsKeybindingKo._(TranslationsKo root) : this._root = root, super.internal(root);
@@ -5507,6 +5533,22 @@ extension on TranslationsKo {
 			'settings.testProxyFailedWithStatusCode' => ({required Object code}) => '프록시 테스트 실패, 상태 코드: ${code}',
 			'settings.testProxyFailedWithException' => ({required Object exception}) => '프록시 테스트 실패, 예외: ${exception}',
 			'settings.proxyConfig' => '프록시 설정',
+			'settings.proxyEditor.description' => '프록시 앱이나 서버의 주소와 HTTP 포트를 입력하세요.',
+			'settings.proxyEditor.hostLabel' => '서버 주소',
+			'settings.proxyEditor.portLabel' => '포트',
+			'settings.proxyEditor.fieldsHelp' => 'IP 주소 또는 도메인 이름과 프록시 앱의 HTTP 또는 혼합 포트를 사용하세요. 붙여넣은 URL은 자동으로 분리됩니다. 구독 링크는 지원하지 않습니다.',
+			'settings.proxyEditor.hostRequired' => '서버 주소를 입력하세요.',
+			'settings.proxyEditor.invalidHost' => '127.0.0.1 또는 proxy.example.com과 같은 IP 주소나 도메인을 입력하세요.',
+			'settings.proxyEditor.portRequired' => '포트를 입력하세요.',
+			'settings.proxyEditor.invalidPort' => '1–65535 범위의 포트를 입력하세요.',
+			'settings.proxyEditor.useSystemProxy' => ({required Object address}) => '${address} 사용',
+			'settings.proxyEditor.saved' => '저장됨',
+			'settings.proxyEditor.testConnection' => '연결 테스트',
+			'settings.proxyEditor.testing' => '테스트 중…',
+			'settings.proxyEditor.testSuccess' => '이 프록시로 Google에 접속할 수 있습니다. 테스트는 프록시를 활성화하지 않습니다.',
+			'settings.proxyEditor.testFailure' => '이 프록시로 Google에 접속할 수 없습니다. 프록시 앱 실행 여부와 주소, HTTP 포트를 확인하세요.',
+			'settings.proxyEditor.enabled' => '재시작 후 저장된 프록시를 사용합니다.',
+			'settings.proxyEditor.disabled' => '현재 네트워크 연결을 사용합니다.',
 			'settings.thisIsHttpProxyAddress' => '이것은 http 프록시 주소입니다',
 			'settings.checkProxy' => '프록시 확인',
 			'settings.proxyAddress' => '프록시 주소',
@@ -5978,6 +6020,8 @@ extension on TranslationsKo {
 			'settings.leftVerticalSwipeBrightness' => '왼쪽 세로 스와이프 밝기 (새 페이지 진입 시 적용)',
 			'settings.longPressFastForward' => '길게 눌러 빨리 감기',
 			'settings.enableMouseHoverShowToolbar' => '마우스 오버 시 도구 모음 표시',
+			_ => null,
+		} ?? switch (path) {
 			'settings.enableMouseHoverShowToolbarInfo' => '활성화하면 플레이어 위로 마우스를 올리면 동영상 도구 모음이 표시됩니다. 3초 동안 활동이 없으면 자동으로 숨겨집니다.',
 			'settings.enableHorizontalDragSeek' => '가로로 밀어 탐색',
 			'settings.enableVideoGestureZoom' => '핀치로 동영상 화면 확대',
@@ -5994,8 +6038,6 @@ extension on TranslationsKo {
 			'settings.enableHardwareAcceleration' => '하드웨어 가속 사용',
 			'settings.enableHardwareAccelerationInfo' => '하드웨어 가속을 사용하면 디코딩 성능이 향상될 수 있지만 일부 기기는 호환되지 않을 수 있습니다',
 			'settings.useOpenSLESAudioOutput' => 'OpenSLES 오디오 출력 사용',
-			_ => null,
-		} ?? switch (path) {
 			'settings.useOpenSLESAudioOutputInfo' => '저지연 오디오 출력을 사용하여 오디오 성능을 개선할 수 있습니다',
 			'settings.videoSyncAudio' => '오디오 동기화',
 			'settings.videoSyncDisplayResample' => '리샘플 표시',
@@ -6492,6 +6534,8 @@ extension on TranslationsKo {
 			'videoDetail.gestureGuide.quest.zoomHint' => '이미지 창 안의 이미지를 확대합니다. 이미지를 잡지 않은 상태에서는 위/아래가 시청 거리를 조정합니다.',
 			'videoDetail.gestureGuide.quest.panTitle' => '이미지 이동 및 복원',
 			'videoDetail.gestureGuide.quest.panBody' => '확대한 후 검지 트리거를 누른 채 끌면 주변을 둘러볼 수 있습니다. 이미지를 두 번 탭하면 2.5배로 확대하거나 원래대로 되돌립니다. 손을 사용할 때는 빠르게 두 번 집으세요.',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.panHint' => '끌면 확대된 이미지가 이동합니다. 페이지를 넘기려면 1배로 되돌린 후 끌어야 합니다.',
 			'videoDetail.gestureGuide.quest.slideshowTitle' => '슬라이드쇼 시작',
 			'videoDetail.gestureGuide.quest.slideshowBody' => '이미지에서 A / X는 슬라이드쇼를 시작하거나 일시정지합니다. 패널에서 3초, 5초, 10초, 20초 간격과 일반 또는 원본 화질을 선택할 수 있습니다.',
@@ -6508,8 +6552,6 @@ extension on TranslationsKo {
 			'videoDetail.gestureGuide.quest.resizeTitle' => '가장자리와 모서리 사용',
 			'videoDetail.gestureGuide.quest.resizeBody' => '광선이 가장자리에 가까워지면 프레임이 빛납니다. 가장자리에서 트리거를 누르거나 집으면 창이 이동하고, 모서리를 끌면 크기가 조절됩니다.',
 			'videoDetail.gestureGuide.quest.resizeHint' => '앱 창, 컨트롤 패널, 화면에서 작동합니다. 앱 창은 너비와 높이가 바뀌고, 화면은 화면 비율을 유지합니다.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.navigationTitle' => '뒤로 가기 및 설정 열기',
 			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y는 한 단계 뒤로 갑니다: 팝업을 닫거나 패널 홈으로 돌아가고, 패널을 숨긴 다음 앱으로 돌아갑니다. 왼쪽 Menu 버튼은 공간 설정을 엽니다.',
 			'videoDetail.gestureGuide.quest.navigationHint' => '오른쪽 Meta 버튼은 시스템에 속합니다. 시스템 리센터는 화면 크기와 거리를 유지하면서 시야를 정면으로 되돌립니다.',
@@ -7006,6 +7048,8 @@ extension on TranslationsKo {
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count}개 작업 삭제됨',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '${deleted}개 작업 삭제됨, ${skipped}개 건너뜀(사용 중)',
 			'download.relocation.moveFiles' => 'Move files',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.moveFilesEllipsis' => 'Move files…',
 			'download.relocation.chooseDestination' => 'Move files to',
 			'download.relocation.currentDownloadDir' => 'Current download folder',
@@ -7022,8 +7066,6 @@ extension on TranslationsKo {
 			'download.relocation.resultTitle' => 'Move finished',
 			'download.relocation.resultMoved' => ({required Object count}) => '${count} item(s) moved',
 			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.alreadyRunning' => 'Another move is already in progress',
 			'download.relocation.destination' => 'Destination',
 			'download.relocation.statMove' => 'To move',
@@ -7520,6 +7562,8 @@ extension on TranslationsKo {
 			'navigationOrderSettings.cancel' => '취소',
 			'navigationOrderSettings.show' => '표시',
 			'navigationOrderSettings.hide' => '숨기기',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.hidden' => '숨김',
 			'navigationOrderSettings.hideHint' => '커뮤니티와 로컬 파일을 표시하거나 숨기려면 눈 아이콘을 탭하세요',
 			'navigationOrderSettings.videoDescription' => '인기 동영상 콘텐츠 탐색',
@@ -7536,8 +7580,6 @@ extension on TranslationsKo {
 			'news.openInBrowser' => '브라우저에서 열기',
 			'displaySettings.title' => '화면 설정',
 			'displaySettings.layoutSettings' => '레이아웃 설정',
-			_ => null,
-		} ?? switch (path) {
 			'displaySettings.layoutSettingsDesc' => '열 수와 중단점 구성을 사용자 지정합니다',
 			'displaySettings.gridLayout' => '그리드 레이아웃',
 			'displaySettings.navigationOrderSettings' => '내비게이션 순서 설정',
@@ -8034,6 +8076,8 @@ extension on TranslationsKo {
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
 			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
 			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
 			'anime4k.presetNames.upscale_only_s' => 'CNN 업스케일링(초고속)',
@@ -8050,8 +8094,6 @@ extension on TranslationsKo {
 			'siteMode.mainSite' => '메인',
 			'siteMode.aiSite' => 'AI',
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => '현재 ${currentSite} · 탭하여 ${nextSite} 모드로 전환',
-			_ => null,
-		} ?? switch (path) {
 			'siteMode.dialogTitle' => '사이트 모드 전환',
 			'siteMode.dialogDescription' => '전환하면 앱 전체가 새로 고쳐지고 이전에 불러온 목록과 페이지 상태가 초기화됩니다.',
 			'siteMode.chooseLinkTargetTitle' => '대상 사이트 선택',
@@ -8548,6 +8590,8 @@ extension on TranslationsKo {
 			'ai.modelPick' => '모델 선택',
 			'ai.modelEmpty' => '모델 목록을 불러오지 못했습니다. 모델 이름을 직접 입력해도 됩니다.',
 			'ai.advanced' => '고급',
+			_ => null,
+		} ?? switch (path) {
 			'ai.reasoning' => '추론 모델',
 			'ai.streaming' => '스트리밍 출력',
 			'ai.structuredOutput' => '구조화된 출력',
@@ -8564,8 +8608,6 @@ extension on TranslationsKo {
 			'ai.taskTranslate' => '번역',
 			'ai.taskSearch' => 'AI 검색',
 			'ai.taskSignature' => '서명',
-			_ => null,
-		} ?? switch (path) {
 			'ai.taskAuto' => '자동',
 			'ai.usage' => '사용량',
 			'ai.usageCalls' => '호출',

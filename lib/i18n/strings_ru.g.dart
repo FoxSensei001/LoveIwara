@@ -739,6 +739,7 @@ class _TranslationsSettingsRu extends TranslationsSettingsEn {
 	@override String testProxyFailedWithStatusCode({required Object code}) => 'Проверка прокси не удалась, код состояния: ${code}';
 	@override String testProxyFailedWithException({required Object exception}) => 'Проверка прокси не удалась: ${exception}';
 	@override String get proxyConfig => 'Настройки прокси';
+	@override late final _TranslationsSettingsProxyEditorRu proxyEditor = _TranslationsSettingsProxyEditorRu._(_root);
 	@override String get thisIsHttpProxyAddress => 'Адрес HTTP-прокси';
 	@override String get checkProxy => 'Проверить прокси';
 	@override String get proxyAddress => 'Адрес прокси';
@@ -3165,6 +3166,31 @@ class _TranslationsErrorsNetworkRu extends TranslationsErrorsNetworkEn {
 	@override String get sslConnectionFailed => 'Сбой SSL-соединения, проверьте настройки сети';
 }
 
+// Path: settings.proxyEditor
+class _TranslationsSettingsProxyEditorRu extends TranslationsSettingsProxyEditorEn {
+	_TranslationsSettingsProxyEditorRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get description => 'Введите адрес сервера и HTTP-порт из вашего прокси-приложения или сервера.';
+	@override String get hostLabel => 'Адрес сервера';
+	@override String get portLabel => 'Порт';
+	@override String get fieldsHelp => 'Используйте IP-адрес или доменное имя и HTTP- или смешанный порт приложения. Вставленные URL разделяются автоматически. Ссылки подписки не поддерживаются.';
+	@override String get hostRequired => 'Введите адрес сервера.';
+	@override String get invalidHost => 'Введите IP-адрес или домен, например 127.0.0.1 или proxy.example.com.';
+	@override String get portRequired => 'Введите порт.';
+	@override String get invalidPort => 'Введите порт от 1 до 65535.';
+	@override String useSystemProxy({required Object address}) => 'Использовать ${address}';
+	@override String get saved => 'Сохранено';
+	@override String get testConnection => 'Проверить соединение';
+	@override String get testing => 'Проверка…';
+	@override String get testSuccess => 'Этот прокси может подключиться к Google. Проверка не включает прокси.';
+	@override String get testFailure => 'Не удалось подключиться к Google через этот прокси. Убедитесь, что приложение запущено, а адрес и HTTP-порт указаны верно.';
+	@override String get enabled => 'Использовать сохранённый прокси после перезапуска.';
+	@override String get disabled => 'Использовать текущее сетевое соединение.';
+}
+
 // Path: settings.keybinding
 class _TranslationsSettingsKeybindingRu extends TranslationsSettingsKeybindingEn {
 	_TranslationsSettingsKeybindingRu._(TranslationsRu root) : this._root = root, super.internal(root);
@@ -5507,6 +5533,22 @@ extension on TranslationsRu {
 			'settings.testProxyFailedWithStatusCode' => ({required Object code}) => 'Проверка прокси не удалась, код состояния: ${code}',
 			'settings.testProxyFailedWithException' => ({required Object exception}) => 'Проверка прокси не удалась: ${exception}',
 			'settings.proxyConfig' => 'Настройки прокси',
+			'settings.proxyEditor.description' => 'Введите адрес сервера и HTTP-порт из вашего прокси-приложения или сервера.',
+			'settings.proxyEditor.hostLabel' => 'Адрес сервера',
+			'settings.proxyEditor.portLabel' => 'Порт',
+			'settings.proxyEditor.fieldsHelp' => 'Используйте IP-адрес или доменное имя и HTTP- или смешанный порт приложения. Вставленные URL разделяются автоматически. Ссылки подписки не поддерживаются.',
+			'settings.proxyEditor.hostRequired' => 'Введите адрес сервера.',
+			'settings.proxyEditor.invalidHost' => 'Введите IP-адрес или домен, например 127.0.0.1 или proxy.example.com.',
+			'settings.proxyEditor.portRequired' => 'Введите порт.',
+			'settings.proxyEditor.invalidPort' => 'Введите порт от 1 до 65535.',
+			'settings.proxyEditor.useSystemProxy' => ({required Object address}) => 'Использовать ${address}',
+			'settings.proxyEditor.saved' => 'Сохранено',
+			'settings.proxyEditor.testConnection' => 'Проверить соединение',
+			'settings.proxyEditor.testing' => 'Проверка…',
+			'settings.proxyEditor.testSuccess' => 'Этот прокси может подключиться к Google. Проверка не включает прокси.',
+			'settings.proxyEditor.testFailure' => 'Не удалось подключиться к Google через этот прокси. Убедитесь, что приложение запущено, а адрес и HTTP-порт указаны верно.',
+			'settings.proxyEditor.enabled' => 'Использовать сохранённый прокси после перезапуска.',
+			'settings.proxyEditor.disabled' => 'Использовать текущее сетевое соединение.',
 			'settings.thisIsHttpProxyAddress' => 'Адрес HTTP-прокси',
 			'settings.checkProxy' => 'Проверить прокси',
 			'settings.proxyAddress' => 'Адрес прокси',
@@ -5978,6 +6020,8 @@ extension on TranslationsRu {
 			'settings.leftVerticalSwipeBrightness' => 'Смахивание слева по вертикали: яркость (при входе на новую страницу)',
 			'settings.longPressFastForward' => 'Долгое нажатие: ускорение',
 			'settings.enableMouseHoverShowToolbar' => 'Показывать панель при наведении мыши',
+			_ => null,
+		} ?? switch (path) {
 			'settings.enableMouseHoverShowToolbarInfo' => 'Панель управления видео появляется при наведении курсора и скрывается через 3 секунды бездействия.',
 			'settings.enableHorizontalDragSeek' => 'Горизонтальный жест: перемотка',
 			'settings.enableVideoGestureZoom' => 'Масштабирование кадра жестом',
@@ -5994,8 +6038,6 @@ extension on TranslationsRu {
 			'settings.enableHardwareAcceleration' => 'Аппаратное ускорение',
 			'settings.enableHardwareAccelerationInfo' => 'Включение аппаратного ускорения может улучшить декодирование, но поддерживается не всеми устройствами',
 			'settings.useOpenSLESAudioOutput' => 'Использовать вывод OpenSLES',
-			_ => null,
-		} ?? switch (path) {
 			'settings.useOpenSLESAudioOutputInfo' => 'Низкая задержка звука, может улучшить воспроизведение аудио',
 			'settings.videoSyncAudio' => 'По звуку',
 			'settings.videoSyncDisplayResample' => 'Передискретизация дисплея',
@@ -6492,6 +6534,8 @@ extension on TranslationsRu {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Масштабирует изображение внутри его окна. Без зажатия изображения стик вверх/вниз меняет расстояние до экрана.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Панорамирование и сброс',
 			'videoDetail.gestureGuide.quest.panBody' => 'При приближении удерживайте триггер и двигайте руку для осмотра. Двойное нажатие по изображению увеличивает до 2.5× или сбрасывает масштаб. Руками: быстрый двойной щипок.',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.panHint' => 'Перетаскивание перемещает увеличенное изображение. Сбросьте до 1× перед перелистыванием страниц.',
 			'videoDetail.gestureGuide.quest.slideshowTitle' => 'Запуск слайд-шоу',
 			'videoDetail.gestureGuide.quest.slideshowBody' => 'Кнопки A / X на изображении запускают слайд-шоу. На панели можно выбрать интервал (3, 5, 10 или 20 с) и качество.',
@@ -6508,8 +6552,6 @@ extension on TranslationsRu {
 			'videoDetail.gestureGuide.quest.resizeTitle' => 'Края и углы',
 			'videoDetail.gestureGuide.quest.resizeBody' => 'Рамка подсвечивается при приближении луча к краю. Зажмите триггер или щипок на краю для перемещения; потяните за угол для масштабирования.',
 			'videoDetail.gestureGuide.quest.resizeHint' => 'Работает для окна приложения, панели управления и экрана. Окно меняет ширину и высоту; экран сохраняет пропорции.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.navigationTitle' => 'Назад и открытие настроек',
 			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y возвращает на шаг назад: закрывает всплывающее окно, скрывает панель и возвращает в приложение. Левая кнопка меню открывает настройки пространства.',
 			'videoDetail.gestureGuide.quest.navigationHint' => 'Правая кнопка Meta зарезервирована системой. Системное центрирование возвращает экран перед вами с сохранением размера и расстояния.',
@@ -7006,6 +7048,8 @@ extension on TranslationsRu {
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Удалено задач: ${count}',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Удалено задач: ${deleted}; пропущено: ${skipped} (используются)',
 			'download.relocation.moveFiles' => 'Move files',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.moveFilesEllipsis' => 'Move files…',
 			'download.relocation.chooseDestination' => 'Move files to',
 			'download.relocation.currentDownloadDir' => 'Current download folder',
@@ -7022,8 +7066,6 @@ extension on TranslationsRu {
 			'download.relocation.resultTitle' => 'Move finished',
 			'download.relocation.resultMoved' => ({required Object count}) => '${count} item(s) moved',
 			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.alreadyRunning' => 'Another move is already in progress',
 			'download.relocation.destination' => 'Destination',
 			'download.relocation.statMove' => 'To move',
@@ -7520,6 +7562,8 @@ extension on TranslationsRu {
 			'navigationOrderSettings.cancel' => 'Отмена',
 			'navigationOrderSettings.show' => 'Показать',
 			'navigationOrderSettings.hide' => 'Скрыть',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.hidden' => 'Скрыто',
 			'navigationOrderSettings.hideHint' => 'Нажмите значок глаза, чтобы показать или скрыть разделы «Сообщество» и локальные файлы',
 			'navigationOrderSettings.videoDescription' => 'Просматривайте популярный видеоконтент',
@@ -7536,8 +7580,6 @@ extension on TranslationsRu {
 			'news.openInBrowser' => 'Открыть в браузере',
 			'displaySettings.title' => 'Настройки отображения',
 			'displaySettings.layoutSettings' => 'Настройки макета',
-			_ => null,
-		} ?? switch (path) {
 			'displaySettings.layoutSettingsDesc' => 'Настройте число столбцов и точки перелома',
 			'displaySettings.gridLayout' => 'Сетка',
 			'displaySettings.navigationOrderSettings' => 'Настройки порядка навигации',
@@ -8034,6 +8076,8 @@ extension on TranslationsRu {
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
 			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
 			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
 			'anime4k.presetNames.upscale_only_s' => 'Масштабирование CNN (сверхбыстро)',
@@ -8050,8 +8094,6 @@ extension on TranslationsRu {
 			'siteMode.mainSite' => 'Основной',
 			'siteMode.aiSite' => 'AI',
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => 'Текущий ${currentSite} · нажмите, чтобы переключиться на ${nextSite}',
-			_ => null,
-		} ?? switch (path) {
 			'siteMode.dialogTitle' => 'Переключить режим сайта',
 			'siteMode.dialogDescription' => 'Переключение обновит всё приложение и сбросит ранее загруженные списки и состояние страниц.',
 			'siteMode.chooseLinkTargetTitle' => 'Выберите целевой сайт',
@@ -8548,6 +8590,8 @@ extension on TranslationsRu {
 			'ai.modelPick' => 'Выбрать модель',
 			'ai.modelEmpty' => 'Не удалось загрузить список моделей — можно также ввести название модели вручную.',
 			'ai.advanced' => 'Расширенные',
+			_ => null,
+		} ?? switch (path) {
 			'ai.reasoning' => 'Модель рассуждений',
 			'ai.streaming' => 'Потоковый вывод',
 			'ai.structuredOutput' => 'Структурированный вывод',
@@ -8564,8 +8608,6 @@ extension on TranslationsRu {
 			'ai.taskTranslate' => 'Перевод',
 			'ai.taskSearch' => 'Поиск с ИИ',
 			'ai.taskSignature' => 'Подпись',
-			_ => null,
-		} ?? switch (path) {
 			'ai.taskAuto' => 'Автоматически',
 			'ai.usage' => 'Использование',
 			'ai.usageCalls' => 'Вызовы',

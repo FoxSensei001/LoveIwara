@@ -574,6 +574,23 @@ settings:
   testProxyFailedWithStatusCode: 'Проверка прокси не удалась, код состояния: ${code}'
   testProxyFailedWithException: 'Проверка прокси не удалась: ${exception}'
   proxyConfig: Настройки прокси
+  proxyEditor:
+    description: "Введите адрес сервера и HTTP-порт из вашего прокси-приложения или сервера."
+    hostLabel: "Адрес сервера"
+    portLabel: "Порт"
+    fieldsHelp: "Используйте IP-адрес или доменное имя и HTTP- или смешанный порт приложения. Вставленные URL разделяются автоматически. Ссылки подписки не поддерживаются."
+    hostRequired: "Введите адрес сервера."
+    invalidHost: "Введите IP-адрес или домен, например 127.0.0.1 или proxy.example.com."
+    portRequired: "Введите порт."
+    invalidPort: "Введите порт от 1 до 65535."
+    useSystemProxy: "Использовать ${address}"
+    saved: "Сохранено"
+    testConnection: "Проверить соединение"
+    testing: "Проверка…"
+    testSuccess: "Этот прокси может подключиться к Google. Проверка не включает прокси."
+    testFailure: "Не удалось подключиться к Google через этот прокси. Убедитесь, что приложение запущено, а адрес и HTTP-порт указаны верно."
+    enabled: "Использовать сохранённый прокси после перезапуска."
+    disabled: "Использовать текущее сетевое соединение."
   thisIsHttpProxyAddress: Адрес HTTP-прокси
   checkProxy: Проверить прокси
   proxyAddress: Адрес прокси

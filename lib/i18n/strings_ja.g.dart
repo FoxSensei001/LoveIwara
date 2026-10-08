@@ -739,6 +739,7 @@ class _TranslationsSettingsJa extends TranslationsSettingsEn {
 	@override String testProxyFailedWithStatusCode({required Object code}) => 'プロキシリクエストが失敗しました。ステータスコード: ${code}';
 	@override String testProxyFailedWithException({required Object exception}) => 'プロキシリクエスト中にエラーが発生しました: ${exception}';
 	@override String get proxyConfig => 'プロキシ設定';
+	@override late final _TranslationsSettingsProxyEditorJa proxyEditor = _TranslationsSettingsProxyEditorJa._(_root);
 	@override String get thisIsHttpProxyAddress => 'ここにHTTPプロキシアドレスを入力してください';
 	@override String get checkProxy => 'プロキシを確認';
 	@override String get proxyAddress => 'プロキシアドレス';
@@ -3165,6 +3166,31 @@ class _TranslationsErrorsNetworkJa extends TranslationsErrorsNetworkEn {
 	@override String get sslConnectionFailed => 'SSL接続に失敗しました。ネットワーク設定を確認してください';
 }
 
+// Path: settings.proxyEditor
+class _TranslationsSettingsProxyEditorJa extends TranslationsSettingsProxyEditorEn {
+	_TranslationsSettingsProxyEditorJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get description => 'プロキシアプリやサーバーのアドレスと HTTP ポートを入力してください。';
+	@override String get hostLabel => 'サーバーアドレス';
+	@override String get portLabel => 'ポート';
+	@override String get fieldsHelp => 'IP アドレスまたはドメイン名と、プロキシアプリの HTTP または混合ポートを使用してください。貼り付けた URL は自動で分割されます。サブスクリプションのリンクは非対応です。';
+	@override String get hostRequired => 'サーバーアドレスを入力してください。';
+	@override String get invalidHost => '127.0.0.1 や proxy.example.com などの IP アドレスまたはドメイン名を入力してください。';
+	@override String get portRequired => 'ポートを入力してください。';
+	@override String get invalidPort => '1～65535 のポート番号を入力してください。';
+	@override String useSystemProxy({required Object address}) => '${address} を使用';
+	@override String get saved => '保存済み';
+	@override String get testConnection => '接続をテスト';
+	@override String get testing => 'テスト中…';
+	@override String get testSuccess => 'このプロキシから Google に接続できました。テストではプロキシを有効にしません。';
+	@override String get testFailure => 'このプロキシから Google に接続できません。プロキシアプリの起動状態とアドレス、HTTP ポートを確認してください。';
+	@override String get enabled => '再起動後に保存済みのプロキシを使用します。';
+	@override String get disabled => '現在のネットワーク接続を使用します。';
+}
+
 // Path: settings.keybinding
 class _TranslationsSettingsKeybindingJa extends TranslationsSettingsKeybindingEn {
 	_TranslationsSettingsKeybindingJa._(TranslationsJa root) : this._root = root, super.internal(root);
@@ -5507,6 +5533,22 @@ extension on TranslationsJa {
 			'settings.testProxyFailedWithStatusCode' => ({required Object code}) => 'プロキシリクエストが失敗しました。ステータスコード: ${code}',
 			'settings.testProxyFailedWithException' => ({required Object exception}) => 'プロキシリクエスト中にエラーが発生しました: ${exception}',
 			'settings.proxyConfig' => 'プロキシ設定',
+			'settings.proxyEditor.description' => 'プロキシアプリやサーバーのアドレスと HTTP ポートを入力してください。',
+			'settings.proxyEditor.hostLabel' => 'サーバーアドレス',
+			'settings.proxyEditor.portLabel' => 'ポート',
+			'settings.proxyEditor.fieldsHelp' => 'IP アドレスまたはドメイン名と、プロキシアプリの HTTP または混合ポートを使用してください。貼り付けた URL は自動で分割されます。サブスクリプションのリンクは非対応です。',
+			'settings.proxyEditor.hostRequired' => 'サーバーアドレスを入力してください。',
+			'settings.proxyEditor.invalidHost' => '127.0.0.1 や proxy.example.com などの IP アドレスまたはドメイン名を入力してください。',
+			'settings.proxyEditor.portRequired' => 'ポートを入力してください。',
+			'settings.proxyEditor.invalidPort' => '1～65535 のポート番号を入力してください。',
+			'settings.proxyEditor.useSystemProxy' => ({required Object address}) => '${address} を使用',
+			'settings.proxyEditor.saved' => '保存済み',
+			'settings.proxyEditor.testConnection' => '接続をテスト',
+			'settings.proxyEditor.testing' => 'テスト中…',
+			'settings.proxyEditor.testSuccess' => 'このプロキシから Google に接続できました。テストではプロキシを有効にしません。',
+			'settings.proxyEditor.testFailure' => 'このプロキシから Google に接続できません。プロキシアプリの起動状態とアドレス、HTTP ポートを確認してください。',
+			'settings.proxyEditor.enabled' => '再起動後に保存済みのプロキシを使用します。',
+			'settings.proxyEditor.disabled' => '現在のネットワーク接続を使用します。',
 			'settings.thisIsHttpProxyAddress' => 'ここにHTTPプロキシアドレスを入力してください',
 			'settings.checkProxy' => 'プロキシを確認',
 			'settings.proxyAddress' => 'プロキシアドレス',
@@ -5978,6 +6020,8 @@ extension on TranslationsJa {
 			'settings.leftVerticalSwipeBrightness' => '左側垂直スワイプブライトネス（新ページに入った時に有効）',
 			'settings.longPressFastForward' => '長押しファストフォワード',
 			'settings.enableMouseHoverShowToolbar' => 'マウスホバー時にツールバーを表示',
+			_ => null,
+		} ?? switch (path) {
 			'settings.enableMouseHoverShowToolbarInfo' => '有効にすると、マウスがプレーヤー上にあるときにツールバーが表示されます。3秒間の非アクティブ時に自動的に非表示になります。',
 			'settings.enableHorizontalDragSeek' => '横スワイプでシーク',
 			'settings.enableVideoGestureZoom' => 'ピンチで映像を拡大',
@@ -5994,8 +6038,6 @@ extension on TranslationsJa {
 			'settings.enableHardwareAcceleration' => 'ハードウェアアクセラレーションを有効にする',
 			'settings.enableHardwareAccelerationInfo' => 'ハードウェアアクセラレーションを有効にすると、デコード性能が向上しますが、一部のデバイスでは互換性がない場合があります',
 			'settings.useOpenSLESAudioOutput' => 'OpenSLESオーディオ出力を使用',
-			_ => null,
-		} ?? switch (path) {
 			'settings.useOpenSLESAudioOutputInfo' => '低遅延オーディオ出力を使用し、オーディオ性能が向上する可能性があります',
 			'settings.videoSyncAudio' => 'オーディオ同期',
 			'settings.videoSyncDisplayResample' => 'ディスプレイリサンプル',
@@ -6492,6 +6534,8 @@ extension on TranslationsJa {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'ウィンドウの大きさは変わらず、中の画像だけが拡大します。画像を押していないときの上下操作は視聴距離を変えます。',
 			'videoDetail.gestureGuide.quest.panTitle' => '拡大画像の移動とリセット',
 			'videoDetail.gestureGuide.quest.panBody' => '拡大後はトリガーを押したままドラッグして、別の部分を見られます。画像をダブルクリックすると 2.5× 拡大とリセットを切り替えます。手の場合は素早く 2 回ピンチします。',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.panHint' => '拡大中のドラッグは画像の移動です。ページ送りは 1× に戻してから行ってください。',
 			'videoDetail.gestureGuide.quest.slideshowTitle' => 'スライドショーを開始',
 			'videoDetail.gestureGuide.quest.slideshowBody' => '画像を表示中は A / X でスライドショーを開始・停止できます。パネルで 3・5・10・20 秒の間隔や標準・元画像の画質を選べます。',
@@ -6508,8 +6552,6 @@ extension on TranslationsJa {
 			'videoDetail.gestureGuide.quest.resizeTitle' => '枠や角をドラッグ',
 			'videoDetail.gestureGuide.quest.resizeBody' => 'レイを端に近づけると枠が光ります。端をトリガーやピンチでつかむと移動、角をつかんでドラッグするとサイズ変更ができます。',
 			'videoDetail.gestureGuide.quest.resizeHint' => 'アプリ、操作パネル、スクリーンで共通の操作です。アプリの幅と高さは自由に変えられ、スクリーンは縦横比を保ちます。',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.navigationTitle' => '戻る・空間設定を開く',
 			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y はポップアップを閉じる、パネルのホームへ戻る、パネルを隠す、アプリへ戻る、の順で一段ずつ戻ります。左手の Menu で空間設定を開けます。',
 			'videoDetail.gestureGuide.quest.navigationHint' => '右手の Meta ボタンはシステム用です。システムの視点リセットで正面に戻せます。スクリーンの大きさと距離は保たれます。',
@@ -7006,6 +7048,8 @@ extension on TranslationsJa {
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count}件のタスクを削除しました',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '${deleted}件を削除、${skipped}件をスキップ（使用中）',
 			'download.relocation.moveFiles' => 'ファイルを移動',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.moveFilesEllipsis' => 'ファイルを移動…',
 			'download.relocation.chooseDestination' => 'ファイルの移動先',
 			'download.relocation.currentDownloadDir' => '現在のダウンロードフォルダ',
@@ -7022,8 +7066,6 @@ extension on TranslationsJa {
 			'download.relocation.resultTitle' => '移動が完了しました',
 			'download.relocation.resultMoved' => ({required Object count}) => '${count} 件を移動しました',
 			'download.relocation.cancelled' => '停止しました。移動済みの項目はすべて完全です。',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.alreadyRunning' => '別の移動がすでに実行中です',
 			'download.relocation.destination' => '移動先',
 			'download.relocation.statMove' => '移動予定',
@@ -7520,6 +7562,8 @@ extension on TranslationsJa {
 			'mediaPlayer.accessDenied' => 'サーバーがこのアクセスを拒否しました（403）',
 			'mediaPlayer.accessDeniedSuggestion' => '再生リンクの有効期限が切れている可能性が高いです。「再試行」で取り直すか、他のアプリで開いてください。',
 			'mediaPlayer.mute' => 'ミュート',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.unmute' => 'ミュート解除',
 			'mediaPlayer.video' => 'ビデオ',
 			'mediaPlayer.serverSelector' => 'CDNサーバー選択',
@@ -7536,8 +7580,6 @@ extension on TranslationsJa {
 			'mediaPlayer.serverCount' => ({required Object count}) => '合計 ${count} 台のサーバー',
 			'mediaPlayer.statusCode' => ({required Object code}) => 'ステータスコード: ${code}',
 			'mediaPlayer.connectionFailed' => '接続失敗',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.connectionTimeout' => '接続タイムアウト',
 			'mediaPlayer.networkError' => 'ネットワークエラー',
 			'mediaPlayer.sslError' => 'SSL証明書エラー',
@@ -8034,6 +8076,8 @@ extension on TranslationsJa {
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
 			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
 			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
 			'anime4k.presetNames.upscale_only_s' => 'CNNアップスケーリング (超高速)',
@@ -8050,8 +8094,6 @@ extension on TranslationsJa {
 			'siteMode.mainSite' => 'メイン',
 			'siteMode.aiSite' => 'AI',
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => '現在 ${currentSite} ・ タップして ${nextSite} に切り替え',
-			_ => null,
-		} ?? switch (path) {
 			'siteMode.dialogTitle' => 'サイトモードを切り替え',
 			'siteMode.dialogDescription' => '切り替えると、アプリ全体が再読み込みされ、これまでに読み込んだリストやページ状態がリセットされます。',
 			'siteMode.chooseLinkTargetTitle' => 'リンク先サイトを選択',
@@ -8548,6 +8590,8 @@ extension on TranslationsJa {
 			'ai.modelPick' => 'モデルを選択',
 			'ai.modelEmpty' => 'モデルリストを取得できませんでした。直接モデル名を入力しても利用できます。',
 			'ai.advanced' => '詳細設定',
+			_ => null,
+		} ?? switch (path) {
 			'ai.reasoning' => '推論モデル',
 			'ai.streaming' => 'ストリーミング出力',
 			'ai.structuredOutput' => '構造化出力',
@@ -8564,8 +8608,6 @@ extension on TranslationsJa {
 			'ai.taskTranslate' => '翻訳',
 			'ai.taskSearch' => 'AI検索',
 			'ai.taskSignature' => '署名',
-			_ => null,
-		} ?? switch (path) {
 			'ai.taskAuto' => '自動',
 			'ai.usage' => '使用状況',
 			'ai.usageCalls' => '呼び出し回数',

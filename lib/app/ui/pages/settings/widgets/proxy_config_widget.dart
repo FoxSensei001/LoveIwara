@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/ui/pages/settings/widgets/setting_item_widget.dart';
-import 'package:i_iwara/app/ui/widgets/app_toast.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 
 import '../../../../../utils/logger_utils.dart';
+import '../../../../../utils/proxy/http_proxy_address.dart';
 import '../../../../../utils/proxy/proxy_util.dart';
 import '../../../../../utils/proxy/system_proxy_settings.dart';
 import '../../../../services/config_service.dart';
@@ -39,16 +39,153 @@ class ProxyConfigWidget extends BaseProxyWidget {
 class _ProxyConfigWidgetState extends BaseProxyWidgetState<ProxyConfigWidget> {
   String? _systemProxyCandidate; // 检测到的系统代理（host:port）
   bool _systemProxyChecked = false; // 标记已检测，避免重复显示
+  final _hostController = TextEditingController();
+  final _portController = TextEditingController();
+  bool _hostEditWasPaste = false;
+  String? _hostError;
+  String? _portError;
+
+  @override
+  String get proxyDraftAddress {
+    final host = _hostController.text.trim();
+    final port = _portController.text.trim();
+    return host.isEmpty && port.isEmpty ? '' : '$host:$port';
+  }
+
+  void _fillEndpoint(String endpoint) {
+    final separator = endpoint.lastIndexOf(':');
+    final host = endpoint.substring(0, separator);
+    _hostController.value = TextEditingValue(
+      text: host,
+      selection: TextSelection.collapsed(offset: host.length),
+    );
+    _portController.text = endpoint.substring(separator + 1);
+  }
+
+  String? _validateHost() {
+    final copy = slang.Translations.of(context).settings.proxyEditor;
+    final host = _hostController.text.trim();
+    if (host.isEmpty) return copy.hostRequired;
+    // Prefix HTTP ourselves so a URL, path or port in the host field cannot
+    // accidentally be accepted as a bare hostname.
+    if (normalizeHttpProxyAddress('http://$host:1') == null) {
+      return copy.invalidHost;
+    }
+    return null;
+  }
+
+  String? _validatePort() {
+    final copy = slang.Translations.of(context).settings.proxyEditor;
+    final text = _portController.text.trim();
+    if (text.isEmpty) return copy.portRequired;
+    final port = int.tryParse(text);
+    if (!RegExp(r'^[0-9]{1,5}$').hasMatch(text) ||
+        port == null ||
+        port < 1 ||
+        port > 65535) {
+      return copy.invalidPort;
+    }
+    return null;
+  }
+
+  bool _validateFields() {
+    final hostError = _validateHost();
+    final portError = _validatePort();
+    setState(() {
+      _hostError = hostError;
+      _portError = portError;
+    });
+    return hostError == null && portError == null;
+  }
+
+  bool _needsRestart = false;
+  bool _savedFeedback = false;
+
+  bool get _hasDraftChanges {
+    final draft = proxyDraftAddress;
+    final saved = configService[ConfigKey.PROXY_URL]?.toString() ?? '';
+    final endpoint = _validateHost() == null && _validatePort() == null
+        ? normalizeHttpProxyAddress(draft)
+        : null;
+    return (endpoint ?? draft) != saved;
+  }
+
+  bool get _isAddressSaved =>
+      !_hasDraftChanges && _validateHost() == null && _validatePort() == null;
+
+  bool _saveAddress() {
+    if (!_validateFields()) return false;
+    final endpoint = normalizeHttpProxyAddress(proxyDraftAddress)!;
+    final changed = endpoint != configService[ConfigKey.PROXY_URL];
+    configService[ConfigKey.PROXY_URL] = endpoint;
+    _fillEndpoint(endpoint);
+    setState(() {
+      _savedFeedback = true;
+      if (changed && isProxyEnabled.value) _needsRestart = true;
+    });
+    FocusScope.of(context).unfocus();
+    return true;
+  }
+
+  void _toggleProxy(bool enabled) {
+    if (enabled && !_saveAddress()) return;
+    configService[ConfigKey.USE_PROXY] = enabled;
+    setState(() {
+      isProxyEnabled.value = enabled;
+      _needsRestart = true;
+    });
+  }
+
+  void _draftChanged() {
+    setState(() {
+      if (_hostError != null) _hostError = _validateHost();
+      if (_portError != null) _portError = _validatePort();
+      proxyCheckMessage = null;
+      _savedFeedback = false;
+    });
+  }
+
+  void _hostChanged(String value) {
+    // Accept a copied URL as a convenience, then immediately show its two parts.
+    final endpoint = _hostEditWasPaste
+        ? normalizeHttpProxyAddress(value)
+        : null;
+    if (endpoint != null) _fillEndpoint(endpoint);
+    _draftChanged();
+  }
+
+  void _useSystemProxy() {
+    if (isChecking.value) return;
+    final endpoint = _systemProxyCandidate;
+    if (endpoint == null) return;
+    _fillEndpoint(endpoint);
+    _draftChanged();
+  }
+
+  @override
+  void dispose() {
+    _hostController.dispose();
+    _portController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
+    final saved = configService[ConfigKey.PROXY_URL]?.toString() ?? '';
+    final endpoint = normalizeHttpProxyAddress(saved);
+    if (endpoint != null) {
+      _fillEndpoint(endpoint);
+    } else {
+      _hostController.text = saved;
+    }
 
     // 组件初始化时尝试检测桌面端系统代理，仅在未启用代理且地址为空时提示
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final bool isDesktop = GetPlatform.isDesktop;
       final bool isEnabled = isProxyEnabled.value;
-      final String url = proxyController.text.trim();
+      final String url = proxyDraftAddress;
       if (isDesktop && !isEnabled && url.isEmpty && !_systemProxyChecked) {
         unawaited(_detectSystemProxyCandidate());
       }
@@ -66,10 +203,10 @@ class _ProxyConfigWidgetState extends BaseProxyWidgetState<ProxyConfigWidget> {
         return;
       }
       if (settings.enabled && (settings.server?.trim().isNotEmpty ?? false)) {
-        final String? candidate = _extractPreferredProxy(settings.server!);
-        if (candidate != null && candidate.isNotEmpty) {
+        final String? candidate = preferredHttpProxyAddress(settings.server!);
+        if (candidate != null && normalizeHttpProxyAddress(candidate) != null) {
           setState(() {
-            _systemProxyCandidate = candidate;
+            _systemProxyCandidate = normalizeHttpProxyAddress(candidate);
           });
           LogUtils.i('检测到系统代理: $candidate', BaseProxyWidgetState.tag);
         }
@@ -79,247 +216,243 @@ class _ProxyConfigWidgetState extends BaseProxyWidgetState<ProxyConfigWidget> {
     }
   }
 
-  String? _extractPreferredProxy(String rawServer) {
-    final String trimmed = rawServer.trim();
-    if (trimmed.isEmpty) return null;
-    if (!trimmed.contains('=') && !trimmed.contains(';')) {
-      return trimmed;
-    }
-    final parts = trimmed.split(';');
-    String? httpPair = parts.firstWhere(
-      (p) => p.toLowerCase().startsWith('http='),
-      orElse: () => '',
+  InputDecoration _fieldDecoration(
+    BuildContext context, {
+    required String label,
+    required String hint,
+    required IconData icon,
+    String? error,
+  }) {
+    final cs = Theme.of(context).colorScheme;
+    return InputDecoration(
+      labelText: label,
+      hintText: hint,
+      floatingLabelBehavior: FloatingLabelBehavior.always,
+      prefixIcon: Icon(icon),
+      filled: true,
+      fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: cs.outlineVariant),
+      ),
+      errorText: error,
+      errorMaxLines: 4,
     );
-    if (httpPair.isNotEmpty) {
-      final idx = httpPair.indexOf('=');
-      if (idx > -1 && idx + 1 < httpPair.length) {
-        return httpPair.substring(idx + 1).trim();
-      }
-    }
-    for (final p in parts) {
-      final idx = p.indexOf('=');
-      final value = idx > -1 ? p.substring(idx + 1).trim() : p.trim();
-      if (value.contains(':')) {
-        return value;
-      }
-    }
-    return null;
   }
 
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final copy = t.settings.proxyEditor;
 
+    // Users enter the two actual values; URL composition stays in the app.
+    // Labels also provide native accessibility names for each input.
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (widget.showTitle) ...[
           Text(
             t.settings.proxyConfig,
-            style: TextStyle(
-              fontSize: widget.compactMode ? 16 : 18,
-              fontWeight: FontWeight.bold,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 4),
         ],
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        Text(
+          copy.description,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: cs.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 20),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final hostField = TextField(
+              key: const ValueKey('proxy-host-input'),
+              controller: _hostController,
+              enabled: !isChecking.value,
+              keyboardType: TextInputType.url,
+              inputFormatters: [
+                TextInputFormatter.withFunction((oldValue, newValue) {
+                  final selection = oldValue.selection;
+                  final replacedLength =
+                      selection.isValid && selection.end <= oldValue.text.length
+                      ? selection.end - selection.start
+                      : 0;
+                  // Do not split a partially typed URL after its first port digit.
+                  _hostEditWasPaste =
+                      newValue.text.length -
+                          oldValue.text.length +
+                          replacedLength >
+                      1;
+                  return newValue;
+                }),
+              ],
+              textInputAction: TextInputAction.next,
+              autocorrect: false,
+              enableSuggestions: false,
+              onChanged: _hostChanged,
+              decoration: _fieldDecoration(
+                context,
+                label: copy.hostLabel,
+                hint: '127.0.0.1',
+                icon: Icons.dns_outlined,
+                error: _hostError,
+              ),
+            );
+            final portField = TextField(
+              key: const ValueKey('proxy-port-input'),
+              controller: _portController,
+              enabled: !isChecking.value,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              textInputAction: TextInputAction.done,
+              onChanged: (_) => _draftChanged(),
+              onSubmitted: (_) => _saveAddress(),
+              decoration: _fieldDecoration(
+                context,
+                label: copy.portLabel,
+                hint: '7890',
+                icon: Icons.numbers_rounded,
+                error: _portError,
+              ),
+            );
+            // Long translated labels and larger text need their own full-width
+            // rows. On wider screens the endpoint reads naturally left to right.
+            if (constraints.maxWidth >= 480 &&
+                MediaQuery.textScalerOf(context).scale(14) <= 18) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(flex: 3, child: hostField),
+                  const SizedBox(width: 12),
+                  Expanded(child: portField),
+                ],
+              );
+            }
+            return Column(
+              children: [hostField, const SizedBox(height: 16), portField],
+            );
+          },
+        ),
+        const SizedBox(height: 8),
+        Text(
+          copy.fieldsHelp,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: cs.onSurfaceVariant,
+          ),
+        ),
+        if (_systemProxyCandidate != null) ...[
+          const SizedBox(height: 12),
+          Text(
+            t.proxyHelper.systemProxyDetected,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: cs.onSurfaceVariant,
+            ),
+          ),
+          TextButton.icon(
+            onPressed: isChecking.value ? null : _useSystemProxy,
+            icon: const Icon(Icons.auto_fix_high_rounded, size: 18),
+            label: Text(copy.useSystemProxy(address: _systemProxyCandidate!)),
+          ),
+        ],
+        const SizedBox(height: 16),
+        Wrap(
+          spacing: 12,
+          runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            if (_systemProxyCandidate != null) ...[
-              Card(
-                color: theme.colorScheme.secondaryContainer,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: theme.colorScheme.onSecondaryContainer,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              t.proxyHelper.systemProxyDetected,
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                color: theme.colorScheme.onSecondaryContainer,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              _systemProxyCandidate!,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSecondaryContainer,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      TextButton.icon(
-                        onPressed: () async {
-                          final text = _systemProxyCandidate ?? '';
-                          if (text.isEmpty) return;
-                          await Clipboard.setData(ClipboardData(text: text));
-                          showAppToast(
-                            t.proxyHelper.copied,
-                            type: AppToastType.success,
-                            position: AppToastPosition.top,
-                          );
-                        },
-                        icon: Icon(
-                          Icons.copy,
-                          color: theme.colorScheme.onSecondaryContainer,
-                        ),
-                        label: Text(
-                          t.proxyHelper.copy,
-                          style: TextStyle(
-                            color: theme.colorScheme.onSecondaryContainer,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-            ],
-            if (!widget.compactMode) ...[
-              Card(
-                color: theme.primaryColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? Colors.white
-                            : null,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          t.settings.thisIsHttpProxyAddress,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
-            SettingItem(
-              label: t.settings.proxyAddress,
-              labelSuffix: buildProxyAddressInput(context),
-              initialValue: proxyController.text,
-              validator: (value) {
-                if (value.isEmpty) {
-                  return t.settings.proxyAddressCannotBeEmpty;
-                }
-                if (!isValidProxyAddress(value)) {
-                  return t
-                      .settings
-                      .invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort;
-                }
-                return null;
-              },
-              onValid: (value) {
-                configService[ConfigKey.PROXY_URL] = value;
-                LogUtils.d('保存代理地址: $value', BaseProxyWidgetState.tag);
-                if (isProxyEnabled.value) {
-                  setFlutterEngineProxy(value.trim());
-                }
-              },
+            FilledButton.icon(
+              key: const ValueKey('proxy-save'),
+              onPressed: isChecking.value || !_hasDraftChanges
+                  ? null
+                  : _saveAddress,
               icon: Icon(
-                Icons.computer,
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.white
-                    : null,
+                _isAddressSaved ? Icons.check_rounded : Icons.save_outlined,
+                size: 18,
               ),
-              splitTwoLine: true,
-              inputDecoration: InputDecoration(
-                hintText: t
-                    .settings
-                    .pleaseEnterTheUrlOfTheProxyServerForExample1270018080,
-                border: const OutlineInputBorder(),
+              label: Text(_isAddressSaved ? copy.saved : t.common.save),
+            ),
+            OutlinedButton.icon(
+              onPressed: isChecking.value
+                  ? null
+                  : () {
+                      if (_validateFields()) unawaited(checkProxy());
+                    },
+              icon: isChecking.value
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.network_check_rounded, size: 18),
+              label: Text(
+                isChecking.value ? copy.testing : copy.testConnection,
               ),
             ),
-            const SizedBox(height: 24),
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              decoration: BoxDecoration(
-                color: theme.cardColor,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: widget.compactMode
-                    ? []
-                    : [
-                        BoxShadow(
-                          color: Colors.black.withAlpha(13),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+          ],
+        ),
+        if (proxyCheckMessage != null) ...[
+          const SizedBox(height: 12),
+          Semantics(
+            liveRegion: true,
+            child: Text(
+              proxyCheckMessage!,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: proxyCheckSucceeded ? cs.primary : cs.error,
               ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.vpn_key,
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : null,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      t.settings.enableProxy,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Obx(
-                    () => Switch(
-                      value: isProxyEnabled.value,
-                      onChanged: (value) {
-                        LogUtils.d(
-                          '启用代理: $value, 代理地址: ${configService[ConfigKey.PROXY_URL]}',
-                          BaseProxyWidgetState.tag,
-                        );
-                        isProxyEnabled.value = value;
-                        configService[ConfigKey.USE_PROXY] = value;
-                        if (value) {
-                          setFlutterEngineProxy(proxyController.text.trim());
-                          LogUtils.i('代理已启用', BaseProxyWidgetState.tag);
-                        } else {
-                          setFlutterEngineProxy(proxyController.text.trim());
-                          LogUtils.i('代理已禁用（重启后生效）', BaseProxyWidgetState.tag);
-                        }
-                      },
-                      activeThumbColor:
-                          Theme.of(context).brightness == Brightness.dark
-                          ? Colors.white
-                          : null,
-                    ),
-                  ),
-                ],
+            ),
+          ),
+        ] else if (_savedFeedback) ...[
+          const SizedBox(height: 12),
+          Semantics(
+            liveRegion: true,
+            child: Text(
+              copy.saved,
+              style: theme.textTheme.bodySmall?.copyWith(color: cs.primary),
+            ),
+          ),
+        ],
+        const SizedBox(height: 20),
+        Divider(height: 1, color: cs.outlineVariant.withValues(alpha: 0.5)),
+        const SizedBox(height: 4),
+        Material(
+          type: MaterialType.transparency,
+          child: SwitchListTile.adaptive(
+            contentPadding: EdgeInsets.zero,
+            title: Text(
+              t.settings.enableProxy,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            subtitle: Text(isProxyEnabled.value ? copy.enabled : copy.disabled),
+            value: isProxyEnabled.value,
+            onChanged: isChecking.value ? null : _toggleProxy,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              _needsRestart
+                  ? Icons.restart_alt_rounded
+                  : Icons.info_outline_rounded,
+              size: 18,
+              color: _needsRestart ? cs.primary : cs.onSurfaceVariant,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                t.settings.needRestartToApply,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: _needsRestart ? cs.primary : cs.onSurfaceVariant,
+                ),
               ),
             ),
           ],
@@ -327,16 +460,16 @@ class _ProxyConfigWidgetState extends BaseProxyWidgetState<ProxyConfigWidget> {
       ],
     );
 
-    final body = widget.wrapWithCard
-        ? Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(padding: const EdgeInsets.all(16), child: content),
-          )
-        : content;
-
-    return SingleChildScrollView(padding: widget.padding, child: body);
+    return Padding(
+      padding: widget.padding ?? EdgeInsets.zero,
+      child: widget.wrapWithCard
+          ? GlassSettingSection(
+              divided: false,
+              children: [
+                Padding(padding: const EdgeInsets.all(16), child: content),
+              ],
+            )
+          : content,
+    );
   }
 }

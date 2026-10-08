@@ -739,6 +739,7 @@ class _TranslationsSettingsZhCn extends TranslationsSettingsEn {
 	@override String testProxyFailedWithStatusCode({required Object code}) => '代理请求失败，状态码: ${code}';
 	@override String testProxyFailedWithException({required Object exception}) => '代理请求出错: ${exception}';
 	@override String get proxyConfig => '代理配置';
+	@override late final _TranslationsSettingsProxyEditorZhCn proxyEditor = _TranslationsSettingsProxyEditorZhCn._(_root);
 	@override String get thisIsHttpProxyAddress => '此处为http代理地址';
 	@override String get checkProxy => '检查代理';
 	@override String get proxyAddress => '代理地址';
@@ -3165,6 +3166,31 @@ class _TranslationsErrorsNetworkZhCn extends TranslationsErrorsNetworkEn {
 	@override String get sslConnectionFailed => 'SSL连接失败，请检查网络设置';
 }
 
+// Path: settings.proxyEditor
+class _TranslationsSettingsProxyEditorZhCn extends TranslationsSettingsProxyEditorEn {
+	_TranslationsSettingsProxyEditorZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get description => '填写代理软件或服务器提供的地址和 HTTP 端口。';
+	@override String get hostLabel => '服务器地址';
+	@override String get portLabel => '端口';
+	@override String get fieldsHelp => '地址填写 IP 或域名，端口使用代理软件的 HTTP 或混合端口。粘贴完整地址会自动拆分，请勿填写订阅链接。';
+	@override String get hostRequired => '请填写服务器地址。';
+	@override String get invalidHost => '请填写 IP 或域名，例如 127.0.0.1 或 proxy.example.com。';
+	@override String get portRequired => '请填写端口。';
+	@override String get invalidPort => '端口应为 1–65535 之间的数字。';
+	@override String useSystemProxy({required Object address}) => '使用 ${address}';
+	@override String get saved => '已保存';
+	@override String get testConnection => '测试连接';
+	@override String get testing => '测试中…';
+	@override String get testSuccess => '此代理可以访问 Google。测试不会启用代理。';
+	@override String get testFailure => '无法通过此代理访问 Google。请确认代理软件正在运行，并检查地址和 HTTP 端口。';
+	@override String get enabled => '重启后使用已保存的代理。';
+	@override String get disabled => '使用当前网络连接。';
+}
+
 // Path: settings.keybinding
 class _TranslationsSettingsKeybindingZhCn extends TranslationsSettingsKeybindingEn {
 	_TranslationsSettingsKeybindingZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
@@ -5507,6 +5533,22 @@ extension on TranslationsZhCn {
 			'settings.testProxyFailedWithStatusCode' => ({required Object code}) => '代理请求失败，状态码: ${code}',
 			'settings.testProxyFailedWithException' => ({required Object exception}) => '代理请求出错: ${exception}',
 			'settings.proxyConfig' => '代理配置',
+			'settings.proxyEditor.description' => '填写代理软件或服务器提供的地址和 HTTP 端口。',
+			'settings.proxyEditor.hostLabel' => '服务器地址',
+			'settings.proxyEditor.portLabel' => '端口',
+			'settings.proxyEditor.fieldsHelp' => '地址填写 IP 或域名，端口使用代理软件的 HTTP 或混合端口。粘贴完整地址会自动拆分，请勿填写订阅链接。',
+			'settings.proxyEditor.hostRequired' => '请填写服务器地址。',
+			'settings.proxyEditor.invalidHost' => '请填写 IP 或域名，例如 127.0.0.1 或 proxy.example.com。',
+			'settings.proxyEditor.portRequired' => '请填写端口。',
+			'settings.proxyEditor.invalidPort' => '端口应为 1–65535 之间的数字。',
+			'settings.proxyEditor.useSystemProxy' => ({required Object address}) => '使用 ${address}',
+			'settings.proxyEditor.saved' => '已保存',
+			'settings.proxyEditor.testConnection' => '测试连接',
+			'settings.proxyEditor.testing' => '测试中…',
+			'settings.proxyEditor.testSuccess' => '此代理可以访问 Google。测试不会启用代理。',
+			'settings.proxyEditor.testFailure' => '无法通过此代理访问 Google。请确认代理软件正在运行，并检查地址和 HTTP 端口。',
+			'settings.proxyEditor.enabled' => '重启后使用已保存的代理。',
+			'settings.proxyEditor.disabled' => '使用当前网络连接。',
 			'settings.thisIsHttpProxyAddress' => '此处为http代理地址',
 			'settings.checkProxy' => '检查代理',
 			'settings.proxyAddress' => '代理地址',
@@ -5978,6 +6020,8 @@ extension on TranslationsZhCn {
 			'settings.leftVerticalSwipeBrightness' => '左侧上下滑动调整亮度（进入新页面时生效）',
 			'settings.longPressFastForward' => '长按快进',
 			'settings.enableMouseHoverShowToolbar' => '鼠标悬浮时显示工具栏',
+			_ => null,
+		} ?? switch (path) {
 			'settings.enableMouseHoverShowToolbarInfo' => '开启后，当鼠标悬浮在播放器上移动时会自动显示工具栏，停止移动3秒后自动隐藏',
 			'settings.enableHorizontalDragSeek' => '横向滑动调整进度',
 			'settings.enableVideoGestureZoom' => '双指缩放视频画面',
@@ -5994,8 +6038,6 @@ extension on TranslationsZhCn {
 			'settings.enableHardwareAcceleration' => '启用硬件加速',
 			'settings.enableHardwareAccelerationInfo' => '开启硬件加速可以提高解码性能，但某些设备可能不兼容',
 			'settings.useOpenSLESAudioOutput' => '使用OpenSLES音频输出',
-			_ => null,
-		} ?? switch (path) {
 			'settings.useOpenSLESAudioOutputInfo' => '使用低延迟音频输出，可能提高音频性能',
 			'settings.videoSyncAudio' => '音频同步',
 			'settings.videoSyncDisplayResample' => '显示重采样',
@@ -6492,6 +6534,8 @@ extension on TranslationsZhCn {
 			'videoDetail.gestureGuide.quest.zoomHint' => '只放大图片内容，窗口大小不变。未按住图片时，摇杆上下调整的是观看距离。',
 			'videoDetail.gestureGuide.quest.panTitle' => '移动细节与还原',
 			'videoDetail.gestureGuide.quest.panBody' => '图片放大后，按住食指扳机拖动可查看其他部分。双击图片可在 2.5× 放大和还原之间切换，手势追踪下也可快速捏合两次。',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.panHint' => '放大状态下，拖动用于平移；还原到 1× 后，横拖才会翻页。',
 			'videoDetail.gestureGuide.quest.slideshowTitle' => '自动播放图库',
 			'videoDetail.gestureGuide.quest.slideshowBody' => '看图片时，按 A / X 开始或暂停幻灯片；在控制面板中选择 3、5、10 或 20 秒的间隔，也可切换标准画质或原图。',
@@ -6508,8 +6552,6 @@ extension on TranslationsZhCn {
 			'videoDetail.gestureGuide.quest.resizeTitle' => '拖动窗边与窗角',
 			'videoDetail.gestureGuide.quest.resizeBody' => '射线靠近窗边时会亮起边框。对准边缘，按住扳机或捏合可移动窗口；对准角落，按住拖动可改变大小。',
 			'videoDetail.gestureGuide.quest.resizeHint' => '应用窗口、控制面板和幕布使用同一套操作。应用窗口可调整宽高，幕布保持画面比例。',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.navigationTitle' => '返回与空间设置',
 			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y 每次返回一层：先关浮层或返回面板主页，再收起面板，最后回到应用。左手 Menu 键可直接唤出空间设置。',
 			'videoDetail.gestureGuide.quest.navigationHint' => '右手 Meta 键由系统处理。使用系统回正可把视线前方重新设为中心，保留幕布大小和距离。',
@@ -7006,6 +7048,8 @@ extension on TranslationsZhCn {
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '已删除 ${deleted} 个任务，跳过 ${skipped} 个（被占用）',
 			'download.relocation.moveFiles' => '移动文件',
 			'download.relocation.moveFilesEllipsis' => '移动文件…',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.chooseDestination' => '把文件移动到',
 			'download.relocation.currentDownloadDir' => '当前下载目录',
 			'download.relocation.otherFolder' => '选择其他文件夹…',
@@ -7022,8 +7066,6 @@ extension on TranslationsZhCn {
 			'download.relocation.resultMoved' => ({required Object count}) => '已移动 ${count} 项',
 			'download.relocation.cancelled' => '已停止。已移动的项目都是完整的。',
 			'download.relocation.alreadyRunning' => '已有一个移动任务在进行',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.destination' => '目标位置',
 			'download.relocation.statMove' => '将移动',
 			'download.relocation.statSkip' => '跳过',
@@ -7520,6 +7562,8 @@ extension on TranslationsZhCn {
 			'mediaPlayer.accessDenied' => '服务器拒绝了这次访问（403）',
 			'mediaPlayer.accessDeniedSuggestion' => '播放链接多半已经过期。点「重试」重新取一次，或用其他应用打开。',
 			'mediaPlayer.mute' => '静音',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.unmute' => '取消静音',
 			'mediaPlayer.video' => '视频',
 			'mediaPlayer.serverSelector' => 'CDN 服务器选择',
@@ -7536,8 +7580,6 @@ extension on TranslationsZhCn {
 			'mediaPlayer.serverCount' => ({required Object count}) => '共 ${count} 个服务器',
 			'mediaPlayer.statusCode' => ({required Object code}) => '状态码: ${code}',
 			'mediaPlayer.connectionFailed' => '连接失败',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.connectionTimeout' => '连接超时',
 			'mediaPlayer.networkError' => '网络错误',
 			'mediaPlayer.sslError' => 'SSL证书错误',
@@ -8034,6 +8076,8 @@ extension on TranslationsZhCn {
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
 			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
 			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
 			'anime4k.presetNames.upscale_only_s' => 'CNN放大 (超快)',
@@ -8050,8 +8094,6 @@ extension on TranslationsZhCn {
 			'siteMode.mainSite' => '主站',
 			'siteMode.aiSite' => 'AI站',
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => '当前 ${currentSite} · 点击切换到 ${nextSite}',
-			_ => null,
-		} ?? switch (path) {
 			'siteMode.dialogTitle' => '切换站点模式',
 			'siteMode.dialogDescription' => '切换后会刷新整个应用，并重置之前已加载的列表和页面状态。',
 			'siteMode.chooseLinkTargetTitle' => '选择链接目标站点',
@@ -8548,6 +8590,8 @@ extension on TranslationsZhCn {
 			'ai.modelPick' => '选择模型',
 			'ai.modelEmpty' => '没拉到模型列表，直接填模型名也可以',
 			'ai.advanced' => '高级',
+			_ => null,
+		} ?? switch (path) {
 			'ai.reasoning' => '推理模型',
 			'ai.streaming' => '流式输出',
 			'ai.structuredOutput' => '结构化输出',
@@ -8564,8 +8608,6 @@ extension on TranslationsZhCn {
 			'ai.taskTranslate' => '翻译',
 			'ai.taskSearch' => 'AI 搜索',
 			'ai.taskSignature' => '小尾巴',
-			_ => null,
-		} ?? switch (path) {
 			'ai.taskAuto' => '自动',
 			'ai.usage' => '用量',
 			'ai.usageCalls' => '调用',

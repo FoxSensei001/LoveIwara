@@ -1,8 +1,31 @@
 import 'dart:io';
+import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:i_iwara/utils/proxy/system_proxy_settings.dart';
 import 'package:win32/win32.dart';
 
 import '../platforms/microsoft_windows_registry_utils.dart';
+
+/// Isolated probe: never fall back to a direct connection or the global override.
+Dio createPlatformProxyTestClient(String address) {
+  final dio = Dio(
+    BaseOptions(
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+      sendTimeout: const Duration(seconds: 10),
+      persistentConnection: false,
+    ),
+  );
+  dio.httpClientAdapter = IOHttpClientAdapter(
+    createHttpClient: () {
+      final client = HttpClient(context: SecurityContext.defaultContext);
+      client.findProxy = (_) => 'PROXY $address';
+      client.connectionTimeout = const Duration(seconds: 10);
+      return client;
+    },
+  );
+  return dio;
+}
 
 ProxySettings getPlatformProxySettings() {
   if (Platform.isWindows) {
@@ -333,25 +356,13 @@ ProxySettings _getProxyFromEnv() {
     Platform.environment['NO_PROXY'],
   ]);
 
-  String? pickUrl = httpProxy ?? httpsProxy ?? allProxy;
-  String? hostPort;
-  if (pickUrl != null && pickUrl.isNotEmpty) {
-    try {
-      final uri = Uri.parse(pickUrl);
-      if (uri.hasAuthority) {
-        hostPort = uri.port > 0 ? '${uri.host}:${uri.port}' : uri.host;
-      } else {
-        // 可能是 host:port 形式
-        hostPort = pickUrl.replaceFirst(RegExp(r'^https?://'), '').trim();
-      }
-    } catch (_) {
-      hostPort = pickUrl;
-    }
-  }
+  // Keep the protocol and credentials so the editor can reject unsupported
+  // SOCKS/authenticated endpoints instead of relabeling them as HTTP.
+  final pickUrl = httpProxy ?? httpsProxy ?? allProxy;
 
   return ProxySettings(
-    enabled: (hostPort?.isNotEmpty ?? false),
-    server: hostPort,
+    enabled: (pickUrl?.isNotEmpty ?? false),
+    server: pickUrl,
     autoConfigUrl: null,
     proxyOverride: noProxy,
   );

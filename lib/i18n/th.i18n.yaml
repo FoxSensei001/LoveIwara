@@ -574,6 +574,23 @@ settings:
   testProxyFailedWithStatusCode: 'ทดสอบพร็อกซีล้มเหลว รหัสสถานะ: ${code}'
   testProxyFailedWithException: 'ทดสอบพร็อกซีล้มเหลว ข้อผิดพลาด: ${exception}'
   proxyConfig: การกำหนดค่าพร็อกซี
+  proxyEditor:
+    description: "ป้อนที่อยู่เซิร์ฟเวอร์และพอร์ต HTTP จากแอปพร็อกซีหรือเซิร์ฟเวอร์ของคุณ"
+    hostLabel: "ที่อยู่เซิร์ฟเวอร์"
+    portLabel: "พอร์ต"
+    fieldsHelp: "ใช้ที่อยู่ IP หรือชื่อโดเมนและพอร์ต HTTP หรือพอร์ตแบบผสมจากแอปพร็อกซี URL ที่วางจะแยกให้อัตโนมัติ ไม่รองรับลิงก์สมัครสมาชิก"
+    hostRequired: "ป้อนที่อยู่เซิร์ฟเวอร์"
+    invalidHost: "ป้อนที่อยู่ IP หรือชื่อโดเมน เช่น 127.0.0.1 หรือ proxy.example.com"
+    portRequired: "ป้อนพอร์ต"
+    invalidPort: "ป้อนพอร์ตตั้งแต่ 1 ถึง 65535"
+    useSystemProxy: "ใช้ ${address}"
+    saved: "บันทึกแล้ว"
+    testConnection: "ทดสอบการเชื่อมต่อ"
+    testing: "กำลังทดสอบ…"
+    testSuccess: "พร็อกซีนี้เข้าถึง Google ได้ การทดสอบจะไม่เปิดใช้พร็อกซี"
+    testFailure: "เข้าถึง Google ผ่านพร็อกซีนี้ไม่ได้ ตรวจสอบว่าแอปพร็อกซีทำงานอยู่ และที่อยู่กับพอร์ต HTTP ถูกต้อง"
+    enabled: "ใช้พร็อกซีที่บันทึกไว้หลังเริ่มแอปใหม่"
+    disabled: "ใช้การเชื่อมต่อเครือข่ายปัจจุบัน"
   thisIsHttpProxyAddress: นี่คือที่อยู่ HTTP พร็อกซี
   checkProxy: ตรวจสอบพร็อกซี
   proxyAddress: ที่อยู่พร็อกซี

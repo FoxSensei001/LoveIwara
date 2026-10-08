@@ -574,6 +574,23 @@ settings:
   testProxyFailedWithStatusCode: 'Test proxy failed, status code: ${code}'
   testProxyFailedWithException: 'Test proxy failed, exception: ${exception}'
   proxyConfig: Proxy Config
+  proxyEditor:
+    description: "Enter the server address and port from your HTTP proxy app or server."
+    hostLabel: "Server address"
+    portLabel: "Port"
+    fieldsHelp: "Use an IP address or domain name and the HTTP or mixed port from your proxy app. Pasted URLs are split automatically. Subscription links are not supported."
+    hostRequired: "Enter a server address."
+    invalidHost: "Enter an IP address or domain name, such as 127.0.0.1 or proxy.example.com."
+    portRequired: "Enter a port."
+    invalidPort: "Enter a port from 1 to 65535."
+    useSystemProxy: "Use ${address}"
+    saved: "Saved"
+    testConnection: "Test connection"
+    testing: "Testing…"
+    testSuccess: "This proxy can reach Google. Testing does not enable the proxy."
+    testFailure: "Could not reach Google through this proxy. Check that your proxy app is running and the address and HTTP port are correct."
+    enabled: "Use the saved proxy after restarting."
+    disabled: "Use the current network connection."
   thisIsHttpProxyAddress: This is http proxy address
   checkProxy: Check Proxy
   proxyAddress: Proxy Address

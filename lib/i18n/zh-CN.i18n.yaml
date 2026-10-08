@@ -576,6 +576,23 @@ settings:
   testProxyFailedWithStatusCode: '代理请求失败，状态码: ${code}'
   testProxyFailedWithException: '代理请求出错: ${exception}'
   proxyConfig: 代理配置
+  proxyEditor:
+    description: "填写代理软件或服务器提供的地址和 HTTP 端口。"
+    hostLabel: "服务器地址"
+    portLabel: "端口"
+    fieldsHelp: "地址填写 IP 或域名，端口使用代理软件的 HTTP 或混合端口。粘贴完整地址会自动拆分，请勿填写订阅链接。"
+    hostRequired: "请填写服务器地址。"
+    invalidHost: "请填写 IP 或域名，例如 127.0.0.1 或 proxy.example.com。"
+    portRequired: "请填写端口。"
+    invalidPort: "端口应为 1–65535 之间的数字。"
+    useSystemProxy: "使用 ${address}"
+    saved: "已保存"
+    testConnection: "测试连接"
+    testing: "测试中…"
+    testSuccess: "此代理可以访问 Google。测试不会启用代理。"
+    testFailure: "无法通过此代理访问 Google。请确认代理软件正在运行，并检查地址和 HTTP 端口。"
+    enabled: "重启后使用已保存的代理。"
+    disabled: "使用当前网络连接。"
   thisIsHttpProxyAddress: 此处为http代理地址
   checkProxy: 检查代理
   proxyAddress: 代理地址

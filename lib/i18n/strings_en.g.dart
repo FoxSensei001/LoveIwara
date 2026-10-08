@@ -1757,6 +1757,8 @@ class TranslationsSettingsEn {
 	/// en: 'Proxy Config'
 	String get proxyConfig => 'Proxy Config';
 
+	late final TranslationsSettingsProxyEditorEn proxyEditor = TranslationsSettingsProxyEditorEn.internal(_root);
+
 	/// en: 'This is http proxy address'
 	String get thisIsHttpProxyAddress => 'This is http proxy address';
 
@@ -8068,6 +8070,63 @@ class TranslationsErrorsNetworkEn {
 	String get sslConnectionFailed => 'SSL connection failed, please check your network settings';
 }
 
+// Path: settings.proxyEditor
+class TranslationsSettingsProxyEditorEn {
+	TranslationsSettingsProxyEditorEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Enter the server address and port from your HTTP proxy app or server.'
+	String get description => 'Enter the server address and port from your HTTP proxy app or server.';
+
+	/// en: 'Server address'
+	String get hostLabel => 'Server address';
+
+	/// en: 'Port'
+	String get portLabel => 'Port';
+
+	/// en: 'Use an IP address or domain name and the HTTP or mixed port from your proxy app. Pasted URLs are split automatically. Subscription links are not supported.'
+	String get fieldsHelp => 'Use an IP address or domain name and the HTTP or mixed port from your proxy app. Pasted URLs are split automatically. Subscription links are not supported.';
+
+	/// en: 'Enter a server address.'
+	String get hostRequired => 'Enter a server address.';
+
+	/// en: 'Enter an IP address or domain name, such as 127.0.0.1 or proxy.example.com.'
+	String get invalidHost => 'Enter an IP address or domain name, such as 127.0.0.1 or proxy.example.com.';
+
+	/// en: 'Enter a port.'
+	String get portRequired => 'Enter a port.';
+
+	/// en: 'Enter a port from 1 to 65535.'
+	String get invalidPort => 'Enter a port from 1 to 65535.';
+
+	/// en: 'Use ${address}'
+	String useSystemProxy({required Object address}) => 'Use ${address}';
+
+	/// en: 'Saved'
+	String get saved => 'Saved';
+
+	/// en: 'Test connection'
+	String get testConnection => 'Test connection';
+
+	/// en: 'Testing…'
+	String get testing => 'Testing…';
+
+	/// en: 'This proxy can reach Google. Testing does not enable the proxy.'
+	String get testSuccess => 'This proxy can reach Google. Testing does not enable the proxy.';
+
+	/// en: 'Could not reach Google through this proxy. Check that your proxy app is running and the address and HTTP port are correct.'
+	String get testFailure => 'Could not reach Google through this proxy. Check that your proxy app is running and the address and HTTP port are correct.';
+
+	/// en: 'Use the saved proxy after restarting.'
+	String get enabled => 'Use the saved proxy after restarting.';
+
+	/// en: 'Use the current network connection.'
+	String get disabled => 'Use the current network connection.';
+}
+
 // Path: settings.keybinding
 class TranslationsSettingsKeybindingEn {
 	TranslationsSettingsKeybindingEn.internal(this._root);
@@ -12916,6 +12975,22 @@ extension on Translations {
 			'settings.testProxyFailedWithStatusCode' => ({required Object code}) => 'Test proxy failed, status code: ${code}',
 			'settings.testProxyFailedWithException' => ({required Object exception}) => 'Test proxy failed, exception: ${exception}',
 			'settings.proxyConfig' => 'Proxy Config',
+			'settings.proxyEditor.description' => 'Enter the server address and port from your HTTP proxy app or server.',
+			'settings.proxyEditor.hostLabel' => 'Server address',
+			'settings.proxyEditor.portLabel' => 'Port',
+			'settings.proxyEditor.fieldsHelp' => 'Use an IP address or domain name and the HTTP or mixed port from your proxy app. Pasted URLs are split automatically. Subscription links are not supported.',
+			'settings.proxyEditor.hostRequired' => 'Enter a server address.',
+			'settings.proxyEditor.invalidHost' => 'Enter an IP address or domain name, such as 127.0.0.1 or proxy.example.com.',
+			'settings.proxyEditor.portRequired' => 'Enter a port.',
+			'settings.proxyEditor.invalidPort' => 'Enter a port from 1 to 65535.',
+			'settings.proxyEditor.useSystemProxy' => ({required Object address}) => 'Use ${address}',
+			'settings.proxyEditor.saved' => 'Saved',
+			'settings.proxyEditor.testConnection' => 'Test connection',
+			'settings.proxyEditor.testing' => 'Testing…',
+			'settings.proxyEditor.testSuccess' => 'This proxy can reach Google. Testing does not enable the proxy.',
+			'settings.proxyEditor.testFailure' => 'Could not reach Google through this proxy. Check that your proxy app is running and the address and HTTP port are correct.',
+			'settings.proxyEditor.enabled' => 'Use the saved proxy after restarting.',
+			'settings.proxyEditor.disabled' => 'Use the current network connection.',
 			'settings.thisIsHttpProxyAddress' => 'This is http proxy address',
 			'settings.checkProxy' => 'Check Proxy',
 			'settings.proxyAddress' => 'Proxy Address',
@@ -13387,6 +13462,8 @@ extension on Translations {
 			'settings.leftVerticalSwipeBrightness' => 'Left Vertical Swipe Brightness (Effective when entering a new page)',
 			'settings.longPressFastForward' => 'Long Press Fast Forward',
 			'settings.enableMouseHoverShowToolbar' => 'Enable Mouse Hover Show Toolbar',
+			_ => null,
+		} ?? switch (path) {
 			'settings.enableMouseHoverShowToolbarInfo' => 'When enabled, the video toolbar will be shown when the mouse is hovering over the player. It will be automatically hidden after 3 seconds of inactivity.',
 			'settings.enableHorizontalDragSeek' => 'Horizontal Swipe to Seek',
 			'settings.enableVideoGestureZoom' => 'Pinch to Zoom Video Frame',
@@ -13403,8 +13480,6 @@ extension on Translations {
 			'settings.enableHardwareAcceleration' => 'Enable Hardware Acceleration',
 			'settings.enableHardwareAccelerationInfo' => 'Enabling hardware acceleration can improve decoding performance, but some devices may not be compatible',
 			'settings.useOpenSLESAudioOutput' => 'Use OpenSLES Audio Output',
-			_ => null,
-		} ?? switch (path) {
 			'settings.useOpenSLESAudioOutputInfo' => 'Use low-latency audio output, may improve audio performance',
 			'settings.videoSyncAudio' => 'Audio Sync',
 			'settings.videoSyncDisplayResample' => 'Display Resample',
@@ -13901,6 +13976,8 @@ extension on Translations {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'This enlarges the image inside its window. Without holding the image, up/down adjusts viewing distance.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Pan and restore the image',
 			'videoDetail.gestureGuide.quest.panBody' => 'Once zoomed in, hold the index trigger and drag to look around. Double-tap the image to zoom to 2.5× or restore it. With hands, pinch twice quickly.',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.panHint' => 'Dragging pans a zoomed image. Restore to 1× before dragging to turn pages.',
 			'videoDetail.gestureGuide.quest.slideshowTitle' => 'Start a slideshow',
 			'videoDetail.gestureGuide.quest.slideshowBody' => 'On an image, A / X starts or pauses the slideshow. The panel offers 3, 5, 10 or 20-second intervals and standard or original image quality.',
@@ -13917,8 +13994,6 @@ extension on Translations {
 			'videoDetail.gestureGuide.quest.resizeTitle' => 'Use the edges and corners',
 			'videoDetail.gestureGuide.quest.resizeBody' => 'The frame lights up as your ray approaches an edge. Hold the trigger or pinch on an edge to move the window; drag a corner to resize it.',
 			'videoDetail.gestureGuide.quest.resizeHint' => 'Works on the app window, control panel and screen. The app window changes width and height; screens keep their aspect ratio.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.navigationTitle' => 'Go back and open settings',
 			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y goes back one level: close a popup or return to the panel home, hide the panel, then return to the app. The left Menu button opens spatial settings.',
 			'videoDetail.gestureGuide.quest.navigationHint' => 'The right Meta button belongs to the system. System recenter brings the view back in front while preserving screen size and distance.',
@@ -14415,6 +14490,8 @@ extension on Translations {
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Deleted ${count} task(s)',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Deleted ${deleted} task(s); ${skipped} skipped (in use)',
 			'download.relocation.moveFiles' => 'Move files',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.moveFilesEllipsis' => 'Move files…',
 			'download.relocation.chooseDestination' => 'Move files to',
 			'download.relocation.currentDownloadDir' => 'Current download folder',
@@ -14431,8 +14508,6 @@ extension on Translations {
 			'download.relocation.resultTitle' => 'Move finished',
 			'download.relocation.resultMoved' => ({required Object count}) => '${count} item(s) moved',
 			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.alreadyRunning' => 'Another move is already in progress',
 			'download.relocation.destination' => 'Destination',
 			'download.relocation.statMove' => 'To move',
@@ -14929,6 +15004,8 @@ extension on Translations {
 			'navigationOrderSettings.cancel' => 'Cancel',
 			'navigationOrderSettings.show' => 'Show',
 			'navigationOrderSettings.hide' => 'Hide',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.hidden' => 'Hidden',
 			'navigationOrderSettings.hideHint' => 'Tap the eye icon to show or hide Community and local files',
 			'navigationOrderSettings.videoDescription' => 'Browse popular video content',
@@ -14945,8 +15022,6 @@ extension on Translations {
 			'news.openInBrowser' => 'Open in Browser',
 			'displaySettings.title' => 'Display Settings',
 			'displaySettings.layoutSettings' => 'Layout Settings',
-			_ => null,
-		} ?? switch (path) {
 			'displaySettings.layoutSettingsDesc' => 'Customize column count and breakpoint configuration',
 			'displaySettings.gridLayout' => 'Grid Layout',
 			'displaySettings.navigationOrderSettings' => 'Navigation Order Settings',
@@ -15443,6 +15518,8 @@ extension on Translations {
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
 			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
 			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
 			'anime4k.presetNames.upscale_only_s' => 'CNN Upscaling (Ultra Fast)',
@@ -15459,8 +15536,6 @@ extension on Translations {
 			'siteMode.mainSite' => 'Main',
 			'siteMode.aiSite' => 'AI',
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => 'Current ${currentSite} · Tap to switch to ${nextSite}',
-			_ => null,
-		} ?? switch (path) {
 			'siteMode.dialogTitle' => 'Switch Site Mode',
 			'siteMode.dialogDescription' => 'Switching will refresh the entire app and reset previously loaded lists and page state.',
 			'siteMode.chooseLinkTargetTitle' => 'Choose Target Site',
@@ -15957,6 +16032,8 @@ extension on Translations {
 			'ai.modelPick' => 'Pick a model',
 			'ai.modelEmpty' => 'Could not load the model list — typing a model name works too.',
 			'ai.advanced' => 'Advanced',
+			_ => null,
+		} ?? switch (path) {
 			'ai.reasoning' => 'Reasoning model',
 			'ai.streaming' => 'Stream output',
 			'ai.structuredOutput' => 'Structured output',
@@ -15973,8 +16050,6 @@ extension on Translations {
 			'ai.taskTranslate' => 'Translation',
 			'ai.taskSearch' => 'AI search',
 			'ai.taskSignature' => 'Signature',
-			_ => null,
-		} ?? switch (path) {
 			'ai.taskAuto' => 'Automatic',
 			'ai.usage' => 'Usage',
 			'ai.usageCalls' => 'Calls',

@@ -574,6 +574,23 @@ settings:
   testProxyFailedWithStatusCode: 'Échec du test du proxy, code d''état : ${code}'
   testProxyFailedWithException: 'Échec du test du proxy, exception : ${exception}'
   proxyConfig: Configuration du proxy
+  proxyEditor:
+    description: "Saisissez l’adresse du serveur et le port HTTP de votre application proxy ou de votre serveur."
+    hostLabel: "Adresse du serveur"
+    portLabel: "Port"
+    fieldsHelp: "Utilisez une adresse IP ou un nom de domaine et le port HTTP ou mixte de votre application. Les URL collées sont séparées automatiquement. Les liens d’abonnement ne sont pas pris en charge."
+    hostRequired: "Saisissez une adresse de serveur."
+    invalidHost: "Saisissez une adresse IP ou un nom de domaine, comme 127.0.0.1 ou proxy.example.com."
+    portRequired: "Saisissez un port."
+    invalidPort: "Saisissez un port de 1 à 65535."
+    useSystemProxy: "Utiliser ${address}"
+    saved: "Enregistré"
+    testConnection: "Tester la connexion"
+    testing: "Test en cours…"
+    testSuccess: "Ce proxy peut accéder à Google. Le test n’active pas le proxy."
+    testFailure: "Impossible d’accéder à Google via ce proxy. Vérifiez que votre application proxy fonctionne et que l’adresse et le port HTTP sont corrects."
+    enabled: "Utiliser le proxy enregistré après le redémarrage."
+    disabled: "Utiliser la connexion réseau actuelle."
   thisIsHttpProxyAddress: Il s'agit de l'adresse du proxy HTTP
   checkProxy: Vérifier le proxy
   proxyAddress: Adresse du proxy

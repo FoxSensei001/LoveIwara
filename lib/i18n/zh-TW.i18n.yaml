@@ -575,6 +575,23 @@ settings:
   testProxyFailedWithStatusCode: '代理請求失敗，狀態碼: ${code}'
   testProxyFailedWithException: '代理請求出錯: ${exception}'
   proxyConfig: 代理設定
+  proxyEditor:
+    description: "填寫代理軟體或伺服器提供的位址和 HTTP 連接埠。"
+    hostLabel: "伺服器位址"
+    portLabel: "連接埠"
+    fieldsHelp: "位址填寫 IP 或網域，連接埠使用代理軟體的 HTTP 或混合連接埠。貼上完整位址會自動拆分，請勿填寫訂閱連結。"
+    hostRequired: "請填寫伺服器位址。"
+    invalidHost: "請填寫 IP 或網域，例如 127.0.0.1 或 proxy.example.com。"
+    portRequired: "請填寫連接埠。"
+    invalidPort: "連接埠應為 1–65535 之間的數字。"
+    useSystemProxy: "使用 ${address}"
+    saved: "已儲存"
+    testConnection: "測試連線"
+    testing: "測試中…"
+    testSuccess: "此代理可以存取 Google。測試不會啟用代理。"
+    testFailure: "無法透過此代理存取 Google。請確認代理軟體正在執行，並檢查位址和 HTTP 連接埠。"
+    enabled: "重新啟動後使用已儲存的代理。"
+    disabled: "使用目前的網路連線。"
   thisIsHttpProxyAddress: 此為 HTTP 代理伺服器地址
   checkProxy: 檢查代理
   proxyAddress: 代理地址

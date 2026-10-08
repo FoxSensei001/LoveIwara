@@ -574,6 +574,23 @@ settings:
   testProxyFailedWithStatusCode: 'Kiểm tra proxy thất bại, mã trạng thái: ${code}'
   testProxyFailedWithException: 'Kiểm tra proxy thất bại, ngoại lệ: ${exception}'
   proxyConfig: Cấu hình proxy
+  proxyEditor:
+    description: "Nhập địa chỉ máy chủ và cổng HTTP từ ứng dụng proxy hoặc máy chủ của bạn."
+    hostLabel: "Địa chỉ máy chủ"
+    portLabel: "Cổng"
+    fieldsHelp: "Dùng địa chỉ IP hoặc tên miền và cổng HTTP hoặc hỗn hợp của ứng dụng. URL được dán sẽ tự động tách thành hai phần. Không hỗ trợ liên kết đăng ký."
+    hostRequired: "Nhập địa chỉ máy chủ."
+    invalidHost: "Nhập địa chỉ IP hoặc tên miền, như 127.0.0.1 hoặc proxy.example.com."
+    portRequired: "Nhập cổng."
+    invalidPort: "Nhập cổng từ 1 đến 65535."
+    useSystemProxy: "Dùng ${address}"
+    saved: "Đã lưu"
+    testConnection: "Kiểm tra kết nối"
+    testing: "Đang kiểm tra…"
+    testSuccess: "Proxy này có thể truy cập Google. Việc kiểm tra không bật proxy."
+    testFailure: "Không thể truy cập Google qua proxy này. Hãy kiểm tra ứng dụng proxy đang chạy và địa chỉ, cổng HTTP có chính xác không."
+    enabled: "Dùng proxy đã lưu sau khi khởi động lại."
+    disabled: "Dùng kết nối mạng hiện tại."
   thisIsHttpProxyAddress: Đây là địa chỉ proxy http
   checkProxy: Kiểm tra proxy
   proxyAddress: Địa chỉ proxy

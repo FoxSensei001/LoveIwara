@@ -739,6 +739,7 @@ class _TranslationsSettingsTh extends TranslationsSettingsEn {
 	@override String testProxyFailedWithStatusCode({required Object code}) => 'ทดสอบพร็อกซีล้มเหลว รหัสสถานะ: ${code}';
 	@override String testProxyFailedWithException({required Object exception}) => 'ทดสอบพร็อกซีล้มเหลว ข้อผิดพลาด: ${exception}';
 	@override String get proxyConfig => 'การกำหนดค่าพร็อกซี';
+	@override late final _TranslationsSettingsProxyEditorTh proxyEditor = _TranslationsSettingsProxyEditorTh._(_root);
 	@override String get thisIsHttpProxyAddress => 'นี่คือที่อยู่ HTTP พร็อกซี';
 	@override String get checkProxy => 'ตรวจสอบพร็อกซี';
 	@override String get proxyAddress => 'ที่อยู่พร็อกซี';
@@ -3165,6 +3166,31 @@ class _TranslationsErrorsNetworkTh extends TranslationsErrorsNetworkEn {
 	@override String get sslConnectionFailed => 'การเชื่อมต่อ SSL ล้มเหลว โปรดตรวจสอบการตั้งค่าเครือข่ายของคุณ';
 }
 
+// Path: settings.proxyEditor
+class _TranslationsSettingsProxyEditorTh extends TranslationsSettingsProxyEditorEn {
+	_TranslationsSettingsProxyEditorTh._(TranslationsTh root) : this._root = root, super.internal(root);
+
+	final TranslationsTh _root; // ignore: unused_field
+
+	// Translations
+	@override String get description => 'ป้อนที่อยู่เซิร์ฟเวอร์และพอร์ต HTTP จากแอปพร็อกซีหรือเซิร์ฟเวอร์ของคุณ';
+	@override String get hostLabel => 'ที่อยู่เซิร์ฟเวอร์';
+	@override String get portLabel => 'พอร์ต';
+	@override String get fieldsHelp => 'ใช้ที่อยู่ IP หรือชื่อโดเมนและพอร์ต HTTP หรือพอร์ตแบบผสมจากแอปพร็อกซี URL ที่วางจะแยกให้อัตโนมัติ ไม่รองรับลิงก์สมัครสมาชิก';
+	@override String get hostRequired => 'ป้อนที่อยู่เซิร์ฟเวอร์';
+	@override String get invalidHost => 'ป้อนที่อยู่ IP หรือชื่อโดเมน เช่น 127.0.0.1 หรือ proxy.example.com';
+	@override String get portRequired => 'ป้อนพอร์ต';
+	@override String get invalidPort => 'ป้อนพอร์ตตั้งแต่ 1 ถึง 65535';
+	@override String useSystemProxy({required Object address}) => 'ใช้ ${address}';
+	@override String get saved => 'บันทึกแล้ว';
+	@override String get testConnection => 'ทดสอบการเชื่อมต่อ';
+	@override String get testing => 'กำลังทดสอบ…';
+	@override String get testSuccess => 'พร็อกซีนี้เข้าถึง Google ได้ การทดสอบจะไม่เปิดใช้พร็อกซี';
+	@override String get testFailure => 'เข้าถึง Google ผ่านพร็อกซีนี้ไม่ได้ ตรวจสอบว่าแอปพร็อกซีทำงานอยู่ และที่อยู่กับพอร์ต HTTP ถูกต้อง';
+	@override String get enabled => 'ใช้พร็อกซีที่บันทึกไว้หลังเริ่มแอปใหม่';
+	@override String get disabled => 'ใช้การเชื่อมต่อเครือข่ายปัจจุบัน';
+}
+
 // Path: settings.keybinding
 class _TranslationsSettingsKeybindingTh extends TranslationsSettingsKeybindingEn {
 	_TranslationsSettingsKeybindingTh._(TranslationsTh root) : this._root = root, super.internal(root);
@@ -5507,6 +5533,22 @@ extension on TranslationsTh {
 			'settings.testProxyFailedWithStatusCode' => ({required Object code}) => 'ทดสอบพร็อกซีล้มเหลว รหัสสถานะ: ${code}',
 			'settings.testProxyFailedWithException' => ({required Object exception}) => 'ทดสอบพร็อกซีล้มเหลว ข้อผิดพลาด: ${exception}',
 			'settings.proxyConfig' => 'การกำหนดค่าพร็อกซี',
+			'settings.proxyEditor.description' => 'ป้อนที่อยู่เซิร์ฟเวอร์และพอร์ต HTTP จากแอปพร็อกซีหรือเซิร์ฟเวอร์ของคุณ',
+			'settings.proxyEditor.hostLabel' => 'ที่อยู่เซิร์ฟเวอร์',
+			'settings.proxyEditor.portLabel' => 'พอร์ต',
+			'settings.proxyEditor.fieldsHelp' => 'ใช้ที่อยู่ IP หรือชื่อโดเมนและพอร์ต HTTP หรือพอร์ตแบบผสมจากแอปพร็อกซี URL ที่วางจะแยกให้อัตโนมัติ ไม่รองรับลิงก์สมัครสมาชิก',
+			'settings.proxyEditor.hostRequired' => 'ป้อนที่อยู่เซิร์ฟเวอร์',
+			'settings.proxyEditor.invalidHost' => 'ป้อนที่อยู่ IP หรือชื่อโดเมน เช่น 127.0.0.1 หรือ proxy.example.com',
+			'settings.proxyEditor.portRequired' => 'ป้อนพอร์ต',
+			'settings.proxyEditor.invalidPort' => 'ป้อนพอร์ตตั้งแต่ 1 ถึง 65535',
+			'settings.proxyEditor.useSystemProxy' => ({required Object address}) => 'ใช้ ${address}',
+			'settings.proxyEditor.saved' => 'บันทึกแล้ว',
+			'settings.proxyEditor.testConnection' => 'ทดสอบการเชื่อมต่อ',
+			'settings.proxyEditor.testing' => 'กำลังทดสอบ…',
+			'settings.proxyEditor.testSuccess' => 'พร็อกซีนี้เข้าถึง Google ได้ การทดสอบจะไม่เปิดใช้พร็อกซี',
+			'settings.proxyEditor.testFailure' => 'เข้าถึง Google ผ่านพร็อกซีนี้ไม่ได้ ตรวจสอบว่าแอปพร็อกซีทำงานอยู่ และที่อยู่กับพอร์ต HTTP ถูกต้อง',
+			'settings.proxyEditor.enabled' => 'ใช้พร็อกซีที่บันทึกไว้หลังเริ่มแอปใหม่',
+			'settings.proxyEditor.disabled' => 'ใช้การเชื่อมต่อเครือข่ายปัจจุบัน',
 			'settings.thisIsHttpProxyAddress' => 'นี่คือที่อยู่ HTTP พร็อกซี',
 			'settings.checkProxy' => 'ตรวจสอบพร็อกซี',
 			'settings.proxyAddress' => 'ที่อยู่พร็อกซี',
@@ -5978,6 +6020,8 @@ extension on TranslationsTh {
 			'settings.leftVerticalSwipeBrightness' => 'ปัดแนวตั้งด้านซ้ายเพื่อปรับความสว่าง (มีผลเมื่อเข้าสู่หน้าใหม่)',
 			'settings.longPressFastForward' => 'กดค้างเพื่อเดินหน้าอย่างเร็ว',
 			'settings.enableMouseHoverShowToolbar' => 'เปิดใช้การชี้เมาส์เพื่อแสดงแถบเครื่องมือ',
+			_ => null,
+		} ?? switch (path) {
 			'settings.enableMouseHoverShowToolbarInfo' => 'เมื่อเปิดใช้งาน แถบเครื่องมือวิดีโอจะแสดงขึ้นเมื่อเลื่อนเมาส์ไปเหนือเครื่องเล่น และจะซ่อนโดยอัตโนมัติหลังจากไม่มีการใช้งานเป็นเวลา 3 วินาที',
 			'settings.enableHorizontalDragSeek' => 'ปัดในแนวนอนเพื่อเลื่อนหาตำแหน่ง',
 			'settings.enableVideoGestureZoom' => 'หนีบนิ้วเพื่อซูมเฟรมวิดีโอ',
@@ -5994,8 +6038,6 @@ extension on TranslationsTh {
 			'settings.enableHardwareAcceleration' => 'เปิดใช้การเร่งความเร็วด้วยฮาร์ดแวร์',
 			'settings.enableHardwareAccelerationInfo' => 'การเปิดใช้การเร่งความเร็วด้วยฮาร์ดแวร์สามารถปรับปรุงประสิทธิภาพการถอดรหัสได้ แต่อุปกรณ์บางรุ่นอาจไม่รองรับ',
 			'settings.useOpenSLESAudioOutput' => 'ใช้เอาต์พุตเสียง OpenSLES',
-			_ => null,
-		} ?? switch (path) {
 			'settings.useOpenSLESAudioOutputInfo' => 'ใช้เอาต์พุตเสียงที่มีความหน่วงต่ำ อาจช่วยปรับปรุงประสิทธิภาพของเสียงได้',
 			'settings.videoSyncAudio' => 'การซิงค์เสียง',
 			'settings.videoSyncDisplayResample' => 'การสุ่มตัวอย่างใหม่ในการแสดงผล',
@@ -6492,6 +6534,8 @@ extension on TranslationsTh {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'การดำเนินการนี้จะขยายรูปภาพภายในหน้าต่าง หากไม่ได้จับรูปภาพไว้ การดันขึ้น/ลงจะเป็นการปรับระยะการมอง',
 			'videoDetail.gestureGuide.quest.panTitle' => 'เลื่อนและคืนค่ารูปภาพ',
 			'videoDetail.gestureGuide.quest.panBody' => 'เมื่อซูมเข้าแล้ว ให้กดไกชี้ค้างไว้แล้วลากเพื่อดูรอบๆ แตะสองครั้งที่รูปภาพเพื่อซูมเป็น 2.5× หรือคืนค่าเดิม สำหรับมือ ให้จีบนิ้วสองครั้งอย่างรวดเร็ว',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.panHint' => 'การลากจะเป็นการเลื่อนดูภาพที่ซูมอยู่ คืนค่าเป็น 1× ก่อนลากเพื่อเปลี่ยนหน้า',
 			'videoDetail.gestureGuide.quest.slideshowTitle' => 'เริ่มการฉายสไลด์',
 			'videoDetail.gestureGuide.quest.slideshowBody' => 'เมื่อดูรูปภาพ กดปุ่ม A / X เพื่อเริ่มหรือหยุดการฉายสไลด์ชั่วคราว แผงควบคุมมีช่วงเวลา 3, 5, 10 หรือ 20 วินาที และคุณภาพของภาพแบบมาตรฐานหรือต้นฉบับ',
@@ -6508,8 +6552,6 @@ extension on TranslationsTh {
 			'videoDetail.gestureGuide.quest.resizeTitle' => 'ใช้ขอบและมุม',
 			'videoDetail.gestureGuide.quest.resizeBody' => 'กรอบจะสว่างขึ้นเมื่อลำแสงของคุณเข้าใกล้ขอบ กดไกชี้ค้างไว้หรือจีบนิ้วที่ขอบเพื่อย้ายหน้าต่าง ลากมุมเพื่อปรับขนาด',
 			'videoDetail.gestureGuide.quest.resizeHint' => 'ใช้ได้กับหน้าต่างแอป แผงควบคุม และหน้าจอ หน้าต่างแอปสามารถปรับความกว้างและความสูงได้ ส่วนหน้าจอจะรักษาอัตราส่วนภาพไว้',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.navigationTitle' => 'ย้อนกลับและเปิดการตั้งค่า',
 			'videoDetail.gestureGuide.quest.navigationBody' => 'ปุ่ม B / Y ใช้ย้อนกลับหนึ่งระดับ: ปิดป๊อปอัปหรือกลับสู่หน้าแรกของแผงควบคุม ซ่อนแผงควบคุม แล้วกลับสู่แอป ปุ่ม Menu ด้านซ้ายเปิดการตั้งค่าเชิงพื้นที่',
 			'videoDetail.gestureGuide.quest.navigationHint' => 'ปุ่ม Meta ด้านขวาเป็นของระบบ การตั้งศูนย์ระบบใหม่จะนำมุมมองกลับมาอยู่ข้างหน้าโดยยังคงขนาดและระยะห่างของหน้าจอไว้',
@@ -7006,6 +7048,8 @@ extension on TranslationsTh {
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'ลบ ${count} งานแล้ว',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'ลบ ${deleted} งานแล้ว; ข้าม ${skipped} งาน (กำลังถูกใช้งาน)',
 			'download.relocation.moveFiles' => 'Move files',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.moveFilesEllipsis' => 'Move files…',
 			'download.relocation.chooseDestination' => 'Move files to',
 			'download.relocation.currentDownloadDir' => 'Current download folder',
@@ -7022,8 +7066,6 @@ extension on TranslationsTh {
 			'download.relocation.resultTitle' => 'Move finished',
 			'download.relocation.resultMoved' => ({required Object count}) => '${count} item(s) moved',
 			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.alreadyRunning' => 'Another move is already in progress',
 			'download.relocation.destination' => 'Destination',
 			'download.relocation.statMove' => 'To move',
@@ -7520,6 +7562,8 @@ extension on TranslationsTh {
 			'navigationOrderSettings.cancel' => 'ยกเลิก',
 			'navigationOrderSettings.show' => 'แสดง',
 			'navigationOrderSettings.hide' => 'ซ่อน',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.hidden' => 'ซ่อนอยู่',
 			'navigationOrderSettings.hideHint' => 'แตะไอคอนรูปตาเพื่อแสดงหรือซ่อนชุมชนและไฟล์ในเครื่อง',
 			'navigationOrderSettings.videoDescription' => 'เรียกดูเนื้อหาวิดีโอยอดนิยม',
@@ -7536,8 +7580,6 @@ extension on TranslationsTh {
 			'news.openInBrowser' => 'เปิดในเบราว์เซอร์',
 			'displaySettings.title' => 'การตั้งค่าการแสดงผล',
 			'displaySettings.layoutSettings' => 'การตั้งค่าเลย์เอาต์',
-			_ => null,
-		} ?? switch (path) {
 			'displaySettings.layoutSettingsDesc' => 'ปรับแต่งจำนวนคอลัมน์และการกำหนดค่าจุดแบ่งหน้าจอ (Breakpoint)',
 			'displaySettings.gridLayout' => 'เลย์เอาต์ตาราง',
 			'displaySettings.navigationOrderSettings' => 'การตั้งค่าลำดับการนำทาง',
@@ -8034,6 +8076,8 @@ extension on TranslationsTh {
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
 			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
 			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
 			'anime4k.presetNames.upscale_only_s' => 'ขยายภาพด้วย CNN (เร็วมาก)',
@@ -8050,8 +8094,6 @@ extension on TranslationsTh {
 			'siteMode.mainSite' => 'ไซต์หลัก',
 			'siteMode.aiSite' => 'AI',
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => 'ปัจจุบัน ${currentSite} · แตะเพื่อสลับเป็น ${nextSite}',
-			_ => null,
-		} ?? switch (path) {
 			'siteMode.dialogTitle' => 'สลับโหมดไซต์',
 			'siteMode.dialogDescription' => 'การสลับจะรีเฟรชทั้งแอป และรีเซ็ตรายการที่โหลดไว้ก่อนหน้ากับสถานะของหน้า',
 			'siteMode.chooseLinkTargetTitle' => 'เลือกไซต์ปลายทาง',
@@ -8548,6 +8590,8 @@ extension on TranslationsTh {
 			'ai.modelPick' => 'เลือกโมเดล',
 			'ai.modelEmpty' => 'ไม่สามารถโหลดรายการโมเดลได้ คุณยังสามารถพิมพ์ชื่อโมเดลได้โดยตรง',
 			'ai.advanced' => 'ขั้นสูง',
+			_ => null,
+		} ?? switch (path) {
 			'ai.reasoning' => 'โมเดลการให้เหตุผล',
 			'ai.streaming' => 'เอาต์พุตแบบสตรีม',
 			'ai.structuredOutput' => 'เอาต์พุตที่มีโครงสร้าง',
@@ -8564,8 +8608,6 @@ extension on TranslationsTh {
 			'ai.taskTranslate' => 'การแปล',
 			'ai.taskSearch' => 'ค้นหาด้วย AI',
 			'ai.taskSignature' => 'ลายเซ็น',
-			_ => null,
-		} ?? switch (path) {
 			'ai.taskAuto' => 'อัตโนมัติ',
 			'ai.usage' => 'การใช้งาน',
 			'ai.usageCalls' => 'การเรียกใช้',

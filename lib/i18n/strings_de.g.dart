@@ -739,6 +739,7 @@ class _TranslationsSettingsDe extends TranslationsSettingsEn {
 	@override String testProxyFailedWithStatusCode({required Object code}) => 'Proxy-Test fehlgeschlagen, Statuscode: ${code}';
 	@override String testProxyFailedWithException({required Object exception}) => 'Proxy-Test fehlgeschlagen, Ausnahme: ${exception}';
 	@override String get proxyConfig => 'Proxy-Konfiguration';
+	@override late final _TranslationsSettingsProxyEditorDe proxyEditor = _TranslationsSettingsProxyEditorDe._(_root);
 	@override String get thisIsHttpProxyAddress => 'Dies ist eine HTTP-Proxy-Adresse';
 	@override String get checkProxy => 'Proxy prüfen';
 	@override String get proxyAddress => 'Proxy-Adresse';
@@ -3165,6 +3166,31 @@ class _TranslationsErrorsNetworkDe extends TranslationsErrorsNetworkEn {
 	@override String get sslConnectionFailed => 'SSL-Verbindung fehlgeschlagen, bitte prüfen Sie Ihre Netzwerkeinstellungen';
 }
 
+// Path: settings.proxyEditor
+class _TranslationsSettingsProxyEditorDe extends TranslationsSettingsProxyEditorEn {
+	_TranslationsSettingsProxyEditorDe._(TranslationsDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDe _root; // ignore: unused_field
+
+	// Translations
+	@override String get description => 'Gib die Serveradresse und den HTTP-Port deiner Proxy-App oder deines Servers ein.';
+	@override String get hostLabel => 'Serveradresse';
+	@override String get portLabel => 'Port';
+	@override String get fieldsHelp => 'Verwende eine IP-Adresse oder einen Domainnamen und den HTTP- oder gemischten Port deiner Proxy-App. Eingefügte URLs werden automatisch aufgeteilt. Abonnement-Links werden nicht unterstützt.';
+	@override String get hostRequired => 'Gib eine Serveradresse ein.';
+	@override String get invalidHost => 'Gib eine IP-Adresse oder einen Domainnamen ein, etwa 127.0.0.1 oder proxy.example.com.';
+	@override String get portRequired => 'Gib einen Port ein.';
+	@override String get invalidPort => 'Gib einen Port von 1 bis 65535 ein.';
+	@override String useSystemProxy({required Object address}) => '${address} verwenden';
+	@override String get saved => 'Gespeichert';
+	@override String get testConnection => 'Verbindung testen';
+	@override String get testing => 'Wird getestet…';
+	@override String get testSuccess => 'Dieser Proxy erreicht Google. Der Test aktiviert den Proxy nicht.';
+	@override String get testFailure => 'Google ist über diesen Proxy nicht erreichbar. Prüfe, ob deine Proxy-App läuft und Adresse und HTTP-Port stimmen.';
+	@override String get enabled => 'Nach dem Neustart den gespeicherten Proxy verwenden.';
+	@override String get disabled => 'Die aktuelle Netzwerkverbindung verwenden.';
+}
+
 // Path: settings.keybinding
 class _TranslationsSettingsKeybindingDe extends TranslationsSettingsKeybindingEn {
 	_TranslationsSettingsKeybindingDe._(TranslationsDe root) : this._root = root, super.internal(root);
@@ -5507,6 +5533,22 @@ extension on TranslationsDe {
 			'settings.testProxyFailedWithStatusCode' => ({required Object code}) => 'Proxy-Test fehlgeschlagen, Statuscode: ${code}',
 			'settings.testProxyFailedWithException' => ({required Object exception}) => 'Proxy-Test fehlgeschlagen, Ausnahme: ${exception}',
 			'settings.proxyConfig' => 'Proxy-Konfiguration',
+			'settings.proxyEditor.description' => 'Gib die Serveradresse und den HTTP-Port deiner Proxy-App oder deines Servers ein.',
+			'settings.proxyEditor.hostLabel' => 'Serveradresse',
+			'settings.proxyEditor.portLabel' => 'Port',
+			'settings.proxyEditor.fieldsHelp' => 'Verwende eine IP-Adresse oder einen Domainnamen und den HTTP- oder gemischten Port deiner Proxy-App. Eingefügte URLs werden automatisch aufgeteilt. Abonnement-Links werden nicht unterstützt.',
+			'settings.proxyEditor.hostRequired' => 'Gib eine Serveradresse ein.',
+			'settings.proxyEditor.invalidHost' => 'Gib eine IP-Adresse oder einen Domainnamen ein, etwa 127.0.0.1 oder proxy.example.com.',
+			'settings.proxyEditor.portRequired' => 'Gib einen Port ein.',
+			'settings.proxyEditor.invalidPort' => 'Gib einen Port von 1 bis 65535 ein.',
+			'settings.proxyEditor.useSystemProxy' => ({required Object address}) => '${address} verwenden',
+			'settings.proxyEditor.saved' => 'Gespeichert',
+			'settings.proxyEditor.testConnection' => 'Verbindung testen',
+			'settings.proxyEditor.testing' => 'Wird getestet…',
+			'settings.proxyEditor.testSuccess' => 'Dieser Proxy erreicht Google. Der Test aktiviert den Proxy nicht.',
+			'settings.proxyEditor.testFailure' => 'Google ist über diesen Proxy nicht erreichbar. Prüfe, ob deine Proxy-App läuft und Adresse und HTTP-Port stimmen.',
+			'settings.proxyEditor.enabled' => 'Nach dem Neustart den gespeicherten Proxy verwenden.',
+			'settings.proxyEditor.disabled' => 'Die aktuelle Netzwerkverbindung verwenden.',
 			'settings.thisIsHttpProxyAddress' => 'Dies ist eine HTTP-Proxy-Adresse',
 			'settings.checkProxy' => 'Proxy prüfen',
 			'settings.proxyAddress' => 'Proxy-Adresse',
@@ -5978,6 +6020,8 @@ extension on TranslationsDe {
 			'settings.leftVerticalSwipeBrightness' => 'Helligkeit durch vertikales Wischen links (wirksam beim Öffnen einer neuen Seite)',
 			'settings.longPressFastForward' => 'Vorspulen bei Langdruck',
 			'settings.enableMouseHoverShowToolbar' => 'Symbolleiste bei Mauszeiger-Anzeige einblenden',
+			_ => null,
+		} ?? switch (path) {
 			'settings.enableMouseHoverShowToolbarInfo' => 'Wenn aktiviert, wird die Video-Symbolleiste angezeigt, wenn der Mauszeiger über dem Player schwebt. Nach 3 Sekunden Inaktivität wird sie automatisch ausgeblendet.',
 			'settings.enableHorizontalDragSeek' => 'Horizontales Wischen zum Spulen',
 			'settings.enableVideoGestureZoom' => 'Videobild durch Zusammenziehen vergrößern',
@@ -5994,8 +6038,6 @@ extension on TranslationsDe {
 			'settings.enableHardwareAcceleration' => 'Hardwarebeschleunigung aktivieren',
 			'settings.enableHardwareAccelerationInfo' => 'Das Aktivieren der Hardwarebeschleunigung kann die Dekodierungsleistung verbessern, aber einige Geräte sind möglicherweise nicht kompatibel',
 			'settings.useOpenSLESAudioOutput' => 'OpenSLES-Audioausgabe verwenden',
-			_ => null,
-		} ?? switch (path) {
 			'settings.useOpenSLESAudioOutputInfo' => 'Audioausgabe mit niedriger Latenz verwenden, kann die Audioleistung verbessern',
 			'settings.videoSyncAudio' => 'Audio-Synchronisierung',
 			'settings.videoSyncDisplayResample' => 'Neuabtastung anzeigen',
@@ -6492,6 +6534,8 @@ extension on TranslationsDe {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Dadurch wird das Bild innerhalb seines Fensters vergrößert. Ohne Halten des Bildes passt Auf/Ab den Betrachtungsabstand an.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Das Bild verschieben und wiederherstellen',
 			'videoDetail.gestureGuide.quest.panBody' => 'Sobald Sie hineingezoomt haben, halten Sie den Zeigefinger-Auslöser und ziehen Sie, um sich umzusehen. Doppeltippen Sie auf das Bild, um auf 2,5× zu zoomen oder es wiederherzustellen. Mit Händen zweimal schnell kneifen.',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.panHint' => 'Durch Ziehen wird ein gezoomtes Bild verschoben. Stellen Sie vor dem Ziehen zum Umblättern auf 1× zurück.',
 			'videoDetail.gestureGuide.quest.slideshowTitle' => 'Eine Diashow starten',
 			'videoDetail.gestureGuide.quest.slideshowBody' => 'Bei einem Bild startet oder pausiert A / X die Diashow. Das Bedienfeld bietet Intervalle von 3, 5, 10 oder 20 Sekunden sowie Standard- oder Original-Bildqualität.',
@@ -6508,8 +6552,6 @@ extension on TranslationsDe {
 			'videoDetail.gestureGuide.quest.resizeTitle' => 'Ränder und Ecken verwenden',
 			'videoDetail.gestureGuide.quest.resizeBody' => 'Der Rahmen leuchtet auf, wenn sich Ihr Strahl einem Rand nähert. Halten Sie den Auslöser oder kneifen Sie an einem Rand, um das Fenster zu verschieben; ziehen Sie an einer Ecke, um die Größe zu ändern.',
 			'videoDetail.gestureGuide.quest.resizeHint' => 'Funktioniert am App-Fenster, am Bedienfeld und am Bildschirm. Das App-Fenster ändert Breite und Höhe; Bildschirme behalten ihr Seitenverhältnis.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.navigationTitle' => 'Zurückgehen und Einstellungen öffnen',
 			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y geht eine Ebene zurück: ein Popup schließen oder zum Start des Bedienfelds zurückkehren, das Bedienfeld ausblenden und dann zur App zurückkehren. Die linke Menü-Taste öffnet die räumlichen Einstellungen.',
 			'videoDetail.gestureGuide.quest.navigationHint' => 'Die rechte Meta-Taste gehört zum System. Das System-Recenter bringt die Ansicht wieder nach vorne, wobei Bildschirmgröße und -abstand erhalten bleiben.',
@@ -7006,6 +7048,8 @@ extension on TranslationsDe {
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count} Aufgabe(n) gelöscht',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '${deleted} Aufgabe(n) gelöscht; ${skipped} übersprungen (in Verwendung)',
 			'download.relocation.moveFiles' => 'Move files',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.moveFilesEllipsis' => 'Move files…',
 			'download.relocation.chooseDestination' => 'Move files to',
 			'download.relocation.currentDownloadDir' => 'Current download folder',
@@ -7022,8 +7066,6 @@ extension on TranslationsDe {
 			'download.relocation.resultTitle' => 'Move finished',
 			'download.relocation.resultMoved' => ({required Object count}) => '${count} item(s) moved',
 			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.alreadyRunning' => 'Another move is already in progress',
 			'download.relocation.destination' => 'Destination',
 			'download.relocation.statMove' => 'To move',
@@ -7520,6 +7562,8 @@ extension on TranslationsDe {
 			'navigationOrderSettings.cancel' => 'Abbrechen',
 			'navigationOrderSettings.show' => 'Anzeigen',
 			'navigationOrderSettings.hide' => 'Ausblenden',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.hidden' => 'Ausgeblendet',
 			'navigationOrderSettings.hideHint' => 'Tippen Sie auf das Augensymbol, um Community und lokale Dateien ein- oder auszublenden',
 			'navigationOrderSettings.videoDescription' => 'Beliebte Videoinhalte durchsuchen',
@@ -7536,8 +7580,6 @@ extension on TranslationsDe {
 			'news.openInBrowser' => 'Im Browser öffnen',
 			'displaySettings.title' => 'Anzeige-Einstellungen',
 			'displaySettings.layoutSettings' => 'Layout-Einstellungen',
-			_ => null,
-		} ?? switch (path) {
 			'displaySettings.layoutSettingsDesc' => 'Spaltenanzahl und Haltepunkte anpassen',
 			'displaySettings.gridLayout' => 'Raster-Layout',
 			'displaySettings.navigationOrderSettings' => 'Navigationsreihenfolge',
@@ -8034,6 +8076,8 @@ extension on TranslationsDe {
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
 			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
 			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
 			'anime4k.presetNames.upscale_only_s' => 'CNN-Upscaling (Ultraschnell)',
@@ -8050,8 +8094,6 @@ extension on TranslationsDe {
 			'siteMode.mainSite' => 'Main',
 			'siteMode.aiSite' => 'AI',
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => 'Aktuell ${currentSite} · Tippen, um zu ${nextSite} zu wechseln',
-			_ => null,
-		} ?? switch (path) {
 			'siteMode.dialogTitle' => 'Website-Modus wechseln',
 			'siteMode.dialogDescription' => 'Beim Wechseln wird die gesamte App neu geladen und zuvor geladene Listen und Seitenzustände werden zurückgesetzt.',
 			'siteMode.chooseLinkTargetTitle' => 'Ziel-Website wählen',
@@ -8548,6 +8590,8 @@ extension on TranslationsDe {
 			'ai.modelPick' => 'Modell auswählen',
 			'ai.modelEmpty' => 'Modellliste konnte nicht geladen werden — Sie können den Modellnamen auch direkt eingeben.',
 			'ai.advanced' => 'Erweitert',
+			_ => null,
+		} ?? switch (path) {
 			'ai.reasoning' => 'Reasoning-Modell',
 			'ai.streaming' => 'Streaming-Ausgabe',
 			'ai.structuredOutput' => 'Strukturierte Ausgabe',
@@ -8564,8 +8608,6 @@ extension on TranslationsDe {
 			'ai.taskTranslate' => 'Übersetzung',
 			'ai.taskSearch' => 'KI-Suche',
 			'ai.taskSignature' => 'Signatur',
-			_ => null,
-		} ?? switch (path) {
 			'ai.taskAuto' => 'Automatisch',
 			'ai.usage' => 'Nutzung',
 			'ai.usageCalls' => 'Aufrufe',

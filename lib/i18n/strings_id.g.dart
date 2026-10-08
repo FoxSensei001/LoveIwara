@@ -739,6 +739,7 @@ class _TranslationsSettingsId extends TranslationsSettingsEn {
 	@override String testProxyFailedWithStatusCode({required Object code}) => 'Uji proksi gagal, kode status: ${code}';
 	@override String testProxyFailedWithException({required Object exception}) => 'Uji proksi gagal, pengecualian: ${exception}';
 	@override String get proxyConfig => 'Konfigurasi Proksi';
+	@override late final _TranslationsSettingsProxyEditorId proxyEditor = _TranslationsSettingsProxyEditorId._(_root);
 	@override String get thisIsHttpProxyAddress => 'Ini adalah alamat proksi http';
 	@override String get checkProxy => 'Periksa Proksi';
 	@override String get proxyAddress => 'Alamat Proksi';
@@ -3165,6 +3166,31 @@ class _TranslationsErrorsNetworkId extends TranslationsErrorsNetworkEn {
 	@override String get sslConnectionFailed => 'Koneksi SSL gagal, silakan periksa pengaturan jaringan Anda';
 }
 
+// Path: settings.proxyEditor
+class _TranslationsSettingsProxyEditorId extends TranslationsSettingsProxyEditorEn {
+	_TranslationsSettingsProxyEditorId._(TranslationsId root) : this._root = root, super.internal(root);
+
+	final TranslationsId _root; // ignore: unused_field
+
+	// Translations
+	@override String get description => 'Masukkan alamat server dan port HTTP dari aplikasi proxy atau server Anda.';
+	@override String get hostLabel => 'Alamat server';
+	@override String get portLabel => 'Port';
+	@override String get fieldsHelp => 'Gunakan alamat IP atau nama domain dan port HTTP atau campuran dari aplikasi proxy. URL yang ditempel akan dipisahkan otomatis. Tautan langganan tidak didukung.';
+	@override String get hostRequired => 'Masukkan alamat server.';
+	@override String get invalidHost => 'Masukkan alamat IP atau nama domain, seperti 127.0.0.1 atau proxy.example.com.';
+	@override String get portRequired => 'Masukkan port.';
+	@override String get invalidPort => 'Masukkan port dari 1 hingga 65535.';
+	@override String useSystemProxy({required Object address}) => 'Gunakan ${address}';
+	@override String get saved => 'Tersimpan';
+	@override String get testConnection => 'Uji koneksi';
+	@override String get testing => 'Menguji…';
+	@override String get testSuccess => 'Proxy ini dapat mengakses Google. Pengujian tidak mengaktifkan proxy.';
+	@override String get testFailure => 'Tidak dapat mengakses Google melalui proxy ini. Pastikan aplikasi proxy berjalan serta alamat dan port HTTP benar.';
+	@override String get enabled => 'Gunakan proxy tersimpan setelah memulai ulang.';
+	@override String get disabled => 'Gunakan koneksi jaringan saat ini.';
+}
+
 // Path: settings.keybinding
 class _TranslationsSettingsKeybindingId extends TranslationsSettingsKeybindingEn {
 	_TranslationsSettingsKeybindingId._(TranslationsId root) : this._root = root, super.internal(root);
@@ -5507,6 +5533,22 @@ extension on TranslationsId {
 			'settings.testProxyFailedWithStatusCode' => ({required Object code}) => 'Uji proksi gagal, kode status: ${code}',
 			'settings.testProxyFailedWithException' => ({required Object exception}) => 'Uji proksi gagal, pengecualian: ${exception}',
 			'settings.proxyConfig' => 'Konfigurasi Proksi',
+			'settings.proxyEditor.description' => 'Masukkan alamat server dan port HTTP dari aplikasi proxy atau server Anda.',
+			'settings.proxyEditor.hostLabel' => 'Alamat server',
+			'settings.proxyEditor.portLabel' => 'Port',
+			'settings.proxyEditor.fieldsHelp' => 'Gunakan alamat IP atau nama domain dan port HTTP atau campuran dari aplikasi proxy. URL yang ditempel akan dipisahkan otomatis. Tautan langganan tidak didukung.',
+			'settings.proxyEditor.hostRequired' => 'Masukkan alamat server.',
+			'settings.proxyEditor.invalidHost' => 'Masukkan alamat IP atau nama domain, seperti 127.0.0.1 atau proxy.example.com.',
+			'settings.proxyEditor.portRequired' => 'Masukkan port.',
+			'settings.proxyEditor.invalidPort' => 'Masukkan port dari 1 hingga 65535.',
+			'settings.proxyEditor.useSystemProxy' => ({required Object address}) => 'Gunakan ${address}',
+			'settings.proxyEditor.saved' => 'Tersimpan',
+			'settings.proxyEditor.testConnection' => 'Uji koneksi',
+			'settings.proxyEditor.testing' => 'Menguji…',
+			'settings.proxyEditor.testSuccess' => 'Proxy ini dapat mengakses Google. Pengujian tidak mengaktifkan proxy.',
+			'settings.proxyEditor.testFailure' => 'Tidak dapat mengakses Google melalui proxy ini. Pastikan aplikasi proxy berjalan serta alamat dan port HTTP benar.',
+			'settings.proxyEditor.enabled' => 'Gunakan proxy tersimpan setelah memulai ulang.',
+			'settings.proxyEditor.disabled' => 'Gunakan koneksi jaringan saat ini.',
 			'settings.thisIsHttpProxyAddress' => 'Ini adalah alamat proksi http',
 			'settings.checkProxy' => 'Periksa Proksi',
 			'settings.proxyAddress' => 'Alamat Proksi',
@@ -5978,6 +6020,8 @@ extension on TranslationsId {
 			'settings.leftVerticalSwipeBrightness' => 'Geser Vertikal Kiri untuk Kecerahan (Berlaku saat memasuki halaman baru)',
 			'settings.longPressFastForward' => 'Tekan Lama untuk Maju Cepat',
 			'settings.enableMouseHoverShowToolbar' => 'Aktifkan Tampilkan Bilah Alat saat Kursor Melayang',
+			_ => null,
+		} ?? switch (path) {
 			'settings.enableMouseHoverShowToolbarInfo' => 'Saat diaktifkan, bilah alat video akan ditampilkan saat kursor melayang di atas pemutar. Bilah akan disembunyikan secara otomatis setelah 3 detik tidak ada aktivitas.',
 			'settings.enableHorizontalDragSeek' => 'Geser Horizontal untuk Mencari',
 			'settings.enableVideoGestureZoom' => 'Cubit untuk Memperbesar Bingkai Video',
@@ -5994,8 +6038,6 @@ extension on TranslationsId {
 			'settings.enableHardwareAcceleration' => 'Aktifkan Akselerasi Perangkat Keras',
 			'settings.enableHardwareAccelerationInfo' => 'Mengaktifkan akselerasi perangkat keras dapat meningkatkan kinerja dekode, tetapi beberapa perangkat mungkin tidak kompatibel',
 			'settings.useOpenSLESAudioOutput' => 'Gunakan Output Audio OpenSLES',
-			_ => null,
-		} ?? switch (path) {
 			'settings.useOpenSLESAudioOutputInfo' => 'Gunakan output audio latensi rendah, dapat meningkatkan kinerja audio',
 			'settings.videoSyncAudio' => 'Sinkron Audio',
 			'settings.videoSyncDisplayResample' => 'Tampilkan Resample',
@@ -6492,6 +6534,8 @@ extension on TranslationsId {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Ini memperbesar gambar di dalam jendelanya. Tanpa menahan gambar, atas/bawah menyesuaikan jarak pandang.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Geser dan pulihkan gambar',
 			'videoDetail.gestureGuide.quest.panBody' => 'Setelah diperbesar, tahan pemicu telunjuk dan seret untuk melihat sekeliling. Ketuk dua kali gambar untuk memperbesar ke 2,5× atau memulihkannya. Dengan tangan, cubit dua kali dengan cepat.',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.panHint' => 'Menyeret akan menggeser gambar yang diperbesar. Pulihkan ke 1× sebelum menyeret untuk membalik halaman.',
 			'videoDetail.gestureGuide.quest.slideshowTitle' => 'Mulai tayangan slide',
 			'videoDetail.gestureGuide.quest.slideshowBody' => 'Pada gambar, A / X memulai atau menjeda tayangan slide. Panel menawarkan interval 3, 5, 10, atau 20 detik serta kualitas gambar standar atau asli.',
@@ -6508,8 +6552,6 @@ extension on TranslationsId {
 			'videoDetail.gestureGuide.quest.resizeTitle' => 'Gunakan tepi dan sudut',
 			'videoDetail.gestureGuide.quest.resizeBody' => 'Bingkai akan menyala saat sinar Anda mendekati tepi. Tahan pemicu atau cubit pada tepi untuk memindahkan jendela; seret sudut untuk mengubah ukurannya.',
 			'videoDetail.gestureGuide.quest.resizeHint' => 'Berfungsi pada jendela aplikasi, panel kontrol, dan layar. Jendela aplikasi mengubah lebar dan tinggi; layar mempertahankan rasio aspeknya.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.navigationTitle' => 'Kembali dan buka pengaturan',
 			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y kembali satu tingkat: menutup popup atau kembali ke beranda panel, menyembunyikan panel, lalu kembali ke aplikasi. Tombol Menu kiri membuka pengaturan spasial.',
 			'videoDetail.gestureGuide.quest.navigationHint' => 'Tombol Meta kanan milik sistem. Pemusatan ulang sistem membawa tampilan kembali ke depan sambil mempertahankan ukuran dan jarak layar.',
@@ -7006,6 +7048,8 @@ extension on TranslationsId {
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Menghapus ${count} tugas',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Menghapus ${deleted} tugas; ${skipped} dilewati (sedang digunakan)',
 			'download.relocation.moveFiles' => 'Move files',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.moveFilesEllipsis' => 'Move files…',
 			'download.relocation.chooseDestination' => 'Move files to',
 			'download.relocation.currentDownloadDir' => 'Current download folder',
@@ -7022,8 +7066,6 @@ extension on TranslationsId {
 			'download.relocation.resultTitle' => 'Move finished',
 			'download.relocation.resultMoved' => ({required Object count}) => '${count} item(s) moved',
 			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.alreadyRunning' => 'Another move is already in progress',
 			'download.relocation.destination' => 'Destination',
 			'download.relocation.statMove' => 'To move',
@@ -7520,6 +7562,8 @@ extension on TranslationsId {
 			'navigationOrderSettings.cancel' => 'Batal',
 			'navigationOrderSettings.show' => 'Tampilkan',
 			'navigationOrderSettings.hide' => 'Sembunyikan',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.hidden' => 'Tersembunyi',
 			'navigationOrderSettings.hideHint' => 'Ketuk ikon mata untuk menampilkan atau menyembunyikan Komunitas dan berkas lokal',
 			'navigationOrderSettings.videoDescription' => 'Telusuri konten video populer',
@@ -7536,8 +7580,6 @@ extension on TranslationsId {
 			'news.openInBrowser' => 'Buka di Peramban',
 			'displaySettings.title' => 'Pengaturan Tampilan',
 			'displaySettings.layoutSettings' => 'Pengaturan Tata Letak',
-			_ => null,
-		} ?? switch (path) {
 			'displaySettings.layoutSettingsDesc' => 'Sesuaikan jumlah kolom dan konfigurasi titik henti',
 			'displaySettings.gridLayout' => 'Tata Letak Kisi',
 			'displaySettings.navigationOrderSettings' => 'Pengaturan Urutan Navigasi',
@@ -8034,6 +8076,8 @@ extension on TranslationsId {
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
 			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
 			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
 			'anime4k.presetNames.upscale_only_s' => 'Peningkatan Resolusi CNN (Ultra Cepat)',
@@ -8050,8 +8094,6 @@ extension on TranslationsId {
 			'siteMode.mainSite' => 'Main',
 			'siteMode.aiSite' => 'AI',
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => 'Saat ini ${currentSite} · Ketuk untuk beralih ke ${nextSite}',
-			_ => null,
-		} ?? switch (path) {
 			'siteMode.dialogTitle' => 'Beralih Mode Situs',
 			'siteMode.dialogDescription' => 'Beralih akan menyegarkan seluruh aplikasi dan mengatur ulang daftar serta status halaman yang dimuat sebelumnya.',
 			'siteMode.chooseLinkTargetTitle' => 'Pilih Situs Tujuan',
@@ -8548,6 +8590,8 @@ extension on TranslationsId {
 			'ai.modelPick' => 'Pilih model',
 			'ai.modelEmpty' => 'Gagal memuat daftar model — Anda juga bisa mengetik langsung nama modelnya.',
 			'ai.advanced' => 'Lanjutan',
+			_ => null,
+		} ?? switch (path) {
 			'ai.reasoning' => 'Model penalaran',
 			'ai.streaming' => 'Keluaran streaming',
 			'ai.structuredOutput' => 'Keluaran terstruktur',
@@ -8564,8 +8608,6 @@ extension on TranslationsId {
 			'ai.taskTranslate' => 'Terjemahan',
 			'ai.taskSearch' => 'Pencarian AI',
 			'ai.taskSignature' => 'Tanda tangan',
-			_ => null,
-		} ?? switch (path) {
 			'ai.taskAuto' => 'Otomatis',
 			'ai.usage' => 'Penggunaan',
 			'ai.usageCalls' => 'Panggilan',

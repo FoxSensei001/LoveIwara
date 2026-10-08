@@ -739,6 +739,7 @@ class _TranslationsSettingsVi extends TranslationsSettingsEn {
 	@override String testProxyFailedWithStatusCode({required Object code}) => 'Kiểm tra proxy thất bại, mã trạng thái: ${code}';
 	@override String testProxyFailedWithException({required Object exception}) => 'Kiểm tra proxy thất bại, ngoại lệ: ${exception}';
 	@override String get proxyConfig => 'Cấu hình proxy';
+	@override late final _TranslationsSettingsProxyEditorVi proxyEditor = _TranslationsSettingsProxyEditorVi._(_root);
 	@override String get thisIsHttpProxyAddress => 'Đây là địa chỉ proxy http';
 	@override String get checkProxy => 'Kiểm tra proxy';
 	@override String get proxyAddress => 'Địa chỉ proxy';
@@ -3165,6 +3166,31 @@ class _TranslationsErrorsNetworkVi extends TranslationsErrorsNetworkEn {
 	@override String get sslConnectionFailed => 'Kết nối SSL thất bại, vui lòng kiểm tra cài đặt mạng';
 }
 
+// Path: settings.proxyEditor
+class _TranslationsSettingsProxyEditorVi extends TranslationsSettingsProxyEditorEn {
+	_TranslationsSettingsProxyEditorVi._(TranslationsVi root) : this._root = root, super.internal(root);
+
+	final TranslationsVi _root; // ignore: unused_field
+
+	// Translations
+	@override String get description => 'Nhập địa chỉ máy chủ và cổng HTTP từ ứng dụng proxy hoặc máy chủ của bạn.';
+	@override String get hostLabel => 'Địa chỉ máy chủ';
+	@override String get portLabel => 'Cổng';
+	@override String get fieldsHelp => 'Dùng địa chỉ IP hoặc tên miền và cổng HTTP hoặc hỗn hợp của ứng dụng. URL được dán sẽ tự động tách thành hai phần. Không hỗ trợ liên kết đăng ký.';
+	@override String get hostRequired => 'Nhập địa chỉ máy chủ.';
+	@override String get invalidHost => 'Nhập địa chỉ IP hoặc tên miền, như 127.0.0.1 hoặc proxy.example.com.';
+	@override String get portRequired => 'Nhập cổng.';
+	@override String get invalidPort => 'Nhập cổng từ 1 đến 65535.';
+	@override String useSystemProxy({required Object address}) => 'Dùng ${address}';
+	@override String get saved => 'Đã lưu';
+	@override String get testConnection => 'Kiểm tra kết nối';
+	@override String get testing => 'Đang kiểm tra…';
+	@override String get testSuccess => 'Proxy này có thể truy cập Google. Việc kiểm tra không bật proxy.';
+	@override String get testFailure => 'Không thể truy cập Google qua proxy này. Hãy kiểm tra ứng dụng proxy đang chạy và địa chỉ, cổng HTTP có chính xác không.';
+	@override String get enabled => 'Dùng proxy đã lưu sau khi khởi động lại.';
+	@override String get disabled => 'Dùng kết nối mạng hiện tại.';
+}
+
 // Path: settings.keybinding
 class _TranslationsSettingsKeybindingVi extends TranslationsSettingsKeybindingEn {
 	_TranslationsSettingsKeybindingVi._(TranslationsVi root) : this._root = root, super.internal(root);
@@ -5507,6 +5533,22 @@ extension on TranslationsVi {
 			'settings.testProxyFailedWithStatusCode' => ({required Object code}) => 'Kiểm tra proxy thất bại, mã trạng thái: ${code}',
 			'settings.testProxyFailedWithException' => ({required Object exception}) => 'Kiểm tra proxy thất bại, ngoại lệ: ${exception}',
 			'settings.proxyConfig' => 'Cấu hình proxy',
+			'settings.proxyEditor.description' => 'Nhập địa chỉ máy chủ và cổng HTTP từ ứng dụng proxy hoặc máy chủ của bạn.',
+			'settings.proxyEditor.hostLabel' => 'Địa chỉ máy chủ',
+			'settings.proxyEditor.portLabel' => 'Cổng',
+			'settings.proxyEditor.fieldsHelp' => 'Dùng địa chỉ IP hoặc tên miền và cổng HTTP hoặc hỗn hợp của ứng dụng. URL được dán sẽ tự động tách thành hai phần. Không hỗ trợ liên kết đăng ký.',
+			'settings.proxyEditor.hostRequired' => 'Nhập địa chỉ máy chủ.',
+			'settings.proxyEditor.invalidHost' => 'Nhập địa chỉ IP hoặc tên miền, như 127.0.0.1 hoặc proxy.example.com.',
+			'settings.proxyEditor.portRequired' => 'Nhập cổng.',
+			'settings.proxyEditor.invalidPort' => 'Nhập cổng từ 1 đến 65535.',
+			'settings.proxyEditor.useSystemProxy' => ({required Object address}) => 'Dùng ${address}',
+			'settings.proxyEditor.saved' => 'Đã lưu',
+			'settings.proxyEditor.testConnection' => 'Kiểm tra kết nối',
+			'settings.proxyEditor.testing' => 'Đang kiểm tra…',
+			'settings.proxyEditor.testSuccess' => 'Proxy này có thể truy cập Google. Việc kiểm tra không bật proxy.',
+			'settings.proxyEditor.testFailure' => 'Không thể truy cập Google qua proxy này. Hãy kiểm tra ứng dụng proxy đang chạy và địa chỉ, cổng HTTP có chính xác không.',
+			'settings.proxyEditor.enabled' => 'Dùng proxy đã lưu sau khi khởi động lại.',
+			'settings.proxyEditor.disabled' => 'Dùng kết nối mạng hiện tại.',
 			'settings.thisIsHttpProxyAddress' => 'Đây là địa chỉ proxy http',
 			'settings.checkProxy' => 'Kiểm tra proxy',
 			'settings.proxyAddress' => 'Địa chỉ proxy',
@@ -5978,6 +6020,8 @@ extension on TranslationsVi {
 			'settings.leftVerticalSwipeBrightness' => 'Vuốt dọc bên trái để chỉnh độ sáng (có hiệu lực khi vào trang mới)',
 			'settings.longPressFastForward' => 'Nhấn giữ để tua nhanh',
 			'settings.enableMouseHoverShowToolbar' => 'Hiện thanh công cụ khi di chuột',
+			_ => null,
+		} ?? switch (path) {
 			'settings.enableMouseHoverShowToolbarInfo' => 'Khi bật, thanh công cụ video sẽ hiện khi con trỏ chuột ở trên trình phát. Thanh này sẽ tự động ẩn sau 3 giây không thao tác.',
 			'settings.enableHorizontalDragSeek' => 'Vuốt ngang để tua',
 			'settings.enableVideoGestureZoom' => 'Chụm để thu phóng khung hình video',
@@ -5994,8 +6038,6 @@ extension on TranslationsVi {
 			'settings.enableHardwareAcceleration' => 'Bật tăng tốc phần cứng',
 			'settings.enableHardwareAccelerationInfo' => 'Bật tăng tốc phần cứng có thể cải thiện hiệu năng giải mã, nhưng một số thiết bị có thể không tương thích',
 			'settings.useOpenSLESAudioOutput' => 'Dùng đầu ra âm thanh OpenSLES',
-			_ => null,
-		} ?? switch (path) {
 			'settings.useOpenSLESAudioOutputInfo' => 'Dùng đầu ra âm thanh độ trễ thấp, có thể cải thiện hiệu năng âm thanh',
 			'settings.videoSyncAudio' => 'Đồng bộ âm thanh',
 			'settings.videoSyncDisplayResample' => 'Lấy mẫu lại',
@@ -6492,6 +6534,8 @@ extension on TranslationsVi {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Thao tác này phóng to hình ảnh bên trong cửa sổ của nó. Nếu không giữ hình ảnh, lên/xuống sẽ điều chỉnh khoảng cách xem.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Di chuyển và khôi phục hình ảnh',
 			'videoDetail.gestureGuide.quest.panBody' => 'Sau khi đã thu phóng, giữ cò ngón trỏ và kéo để nhìn quanh. Nhấn đúp vào hình ảnh để thu phóng lên 2.5× hoặc khôi phục. Với bàn tay, chụm hai lần thật nhanh.',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.panHint' => 'Kéo để di chuyển một hình ảnh đã thu phóng. Khôi phục về 1× trước khi kéo để lật trang.',
 			'videoDetail.gestureGuide.quest.slideshowTitle' => 'Bắt đầu trình chiếu',
 			'videoDetail.gestureGuide.quest.slideshowBody' => 'Trên một hình ảnh, A / X bắt đầu hoặc tạm dừng trình chiếu. Bảng cung cấp khoảng thời gian 3, 5, 10 hoặc 20 giây và chất lượng hình ảnh tiêu chuẩn hoặc gốc.',
@@ -6508,8 +6552,6 @@ extension on TranslationsVi {
 			'videoDetail.gestureGuide.quest.resizeTitle' => 'Dùng các cạnh và góc',
 			'videoDetail.gestureGuide.quest.resizeBody' => 'Khung sẽ sáng lên khi tia của bạn tiến gần một cạnh. Giữ cò hoặc chụm vào một cạnh để di chuyển cửa sổ; kéo một góc để đổi kích thước.',
 			'videoDetail.gestureGuide.quest.resizeHint' => 'Hoạt động trên cửa sổ ứng dụng, bảng điều khiển và màn hình. Cửa sổ ứng dụng thay đổi chiều rộng và chiều cao; màn hình giữ nguyên tỉ lệ khung hình.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.navigationTitle' => 'Quay lại và mở cài đặt',
 			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y lùi một cấp: đóng cửa sổ bật lên hoặc quay về trang chính của bảng, ẩn bảng, rồi quay về ứng dụng. Nút Menu bên trái mở cài đặt không gian.',
 			'videoDetail.gestureGuide.quest.navigationHint' => 'Nút Meta bên phải thuộc về hệ thống. Chức năng định vị lại của hệ thống đưa tầm nhìn về phía trước trong khi giữ nguyên kích thước và khoảng cách màn hình.',
@@ -7006,6 +7048,8 @@ extension on TranslationsVi {
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Đã xóa ${count} tác vụ',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Đã xóa ${deleted} tác vụ; bỏ qua ${skipped} (đang được dùng)',
 			'download.relocation.moveFiles' => 'Move files',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.moveFilesEllipsis' => 'Move files…',
 			'download.relocation.chooseDestination' => 'Move files to',
 			'download.relocation.currentDownloadDir' => 'Current download folder',
@@ -7022,8 +7066,6 @@ extension on TranslationsVi {
 			'download.relocation.resultTitle' => 'Move finished',
 			'download.relocation.resultMoved' => ({required Object count}) => '${count} item(s) moved',
 			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.alreadyRunning' => 'Another move is already in progress',
 			'download.relocation.destination' => 'Destination',
 			'download.relocation.statMove' => 'To move',
@@ -7520,6 +7562,8 @@ extension on TranslationsVi {
 			'navigationOrderSettings.cancel' => 'Hủy',
 			'navigationOrderSettings.show' => 'Hiện',
 			'navigationOrderSettings.hide' => 'Ẩn',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.hidden' => 'Đã ẩn',
 			'navigationOrderSettings.hideHint' => 'Nhấn biểu tượng con mắt để hiện hoặc ẩn Cộng đồng và tệp cục bộ',
 			'navigationOrderSettings.videoDescription' => 'Duyệt nội dung video phổ biến',
@@ -7536,8 +7580,6 @@ extension on TranslationsVi {
 			'news.openInBrowser' => 'Mở trong trình duyệt',
 			'displaySettings.title' => 'Cài đặt hiển thị',
 			'displaySettings.layoutSettings' => 'Cài đặt bố cục',
-			_ => null,
-		} ?? switch (path) {
 			'displaySettings.layoutSettingsDesc' => 'Tùy chỉnh số cột và cấu hình điểm ngắt',
 			'displaySettings.gridLayout' => 'Bố cục lưới',
 			'displaySettings.navigationOrderSettings' => 'Cài đặt thứ tự điều hướng',
@@ -8034,6 +8076,8 @@ extension on TranslationsVi {
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
 			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
 			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
 			'anime4k.presetNames.upscale_only_s' => 'Nâng tỉ lệ CNN (cực nhanh)',
@@ -8050,8 +8094,6 @@ extension on TranslationsVi {
 			'siteMode.mainSite' => 'Main',
 			'siteMode.aiSite' => 'AI',
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => 'Hiện tại ${currentSite} · Nhấn để chuyển sang ${nextSite}',
-			_ => null,
-		} ?? switch (path) {
 			'siteMode.dialogTitle' => 'Chuyển chế độ trang',
 			'siteMode.dialogDescription' => 'Việc chuyển đổi sẽ làm mới toàn bộ ứng dụng và đặt lại các danh sách cùng trạng thái trang đã tải trước đó.',
 			'siteMode.chooseLinkTargetTitle' => 'Chọn trang đích',
@@ -8548,6 +8590,8 @@ extension on TranslationsVi {
 			'ai.modelPick' => 'Chọn mô hình',
 			'ai.modelEmpty' => 'Không thể tải danh sách mô hình — bạn cũng có thể nhập trực tiếp tên mô hình.',
 			'ai.advanced' => 'Nâng cao',
+			_ => null,
+		} ?? switch (path) {
 			'ai.reasoning' => 'Mô hình suy luận',
 			'ai.streaming' => 'Đầu ra dạng luồng',
 			'ai.structuredOutput' => 'Đầu ra có cấu trúc',
@@ -8564,8 +8608,6 @@ extension on TranslationsVi {
 			'ai.taskTranslate' => 'Dịch thuật',
 			'ai.taskSearch' => 'Tìm kiếm AI',
 			'ai.taskSignature' => 'Chữ ký',
-			_ => null,
-		} ?? switch (path) {
 			'ai.taskAuto' => 'Tự động',
 			'ai.usage' => 'Mức sử dụng',
 			'ai.usageCalls' => 'Lượt gọi',

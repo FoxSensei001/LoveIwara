@@ -574,6 +574,23 @@ settings:
   testProxyFailedWithStatusCode: '프록시 테스트 실패, 상태 코드: ${code}'
   testProxyFailedWithException: '프록시 테스트 실패, 예외: ${exception}'
   proxyConfig: 프록시 설정
+  proxyEditor:
+    description: "프록시 앱이나 서버의 주소와 HTTP 포트를 입력하세요."
+    hostLabel: "서버 주소"
+    portLabel: "포트"
+    fieldsHelp: "IP 주소 또는 도메인 이름과 프록시 앱의 HTTP 또는 혼합 포트를 사용하세요. 붙여넣은 URL은 자동으로 분리됩니다. 구독 링크는 지원하지 않습니다."
+    hostRequired: "서버 주소를 입력하세요."
+    invalidHost: "127.0.0.1 또는 proxy.example.com과 같은 IP 주소나 도메인을 입력하세요."
+    portRequired: "포트를 입력하세요."
+    invalidPort: "1–65535 범위의 포트를 입력하세요."
+    useSystemProxy: "${address} 사용"
+    saved: "저장됨"
+    testConnection: "연결 테스트"
+    testing: "테스트 중…"
+    testSuccess: "이 프록시로 Google에 접속할 수 있습니다. 테스트는 프록시를 활성화하지 않습니다."
+    testFailure: "이 프록시로 Google에 접속할 수 없습니다. 프록시 앱 실행 여부와 주소, HTTP 포트를 확인하세요."
+    enabled: "재시작 후 저장된 프록시를 사용합니다."
+    disabled: "현재 네트워크 연결을 사용합니다."
   thisIsHttpProxyAddress: 이것은 http 프록시 주소입니다
   checkProxy: 프록시 확인
   proxyAddress: 프록시 주소

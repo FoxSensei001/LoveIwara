@@ -739,6 +739,7 @@ class _TranslationsSettingsZhTw extends TranslationsSettingsEn {
 	@override String testProxyFailedWithStatusCode({required Object code}) => '代理請求失敗，狀態碼: ${code}';
 	@override String testProxyFailedWithException({required Object exception}) => '代理請求出錯: ${exception}';
 	@override String get proxyConfig => '代理設定';
+	@override late final _TranslationsSettingsProxyEditorZhTw proxyEditor = _TranslationsSettingsProxyEditorZhTw._(_root);
 	@override String get thisIsHttpProxyAddress => '此為 HTTP 代理伺服器地址';
 	@override String get checkProxy => '檢查代理';
 	@override String get proxyAddress => '代理地址';
@@ -3165,6 +3166,31 @@ class _TranslationsErrorsNetworkZhTw extends TranslationsErrorsNetworkEn {
 	@override String get sslConnectionFailed => 'SSL連線失敗，請檢查網路設定';
 }
 
+// Path: settings.proxyEditor
+class _TranslationsSettingsProxyEditorZhTw extends TranslationsSettingsProxyEditorEn {
+	_TranslationsSettingsProxyEditorZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get description => '填寫代理軟體或伺服器提供的位址和 HTTP 連接埠。';
+	@override String get hostLabel => '伺服器位址';
+	@override String get portLabel => '連接埠';
+	@override String get fieldsHelp => '位址填寫 IP 或網域，連接埠使用代理軟體的 HTTP 或混合連接埠。貼上完整位址會自動拆分，請勿填寫訂閱連結。';
+	@override String get hostRequired => '請填寫伺服器位址。';
+	@override String get invalidHost => '請填寫 IP 或網域，例如 127.0.0.1 或 proxy.example.com。';
+	@override String get portRequired => '請填寫連接埠。';
+	@override String get invalidPort => '連接埠應為 1–65535 之間的數字。';
+	@override String useSystemProxy({required Object address}) => '使用 ${address}';
+	@override String get saved => '已儲存';
+	@override String get testConnection => '測試連線';
+	@override String get testing => '測試中…';
+	@override String get testSuccess => '此代理可以存取 Google。測試不會啟用代理。';
+	@override String get testFailure => '無法透過此代理存取 Google。請確認代理軟體正在執行，並檢查位址和 HTTP 連接埠。';
+	@override String get enabled => '重新啟動後使用已儲存的代理。';
+	@override String get disabled => '使用目前的網路連線。';
+}
+
 // Path: settings.keybinding
 class _TranslationsSettingsKeybindingZhTw extends TranslationsSettingsKeybindingEn {
 	_TranslationsSettingsKeybindingZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
@@ -5507,6 +5533,22 @@ extension on TranslationsZhTw {
 			'settings.testProxyFailedWithStatusCode' => ({required Object code}) => '代理請求失敗，狀態碼: ${code}',
 			'settings.testProxyFailedWithException' => ({required Object exception}) => '代理請求出錯: ${exception}',
 			'settings.proxyConfig' => '代理設定',
+			'settings.proxyEditor.description' => '填寫代理軟體或伺服器提供的位址和 HTTP 連接埠。',
+			'settings.proxyEditor.hostLabel' => '伺服器位址',
+			'settings.proxyEditor.portLabel' => '連接埠',
+			'settings.proxyEditor.fieldsHelp' => '位址填寫 IP 或網域，連接埠使用代理軟體的 HTTP 或混合連接埠。貼上完整位址會自動拆分，請勿填寫訂閱連結。',
+			'settings.proxyEditor.hostRequired' => '請填寫伺服器位址。',
+			'settings.proxyEditor.invalidHost' => '請填寫 IP 或網域，例如 127.0.0.1 或 proxy.example.com。',
+			'settings.proxyEditor.portRequired' => '請填寫連接埠。',
+			'settings.proxyEditor.invalidPort' => '連接埠應為 1–65535 之間的數字。',
+			'settings.proxyEditor.useSystemProxy' => ({required Object address}) => '使用 ${address}',
+			'settings.proxyEditor.saved' => '已儲存',
+			'settings.proxyEditor.testConnection' => '測試連線',
+			'settings.proxyEditor.testing' => '測試中…',
+			'settings.proxyEditor.testSuccess' => '此代理可以存取 Google。測試不會啟用代理。',
+			'settings.proxyEditor.testFailure' => '無法透過此代理存取 Google。請確認代理軟體正在執行，並檢查位址和 HTTP 連接埠。',
+			'settings.proxyEditor.enabled' => '重新啟動後使用已儲存的代理。',
+			'settings.proxyEditor.disabled' => '使用目前的網路連線。',
 			'settings.thisIsHttpProxyAddress' => '此為 HTTP 代理伺服器地址',
 			'settings.checkProxy' => '檢查代理',
 			'settings.proxyAddress' => '代理地址',
@@ -5978,6 +6020,8 @@ extension on TranslationsZhTw {
 			'settings.leftVerticalSwipeBrightness' => '左側上下滑動調整亮度（進入新頁面時生效）',
 			'settings.longPressFastForward' => '長按快進',
 			'settings.enableMouseHoverShowToolbar' => '滑鼠懸停時顯示工具列',
+			_ => null,
+		} ?? switch (path) {
 			'settings.enableMouseHoverShowToolbarInfo' => '開啟後，當滑鼠懸停在播放器上移動時會自動顯示工具列，停止移動3秒後自動隱藏',
 			'settings.enableHorizontalDragSeek' => '橫向滑動調整進度',
 			'settings.enableVideoGestureZoom' => '雙指縮放影片畫面',
@@ -5994,8 +6038,6 @@ extension on TranslationsZhTw {
 			'settings.enableHardwareAcceleration' => '啟用硬體加速',
 			'settings.enableHardwareAccelerationInfo' => '開啟硬體加速可以提高解碼效能，但某些裝置可能不相容',
 			'settings.useOpenSLESAudioOutput' => '使用OpenSLES音訊輸出',
-			_ => null,
-		} ?? switch (path) {
 			'settings.useOpenSLESAudioOutputInfo' => '使用低延遲音訊輸出，可能提高音頻效能',
 			'settings.videoSyncAudio' => '音訊同步',
 			'settings.videoSyncDisplayResample' => '顯示重採樣',
@@ -6492,6 +6534,8 @@ extension on TranslationsZhTw {
 			'videoDetail.gestureGuide.quest.done' => '知道了，繼續',
 			'videoDetail.gestureGuide.quest.leftController' => '左手',
 			'videoDetail.gestureGuide.quest.rightController' => '右手',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.trigger' => '食指扳機',
 			'videoDetail.gestureGuide.quest.grip' => '側握鍵',
 			'videoDetail.gestureGuide.quest.bothGrips' => '雙手側握鍵',
@@ -6508,8 +6552,6 @@ extension on TranslationsZhTw {
 			'videoDetail.gestureGuide.quest.selectHint' => '食指扳機在圓盤背面；控制器內側的側握鍵用於抓取視窗。',
 			'videoDetail.gestureGuide.quest.panelTitle' => '喚出或收起面板',
 			'videoDetail.gestureGuide.quest.panelBody' => '將射線移到控制面板外，輕扣並放開食指扳機，切換面板的顯示狀態。用手時，在面板外輕捏一下也可以。',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.panelHint' => '短按後放開即可。按住拖動是在操作畫面或視窗，不會切換面板。',
 			'videoDetail.gestureGuide.quest.playTitle' => '播放與暫停',
 			'videoDetail.gestureGuide.quest.playBody' => '射線離開控制面板後，按右手 A 或左手 X，切換影片播放與暫停。也可以直接點控制面板上的播放按鈕。',
@@ -7006,6 +7048,8 @@ extension on TranslationsZhTw {
 			'download.actions.filePending' => '暫時找不到檔案，可能還能找回',
 			'download.actions.statusActive' => '進行中',
 			'download.actions.statusCompleted' => '已完成',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.needsAttention' => '需處理',
 			'download.actions.needsAttentionCount' => ({required Object count}) => '需處理 · ${count}',
 			'download.actions.organize' => '整理',
@@ -7022,8 +7066,6 @@ extension on TranslationsZhTw {
 			'download.notice.dismiss' => '忽略',
 			'download.emptyTaskList' => '暫無下載任務',
 			'download.noMatchingTasks' => '沒有符合的任務',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.menuTitle' => '依日期刪除',
 			'download.deleteByDate.dialogTitle' => '依日期刪除',
 			'download.deleteByDate.description' => '依建立日期批次刪除下載任務。被佔用的檔案會略過；檔案已不存在的任務會一併清理。',
@@ -7520,6 +7562,8 @@ extension on TranslationsZhTw {
 			'translation.presetApplied' => ({required Object name}) => '已套用預設：${name}',
 			'translation.presetNames.openai' => 'OpenAI (GPT-4o / GPT-4.1)',
 			'translation.presetNames.openaiReasoning' => 'OpenAI 推理 (o1 / o3 / o4)',
+			_ => null,
+		} ?? switch (path) {
 			'translation.presetNames.anthropic' => 'Anthropic Claude',
 			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude 推理 (extended thinking)',
 			'translation.presetNames.gemini' => 'Google Gemini (原生)',
@@ -7536,8 +7580,6 @@ extension on TranslationsZhTw {
 			'mediaPlayer.videoPlayerError' => '影片播放器錯誤',
 			'mediaPlayer.videoLoadFailed' => '影片載入失敗',
 			'mediaPlayer.videoCodecNotSupported' => '影片編解碼器不支援',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.networkConnectionIssue' => '網路連線問題',
 			'mediaPlayer.insufficientPermission' => '權限不足',
 			'mediaPlayer.unsupportedVideoFormat' => '不支援的影片格式',
@@ -8034,6 +8076,8 @@ extension on TranslationsZhTw {
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
 			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
 			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
 			'anime4k.presetNames.upscale_only_s' => 'CNN放大 (超快)',
@@ -8050,8 +8094,6 @@ extension on TranslationsZhTw {
 			'siteMode.mainSite' => '主站',
 			'siteMode.aiSite' => 'AI站',
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => '目前 ${currentSite} · 點擊切換到 ${nextSite}',
-			_ => null,
-		} ?? switch (path) {
 			'siteMode.dialogTitle' => '切換站點模式',
 			'siteMode.dialogDescription' => '切換後會重新整理整個應用，並重設先前已載入的清單與頁面狀態。',
 			'siteMode.chooseLinkTargetTitle' => '選擇連結目標站點',
@@ -8548,6 +8590,8 @@ extension on TranslationsZhTw {
 			'ai.modelPick' => '選擇模型',
 			'ai.modelEmpty' => '沒抓到模型列表，直接填模型名也可以',
 			'ai.advanced' => '進階',
+			_ => null,
+		} ?? switch (path) {
 			'ai.reasoning' => '推理模型',
 			'ai.streaming' => '串流輸出',
 			'ai.structuredOutput' => '結構化輸出',
@@ -8564,8 +8608,6 @@ extension on TranslationsZhTw {
 			'ai.taskTranslate' => '翻譯',
 			'ai.taskSearch' => 'AI 搜尋',
 			'ai.taskSignature' => '小尾巴',
-			_ => null,
-		} ?? switch (path) {
 			'ai.taskAuto' => '自動',
 			'ai.usage' => '用量',
 			'ai.usageCalls' => '呼叫',

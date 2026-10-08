@@ -574,6 +574,23 @@ settings:
   testProxyFailedWithStatusCode: 'Uji proksi gagal, kode status: ${code}'
   testProxyFailedWithException: 'Uji proksi gagal, pengecualian: ${exception}'
   proxyConfig: Konfigurasi Proksi
+  proxyEditor:
+    description: "Masukkan alamat server dan port HTTP dari aplikasi proxy atau server Anda."
+    hostLabel: "Alamat server"
+    portLabel: "Port"
+    fieldsHelp: "Gunakan alamat IP atau nama domain dan port HTTP atau campuran dari aplikasi proxy. URL yang ditempel akan dipisahkan otomatis. Tautan langganan tidak didukung."
+    hostRequired: "Masukkan alamat server."
+    invalidHost: "Masukkan alamat IP atau nama domain, seperti 127.0.0.1 atau proxy.example.com."
+    portRequired: "Masukkan port."
+    invalidPort: "Masukkan port dari 1 hingga 65535."
+    useSystemProxy: "Gunakan ${address}"
+    saved: "Tersimpan"
+    testConnection: "Uji koneksi"
+    testing: "Menguji…"
+    testSuccess: "Proxy ini dapat mengakses Google. Pengujian tidak mengaktifkan proxy."
+    testFailure: "Tidak dapat mengakses Google melalui proxy ini. Pastikan aplikasi proxy berjalan serta alamat dan port HTTP benar."
+    enabled: "Gunakan proxy tersimpan setelah memulai ulang."
+    disabled: "Gunakan koneksi jaringan saat ini."
   thisIsHttpProxyAddress: Ini adalah alamat proksi http
   checkProxy: Periksa Proksi
   proxyAddress: Alamat Proksi

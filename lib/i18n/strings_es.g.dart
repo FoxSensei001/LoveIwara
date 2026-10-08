@@ -739,6 +739,7 @@ class _TranslationsSettingsEs extends TranslationsSettingsEn {
 	@override String testProxyFailedWithStatusCode({required Object code}) => 'Error al probar el proxy; código de estado: ${code}';
 	@override String testProxyFailedWithException({required Object exception}) => 'Error al probar el proxy; excepción: ${exception}';
 	@override String get proxyConfig => 'Configuración del proxy';
+	@override late final _TranslationsSettingsProxyEditorEs proxyEditor = _TranslationsSettingsProxyEditorEs._(_root);
 	@override String get thisIsHttpProxyAddress => 'Esta es la dirección del proxy HTTP';
 	@override String get checkProxy => 'Comprobar proxy';
 	@override String get proxyAddress => 'Dirección del proxy';
@@ -3165,6 +3166,31 @@ class _TranslationsErrorsNetworkEs extends TranslationsErrorsNetworkEn {
 	@override String get sslConnectionFailed => 'Falló la conexión SSL; compruebe la configuración de red';
 }
 
+// Path: settings.proxyEditor
+class _TranslationsSettingsProxyEditorEs extends TranslationsSettingsProxyEditorEn {
+	_TranslationsSettingsProxyEditorEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get description => 'Introduce la dirección del servidor y el puerto HTTP de tu aplicación de proxy o servidor.';
+	@override String get hostLabel => 'Dirección del servidor';
+	@override String get portLabel => 'Puerto';
+	@override String get fieldsHelp => 'Usa una dirección IP o un dominio y el puerto HTTP o mixto de tu aplicación. Las URL pegadas se dividen automáticamente. No se admiten enlaces de suscripción.';
+	@override String get hostRequired => 'Introduce una dirección de servidor.';
+	@override String get invalidHost => 'Introduce una dirección IP o un dominio, como 127.0.0.1 o proxy.example.com.';
+	@override String get portRequired => 'Introduce un puerto.';
+	@override String get invalidPort => 'Introduce un puerto entre 1 y 65535.';
+	@override String useSystemProxy({required Object address}) => 'Usar ${address}';
+	@override String get saved => 'Guardado';
+	@override String get testConnection => 'Probar conexión';
+	@override String get testing => 'Probando…';
+	@override String get testSuccess => 'Este proxy puede acceder a Google. La prueba no activa el proxy.';
+	@override String get testFailure => 'No se pudo acceder a Google mediante este proxy. Comprueba que la aplicación esté funcionando y que la dirección y el puerto HTTP sean correctos.';
+	@override String get enabled => 'Usar el proxy guardado después de reiniciar.';
+	@override String get disabled => 'Usar la conexión de red actual.';
+}
+
 // Path: settings.keybinding
 class _TranslationsSettingsKeybindingEs extends TranslationsSettingsKeybindingEn {
 	_TranslationsSettingsKeybindingEs._(TranslationsEs root) : this._root = root, super.internal(root);
@@ -5507,6 +5533,22 @@ extension on TranslationsEs {
 			'settings.testProxyFailedWithStatusCode' => ({required Object code}) => 'Error al probar el proxy; código de estado: ${code}',
 			'settings.testProxyFailedWithException' => ({required Object exception}) => 'Error al probar el proxy; excepción: ${exception}',
 			'settings.proxyConfig' => 'Configuración del proxy',
+			'settings.proxyEditor.description' => 'Introduce la dirección del servidor y el puerto HTTP de tu aplicación de proxy o servidor.',
+			'settings.proxyEditor.hostLabel' => 'Dirección del servidor',
+			'settings.proxyEditor.portLabel' => 'Puerto',
+			'settings.proxyEditor.fieldsHelp' => 'Usa una dirección IP o un dominio y el puerto HTTP o mixto de tu aplicación. Las URL pegadas se dividen automáticamente. No se admiten enlaces de suscripción.',
+			'settings.proxyEditor.hostRequired' => 'Introduce una dirección de servidor.',
+			'settings.proxyEditor.invalidHost' => 'Introduce una dirección IP o un dominio, como 127.0.0.1 o proxy.example.com.',
+			'settings.proxyEditor.portRequired' => 'Introduce un puerto.',
+			'settings.proxyEditor.invalidPort' => 'Introduce un puerto entre 1 y 65535.',
+			'settings.proxyEditor.useSystemProxy' => ({required Object address}) => 'Usar ${address}',
+			'settings.proxyEditor.saved' => 'Guardado',
+			'settings.proxyEditor.testConnection' => 'Probar conexión',
+			'settings.proxyEditor.testing' => 'Probando…',
+			'settings.proxyEditor.testSuccess' => 'Este proxy puede acceder a Google. La prueba no activa el proxy.',
+			'settings.proxyEditor.testFailure' => 'No se pudo acceder a Google mediante este proxy. Comprueba que la aplicación esté funcionando y que la dirección y el puerto HTTP sean correctos.',
+			'settings.proxyEditor.enabled' => 'Usar el proxy guardado después de reiniciar.',
+			'settings.proxyEditor.disabled' => 'Usar la conexión de red actual.',
 			'settings.thisIsHttpProxyAddress' => 'Esta es la dirección del proxy HTTP',
 			'settings.checkProxy' => 'Comprobar proxy',
 			'settings.proxyAddress' => 'Dirección del proxy',
@@ -5978,6 +6020,8 @@ extension on TranslationsEs {
 			'settings.leftVerticalSwipeBrightness' => 'Brillo con deslizamiento vertical a la izquierda (efectivo al entrar en una página nueva)',
 			'settings.longPressFastForward' => 'Avance rápido con pulsación larga',
 			'settings.enableMouseHoverShowToolbar' => 'Mostrar la barra de herramientas al pasar el ratón',
+			_ => null,
+		} ?? switch (path) {
 			'settings.enableMouseHoverShowToolbarInfo' => 'Cuando está activado, la barra de herramientas del video se muestra al pasar el ratón sobre el reproductor. Se oculta automáticamente tras 3 segundos de inactividad.',
 			'settings.enableHorizontalDragSeek' => 'Deslizamiento horizontal para buscar',
 			'settings.enableVideoGestureZoom' => 'Pellizcar para ampliar el fotograma del video',
@@ -5994,8 +6038,6 @@ extension on TranslationsEs {
 			'settings.enableHardwareAcceleration' => 'Activar la aceleración por hardware',
 			'settings.enableHardwareAccelerationInfo' => 'Activar la aceleración por hardware puede mejorar el rendimiento de decodificación, pero algunos dispositivos pueden no ser compatibles',
 			'settings.useOpenSLESAudioOutput' => 'Usar salida de audio OpenSLES',
-			_ => null,
-		} ?? switch (path) {
 			'settings.useOpenSLESAudioOutputInfo' => 'Usar salida de audio de baja latencia; puede mejorar el rendimiento del audio',
 			'settings.videoSyncAudio' => 'Sincronización de audio',
 			'settings.videoSyncDisplayResample' => 'Mostrar remuestreo',
@@ -6492,6 +6534,8 @@ extension on TranslationsEs {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Esto amplía la imagen dentro de su ventana. Sin mantener la imagen, arriba/abajo ajusta la distancia de visualización.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Desplazar y restaurar la imagen',
 			'videoDetail.gestureGuide.quest.panBody' => 'Una vez ampliada, mantenga el gatillo índice y arrastre para mirar alrededor. Toque dos veces la imagen para ampliarla a 2,5× o restaurarla. Con las manos, pellizque dos veces rápido.',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.panHint' => 'Arrastrar desplaza una imagen ampliada. Restaure a 1× antes de arrastrar para pasar páginas.',
 			'videoDetail.gestureGuide.quest.slideshowTitle' => 'Iniciar una presentación',
 			'videoDetail.gestureGuide.quest.slideshowBody' => 'En una imagen, A / X inicia o pausa la presentación. El panel ofrece intervalos de 3, 5, 10 o 20 segundos y calidad de imagen estándar u original.',
@@ -6508,8 +6552,6 @@ extension on TranslationsEs {
 			'videoDetail.gestureGuide.quest.resizeTitle' => 'Usar los bordes y las esquinas',
 			'videoDetail.gestureGuide.quest.resizeBody' => 'El marco se ilumina a medida que el rayo se acerca a un borde. Mantenga el gatillo o pellizque en un borde para mover la ventana; arrastre una esquina para redimensionarla.',
 			'videoDetail.gestureGuide.quest.resizeHint' => 'Funciona en la ventana de la aplicación, el panel de control y la pantalla. La ventana de la aplicación cambia de ancho y alto; las pantallas conservan su relación de aspecto.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.navigationTitle' => 'Volver y abrir los ajustes',
 			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y retrocede un nivel: cierra una ventana emergente o vuelve al inicio del panel, oculta el panel y luego vuelve a la aplicación. El botón Menú izquierdo abre los ajustes espaciales.',
 			'videoDetail.gestureGuide.quest.navigationHint' => 'El botón Meta derecho pertenece al sistema. El recentrado del sistema devuelve la vista al frente conservando el tamaño y la distancia de la pantalla.',
@@ -7006,6 +7048,8 @@ extension on TranslationsEs {
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Se eliminaron ${count} tarea(s)',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Se eliminaron ${deleted} tarea(s); ${skipped} omitidas (en uso)',
 			'download.relocation.moveFiles' => 'Move files',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.moveFilesEllipsis' => 'Move files…',
 			'download.relocation.chooseDestination' => 'Move files to',
 			'download.relocation.currentDownloadDir' => 'Current download folder',
@@ -7022,8 +7066,6 @@ extension on TranslationsEs {
 			'download.relocation.resultTitle' => 'Move finished',
 			'download.relocation.resultMoved' => ({required Object count}) => '${count} item(s) moved',
 			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.alreadyRunning' => 'Another move is already in progress',
 			'download.relocation.destination' => 'Destination',
 			'download.relocation.statMove' => 'To move',
@@ -7520,6 +7562,8 @@ extension on TranslationsEs {
 			'navigationOrderSettings.cancel' => 'Cancelar',
 			'navigationOrderSettings.show' => 'Mostrar',
 			'navigationOrderSettings.hide' => 'Ocultar',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.hidden' => 'Oculto',
 			'navigationOrderSettings.hideHint' => 'Toque el icono del ojo para mostrar u ocultar el foro y los archivos locales',
 			'navigationOrderSettings.videoDescription' => 'Explore contenido de vídeo popular',
@@ -7536,8 +7580,6 @@ extension on TranslationsEs {
 			'news.openInBrowser' => 'Abrir en el navegador',
 			'displaySettings.title' => 'Ajustes de pantalla',
 			'displaySettings.layoutSettings' => 'Ajustes de diseño',
-			_ => null,
-		} ?? switch (path) {
 			'displaySettings.layoutSettingsDesc' => 'Personalice el número de columnas y la configuración de puntos de corte',
 			'displaySettings.gridLayout' => 'Diseño de cuadrícula',
 			'displaySettings.navigationOrderSettings' => 'Ajustes del orden de navegación',
@@ -8034,6 +8076,8 @@ extension on TranslationsEs {
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
 			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
 			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
 			'anime4k.presetNames.upscale_only_s' => 'Escalado con CNN (ultrarrápido)',
@@ -8050,8 +8094,6 @@ extension on TranslationsEs {
 			'siteMode.mainSite' => 'Principal',
 			'siteMode.aiSite' => 'AI',
 			'siteMode.drawerSubtitle' => ({required Object currentSite, required Object nextSite}) => 'Actual: ${currentSite} · Toque para cambiar a ${nextSite}',
-			_ => null,
-		} ?? switch (path) {
 			'siteMode.dialogTitle' => 'Cambiar el modo de sitio',
 			'siteMode.dialogDescription' => 'El cambio actualizará toda la aplicación y restablecerá las listas y el estado de página cargados previamente.',
 			'siteMode.chooseLinkTargetTitle' => 'Elegir sitio de destino',
@@ -8548,6 +8590,8 @@ extension on TranslationsEs {
 			'ai.modelPick' => 'Elegir modelo',
 			'ai.modelEmpty' => 'No se pudo cargar la lista de modelos; escribir el nombre del modelo también funciona.',
 			'ai.advanced' => 'Avanzado',
+			_ => null,
+		} ?? switch (path) {
 			'ai.reasoning' => 'Modelo de razonamiento',
 			'ai.streaming' => 'Salida en streaming',
 			'ai.structuredOutput' => 'Salida estructurada',
@@ -8564,8 +8608,6 @@ extension on TranslationsEs {
 			'ai.taskTranslate' => 'Traducción',
 			'ai.taskSearch' => 'Búsqueda con IA',
 			'ai.taskSignature' => 'Firma',
-			_ => null,
-		} ?? switch (path) {
 			'ai.taskAuto' => 'Automático',
 			'ai.usage' => 'Uso',
 			'ai.usageCalls' => 'Llamadas',
