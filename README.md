@@ -159,22 +159,16 @@ Got a request? Open an [Issue](https://github.com/FoxSensei001/LoveIwara/issues)
 
 ## 📸 Screenshots
 
-### 🥽 Meta Quest
-
-| The screen and its control panel | A gallery: one stage plus a film strip |
-|:-------------------------:|:-------------------------:|
-|<img src="docs/imgs/vr_video.jpg" width="420">|<img src="docs/imgs/gallery_quest.jpg" width="420">|
-
-### 📱 Phone & Desktop
+Screenshots use sample data and placeholder images. [Regenerate screenshots](docs/imgs/README.md).
 
 | | |
-|:-------------------------:|:-------------------------:|
-|<img src="docs/imgs/home_screen.png" width="300">|<img src="docs/imgs/forum_page.png" width="300">|
-|<img src="docs/imgs/gallery.png" width="300">|<img src="docs/imgs/gallery_detail.png" width="300">|
-|<img src="docs/imgs/local_page.png" width="300">|<img src="docs/imgs/search_page.png" width="300">|
-|<img src="docs/imgs/search_result_page.png" width="300">|<img src="docs/imgs/settings_page.png" width="300">|
-|<img src="docs/imgs/sub_page.png" width="300">|<img src="docs/imgs/thread_detail.png" width="300">|
-|<img src="docs/imgs/user_detail_page.png" width="300">|<img src="docs/imgs/video_detail.png" width="300">|
+|:---:|:---:|
+|<img src="docs/imgs/home_screen.png" alt="Video list" width="420">|<img src="docs/imgs/forum_page.png" alt="Forum" width="420">|
+|<img src="docs/imgs/gallery.png" alt="Gallery list" width="420">|<img src="docs/imgs/gallery_detail.png" alt="Gallery detail" width="420">|
+|<img src="docs/imgs/local_page.png" alt="Local files" width="420">|<img src="docs/imgs/search_page.png" alt="Search" width="420">|
+|<img src="docs/imgs/search_result_page.png" alt="Search results" width="420">|<img src="docs/imgs/settings_page.png" alt="Theme settings" width="420">|
+|<img src="docs/imgs/sub_page.png" alt="Subscriptions" width="420">|<img src="docs/imgs/thread_detail.png" alt="Thread detail" width="420">|
+|<img src="docs/imgs/user_detail_page.png" alt="Profile" width="420">|<img src="docs/imgs/video_preview.png" alt="Video preview" width="420">|
 
 ## 🚀 Quick Start
 

@@ -6,6 +6,10 @@ labels: 'enhancement | 功能增强'
 assignees: ''
 ---
 
+Please use sample data and remove personal information and credentials from attachments. See the [community guidelines](https://github.com/FoxSensei001/LoveIwara/blob/master/COMMUNITY_GUIDELINES.md).
+
+请使用示例数据，并移除附件中的个人信息和凭据。参阅[社区规则](https://github.com/FoxSensei001/LoveIwara/blob/master/COMMUNITY_GUIDELINES.md)。
+
 ### Type / 类型
 <!-- Please select one / 请选择一项 -->
 - [ ] New Feature Request / 新功能请求

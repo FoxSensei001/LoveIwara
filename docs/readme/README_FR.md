@@ -159,22 +159,16 @@ Une demande ? Ouvrez une [Issue](https://github.com/FoxSensei001/LoveIwara/issue
 
 ## 📸 Captures d'écran
 
-### 🥽 Meta Quest
-
-| L'écran et son panneau de contrôle | Une galerie : une scène plus une bande de pellicule |
-|:-------------------------:|:-------------------------:|
-|<img src="../imgs/vr_video.jpg" width="420">|<img src="../imgs/gallery_quest.jpg" width="420">|
-
-### 📱 Téléphone et bureau
+Les captures utilisent des données de démonstration et des images de remplacement. [Régénérer les captures](../imgs/README.md).
 
 | | |
-|:-------------------------:|:-------------------------:|
-|<img src="../imgs/home_screen.png" width="300">|<img src="../imgs/forum_page.png" width="300">|
-|<img src="../imgs/gallery.png" width="300">|<img src="../imgs/gallery_detail.png" width="300">|
-|<img src="../imgs/local_page.png" width="300">|<img src="../imgs/search_page.png" width="300">|
-|<img src="../imgs/search_result_page.png" width="300">|<img src="../imgs/settings_page.png" width="300">|
-|<img src="../imgs/sub_page.png" width="300">|<img src="../imgs/thread_detail.png" width="300">|
-|<img src="../imgs/user_detail_page.png" width="300">|<img src="../imgs/video_detail.png" width="300">|
+|:---:|:---:|
+|<img src="../imgs/home_screen.png" alt="Video list" width="420">|<img src="../imgs/forum_page.png" alt="Forum" width="420">|
+|<img src="../imgs/gallery.png" alt="Gallery list" width="420">|<img src="../imgs/gallery_detail.png" alt="Gallery detail" width="420">|
+|<img src="../imgs/local_page.png" alt="Local files" width="420">|<img src="../imgs/search_page.png" alt="Search" width="420">|
+|<img src="../imgs/search_result_page.png" alt="Search results" width="420">|<img src="../imgs/settings_page.png" alt="Theme settings" width="420">|
+|<img src="../imgs/sub_page.png" alt="Subscriptions" width="420">|<img src="../imgs/thread_detail.png" alt="Thread detail" width="420">|
+|<img src="../imgs/user_detail_page.png" alt="Profile" width="420">|<img src="../imgs/video_preview.png" alt="Video preview" width="420">|
 
 ## 🚀 Démarrage rapide
 

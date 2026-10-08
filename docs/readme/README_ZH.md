@@ -159,22 +159,16 @@
 
 ## 📸 截图展示
 
-### 🥽 Meta Quest
-
-| 幕布与它的控制面板 | 图库：一块幕布 + 一条胶片 |
-|:-------------------------:|:-------------------------:|
-|<img src="../imgs/vr_video.jpg" width="420">|<img src="../imgs/gallery_quest.jpg" width="420">|
-
-### 📱 手机与桌面
+截图使用示例数据和占位图。[重新生成截图](../imgs/README.md)。
 
 | | |
-|:-------------------------:|:-------------------------:|
-|<img src="../imgs/home_screen.png" width="300">|<img src="../imgs/forum_page.png" width="300">|
-|<img src="../imgs/gallery.png" width="300">|<img src="../imgs/gallery_detail.png" width="300">|
-|<img src="../imgs/local_page.png" width="300">|<img src="../imgs/search_page.png" width="300">|
-|<img src="../imgs/search_result_page.png" width="300">|<img src="../imgs/settings_page.png" width="300">|
-|<img src="../imgs/sub_page.png" width="300">|<img src="../imgs/thread_detail.png" width="300">|
-|<img src="../imgs/user_detail_page.png" width="300">|<img src="../imgs/video_detail.png" width="300">|
+|:---:|:---:|
+|<img src="../imgs/home_screen.png" alt="Video list" width="420">|<img src="../imgs/forum_page.png" alt="Forum" width="420">|
+|<img src="../imgs/gallery.png" alt="Gallery list" width="420">|<img src="../imgs/gallery_detail.png" alt="Gallery detail" width="420">|
+|<img src="../imgs/local_page.png" alt="Local files" width="420">|<img src="../imgs/search_page.png" alt="Search" width="420">|
+|<img src="../imgs/search_result_page.png" alt="Search results" width="420">|<img src="../imgs/settings_page.png" alt="Theme settings" width="420">|
+|<img src="../imgs/sub_page.png" alt="Subscriptions" width="420">|<img src="../imgs/thread_detail.png" alt="Thread detail" width="420">|
+|<img src="../imgs/user_detail_page.png" alt="Profile" width="420">|<img src="../imgs/video_preview.png" alt="Video preview" width="420">|
 
 ## 🚀 快速开始
 

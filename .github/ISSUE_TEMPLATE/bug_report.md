@@ -6,6 +6,10 @@ labels: 'bug | 问题'
 assignees: ''
 ---
 
+Please use sample data and remove personal information and credentials from attachments. See the [community guidelines](https://github.com/FoxSensei001/LoveIwara/blob/master/COMMUNITY_GUIDELINES.md).
+
+请使用示例数据，并移除附件中的个人信息和凭据。参阅[社区规则](https://github.com/FoxSensei001/LoveIwara/blob/master/COMMUNITY_GUIDELINES.md)。
+
 ### Bug Description / 问题描述
 <!-- A clear and concise description of what the bug is -->
 <!-- 清晰简洁地描述这个问题 -->
