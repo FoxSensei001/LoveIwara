@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/loading_content_transition.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:get/get.dart';
@@ -89,35 +90,46 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
     super.build(context); // 必须调用 super.build
 
     return Obx(() {
-      if (widget.controller.pageLoadingState.value ==
-              VideoDetailPageLoadingState.loadingVideoInfo ||
-          widget.controller.pageLoadingState.value ==
-              VideoDetailPageLoadingState.init) {
-        return _buildVideoInfoLoadingSkeleton(context);
-      }
-      if (widget.controller.mainErrorWidget.value != null) {
-        return widget.controller.mainErrorWidget.value!;
-      }
-      if (widget.controller.isDesktopAppFullScreen.value) {
-        return const SizedBox.shrink();
+      Widget buildContent() {
+        if (widget.controller.pageLoadingState.value ==
+                VideoDetailPageLoadingState.loadingVideoInfo ||
+            widget.controller.pageLoadingState.value ==
+                VideoDetailPageLoadingState.init) {
+          return _buildVideoInfoLoadingSkeleton(context);
+        }
+        if (widget.controller.mainErrorWidget.value != null) {
+          return widget.controller.mainErrorWidget.value!;
+        }
+        if (widget.controller.isDesktopAppFullScreen.value) {
+          return const SizedBox.shrink();
+        }
+
+        // 不再自行包裹 GestureDetector 处理水平滑动：
+        // 之前的 onHorizontalDragEnd 会在手势竞技场中抢占 TabBarView 内置的
+        // PageView 拖动，导致详情 tab 只能"一次性甩动"切换、没有实时跟手反馈，
+        // 与评论/相关 tab 的体验割裂。交还给 TabBarView 原生处理即可保持一致。
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(UIConstants.pagePadding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildVideoTitle(context),
+              _buildAuthorInfo(context),
+              const SizedBox(height: UIConstants.sectionSpacing),
+              _buildVideoDetailsSection(context),
+              const SafeArea(top: false, child: SizedBox.shrink()),
+            ],
+          ),
+        );
       }
 
-      // 不再自行包裹 GestureDetector 处理水平滑动：
-      // 之前的 onHorizontalDragEnd 会在手势竞技场中抢占 TabBarView 内置的
-      // PageView 拖动，导致详情 tab 只能"一次性甩动"切换、没有实时跟手反馈，
-      // 与评论/相关 tab 的体验割裂。交还给 TabBarView 原生处理即可保持一致。
-      return SingleChildScrollView(
-        padding: const EdgeInsets.all(UIConstants.pagePadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildVideoTitle(context),
-            _buildAuthorInfo(context),
-            const SizedBox(height: UIConstants.sectionSpacing),
-            _buildVideoDetailsSection(context),
-            const SafeArea(top: false, child: SizedBox.shrink()),
-          ],
-        ),
+      return LoadingContentTransition(
+        isLoading:
+            widget.controller.pageLoadingState.value ==
+                VideoDetailPageLoadingState.loadingVideoInfo ||
+            widget.controller.pageLoadingState.value ==
+                VideoDetailPageLoadingState.init,
+        child: buildContent(),
       );
     });
   }

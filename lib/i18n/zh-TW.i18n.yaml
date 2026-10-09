@@ -707,10 +707,32 @@ settings:
   defaultBrowserDesc: 請在系統設定中打開預設連結配置項，並添加iwara.tv網站連結
   themeMode: 主題模式
   themeModeDesc: 此配置決定應用的主題模式
+  glassQuality: "渲染畫質"
+  glassQualityAuto: "自動"
+  glassQualityAutoDesc: "依據影格耗時調整畫質，折射效果可能隨之變化"
+  glassQualityStandard: "流暢"
+  glassQualityStandardDesc: "輕量玻璃，保留高光並優先保持流暢"
+  glassQualityPremium: "完整折射"
+  glassQualityPremiumDesc: "固定使用完整透鏡，GPU 開銷較高；桌面平台使用輕量效果"
+  glassQualityCurrent: "目前生效"
+  glassChromeParametersDesc: "導覽玻璃參數即時套用至頂部膠囊、按鈕與底欄"
+  glassOpacity: "不透明度"
+  glassBlur: "背景模糊（sigma）"
+  glassBlurDesc: "0 保持背景清晰；模糊會增加一次渲染，可能降低流暢度"
+  glassAdvancedParameters: "導覽玻璃進階參數"
+  glassThickness: "透鏡厚度"
+  glassRefractiveIndex: "折射率"
+  glassLightIntensity: "高光強度"
+  glassSaturation: "背景飽和度"
+  glassChromaticAberration: "色散強度"
+  glassShadows: "投影"
+  glassPanelParameters: "選單面板參數"
+  glassPanelParametersDesc: "套用至浮出選單，面板使用獨立的透鏡渲染器"
+  glassResetParameters: "還原玻璃預設參數"
   glassEffect: 介面材質
   glassEffectDesc: 決定全域介面材質（頂欄膠囊、選單、彈窗按鈕、底部導覽列）
   liquidGlassEffect: 液態玻璃
-  liquidGlassEffectDesc: 真實的模糊與折射材質，觀感最好；低階裝置可能掉幀、略微耗電
+  liquidGlassEffectDesc: 可調底色、折射與模糊，保留液態互動效果
   plainGlassEffect: Material
   plainGlassEffectDesc: 標準 Material 3 介面：不透明、無模糊、無陰影，效能與續航最好
   glassEffectIntroTitle: 挑一套介面材質

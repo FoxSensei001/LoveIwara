@@ -2104,6 +2104,72 @@ class TranslationsSettingsEn {
 	/// en: 'This configuration determines the theme mode of the app'
 	String get themeModeDesc => 'This configuration determines the theme mode of the app';
 
+	/// en: 'Rendering quality'
+	String get glassQuality => 'Rendering quality';
+
+	/// en: 'Automatic'
+	String get glassQualityAuto => 'Automatic';
+
+	/// en: 'Adapts to frame time; refraction can change as quality adjusts'
+	String get glassQualityAutoDesc => 'Adapts to frame time; refraction can change as quality adjusts';
+
+	/// en: 'Smooth'
+	String get glassQualityStandard => 'Smooth';
+
+	/// en: 'Lightweight glass with highlights and consistent frame pacing'
+	String get glassQualityStandardDesc => 'Lightweight glass with highlights and consistent frame pacing';
+
+	/// en: 'Full refraction'
+	String get glassQualityPremium => 'Full refraction';
+
+	/// en: 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass'
+	String get glassQualityPremiumDesc => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass';
+
+	/// en: 'Currently active'
+	String get glassQualityCurrent => 'Currently active';
+
+	/// en: 'Navigation glass parameters apply live to headers, buttons and the bottom bar'
+	String get glassChromeParametersDesc => 'Navigation glass parameters apply live to headers, buttons and the bottom bar';
+
+	/// en: 'Opacity'
+	String get glassOpacity => 'Opacity';
+
+	/// en: 'Background blur (sigma)'
+	String get glassBlur => 'Background blur (sigma)';
+
+	/// en: '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness'
+	String get glassBlurDesc => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness';
+
+	/// en: 'Advanced navigation parameters'
+	String get glassAdvancedParameters => 'Advanced navigation parameters';
+
+	/// en: 'Lens thickness'
+	String get glassThickness => 'Lens thickness';
+
+	/// en: 'Refractive index'
+	String get glassRefractiveIndex => 'Refractive index';
+
+	/// en: 'Highlight intensity'
+	String get glassLightIntensity => 'Highlight intensity';
+
+	/// en: 'Background saturation'
+	String get glassSaturation => 'Background saturation';
+
+	/// en: 'Chromatic aberration'
+	String get glassChromaticAberration => 'Chromatic aberration';
+
+	/// en: 'Shadows'
+	String get glassShadows => 'Shadows';
+
+	/// en: 'Menu panel parameters'
+	String get glassPanelParameters => 'Menu panel parameters';
+
+	/// en: 'Applies to floating menus; panels use a separate lens renderer'
+	String get glassPanelParametersDesc => 'Applies to floating menus; panels use a separate lens renderer';
+
+	/// en: 'Restore glass defaults'
+	String get glassResetParameters => 'Restore glass defaults';
+
 	/// en: 'Interface Material'
 	String get glassEffect => 'Interface Material';
 
@@ -2113,8 +2179,8 @@ class TranslationsSettingsEn {
 	/// en: 'Liquid Glass'
 	String get liquidGlassEffect => 'Liquid Glass';
 
-	/// en: 'Real blur and refraction. Looks best, but may drop frames and use a bit more power on low-end devices'
-	String get liquidGlassEffectDesc => 'Real blur and refraction. Looks best, but may drop frames and use a bit more power on low-end devices';
+	/// en: 'Configurable glass tint, refraction and blur, with liquid interactions'
+	String get liquidGlassEffectDesc => 'Configurable glass tint, refraction and blur, with liquid interactions';
 
 	/// en: 'Material'
 	String get plainGlassEffect => 'Material';
@@ -13106,10 +13172,32 @@ extension on Translations {
 			'settings.defaultBrowserDesc' => 'Please open the default link configuration item in the system settings and add the iwara.tv website link',
 			'settings.themeMode' => 'Theme Mode',
 			'settings.themeModeDesc' => 'This configuration determines the theme mode of the app',
+			'settings.glassQuality' => 'Rendering quality',
+			'settings.glassQualityAuto' => 'Automatic',
+			'settings.glassQualityAutoDesc' => 'Adapts to frame time; refraction can change as quality adjusts',
+			'settings.glassQualityStandard' => 'Smooth',
+			'settings.glassQualityStandardDesc' => 'Lightweight glass with highlights and consistent frame pacing',
+			'settings.glassQualityPremium' => 'Full refraction',
+			'settings.glassQualityPremiumDesc' => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass',
+			'settings.glassQualityCurrent' => 'Currently active',
+			'settings.glassChromeParametersDesc' => 'Navigation glass parameters apply live to headers, buttons and the bottom bar',
+			'settings.glassOpacity' => 'Opacity',
+			'settings.glassBlur' => 'Background blur (sigma)',
+			'settings.glassBlurDesc' => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness',
+			'settings.glassAdvancedParameters' => 'Advanced navigation parameters',
+			'settings.glassThickness' => 'Lens thickness',
+			'settings.glassRefractiveIndex' => 'Refractive index',
+			'settings.glassLightIntensity' => 'Highlight intensity',
+			'settings.glassSaturation' => 'Background saturation',
+			'settings.glassChromaticAberration' => 'Chromatic aberration',
+			'settings.glassShadows' => 'Shadows',
+			'settings.glassPanelParameters' => 'Menu panel parameters',
+			'settings.glassPanelParametersDesc' => 'Applies to floating menus; panels use a separate lens renderer',
+			'settings.glassResetParameters' => 'Restore glass defaults',
 			'settings.glassEffect' => 'Interface Material',
 			'settings.glassEffectDesc' => 'Chooses the material used across the app — header capsules, menus, dialog buttons and the bottom navigation bar',
 			'settings.liquidGlassEffect' => 'Liquid Glass',
-			'settings.liquidGlassEffectDesc' => 'Real blur and refraction. Looks best, but may drop frames and use a bit more power on low-end devices',
+			'settings.liquidGlassEffectDesc' => 'Configurable glass tint, refraction and blur, with liquid interactions',
 			'settings.plainGlassEffect' => 'Material',
 			'settings.plainGlassEffectDesc' => 'Standard Material 3 surfaces — opaque, no blur, no shadows. Best performance and battery life',
 			'settings.glassEffectIntroTitle' => 'Pick your interface material',
@@ -13440,6 +13528,8 @@ extension on Translations {
 			'settings.keybinding.actionSpeedUp' => 'Increase Speed',
 			'settings.keybinding.actionSpeedDown' => 'Decrease Speed',
 			'settings.keybinding.actionSeekForward' => 'Seek Forward',
+			_ => null,
+		} ?? switch (path) {
 			'settings.keybinding.actionSeekBackward' => 'Seek Backward',
 			'settings.keybinding.actionVolumeUp' => 'Volume Up',
 			'settings.keybinding.actionVolumeDown' => 'Volume Down',
@@ -13462,8 +13552,6 @@ extension on Translations {
 			'settings.leftVerticalSwipeBrightness' => 'Left Vertical Swipe Brightness (Effective when entering a new page)',
 			'settings.longPressFastForward' => 'Long Press Fast Forward',
 			'settings.enableMouseHoverShowToolbar' => 'Enable Mouse Hover Show Toolbar',
-			_ => null,
-		} ?? switch (path) {
 			'settings.enableMouseHoverShowToolbarInfo' => 'When enabled, the video toolbar will be shown when the mouse is hovering over the player. It will be automatically hidden after 3 seconds of inactivity.',
 			'settings.enableHorizontalDragSeek' => 'Horizontal Swipe to Seek',
 			'settings.enableVideoGestureZoom' => 'Pinch to Zoom Video Frame',
@@ -13954,6 +14042,8 @@ extension on Translations {
 			'videoDetail.gestureGuide.quest.result' => 'See the result',
 			'videoDetail.gestureGuide.quest.pinch' => 'Pinch',
 			'videoDetail.gestureGuide.quest.selectTitle' => 'Point and select',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.selectBody' => 'Aim the ray at a button, then press and release the index trigger. Use it for play, settings and sliders on the control panel.',
 			'videoDetail.gestureGuide.quest.selectHint' => 'The index trigger is behind the button face. The grip button on the inner handle grabs windows.',
 			'videoDetail.gestureGuide.quest.panelTitle' => 'Show or hide the panel',
@@ -13976,8 +14066,6 @@ extension on Translations {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'This enlarges the image inside its window. Without holding the image, up/down adjusts viewing distance.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Pan and restore the image',
 			'videoDetail.gestureGuide.quest.panBody' => 'Once zoomed in, hold the index trigger and drag to look around. Double-tap the image to zoom to 2.5× or restore it. With hands, pinch twice quickly.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.panHint' => 'Dragging pans a zoomed image. Restore to 1× before dragging to turn pages.',
 			'videoDetail.gestureGuide.quest.slideshowTitle' => 'Start a slideshow',
 			'videoDetail.gestureGuide.quest.slideshowBody' => 'On an image, A / X starts or pauses the slideshow. The panel offers 3, 5, 10 or 20-second intervals and standard or original image quality.',
@@ -14468,6 +14556,8 @@ extension on Translations {
 			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			'download.notice.handle' => 'Handle…',
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
+			_ => null,
+		} ?? switch (path) {
 			'download.notice.migrate' => 'Move',
 			'download.notice.dismiss' => 'Dismiss',
 			'download.emptyTaskList' => 'No download tasks yet',
@@ -14490,8 +14580,6 @@ extension on Translations {
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Deleted ${count} task(s)',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Deleted ${deleted} task(s); ${skipped} skipped (in use)',
 			'download.relocation.moveFiles' => 'Move files',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.moveFilesEllipsis' => 'Move files…',
 			'download.relocation.chooseDestination' => 'Move files to',
 			'download.relocation.currentDownloadDir' => 'Current download folder',
@@ -14982,6 +15070,8 @@ extension on Translations {
 			'translation.fetchingModels' => 'Fetching...',
 			'translation.selectModel' => 'Select Model',
 			'translation.searchModel' => 'Search model',
+			_ => null,
+		} ?? switch (path) {
 			'translation.noModelsFound' => 'No models found',
 			'bottomNav.video' => 'Video',
 			'bottomNav.gallery' => 'Gallery',
@@ -15004,8 +15094,6 @@ extension on Translations {
 			'navigationOrderSettings.cancel' => 'Cancel',
 			'navigationOrderSettings.show' => 'Show',
 			'navigationOrderSettings.hide' => 'Hide',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.hidden' => 'Hidden',
 			'navigationOrderSettings.hideHint' => 'Tap the eye icon to show or hide Community and local files',
 			'navigationOrderSettings.videoDescription' => 'Browse popular video content',
@@ -15496,6 +15584,8 @@ extension on Translations {
 			'anime4k.presetDescriptions.mode_b_b_hq' => 'Enhanced version of Mode B, providing higher perceived quality, further optimizing lines and reducing artifacts.',
 			'anime4k.presetDescriptions.mode_c_a_hq' => 'Perceived quality enhanced version of Mode C, maintaining high PSNR while attempting to reconstruct some line details.',
 			'anime4k.presetDescriptions.mode_a_fast' => 'Fast version of Mode A, balancing quality and performance, suitable for most 1080p animations.',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_b_fast' => 'Fast version of Mode B, for handling slight artifacts and ringing with lower overhead.',
 			'anime4k.presetDescriptions.mode_c_fast' => 'Fast version of Mode C, for fast denoising and upscaling of high-quality sources.',
 			'anime4k.presetDescriptions.mode_a_a_fast' => 'Fast version of Mode A+A, pursuing higher perceived quality in performance-constrained devices.',
@@ -15518,8 +15608,6 @@ extension on Translations {
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
 			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
 			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
 			'anime4k.presetNames.upscale_only_s' => 'CNN Upscaling (Ultra Fast)',
@@ -16010,6 +16098,8 @@ extension on Translations {
 			'localMedia.clearProgressTitle' => 'Clear local watch history?',
 			'localMedia.clearProgressBody' => 'Only playback positions and watched marks are deleted. Your files and folders stay exactly as they are.',
 			'localMedia.clearProgressDone' => ({required Object count}) => 'Cleared ${count} local watch history entries',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.clearAction' => 'Clear',
 			'localMedia.iosManualRescanNotice' => 'iOS does not automatically detect new files. You will need to manually rescan after adding or deleting files.',
 			'historyPage.removeFromHistory' => 'Remove from history',
@@ -16032,8 +16122,6 @@ extension on Translations {
 			'ai.modelPick' => 'Pick a model',
 			'ai.modelEmpty' => 'Could not load the model list — typing a model name works too.',
 			'ai.advanced' => 'Advanced',
-			_ => null,
-		} ?? switch (path) {
 			'ai.reasoning' => 'Reasoning model',
 			'ai.streaming' => 'Stream output',
 			'ai.structuredOutput' => 'Structured output',

@@ -1081,18 +1081,18 @@ packages:
     dependency: "direct main"
     description:
       name: liquid_glass_easy
-      sha256: ad942ca5da42ad86417f5cf3a760d01ed913088192abc310a781d5513398d1b6
+      sha256: "48f2147e8b662402ccef9304cf8c216082b7913ad985ea2ac3d4f402b16ab417"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "4.1.1"
+    version: "4.3.4"
   liquid_glass_widgets:
     dependency: "direct main"
     description:
       name: liquid_glass_widgets
-      sha256: "6eb319af884c7269403089873dfe7a2d948cbbf384b856ea3518d4a187aa5314"
+      sha256: "5f494e8d6fd9b561eca98493c234fb6255fc4c65159e3899407e4e09aefdd237"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.30.2"
+    version: "1.11.0"
   loading_more_list:
     dependency: "direct main"
     description:

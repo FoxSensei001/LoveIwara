@@ -1,4 +1,6 @@
 import 'dart:ui' show clampDouble;
+import 'package:i_iwara/app/models/glass_appearance_settings.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_appearance_scope.dart';
 
 import 'package:flutter/foundation.dart'
     show listEquals, defaultTargetPlatform, TargetPlatform;
@@ -140,7 +142,7 @@ enum GlassMaterialMode {
 ///
 /// 启动时由 [applyGlassMaterialFromConfig] 从配置表灌一次。
 final ValueNotifier<GlassMaterialMode> glassMaterialMode =
-    ValueNotifier<GlassMaterialMode>(GlassMaterialMode.liquid);
+    ValueNotifier<GlassMaterialMode>(GlassMaterialMode.material);
 
 /// 把 [glassMaterialMode] 沿整棵树下发，并让读到它的 Element 在用户切档时重建。
 ///
@@ -207,8 +209,9 @@ GlassBackend flatGlassBackend(BuildContext context) =>
 /// 平台定的档就是 standard（「Lightweight 2D shader default; instant Frame 1
 /// launch」），并说明 `GlassAdaptiveScope` 会把桌面端静态封顶到 standard。
 ///
-/// 本仓库没有走包的 `LiquidGlassWidgets.wrap()`（那是它 README 的 Step 2），
-/// 所以 `GlassAdaptiveScope` 根本不存在，那道封顶失效——档位只能由这里自己定。
+/// 平台上限还要受应用级 [lgw.GlassAdaptiveScope] 的性能上限约束。低层
+/// `AdaptiveGlass` / `AdaptiveLiquidGlassLayer` 不自行解析这个上限，必须在
+/// 这里统一解析，融合组与成员才能一起降档。
 ///
 /// 实测（Windows release 产物，Impeller 开）：桌面端硬吃 premium 时，三条重
 /// 着色器（`liquid_glass_final_render` / `liquid_glass_geometry_blended` /
@@ -219,16 +222,82 @@ GlassBackend flatGlassBackend(BuildContext context) =>
 /// squircle curves, dual specular highlights, and blur」，且 premium 在
 /// Skia/Web 上本来就自动回退到它。桌面端少的是纹理捕获与色散，不是玻璃本身。
 ///
-/// 附带一条：包文档明确说 premium「may not render correctly inside `ListView`
-/// or `CustomScrollView` on Impeller」，而本站的 header 与浮动底栏正是浮在滚动
-/// 内容之上，本来也不该用 premium。
-lgw.GlassQuality get chromeGlassQuality {
+/// premium 不应放进滚动内容；本站 header 与底栏是滚动容器之外的固定覆盖层。
+lgw.GlassQuality chromeGlassQuality(BuildContext context) {
   // 基准旋钮：生产值恒 true，这一行在常规包里是死分支。
-  if (!GlassPerfKnobs.premium) return lgw.GlassQuality.standard;
-  return switch (defaultTargetPlatform) {
-    TargetPlatform.windows || TargetPlatform.linux => lgw.GlassQuality.standard,
-    _ => lgw.GlassQuality.premium,
-  };
+  final preference = GlassAppearanceScope.of(context).quality;
+  final requested =
+      !GlassPerfKnobs.premium || preference == GlassQualityPreference.standard
+      ? lgw.GlassQuality.standard
+      : switch (defaultTargetPlatform) {
+          TargetPlatform.windows ||
+          TargetPlatform.linux => lgw.GlassQuality.standard,
+          _ => lgw.GlassQuality.premium,
+        };
+  final ceiling = lgw.GlassAdaptiveScopeData.maybeOf(context)?.effectiveQuality;
+  // GlassQuality 的枚举顺序不是画质顺序，不能用 index 比较。
+  if (ceiling == lgw.GlassQuality.minimal) return lgw.GlassQuality.minimal;
+  if (ceiling == lgw.GlassQuality.standard) return lgw.GlassQuality.standard;
+  return requested;
+}
+
+/// 注册 Material 亮度解析，并按真实刷新率约束玻璃质量。
+///
+/// 库在 P95 > targetFrameMs × 1.5 时才降档，需要反推 target，使降档阈值
+/// 不超过屏幕预算。直接传 8ms 会容忍 12ms，仍然跟不上 120Hz。
+/// 固定档基准可关闭自适应以隔离单项开销；常规包允许过载降档和冷却恢复。
+Widget wrapLiquidGlassApplication({
+  required Widget child,
+  bool adaptiveQuality = true,
+}) {
+  return lgw.LiquidGlassWidgets.wrap(
+    brightnessResolver: Theme.maybeBrightnessOf,
+    adaptiveQuality: false,
+    child: GlassAppearanceScope(
+      child: _GlassQualityPolicy(enabled: adaptiveQuality, child: child),
+    ),
+  );
+}
+
+class _GlassQualityPolicy extends StatelessWidget {
+  const _GlassQualityPolicy({required this.enabled, required this.child});
+  final bool enabled;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final preference = GlassAppearanceScope.of(context).quality;
+    if (!enabled) return child;
+    final desktop =
+        defaultTargetPlatform == TargetPlatform.windows ||
+        defaultTargetPlatform == TargetPlatform.linux;
+    final fixedStandard =
+        desktop || preference == GlassQualityPreference.standard;
+    final fixedPremium =
+        !desktop && preference == GlassQualityPreference.premium;
+    final views = WidgetsBinding.instance.platformDispatcher.views;
+    final hz = views.isEmpty ? 60.0 : views.first.display.refreshRate;
+    final budgetMs = 1000 / (hz > 0 ? hz : 60.0);
+    final targetMs = (budgetMs / 1.5).floor().clamp(1, 1000);
+    // Keep the same scope and child positions across preferences: routes survive.
+    return lgw.GlassAdaptiveScope(
+      minQuality: fixedPremium
+          ? lgw.GlassQuality.premium
+          : lgw.GlassQuality.standard,
+      maxQuality: fixedStandard
+          ? lgw.GlassQuality.standard
+          : lgw.GlassQuality.premium,
+      initialQuality: fixedStandard
+          ? lgw.GlassQuality.standard
+          : fixedPremium
+          ? lgw.GlassQuality.premium
+          : null,
+      targetFrameMs: targetMs,
+      warmupPremiumThresholdMs: targetMs * 1.5,
+      warmupStandardThresholdMs: budgetMs * 1.5,
+      child: child,
+    );
+  }
 }
 
 /// 启动时把配置表里的玻璃开关灌进 [glassMaterialMode]。
@@ -498,7 +567,7 @@ class GlassBlendGroup extends StatelessWidget {
         LiquidGlassScope.of(context) != GlassBackend.liquidWidgets ||
         // 非 premium（Windows / Linux）：包里根本不会建 `LiquidGlassBlendGroup`，
         // 分组只剩代价——尤其是影子会整条消失。见类注释里那张像素表。
-        chromeGlassQuality != lgw.GlassQuality.premium) {
+        chromeGlassQuality(context) != lgw.GlassQuality.premium) {
       return child;
     }
     // ⛔ 融合组里再套一个融合组＝凭空多一层玻璃（多一次 backdrop 采样、多一次
@@ -511,7 +580,7 @@ class GlassBlendGroup extends StatelessWidget {
     if (GlassBlendGroup.isJoinable(context)) return child;
     final cs = Theme.of(context).colorScheme;
     return lgw.AdaptiveLiquidGlassLayer(
-      quality: chromeGlassQuality,
+      quality: chromeGlassQuality(context),
       blendAmount: blend,
       clipExpansion: clipExpansion,
       // 层里所有形状共用这一份（见类注释里那条代价）。取值与单块玻璃
@@ -694,6 +763,7 @@ class LiquidGlassBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    GlassAppearanceScope.of(context);
     final cs = Theme.of(context).colorScheme;
     final double m = materialize.clamp(0.0, 1.0);
     final double radius = circle
@@ -869,7 +939,7 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
           width: circle ? height : width,
           child: lgw.AdaptiveGlass(
             shape: shape,
-            quality: chromeGlassQuality,
+            quality: chromeGlassQuality(context),
             // 占位：grouped 下真正生效的是祖先 layer 的那一份。
             settings: const lgw.LiquidGlassSettings(),
             useOwnLayer: false,
@@ -908,7 +978,7 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
             shape: shape,
             // premium 才有完整的 SDF 折射与高光——正是这一档的存在理由。
             // 非 Impeller 环境由 AdaptiveGlass 自己降级，不用我们判断。
-            quality: chromeGlassQuality,
+            quality: chromeGlassQuality(context),
             settings: GlassTokens.widgetsGlass(
               cs,
               tint: tint ?? GlassTokens.widgetsTint(cs),
@@ -1322,7 +1392,7 @@ class _LiquidStretchShellState extends State<_LiquidStretchShell> {
         // 默认档（standard）走，会在形变层与玻璃之间垫一层缓存纹理——按住拉伸
         // 时缩放的是那张位图（他们自己注释里写的 bilinear 伪影），融合态下更
         // 麻烦：夹在 layer 与 grouped 形状之间多一层合成。
-        quality: chromeGlassQuality,
+        quality: chromeGlassQuality(context),
         stretch: GlassTokens.widgetsStretch,
         interactionScale: GlassTokens.widgetsInteractionScale,
         resistance: GlassTokens.widgetsStretchResistance,

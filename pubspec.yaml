@@ -115,11 +115,10 @@ dependencies:
   http: ^1.6.0
   flutter_local_notifications: ^22.0.1
   local_notifier: ^0.1.6
-  # ⛔ 钉死，不加 ^：4.3.1 在 Windows/Impeller 上首帧出不来（整窗白屏，raster 线程
-  # 起不来，Dart 侧启动日志却是全的）。4.2.0 引入的 LiquidGlassAdaptivity 背景采样
-  # 是这一跳里最大的变化。升级前必须先在 Windows release 产物上验一遍首屏。
-  liquid_glass_easy: 4.1.1
-  liquid_glass_widgets: ^0.30.2
+  # 精确锁定：4.3.3 已优化 Windows/ANGLE 的运行时 shader 编译，4.3.4 修正桌面
+  # 接触阴影。历史上 4.3.1 曾白屏，后续升级仍需验证 Windows release 首屏。
+  liquid_glass_easy: 4.3.4
+  liquid_glass_widgets: ^1.11.0
   local_auth: ^3.0.2
   local_auth_android: ^2.0.8
 dev_dependencies:

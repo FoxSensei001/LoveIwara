@@ -1,13 +1,7 @@
 /// 玻璃渲染的**运行时旋钮**，只给 `--dart-define=GLASS_PERF=1` 的基准包用。
 ///
-/// # 为什么只剩「分层」这两个
-///
-/// 2026-08-24 在 OnePlus Pad（120Hz）上用 `tool/glass_bench.py` 把可疑项逐个
-/// 关掉量了一遍，结论很干净：**画质档、跟手形变、渐进蒙层三项都在噪声里**
-/// （premium → minimal 一共只省 0.3ms），唯一贵的是「一屏上有几层独立玻璃」
-/// ——每层是一次 `BackdropGroup` + 一次 `BackdropFilterLayer`。所以那三个旋钮
-/// 连同它们在生产代码里的分支一起撤掉了，只留下能改变层数的两个，将来回归时
-/// 还能一键对照。完整读数见 `GlassChromeLayer` 的类注释。
+/// 用于逐项对照融合、模糊、投影、取色及底栏成本。独立模糊 pass 和内容回读
+/// 会增加光栅耗时；基准结果需要结合目标平台与页面复核。
 ///
 /// **默认值一律等于生产行为**；常规包里 [apply] 整只短路（[benchBuild] 是
 /// 编译期 false），旋钮永远停在默认值——这些字段是给基准跑归因的，不是运行时
@@ -32,8 +26,9 @@ abstract final class GlassPerfKnobs {
   static int shadows = 2;
 
   /// 折射 shader 之前那趟独立的高斯模糊 backdrop 层（包默认 sigma 5）。
-  /// 生产值 true；关掉后每块玻璃少一次整屏 resolve，但磨砂感只剩 shader 内置那点。
-  static bool blur = true;
+  /// 生产值 false：保留折射和高光，去掉磨砂，减少一次背景模糊 pass。
+  /// 基准仍可用 blur=on 恢复旧版效果。
+  static bool blur = false;
 
   /// 独立模糊层的 sigma（包默认 5）。只在 [blur] 为 true 时有意义。
   static double blurSigma = 5;
@@ -63,7 +58,7 @@ abstract final class GlassPerfKnobs {
   /// header 融合层（[GlassBlendGroup]）自己的独立模糊 pass。生产值 true。
   static bool headerBlur = true;
 
-  /// header 内容感知取色（滚动期间每 180ms 一次 `toImage` 回读）。生产值 true。
+  /// 全部 chrome 的内容感知取色（包含底栏）。生产值 true。
   static bool contentAware = true;
 
   /// chrome 玻璃色调的 alpha 覆盖（浅色档），为 null 时用 `GlassTokens.widgetsTint`

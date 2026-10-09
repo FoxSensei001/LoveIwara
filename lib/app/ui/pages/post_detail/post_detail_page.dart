@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/loading_content_transition.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -281,30 +282,71 @@ class _PostDetailPageState extends State<PostDetailPage> {
               return false;
             },
             child: Obx(() {
-              final theme = Theme.of(context);
-              final availableWideHeight =
-                  (MediaQuery.sizeOf(context).height - effectiveTopPadding - 6)
-                      .clamp(200.0, double.infinity);
+              Widget buildContent() {
+                final theme = Theme.of(context);
+                final availableWideHeight =
+                    (MediaQuery.sizeOf(context).height -
+                            effectiveTopPadding -
+                            6)
+                        .clamp(200.0, double.infinity);
 
-              if (detailController.errorMessage.value != null) {
-                return Padding(
-                  padding: EdgeInsets.only(top: headerExtent),
-                  child: CommonErrorWidget(
-                    text:
-                        detailController.errorMessage.value ??
-                        t.errors.errorWhileLoadingPost,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: Text(t.common.back),
+                if (detailController.errorMessage.value != null) {
+                  return Padding(
+                    padding: EdgeInsets.only(top: headerExtent),
+                    child: CommonErrorWidget(
+                      text:
+                          detailController.errorMessage.value ??
+                          t.errors.errorWhileLoadingPost,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: Text(t.common.back),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                if (detailController.isPostInfoLoading.value &&
+                    detailController.postInfo.value == null) {
+                  return DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          theme.colorScheme.surfaceContainerHighest.withValues(
+                            alpha: 0.2,
+                          ),
+                          theme.colorScheme.surface,
+                        ],
                       ),
-                    ],
-                  ),
-                );
-              }
+                    ),
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: isWideLayout ? 1220 : 940,
+                        ),
+                        child: PostDetailShimmer(
+                          topPadding: effectiveTopPadding,
+                          isWideLayout: isWideLayout,
+                          availableWideHeight: availableWideHeight,
+                          heroTag: _postHeroTag(postId),
+                        ),
+                      ),
+                    ),
+                  );
+                }
 
-              if (detailController.isPostInfoLoading.value &&
-                  detailController.postInfo.value == null) {
+                if (detailController.postInfo.value == null) {
+                  return Padding(
+                    padding: EdgeInsets.only(top: headerExtent),
+                    child: MyEmptyWidget(),
+                  );
+                }
+
+                final commentCount = commentController.totalComments.value;
                 return DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -324,144 +366,115 @@ class _PostDetailPageState extends State<PostDetailPage> {
                       constraints: BoxConstraints(
                         maxWidth: isWideLayout ? 1220 : 940,
                       ),
-                      child: PostDetailShimmer(
-                        topPadding: effectiveTopPadding,
-                        isWideLayout: isWideLayout,
-                        availableWideHeight: availableWideHeight,
-                        heroTag: _postHeroTag(postId),
-                      ),
-                    ),
-                  ),
-                );
-              }
-
-              if (detailController.postInfo.value == null) {
-                return Padding(
-                  padding: EdgeInsets.only(top: headerExtent),
-                  child: MyEmptyWidget(),
-                );
-              }
-
-              final commentCount = commentController.totalComments.value;
-              return DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      theme.colorScheme.surfaceContainerHighest.withValues(
-                        alpha: 0.2,
-                      ),
-                      theme.colorScheme.surface,
-                    ],
-                  ),
-                ),
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: isWideLayout ? 1220 : 940,
-                    ),
-                    child: isWideLayout
-                        ? Padding(
-                            padding: EdgeInsets.fromLTRB(
-                              12,
-                              effectiveTopPadding + 6,
-                              12,
-                              0,
-                            ),
-                            child: SizedBox(
-                              height: availableWideHeight,
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                    width: 360,
-                                    child: SingleChildScrollView(
-                                      padding: EdgeInsets.only(
-                                        bottom:
-                                            12 +
-                                            MediaQuery.paddingOf(
-                                              context,
-                                            ).bottom,
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          PostDetailContent(
-                                            controller: detailController,
-                                            commentCount: commentCount,
-                                            showContentCard: false,
-                                            includeTopSpacing: false,
-                                            horizontalPadding: 0,
-                                            overviewHeroTag: _postHeroTag(
-                                              postId,
+                      child: isWideLayout
+                          ? Padding(
+                              padding: EdgeInsets.fromLTRB(
+                                12,
+                                effectiveTopPadding + 6,
+                                12,
+                                0,
+                              ),
+                              child: SizedBox(
+                                height: availableWideHeight,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SizedBox(
+                                      width: 360,
+                                      child: SingleChildScrollView(
+                                        padding: EdgeInsets.only(
+                                          bottom:
+                                              12 +
+                                              MediaQuery.paddingOf(
+                                                context,
+                                              ).bottom,
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            PostDetailContent(
+                                              controller: detailController,
+                                              commentCount: commentCount,
+                                              showContentCard: false,
+                                              includeTopSpacing: false,
+                                              horizontalPadding: 0,
+                                              overviewHeroTag: _postHeroTag(
+                                                postId,
+                                              ),
                                             ),
-                                          ),
-                                          _buildCommentEntrySection(
-                                            context,
-                                            commentController:
-                                                commentController,
-                                            horizontalPadding: 0,
-                                            bottomPadding: 0,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: SingleChildScrollView(
-                                      controller: _scrollController,
-                                      padding: EdgeInsets.only(
-                                        bottom:
-                                            12 +
-                                            MediaQuery.paddingOf(
+                                            _buildCommentEntrySection(
                                               context,
-                                            ).bottom,
-                                      ),
-                                      child: PostDetailContent(
-                                        controller: detailController,
-                                        commentCount: commentCount,
-                                        showOverviewCard: false,
-                                        includeTopSpacing: false,
-                                        horizontalPadding: 0,
+                                              commentController:
+                                                  commentController,
+                                              horizontalPadding: 0,
+                                              bottomPadding: 0,
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: SingleChildScrollView(
+                                        controller: _scrollController,
+                                        padding: EdgeInsets.only(
+                                          bottom:
+                                              12 +
+                                              MediaQuery.paddingOf(
+                                                context,
+                                              ).bottom,
+                                        ),
+                                        child: PostDetailContent(
+                                          controller: detailController,
+                                          commentCount: commentCount,
+                                          showOverviewCard: false,
+                                          includeTopSpacing: false,
+                                          horizontalPadding: 0,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                          : SingleChildScrollView(
+                              controller: _scrollController,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SizedBox(height: effectiveTopPadding + 4),
+                                  PostDetailContent(
+                                    controller: detailController,
+                                    commentCount: commentCount,
+                                    includeTopSpacing: false,
+                                    overviewHeroTag: _postHeroTag(postId),
+                                  ),
+                                  _buildCommentEntrySection(
+                                    context,
+                                    commentController: commentController,
+                                    horizontalPadding: isSmallScreen ? 10 : 12,
+                                    bottomPadding: isSmallScreen ? 8 : 12,
+                                  ),
+                                  const SafeArea(
+                                    top: false,
+                                    child: SizedBox.shrink(),
                                   ),
                                 ],
                               ),
                             ),
-                          )
-                        : SingleChildScrollView(
-                            controller: _scrollController,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                SizedBox(height: effectiveTopPadding + 4),
-                                PostDetailContent(
-                                  controller: detailController,
-                                  commentCount: commentCount,
-                                  includeTopSpacing: false,
-                                  overviewHeroTag: _postHeroTag(postId),
-                                ),
-                                _buildCommentEntrySection(
-                                  context,
-                                  commentController: commentController,
-                                  horizontalPadding: isSmallScreen ? 10 : 12,
-                                  bottomPadding: isSmallScreen ? 8 : 12,
-                                ),
-                                const SafeArea(
-                                  top: false,
-                                  child: SizedBox.shrink(),
-                                ),
-                              ],
-                            ),
-                          ),
+                    ),
                   ),
-                ),
+                );
+              }
+
+              return LoadingContentTransition(
+                isLoading:
+                    detailController.errorMessage.value == null &&
+                    detailController.isPostInfoLoading.value &&
+                    detailController.postInfo.value == null,
+                child: buildContent(),
               );
             }),
           ),

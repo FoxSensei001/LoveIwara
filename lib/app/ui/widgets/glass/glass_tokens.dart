@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:i_iwara/app/ui/widgets/glass/glass_appearance_scope.dart';
 
 import 'package:flutter/material.dart';
 import 'package:i_iwara/utils/glass_perf_knobs.dart';
@@ -382,9 +383,8 @@ abstract final class GlassTokens {
 
   /// chrome（按钮 / 按钮组 / 浮动底栏）那一档的玻璃色调。
   ///
-  /// **刻意比浮出面板的 [liquidTint] 透明得多**：面板要托住整页文字，chrome
-  /// 只托几枚图标，透明度可以给到真玻璃的量级。0.45 那档（面板的值）套到
-  /// 胶囊上就是一块奶白塑料片，折射与边缘光全被盖死。
+  /// 默认 24%：无模糊时仍托得住图标；用户可在主题设置中继续加厚底色。
+  /// 面板和导航分别保存不透明度，避免菜单可读性受导航调参影响。
   static Color widgetsTint(ColorScheme cs) {
     final bool isDark = cs.brightness == Brightness.dark;
     // 深色模式反过来用**黑**：白纱（[widgetsWhiten]）在全暗背景上等于不生效，
@@ -394,8 +394,12 @@ abstract final class GlassTokens {
     // 恰好都在融合层里——两条路会长得不一样，所以不用它。
     final double? override = GlassPerfKnobs.tintAlpha;
     return isDark
-        ? Colors.black.withValues(alpha: override ?? 0.24)
-        : Colors.white.withValues(alpha: override ?? 0.10);
+        ? Colors.black.withValues(
+            alpha: override ?? glassAppearance.value.opacity,
+          )
+        : Colors.white.withValues(
+            alpha: override ?? glassAppearance.value.opacity,
+          );
   }
 
   /// chrome 按下时的玻璃色调：与 [pressedFill] 同一口径（压深 8%）。
@@ -404,12 +408,12 @@ abstract final class GlassTokens {
     return Color.alphaBlend(cs.onSurface.withValues(alpha: 0.08), base);
   }
 
-  /// 浮出面板那一档的玻璃色调：使用清透的微白高光，避免灰色/纯色背景下发脏变浑浊。
+  /// 浮出面板底色：浅色加白、深色压暗；浓度由菜单面板参数单独控制。
   static Color liquidTint(ColorScheme cs) {
     final isDark = cs.brightness == Brightness.dark;
     return isDark
-        ? Colors.white.withValues(alpha: 0.10)
-        : Colors.white.withValues(alpha: 0.45);
+        ? Colors.black.withValues(alpha: glassAppearance.value.panelOpacity)
+        : Colors.white.withValues(alpha: glassAppearance.value.panelOpacity);
   }
 
   /// 按下时的玻璃色调：与 [pressedFill] 同一口径（压深 8%）。
@@ -418,9 +422,9 @@ abstract final class GlassTokens {
 
   /// 玻璃底下的背景模糊。传统档没有这一项（当初刻意不用 BackdropFilter）；
   /// 液态档靠它把身后的高频细节化开，折射才不会糊成噪点。
-  static const LiquidGlassBlur liquidBlur = LiquidGlassBlur(
-    sigmaX: 14,
-    sigmaY: 14,
+  static LiquidGlassBlur get liquidBlur => LiquidGlassBlur(
+    sigmaX: glassAppearance.value.panelBlur,
+    sigmaY: glassAppearance.value.panelBlur,
   );
 
   /// 保持自然饱和度：避免提饱和导致灰色背景偏色发浑。
@@ -467,17 +471,21 @@ abstract final class GlassTokens {
     double alphaScale = 1,
   }) => LiquidGlassShadow(
     blur: 7,
-    opacity: (cs.brightness == Brightness.dark ? 0.28 : 0.16) * alphaScale,
+    opacity:
+        (glassAppearance.value.shadows
+            ? (cs.brightness == Brightness.dark ? 0.28 : 0.16)
+            : 0) *
+        alphaScale,
     offset: const Offset(0, 2),
   );
 
   // ---- 真·液态玻璃（liquid_glass_widgets 后端）----
   //
   // 第三档材质（[GlassBackend.liquidWidgets]）。使用 liquid_glass_widgets
-  // 官方默认参数（thickness: 20, blur: 5, refractiveIndex: 1.2, chromaticAberration: 0.01 等），
-  // 仅接入主题色调 [widgetsTint] 与淡入 [materialize] 控制。
+  // 以官方光学标定为默认值，主题设置可覆盖底色、模糊、厚度、折射、高光与色散。
+  // visibility 仅用于材质淡入，不当成用户的不透明度参数（它还会淡出文字）。
 
-  /// 一块玻璃的完整参数（采用官方默认标定）。
+  /// 一块玻璃的完整参数（使用已校验的用户参数）。
   ///
   /// [materialize] 直接喂给库自带的 `visibility` 淡入通道。
   static lgw.LiquidGlassSettings widgetsGlass(
@@ -489,7 +497,7 @@ abstract final class GlassTokens {
     /// 改由 `GlassOuterShadow` 画在形变层外面（见那个类）。
     bool shadow = true,
 
-    /// 独立模糊层的 sigma；为 null 时用包默认（经基准旋钮）。
+    /// 独立模糊层的 sigma；为 null 时使用用户的导航玻璃参数。
     double? blur,
   }) => lgw.LiquidGlassSettings(
     glassColor: tint,
@@ -497,8 +505,17 @@ abstract final class GlassTokens {
     // 显式给影子（而不是用他们的 shadowElevation 去缩放默认值）：
     // 见 [widgetsShadow] 里那段「为什么要自己给」。空表＝这块不吐影子。
     shadow: shadow ? widgetsShadow(alphaScale: materialize) : const [],
-    // 包默认 sigma 5；基准旋钮关掉时归零（生产值恒等于包默认，见 GlassPerfKnobs）。
-    blur: blur ?? (GlassPerfKnobs.blur ? GlassPerfKnobs.blurSigma : 0),
+    // 默认不叠独立高斯模糊，用户可以在主题设置中实时调整。
+    blur:
+        blur ??
+        (GlassPerfKnobs.benchBuild && GlassPerfKnobs.blur
+            ? GlassPerfKnobs.blurSigma
+            : glassAppearance.value.blur),
+    thickness: glassAppearance.value.thickness,
+    refractiveIndex: glassAppearance.value.refractiveIndex,
+    lightIntensity: glassAppearance.value.lightIntensity,
+    saturation: glassAppearance.value.saturation,
+    chromaticAberration: glassAppearance.value.chromaticAberration,
   );
 
   /// 真玻璃档的投影（iOS 26 口径：一层弥散 + 一层贴地接触）。
@@ -526,7 +543,7 @@ abstract final class GlassTokens {
       blurRadius: 2,
       offset: const Offset(0, 1),
     ),
-  ].take(GlassPerfKnobs.shadows).toList();
+  ].take(glassAppearance.value.shadows ? GlassPerfKnobs.shadows : 0).toList();
 
   /// **单块**玻璃（不在融合层里）那层 RepaintBoundary 的裁剪外扩。
   ///

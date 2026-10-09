@@ -855,10 +855,32 @@ class _TranslationsSettingsZhCn extends TranslationsSettingsEn {
 	@override String get defaultBrowserDesc => '请在系统设置中打开默认链接配置项，并添加网站链接';
 	@override String get themeMode => '主题模式';
 	@override String get themeModeDesc => '此配置决定应用的主题模式';
+	@override String get glassQuality => '渲染画质';
+	@override String get glassQualityAuto => '自动';
+	@override String get glassQualityAutoDesc => '根据帧耗时调整画质，折射效果可能随之变化';
+	@override String get glassQualityStandard => '流畅';
+	@override String get glassQualityStandardDesc => '轻量玻璃，保留高光并优先保证流畅';
+	@override String get glassQualityPremium => '完整折射';
+	@override String get glassQualityPremiumDesc => '固定使用完整透镜，GPU 开销更高；桌面平台使用轻量效果';
+	@override String get glassQualityCurrent => '当前生效';
+	@override String get glassChromeParametersDesc => '导航玻璃参数实时应用至顶部胶囊、按钮和底栏';
+	@override String get glassOpacity => '不透明度';
+	@override String get glassBlur => '背景模糊（sigma）';
+	@override String get glassBlurDesc => '0 保持背景清晰；模糊会增加一次渲染，可能降低流畅度';
+	@override String get glassAdvancedParameters => '导航玻璃高级参数';
+	@override String get glassThickness => '透镜厚度';
+	@override String get glassRefractiveIndex => '折射率';
+	@override String get glassLightIntensity => '高光强度';
+	@override String get glassSaturation => '背景饱和度';
+	@override String get glassChromaticAberration => '色散强度';
+	@override String get glassShadows => '投影';
+	@override String get glassPanelParameters => '菜单面板参数';
+	@override String get glassPanelParametersDesc => '应用至浮出菜单，面板使用独立的透镜渲染器';
+	@override String get glassResetParameters => '恢复玻璃默认参数';
 	@override String get glassEffect => '界面材质';
 	@override String get glassEffectDesc => '决定全局界面材质（顶栏胶囊、菜单、弹窗按钮、底部导航栏）';
 	@override String get liquidGlassEffect => '液态玻璃';
-	@override String get liquidGlassEffectDesc => '真实的模糊与折射材质，观感最好；低端设备可能掉帧、略微费电';
+	@override String get liquidGlassEffectDesc => '可调底色、折射与模糊，保留液态交互效果';
 	@override String get plainGlassEffect => 'Material';
 	@override String get plainGlassEffectDesc => '标准 Material 3 界面：不透明、无模糊、无阴影，性能与续航最好';
 	@override String get glassEffectIntroTitle => '挑一套界面材质';
@@ -5664,10 +5686,32 @@ extension on TranslationsZhCn {
 			'settings.defaultBrowserDesc' => '请在系统设置中打开默认链接配置项，并添加网站链接',
 			'settings.themeMode' => '主题模式',
 			'settings.themeModeDesc' => '此配置决定应用的主题模式',
+			'settings.glassQuality' => '渲染画质',
+			'settings.glassQualityAuto' => '自动',
+			'settings.glassQualityAutoDesc' => '根据帧耗时调整画质，折射效果可能随之变化',
+			'settings.glassQualityStandard' => '流畅',
+			'settings.glassQualityStandardDesc' => '轻量玻璃，保留高光并优先保证流畅',
+			'settings.glassQualityPremium' => '完整折射',
+			'settings.glassQualityPremiumDesc' => '固定使用完整透镜，GPU 开销更高；桌面平台使用轻量效果',
+			'settings.glassQualityCurrent' => '当前生效',
+			'settings.glassChromeParametersDesc' => '导航玻璃参数实时应用至顶部胶囊、按钮和底栏',
+			'settings.glassOpacity' => '不透明度',
+			'settings.glassBlur' => '背景模糊（sigma）',
+			'settings.glassBlurDesc' => '0 保持背景清晰；模糊会增加一次渲染，可能降低流畅度',
+			'settings.glassAdvancedParameters' => '导航玻璃高级参数',
+			'settings.glassThickness' => '透镜厚度',
+			'settings.glassRefractiveIndex' => '折射率',
+			'settings.glassLightIntensity' => '高光强度',
+			'settings.glassSaturation' => '背景饱和度',
+			'settings.glassChromaticAberration' => '色散强度',
+			'settings.glassShadows' => '投影',
+			'settings.glassPanelParameters' => '菜单面板参数',
+			'settings.glassPanelParametersDesc' => '应用至浮出菜单，面板使用独立的透镜渲染器',
+			'settings.glassResetParameters' => '恢复玻璃默认参数',
 			'settings.glassEffect' => '界面材质',
 			'settings.glassEffectDesc' => '决定全局界面材质（顶栏胶囊、菜单、弹窗按钮、底部导航栏）',
 			'settings.liquidGlassEffect' => '液态玻璃',
-			'settings.liquidGlassEffectDesc' => '真实的模糊与折射材质，观感最好；低端设备可能掉帧、略微费电',
+			'settings.liquidGlassEffectDesc' => '可调底色、折射与模糊，保留液态交互效果',
 			'settings.plainGlassEffect' => 'Material',
 			'settings.plainGlassEffectDesc' => '标准 Material 3 界面：不透明、无模糊、无阴影，性能与续航最好',
 			'settings.glassEffectIntroTitle' => '挑一套界面材质',
@@ -5998,6 +6042,8 @@ extension on TranslationsZhCn {
 			'settings.keybinding.actionSpeedUp' => '加快倍速',
 			'settings.keybinding.actionSpeedDown' => '减慢倍速',
 			'settings.keybinding.actionSeekForward' => '快进',
+			_ => null,
+		} ?? switch (path) {
 			'settings.keybinding.actionSeekBackward' => '快退',
 			'settings.keybinding.actionVolumeUp' => '增大音量',
 			'settings.keybinding.actionVolumeDown' => '减小音量',
@@ -6020,8 +6066,6 @@ extension on TranslationsZhCn {
 			'settings.leftVerticalSwipeBrightness' => '左侧上下滑动调整亮度（进入新页面时生效）',
 			'settings.longPressFastForward' => '长按快进',
 			'settings.enableMouseHoverShowToolbar' => '鼠标悬浮时显示工具栏',
-			_ => null,
-		} ?? switch (path) {
 			'settings.enableMouseHoverShowToolbarInfo' => '开启后，当鼠标悬浮在播放器上移动时会自动显示工具栏，停止移动3秒后自动隐藏',
 			'settings.enableHorizontalDragSeek' => '横向滑动调整进度',
 			'settings.enableVideoGestureZoom' => '双指缩放视频画面',
@@ -6512,6 +6556,8 @@ extension on TranslationsZhCn {
 			'videoDetail.gestureGuide.quest.result' => '查看效果',
 			'videoDetail.gestureGuide.quest.pinch' => '捏合',
 			'videoDetail.gestureGuide.quest.selectTitle' => '用射线点选',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.selectBody' => '将射线对准按钮，轻扣并松开食指扳机即可选择。控制面板上的播放、设置和滑块都可以这样操作。',
 			'videoDetail.gestureGuide.quest.selectHint' => '食指扳机在圆盘背面；手柄内侧的侧握键用于抓取窗口。',
 			'videoDetail.gestureGuide.quest.panelTitle' => '唤出或收起面板',
@@ -6534,8 +6580,6 @@ extension on TranslationsZhCn {
 			'videoDetail.gestureGuide.quest.zoomHint' => '只放大图片内容，窗口大小不变。未按住图片时，摇杆上下调整的是观看距离。',
 			'videoDetail.gestureGuide.quest.panTitle' => '移动细节与还原',
 			'videoDetail.gestureGuide.quest.panBody' => '图片放大后，按住食指扳机拖动可查看其他部分。双击图片可在 2.5× 放大和还原之间切换，手势追踪下也可快速捏合两次。',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.panHint' => '放大状态下，拖动用于平移；还原到 1× 后，横拖才会翻页。',
 			'videoDetail.gestureGuide.quest.slideshowTitle' => '自动播放图库',
 			'videoDetail.gestureGuide.quest.slideshowBody' => '看图片时，按 A / X 开始或暂停幻灯片；在控制面板中选择 3、5、10 或 20 秒的间隔，也可切换标准画质或原图。',
@@ -7026,6 +7070,8 @@ extension on TranslationsZhCn {
 			'download.notice.handle' => '处理…',
 			'download.notice.outside' => ({required Object count}) => '旧下载目录里还有 ${count} 项',
 			'download.notice.migrate' => '迁移',
+			_ => null,
+		} ?? switch (path) {
 			'download.notice.dismiss' => '忽略',
 			'download.emptyTaskList' => '暂无下载任务',
 			'download.noMatchingTasks' => '没有匹配的任务',
@@ -7048,8 +7094,6 @@ extension on TranslationsZhCn {
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '已删除 ${deleted} 个任务，跳过 ${skipped} 个（被占用）',
 			'download.relocation.moveFiles' => '移动文件',
 			'download.relocation.moveFilesEllipsis' => '移动文件…',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.chooseDestination' => '把文件移动到',
 			'download.relocation.currentDownloadDir' => '当前下载目录',
 			'download.relocation.otherFolder' => '选择其他文件夹…',
@@ -7540,6 +7584,8 @@ extension on TranslationsZhCn {
 			'translation.fetchingModels' => '获取中…',
 			'translation.selectModel' => '选择模型',
 			'translation.searchModel' => '搜索模型',
+			_ => null,
+		} ?? switch (path) {
 			'translation.noModelsFound' => '未找到模型',
 			'mediaPlayer.videoPlayerError' => '视频播放器错误',
 			'mediaPlayer.videoLoadFailed' => '视频加载失败',
@@ -7562,8 +7608,6 @@ extension on TranslationsZhCn {
 			'mediaPlayer.accessDenied' => '服务器拒绝了这次访问（403）',
 			'mediaPlayer.accessDeniedSuggestion' => '播放链接多半已经过期。点「重试」重新取一次，或用其他应用打开。',
 			'mediaPlayer.mute' => '静音',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.unmute' => '取消静音',
 			'mediaPlayer.video' => '视频',
 			'mediaPlayer.serverSelector' => 'CDN 服务器选择',
@@ -8054,6 +8098,8 @@ extension on TranslationsZhCn {
 			'anime4k.presetDescriptions.mode_b_b_hq' => 'Mode B的强化版，提供更高的感知质量，进一步优化线条和减少瑕疵。',
 			'anime4k.presetDescriptions.mode_c_a_hq' => 'Mode C的感知质量增强版，在保持高PSNR的同时尝试重建一些线条细节。',
 			'anime4k.presetDescriptions.mode_a_fast' => 'Mode A的快速版本，平衡了质量与性能，适用于大多数1080p动漫。',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_b_fast' => 'Mode B的快速版本，用于处理轻微瑕疵和振铃，性能开销较低。',
 			'anime4k.presetDescriptions.mode_c_fast' => 'Mode C的快速版本，适用于高质量片源的快速降噪和放大。',
 			'anime4k.presetDescriptions.mode_a_a_fast' => 'Mode A+A的快速版本，在性能有限的设备上追求更高的感知质量。',
@@ -8076,8 +8122,6 @@ extension on TranslationsZhCn {
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
 			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
 			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
 			'anime4k.presetNames.upscale_only_s' => 'CNN放大 (超快)',
@@ -8568,6 +8612,8 @@ extension on TranslationsZhCn {
 			'localMedia.clearProgressTitle' => '清除本机观看记录？',
 			'localMedia.clearProgressBody' => '只删观看进度和「已看完」标记，磁盘上的文件和已添加的文件夹一个不动。',
 			'localMedia.clearProgressDone' => ({required Object count}) => '已清除 ${count} 条本机观看记录',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.clearAction' => '清除',
 			'localMedia.iosManualRescanNotice' => 'iOS 不会自动发现新文件，添加或删除文件后需要手动重新扫描。',
 			'historyPage.removeFromHistory' => '从历史中删除',
@@ -8590,8 +8636,6 @@ extension on TranslationsZhCn {
 			'ai.modelPick' => '选择模型',
 			'ai.modelEmpty' => '没拉到模型列表，直接填模型名也可以',
 			'ai.advanced' => '高级',
-			_ => null,
-		} ?? switch (path) {
 			'ai.reasoning' => '推理模型',
 			'ai.streaming' => '流式输出',
 			'ai.structuredOutput' => '结构化输出',

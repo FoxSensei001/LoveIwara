@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/models/sort.model.dart';
+import 'package:i_iwara/app/models/glass_appearance_settings.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/gallery_image_quality.dart';
 import 'package:i_iwara/db/database_service.dart';
@@ -415,6 +416,7 @@ enum ConfigKey {
   CURRENT_CUSTOM_HEX_KEY,
   CUSTOM_THEME_COLORS_KEY,
   ENABLE_LIQUID_GLASS_KEY, // 界面材质：true=真液态玻璃（模糊/折射），false=Material
+  LIQUID_GLASS_SETTINGS_KEY, // 玻璃画质和材质参数
   GLASS_MATERIAL_INTRO_SHOWN, // 玻璃质感的一次性提醒是否已经露过面（引导页问过也算）
   RECORD_AND_RESTORE_VIDEO_PROGRESS,
   USE_AI_TRANSLATION,
@@ -670,6 +672,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'custom_theme_colors';
       case ConfigKey.ENABLE_LIQUID_GLASS_KEY:
         return 'enable_liquid_glass';
+      case ConfigKey.LIQUID_GLASS_SETTINGS_KEY:
+        return 'liquid_glass_settings';
       case ConfigKey.GLASS_MATERIAL_INTRO_SHOWN:
         return 'glass_material_intro_shown';
       case ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS:
@@ -1014,7 +1018,9 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.CUSTOM_THEME_COLORS_KEY:
         return <String>[];
       case ConfigKey.ENABLE_LIQUID_GLASS_KEY:
-        return true;
+        return false;
+      case ConfigKey.LIQUID_GLASS_SETTINGS_KEY:
+        return GlassAppearanceSettings.defaults.toMap();
       case ConfigKey.GLASS_MATERIAL_INTRO_SHOWN:
         return false;
       case ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS:

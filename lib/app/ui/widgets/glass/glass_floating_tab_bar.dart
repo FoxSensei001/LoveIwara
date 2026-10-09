@@ -483,7 +483,7 @@ class _GlassFloatingTabBarState extends State<GlassFloatingTabBar> {
               tint: GlassTokens.widgetsTint(cs),
               blur: GlassPerfKnobs.barBlur ? null : 0,
             ),
-            quality: chromeGlassQuality,
+            quality: chromeGlassQuality(context),
             // ⛔ 静止时不画底色（2026-09-15 用户拍板：选中项只靠图标 / 文字变色
             // 表达，不要那块高亮背景）。
             //

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/loading_content_transition.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -585,11 +586,12 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
             // 帖子内容区域
             SliverToBoxAdapter(
               child: Obx(() {
-                if (_thread.value == null) {
-                  return _buildShimmerLoading(isWideScreen);
-                }
-
-                return _buildThreadCard(context, isWideScreen);
+                return LoadingContentTransition(
+                  isLoading: _thread.value == null,
+                  child: _thread.value == null
+                      ? _buildShimmerLoading(isWideScreen)
+                      : _buildThreadCard(context, isWideScreen),
+                );
               }),
             ),
 
@@ -698,10 +700,12 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
           ),
           SliverToBoxAdapter(
             child: Obx(() {
-              if (_thread.value == null) {
-                return _buildShimmerLoading(isWideScreen);
-              }
-              return _buildThreadCard(context, isWideScreen);
+              return LoadingContentTransition(
+                isLoading: _thread.value == null,
+                child: _thread.value == null
+                    ? _buildShimmerLoading(isWideScreen)
+                    : _buildThreadCard(context, isWideScreen),
+              );
             }),
           ),
           // buildIndicator already returns a Sliver for fullscreen states
@@ -740,10 +744,12 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
         // 帖子内容区域
         SliverToBoxAdapter(
           child: Obx(() {
-            if (_thread.value == null) {
-              return _buildShimmerLoading(isWideScreen);
-            }
-            return _buildThreadCard(context, isWideScreen);
+            return LoadingContentTransition(
+              isLoading: _thread.value == null,
+              child: _thread.value == null
+                  ? _buildShimmerLoading(isWideScreen)
+                  : _buildThreadCard(context, isWideScreen),
+            );
           }),
         ),
 

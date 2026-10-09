@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/loading_content_transition.dart';
 import 'package:i_iwara/app/ui/widgets/media_waterfall_grid.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -65,10 +66,17 @@ class InfiniteScrollWaterfallTab<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return LoadingContentTransition(
+      isLoading: !available || (isLoading && items.isEmpty),
+      child: _buildContent(context),
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
     final t = slang.Translations.of(context);
 
     // Loading / not available → show skeleton
-    if (!available || isLoading) {
+    if (!available || (isLoading && items.isEmpty)) {
       return CustomScrollView(
         physics: const ClampingScrollPhysics(),
         slivers: [
@@ -105,9 +113,9 @@ class InfiniteScrollWaterfallTab<T> extends StatelessWidget {
     // Data state with infinite scroll
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
-        // 底部区间内每个滚动通知都会触发，必须先判 hasMore + !isLoadingMore 短路，
-        // 否则一次滚动会重复调用 onLoadMore 几十次
-        if (!hasMore || isLoadingMore) return false;
+        // 刷新期间保留旧内容，但不能并发请求下一页，否则刷新结果可能覆盖
+        // 已追加的数据而跳过该页。底部通知也需防止重复发起分页请求。
+        if (isLoading || !hasMore || isLoadingMore) return false;
         if (notification is ScrollUpdateNotification ||
             notification is OverscrollNotification) {
           if (notification.metrics.pixels + 200 >=

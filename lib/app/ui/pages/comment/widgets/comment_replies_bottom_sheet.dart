@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/loading_content_transition.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/signature_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/controllers/comment_controller.dart';
@@ -473,6 +474,18 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
   }
 
   Widget _buildContent(ScrollController scrollController, double topPadding) {
+    return LoadingContentTransition(
+      isLoading: _isLoading && _replies.isEmpty,
+      retainLoading:
+          false, // The sheet supplies the same controller to both lists.
+      child: _buildContentBody(scrollController, topPadding),
+    );
+  }
+
+  Widget _buildContentBody(
+    ScrollController scrollController,
+    double topPadding,
+  ) {
     final EdgeInsets listPadding = EdgeInsets.fromLTRB(
       8.0,
       topPadding + 8.0,

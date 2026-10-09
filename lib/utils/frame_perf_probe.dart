@@ -246,8 +246,20 @@ class FramePerfProbe {
       } catch (_) {
         // 路由树还没建好（启动早期），报个占位值即可。
       }
+      String quality = 'none';
+      void findGlass(Element element) {
+        if (quality != 'none') return;
+        if (element.widget is LiquidWidgetsGlassBox) {
+          quality = chromeGlassQuality(element).name;
+        } else {
+          element.visitChildren(findGlass);
+        }
+      }
+
+      WidgetsBinding.instance.rootElement?.visitChildren(findGlass);
       return developer.ServiceExtensionResponse.result(
-        '{"route":${_json(route)},"glass":"${glassMaterialMode.value.name}"}',
+        '{"route":${_json(route)},"glass":"${glassMaterialMode.value.name}",'
+        '"chromeQuality":${_json(quality)}}',
       );
     });
     developer.registerExtension('ext.glassperf.nav', (
@@ -325,9 +337,7 @@ class FramePerfProbe {
     final int pointer = ++_synthPointer;
     const int steps = 12;
     final Duration stepGap = Duration(microseconds: ms * 1000 ~/ steps);
-    Duration ts = Duration(
-      microseconds: DateTime.now().microsecondsSinceEpoch,
-    );
+    Duration ts = Duration(microseconds: DateTime.now().microsecondsSinceEpoch);
     GestureBinding.instance.handlePointerEvent(
       PointerDownEvent(pointer: pointer, position: start, timeStamp: ts),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/loading_content_transition.dart';
 import 'package:i_iwara/utils/glass_perf_knobs.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
@@ -549,6 +550,13 @@ class ForumPageState extends State<ForumPage> {
   }
 
   Widget _buildBody(BuildContext context, double effectivePaddingTop) {
+    return LoadingContentTransition(
+      isLoading: _isLoading,
+      child: _buildBodyContent(context, effectivePaddingTop),
+    );
+  }
+
+  Widget _buildBodyContent(BuildContext context, double effectivePaddingTop) {
     // 接收 effectivePaddingTop
     if (_isLoading) {
       return ForumSkeletonPage(paddingTop: effectivePaddingTop);

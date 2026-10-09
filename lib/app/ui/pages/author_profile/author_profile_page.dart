@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/loading_content_transition.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
@@ -442,17 +443,27 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     }
 
     return Obx(() {
-      if (profileController.errorWidget.value != null) {
-        return _buildErrorWidget(context);
-      } else if (profileController.isProfileLoading.value &&
-          profileController.author.value == null) {
-        return const AuthorProfileSkeleton();
-      } else if (!profileController.isProfileLoading.value &&
-          profileController.author.value == null) {
-        return Center(child: Text(t.errors.errorWhileFetching));
+      Widget buildContent() {
+        if (profileController.errorWidget.value != null) {
+          return _buildErrorWidget(context);
+        } else if (profileController.isProfileLoading.value &&
+            profileController.author.value == null) {
+          return const AuthorProfileSkeleton();
+        } else if (!profileController.isProfileLoading.value &&
+            profileController.author.value == null) {
+          return Center(child: Text(t.errors.errorWhileFetching));
+        }
+
+        return _buildMainContent();
       }
 
-      return _buildMainContent();
+      return LoadingContentTransition(
+        isLoading:
+            profileController.errorWidget.value == null &&
+            profileController.isProfileLoading.value &&
+            profileController.author.value == null,
+        child: buildContent(),
+      );
     });
   }
 

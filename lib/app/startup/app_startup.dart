@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:i_iwara/app/models/glass_appearance_settings.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_appearance_scope.dart';
 import 'dart:io';
 
 import 'package:get/get.dart';
@@ -209,6 +211,9 @@ class AppStartupCoordinator implements AppStartupRunner {
 
     // 玻璃材质开关要在**任何一块玻璃 build 之前**灌好：shader 预热和第一帧
     // chrome 都读它，晚一步就会先渲染成真玻璃再跳回假玻璃。
+    glassAppearance.value = GlassAppearanceSettings.fromMap(
+      configService[ConfigKey.LIQUID_GLASS_SETTINGS_KEY],
+    );
     applyGlassMaterialFromConfig(
       configService[ConfigKey.ENABLE_LIQUID_GLASS_KEY] == true,
     );

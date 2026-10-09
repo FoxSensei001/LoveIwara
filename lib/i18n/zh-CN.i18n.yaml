@@ -708,10 +708,32 @@ settings:
   defaultBrowserDesc: 请在系统设置中打开默认链接配置项，并添加网站链接
   themeMode: 主题模式
   themeModeDesc: 此配置决定应用的主题模式
+  glassQuality: "渲染画质"
+  glassQualityAuto: "自动"
+  glassQualityAutoDesc: "根据帧耗时调整画质，折射效果可能随之变化"
+  glassQualityStandard: "流畅"
+  glassQualityStandardDesc: "轻量玻璃，保留高光并优先保证流畅"
+  glassQualityPremium: "完整折射"
+  glassQualityPremiumDesc: "固定使用完整透镜，GPU 开销更高；桌面平台使用轻量效果"
+  glassQualityCurrent: "当前生效"
+  glassChromeParametersDesc: "导航玻璃参数实时应用至顶部胶囊、按钮和底栏"
+  glassOpacity: "不透明度"
+  glassBlur: "背景模糊（sigma）"
+  glassBlurDesc: "0 保持背景清晰；模糊会增加一次渲染，可能降低流畅度"
+  glassAdvancedParameters: "导航玻璃高级参数"
+  glassThickness: "透镜厚度"
+  glassRefractiveIndex: "折射率"
+  glassLightIntensity: "高光强度"
+  glassSaturation: "背景饱和度"
+  glassChromaticAberration: "色散强度"
+  glassShadows: "投影"
+  glassPanelParameters: "菜单面板参数"
+  glassPanelParametersDesc: "应用至浮出菜单，面板使用独立的透镜渲染器"
+  glassResetParameters: "恢复玻璃默认参数"
   glassEffect: 界面材质
   glassEffectDesc: 决定全局界面材质（顶栏胶囊、菜单、弹窗按钮、底部导航栏）
   liquidGlassEffect: 液态玻璃
-  liquidGlassEffectDesc: 真实的模糊与折射材质，观感最好；低端设备可能掉帧、略微费电
+  liquidGlassEffectDesc: 可调底色、折射与模糊，保留液态交互效果
   plainGlassEffect: Material
   plainGlassEffectDesc: 标准 Material 3 界面：不透明、无模糊、无阴影，性能与续航最好
   glassEffectIntroTitle: 挑一套界面材质

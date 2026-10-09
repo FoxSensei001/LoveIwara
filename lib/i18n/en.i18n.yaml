@@ -706,10 +706,32 @@ settings:
   defaultBrowserDesc: Please open the default link configuration item in the system settings and add the iwara.tv website link
   themeMode: Theme Mode
   themeModeDesc: This configuration determines the theme mode of the app
+  glassQuality: "Rendering quality"
+  glassQualityAuto: "Automatic"
+  glassQualityAutoDesc: "Adapts to frame time; refraction can change as quality adjusts"
+  glassQualityStandard: "Smooth"
+  glassQualityStandardDesc: "Lightweight glass with highlights and consistent frame pacing"
+  glassQualityPremium: "Full refraction"
+  glassQualityPremiumDesc: "Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass"
+  glassQualityCurrent: "Currently active"
+  glassChromeParametersDesc: "Navigation glass parameters apply live to headers, buttons and the bottom bar"
+  glassOpacity: "Opacity"
+  glassBlur: "Background blur (sigma)"
+  glassBlurDesc: "0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness"
+  glassAdvancedParameters: "Advanced navigation parameters"
+  glassThickness: "Lens thickness"
+  glassRefractiveIndex: "Refractive index"
+  glassLightIntensity: "Highlight intensity"
+  glassSaturation: "Background saturation"
+  glassChromaticAberration: "Chromatic aberration"
+  glassShadows: "Shadows"
+  glassPanelParameters: "Menu panel parameters"
+  glassPanelParametersDesc: "Applies to floating menus; panels use a separate lens renderer"
+  glassResetParameters: "Restore glass defaults"
   glassEffect: Interface Material
   glassEffectDesc: Chooses the material used across the app — header capsules, menus, dialog buttons and the bottom navigation bar
   liquidGlassEffect: Liquid Glass
-  liquidGlassEffectDesc: Real blur and refraction. Looks best, but may drop frames and use a bit more power on low-end devices
+  liquidGlassEffectDesc: Configurable glass tint, refraction and blur, with liquid interactions
   plainGlassEffect: Material
   plainGlassEffectDesc: Standard Material 3 surfaces — opaque, no blur, no shadows. Best performance and battery life
   glassEffectIntroTitle: Pick your interface material

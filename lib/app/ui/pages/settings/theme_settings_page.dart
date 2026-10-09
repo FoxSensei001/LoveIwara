@@ -6,6 +6,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/theme_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_appearance_controls.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
@@ -162,6 +163,7 @@ class ThemeSettingsPage extends StatelessWidget {
                   title: Text(t.settings.plainGlassEffect),
                   subtitle: Text(t.settings.plainGlassEffectDesc),
                 ),
+                if (enabled) GlassAppearanceControls(service: themeService),
               ],
             );
           }),

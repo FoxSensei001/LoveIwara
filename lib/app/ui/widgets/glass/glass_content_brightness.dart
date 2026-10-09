@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lgw;
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/utils/glass_perf_knobs.dart';
 
 /// 「内容感知字色」：浮在滚动内容之上的玻璃 chrome，按**身后真正画着什么**
 /// 决定自己用深字还是浅字，而不是一律跟着主题的明暗走。
@@ -119,7 +120,8 @@ class _GlassContentAwareHostState extends State<GlassContentAwareHost> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final bool liquid = GlassMaterialScope.isLiquid(context);
+    final bool liquid =
+        GlassMaterialScope.isLiquid(context) && GlassPerfKnobs.contentAware;
     if (liquid == _liquid) return;
     _liquid = liquid;
     if (liquid) {
@@ -198,7 +200,9 @@ class GlassSampledContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!GlassMaterialScope.isLiquid(context)) return child;
+    if (!GlassMaterialScope.isLiquid(context) || !GlassPerfKnobs.contentAware) {
+      return child;
+    }
     return lgw.GlassContentAwareContent(child: child);
   }
 }
@@ -228,7 +232,9 @@ class GlassAdaptiveChrome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!GlassMaterialScope.isLiquid(context)) return child;
+    if (!GlassMaterialScope.isLiquid(context) || !GlassPerfKnobs.contentAware) {
+      return child;
+    }
     // 外面已经有一块 chrome 在按内容换色了：这一整片（例如 header 那一行里的
     // 每一枚圆钮）归它管。再各自投一次票，同一行里就可能出现「胶囊翻了、钮
     // 没翻」的花脸；而且融合层里本来就只有一份材质。

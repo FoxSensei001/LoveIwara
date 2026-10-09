@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/loading_content_transition.dart';
 import 'package:get/get.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 
@@ -46,22 +47,31 @@ class _CommentSectionState extends State<CommentSection> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (widget.controller.isLoading.value &&
-          widget.controller.comments.isEmpty) {
-        // 初始加载时显示Shimmer骨架屏
-        return _buildShimmerList();
-      } else if (widget.controller.errorMessage.value.isNotEmpty &&
-          widget.controller.comments.isEmpty) {
-        // 如果有错误且没有评论，显示错误信息和重试按钮
-        return _buildErrorState(context);
-      } else if (!widget.controller.isLoading.value &&
-          widget.controller.comments.isEmpty) {
-        // 如果没有评论，显示空状态
-        return _buildEmptyState(context);
-      } else {
-        // 显示评论列表
-        return _buildCommentList();
+      Widget buildContent() {
+        if (widget.controller.isLoading.value &&
+            widget.controller.comments.isEmpty) {
+          // 初始加载时显示Shimmer骨架屏
+          return _buildShimmerList();
+        } else if (widget.controller.errorMessage.value.isNotEmpty &&
+            widget.controller.comments.isEmpty) {
+          // 如果有错误且没有评论，显示错误信息和重试按钮
+          return _buildErrorState(context);
+        } else if (!widget.controller.isLoading.value &&
+            widget.controller.comments.isEmpty) {
+          // 如果没有评论，显示空状态
+          return _buildEmptyState(context);
+        } else {
+          // 显示评论列表
+          return _buildCommentList();
+        }
       }
+
+      return LoadingContentTransition(
+        isLoading:
+            widget.controller.isLoading.value &&
+            widget.controller.comments.isEmpty,
+        child: buildContent(),
+      );
     });
   }
 

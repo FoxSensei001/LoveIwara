@@ -855,10 +855,32 @@ class _TranslationsSettingsZhTw extends TranslationsSettingsEn {
 	@override String get defaultBrowserDesc => '請在系統設定中打開預設連結配置項，並添加iwara.tv網站連結';
 	@override String get themeMode => '主題模式';
 	@override String get themeModeDesc => '此配置決定應用的主題模式';
+	@override String get glassQuality => '渲染畫質';
+	@override String get glassQualityAuto => '自動';
+	@override String get glassQualityAutoDesc => '依據影格耗時調整畫質，折射效果可能隨之變化';
+	@override String get glassQualityStandard => '流暢';
+	@override String get glassQualityStandardDesc => '輕量玻璃，保留高光並優先保持流暢';
+	@override String get glassQualityPremium => '完整折射';
+	@override String get glassQualityPremiumDesc => '固定使用完整透鏡，GPU 開銷較高；桌面平台使用輕量效果';
+	@override String get glassQualityCurrent => '目前生效';
+	@override String get glassChromeParametersDesc => '導覽玻璃參數即時套用至頂部膠囊、按鈕與底欄';
+	@override String get glassOpacity => '不透明度';
+	@override String get glassBlur => '背景模糊（sigma）';
+	@override String get glassBlurDesc => '0 保持背景清晰；模糊會增加一次渲染，可能降低流暢度';
+	@override String get glassAdvancedParameters => '導覽玻璃進階參數';
+	@override String get glassThickness => '透鏡厚度';
+	@override String get glassRefractiveIndex => '折射率';
+	@override String get glassLightIntensity => '高光強度';
+	@override String get glassSaturation => '背景飽和度';
+	@override String get glassChromaticAberration => '色散強度';
+	@override String get glassShadows => '投影';
+	@override String get glassPanelParameters => '選單面板參數';
+	@override String get glassPanelParametersDesc => '套用至浮出選單，面板使用獨立的透鏡渲染器';
+	@override String get glassResetParameters => '還原玻璃預設參數';
 	@override String get glassEffect => '介面材質';
 	@override String get glassEffectDesc => '決定全域介面材質（頂欄膠囊、選單、彈窗按鈕、底部導覽列）';
 	@override String get liquidGlassEffect => '液態玻璃';
-	@override String get liquidGlassEffectDesc => '真實的模糊與折射材質，觀感最好；低階裝置可能掉幀、略微耗電';
+	@override String get liquidGlassEffectDesc => '可調底色、折射與模糊，保留液態互動效果';
 	@override String get plainGlassEffect => 'Material';
 	@override String get plainGlassEffectDesc => '標準 Material 3 介面：不透明、無模糊、無陰影，效能與續航最好';
 	@override String get glassEffectIntroTitle => '挑一套介面材質';
@@ -5664,10 +5686,32 @@ extension on TranslationsZhTw {
 			'settings.defaultBrowserDesc' => '請在系統設定中打開預設連結配置項，並添加iwara.tv網站連結',
 			'settings.themeMode' => '主題模式',
 			'settings.themeModeDesc' => '此配置決定應用的主題模式',
+			'settings.glassQuality' => '渲染畫質',
+			'settings.glassQualityAuto' => '自動',
+			'settings.glassQualityAutoDesc' => '依據影格耗時調整畫質，折射效果可能隨之變化',
+			'settings.glassQualityStandard' => '流暢',
+			'settings.glassQualityStandardDesc' => '輕量玻璃，保留高光並優先保持流暢',
+			'settings.glassQualityPremium' => '完整折射',
+			'settings.glassQualityPremiumDesc' => '固定使用完整透鏡，GPU 開銷較高；桌面平台使用輕量效果',
+			'settings.glassQualityCurrent' => '目前生效',
+			'settings.glassChromeParametersDesc' => '導覽玻璃參數即時套用至頂部膠囊、按鈕與底欄',
+			'settings.glassOpacity' => '不透明度',
+			'settings.glassBlur' => '背景模糊（sigma）',
+			'settings.glassBlurDesc' => '0 保持背景清晰；模糊會增加一次渲染，可能降低流暢度',
+			'settings.glassAdvancedParameters' => '導覽玻璃進階參數',
+			'settings.glassThickness' => '透鏡厚度',
+			'settings.glassRefractiveIndex' => '折射率',
+			'settings.glassLightIntensity' => '高光強度',
+			'settings.glassSaturation' => '背景飽和度',
+			'settings.glassChromaticAberration' => '色散強度',
+			'settings.glassShadows' => '投影',
+			'settings.glassPanelParameters' => '選單面板參數',
+			'settings.glassPanelParametersDesc' => '套用至浮出選單，面板使用獨立的透鏡渲染器',
+			'settings.glassResetParameters' => '還原玻璃預設參數',
 			'settings.glassEffect' => '介面材質',
 			'settings.glassEffectDesc' => '決定全域介面材質（頂欄膠囊、選單、彈窗按鈕、底部導覽列）',
 			'settings.liquidGlassEffect' => '液態玻璃',
-			'settings.liquidGlassEffectDesc' => '真實的模糊與折射材質，觀感最好；低階裝置可能掉幀、略微耗電',
+			'settings.liquidGlassEffectDesc' => '可調底色、折射與模糊，保留液態互動效果',
 			'settings.plainGlassEffect' => 'Material',
 			'settings.plainGlassEffectDesc' => '標準 Material 3 介面：不透明、無模糊、無陰影，效能與續航最好',
 			'settings.glassEffectIntroTitle' => '挑一套介面材質',
@@ -5998,6 +6042,8 @@ extension on TranslationsZhTw {
 			'settings.keybinding.actionSpeedUp' => '加快倍速',
 			'settings.keybinding.actionSpeedDown' => '減慢倍速',
 			'settings.keybinding.actionSeekForward' => '快進',
+			_ => null,
+		} ?? switch (path) {
 			'settings.keybinding.actionSeekBackward' => '快退',
 			'settings.keybinding.actionVolumeUp' => '增大音量',
 			'settings.keybinding.actionVolumeDown' => '減小音量',
@@ -6020,8 +6066,6 @@ extension on TranslationsZhTw {
 			'settings.leftVerticalSwipeBrightness' => '左側上下滑動調整亮度（進入新頁面時生效）',
 			'settings.longPressFastForward' => '長按快進',
 			'settings.enableMouseHoverShowToolbar' => '滑鼠懸停時顯示工具列',
-			_ => null,
-		} ?? switch (path) {
 			'settings.enableMouseHoverShowToolbarInfo' => '開啟後，當滑鼠懸停在播放器上移動時會自動顯示工具列，停止移動3秒後自動隱藏',
 			'settings.enableHorizontalDragSeek' => '橫向滑動調整進度',
 			'settings.enableVideoGestureZoom' => '雙指縮放影片畫面',
@@ -6512,6 +6556,8 @@ extension on TranslationsZhTw {
 			'videoDetail.gestureGuide.mRotate' => '雙指旋轉：旋轉畫面',
 			'videoDetail.gestureGuide.dTap' => '單擊：顯示 / 隱藏控制列',
 			'videoDetail.gestureGuide.dDoubleTap' => '雙擊：左側後退 / 中央暫停 / 右側快進',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.dKeys' => '快退 / 快進鍵：單擊瞬間跳轉，長按進入倍速播放；調速鍵：常速播放時逐檔調整倍速；空白鍵：播放 / 暫停',
 			'videoDetail.gestureGuide.dTrackpadPinch' => '觸控板捏合：縮放畫面',
 			'videoDetail.gestureGuide.dTrackpadRotate' => '觸控板旋轉：旋轉畫面',
@@ -6534,8 +6580,6 @@ extension on TranslationsZhTw {
 			'videoDetail.gestureGuide.quest.done' => '知道了，繼續',
 			'videoDetail.gestureGuide.quest.leftController' => '左手',
 			'videoDetail.gestureGuide.quest.rightController' => '右手',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.trigger' => '食指扳機',
 			'videoDetail.gestureGuide.quest.grip' => '側握鍵',
 			'videoDetail.gestureGuide.quest.bothGrips' => '雙手側握鍵',
@@ -7026,6 +7070,8 @@ extension on TranslationsZhTw {
 			'download.restoredPaused.dismiss' => '忽略',
 			'download.actions.open' => '開啟',
 			'download.actions.play' => '播放',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.openWith' => '用其他應用程式開啟',
 			'download.actions.redownload' => '重新下載',
 			'download.actions.relocate' => '移動檔案到…',
@@ -7048,8 +7094,6 @@ extension on TranslationsZhTw {
 			'download.actions.filePending' => '暫時找不到檔案，可能還能找回',
 			'download.actions.statusActive' => '進行中',
 			'download.actions.statusCompleted' => '已完成',
-			_ => null,
-		} ?? switch (path) {
 			'download.actions.needsAttention' => '需處理',
 			'download.actions.needsAttentionCount' => ({required Object count}) => '需處理 · ${count}',
 			'download.actions.organize' => '整理',
@@ -7540,6 +7584,8 @@ extension on TranslationsZhTw {
 			'translation.thinking' => '思考中…',
 			'translation.thoughtProcess' => '思考過程',
 			'translation.modelCompatibility' => '模型相容性',
+			_ => null,
+		} ?? switch (path) {
 			'translation.modelCompatibilityDescription' => '為推理模型(o1/o3、DeepSeek-R1、QwQ 等)等當代模型適配請求參數',
 			'translation.reasoningModel' => '推理模型',
 			'translation.reasoningModelDescription' => '適用於 o1/o3、DeepSeek-R1、QwQ 等：將提示詞併入使用者訊息、不下發 temperature、改用 max_completion_tokens',
@@ -7562,8 +7608,6 @@ extension on TranslationsZhTw {
 			'translation.presetApplied' => ({required Object name}) => '已套用預設：${name}',
 			'translation.presetNames.openai' => 'OpenAI (GPT-4o / GPT-4.1)',
 			'translation.presetNames.openaiReasoning' => 'OpenAI 推理 (o1 / o3 / o4)',
-			_ => null,
-		} ?? switch (path) {
 			'translation.presetNames.anthropic' => 'Anthropic Claude',
 			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude 推理 (extended thinking)',
 			'translation.presetNames.gemini' => 'Google Gemini (原生)',
@@ -8054,6 +8098,8 @@ extension on TranslationsZhTw {
 			'anime4k.presetDescriptions.mode_b_b_hq' => 'Mode B的強化版，提供更高的感知品質，進一步最佳化線條和減少瑕疵。',
 			'anime4k.presetDescriptions.mode_c_a_hq' => 'Mode C的感知品質增強版，在保持高PSNR的同時嘗試重建一些線條細節。',
 			'anime4k.presetDescriptions.mode_a_fast' => 'Mode A的快速版本，平衡了品質與性能，適用於大多數1080p動漫。',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_b_fast' => 'Mode B的快速版本，用於處理輕微瑕疵和振鈴，性能開銷較低。',
 			'anime4k.presetDescriptions.mode_c_fast' => 'Mode C的快速版本，適用於高品質片源的快速降噪和放大。',
 			'anime4k.presetDescriptions.mode_a_a_fast' => 'Mode A+A的快速版本，在性能有限的裝置上追求更高的感知品質。',
@@ -8076,8 +8122,6 @@ extension on TranslationsZhTw {
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
 			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
 			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
 			'anime4k.presetNames.upscale_only_s' => 'CNN放大 (超快)',
@@ -8568,6 +8612,8 @@ extension on TranslationsZhTw {
 			'localMedia.clearProgressTitle' => '清除本機觀看記錄？',
 			'localMedia.clearProgressBody' => '只刪觀看進度和「已看完」標記，磁碟上的檔案和已加入的資料夾一個不動。',
 			'localMedia.clearProgressDone' => ({required Object count}) => '已清除 ${count} 筆本機觀看記錄',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.clearAction' => '清除',
 			'localMedia.iosManualRescanNotice' => 'iOS 不會自動發現新檔案，新增或刪除檔案後需要手動重新掃描。',
 			'historyPage.removeFromHistory' => '從歷史中刪除',
@@ -8590,8 +8636,6 @@ extension on TranslationsZhTw {
 			'ai.modelPick' => '選擇模型',
 			'ai.modelEmpty' => '沒抓到模型列表，直接填模型名也可以',
 			'ai.advanced' => '進階',
-			_ => null,
-		} ?? switch (path) {
 			'ai.reasoning' => '推理模型',
 			'ai.streaming' => '串流輸出',
 			'ai.structuredOutput' => '結構化輸出',

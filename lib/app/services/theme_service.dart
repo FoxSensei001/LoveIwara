@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:i_iwara/app/models/glass_appearance_settings.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_appearance_scope.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -18,7 +20,8 @@ class ThemeService extends GetxService {
   final _customThemeColors = <String>[].obs;
 
   /// 玻璃质感：true = 真液态玻璃（模糊 + 折射），false = Material。
-  final _enableLiquidGlass = true.obs;
+  final _enableLiquidGlass = false.obs;
+  final _glassSettings = GlassAppearanceSettings.defaults.obs;
 
   // 预设的主题色
   static const List<Color> presetColors = [
@@ -46,6 +49,10 @@ class ThemeService extends GetxService {
     _customThemeColors.value = List<String>.from(
       configService[ConfigKey.CUSTOM_THEME_COLORS_KEY],
     );
+    _glassSettings.value = GlassAppearanceSettings.fromMap(
+      configService[ConfigKey.LIQUID_GLASS_SETTINGS_KEY],
+    );
+    glassAppearance.value = _glassSettings.value;
     _enableLiquidGlass.value =
         configService[ConfigKey.ENABLE_LIQUID_GLASS_KEY] == true;
   }
@@ -57,6 +64,24 @@ class ThemeService extends GetxService {
   List<String> get customThemeColors => _customThemeColors;
   AppThemeMode get themeMode => _themeMode.value;
   bool get enableLiquidGlass => _enableLiquidGlass.value;
+  GlassAppearanceSettings get glassSettings => _glassSettings.value;
+
+  void previewGlassSetting(String key, dynamic value) {
+    final next = glassSettings.withValue(key, value);
+    _glassSettings.value = next;
+    glassAppearance.value = next;
+  }
+
+  void saveGlassSettings() {
+    Get.find<ConfigService>()[ConfigKey.LIQUID_GLASS_SETTINGS_KEY] =
+        glassSettings.toMap();
+  }
+
+  void resetGlassSettings() {
+    _glassSettings.value = GlassAppearanceSettings.defaults;
+    glassAppearance.value = glassSettings;
+    saveGlassSettings();
+  }
 
   /// 切换玻璃质感（主题设置里那一项）。立刻生效，不用重启。
   ///

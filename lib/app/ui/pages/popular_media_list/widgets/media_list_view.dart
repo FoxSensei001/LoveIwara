@@ -3,6 +3,7 @@ import 'dart:async' show Completer;
 import 'package:dio/dio.dart' show CancelToken;
 import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/loading_content_transition.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/utils/rx_ever.dart';
 import 'package:i_iwara/app/services/config_service.dart';
@@ -872,9 +873,25 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
           return const SizedBox.shrink();
         }
         if (widget.isPaginated) {
-          return _buildPaginatedView(context, constraints.maxWidth);
+          return LoadingContentTransition(
+            isLoading: _indicatorStatus == IndicatorStatus.fullScreenBusying,
+            retainLoading:
+                false, // Both branches share widget.scrollController.
+            child: _buildPaginatedView(context, constraints.maxWidth),
+          );
         } else {
-          return _buildInfiniteScrollView(context, constraints.maxWidth);
+          return StreamBuilder<Iterable<T>>(
+            stream: widget.sourceList.rebuild,
+            builder: (context, snapshot) => LoadingContentTransition(
+              key: ObjectKey(widget.sourceList),
+              isLoading:
+                  widget.sourceList.isEmpty &&
+                  widget.sourceList.indicatorStatus ==
+                      IndicatorStatus.fullScreenBusying,
+              retainLoading: false, // Keep a single live scroll view.
+              child: _buildInfiniteScrollView(context, constraints.maxWidth),
+            ),
+          );
         }
       },
     );
