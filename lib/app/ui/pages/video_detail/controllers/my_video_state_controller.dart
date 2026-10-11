@@ -65,7 +65,6 @@ import '../../../../../utils/device_form_factor_utils.dart';
 import '../../../../../utils/easy_throttle.dart';
 import '../../../../../utils/glsl_shader_service.dart';
 import '../../../../../utils/mpv_shader_failure_detector.dart';
-import '../../../../../utils/x_version_calculator_utils.dart';
 import '../../../../models/user.model.dart';
 import 'package:i_iwara/app/models/watch_later_item.model.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
@@ -79,6 +78,7 @@ import '../../../../services/favorite_service.dart';
 import '../../../../services/play_list_service.dart';
 import '../../../../services/user_service.dart';
 import '../../../../services/download_service.dart';
+import '../../../../services/x_version_salt_service.dart';
 import '../../../../models/download/download_task.model.dart';
 import '../../../../models/download/download_task_ext_data.model.dart';
 import '../widgets/player/custom_slider_bar_shape_widget.dart';
@@ -3895,14 +3895,14 @@ class MyVideoStateController extends GetxController
         LogUtils.i('强制刷新视频源，忽略缓存: $logVideoUrl', 'MyVideoStateController');
       }
 
-      final res = await _apiService.get(
-        videoInfo.value!.fileUrl!,
-        headers: {
-          'X-Version': XVersionCalculatorUtil.calculateXVersion(
-            videoInfo.value!.fileUrl!,
-          ),
-        },
-        cancelToken: _cancelToken,
+      final fileUrl = videoInfo.value!.fileUrl!;
+      final res = await XVersionSaltService.instance.requestVideoSources(
+        fileUrl,
+        (headers) => _apiService.get(
+          fileUrl,
+          headers: headers,
+          cancelToken: _cancelToken,
+        ),
       );
 
       if (_isDisposed) return;
@@ -4622,14 +4622,14 @@ class MyVideoStateController extends GetxController
 
     try {
       // 强制刷新视频源
-      var res = await _apiService.get(
-        videoInfo.value!.fileUrl!,
-        headers: {
-          'X-Version': XVersionCalculatorUtil.calculateXVersion(
-            videoInfo.value!.fileUrl!,
-          ),
-        },
-        cancelToken: _cancelToken,
+      final fileUrl = videoInfo.value!.fileUrl!;
+      var res = await XVersionSaltService.instance.requestVideoSources(
+        fileUrl,
+        (headers) => _apiService.get(
+          fileUrl,
+          headers: headers,
+          cancelToken: _cancelToken,
+        ),
       );
 
       if (_isDisposed || _isRouteCovered) return;

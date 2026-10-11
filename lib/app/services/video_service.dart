@@ -8,11 +8,11 @@ import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/video_source.model.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:i_iwara/utils/x_version_calculator_utils.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 
 import '../../common/constants.dart';
 import 'api_service.dart';
+import 'x_version_salt_service.dart';
 
 class VideoService extends GetxService {
   final ApiService _apiService = Get.find<ApiService>();
@@ -285,14 +285,15 @@ class VideoService extends GetxService {
       return ApiResult.fail('fileUrl is empty');
     }
     try {
-      final response = await _apiService.get(
+      final response = await XVersionSaltService.instance.requestVideoSources(
         fileUrl,
-        headers: {
-          'X-Version': XVersionCalculatorUtil.calculateXVersion(fileUrl),
-        },
-        // 视频源清单：公开资源，避免登录刷新窗口阻塞播放(#6)。
-        requestAccess: ApiRequestAccess.optionalAuthShortWait,
-        site: site,
+        (headers) => _apiService.get(
+          fileUrl,
+          headers: headers,
+          // 视频源清单：公开资源，避免登录刷新窗口阻塞播放(#6)。
+          requestAccess: ApiRequestAccess.optionalAuthShortWait,
+          site: site,
+        ),
       );
       return ApiResult.success(
         data: (response.data as List)

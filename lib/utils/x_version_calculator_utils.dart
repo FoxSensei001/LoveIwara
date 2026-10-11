@@ -5,8 +5,11 @@ import 'package:crypto/crypto.dart';
 /// 用于获取发起请求时的X-Version头
 /// 详情请看：https://github.com/yt-dlp/yt-dlp/issues/6549
 class XVersionCalculatorUtil {
-  // salt
-  static const String _staticString = 'mSvL05GfEmeEmsEYfGCnVpEjYgTJraJN';
+  /// 内置盐值，官网前端换盐之前一直有效
+  static const String defaultSalt = 'mSvL05GfEmeEmsEYfGCnVpEjYgTJraJN';
+
+  /// 当前使用的盐值。官网换盐后由 XVersionSaltService 从官网前端提取并替换。
+  static String salt = defaultSalt;
 
   /// 算给定URL的X-Version头
   ///
@@ -29,8 +32,8 @@ class XVersionCalculatorUtil {
     }
     final uuid = pathSegments.last;
 
-    // 拼接字符串：<uuid>_<expires>_5nFp9kmbNnHdAFhaqMvt
-    final concatenatedString = '${uuid}_${expires}_$_staticString';
+    // 拼接字符串：<uuid>_<expires>_<salt>
+    final concatenatedString = '${uuid}_${expires}_$salt';
 
     // 将拼接的字符串转换为UTF-8编码的字节
     final bytes = utf8.encode(concatenatedString);
