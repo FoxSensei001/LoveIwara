@@ -144,6 +144,48 @@ void main() {
       expect(sentHeaders[1]['X-Version'], isNot(sentHeaders[0]['X-Version']));
       expect((res.data as List).first['name'], 'Source');
     });
+
+    test('重发失败时沿用第一次拿到的低清晰度', () async {
+      var calls = 0;
+      final res = await XVersionSaltService.instance.requestVideoSources(url, (
+        headers,
+      ) async {
+        calls++;
+        if (calls == 1) {
+          XVersionCalculatorUtil.salt = 'AnotherSaltValue0123';
+          return _response([
+            {'name': '360'},
+            {'name': 'preview'},
+          ]);
+        }
+        throw DioException.connectionTimeout(
+          timeout: const Duration(seconds: 1),
+          requestOptions: RequestOptions(path: '/file'),
+        );
+      });
+      expect(calls, 2);
+      expect((res.data as List).first['name'], '360');
+    });
+
+    test('重发被取消时照常抛给调用方', () async {
+      var calls = 0;
+      final future = XVersionSaltService.instance.requestVideoSources(url, (
+        headers,
+      ) async {
+        calls++;
+        if (calls == 1) {
+          XVersionCalculatorUtil.salt = 'AnotherSaltValue0123';
+          return _response([
+            {'name': '360'},
+          ]);
+        }
+        throw DioException.requestCancelled(
+          requestOptions: RequestOptions(path: '/file'),
+          reason: 'page closed',
+        );
+      });
+      await expectLater(future, throwsA(isA<DioException>()));
+    });
   });
 }
 

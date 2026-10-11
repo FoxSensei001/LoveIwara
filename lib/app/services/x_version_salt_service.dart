@@ -1,8 +1,7 @@
-import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart' as d_dio;
+import 'package:dio/io.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -10,6 +9,7 @@ import 'package:i_iwara/utils/x_version_calculator_utils.dart';
 
 import 'config_service.dart';
 import 'http_client_factory.dart';
+import 'iwara_network_service.dart';
 
 /// 视频源签名（X-Version）盐值的自动更新。
 ///
@@ -32,7 +32,8 @@ class XVersionSaltService {
   /// 两次检查官网之间的最短间隔，避免连着打开几个缺 Source 的视频时反复请求
   static const Duration _minCheckInterval = Duration(minutes: 10);
 
-  static const Duration _requestTimeout = Duration(seconds: 30);
+  /// 盐值失效时打开视频要等这一步，所以比 API 请求短一些
+  static const Duration _requestTimeout = Duration(seconds: 15);
 
   static final RegExp _mainScriptPattern = RegExp(
     r'''src=["'](/main\.[0-9a-f]+\.js)["']''',
@@ -46,6 +47,7 @@ class XVersionSaltService {
   bool _loaded = false;
   DateTime? _lastCheckAt;
   Future<bool>? _refreshing;
+  d_dio.Dio? _dio;
 
   /// 带 X-Version 请求视频源清单。
   ///
@@ -65,7 +67,14 @@ class XVersionSaltService {
       return response;
     }
     LogUtils.i('签名盐值已更新，重新请求视频源', _tag);
-    return send(_headersFor(fileUrl));
+    try {
+      return await send(_headersFor(fileUrl));
+    } on Exception catch (e) {
+      // 取消照常交给调用方；其余失败至少保留第一次拿到的低清晰度
+      if (e is d_dio.DioException && d_dio.CancelToken.isCancel(e)) rethrow;
+      LogUtils.w('重签后请求视频源失败，沿用第一次的结果: $e', _tag);
+      return response;
+    }
   }
 
   /// 从官网前端提取盐值，盐值有变化时返回 true。并发调用共用同一次请求。
@@ -136,23 +145,39 @@ class XVersionSaltService {
   ConfigService? get _config =>
       Get.isRegistered<ConfigService>() ? Get.find<ConfigService>() : null;
 
-  Future<String> _getString(Uri uri) async {
-    final client = HttpClientFactory.instance.createHttpClient();
-    final request = await client.getUrl(uri).timeout(_requestTimeout);
-    try {
-      final response = await request.close().timeout(_requestTimeout);
-      if (response.statusCode < 200 || response.statusCode >= 300) {
-        await response.drain<void>().catchError((_) {});
-        throw HttpException('Request failed: ${response.statusCode}', uri: uri);
-      }
-      return await response
-          .transform(utf8.decoder)
-          .join()
-          .timeout(_requestTimeout);
-    } on TimeoutException {
-      request.abort();
-      rethrow;
+  /// 与 ApiService 同一套网络栈：共享 HttpClient（代理）、CookieJar、过盾。
+  d_dio.Dio get _siteDio => _dio ??= _createSiteDio();
+
+  d_dio.Dio _createSiteDio() {
+    final dio = d_dio.Dio(
+      d_dio.BaseOptions(
+        connectTimeout: _requestTimeout,
+        receiveTimeout: _requestTimeout,
+        responseType: d_dio.ResponseType.plain,
+      ),
+    );
+    dio.httpClientAdapter = IOHttpClientAdapter(
+      createHttpClient: HttpClientFactory.instance.createHttpClient,
+    );
+    if (Get.isRegistered<IwaraNetworkService>()) {
+      // 这是打开视频时顺带做的事：只走无头过盾，过不去就算了，绝不弹验证页。
+      // 页面和脚本都要原文，不能按 API 那样从 HTML 里抠 JSON。
+      Get.find<IwaraNetworkService>().registerDio(
+        dio,
+        decodeJsonAfterChallenge: false,
+        interactiveChallenge: false,
+      );
     }
+    return dio;
+  }
+
+  Future<String> _getString(Uri uri) async {
+    final response = await _siteDio.getUri<String>(uri);
+    final status = response.statusCode ?? 0;
+    if (status < 200 || status >= 300) {
+      throw HttpException('Request failed: $status', uri: uri);
+    }
+    return response.data ?? '';
   }
 
   /// 签过名的清单一定带 Source（原档）；盐值不对时服务器只给 360 / preview。
