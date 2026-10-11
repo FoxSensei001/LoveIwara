@@ -146,6 +146,11 @@ class XVersionSaltService {
       Get.isRegistered<ConfigService>() ? Get.find<ConfigService>() : null;
 
   /// 与 ApiService 同一套网络栈：共享 HttpClient（代理）、CookieJar、过盾。
+  ///
+  /// ⛔ 故意不设浏览器 UA，跟 ApiService 一样用 Dart 默认 UA。实测（2026-10）
+  /// 从 dart:io 请求官网首页：默认 UA 直接 200；报 WebView / Chrome 的 UA 反而
+  /// 403 + `cf-mitigated: challenge`（浏览器 UA 配非浏览器 TLS 指纹被判可疑），
+  /// 打开视频要多等两轮无头过盾。main.js 是静态资源，哪种 UA 都不挑战。
   d_dio.Dio get _siteDio => _dio ??= _createSiteDio();
 
   d_dio.Dio _createSiteDio() {
