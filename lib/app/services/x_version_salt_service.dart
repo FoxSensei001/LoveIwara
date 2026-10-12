@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart' as d_dio;
 import 'package:dio/io.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -23,16 +24,31 @@ import 'iwara_network_service.dart';
 /// 所以这里把「签过名的清单里没有 Source」当成盐值失效的信号：拉官网首页
 /// 找到 main.js，从中提取盐值，变了就保存并重签重发一次。
 class XVersionSaltService {
-  XVersionSaltService._();
+  XVersionSaltService._({
+    XVersionSaltStore? store,
+    Future<String> Function(Uri uri)? fetch,
+    DateTime Function()? now,
+  }) : _store = store ?? const _ConfigSaltStore(),
+       _fetchOverride = fetch,
+       _now = now ?? DateTime.now;
 
   static final XVersionSaltService instance = XVersionSaltService._();
+
+  /// 测试用：换掉持久化、网络和时钟，好覆盖真正的官网刷新流程。
+  @visibleForTesting
+  factory XVersionSaltService.forTest({
+    required XVersionSaltStore store,
+    required Future<String> Function(Uri uri) fetch,
+    DateTime Function()? now,
+  }) => XVersionSaltService._(store: store, fetch: fetch, now: now);
 
   static const String _tag = 'XVersionSaltService';
 
   /// 两次检查官网之间的最短间隔，避免连着打开几个缺 Source 的视频时反复请求
   static const Duration _minCheckInterval = Duration(minutes: 10);
 
-  /// 盐值失效时打开视频要等这一步，所以比 API 请求短一些
+  /// 单次连接 / 接收的超时。首页、main.js（以及可能的无头过盾）是串行的，
+  /// 整次恢复没有总截止时间，所以比 API 请求短一些。
   static const Duration _requestTimeout = Duration(seconds: 15);
 
   static final RegExp _mainScriptPattern = RegExp(
@@ -44,7 +60,14 @@ class XVersionSaltService {
     r'"_"\+[\w$.]+expires\+"_([A-Za-z0-9]{16,})"',
   );
 
+  final XVersionSaltStore _store;
+  final Future<String> Function(Uri uri)? _fetchOverride;
+  final DateTime Function() _now;
+
   bool _loaded = false;
+
+  /// 当前盐值是从哪个 main.js 提取的；null 表示还没提取过（在用内置值）。
+  String? _savedScript;
   DateTime? _lastCheckAt;
   Future<bool>? _refreshing;
   d_dio.Dio? _dio;
@@ -53,10 +76,18 @@ class XVersionSaltService {
   ///
   /// [send] 用给定的请求头发出请求。结果像是签名失效时，从官网更新盐值后
   /// 重发一次；盐值没变或更新失败就原样返回第一次的结果，行为与以前一致。
+  ///
+  /// 重签后的请求失败时：
+  /// - [keepFirstOnRetryFailure] 为 true（播放器）：取消以外的失败沿用第一次
+  ///   拿到的低清晰度，视频至少能看；
+  /// - 默认把异常原样交给调用方。下载刷新链接要靠它区分「网断了」和
+  ///   「这档清晰度没了」，吞掉异常会让 Source 任务被误判成永久失败。
   Future<d_dio.Response<dynamic>> requestVideoSources(
     String fileUrl,
-    Future<d_dio.Response<dynamic>> Function(Map<String, dynamic> headers) send,
-  ) async {
+    Future<d_dio.Response<dynamic>> Function(Map<String, dynamic> headers)
+    send, {
+    bool keepFirstOnRetryFailure = false,
+  }) async {
     _ensureLoaded();
     final usedSalt = XVersionCalculatorUtil.salt;
     final response = await send(_headersFor(fileUrl));
@@ -67,10 +98,10 @@ class XVersionSaltService {
       return response;
     }
     LogUtils.i('签名盐值已更新，重新请求视频源', _tag);
+    if (!keepFirstOnRetryFailure) return send(_headersFor(fileUrl));
     try {
       return await send(_headersFor(fileUrl));
     } on Exception catch (e) {
-      // 取消照常交给调用方；其余失败至少保留第一次拿到的低清晰度
       if (e is d_dio.DioException && d_dio.CancelToken.isCancel(e)) rethrow;
       LogUtils.w('重签后请求视频源失败，沿用第一次的结果: $e', _tag);
       return response;
@@ -89,17 +120,22 @@ class XVersionSaltService {
   void _ensureLoaded() {
     if (_loaded) return;
     _loaded = true;
-    final config = _config;
-    if (config == null) return;
-    final saved = config[ConfigKey.X_VERSION_SALT];
-    if (saved is String && isValidSalt(saved)) {
-      XVersionCalculatorUtil.salt = saved;
+    final record = _store.read();
+    if (record == null) return;
+    // ⛔ 新版换了内置盐值，说明维护者已经跟进过官网：旧记录（连同它的
+    // main.js 路径）作废，从新内置值开始。否则旧缓存会盖掉修复，官网一时
+    // 不可达时装了新版也只能看 360。
+    if (record.builtinSalt != XVersionCalculatorUtil.defaultSalt) {
+      LogUtils.i('内置签名盐值已变，忽略之前自动提取的盐值', _tag);
+      return;
     }
+    XVersionCalculatorUtil.salt = record.salt;
+    _savedScript = record.script;
   }
 
   Future<bool> _refresh() async {
     _ensureLoaded();
-    final now = DateTime.now();
+    final now = _now();
     final last = _lastCheckAt;
     if (last != null && now.difference(last) < _minCheckInterval) {
       return false;
@@ -108,19 +144,16 @@ class XVersionSaltService {
 
     try {
       final site = Uri.parse(CommonConstants.iwaraBaseUrl);
-      final script = extractMainScriptPath(await _getString(site));
+      final script = extractMainScriptPath(await _fetch(site));
       if (script == null) {
         LogUtils.w('官网首页里没找到 main.js，跳过盐值更新', _tag);
         return false;
       }
 
-      final config = _config;
       // 前端没换版本，盐值就不会变，省掉一次上 MB 的下载
-      if (config != null && config[ConfigKey.X_VERSION_SALT_SCRIPT] == script) {
-        return false;
-      }
+      if (script == _savedScript) return false;
 
-      final salt = extractSalt(await _getString(site.resolve(script)));
+      final salt = extractSalt(await _fetch(site.resolve(script)));
       if (salt == null) {
         LogUtils.w('main.js 里没找到签名盐值: $script', _tag);
         return false;
@@ -128,10 +161,14 @@ class XVersionSaltService {
 
       final changed = salt != XVersionCalculatorUtil.salt;
       XVersionCalculatorUtil.salt = salt;
-      if (config != null) {
-        await config.setSetting(ConfigKey.X_VERSION_SALT, salt);
-        await config.setSetting(ConfigKey.X_VERSION_SALT_SCRIPT, script);
-      }
+      _savedScript = script;
+      await _store.write(
+        XVersionSaltRecord(
+          salt: salt,
+          script: script,
+          builtinSalt: XVersionCalculatorUtil.defaultSalt,
+        ),
+      );
       if (changed) {
         LogUtils.i('签名盐值已从官网更新（$script）', _tag);
       }
@@ -142,8 +179,7 @@ class XVersionSaltService {
     }
   }
 
-  ConfigService? get _config =>
-      Get.isRegistered<ConfigService>() ? Get.find<ConfigService>() : null;
+  Future<String> _fetch(Uri uri) => (_fetchOverride ?? _getString)(uri);
 
   /// 与 ApiService 同一套网络栈：共享 HttpClient（代理）、CookieJar、过盾。
   ///
@@ -202,4 +238,64 @@ class XVersionSaltService {
   /// 从 main.js 里提取签名盐值
   static String? extractSalt(String js) =>
       _saltPattern.firstMatch(js)?.group(1);
+}
+
+/// 一次自动提取的结果。
+@immutable
+class XVersionSaltRecord {
+  const XVersionSaltRecord({
+    required this.salt,
+    required this.script,
+    required this.builtinSalt,
+  });
+
+  final String salt;
+
+  /// 提取时官网用的 main.js 路径，没变就不必重新下载
+  final String script;
+
+  /// 保存时 App 的内置盐值。新版换了内置值，这条记录就作废。
+  final String builtinSalt;
+
+  Map<String, dynamic> toJson() => {
+    'salt': salt,
+    'script': script,
+    'builtin': builtinSalt,
+  };
+
+  /// 解析不了或字段不合法时返回 null（当作没有记录）。
+  static XVersionSaltRecord? fromJson(Object? json) {
+    if (json is! Map) return null;
+    final salt = json['salt'];
+    final script = json['script'];
+    final builtin = json['builtin'];
+    if (salt is! String || !XVersionSaltService.isValidSalt(salt)) return null;
+    if (script is! String || script.isEmpty) return null;
+    if (builtin is! String || builtin.isEmpty) return null;
+    return XVersionSaltRecord(salt: salt, script: script, builtinSalt: builtin);
+  }
+}
+
+/// 盐值记录的读写。
+abstract class XVersionSaltStore {
+  XVersionSaltRecord? read();
+  Future<void> write(XVersionSaltRecord record);
+}
+
+/// 存在 ConfigService 里（随配置一起备份 / 恢复；恢复出旧记录也无妨，
+/// 内置值对不上会作废，对得上而盐值过期会在下次缺 Source 时刷新）。
+class _ConfigSaltStore implements XVersionSaltStore {
+  const _ConfigSaltStore();
+
+  ConfigService? get _config =>
+      Get.isRegistered<ConfigService>() ? Get.find<ConfigService>() : null;
+
+  @override
+  XVersionSaltRecord? read() =>
+      XVersionSaltRecord.fromJson(_config?[ConfigKey.X_VERSION_SALT_CACHE]);
+
+  @override
+  Future<void> write(XVersionSaltRecord record) async {
+    await _config?.setSetting(ConfigKey.X_VERSION_SALT_CACHE, record.toJson());
+  }
 }

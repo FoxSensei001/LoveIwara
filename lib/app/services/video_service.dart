@@ -285,6 +285,8 @@ class VideoService extends GetxService {
       return ApiResult.fail('fileUrl is empty');
     }
     try {
+      // 不开 keepFirstOnRetryFailure：重签失败要作为异常带回去，否则下载刷新
+      // 会把「网断了」当成「这档清晰度没了」。
       final response = await XVersionSaltService.instance.requestVideoSources(
         fileUrl,
         (headers) => _apiService.get(

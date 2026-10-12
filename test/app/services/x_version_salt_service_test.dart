@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i_iwara/app/services/x_version_salt_service.dart';
@@ -8,12 +11,15 @@ import 'package:i_iwara/utils/x_version_calculator_utils.dart';
 /// 盐值不对时文件服务器不报错，只返回 360 / preview 两档，所以「清单里
 /// 有没有 Source」是唯一能抓到的信号；提取盐值则依赖官网前端的写法。
 /// 下面的 HTML / JS 片段取自 2026-10 的 www.iwara.tv。
+///
+/// 官网刷新相关的用例走真正的 `_refresh()`：持久化、网络、时钟都换成假的，
+/// 文件服务器只在 X-Version 用对了盐值时才给 Source。
 void main() {
   tearDown(
     () => XVersionCalculatorUtil.salt = XVersionCalculatorUtil.defaultSalt,
   );
 
-  group('提取盐值', () {
+  group('提取规则', () {
     test('从首页 HTML 里找到 main.js', () {
       const html =
           '<link rel="icon" href="/logo.png"><script defer="defer" '
@@ -48,6 +54,29 @@ void main() {
       expect(XVersionSaltService.isValidSalt(''), isFalse);
       expect(XVersionSaltService.isValidSalt('short'), isFalse);
       expect(XVersionSaltService.isValidSalt('has space in it 12345'), isFalse);
+    });
+
+    test('盐值记录：往返一致，字段不合法时当作没有记录', () {
+      const record = XVersionSaltRecord(
+        salt: _newSalt,
+        script: _script,
+        builtinSalt: XVersionCalculatorUtil.defaultSalt,
+      );
+      final parsed = XVersionSaltRecord.fromJson(record.toJson())!;
+      expect(parsed.salt, _newSalt);
+      expect(parsed.script, _script);
+      expect(parsed.builtinSalt, XVersionCalculatorUtil.defaultSalt);
+
+      expect(XVersionSaltRecord.fromJson(<String, dynamic>{}), isNull);
+      expect(XVersionSaltRecord.fromJson('x'), isNull);
+      expect(
+        XVersionSaltRecord.fromJson({
+          'salt': 'bad salt',
+          'script': _script,
+          'builtin': XVersionCalculatorUtil.defaultSalt,
+        }),
+        isNull,
+      );
     });
   });
 
@@ -86,111 +115,351 @@ void main() {
       expect(XVersionSaltService.looksUnsigned(null), isFalse);
       expect(XVersionSaltService.looksUnsigned({'message': 'x'}), isFalse);
     });
-  });
 
-  group('X-Version', () {
-    const url =
-        'https://filesq.iwara.tv/file/41e79d9c-2e9b-4a8e-8050-6e7397030753'
-        '?expires=1791709923380&hash=abc';
-
-    test('按当前盐值计算', () {
+    test('X-Version 按当前盐值计算', () {
       // sha1("41e79d9c-2e9b-4a8e-8050-6e7397030753_1791709923380_mSvL05GfEmeEmsEYfGCnVpEjYgTJraJN")
       expect(
-        XVersionCalculatorUtil.calculateXVersion(url),
+        XVersionCalculatorUtil.calculateXVersion(_url),
         'e77183e3a5aff892c701c0a7a9738bf3649d7a69',
       );
-      XVersionCalculatorUtil.salt = 'AnotherSaltValue0123';
+      XVersionCalculatorUtil.salt = _newSalt;
       expect(
-        XVersionCalculatorUtil.calculateXVersion(url),
+        XVersionCalculatorUtil.calculateXVersion(_url),
         isNot('e77183e3a5aff892c701c0a7a9738bf3649d7a69'),
       );
     });
+  });
 
-    test('签过名的清单直接返回，不重发', () async {
-      final sentHeaders = <Map<String, dynamic>>[];
-      final res = await XVersionSaltService.instance.requestVideoSources(url, (
-        headers,
-      ) async {
-        sentHeaders.add(headers);
-        return _response([
-          {'name': 'Source'},
-          {'name': '360'},
-        ]);
-      });
-      expect(sentHeaders, hasLength(1));
-      expect((res.data as List).first['name'], 'Source');
+  group('官网刷新', () {
+    test('缺 Source 时从官网取新盐值、保存并重发', () async {
+      final store = _MemoryStore();
+      final site = _FakeSite(salt: _newSalt);
+      final server = _FakeFileServer(validSalt: _newSalt);
+
+      final res = await _service(
+        store,
+        site,
+      ).requestVideoSources(_url, server.send);
+
+      expect(_names(res), contains('Source'));
+      expect(server.sent, [
+        _xv(XVersionCalculatorUtil.defaultSalt),
+        _xv(_newSalt),
+      ]);
+      expect(site.homeHits, 1);
+      expect(site.scriptHits, 1);
+      expect(XVersionCalculatorUtil.salt, _newSalt);
+      expect(store.record!.salt, _newSalt);
+      expect(store.record!.script, _script);
+      expect(store.record!.builtinSalt, XVersionCalculatorUtil.defaultSalt);
     });
 
-    test('盐值已被并发请求更新时，用新盐值重发一次', () async {
-      final sentHeaders = <Map<String, dynamic>>[];
-      final res = await XVersionSaltService.instance.requestVideoSources(url, (
-        headers,
-      ) async {
-        sentHeaders.add(headers);
-        if (sentHeaders.length == 1) {
-          // 模拟另一个请求在此期间从官网拿到了新盐值
-          XVersionCalculatorUtil.salt = 'AnotherSaltValue0123';
-          return _response([
-            {'name': '360'},
-            {'name': 'preview'},
-          ]);
-        }
-        return _response([
-          {'name': 'Source'},
-          {'name': '360'},
-        ]);
-      });
-      expect(sentHeaders, hasLength(2));
-      expect(sentHeaders[1]['X-Version'], isNot(sentHeaders[0]['X-Version']));
-      expect((res.data as List).first['name'], 'Source');
+    test('保存过的盐值重启后直接用，不再请求官网', () async {
+      final store = _MemoryStore(
+        const XVersionSaltRecord(
+          salt: _newSalt,
+          script: _script,
+          builtinSalt: XVersionCalculatorUtil.defaultSalt,
+        ),
+      );
+      final site = _FakeSite(salt: _newSalt);
+      final server = _FakeFileServer(validSalt: _newSalt);
+
+      final res = await _service(
+        store,
+        site,
+      ).requestVideoSources(_url, server.send);
+
+      expect(_names(res), contains('Source'));
+      expect(server.sent, [_xv(_newSalt)]);
+      expect(site.requests, isEmpty);
     });
 
-    test('重发失败时沿用第一次拿到的低清晰度', () async {
-      var calls = 0;
-      final res = await XVersionSaltService.instance.requestVideoSources(url, (
-        headers,
-      ) async {
-        calls++;
-        if (calls == 1) {
-          XVersionCalculatorUtil.salt = 'AnotherSaltValue0123';
-          return _response([
-            {'name': '360'},
-            {'name': 'preview'},
-          ]);
-        }
-        throw DioException.connectionTimeout(
-          timeout: const Duration(seconds: 1),
-          requestOptions: RequestOptions(path: '/file'),
-        );
-      });
-      expect(calls, 2);
-      expect((res.data as List).first['name'], '360');
+    test('⛔ 新版内置盐值变了时，旧缓存不能盖掉它（官网不可达也要能看）', () async {
+      // 之前自动保存了 S1，后来官网换成 S2，用户装上内置 S2 的新版
+      final store = _MemoryStore(
+        const XVersionSaltRecord(
+          salt: _oldSalt,
+          script: _script,
+          builtinSalt: 'PreviousBuiltinSalt0123',
+        ),
+      );
+      final site = _FakeSite()..error = const SocketException('官网不可达');
+      final server = _FakeFileServer(
+        validSalt: XVersionCalculatorUtil.defaultSalt,
+      );
+
+      final res = await _service(
+        store,
+        site,
+      ).requestVideoSources(_url, server.send);
+
+      expect(_names(res), contains('Source'));
+      expect(XVersionCalculatorUtil.salt, XVersionCalculatorUtil.defaultSalt);
+      expect(server.sent, [_xv(XVersionCalculatorUtil.defaultSalt)]);
+      expect(site.requests, isEmpty);
     });
 
-    test('重发被取消时照常抛给调用方', () async {
-      var calls = 0;
-      final future = XVersionSaltService.instance.requestVideoSources(url, (
-        headers,
-      ) async {
-        calls++;
-        if (calls == 1) {
-          XVersionCalculatorUtil.salt = 'AnotherSaltValue0123';
-          return _response([
-            {'name': '360'},
-          ]);
-        }
-        throw DioException.requestCancelled(
+    test('旧记录作废时，它记的 main.js 路径也不能拦住刷新', () async {
+      final store = _MemoryStore(
+        const XVersionSaltRecord(
+          salt: _oldSalt,
+          script: _script,
+          builtinSalt: 'PreviousBuiltinSalt0123',
+        ),
+      );
+      final site = _FakeSite(script: _script, salt: _newSalt);
+      final server = _FakeFileServer(validSalt: _newSalt);
+
+      final res = await _service(
+        store,
+        site,
+      ).requestVideoSources(_url, server.send);
+
+      expect(_names(res), contains('Source'));
+      expect(site.scriptHits, 1);
+      expect(store.record!.builtinSalt, XVersionCalculatorUtil.defaultSalt);
+    });
+
+    test('main.js 没变时不重复下载，原样返回第一次结果', () async {
+      // 盐值是对的，只是这个视频本来就没有 Source
+      final store = _MemoryStore(
+        const XVersionSaltRecord(
+          salt: _newSalt,
+          script: _script,
+          builtinSalt: XVersionCalculatorUtil.defaultSalt,
+        ),
+      );
+      final site = _FakeSite(script: _script, salt: _newSalt);
+      final server = _FakeFileServer(validSalt: null);
+
+      final res = await _service(
+        store,
+        site,
+      ).requestVideoSources(_url, server.send);
+
+      expect(_names(res), ['360', 'preview']);
+      expect(site.homeHits, 1);
+      expect(site.scriptHits, 0);
+      expect(server.sent, hasLength(1));
+      expect(store.writes, 0);
+    });
+
+    test('10 分钟内只检查一次官网，过后再查', () async {
+      var now = DateTime(2026, 10, 12, 12);
+      final store = _MemoryStore();
+      final site = _FakeSite(salt: XVersionCalculatorUtil.defaultSalt);
+      final server = _FakeFileServer(validSalt: null);
+      final service = _service(store, site, now: () => now);
+
+      await service.requestVideoSources(_url, server.send);
+      expect(site.homeHits, 1);
+      expect(site.scriptHits, 1);
+
+      now = now.add(const Duration(minutes: 9));
+      await service.requestVideoSources(_url, server.send);
+      expect(site.homeHits, 1);
+
+      now = now.add(const Duration(minutes: 2));
+      await service.requestVideoSources(_url, server.send);
+      expect(site.homeHits, 2);
+      // 前端没换版本，第二次不必再下 main.js
+      expect(site.scriptHits, 1);
+    });
+
+    test('并发请求共用同一次官网检查', () async {
+      final store = _MemoryStore();
+      final site = _FakeSite(salt: _newSalt)..gate = Completer<void>();
+      final server = _FakeFileServer(validSalt: _newSalt);
+      final service = _service(store, site);
+
+      final pending = List.generate(
+        10,
+        (_) => service.requestVideoSources(_url, server.send),
+      );
+      await pumpEventQueue();
+      site.gate!.complete();
+      final results = await Future.wait(pending);
+
+      expect(results.map(_names), everyElement(contains('Source')));
+      expect(site.homeHits, 1);
+      expect(site.scriptHits, 1);
+      expect(store.writes, 1);
+      expect(server.sent, hasLength(20));
+    });
+
+    test('官网不可达时原样返回第一次结果，不抛异常', () async {
+      final site = _FakeSite()..error = const SocketException('官网不可达');
+      final server = _FakeFileServer(validSalt: _newSalt);
+
+      final res = await _service(
+        _MemoryStore(),
+        site,
+      ).requestVideoSources(_url, server.send);
+
+      expect(_names(res), ['360', 'preview']);
+      expect(server.sent, hasLength(1));
+      expect(XVersionCalculatorUtil.salt, XVersionCalculatorUtil.defaultSalt);
+    });
+  });
+
+  group('重签后的请求失败', () {
+    DioException timeout() => DioException.connectionTimeout(
+      timeout: const Duration(seconds: 15),
+      requestOptions: RequestOptions(path: '/file'),
+    );
+
+    test('⛔ 默认（下载刷新链接）：把异常交给调用方，不能当成 Source 没了', () async {
+      final server = _FakeFileServer(validSalt: _newSalt)
+        ..retryError = timeout();
+
+      final future = _service(
+        _MemoryStore(),
+        _FakeSite(salt: _newSalt),
+      ).requestVideoSources(_url, server.send);
+
+      await expectLater(
+        future,
+        throwsA(
+          isA<DioException>().having(
+            (e) => e.type,
+            'type',
+            DioExceptionType.connectionTimeout,
+          ),
+        ),
+      );
+    });
+
+    test('播放器：沿用第一次拿到的低清晰度', () async {
+      final server = _FakeFileServer(validSalt: _newSalt)
+        ..retryError = timeout();
+
+      final res = await _service(
+        _MemoryStore(),
+        _FakeSite(salt: _newSalt),
+      ).requestVideoSources(_url, server.send, keepFirstOnRetryFailure: true);
+
+      expect(_names(res), ['360', 'preview']);
+      expect(server.sent, hasLength(2));
+    });
+
+    test('播放器：重发被取消时照常抛出', () async {
+      final server = _FakeFileServer(validSalt: _newSalt)
+        ..retryError = DioException.requestCancelled(
           requestOptions: RequestOptions(path: '/file'),
           reason: 'page closed',
         );
-      });
+
+      final future = _service(
+        _MemoryStore(),
+        _FakeSite(salt: _newSalt),
+      ).requestVideoSources(_url, server.send, keepFirstOnRetryFailure: true);
+
       await expectLater(future, throwsA(isA<DioException>()));
     });
   });
 }
 
-Response<dynamic> _response(List<Map<String, dynamic>> data) => Response(
-  data: data,
-  statusCode: 200,
-  requestOptions: RequestOptions(path: '/file'),
-);
+const _url =
+    'https://filesq.iwara.tv/file/41e79d9c-2e9b-4a8e-8050-6e7397030753'
+    '?expires=1791709923380&hash=abc';
+const _script = '/main.838884031a28ff0e346d.js';
+const _newSalt = 'NewSiteSalt0123456789AB';
+const _oldSalt = 'OldCachedSalt0123456789';
+
+XVersionSaltService _service(
+  XVersionSaltStore store,
+  _FakeSite site, {
+  DateTime Function()? now,
+}) => XVersionSaltService.forTest(store: store, fetch: site.fetch, now: now);
+
+/// 用指定盐值算出的 X-Version（不改动全局盐值）。
+String _xv(String salt) {
+  final current = XVersionCalculatorUtil.salt;
+  XVersionCalculatorUtil.salt = salt;
+  try {
+    return XVersionCalculatorUtil.calculateXVersion(_url);
+  } finally {
+    XVersionCalculatorUtil.salt = current;
+  }
+}
+
+List<String> _names(Response<dynamic> res) => [
+  for (final item in res.data as List) (item as Map)['name'] as String,
+];
+
+class _MemoryStore implements XVersionSaltStore {
+  _MemoryStore([this.record]);
+
+  XVersionSaltRecord? record;
+  int writes = 0;
+
+  @override
+  XVersionSaltRecord? read() => record;
+
+  @override
+  Future<void> write(XVersionSaltRecord record) async {
+    this.record = record;
+    writes++;
+  }
+}
+
+/// 官网：首页指向 [script]，main.js 里写着 [salt]。
+class _FakeSite {
+  _FakeSite({this.script = _script, this.salt = _newSalt});
+
+  final String script;
+  final String salt;
+  final List<String> requests = [];
+
+  /// 设上就挂住所有响应，直到它完成（用来制造并发）。
+  Completer<void>? gate;
+  Object? error;
+
+  int get homeHits => requests.where((p) => p == '/').length;
+  int get scriptHits => requests.where((p) => p != '/').length;
+
+  Future<String> fetch(Uri uri) async {
+    // `https://www.iwara.tv` 的 path 是空串
+    final path = uri.path.isEmpty ? '/' : uri.path;
+    requests.add(path);
+    if (gate != null) await gate!.future;
+    if (error != null) throw error!;
+    if (path == '/') {
+      return '<script defer="defer" src="$script"></script>';
+    }
+    return '(0,u.q4)(c+"_"+o.expires+"_$salt");';
+  }
+}
+
+/// 文件服务器：X-Version 用 [validSalt] 算出来才给 Source，否则只给
+/// 360 / preview（[validSalt] 为 null 时永远不给，模拟本来就没有原档的视频）。
+class _FakeFileServer {
+  _FakeFileServer({required this.validSalt});
+
+  final String? validSalt;
+  final List<String> sent = [];
+
+  /// 第二次及以后的请求抛出它（模拟重签后的请求失败）。
+  Object? retryError;
+
+  Future<Response<dynamic>> send(Map<String, dynamic> headers) async {
+    final xVersion = headers['X-Version'] as String;
+    sent.add(xVersion);
+    if (sent.length > 1 && retryError != null) throw retryError!;
+    final signed = validSalt != null && xVersion == _xv(validSalt!);
+    return Response(
+      data: signed
+          ? [
+              {'name': 'Source'},
+              {'name': '360'},
+            ]
+          : [
+              {'name': '360'},
+              {'name': 'preview'},
+            ],
+      statusCode: 200,
+      requestOptions: RequestOptions(path: '/file'),
+    );
+  }
+}

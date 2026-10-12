@@ -3903,6 +3903,8 @@ class MyVideoStateController extends GetxController
           headers: headers,
           cancelToken: _cancelToken,
         ),
+        // 播放：重签失败时宁可先放低清，也别让视频打不开
+        keepFirstOnRetryFailure: true,
       );
 
       if (_isDisposed) return;
@@ -4630,6 +4632,7 @@ class MyVideoStateController extends GetxController
           headers: headers,
           cancelToken: _cancelToken,
         ),
+        keepFirstOnRetryFailure: true,
       );
 
       if (_isDisposed || _isRouteCovered) return;

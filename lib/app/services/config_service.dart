@@ -545,10 +545,9 @@ enum ConfigKey {
   AI_PROVIDER_PROFILES,
   AI_PROVIDER_KEYS,
   AI_TASK_BINDINGS,
-  // 从官网前端提取到的视频源签名盐值（空串＝用内置值），见 XVersionSaltService
-  X_VERSION_SALT,
-  // 提取上面那个盐值时官网用的 main.js 路径，没变就不必重新下载
-  X_VERSION_SALT_SCRIPT,
+  // 从官网前端自动提取的视频源签名盐值记录（JSON：salt / script / builtin，
+  // 空 Map＝用内置值），见 XVersionSaltService
+  X_VERSION_SALT_CACHE,
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -882,10 +881,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'ai_provider_keys';
       case ConfigKey.AI_TASK_BINDINGS:
         return 'ai_task_bindings';
-      case ConfigKey.X_VERSION_SALT:
-        return 'x_version_salt';
-      case ConfigKey.X_VERSION_SALT_SCRIPT:
-        return 'x_version_salt_script';
+      case ConfigKey.X_VERSION_SALT_CACHE:
+        return 'x_version_salt_cache';
     }
   }
 
@@ -1266,10 +1263,8 @@ extension ConfigKeyExtension on ConfigKey {
         return '';
       case ConfigKey.AI_TASK_BINDINGS:
         return '';
-      case ConfigKey.X_VERSION_SALT:
-        return '';
-      case ConfigKey.X_VERSION_SALT_SCRIPT:
-        return '';
+      case ConfigKey.X_VERSION_SALT_CACHE:
+        return <String, dynamic>{};
     }
   }
 }
