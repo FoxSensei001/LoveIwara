@@ -1252,7 +1252,7 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.SEARCH_SAVED_QUERIES:
         return <dynamic>[];
       case ConfigKey.SEARCH_EXACT_MATCH:
-        return true;
+        return false;
       case ConfigKey.SEARCH_TAG_EXPANSION:
         return true;
       case ConfigKey.DEFAULT_BLACKLIST_REMINDER_SEEN_USERS:

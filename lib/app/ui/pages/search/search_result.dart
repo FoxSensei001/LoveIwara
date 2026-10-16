@@ -55,7 +55,8 @@ class SearchResultController extends GetxController {
 
   /// 关键词要不要按**短语精确匹配**发出去（给 CJK 词自动补引号）。
   ///
-  /// ⭐ 默认开。不加引号的 CJK 在 iwara 上不走 AND，而是被拆碎了做 OR：
+  /// 默认关。用户可以通过搜索框下面的胶囊开启短语精确匹配。
+  /// 不加引号的 CJK 在 iwara 上不走 AND，而是被拆碎了做 OR：
   /// `初音ミク` 召回 10746 条，按时间排前 20 条只有 3 条真相关；`"初音ミク"`
   /// 是 2143 条，前 20 条条条属实。详见 [autoQuoteKeyword]。
   ///
