@@ -826,6 +826,7 @@ class _PaginationBarState extends State<PaginationBar>
       child: Row(
         children: [
           _buildNavButton(
+            context: context,
             icon: Icons.chevron_left,
             enabled: canPrev,
             onPressed: () => widget.onPageChanged(widget.currentPage - 1),
@@ -844,6 +845,7 @@ class _PaginationBarState extends State<PaginationBar>
           ),
           const SizedBox(width: 6),
           _buildNavButton(
+            context: context,
             icon: Icons.chevron_right,
             enabled: canNext,
             onPressed: () => widget.onPageChanged(widget.currentPage + 1),
@@ -900,6 +902,7 @@ class _PaginationBarState extends State<PaginationBar>
             mainAxisSize: MainAxisSize.min,
             children: [
               _buildNavButton(
+                context: context,
                 icon: Icons.chevron_left,
                 enabled: widget.currentPage > 0 && !widget.isLoading,
                 onPressed: () => widget.onPageChanged(widget.currentPage - 1),
@@ -920,6 +923,7 @@ class _PaginationBarState extends State<PaginationBar>
               _wrapWithTooltipIfNeeded(
                 widget.canGoNext,
                 child: _buildNavButton(
+                  context: context,
                   icon: Icons.chevron_right,
                   enabled: widget.canGoNext && !widget.isLoading,
                   onPressed: () => widget.onPageChanged(widget.currentPage + 1),
@@ -959,6 +963,7 @@ class _PaginationBarState extends State<PaginationBar>
             mainAxisSize: MainAxisSize.min,
             children: [
               _buildNavButton(
+                context: context,
                 icon: Icons.chevron_left,
                 enabled: widget.currentPage > 0 && !widget.isLoading,
                 onPressed: () => widget.onPageChanged(widget.currentPage - 1),
@@ -967,6 +972,7 @@ class _PaginationBarState extends State<PaginationBar>
               _wrapWithTooltipIfNeeded(
                 widget.canGoNext,
                 child: _buildNavButton(
+                  context: context,
                   icon: Icons.chevron_right,
                   enabled: widget.canGoNext && !widget.isLoading,
                   onPressed: () => widget.onPageChanged(widget.currentPage + 1),
@@ -1055,12 +1061,14 @@ class _PaginationBarState extends State<PaginationBar>
             mainAxisSize: MainAxisSize.min,
             children: [
               _buildNavButton(
+                context: context,
                 icon: Icons.first_page,
                 enabled: widget.currentPage > 0 && !widget.isLoading,
                 onPressed: () => widget.onPageChanged(0),
               ),
               const SizedBox(width: GlassTokens.chromeGap),
               _buildNavButton(
+                context: context,
                 icon: Icons.chevron_left,
                 enabled: widget.currentPage > 0 && !widget.isLoading,
                 onPressed: () => widget.onPageChanged(widget.currentPage - 1),
@@ -1079,6 +1087,7 @@ class _PaginationBarState extends State<PaginationBar>
               ),
               const SizedBox(width: GlassTokens.chromeGap),
               _buildNavButton(
+                context: context,
                 icon: Icons.chevron_right,
                 enabled:
                     widget.currentPage < widget.totalPages - 1 &&
@@ -1087,6 +1096,7 @@ class _PaginationBarState extends State<PaginationBar>
               ),
               const SizedBox(width: GlassTokens.chromeGap),
               _buildNavButton(
+                context: context,
                 icon: Icons.last_page,
                 enabled:
                     widget.currentPage < widget.totalPages - 1 &&
@@ -1196,12 +1206,14 @@ class _PaginationBarState extends State<PaginationBar>
             mainAxisSize: MainAxisSize.min,
             children: [
               _buildNavButton(
+                context: context,
                 icon: Icons.chevron_left,
                 enabled: widget.currentPage > 0 && !widget.isLoading,
                 onPressed: () => widget.onPageChanged(widget.currentPage - 1),
               ),
               const SizedBox(width: 12),
               _buildNavButton(
+                context: context,
                 icon: Icons.chevron_right,
                 enabled:
                     widget.currentPage < widget.totalPages - 1 &&
@@ -1217,10 +1229,13 @@ class _PaginationBarState extends State<PaginationBar>
 
   // 辅助方法：构建导航按钮
   Widget _buildNavButton({
+    required BuildContext context,
     required IconData icon,
     required bool enabled,
     required VoidCallback onPressed,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isLiquidGlass = GlassMaterialScope.isLiquid(context);
     // 可用↔置灰的过渡交给按钮自己的 GlassAnimatedColors（图标色平滑推移）。
     // ⛔ 不要在外面套 AnimatedOpacity 压半透明：那会 saveLayer 把玻璃隔离，
     // 置灰期间整枚键的折射是断的（见 GlassReveal 那条原语）。置灰的语义由
@@ -1231,8 +1246,8 @@ class _PaginationBarState extends State<PaginationBar>
       iconSize: 18,
       icon: Icon(icon),
       color: enabled
-          ? Theme.of(context).colorScheme.primary
-          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
+          ? (isLiquidGlass ? colorScheme.onSurface : colorScheme.primary)
+          : colorScheme.onSurface.withValues(alpha: 0.38),
       onPressed: enabled
           ? () {
               // 添加触感反馈

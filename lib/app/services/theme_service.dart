@@ -52,9 +52,9 @@ class ThemeService extends GetxService {
     _glassSettings.value = GlassAppearanceSettings.fromMap(
       configService[ConfigKey.LIQUID_GLASS_SETTINGS_KEY],
     );
-    glassAppearance.value = _glassSettings.value;
     _enableLiquidGlass.value =
         configService[ConfigKey.ENABLE_LIQUID_GLASS_KEY] == true;
+    glassAppearance.value = _glassSettings.value;
   }
 
   bool get useDynamicColor => _useDynamicColor.value;

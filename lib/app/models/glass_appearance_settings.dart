@@ -1,11 +1,11 @@
 /// Persisted material parameters, independent of either rendering package.
-enum GlassQualityPreference { auto, standard, premium }
+enum GlassQualityPreference { standard, premium }
 
 class GlassAppearanceSettings {
   const GlassAppearanceSettings({
-    this.quality = GlassQualityPreference.auto,
+    this.quality = GlassQualityPreference.standard,
     this.opacity = 0.24,
-    this.blur = 0,
+    this.blur = 0.5,
     this.thickness = 20,
     this.refractiveIndex = 1.2,
     this.lightIntensity = 0.5,
@@ -13,7 +13,7 @@ class GlassAppearanceSettings {
     this.chromaticAberration = 0.01,
     this.shadows = true,
     this.panelOpacity = 0.45,
-    this.panelBlur = 14,
+    this.panelBlur = 0.5,
   });
 
   static const defaults = GlassAppearanceSettings();

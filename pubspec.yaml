@@ -115,10 +115,10 @@ dependencies:
   http: ^1.6.0
   flutter_local_notifications: ^22.0.1
   local_notifier: ^0.1.6
-  # 精确锁定：4.3.3 已优化 Windows/ANGLE 的运行时 shader 编译，4.3.4 修正桌面
-  # 接触阴影。历史上 4.3.1 曾白屏，后续升级仍需验证 Windows release 首屏。
-  liquid_glass_easy: 4.3.4
-  liquid_glass_widgets: ^1.11.0
+  # 5.0.0 改为平铺样式与折射率参数；封装已迁移。继续精确锁定，升级渲染器后
+  # 仍需验证 Windows release 首屏（4.3.1 曾白屏，4.3.3 修正了 ANGLE 编译）。
+  liquid_glass_easy: 5.0.0
+  liquid_glass_widgets: ^1.11.1
   local_auth: ^3.0.2
   local_auth_android: ^2.0.8
 dev_dependencies:

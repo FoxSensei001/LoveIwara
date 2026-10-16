@@ -309,7 +309,7 @@ abstract final class GlassTokens {
   /// 「浮在上面的卡片」，和液态档那种「内容从玻璃底下透出来」的观感正好相反。
   ///
   /// 两个液态档各有**自己**的投影通道，与本条无关，不要拿来顶替：
-  ///   - easy 档：[liquidShadow]（喂给 `LiquidGlassAppearance.shadow`，
+  ///   - easy 档：[liquidShadow]（喂给 `LiquidGlassStyle.shadow`，
   ///     长在形变盒内、按下会跟着胀缩）。
   ///   - widgets 档：[widgetsGlass] 的 `shadowElevation`（包自己按 iOS 26
   ///     口径画，深色下自动跳过）。
@@ -422,10 +422,7 @@ abstract final class GlassTokens {
 
   /// 玻璃底下的背景模糊。传统档没有这一项（当初刻意不用 BackdropFilter）；
   /// 液态档靠它把身后的高频细节化开，折射才不会糊成噪点。
-  static LiquidGlassBlur get liquidBlur => LiquidGlassBlur(
-    sigmaX: glassAppearance.value.panelBlur,
-    sigmaY: glassAppearance.value.panelBlur,
-  );
+  static double get liquidBlur => glassAppearance.value.panelBlur;
 
   /// 保持自然饱和度：避免提饱和导致灰色背景偏色发浑。
   static const double liquidSaturation = 1.0;
@@ -434,29 +431,28 @@ abstract final class GlassTokens {
   /// 而是 shader 画的边缘光带，太细就看不出「厚度」。
   static const double liquidBorderWidth = 1.2;
 
-  /// 折射强度。44/64 这种小胶囊上 distortion 超过 ~0.18 就会把边缘的字拽变形，
-  /// distortionWidth 也不能超过胶囊半高（22），否则整只胶囊都在畸变带里。
-  static const LiquidGlassRefraction liquidRefraction = LiquidGlassRefraction(
-    distortion: 0.12,
-    distortionWidth: 18,
-    chromaticAberration: 0.004,
-  );
+  /// 折射参数。easy 5.0 用折射率描述弯曲强度；旧 distortion 0.12 对应约
+  /// 1.02–1.025，取 1.023。小胶囊上折射带保持 18px，避免整只胶囊都畸变。
+  static const double liquidRefractionIndex = 1.023;
+  static const double liquidRefractionWidth = 18;
 
-  /// 描边模式：Apple 风 SDF 边缘光（会从背景取色），而不是固定色描边。
-  ///
-  /// 2026-08-24 先调亮又回调：把 `ambientIntensity` 拉到 1.8、外加
-  /// `borderSolidity`/`lightSpread` 一起加大，结果是整圈边框被**均匀**点亮成
-  /// 一条纯白描边——[OpticalBorder.ambientIntensity] 的定位就是「不看光照
-  /// 方向、把整圈都垫亮」，[borderSolidity] 越高越会把这圈亮压向不透明的
-  /// 实色，两个一起加等于把「会从背景取色的光学高光」硬生生做成了纯色边框，
-  /// 真机上读出来是「上下左右一样白」，反而丢了液态玻璃该有的方向性——
-  /// 真实观感应该是**上沿（迎光侧）一条亮高光，左右两侧接近一条素描边**。
-  /// 现在只留一点点 ambient 垫光（1.0 默认基本读不出，给到 1.2 勉强够看），
-  /// [borderSolidity] 退回 0（保持半透明、继续从背景取色），[lightSpread]
-  /// 退回包默认 0.5（亮带收回到迎光那一侧，不再环绕大半圈）。
-  static const LiquidGlassBorderType liquidBorderType = OpticalBorder(
-    borderSaturation: 1.4,
-    ambientIntensity: 1.2,
+  /// 色散的单位改为逻辑像素；5.0 迁移指南给出的换算系数为 660。
+  static const double liquidDispersion = 0.004 * 660;
+
+  /// easy 5.0 把旧 optical border 拆成高光与柔光两盏灯。
+  /// borderWidth 1.2 按官方迁移比例换成各自的实际带深；旧 borderSolidity
+  /// 为 0、lightSpread 为 0.5，ambientIntensity 为 1.2。5.0 已无仅作用于边缘的
+  /// borderSaturation，因此填充饱和度仍独立保持在 1.0。
+  static const LiquidGlassLight liquidSpecular = LiquidGlassLight.specular(
+    thickness: liquidBorderWidth * 5.4,
+    sharpness: 0,
+    angle: 39,
+    spread: 0.5,
+  );
+  static const LiquidGlassLight liquidGlow = LiquidGlassLight.glow(
+    thickness: liquidBorderWidth * 29.4,
+    angle: 129,
+    intensity: 1.2,
   );
 
   /// 接触阴影。与传统档的 [shadow] 表达同一件事（玻璃浮在内容之上），
@@ -501,6 +497,9 @@ abstract final class GlassTokens {
     double? blur,
   }) => lgw.LiquidGlassSettings(
     glassColor: tint,
+    // The theme slider controls visible tint opacity. Adaptive mode preserves
+    // backdrop luminance, making the white/black tint nearly imperceptible.
+    bodyMode: lgw.GlassBodyMode.clear,
     visibility: materialize,
     // 显式给影子（而不是用他们的 shadowElevation 去缩放默认值）：
     // 见 [widgetsShadow] 里那段「为什么要自己给」。空表＝这块不吐影子。

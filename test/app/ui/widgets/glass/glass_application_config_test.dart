@@ -25,7 +25,7 @@ void main() {
       'shadows': 'false',
       'panelBlur': 100,
     });
-    expect(settings.quality, GlassQualityPreference.auto);
+    expect(settings.quality, GlassQualityPreference.standard);
     expect(settings.opacity, 0.8);
     expect(settings.blur, 0);
     expect(settings.thickness, 0);
@@ -69,7 +69,7 @@ void main() {
     expect(actual.chromaticAberration, 0.02);
     expect(actual.shadow, isEmpty);
     expect(GlassTokens.liquidTint(cs).a, closeTo(0.6, 0.001));
-    expect(GlassTokens.liquidBlur.sigmaX, 7);
+    expect(GlassTokens.liquidBlur, 7);
   });
 
   testWidgets('切换固定画质和参数保留 Navigator 与当前路由', (tester) async {

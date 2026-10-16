@@ -17,7 +17,6 @@ class GlassAppearanceControls extends StatelessWidget {
     final settings = service.glassSettings;
     final quality = chromeGlassQuality(context);
     final labels = {
-      GlassQualityPreference.auto: t.settings.glassQualityAuto,
       GlassQualityPreference.standard: t.settings.glassQualityStandard,
       GlassQualityPreference.premium: t.settings.glassQualityPremium,
     };
@@ -46,7 +45,6 @@ class GlassAppearanceControls extends StatelessWidget {
           GlassChoiceItem<GlassQualityPreference>(
             title: Text(labels[preference]!),
             subtitle: Text(switch (preference) {
-              GlassQualityPreference.auto => t.settings.glassQualityAutoDesc,
               GlassQualityPreference.standard =>
                 t.settings.glassQualityStandardDesc,
               GlassQualityPreference.premium =>

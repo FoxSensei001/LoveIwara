@@ -711,7 +711,7 @@ class _GlassBlendScope extends InheritedWidget {
 /// 有三件事是 lens 自己做掉的、这里不再重复：
 ///   - **裁切**：lens 会按自身形状裁 child，传统档的 `clipContent` 在这里恒成立。
 ///   - **描边**：shader 画的边缘光带，不再有 `Border.all` 那 0.6px 的内缩。
-///   - **投影**：走 `appearance.shadow`，它长在形变盒内，按下会跟着一起动。
+///   - **投影**：走 `LiquidGlassStyle.shadow`，它长在形变盒内，按下会跟着一起动。
 class LiquidGlassBox extends StatelessWidget {
   const LiquidGlassBox({
     super.key,
@@ -802,24 +802,24 @@ class LiquidGlassBox extends StatelessWidget {
               shape: LiquidGlassShape(
                 cornerStyle: cornerStyle,
                 cornerRadius: radius,
-                borderWidth: GlassTokens.liquidBorderWidth,
-                borderType: GlassTokens.liquidBorderType,
               ),
-              appearance: LiquidGlassAppearance(
-                color: color,
-                blur: GlassTokens.liquidBlur,
-                saturation: GlassTokens.liquidSaturation,
-                shadow: elevated
-                    ? GlassTokens.liquidShadow(cs, alphaScale: m)
-                    : null,
-              ),
-              refraction: GlassTokens.liquidRefraction,
+              specular: GlassTokens.liquidSpecular,
+              glow: GlassTokens.liquidGlow,
+              color: color,
+              blur: GlassTokens.liquidBlur,
+              saturation: GlassTokens.liquidSaturation,
+              shadow: elevated
+                  ? GlassTokens.liquidShadow(cs, alphaScale: m)
+                  : null,
+              refractionIndex: GlassTokens.liquidRefractionIndex,
+              refractionWidth: GlassTokens.liquidRefractionWidth,
+              dispersion: GlassTokens.liquidDispersion,
             ),
             touch: touchFlex ? GlassTokens.liquidFlex : null,
             child: child,
           ),
         );
-        // ⛔ 不再叠外层 DecoratedBox 投影：`LiquidGlassAppearance.shadow`
+        // ⛔ 不再叠外层 DecoratedBox 投影：`LiquidGlassStyle.shadow`
         // 上面已经喂了 [GlassTokens.liquidShadow]，那是包自带的接触阴影环
         // （随形变一起胀缩），[elevated] 已经在那一路生效。这里再套一层
         // `boxShadow: 传统档那条已删的 shadow token` 曾经是货真价实的双重投影——
