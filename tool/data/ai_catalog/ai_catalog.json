@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "rev": "98e8142769208843",
-  "builtAt": "2026-10-04T20:13:43.764692Z",
-  "count": 657,
+  "rev": "39b2c34c5ef81ada",
+  "builtAt": "2026-10-11T19:23:31.074083Z",
+  "count": 659,
   "upstream": {
     "source": "CherryHQ/cherry-studio @ packages/provider-registry (MIT)",
-    "providers": "a97aae2405a78d18",
-    "models": "463bf245f0915754"
+    "providers": "3416349586ffa541",
+    "models": "1820f779a1cc60bd"
   },
   "providers": {
     "silicon": {
@@ -252,6 +252,17 @@
         "h": "https://lmstudio.ai/"
       }
     },
+    "litellm": {
+      "n": "LiteLLM",
+      "k": "openai",
+      "u": "http://localhost:4000/v1",
+      "nk": 1,
+      "w": {
+        "k": "https://docs.litellm.ai/docs/proxy/virtual_keys",
+        "d": "https://docs.litellm.ai/docs/proxy/quick_start",
+        "h": "https://www.litellm.ai/"
+      }
+    },
     "anthropic": {
       "n": "Anthropic",
       "k": "anthropic",
@@ -267,9 +278,9 @@
         "claude-fable-5-1",
         "claude-fable-latest",
         "claude-haiku-4-5",
+        "claude-haiku-5-5",
         "claude-haiku-latest",
-        "claude-opus-4",
-        "claude-opus-4-1"
+        "claude-opus-4"
       ]
     },
     "omlx": {
@@ -1659,6 +1670,18 @@
       ],
       "w": 200000,
       "o": 64000
+    },
+    "claude-haiku-5-5": {
+      "n": "Claude Haiku 5.5",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 128000
     },
     "claude-haiku-latest": {
       "n": "Anthropic Claude Haiku Latest",
