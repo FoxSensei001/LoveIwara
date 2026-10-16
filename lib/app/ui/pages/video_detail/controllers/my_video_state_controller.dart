@@ -3905,6 +3905,7 @@ class MyVideoStateController extends GetxController
         ),
         // 播放：重签失败时宁可先放低清，也别让视频打不开
         keepFirstOnRetryFailure: true,
+        checkSiteTimeout: XVersionSaltService.playbackCheckSiteTimeout,
       );
 
       if (_isDisposed) return;
@@ -3930,7 +3931,13 @@ class MyVideoStateController extends GetxController
         'MyVideoStateController',
       );
 
-      _cacheManager.cacheVideoSources(cacheKey, sources);
+      // 签名失效时的 360 清单不进缓存：盐值修好后重开同一个视频，
+      // 不该在 30 分钟里一直拿到它；之前的旧条目也删掉，链接快过期了
+      if (XVersionSaltService.looksUnsigned(res.data)) {
+        _cacheManager.removeVideoSources(cacheKey);
+      } else {
+        _cacheManager.cacheVideoSources(cacheKey, sources);
+      }
       _updateCurrentVideoSources(sources);
       videoResolutions.value = CommonUtils.convertVideoSourcesToResolutions(
         sources,
@@ -4633,6 +4640,7 @@ class MyVideoStateController extends GetxController
           cancelToken: _cancelToken,
         ),
         keepFirstOnRetryFailure: true,
+        checkSiteTimeout: XVersionSaltService.playbackCheckSiteTimeout,
       );
 
       if (_isDisposed || _isRouteCovered) return;
@@ -4644,7 +4652,11 @@ class MyVideoStateController extends GetxController
 
       // 更新缓存
       final cacheKey = videoInfo.value!.fileUrl!;
-      _cacheManager.cacheVideoSources(cacheKey, sources);
+      if (XVersionSaltService.looksUnsigned(res.data)) {
+        _cacheManager.removeVideoSources(cacheKey);
+      } else {
+        _cacheManager.cacheVideoSources(cacheKey, sources);
+      }
       _updateCurrentVideoSources(sources);
 
       // 解析过期时间（所有清晰度的过期时间都一样，只需解析一次）

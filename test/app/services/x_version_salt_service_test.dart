@@ -12,7 +12,7 @@ import 'package:i_iwara/utils/x_version_calculator_utils.dart';
 /// 有没有 Source」是唯一能抓到的信号；提取盐值则依赖官网前端的写法。
 /// 下面的 HTML / JS 片段取自 2026-10 的 www.iwara.tv。
 ///
-/// 官网刷新相关的用例走真正的 `_refresh()`：持久化、网络、时钟都换成假的，
+/// 官网刷新相关的用例走真正的 `_checkSite()`：持久化、网络、时钟都换成假的，
 /// 文件服务器只在 X-Version 用对了盐值时才给 Source。
 void main() {
   tearDown(
@@ -303,6 +303,110 @@ void main() {
     });
   });
 
+  group('新盐值要换来 Source 才算数', () {
+    test('⛔ 提取到的盐值换不来 Source 时不换、不存，内置值照常能用', () async {
+      // 内置值是对的，这个视频本来就没有 Source；提取规则失配抓到了错值
+      final store = _MemoryStore();
+      final site = _FakeSite(salt: _newSalt);
+      final service = _service(store, site);
+
+      final res = await service.requestVideoSources(
+        _url,
+        _FakeFileServer(validSalt: null).send,
+      );
+      expect(_names(res), ['360', 'preview']);
+      expect(XVersionCalculatorUtil.salt, XVersionCalculatorUtil.defaultSalt);
+      expect(store.writes, 0);
+
+      // 下一个视频照常用内置值拿到 Source
+      final server = _FakeFileServer(
+        validSalt: XVersionCalculatorUtil.defaultSalt,
+      );
+      final next = await service.requestVideoSources(_url, server.send);
+      expect(_names(next), contains('Source'));
+      expect(server.sent, [_xv(XVersionCalculatorUtil.defaultSalt)]);
+      expect(store.writes, 0);
+    });
+
+    test('触发检查的视频没有 Source 时，新盐值等下一个视频证实后再换上', () async {
+      final store = _MemoryStore();
+      final site = _FakeSite(salt: _newSalt);
+      final service = _service(store, site);
+
+      await service.requestVideoSources(
+        _url,
+        _FakeFileServer(validSalt: null).send,
+      );
+      expect(XVersionCalculatorUtil.salt, XVersionCalculatorUtil.defaultSalt);
+
+      // 节流期间不再请求官网，直接拿上次的候选盐值试
+      final server = _FakeFileServer(validSalt: _newSalt);
+      final res = await service.requestVideoSources(_url, server.send);
+      expect(_names(res), contains('Source'));
+      expect(site.homeHits, 1);
+      expect(site.scriptHits, 1);
+      expect(XVersionCalculatorUtil.salt, _newSalt);
+      expect(store.record!.salt, _newSalt);
+    });
+
+    test('播放器等官网超时先返回第一次结果，检查做完后下一次直接用', () async {
+      final store = _MemoryStore();
+      final site = _FakeSite(salt: _newSalt)..gate = Completer<void>();
+      final server = _FakeFileServer(validSalt: _newSalt);
+      final service = _service(store, site);
+
+      final res = await service.requestVideoSources(
+        _url,
+        server.send,
+        keepFirstOnRetryFailure: true,
+        checkSiteTimeout: const Duration(milliseconds: 20),
+      );
+      expect(_names(res), ['360', 'preview']);
+      expect(server.sent, hasLength(1));
+
+      site.gate!.complete();
+      await pumpEventQueue();
+
+      final next = await service.requestVideoSources(_url, server.send);
+      expect(_names(next), contains('Source'));
+      expect(site.homeHits, 1);
+      expect(store.record!.salt, _newSalt);
+    });
+  });
+
+  group('播放器等官网超时', () {
+    test('⛔ 过了节流期官网又挂住时，先拿上次的候选试，不干等', () async {
+      var now = DateTime(2026, 10, 16, 12);
+      final store = _MemoryStore();
+      final site = _FakeSite(salt: _newSalt);
+      final service = _service(store, site, now: () => now);
+
+      // 触发检查的视频本来就没有 Source：拿到候选，证实不了
+      await service.requestVideoSources(
+        _url,
+        _FakeFileServer(validSalt: null).send,
+      );
+      expect(XVersionCalculatorUtil.salt, XVersionCalculatorUtil.defaultSalt);
+
+      // 隔了 15 分钟再开视频，官网这次一直不回
+      now = now.add(const Duration(minutes: 15));
+      site.gate = Completer<void>();
+      final res = await service.requestVideoSources(
+        _url,
+        _FakeFileServer(validSalt: _newSalt).send,
+        keepFirstOnRetryFailure: true,
+        checkSiteTimeout: const Duration(milliseconds: 20),
+      );
+
+      expect(_names(res), contains('Source'));
+      expect(XVersionCalculatorUtil.salt, _newSalt);
+      expect(store.record!.salt, _newSalt);
+
+      site.gate!.complete();
+      await pumpEventQueue();
+    });
+  });
+
   group('重签后的请求失败', () {
     DioException timeout() => DioException.connectionTimeout(
       timeout: const Duration(seconds: 15),
@@ -374,15 +478,8 @@ XVersionSaltService _service(
 }) => XVersionSaltService.forTest(store: store, fetch: site.fetch, now: now);
 
 /// 用指定盐值算出的 X-Version（不改动全局盐值）。
-String _xv(String salt) {
-  final current = XVersionCalculatorUtil.salt;
-  XVersionCalculatorUtil.salt = salt;
-  try {
-    return XVersionCalculatorUtil.calculateXVersion(_url);
-  } finally {
-    XVersionCalculatorUtil.salt = current;
-  }
-}
+String _xv(String salt) =>
+    XVersionCalculatorUtil.calculateXVersion(_url, withSalt: salt);
 
 List<String> _names(Response<dynamic> res) => [
   for (final item in res.data as List) (item as Map)['name'] as String,

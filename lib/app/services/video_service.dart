@@ -277,16 +277,22 @@ class VideoService extends GetxService {
   /// 与 [getVideoSourcesBy] 的分工：那个把任何失败都压成空列表，调用方无从分辨
   /// 「视频被删了」和「网断了」；下载重试要据此决定是显示真实死因还是继续重试，
   /// 所以需要这一份保留异常的版本。
+  ///
+  /// [keepFirstOnRetryFailure] / [checkSiteTimeout] 见
+  /// [XVersionSaltService.requestVideoSources]：默认是下载刷新要的「保留异常、
+  /// 不限时」；播放路径（如 Quest 沉浸态换片）要传播放器那一套。
   Future<ApiResult<List<VideoSource>>> fetchVideoSourcesResult(
     String? fileUrl, {
     IwaraSite? site,
+    bool keepFirstOnRetryFailure = false,
+    Duration? checkSiteTimeout,
   }) async {
     if (fileUrl == null || fileUrl.trim().isEmpty) {
       return ApiResult.fail('fileUrl is empty');
     }
     try {
-      // 不开 keepFirstOnRetryFailure：重签失败要作为异常带回去，否则下载刷新
-      // 会把「网断了」当成「这档清晰度没了」。
+      // 默认不开 keepFirstOnRetryFailure：重签失败要作为异常带回去，否则下载
+      // 刷新会把「网断了」当成「这档清晰度没了」。
       final response = await XVersionSaltService.instance.requestVideoSources(
         fileUrl,
         (headers) => _apiService.get(
@@ -296,6 +302,8 @@ class VideoService extends GetxService {
           requestAccess: ApiRequestAccess.optionalAuthShortWait,
           site: site,
         ),
+        keepFirstOnRetryFailure: keepFirstOnRetryFailure,
+        checkSiteTimeout: checkSiteTimeout,
       );
       return ApiResult.success(
         data: (response.data as List)
@@ -312,8 +320,15 @@ class VideoService extends GetxService {
   Future<List<VideoSource>> getVideoSourcesBy(
     String? fileUrl, {
     IwaraSite? site,
+    bool keepFirstOnRetryFailure = false,
+    Duration? checkSiteTimeout,
   }) async {
-    final result = await fetchVideoSourcesResult(fileUrl, site: site);
+    final result = await fetchVideoSourcesResult(
+      fileUrl,
+      site: site,
+      keepFirstOnRetryFailure: keepFirstOnRetryFailure,
+      checkSiteTimeout: checkSiteTimeout,
+    );
     return result.isSuccess ? (result.data ?? []) : [];
   }
 

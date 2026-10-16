@@ -13,9 +13,9 @@ class XVersionCalculatorUtil {
 
   /// 算给定URL的X-Version头
   ///
-  /// [url] 是要计算X-Version的完整URL字符串。
+  /// [url] 是要计算X-Version的完整URL字符串；[withSalt] 不传时用当前的 [salt]。
   /// 返回值是计算得到的X-Version字符串。
-  static String calculateXVersion(String url) {
+  static String calculateXVersion(String url, {String? withSalt}) {
     // 解析URL
     final uri = Uri.parse(url);
 
@@ -33,7 +33,7 @@ class XVersionCalculatorUtil {
     final uuid = pathSegments.last;
 
     // 拼接字符串：<uuid>_<expires>_<salt>
-    final concatenatedString = '${uuid}_${expires}_$salt';
+    final concatenatedString = '${uuid}_${expires}_${withSalt ?? salt}';
 
     // 将拼接的字符串转换为UTF-8编码的字节
     final bytes = utf8.encode(concatenatedString);
