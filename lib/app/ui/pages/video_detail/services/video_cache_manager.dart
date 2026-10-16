@@ -103,6 +103,12 @@ class VideoCacheManager {
     _cleanupIfNeeded();
   }
   
+  /// 删掉某个视频的源缓存（例如刷新拿到的是签名失效时的 360 清单，
+  /// 留着旧条目只会让重开时用上快过期的链接）
+  void removeVideoSources(String fileUrl) {
+    _videoSourceCache.remove(fileUrl);
+  }
+
   /// 智能清理缓存
   void _cleanupIfNeeded() {
     if (_isCleaningCache) return;

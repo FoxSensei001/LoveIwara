@@ -65,7 +65,6 @@ import '../../../../../utils/device_form_factor_utils.dart';
 import '../../../../../utils/easy_throttle.dart';
 import '../../../../../utils/glsl_shader_service.dart';
 import '../../../../../utils/mpv_shader_failure_detector.dart';
-import '../../../../../utils/x_version_calculator_utils.dart';
 import '../../../../models/user.model.dart';
 import 'package:i_iwara/app/models/watch_later_item.model.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
@@ -79,6 +78,7 @@ import '../../../../services/favorite_service.dart';
 import '../../../../services/play_list_service.dart';
 import '../../../../services/user_service.dart';
 import '../../../../services/download_service.dart';
+import '../../../../services/x_version_salt_service.dart';
 import '../../../../models/download/download_task.model.dart';
 import '../../../../models/download/download_task_ext_data.model.dart';
 import '../widgets/player/custom_slider_bar_shape_widget.dart';
@@ -3895,14 +3895,17 @@ class MyVideoStateController extends GetxController
         LogUtils.i('强制刷新视频源，忽略缓存: $logVideoUrl', 'MyVideoStateController');
       }
 
-      final res = await _apiService.get(
-        videoInfo.value!.fileUrl!,
-        headers: {
-          'X-Version': XVersionCalculatorUtil.calculateXVersion(
-            videoInfo.value!.fileUrl!,
-          ),
-        },
-        cancelToken: _cancelToken,
+      final fileUrl = videoInfo.value!.fileUrl!;
+      final res = await XVersionSaltService.instance.requestVideoSources(
+        fileUrl,
+        (headers) => _apiService.get(
+          fileUrl,
+          headers: headers,
+          cancelToken: _cancelToken,
+        ),
+        // 播放：重签失败时宁可先放低清，也别让视频打不开
+        keepFirstOnRetryFailure: true,
+        checkSiteTimeout: XVersionSaltService.playbackCheckSiteTimeout,
       );
 
       if (_isDisposed) return;
@@ -3928,7 +3931,13 @@ class MyVideoStateController extends GetxController
         'MyVideoStateController',
       );
 
-      _cacheManager.cacheVideoSources(cacheKey, sources);
+      // 签名失效时的 360 清单不进缓存：盐值修好后重开同一个视频，
+      // 不该在 30 分钟里一直拿到它；之前的旧条目也删掉，链接快过期了
+      if (XVersionSaltService.looksUnsigned(res.data)) {
+        _cacheManager.removeVideoSources(cacheKey);
+      } else {
+        _cacheManager.cacheVideoSources(cacheKey, sources);
+      }
       _updateCurrentVideoSources(sources);
       videoResolutions.value = CommonUtils.convertVideoSourcesToResolutions(
         sources,
@@ -4622,14 +4631,16 @@ class MyVideoStateController extends GetxController
 
     try {
       // 强制刷新视频源
-      var res = await _apiService.get(
-        videoInfo.value!.fileUrl!,
-        headers: {
-          'X-Version': XVersionCalculatorUtil.calculateXVersion(
-            videoInfo.value!.fileUrl!,
-          ),
-        },
-        cancelToken: _cancelToken,
+      final fileUrl = videoInfo.value!.fileUrl!;
+      var res = await XVersionSaltService.instance.requestVideoSources(
+        fileUrl,
+        (headers) => _apiService.get(
+          fileUrl,
+          headers: headers,
+          cancelToken: _cancelToken,
+        ),
+        keepFirstOnRetryFailure: true,
+        checkSiteTimeout: XVersionSaltService.playbackCheckSiteTimeout,
       );
 
       if (_isDisposed || _isRouteCovered) return;
@@ -4641,7 +4652,11 @@ class MyVideoStateController extends GetxController
 
       // 更新缓存
       final cacheKey = videoInfo.value!.fileUrl!;
-      _cacheManager.cacheVideoSources(cacheKey, sources);
+      if (XVersionSaltService.looksUnsigned(res.data)) {
+        _cacheManager.removeVideoSources(cacheKey);
+      } else {
+        _cacheManager.cacheVideoSources(cacheKey, sources);
+      }
       _updateCurrentVideoSources(sources);
 
       // 解析过期时间（所有清晰度的过期时间都一样，只需解析一次）

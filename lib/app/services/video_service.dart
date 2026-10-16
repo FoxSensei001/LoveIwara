@@ -8,11 +8,11 @@ import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/video_source.model.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:i_iwara/utils/x_version_calculator_utils.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 
 import '../../common/constants.dart';
 import 'api_service.dart';
+import 'x_version_salt_service.dart';
 
 class VideoService extends GetxService {
   final ApiService _apiService = Get.find<ApiService>();
@@ -277,22 +277,33 @@ class VideoService extends GetxService {
   /// 与 [getVideoSourcesBy] 的分工：那个把任何失败都压成空列表，调用方无从分辨
   /// 「视频被删了」和「网断了」；下载重试要据此决定是显示真实死因还是继续重试，
   /// 所以需要这一份保留异常的版本。
+  ///
+  /// [keepFirstOnRetryFailure] / [checkSiteTimeout] 见
+  /// [XVersionSaltService.requestVideoSources]：默认是下载刷新要的「保留异常、
+  /// 不限时」；播放路径（如 Quest 沉浸态换片）要传播放器那一套。
   Future<ApiResult<List<VideoSource>>> fetchVideoSourcesResult(
     String? fileUrl, {
     IwaraSite? site,
+    bool keepFirstOnRetryFailure = false,
+    Duration? checkSiteTimeout,
   }) async {
     if (fileUrl == null || fileUrl.trim().isEmpty) {
       return ApiResult.fail('fileUrl is empty');
     }
     try {
-      final response = await _apiService.get(
+      // 默认不开 keepFirstOnRetryFailure：重签失败要作为异常带回去，否则下载
+      // 刷新会把「网断了」当成「这档清晰度没了」。
+      final response = await XVersionSaltService.instance.requestVideoSources(
         fileUrl,
-        headers: {
-          'X-Version': XVersionCalculatorUtil.calculateXVersion(fileUrl),
-        },
-        // 视频源清单：公开资源，避免登录刷新窗口阻塞播放(#6)。
-        requestAccess: ApiRequestAccess.optionalAuthShortWait,
-        site: site,
+        (headers) => _apiService.get(
+          fileUrl,
+          headers: headers,
+          // 视频源清单：公开资源，避免登录刷新窗口阻塞播放(#6)。
+          requestAccess: ApiRequestAccess.optionalAuthShortWait,
+          site: site,
+        ),
+        keepFirstOnRetryFailure: keepFirstOnRetryFailure,
+        checkSiteTimeout: checkSiteTimeout,
       );
       return ApiResult.success(
         data: (response.data as List)
@@ -309,8 +320,15 @@ class VideoService extends GetxService {
   Future<List<VideoSource>> getVideoSourcesBy(
     String? fileUrl, {
     IwaraSite? site,
+    bool keepFirstOnRetryFailure = false,
+    Duration? checkSiteTimeout,
   }) async {
-    final result = await fetchVideoSourcesResult(fileUrl, site: site);
+    final result = await fetchVideoSourcesResult(
+      fileUrl,
+      site: site,
+      keepFirstOnRetryFailure: keepFirstOnRetryFailure,
+      checkSiteTimeout: checkSiteTimeout,
+    );
     return result.isSuccess ? (result.data ?? []) : [];
   }
 

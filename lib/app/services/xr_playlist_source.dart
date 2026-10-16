@@ -16,6 +16,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/services/vr_format_override_service.dart';
 import 'package:i_iwara/app/services/watch_later_service.dart';
+import 'package:i_iwara/app/services/x_version_salt_service.dart';
 import 'package:i_iwara/app/utils/iwara_different_site_recovery.dart';
 import 'package:i_iwara/app/utils/vr_format_detector.dart';
 import 'package:i_iwara/utils/common_utils.dart';
@@ -175,7 +176,13 @@ class XrPlaylistSource {
       // ——与下载模块踩过的是同一个坑，见 media_download_launcher 的注释。
       final fileUrl = video.fileUrl;
       if (fileUrl == null || fileUrl.isEmpty) return null;
-      final sources = await videoService.getVideoSourcesBy(fileUrl, site: site);
+      // 这是播放：盐值失效时宁可先放 360，也别让这条整个放不出来
+      final sources = await videoService.getVideoSourcesBy(
+        fileUrl,
+        site: site,
+        keepFirstOnRetryFailure: true,
+        checkSiteTimeout: XVersionSaltService.playbackCheckSiteTimeout,
+      );
       if (sources.isEmpty) return null;
 
       final resolutions = CommonUtils.convertVideoSourcesToResolutions(sources);
