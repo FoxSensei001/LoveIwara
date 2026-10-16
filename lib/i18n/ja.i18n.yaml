@@ -2560,7 +2560,7 @@ translation:
   promptMustContainTargetLang: "プロンプトには[TL]プレースホルダーを含めてください"
   aiTranslationWillBeDisabled: "AI翻訳が自動的に無効にされます"
   aiTranslationWillBeDisabledDueToConfigChange: "基本設定を変更したため、AI翻訳が自動的に無効にされます"
-  aiTranslationWillBeDisabledDueToPromptChange: "翻訳プロンプトを変更したため、AI翻訳が自動的に無効にされます" 
+  aiTranslationWillBeDisabledDueToPromptChange: "翻訳プロンプトを変更したため、AI翻訳が自動的に無効にされます"
   aiTranslationWillBeDisabledDueToParamChange: "パラメーター設定を変更したため、AI翻訳が自動的に無効にされます"
   onlyOpenAIAPISupported: "現在、OpenAI互換のAPI形式（application/jsonリクエストボディ形式）のみサポートされています"
   streamingTranslation: "ストリーミング翻訳"
@@ -3098,10 +3098,10 @@ searchFilter:
   copyToClipboard: "クリップボードにコピー"
   copied: "コピーしました"
   filterCount: "${count} 個のフィルター"
-  
+
   # フィルターボタンウィジェット
   filterSettings: "フィルター設定"
-  
+
   # フィルター行ウィジェット
   field: "フィールド"
   operator: "演算子"
@@ -3124,7 +3124,7 @@ searchFilter:
   pleaseFillStartValue: "開始値を入力してください"
   pleaseFillEndValue: "終了値を入力してください"
   rangeValueFormatError: "範囲値の形式エラー"
-  
+
   # フィルター演算子
   contains: "含む"
   equals: "等しい"
@@ -3136,7 +3136,7 @@ searchFilter:
   range: "範囲"
   in: "いずれかを含む"
   notIn: "いずれも含まない"
-  
+
   # フィルターフィールドタイプ
   username: "ユーザー名"
   nickname: "ニックネーム"
@@ -3156,16 +3156,16 @@ searchFilter:
   videoCount: "動画数"
   createDate: "作成日"
   content: "コンテンツ"
-  
+
   # 評価オプション
   all: "すべて"
   adult: "成人向け"
   general: "一般"
-  
+
   # ブール値
   yes: "はい"
   no: "いいえ"
-  
+
   # コンテンツタイプ
   users: "ユーザー"
   videos: "動画"
@@ -3956,3 +3956,45 @@ ai:
   saveAndLeave: "Save and leave"
   discardChanges: "Discard"
   savedToast: "Saved"
+
+followSearch:
+  scopeLoaded: "読込済み"
+  scopeAll: "全件"
+  hint: "名前・@ユーザー名を検索"
+  loaded: "読込済み"
+  all: "全件検索"
+  loadedCount: "読込済み ${count} / ${total}"
+  noLoadedMatches: "読込済みデータに一致なし。全件検索をお試しください。"
+  noAllMatches: "全件に一致するユーザーはいません。"
+  noLocalMatches: "一致する特別フォローはいません。"
+  probing: "対応する最大ページサイズを確認中…"
+  complete: "全件読込完了：${count} 人 · 1ページ ${size} 件 · ${rounds} リクエスト"
+  incomplete: "全件の読込は未完了です。読込済みの結果を検索できます。"
+  progress: "${current} / ${total} 人 · 1ページ ${size} 件 · ${done} / 約 ${rounds} リクエスト · 残り約 ${time}"
+  longWait: "件数が多いと時間がかかります。余裕を含む予測を通信速度に応じて更新します。"
+  failed: "読込未完了。読込済みの結果を検索するか再試行できます。"
+  cancelled: "読込を中止しました。取得済みデータは保持します。"
+  seconds: "${value} 秒"
+  minutes: "${value} 分"
+  continueSearch: "読込を続ける"
+pagedSearch:
+  mediaHint: "タイトル・作者を検索"
+  authorWorksHint: "この作者の作品を検索"
+  nameHint: "名前で検索"
+  noMatches: "一致する結果はありません。"
+  scopeLoaded: "読込済み"
+  scopeAll: "全件"
+  all: "全件検索"
+  loadedCount: "読込済み ${count} / ${total}"
+  noLoadedMatches: "読込済みデータに一致なし。全件検索をお試しください。"
+  noAllMatches: "全件に一致する項目はありません。"
+  probing: "対応する最大ページサイズを確認中…"
+  complete: "全件読込完了：${count} 件 · 1ページ ${size} 件 · ${rounds} リクエスト"
+  incomplete: "全件の読込は未完了です。読込済みの結果を検索できます。"
+  progress: "${current} / ${total} 件 · 1ページ ${size} 件 · ${done} / 約 ${rounds} リクエスト · 残り約 ${time}"
+  longWait: "件数が多いと時間がかかります。余裕を含む予測を通信速度に応じて更新します。"
+  failed: "読込未完了。読込済みの結果を検索するか再試行できます。"
+  cancelled: "読込を中止しました。取得済みデータは保持します。"
+  seconds: "${value} 秒"
+  minutes: "${value} 分"
+  continueSearch: "読込を続ける"

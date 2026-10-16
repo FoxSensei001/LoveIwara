@@ -12,6 +12,8 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
+import 'package:i_iwara/app/ui/widgets/paged_search/paged_search_controller.dart';
+import 'package:i_iwara/app/ui/widgets/paged_search/paged_search_row.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
 
@@ -19,6 +21,10 @@ import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
 ///
 /// 数据全在本地 sqlite，一次取完，所以这里没有分页 / 瀑布切换；
 /// 「分页模式」只对收藏夹详情里的作品列表有意义（见 favorite_folder_detail_page）。
+///
+/// header 上的搜索钮按名称过滤收藏夹（本地过滤，没有范围选择）。搜索与拖拽排序
+/// 互斥：有搜索词时排序键收起；排序中开始输入就先退出排序——在筛掉一半的列表
+/// 里拖动，位置换算不回整份列表。
 class FavoriteListPage extends StatefulWidget {
   const FavoriteListPage({super.key});
 
@@ -38,6 +44,23 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
   String? _error;
   bool _isDragMode = false;
 
+  final TextEditingController _searchInput = TextEditingController();
+  String _query = '';
+
+  /// 按搜索词过滤后真正画出来的收藏夹。
+  List<FavoriteFolder> get _visibleFolders => _query.trim().isEmpty
+      ? _folders
+      : _folders
+            .where((folder) => matchesTextSearch(_query, [folder.title]))
+            .toList(growable: false);
+
+  void _onQueryChanged(String query) {
+    setState(() {
+      _query = query;
+      if (query.trim().isNotEmpty) _isDragMode = false;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -46,6 +69,7 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
 
   @override
   void dispose() {
+    _searchInput.dispose();
     _scrollController.dispose();
     _showBackToTop.dispose();
     super.dispose();
@@ -208,7 +232,7 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
     return GlassButtonGroup(
       children: [
         GlassGroupSlot(
-          visible: _folders.isNotEmpty,
+          visible: _folders.isNotEmpty && _query.trim().isEmpty,
           child: GlassIconButton(
             icon: Icon(_isDragMode ? Icons.check : Icons.sort),
             tooltip: _isDragMode ? t.common.confirm : t.common.sort,
@@ -264,23 +288,21 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
             child: _buildBody(context, t, headerExtent),
           ),
         ),
-        // header 行：左 返回圆钮 / 中 标题胶囊 / 右 动作胶囊
-        header: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.arrow_back),
-                tooltip: t.common.back,
-                onPressed: () => AppService.tryPop(),
-              ),
-              const SizedBox(width: 8),
-              Expanded(child: GlassTitlePill(title: t.favorite.myFavorites)),
-              const SizedBox(width: 8),
-              _buildActionGroup(context),
-            ],
+        // header 行：左 返回圆钮 / 中 标题胶囊 / 搜索钮 / 右 动作胶囊
+        header: PagedSearchHeaderRow(
+          keyPrefix: 'favorite-folders',
+          search: null,
+          input: _searchInput,
+          hintText: t.pagedSearch.nameHint,
+          onChanged: _onQueryChanged,
+          leading: GlassIconButton(
+            standalone: true,
+            icon: const Icon(Icons.arrow_back),
+            tooltip: t.common.back,
+            onPressed: () => AppService.tryPop(),
           ),
+          title: GlassTitlePill(title: t.favorite.myFavorites),
+          actions: _buildActionGroup(context),
         ),
         extra: [_buildScrollToTopFab(context)],
       ),
@@ -339,6 +361,14 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
       );
     }
 
+    final folders = _visibleFolders;
+    if (folders.isEmpty) {
+      return _buildFullScreenState(
+        headerExtent: headerExtent,
+        child: MyEmptyWidget(message: t.pagedSearch.noMatches),
+      );
+    }
+
     if (_isDragMode) {
       return ReorderableListView.builder(
         scrollController: _scrollController,
@@ -366,8 +396,8 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
         crossAxisSpacing: 12,
         childAspectRatio: 1.5,
       ),
-      itemCount: _folders.length,
-      itemBuilder: (context, index) => _buildFolderCard(_folders[index], t),
+      itemCount: folders.length,
+      itemBuilder: (context, index) => _buildFolderCard(folders[index], t),
     );
   }
 

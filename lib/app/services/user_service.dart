@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/dto/profile_user_dto.dart';
 import 'package:i_iwara/app/models/dto/user_request_dto.dart';
@@ -473,11 +474,14 @@ class UserService extends GetxService {
     int page = 0,
     int limit = 20,
     required String userId,
+    CancelToken? cancelToken,
+    bool rethrowErrors = false,
   }) async {
     try {
       final response = await _apiService.get(
         ApiConstants.userFollowing(userId),
         queryParameters: {'page': page, 'limit': limit},
+        cancelToken: cancelToken,
       );
 
       final List<User> results = (response.data['results'] as List)
@@ -492,6 +496,9 @@ class UserService extends GetxService {
       );
       return ApiResult.success(data: pageData);
     } catch (e) {
+      if (rethrowErrors || (e is DioException && CancelToken.isCancel(e))) {
+        rethrow;
+      }
       LogUtils.e('获取关注用户列表失败', error: e);
       return ApiResult.fail(t.errors.failedToFetchData);
     }
@@ -502,11 +509,14 @@ class UserService extends GetxService {
     int page = 0,
     int limit = 20,
     required String userId,
+    CancelToken? cancelToken,
+    bool rethrowErrors = false,
   }) async {
     try {
       final response = await _apiService.get(
         ApiConstants.userFollowers(userId),
         queryParameters: {'page': page, 'limit': limit},
+        cancelToken: cancelToken,
       );
 
       final List<User> results = (response.data['results'] as List)
@@ -521,6 +531,9 @@ class UserService extends GetxService {
       );
       return ApiResult.success(data: pageData);
     } catch (e) {
+      if (rethrowErrors || (e is DioException && CancelToken.isCancel(e))) {
+        rethrow;
+      }
       LogUtils.e('获取粉丝列表失败', error: e);
       return ApiResult.fail(t.errors.failedToFetchData);
     }

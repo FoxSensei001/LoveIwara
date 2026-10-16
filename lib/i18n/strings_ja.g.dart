@@ -98,6 +98,8 @@ class TranslationsJa extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsLocalMediaJa localMedia = _TranslationsLocalMediaJa._(_root);
 	@override late final _TranslationsHistoryPageJa historyPage = _TranslationsHistoryPageJa._(_root);
 	@override late final _TranslationsAiJa ai = _TranslationsAiJa._(_root);
+	@override late final _TranslationsFollowSearchJa followSearch = _TranslationsFollowSearchJa._(_root);
+	@override late final _TranslationsPagedSearchJa pagedSearch = _TranslationsPagedSearchJa._(_root);
 }
 
 // Path: personalProfile
@@ -3116,6 +3118,63 @@ class _TranslationsAiJa extends TranslationsAiEn {
 	@override String get saveAndLeave => 'Save and leave';
 	@override String get discardChanges => 'Discard';
 	@override String get savedToast => 'Saved';
+}
+
+// Path: followSearch
+class _TranslationsFollowSearchJa extends TranslationsFollowSearchEn {
+	_TranslationsFollowSearchJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get scopeLoaded => '読込済み';
+	@override String get scopeAll => '全件';
+	@override String get hint => '名前・@ユーザー名を検索';
+	@override String get loaded => '読込済み';
+	@override String get all => '全件検索';
+	@override String loadedCount({required Object count, required Object total}) => '読込済み ${count} / ${total}';
+	@override String get noLoadedMatches => '読込済みデータに一致なし。全件検索をお試しください。';
+	@override String get noAllMatches => '全件に一致するユーザーはいません。';
+	@override String get noLocalMatches => '一致する特別フォローはいません。';
+	@override String get probing => '対応する最大ページサイズを確認中…';
+	@override String complete({required Object count, required Object size, required Object rounds}) => '全件読込完了：${count} 人 · 1ページ ${size} 件 · ${rounds} リクエスト';
+	@override String get incomplete => '全件の読込は未完了です。読込済みの結果を検索できます。';
+	@override String progress({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} 人 · 1ページ ${size} 件 · ${done} / 約 ${rounds} リクエスト · 残り約 ${time}';
+	@override String get longWait => '件数が多いと時間がかかります。余裕を含む予測を通信速度に応じて更新します。';
+	@override String get failed => '読込未完了。読込済みの結果を検索するか再試行できます。';
+	@override String get cancelled => '読込を中止しました。取得済みデータは保持します。';
+	@override String seconds({required Object value}) => '${value} 秒';
+	@override String minutes({required Object value}) => '${value} 分';
+	@override String get continueSearch => '読込を続ける';
+}
+
+// Path: pagedSearch
+class _TranslationsPagedSearchJa extends TranslationsPagedSearchEn {
+	_TranslationsPagedSearchJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get mediaHint => 'タイトル・作者を検索';
+	@override String get authorWorksHint => 'この作者の作品を検索';
+	@override String get nameHint => '名前で検索';
+	@override String get noMatches => '一致する結果はありません。';
+	@override String get scopeLoaded => '読込済み';
+	@override String get scopeAll => '全件';
+	@override String get all => '全件検索';
+	@override String loadedCount({required Object count, required Object total}) => '読込済み ${count} / ${total}';
+	@override String get noLoadedMatches => '読込済みデータに一致なし。全件検索をお試しください。';
+	@override String get noAllMatches => '全件に一致する項目はありません。';
+	@override String get probing => '対応する最大ページサイズを確認中…';
+	@override String complete({required Object count, required Object size, required Object rounds}) => '全件読込完了：${count} 件 · 1ページ ${size} 件 · ${rounds} リクエスト';
+	@override String get incomplete => '全件の読込は未完了です。読込済みの結果を検索できます。';
+	@override String progress({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} 件 · 1ページ ${size} 件 · ${done} / 約 ${rounds} リクエスト · 残り約 ${time}';
+	@override String get longWait => '件数が多いと時間がかかります。余裕を含む予測を通信速度に応じて更新します。';
+	@override String get failed => '読込未完了。読込済みの結果を検索するか再試行できます。';
+	@override String get cancelled => '読込を中止しました。取得済みデータは保持します。';
+	@override String seconds({required Object value}) => '${value} 秒';
+	@override String minutes({required Object value}) => '${value} 分';
+	@override String get continueSearch => '読込を続ける';
 }
 
 // Path: common.pagination
@@ -8715,6 +8774,45 @@ extension on TranslationsJa {
 			'ai.saveAndLeave' => 'Save and leave',
 			'ai.discardChanges' => 'Discard',
 			'ai.savedToast' => 'Saved',
+			'followSearch.scopeLoaded' => '読込済み',
+			'followSearch.scopeAll' => '全件',
+			'followSearch.hint' => '名前・@ユーザー名を検索',
+			'followSearch.loaded' => '読込済み',
+			'followSearch.all' => '全件検索',
+			'followSearch.loadedCount' => ({required Object count, required Object total}) => '読込済み ${count} / ${total}',
+			'followSearch.noLoadedMatches' => '読込済みデータに一致なし。全件検索をお試しください。',
+			'followSearch.noAllMatches' => '全件に一致するユーザーはいません。',
+			'followSearch.noLocalMatches' => '一致する特別フォローはいません。',
+			'followSearch.probing' => '対応する最大ページサイズを確認中…',
+			'followSearch.complete' => ({required Object count, required Object size, required Object rounds}) => '全件読込完了：${count} 人 · 1ページ ${size} 件 · ${rounds} リクエスト',
+			'followSearch.incomplete' => '全件の読込は未完了です。読込済みの結果を検索できます。',
+			'followSearch.progress' => ({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} 人 · 1ページ ${size} 件 · ${done} / 約 ${rounds} リクエスト · 残り約 ${time}',
+			'followSearch.longWait' => '件数が多いと時間がかかります。余裕を含む予測を通信速度に応じて更新します。',
+			'followSearch.failed' => '読込未完了。読込済みの結果を検索するか再試行できます。',
+			'followSearch.cancelled' => '読込を中止しました。取得済みデータは保持します。',
+			'followSearch.seconds' => ({required Object value}) => '${value} 秒',
+			'followSearch.minutes' => ({required Object value}) => '${value} 分',
+			'followSearch.continueSearch' => '読込を続ける',
+			'pagedSearch.mediaHint' => 'タイトル・作者を検索',
+			'pagedSearch.authorWorksHint' => 'この作者の作品を検索',
+			'pagedSearch.nameHint' => '名前で検索',
+			'pagedSearch.noMatches' => '一致する結果はありません。',
+			'pagedSearch.scopeLoaded' => '読込済み',
+			'pagedSearch.scopeAll' => '全件',
+			'pagedSearch.all' => '全件検索',
+			'pagedSearch.loadedCount' => ({required Object count, required Object total}) => '読込済み ${count} / ${total}',
+			'pagedSearch.noLoadedMatches' => '読込済みデータに一致なし。全件検索をお試しください。',
+			'pagedSearch.noAllMatches' => '全件に一致する項目はありません。',
+			'pagedSearch.probing' => '対応する最大ページサイズを確認中…',
+			'pagedSearch.complete' => ({required Object count, required Object size, required Object rounds}) => '全件読込完了：${count} 件 · 1ページ ${size} 件 · ${rounds} リクエスト',
+			'pagedSearch.incomplete' => '全件の読込は未完了です。読込済みの結果を検索できます。',
+			'pagedSearch.progress' => ({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} 件 · 1ページ ${size} 件 · ${done} / 約 ${rounds} リクエスト · 残り約 ${time}',
+			'pagedSearch.longWait' => '件数が多いと時間がかかります。余裕を含む予測を通信速度に応じて更新します。',
+			'pagedSearch.failed' => '読込未完了。読込済みの結果を検索するか再試行できます。',
+			'pagedSearch.cancelled' => '読込を中止しました。取得済みデータは保持します。',
+			'pagedSearch.seconds' => ({required Object value}) => '${value} 秒',
+			'pagedSearch.minutes' => ({required Object value}) => '${value} 分',
+			'pagedSearch.continueSearch' => '読込を続ける',
 			_ => null,
 		};
 	}

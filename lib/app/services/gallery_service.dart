@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart' show CancelToken;
+import 'package:dio/dio.dart' show CancelToken, DioException;
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/api_request_access.model.dart';
@@ -177,11 +177,14 @@ class GalleryService extends GetxService {
   Future<ApiResult<PageData<ImageModel>>> fetchFavoriteImages({
     int page = 0,
     int limit = 20,
+    CancelToken? cancelToken,
+    bool rethrowErrors = false,
   }) async {
     try {
       final response = await _apiService.get(
         ApiConstants.favoriteImages(),
         queryParameters: {'page': page, 'limit': limit},
+        cancelToken: cancelToken,
       );
 
       final List<ImageModel> results = (response.data['results'] as List)
@@ -202,6 +205,9 @@ class GalleryService extends GetxService {
 
       return ApiResult.success(data: pageData);
     } catch (e) {
+      if (rethrowErrors || (e is DioException && CancelToken.isCancel(e))) {
+        rethrow;
+      }
       LogUtils.e('获取最爱图库列表失败', tag: 'ImageModelService', error: e);
       final errorMessage = CommonUtils.parseExceptionMessage(e);
       return ApiResult.fail(errorMessage, exception: e);

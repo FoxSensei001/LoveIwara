@@ -3096,10 +3096,10 @@ searchFilter:
   copyToClipboard: "클립보드에 복사"
   copied: "복사됨"
   filterCount: "필터 ${count}개"
-  
+
   # Filter Button Widget
   filterSettings: "필터 설정"
-  
+
   # Filter Row Widget
   field: "필드"
   operator: "연산자"
@@ -3122,7 +3122,7 @@ searchFilter:
   pleaseFillStartValue: "시작 값을 입력하세요"
   pleaseFillEndValue: "끝 값을 입력하세요"
   rangeValueFormatError: "범위 값 형식 오류"
-  
+
   # Filter Operators
   contains: "포함"
   equals: "같음"
@@ -3134,7 +3134,7 @@ searchFilter:
   range: "범위"
   in: "다음 중 하나 포함"
   notIn: "다음 중 하나도 포함하지 않음"
-  
+
   # Filter Field Types
   username: "사용자 이름"
   nickname: "닉네임"
@@ -3154,16 +3154,16 @@ searchFilter:
   videoCount: "동영상 수"
   createDate: "생성일"
   content: "콘텐츠"
-  
+
   # Rating Options
   all: "전체"
   adult: "성인"
   general: "일반"
-  
+
   # Boolean Values
   yes: "예"
   no: "아니요"
-  
+
   # Content Types
   users: "사용자"
   videos: "동영상"
@@ -3172,7 +3172,7 @@ searchFilter:
   forumThreads: "포럼 스레드"
   forumPosts: "포럼 게시물"
   playlists: "재생목록"
-  
+
   # Sort Types for common search
   sortTypes:
     relevance: "관련도"
@@ -3955,3 +3955,45 @@ ai:
   saveAndLeave: "Save and leave"
   discardChanges: "Discard"
   savedToast: "Saved"
+
+followSearch:
+  scopeLoaded: "불러옴"
+  scopeAll: "전체 목록"
+  hint: "이름 또는 @사용자명 검색"
+  loaded: "불러온 데이터"
+  all: "전체 검색"
+  loadedCount: "불러옴 ${count} / ${total}"
+  noLoadedMatches: "불러온 데이터에 일치 항목이 없습니다. 전체 검색을 시도하세요."
+  noAllMatches: "전체 목록에 일치 항목이 없습니다."
+  noLocalMatches: "일치하는 특별 팔로우가 없습니다."
+  probing: "지원되는 최대 페이지 크기 확인 중…"
+  complete: "전체 목록 준비됨: ${count}명 · 페이지당 ${size}명 · 요청 ${rounds}회"
+  incomplete: "전체 목록이 완전하지 않습니다. 불러온 결과를 검색할 수 있습니다."
+  progress: "${current} / ${total}명 · 페이지당 ${size}명 · 요청 ${done} / 약 ${rounds}회 · 약 ${time} 남음"
+  longWait: "목록이 크면 오래 걸릴 수 있습니다. 여유 시간을 포함한 예상 시간을 요청 속도에 따라 갱신합니다."
+  failed: "불러오기를 완료하지 못했습니다. 불러온 결과를 검색하거나 재시도하세요."
+  cancelled: "불러오기 취소됨. 받은 데이터는 유지됩니다."
+  seconds: "${value}초"
+  minutes: "${value}분"
+  continueSearch: "계속 불러오기"
+pagedSearch:
+  mediaHint: "제목 또는 작성자 검색"
+  authorWorksHint: "이 작성자의 작품 검색"
+  nameHint: "이름으로 검색"
+  noMatches: "일치하는 결과가 없습니다."
+  scopeLoaded: "불러옴"
+  scopeAll: "전체 목록"
+  all: "전체 검색"
+  loadedCount: "불러옴 ${count} / ${total}"
+  noLoadedMatches: "불러온 데이터에 일치 항목이 없습니다. 전체 검색을 시도하세요."
+  noAllMatches: "전체 목록에 일치 항목이 없습니다."
+  probing: "지원되는 최대 페이지 크기 확인 중…"
+  complete: "전체 목록 준비됨: ${count}개 · 페이지당 ${size}개 · 요청 ${rounds}회"
+  incomplete: "전체 목록이 완전하지 않습니다. 불러온 결과를 검색할 수 있습니다."
+  progress: "${current} / ${total}개 · 페이지당 ${size}개 · 요청 ${done} / 약 ${rounds}회 · 약 ${time} 남음"
+  longWait: "목록이 크면 오래 걸릴 수 있습니다. 여유 시간을 포함한 예상 시간을 요청 속도에 따라 갱신합니다."
+  failed: "불러오기를 완료하지 못했습니다. 불러온 결과를 검색하거나 재시도하세요."
+  cancelled: "불러오기 취소됨. 받은 데이터는 유지됩니다."
+  seconds: "${value}초"
+  minutes: "${value}분"
+  continueSearch: "계속 불러오기"

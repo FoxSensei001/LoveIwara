@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
@@ -60,6 +62,7 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/batch_download_s
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
+import 'package:i_iwara/app/ui/widgets/paged_search/paged_search_row.dart';
 
 class AuthorProfilePage extends StatefulWidget {
   final String username;
@@ -109,6 +112,14 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
   final GlobalKey _videoTabKey = GlobalKey();
   final GlobalKey _imageTabKey = GlobalKey();
   final GlobalKey _playlistTabKey = GlobalKey();
+
+  /// 顶栏搜索钮里的词：四个 tab 共用，「在这位作者的作品里搜」。
+  ///
+  /// 敲字停手 400ms 才交给各 tab（[_searchKeyword]）：每次提交都是一次 `/search`
+  /// 请求，逐字发既浪费又会让结果一闪一闪。清空立刻生效。
+  final TextEditingController _searchInput = TextEditingController();
+  String _searchKeyword = '';
+  Timer? _searchDebounce;
 
   /// 本页是否被上层「页面级」路由（视频详情页等）盖住。弹层不计入，见 [didPushNext]。
   bool _isCovered = false;
@@ -185,6 +196,8 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
   @override
   void dispose() {
     routeObserver.unsubscribe(this);
+    _searchDebounce?.cancel();
+    _searchInput.dispose();
     profileController.dispose();
     primaryTC.dispose();
     videoSecondaryTC.dispose();
@@ -206,6 +219,38 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     if (mounted) {
       setState(() {});
     }
+  }
+
+  void _onSearchInput(String value) {
+    _searchDebounce?.cancel();
+    final keyword = value.trim();
+    if (keyword == _searchKeyword) return;
+    void commit() {
+      if (!mounted) return;
+      final starting = _searchKeyword.isEmpty && keyword.isNotEmpty;
+      setState(() => _searchKeyword = keyword);
+      if (starting) _revealTabs();
+    }
+
+    if (keyword.isEmpty) {
+      commit();
+    } else {
+      _searchDebounce = Timer(const Duration(milliseconds: 400), commit);
+    }
+  }
+
+  /// 开始搜索时把窄屏的头图 / 资料区收上去：结果在下面的 tab 里，不收的话
+  /// 半屏都是资料，用户看不见搜出了什么。宽屏资料在左栏，不用收。
+  void _revealTabs() {
+    final outer = _key.currentState?.outerController;
+    if (outer == null || !outer.hasClients) return;
+    final target = outer.position.maxScrollExtent;
+    if (outer.offset >= target - 1) return;
+    outer.animateTo(
+      target,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   void _togglePaginationMode() {
@@ -281,27 +326,30 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     );
   }
 
+  /// 返回 ·（空）· 搜索钮 · 更多。搜索钮点开向左长成输入框，搜的是这位作者
+  /// 的全部作品（当前 tab 那一类），见 author_search_query.dart。
   Widget _buildHeaderChromeRow(BuildContext context) {
     final t = slang.Translations.of(context);
     return GlassChromeLayer(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          children: [
-            GlassIconButton(
-              standalone: true,
-              icon: const Icon(Icons.arrow_back),
-              tooltip: t.common.back,
-              onPressed: AppService.tryPop,
-            ),
-            const Spacer(),
-            // 有可选项时显示胶囊，没有时收成 0 宽——用 GlassShapeSwitcher
-            // 让整块 action group 淡入淡出+宽度过渡（未登录访客切换到已登录、
-            // 或作者信息延迟加载时都会命中这次形变）。
-            Obx(
-              () => GlassShapeSwitcher(child: _buildHeaderActionGroup(context)),
-            ),
-          ],
+      child: PagedSearchHeaderRow(
+        keyPrefix: 'author',
+        search: null,
+        input: _searchInput,
+        hintText: t.pagedSearch.authorWorksHint,
+        onChanged: _onSearchInput,
+        leading: GlassIconButton(
+          standalone: true,
+          icon: const Icon(Icons.arrow_back),
+          tooltip: t.common.back,
+          onPressed: AppService.tryPop,
+        ),
+        // 这一行没有标题：作者名就在下面的资料区里
+        title: const SizedBox.shrink(),
+        // 有可选项时显示胶囊，没有时收成 0 宽——用 GlassShapeSwitcher
+        // 让整块 action group 淡入淡出+宽度过渡（未登录访客切换到已登录、
+        // 或作者信息延迟加载时都会命中这次形变）。
+        actions: Obx(
+          () => GlassShapeSwitcher(child: _buildHeaderActionGroup(context)),
         ),
       ),
     );
@@ -1268,6 +1316,9 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                       ? ProfileVideoTabListWidget(
                           key: _videoTabKey,
                           userId: profileController.author.value!.id,
+                          searchKeyword: _searchKeyword,
+                          authorUsername:
+                              profileController.author.value!.username,
                           tabKey: t.common.video,
                           tc: videoSecondaryTC,
                           overlayTopInset: overlayTopInset,
@@ -1296,6 +1347,9 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                       ? ProfileImageModelTabListWidget(
                           key: _imageTabKey,
                           userId: profileController.author.value!.id,
+                          searchKeyword: _searchKeyword,
+                          authorUsername:
+                              profileController.author.value!.username,
                           tabKey: t.common.gallery,
                           tc: imageSecondaryTC,
                           overlayTopInset: overlayTopInset,
@@ -1325,6 +1379,9 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                           scrimSolidExtent: scrimSolidExtent,
                           key: _playlistTabKey,
                           userId: profileController.author.value!.id,
+                          searchKeyword: _searchKeyword,
+                          authorUsername:
+                              profileController.author.value!.username,
                           tabKey: t.common.playlist,
                           tc: playlistSecondaryTC,
                           onFetchFinished: ({int? count}) {},
@@ -1342,6 +1399,9 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                           key: _postListKey,
                           widgetKey: _postListKey,
                           userId: profileController.author.value!.id,
+                          searchKeyword: _searchKeyword,
+                          authorUsername:
+                              profileController.author.value!.username,
                           tabKey: t.common.post,
                           tc: postSecondaryTC,
                           isPaginated: _isPaginated.value,

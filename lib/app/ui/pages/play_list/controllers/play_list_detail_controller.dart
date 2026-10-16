@@ -3,11 +3,17 @@ import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
 import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_detail_repository.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
+import 'package:i_iwara/app/models/video.model.dart';
+import 'package:i_iwara/app/ui/widgets/paged_search/paged_search_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class PlayListDetailController extends GetxController {
   final PlayListService _playListService = Get.find<PlayListService>();
   late PlayListDetailRepository repository;
+
+  /// 列表内搜索：只在本地过滤已加载的项，或另起一套请求扫完整张列表，
+  /// 都不会动浏览列表的翻页游标。
+  late final PagedSearchController<Video> search;
 
   final RxBool isMultiSelect = false.obs;
   final RxSet<String> selectedVideos = <String>{}.obs;
@@ -21,13 +27,40 @@ class PlayListDetailController extends GetxController {
   final String playlistId;
 
   PlayListDetailController({required this.playlistId}) {
-    repository = PlayListDetailRepository(playlistId: playlistId);
+    search = PagedSearchController<Video>(
+      fetchPage: (page, limit, token) async {
+        final result = await _playListService.getPlaylistVideos(
+          playlistId: playlistId,
+          page: page,
+          limit: limit,
+          cancelToken: token,
+          rethrowErrors: true,
+        );
+        if (!result.isSuccess || result.data == null) {
+          throw Exception(result.message);
+        }
+        return result.data!;
+      },
+      idOf: (video) => video.id,
+      matches: (query, video) =>
+          matchesMediaSearch(query, video.title, video.user),
+    );
+    repository = PlayListDetailRepository(
+      playlistId: playlistId,
+      search: search,
+    );
   }
 
   @override
   void onInit() {
     super.onInit();
     loadPlaylistName();
+  }
+
+  @override
+  void onClose() {
+    search.dispose();
+    super.onClose();
   }
 
   Future<void> loadPlaylistName() async {

@@ -98,6 +98,8 @@ class TranslationsVi extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsLocalMediaVi localMedia = _TranslationsLocalMediaVi._(_root);
 	@override late final _TranslationsHistoryPageVi historyPage = _TranslationsHistoryPageVi._(_root);
 	@override late final _TranslationsAiVi ai = _TranslationsAiVi._(_root);
+	@override late final _TranslationsFollowSearchVi followSearch = _TranslationsFollowSearchVi._(_root);
+	@override late final _TranslationsPagedSearchVi pagedSearch = _TranslationsPagedSearchVi._(_root);
 }
 
 // Path: personalProfile
@@ -3116,6 +3118,63 @@ class _TranslationsAiVi extends TranslationsAiEn {
 	@override String get saveAndLeave => 'Save and leave';
 	@override String get discardChanges => 'Discard';
 	@override String get savedToast => 'Saved';
+}
+
+// Path: followSearch
+class _TranslationsFollowSearchVi extends TranslationsFollowSearchEn {
+	_TranslationsFollowSearchVi._(TranslationsVi root) : this._root = root, super.internal(root);
+
+	final TranslationsVi _root; // ignore: unused_field
+
+	// Translations
+	@override String get scopeLoaded => 'Đã tải';
+	@override String get scopeAll => 'Toàn bộ';
+	@override String get hint => 'Tìm tên hoặc @tên người dùng';
+	@override String get loaded => 'Dữ liệu đã tải';
+	@override String get all => 'Toàn bộ danh sách';
+	@override String loadedCount({required Object count, required Object total}) => 'Đã tải ${count} / ${total}';
+	@override String get noLoadedMatches => 'Không có kết quả trong dữ liệu đã tải. Hãy thử toàn bộ danh sách.';
+	@override String get noAllMatches => 'Không có kết quả trong toàn bộ danh sách.';
+	@override String get noLocalMatches => 'Không có theo dõi đặc biệt phù hợp.';
+	@override String get probing => 'Đang kiểm tra kích thước trang tối đa được hỗ trợ…';
+	@override String complete({required Object count, required Object size, required Object rounds}) => 'Đã tải toàn bộ: ${count} người dùng · ${size} mỗi trang · ${rounds} yêu cầu';
+	@override String get incomplete => 'Danh sách chưa đầy đủ. Vẫn có thể tìm trong kết quả đã tải.';
+	@override String progress({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} người dùng · ${size} mỗi trang · ${done} / ~${rounds} yêu cầu · còn khoảng ${time}';
+	@override String get longWait => 'Danh sách lớn có thể mất nhiều thời gian. Ước tính có thêm thời gian dự phòng và cập nhật theo tốc độ yêu cầu.';
+	@override String get failed => 'Chưa tải xong. Tìm trong kết quả đã tải hoặc thử lại.';
+	@override String get cancelled => 'Đã hủy tải. Dữ liệu nhận được được giữ lại.';
+	@override String seconds({required Object value}) => '${value} giây';
+	@override String minutes({required Object value}) => '${value} phút';
+	@override String get continueSearch => 'Tiếp tục tải';
+}
+
+// Path: pagedSearch
+class _TranslationsPagedSearchVi extends TranslationsPagedSearchEn {
+	_TranslationsPagedSearchVi._(TranslationsVi root) : this._root = root, super.internal(root);
+
+	final TranslationsVi _root; // ignore: unused_field
+
+	// Translations
+	@override String get mediaHint => 'Tìm tiêu đề hoặc tác giả';
+	@override String get authorWorksHint => 'Tìm trong tác phẩm của tác giả này';
+	@override String get nameHint => 'Tìm theo tên';
+	@override String get noMatches => 'Không có kết quả phù hợp.';
+	@override String get scopeLoaded => 'Đã tải';
+	@override String get scopeAll => 'Toàn bộ';
+	@override String get all => 'Toàn bộ danh sách';
+	@override String loadedCount({required Object count, required Object total}) => 'Đã tải ${count} / ${total}';
+	@override String get noLoadedMatches => 'Không có kết quả trong dữ liệu đã tải. Hãy thử toàn bộ danh sách.';
+	@override String get noAllMatches => 'Không có kết quả trong toàn bộ danh sách.';
+	@override String get probing => 'Đang kiểm tra kích thước trang tối đa được hỗ trợ…';
+	@override String complete({required Object count, required Object size, required Object rounds}) => 'Đã tải toàn bộ: ${count} mục · ${size} mỗi trang · ${rounds} yêu cầu';
+	@override String get incomplete => 'Danh sách chưa đầy đủ. Vẫn có thể tìm trong kết quả đã tải.';
+	@override String progress({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} mục · ${size} mỗi trang · ${done} / ~${rounds} yêu cầu · còn khoảng ${time}';
+	@override String get longWait => 'Danh sách lớn có thể mất nhiều thời gian. Ước tính có thêm thời gian dự phòng và cập nhật theo tốc độ yêu cầu.';
+	@override String get failed => 'Chưa tải xong. Tìm trong kết quả đã tải hoặc thử lại.';
+	@override String get cancelled => 'Đã hủy tải. Dữ liệu nhận được được giữ lại.';
+	@override String seconds({required Object value}) => '${value} giây';
+	@override String minutes({required Object value}) => '${value} phút';
+	@override String get continueSearch => 'Tiếp tục tải';
 }
 
 // Path: common.pagination
@@ -8715,6 +8774,45 @@ extension on TranslationsVi {
 			'ai.saveAndLeave' => 'Save and leave',
 			'ai.discardChanges' => 'Discard',
 			'ai.savedToast' => 'Saved',
+			'followSearch.scopeLoaded' => 'Đã tải',
+			'followSearch.scopeAll' => 'Toàn bộ',
+			'followSearch.hint' => 'Tìm tên hoặc @tên người dùng',
+			'followSearch.loaded' => 'Dữ liệu đã tải',
+			'followSearch.all' => 'Toàn bộ danh sách',
+			'followSearch.loadedCount' => ({required Object count, required Object total}) => 'Đã tải ${count} / ${total}',
+			'followSearch.noLoadedMatches' => 'Không có kết quả trong dữ liệu đã tải. Hãy thử toàn bộ danh sách.',
+			'followSearch.noAllMatches' => 'Không có kết quả trong toàn bộ danh sách.',
+			'followSearch.noLocalMatches' => 'Không có theo dõi đặc biệt phù hợp.',
+			'followSearch.probing' => 'Đang kiểm tra kích thước trang tối đa được hỗ trợ…',
+			'followSearch.complete' => ({required Object count, required Object size, required Object rounds}) => 'Đã tải toàn bộ: ${count} người dùng · ${size} mỗi trang · ${rounds} yêu cầu',
+			'followSearch.incomplete' => 'Danh sách chưa đầy đủ. Vẫn có thể tìm trong kết quả đã tải.',
+			'followSearch.progress' => ({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} người dùng · ${size} mỗi trang · ${done} / ~${rounds} yêu cầu · còn khoảng ${time}',
+			'followSearch.longWait' => 'Danh sách lớn có thể mất nhiều thời gian. Ước tính có thêm thời gian dự phòng và cập nhật theo tốc độ yêu cầu.',
+			'followSearch.failed' => 'Chưa tải xong. Tìm trong kết quả đã tải hoặc thử lại.',
+			'followSearch.cancelled' => 'Đã hủy tải. Dữ liệu nhận được được giữ lại.',
+			'followSearch.seconds' => ({required Object value}) => '${value} giây',
+			'followSearch.minutes' => ({required Object value}) => '${value} phút',
+			'followSearch.continueSearch' => 'Tiếp tục tải',
+			'pagedSearch.mediaHint' => 'Tìm tiêu đề hoặc tác giả',
+			'pagedSearch.authorWorksHint' => 'Tìm trong tác phẩm của tác giả này',
+			'pagedSearch.nameHint' => 'Tìm theo tên',
+			'pagedSearch.noMatches' => 'Không có kết quả phù hợp.',
+			'pagedSearch.scopeLoaded' => 'Đã tải',
+			'pagedSearch.scopeAll' => 'Toàn bộ',
+			'pagedSearch.all' => 'Toàn bộ danh sách',
+			'pagedSearch.loadedCount' => ({required Object count, required Object total}) => 'Đã tải ${count} / ${total}',
+			'pagedSearch.noLoadedMatches' => 'Không có kết quả trong dữ liệu đã tải. Hãy thử toàn bộ danh sách.',
+			'pagedSearch.noAllMatches' => 'Không có kết quả trong toàn bộ danh sách.',
+			'pagedSearch.probing' => 'Đang kiểm tra kích thước trang tối đa được hỗ trợ…',
+			'pagedSearch.complete' => ({required Object count, required Object size, required Object rounds}) => 'Đã tải toàn bộ: ${count} mục · ${size} mỗi trang · ${rounds} yêu cầu',
+			'pagedSearch.incomplete' => 'Danh sách chưa đầy đủ. Vẫn có thể tìm trong kết quả đã tải.',
+			'pagedSearch.progress' => ({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} mục · ${size} mỗi trang · ${done} / ~${rounds} yêu cầu · còn khoảng ${time}',
+			'pagedSearch.longWait' => 'Danh sách lớn có thể mất nhiều thời gian. Ước tính có thêm thời gian dự phòng và cập nhật theo tốc độ yêu cầu.',
+			'pagedSearch.failed' => 'Chưa tải xong. Tìm trong kết quả đã tải hoặc thử lại.',
+			'pagedSearch.cancelled' => 'Đã hủy tải. Dữ liệu nhận được được giữ lại.',
+			'pagedSearch.seconds' => ({required Object value}) => '${value} giây',
+			'pagedSearch.minutes' => ({required Object value}) => '${value} phút',
+			'pagedSearch.continueSearch' => 'Tiếp tục tải',
 			_ => null,
 		};
 	}

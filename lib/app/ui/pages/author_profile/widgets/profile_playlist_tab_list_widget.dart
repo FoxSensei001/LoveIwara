@@ -7,6 +7,9 @@ import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_repository.
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/models/play_list.model.dart';
+import 'package:i_iwara/app/ui/pages/author_profile/author_search_query.dart';
+import 'package:i_iwara/app/ui/pages/search/repositories/search_repositories.dart';
 import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
 
 class ProfilePlaylistTabListWidget extends StatefulWidget {
@@ -24,6 +27,13 @@ class ProfilePlaylistTabListWidget extends StatefulWidget {
   final VoidCallback? onPaginationToggle;
   final VoidCallback? onPageChanged;
 
+  /// 页面 header 搜索钮里的词。非空时本 tab 改走 `/search` + `{author:…}`
+  /// （见 author_search_query.dart）。
+  final String searchKeyword;
+
+  /// 作者的 @username，`{author:…}` 只认它。拿不到时不进搜索态。
+  final String? authorUsername;
+
   const ProfilePlaylistTabListWidget({
     super.key,
     required this.userId,
@@ -35,6 +45,8 @@ class ProfilePlaylistTabListWidget extends StatefulWidget {
     this.onPageChanged,
     this.overlayTopInset = 0,
     this.scrimSolidExtent = 0,
+    this.searchKeyword = '',
+    this.authorUsername,
   });
 
   @override
@@ -45,7 +57,12 @@ class ProfilePlaylistTabListWidget extends StatefulWidget {
 class _ProfilePlaylistTabListWidgetState
     extends State<ProfilePlaylistTabListWidget>
     with AutomaticKeepAliveClientMixin {
-  late PlayListRepository listSourceRepository;
+  late ExtendedLoadingMoreBase<PlaylistModel> listSourceRepository;
+
+  bool get _searching =>
+      widget.searchKeyword.trim().isNotEmpty &&
+      (widget.authorUsername?.isNotEmpty ?? false);
+
   final ScrollController _fallbackController = ScrollController();
   final ValueNotifier<bool> _showBackToTop = ValueNotifier(false);
 
@@ -62,7 +79,29 @@ class _ProfilePlaylistTabListWidgetState
   @override
   void initState() {
     super.initState();
-    listSourceRepository = PlayListRepository(userId: widget.userId);
+    _initRepository();
+  }
+
+  /// 搜索态按名称搜（播放列表只有标题可搜），不带排序＝按相关度。
+  void _initRepository() {
+    listSourceRepository = _searching
+        ? PlaylistSearchRepository(
+            query: authorSearchQuery(
+              keyword: widget.searchKeyword,
+              username: widget.authorUsername!,
+            ),
+          )
+        : PlayListRepository(userId: widget.userId);
+  }
+
+  @override
+  void didUpdateWidget(ProfilePlaylistTabListWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.searchKeyword != widget.searchKeyword ||
+        oldWidget.authorUsername != widget.authorUsername) {
+      listSourceRepository.dispose();
+      _initRepository();
+    }
   }
 
   @override
@@ -112,6 +151,7 @@ class _ProfilePlaylistTabListWidgetState
               : null,
           paddingTop: headerExtent,
           emptyIcon: Icons.playlist_play,
+          emptyMessage: _searching ? t.pagedSearch.noMatches : null,
           itemBuilder: (context, item, index) =>
               PlaylistItemWidget(playlist: item),
         ),

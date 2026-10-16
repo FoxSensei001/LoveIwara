@@ -3,6 +3,7 @@ import 'package:i_iwara/app/models/page_data.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
+import 'package:i_iwara/app/ui/widgets/paged_search/paged_search_controller.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 /// 播放列表详情的视频数据源。
@@ -14,7 +15,16 @@ class PlayListDetailRepository extends ExtendedLoadingMoreBase<Video> {
   final PlayListService _playListService = Get.find<PlayListService>();
   final String playlistId;
 
-  PlayListDetailRepository({required this.playlistId});
+  /// 搜索快照：浏览时加载到的每一页都喂给它，「已加载」范围的搜索就靠这些。
+  final PagedSearchController<Video> search;
+
+  PlayListDetailRepository({required this.playlistId, required this.search});
+
+  @override
+  void resetPagingState() {
+    super.resetPagingState();
+    search.reset();
+  }
 
   @override
   Future<Map<String, dynamic>> fetchDataFromSource(
@@ -22,15 +32,18 @@ class PlayListDetailRepository extends ExtendedLoadingMoreBase<Video> {
     int page,
     int limit,
   ) async {
+    final generation = currentGeneration;
     final result = await _playListService.getPlaylistVideos(
       playlistId: playlistId,
       page: page,
       limit: limit,
+      cancelToken: cancelToken,
     );
-    if (result.isSuccess && result.data != null) {
-      return {'data': result.data!};
+    if (!result.isSuccess || result.data == null) {
+      throw Exception(result.message);
     }
-    throw Exception(result.message);
+    if (!isStaleGeneration(generation)) search.recordLoaded(result.data!);
+    return {'data': result.data!};
   }
 
   @override

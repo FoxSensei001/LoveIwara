@@ -7,6 +7,7 @@ import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/ui/pages/favorites/controllers/favorites_controller.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
+import 'package:i_iwara/app/ui/widgets/paged_search/paged_search_view.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -60,25 +61,36 @@ class _FavoriteImageListState extends State<FavoriteImageList>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return MediaListView<ImageModel>(
-      sourceList: controller.imageRepository,
+    // 有搜索词时结果网格盖在浏览列表上，卡片（含取消最爱蒙层、多选）同一套。
+    return PagedSearchView<ImageModel>(
+      search: controller.imageSearch,
       scrollController: widget.scrollController,
       paddingTop: widget.paddingTop,
-      isPaginated: widget.isPaginated,
-      refreshSignal: widget.refreshSignal,
-      onPageChanged: widget.onPageChanged,
-      emptyIcon: Icons.favorite_border,
-      extendedListDelegate:
-          const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 220,
-            crossAxisSpacing: 5,
-            mainAxisSpacing: 5,
-          ),
-      itemBuilderWithWidth: (context, image, index, width) =>
-          _buildItem(context, image, width),
-      itemBuilder: (context, image, index) => _buildItem(context, image, 220),
+      gridDelegate: _gridDelegate,
+      itemBuilder: _buildItem,
+      browseBuilder: (scrollController) => MediaListView<ImageModel>(
+        sourceList: controller.imageRepository,
+        scrollController: scrollController,
+        paddingTop: widget.paddingTop,
+        isPaginated: widget.isPaginated,
+        refreshSignal: widget.refreshSignal,
+        onPaginatedRefresh: controller.imageRepository.resetPagingState,
+        onPageChanged: widget.onPageChanged,
+        emptyIcon: Icons.favorite_border,
+        extendedListDelegate: _gridDelegate,
+        itemBuilderWithWidth: (context, image, index, width) =>
+            _buildItem(context, image, width),
+        itemBuilder: (context, image, index) => _buildItem(context, image, 220),
+      ),
     );
   }
+
+  static const _gridDelegate =
+      SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 220,
+        crossAxisSpacing: 5,
+        mainAxisSpacing: 5,
+      );
 
   Widget _buildItem(BuildContext context, ImageModel image, double width) {
     final t = slang.Translations.of(context);

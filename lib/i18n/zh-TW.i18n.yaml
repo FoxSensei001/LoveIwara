@@ -2624,11 +2624,11 @@ translation:
   advancedSettings: "高級設定"
   translationPrompt: "翻譯提示詞"
   promptHint: "請輸入翻譯提示詞,使用[TL]作為目標語言的占位符"
-  promptHelperText: "提示詞必須包含[TL]作為目標語言的占位符"  
+  promptHelperText: "提示詞必須包含[TL]作為目標語言的占位符"
   promptMustContainTargetLang: "提示詞必須包含[TL]占位符"
   aiTranslationWillBeDisabled: "AI翻譯將被自動關閉"
   aiTranslationWillBeDisabledDueToConfigChange: "由於修改了基礎配置,AI翻譯將被自動關閉"
-  aiTranslationWillBeDisabledDueToPromptChange: "由於修改了翻譯提示詞,AI翻譯將被自動關閉" 
+  aiTranslationWillBeDisabledDueToPromptChange: "由於修改了翻譯提示詞,AI翻譯將被自動關閉"
   aiTranslationWillBeDisabledDueToParamChange: "由於修改了參數配置,AI翻譯將被自動關閉"
   onlyOpenAIAPISupported: "目前僅支援OpenAI相容的API格式（application/json請求體格式）"
   streamingTranslation: "流式翻譯"
@@ -3169,10 +3169,10 @@ searchFilter:
   copyToClipboard: "複製到剪貼簿"
   copied: "已複製"
   filterCount: "${count} 個過濾器"
-  
+
   # 過濾器按鈕元件
   filterSettings: "篩選項設定"
-  
+
   # 過濾器行元件
   field: "欄位"
   operator: "運算子"
@@ -3195,7 +3195,7 @@ searchFilter:
   pleaseFillStartValue: "請填寫起始值"
   pleaseFillEndValue: "請填寫結束值"
   rangeValueFormatError: "範圍值格式錯誤"
-  
+
   # 過濾器運算子
   contains: "包含"
   equals: "等於"
@@ -3207,7 +3207,7 @@ searchFilter:
   range: "範圍"
   in: "包含任意一項"
   notIn: "不包含任意一項"
-  
+
   # 過濾器欄位類型
   username: "使用者名稱"
   nickname: "暱稱"
@@ -3227,16 +3227,16 @@ searchFilter:
   videoCount: "影片數量"
   createDate: "建立日期"
   content: "內容"
-  
+
   # 評級選項
   all: "全部的"
   adult: "成人的"
   general: "大眾的"
-  
+
   # 布林值
   yes: "是"
   no: "否"
-  
+
   # 內容類型
   users: "使用者"
   videos: "影片"
@@ -3981,3 +3981,45 @@ ai:
   saveAndLeave: "Save and leave"
   discardChanges: "Discard"
   savedToast: "Saved"
+
+followSearch:
+  scopeLoaded: "已載入"
+  scopeAll: "整個清單"
+  hint: "搜尋暱稱或 @使用者名稱"
+  loaded: "已載入資料"
+  all: "全量搜尋"
+  loadedCount: "已載入 ${count} / ${total}"
+  noLoadedMatches: "已載入資料中沒有符合的結果，可嘗試全量搜尋。"
+  noAllMatches: "完整清單中沒有符合的結果。"
+  noLocalMatches: "沒有符合的特別關注。"
+  probing: "正在探測介面支援的最大分頁大小…"
+  complete: "全量資料已就緒：${count} 位使用者 · 每頁 ${size} 筆 · 共 ${rounds} 次請求"
+  incomplete: "全量資料尚未載入完整，仍可搜尋已載入結果。"
+  progress: "${current} / ${total} 位使用者 · 每頁 ${size} 筆 · 請求 ${done} / 約 ${rounds} 輪 · 預計還需 ${time}"
+  longWait: "清單較大時可能需要等待很久。預估已增加等待餘裕，並會依實際請求速度更新。"
+  failed: "載入未完成，可搜尋已載入結果或重試。"
+  cancelled: "已取消載入，已取得的資料會保留。"
+  seconds: "${value} 秒"
+  minutes: "${value} 分鐘"
+  continueSearch: "繼續載入"
+pagedSearch:
+  mediaHint: "搜尋標題或作者"
+  authorWorksHint: "搜尋該作者的作品"
+  nameHint: "搜尋名稱"
+  noMatches: "沒有符合的結果。"
+  scopeLoaded: "已載入"
+  scopeAll: "整個清單"
+  all: "全量搜尋"
+  loadedCount: "已載入 ${count} / ${total}"
+  noLoadedMatches: "已載入資料中沒有符合的結果，可嘗試全量搜尋。"
+  noAllMatches: "完整清單中沒有符合的結果。"
+  probing: "正在探測介面支援的最大分頁大小…"
+  complete: "全量資料已就緒：${count} 項 · 每頁 ${size} 筆 · 共 ${rounds} 次請求"
+  incomplete: "全量資料尚未載入完整，仍可搜尋已載入結果。"
+  progress: "${current} / ${total} 項 · 每頁 ${size} 筆 · 請求 ${done} / 約 ${rounds} 輪 · 預計還需 ${time}"
+  longWait: "清單較大時可能需要等待很久。預估已增加等待餘裕，並會依實際請求速度更新。"
+  failed: "載入未完成，可搜尋已載入結果或重試。"
+  cancelled: "已取消載入，已取得的資料會保留。"
+  seconds: "${value} 秒"
+  minutes: "${value} 分鐘"
+  continueSearch: "繼續載入"

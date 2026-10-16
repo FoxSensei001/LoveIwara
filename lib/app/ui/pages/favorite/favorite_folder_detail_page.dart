@@ -23,6 +23,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/app/ui/widgets/paged_search/paged_search_row.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
@@ -62,6 +63,11 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
 
   _FavoriteFilter _filter = const _FavoriteFilter();
 
+  /// header 搜索钮里的关键字（标题 / 作者）。本地库一次就能查全夹，所以没有
+  /// 「已加载 / 整个列表」的范围选择；敲字停手 300ms 再重查。
+  final TextEditingController _searchInput = TextEditingController();
+  Timer? _searchDebounce;
+
   @override
   void initState() {
     super.initState();
@@ -70,6 +76,8 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
+    _searchInput.dispose();
     _scrollController.dispose();
     _refreshSignal.dispose();
     _showBackToTop.dispose();
@@ -106,11 +114,29 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
     );
   }
 
+  void _onQueryChanged(String query) {
+    _searchDebounce?.cancel();
+    final text = query.trim();
+    final next = text.isEmpty ? null : text;
+    if (next == _repository.searchText) return;
+    void apply() {
+      if (!mounted) return;
+      setState(() => _repository.searchText = next);
+      _refreshList();
+    }
+
+    // 清空立刻生效（点关闭键回到全夹不该还等一拍），敲字才防抖。
+    if (next == null) {
+      apply();
+    } else {
+      _searchDebounce = Timer(const Duration(milliseconds: 300), apply);
+    }
+  }
+
   void _applyFilter(_FavoriteFilter filter) {
     if (!mounted) return;
     setState(() {
       _filter = filter;
-      _repository.searchText = filter.searchText;
       _repository.tagIds = filter.tags.map((tag) => tag.id).toList();
       _repository.startDate = filter.dateRange?.start;
       _repository.endDate = filter.dateRange?.end;
@@ -153,10 +179,8 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
           (_isPaginated ? PaginationBar.barHeight : 0),
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => ScrollToTopFab(
-          visible: visible,
-          onPressed: _scrollToTop,
-        ),
+        builder: (context, visible, _) =>
+            ScrollToTopFab(visible: visible, onPressed: _scrollToTop),
       ),
     );
   }
@@ -192,6 +216,9 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
             scrollController: _scrollController,
             paddingTop: headerExtent,
             emptyIcon: Icons.folder_open,
+            emptyMessage: _repository.searchText == null
+                ? null
+                : t.pagedSearch.noMatches,
             extendedListDelegate:
                 SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: maxCrossAxisExtent,
@@ -207,29 +234,25 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
             ),
           ),
         ),
-        // header 行：左 返回圆钮 / 中 收藏夹标题胶囊 / 右 动作胶囊
-        header: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.arrow_back),
-                tooltip: t.common.back,
-                onPressed: () => AppService.tryPop(),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: GlassTitlePill(
-                  title: (widget.folderTitle?.isEmpty ?? true)
-                      ? t.favorite.localizeFavorite
-                      : widget.folderTitle,
-                ),
-              ),
-              const SizedBox(width: 8),
-              _buildActionGroup(context),
-            ],
+        // header 行：左 返回圆钮 / 中 收藏夹标题胶囊 / 搜索钮 / 右 动作胶囊
+        header: PagedSearchHeaderRow(
+          keyPrefix: 'favorite-folder',
+          search: null,
+          input: _searchInput,
+          hintText: t.pagedSearch.mediaHint,
+          onChanged: _onQueryChanged,
+          leading: GlassIconButton(
+            standalone: true,
+            icon: const Icon(Icons.arrow_back),
+            tooltip: t.common.back,
+            onPressed: () => AppService.tryPop(),
           ),
+          title: GlassTitlePill(
+            title: (widget.folderTitle?.isEmpty ?? true)
+                ? t.favorite.localizeFavorite
+                : widget.folderTitle,
+          ),
+          actions: _buildActionGroup(context),
         ),
         extra: [_buildScrollToTopFab(context)],
       ),
@@ -596,10 +619,7 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
       if (!success) throw Exception('删除失败');
       _refreshList();
       if (!mounted) return;
-      showAppToast(
-        t.favorite.removeItemSuccess,
-        type: AppToastType.success,
-      );
+      showAppToast(t.favorite.removeItemSuccess, type: AppToastType.success);
     } catch (e) {
       if (!mounted) return;
       showAppToast(t.favorite.removeItemFailed, type: AppToastType.error);
@@ -607,31 +627,25 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
   }
 }
 
-/// 收藏夹内容筛选条件（标题关键字 / 标签 / 时间范围）。
+/// 收藏夹内容筛选条件（标签 / 时间范围）。关键字不在这里，在 header 的搜索钮里。
 class _FavoriteFilter {
-  const _FavoriteFilter({
-    this.searchText,
-    this.tags = const [],
-    this.dateRange,
-  });
-
-  final String? searchText;
+  const _FavoriteFilter({this.tags = const [], this.dateRange});
 
   /// 已选标签，多选为 AND 语义（作品需同时带上全部标签）。
   final List<Tag> tags;
 
   final DateTimeRange? dateRange;
 
-  bool get isActive =>
-      (searchText?.isNotEmpty ?? false) || tags.isNotEmpty || dateRange != null;
+  bool get isActive => tags.isNotEmpty || dateRange != null;
 }
 
-/// 收藏夹内容的筛选抽屉：关键字 / 时间范围 / 标签。
+/// 收藏夹内容的筛选抽屉：时间范围 / 标签。
 ///
 /// 2026-08-26 从底部弹窗改成右侧抽屉，与全站其它筛选入口收口到同一只
-/// [showGlassSideDrawer]。同时去掉了「确认」——改动即时生效，只有关键字走
-/// 350ms 防抖（原来那颗确认钮存在的理由就是「避免逐字符触发重查」，防抖把这件
-/// 事做掉了，而且不用先想好再一次性提交）。
+/// [showGlassSideDrawer]。同时去掉了「确认」——改动即时生效。
+///
+/// 2026-10-16 关键字挪去 header 的搜索钮（与最爱、稍后再看、播放列表同一只），
+/// 抽屉里不再留第二个入口：两处都能改同一个关键字，迟早对不上。
 class _FavoriteFilterDrawer extends StatefulWidget {
   const _FavoriteFilterDrawer({
     required this.initial,
@@ -648,41 +662,14 @@ class _FavoriteFilterDrawer extends StatefulWidget {
 }
 
 class _FavoriteFilterDrawerState extends State<_FavoriteFilterDrawer> {
-  late final TextEditingController _searchController = TextEditingController(
-    text: widget.initial.searchText,
-  );
   late List<Tag> _tags = List<Tag>.from(widget.initial.tags);
   late DateTimeRange? _dateRange = widget.initial.dateRange;
-  Timer? _debounce;
 
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    _searchController.dispose();
-    super.dispose();
-  }
+  _FavoriteFilter get _current =>
+      _FavoriteFilter(tags: _tags, dateRange: _dateRange);
 
-  _FavoriteFilter get _current {
-    final text = _searchController.text.trim();
-    return _FavoriteFilter(
-      searchText: text.isEmpty ? null : text,
-      tags: _tags,
-      dateRange: _dateRange,
-    );
-  }
-
-  /// 离散改动（标签、时间范围）立刻生效；敲关键字等停手 350ms。
-  void _emit({required bool immediate}) {
-    _debounce?.cancel();
-    void push() {
-      if (mounted) widget.onChanged(_current);
-    }
-
-    if (immediate) {
-      push();
-    } else {
-      _debounce = Timer(const Duration(milliseconds: 350), push);
-    }
+  void _emit() {
+    if (mounted) widget.onChanged(_current);
   }
 
   Future<void> _pickDateRange() async {
@@ -694,16 +681,15 @@ class _FavoriteFilterDrawerState extends State<_FavoriteFilterDrawer> {
     );
     if (picked == null || !mounted) return;
     setState(() => _dateRange = picked);
-    _emit(immediate: true);
+    _emit();
   }
 
   void _reset() {
-    _searchController.clear();
     setState(() {
       _tags = [];
       _dateRange = null;
     });
-    _emit(immediate: true);
+    _emit();
   }
 
   Widget _glassField(BuildContext context, {required Widget child}) {
@@ -731,32 +717,6 @@ class _FavoriteFilterDrawerState extends State<_FavoriteFilterDrawer> {
       subtitle: t.searchFilter.drawerSubtitle,
       onReset: _current.isActive ? _reset : null,
       children: [
-        GlassFilterSection(
-          title: t.favorite.searchItems,
-          child: _glassField(
-            context,
-            child: TextField(
-              controller: _searchController,
-              textInputAction: TextInputAction.search,
-              decoration: InputDecoration(
-                hintText: t.favorite.searchItems,
-                hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
-                border: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                prefixIcon: Icon(
-                  Icons.search,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-              ),
-              onChanged: (_) => _emit(immediate: false),
-              onSubmitted: (_) => _emit(immediate: true),
-            ),
-          ),
-        ),
         GlassFilterSection(
           title: t.common.selectDateRange,
           child: _glassField(
@@ -791,7 +751,7 @@ class _FavoriteFilterDrawerState extends State<_FavoriteFilterDrawer> {
                         tooltip: t.common.clearDateRange,
                         onPressed: () {
                           setState(() => _dateRange = null);
-                          _emit(immediate: true);
+                          _emit();
                         },
                       ),
                   ],
@@ -805,7 +765,7 @@ class _FavoriteFilterDrawerState extends State<_FavoriteFilterDrawer> {
           selectedTags: _tags,
           onChanged: (tags) {
             setState(() => _tags = tags);
-            _emit(immediate: true);
+            _emit();
           },
         ),
       ],

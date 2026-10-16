@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart' show CancelToken;
+import 'package:dio/dio.dart' show CancelToken, DioException;
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/api_request_access.model.dart';
@@ -165,11 +165,14 @@ class VideoService extends GetxService {
   Future<ApiResult<PageData<Video>>> fetchFavoriteVideos({
     int page = 0,
     int limit = 20,
+    CancelToken? cancelToken,
+    bool rethrowErrors = false,
   }) async {
     try {
       final response = await _apiService.get(
         ApiConstants.favoriteVideos(),
         queryParameters: {'page': page, 'limit': limit},
+        cancelToken: cancelToken,
       );
 
       final List<Video> results = (response.data['results'] as List)
@@ -190,6 +193,9 @@ class VideoService extends GetxService {
 
       return ApiResult.success(data: pageData);
     } catch (e) {
+      if (rethrowErrors || (e is DioException && CancelToken.isCancel(e))) {
+        rethrow;
+      }
       LogUtils.e('获取最爱视频列表失败', tag: 'VideoService', error: e);
       final errorMessage = CommonUtils.parseExceptionMessage(e);
       return ApiResult.fail(errorMessage, exception: e);

@@ -98,6 +98,8 @@ class TranslationsKo extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsLocalMediaKo localMedia = _TranslationsLocalMediaKo._(_root);
 	@override late final _TranslationsHistoryPageKo historyPage = _TranslationsHistoryPageKo._(_root);
 	@override late final _TranslationsAiKo ai = _TranslationsAiKo._(_root);
+	@override late final _TranslationsFollowSearchKo followSearch = _TranslationsFollowSearchKo._(_root);
+	@override late final _TranslationsPagedSearchKo pagedSearch = _TranslationsPagedSearchKo._(_root);
 }
 
 // Path: personalProfile
@@ -3116,6 +3118,63 @@ class _TranslationsAiKo extends TranslationsAiEn {
 	@override String get saveAndLeave => 'Save and leave';
 	@override String get discardChanges => 'Discard';
 	@override String get savedToast => 'Saved';
+}
+
+// Path: followSearch
+class _TranslationsFollowSearchKo extends TranslationsFollowSearchEn {
+	_TranslationsFollowSearchKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get scopeLoaded => '불러옴';
+	@override String get scopeAll => '전체 목록';
+	@override String get hint => '이름 또는 @사용자명 검색';
+	@override String get loaded => '불러온 데이터';
+	@override String get all => '전체 검색';
+	@override String loadedCount({required Object count, required Object total}) => '불러옴 ${count} / ${total}';
+	@override String get noLoadedMatches => '불러온 데이터에 일치 항목이 없습니다. 전체 검색을 시도하세요.';
+	@override String get noAllMatches => '전체 목록에 일치 항목이 없습니다.';
+	@override String get noLocalMatches => '일치하는 특별 팔로우가 없습니다.';
+	@override String get probing => '지원되는 최대 페이지 크기 확인 중…';
+	@override String complete({required Object count, required Object size, required Object rounds}) => '전체 목록 준비됨: ${count}명 · 페이지당 ${size}명 · 요청 ${rounds}회';
+	@override String get incomplete => '전체 목록이 완전하지 않습니다. 불러온 결과를 검색할 수 있습니다.';
+	@override String progress({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total}명 · 페이지당 ${size}명 · 요청 ${done} / 약 ${rounds}회 · 약 ${time} 남음';
+	@override String get longWait => '목록이 크면 오래 걸릴 수 있습니다. 여유 시간을 포함한 예상 시간을 요청 속도에 따라 갱신합니다.';
+	@override String get failed => '불러오기를 완료하지 못했습니다. 불러온 결과를 검색하거나 재시도하세요.';
+	@override String get cancelled => '불러오기 취소됨. 받은 데이터는 유지됩니다.';
+	@override String seconds({required Object value}) => '${value}초';
+	@override String minutes({required Object value}) => '${value}분';
+	@override String get continueSearch => '계속 불러오기';
+}
+
+// Path: pagedSearch
+class _TranslationsPagedSearchKo extends TranslationsPagedSearchEn {
+	_TranslationsPagedSearchKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get mediaHint => '제목 또는 작성자 검색';
+	@override String get authorWorksHint => '이 작성자의 작품 검색';
+	@override String get nameHint => '이름으로 검색';
+	@override String get noMatches => '일치하는 결과가 없습니다.';
+	@override String get scopeLoaded => '불러옴';
+	@override String get scopeAll => '전체 목록';
+	@override String get all => '전체 검색';
+	@override String loadedCount({required Object count, required Object total}) => '불러옴 ${count} / ${total}';
+	@override String get noLoadedMatches => '불러온 데이터에 일치 항목이 없습니다. 전체 검색을 시도하세요.';
+	@override String get noAllMatches => '전체 목록에 일치 항목이 없습니다.';
+	@override String get probing => '지원되는 최대 페이지 크기 확인 중…';
+	@override String complete({required Object count, required Object size, required Object rounds}) => '전체 목록 준비됨: ${count}개 · 페이지당 ${size}개 · 요청 ${rounds}회';
+	@override String get incomplete => '전체 목록이 완전하지 않습니다. 불러온 결과를 검색할 수 있습니다.';
+	@override String progress({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total}개 · 페이지당 ${size}개 · 요청 ${done} / 약 ${rounds}회 · 약 ${time} 남음';
+	@override String get longWait => '목록이 크면 오래 걸릴 수 있습니다. 여유 시간을 포함한 예상 시간을 요청 속도에 따라 갱신합니다.';
+	@override String get failed => '불러오기를 완료하지 못했습니다. 불러온 결과를 검색하거나 재시도하세요.';
+	@override String get cancelled => '불러오기 취소됨. 받은 데이터는 유지됩니다.';
+	@override String seconds({required Object value}) => '${value}초';
+	@override String minutes({required Object value}) => '${value}분';
+	@override String get continueSearch => '계속 불러오기';
 }
 
 // Path: common.pagination
@@ -8715,6 +8774,45 @@ extension on TranslationsKo {
 			'ai.saveAndLeave' => 'Save and leave',
 			'ai.discardChanges' => 'Discard',
 			'ai.savedToast' => 'Saved',
+			'followSearch.scopeLoaded' => '불러옴',
+			'followSearch.scopeAll' => '전체 목록',
+			'followSearch.hint' => '이름 또는 @사용자명 검색',
+			'followSearch.loaded' => '불러온 데이터',
+			'followSearch.all' => '전체 검색',
+			'followSearch.loadedCount' => ({required Object count, required Object total}) => '불러옴 ${count} / ${total}',
+			'followSearch.noLoadedMatches' => '불러온 데이터에 일치 항목이 없습니다. 전체 검색을 시도하세요.',
+			'followSearch.noAllMatches' => '전체 목록에 일치 항목이 없습니다.',
+			'followSearch.noLocalMatches' => '일치하는 특별 팔로우가 없습니다.',
+			'followSearch.probing' => '지원되는 최대 페이지 크기 확인 중…',
+			'followSearch.complete' => ({required Object count, required Object size, required Object rounds}) => '전체 목록 준비됨: ${count}명 · 페이지당 ${size}명 · 요청 ${rounds}회',
+			'followSearch.incomplete' => '전체 목록이 완전하지 않습니다. 불러온 결과를 검색할 수 있습니다.',
+			'followSearch.progress' => ({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total}명 · 페이지당 ${size}명 · 요청 ${done} / 약 ${rounds}회 · 약 ${time} 남음',
+			'followSearch.longWait' => '목록이 크면 오래 걸릴 수 있습니다. 여유 시간을 포함한 예상 시간을 요청 속도에 따라 갱신합니다.',
+			'followSearch.failed' => '불러오기를 완료하지 못했습니다. 불러온 결과를 검색하거나 재시도하세요.',
+			'followSearch.cancelled' => '불러오기 취소됨. 받은 데이터는 유지됩니다.',
+			'followSearch.seconds' => ({required Object value}) => '${value}초',
+			'followSearch.minutes' => ({required Object value}) => '${value}분',
+			'followSearch.continueSearch' => '계속 불러오기',
+			'pagedSearch.mediaHint' => '제목 또는 작성자 검색',
+			'pagedSearch.authorWorksHint' => '이 작성자의 작품 검색',
+			'pagedSearch.nameHint' => '이름으로 검색',
+			'pagedSearch.noMatches' => '일치하는 결과가 없습니다.',
+			'pagedSearch.scopeLoaded' => '불러옴',
+			'pagedSearch.scopeAll' => '전체 목록',
+			'pagedSearch.all' => '전체 검색',
+			'pagedSearch.loadedCount' => ({required Object count, required Object total}) => '불러옴 ${count} / ${total}',
+			'pagedSearch.noLoadedMatches' => '불러온 데이터에 일치 항목이 없습니다. 전체 검색을 시도하세요.',
+			'pagedSearch.noAllMatches' => '전체 목록에 일치 항목이 없습니다.',
+			'pagedSearch.probing' => '지원되는 최대 페이지 크기 확인 중…',
+			'pagedSearch.complete' => ({required Object count, required Object size, required Object rounds}) => '전체 목록 준비됨: ${count}개 · 페이지당 ${size}개 · 요청 ${rounds}회',
+			'pagedSearch.incomplete' => '전체 목록이 완전하지 않습니다. 불러온 결과를 검색할 수 있습니다.',
+			'pagedSearch.progress' => ({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total}개 · 페이지당 ${size}개 · 요청 ${done} / 약 ${rounds}회 · 약 ${time} 남음',
+			'pagedSearch.longWait' => '목록이 크면 오래 걸릴 수 있습니다. 여유 시간을 포함한 예상 시간을 요청 속도에 따라 갱신합니다.',
+			'pagedSearch.failed' => '불러오기를 완료하지 못했습니다. 불러온 결과를 검색하거나 재시도하세요.',
+			'pagedSearch.cancelled' => '불러오기 취소됨. 받은 데이터는 유지됩니다.',
+			'pagedSearch.seconds' => ({required Object value}) => '${value}초',
+			'pagedSearch.minutes' => ({required Object value}) => '${value}분',
+			'pagedSearch.continueSearch' => '계속 불러오기',
 			_ => null,
 		};
 	}

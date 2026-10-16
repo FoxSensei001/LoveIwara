@@ -1,3 +1,4 @@
+import '../controllers/follow_search_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -35,7 +36,10 @@ class SpecialFollowsList extends StatelessWidget {
     final userPreferenceService = Get.find<UserPreferenceService>();
 
     return Obx(() {
-      final likedUsers = userPreferenceService.likedUsers;
+      final query = controller.specialSearchQuery.value;
+      final likedUsers = userPreferenceService.likedUsers
+          .where((u) => matchesFollowSearch(query, u.name, u.username))
+          .toList();
       final double bottomInset = MediaQuery.paddingOf(context).bottom + 5;
 
       if (likedUsers.isEmpty) {
@@ -44,7 +48,9 @@ class SpecialFollowsList extends StatelessWidget {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: EdgeInsets.fromLTRB(16, paddingTop + 32, 16, bottomInset),
           child: MyEmptyWidget(
-            message: t.common.noSpecialFollows,
+            message: query.trim().isEmpty
+                ? t.common.noSpecialFollows
+                : t.followSearch.noLocalMatches,
             icon: Icons.stars_outlined,
           ),
         );
@@ -57,8 +63,17 @@ class SpecialFollowsList extends StatelessWidget {
         buildDefaultDragHandles: false,
         header: _buildTip(context, t),
         onReorderItem: (oldIndex, newIndex) {
-          final UserDTO item = likedUsers.removeAt(oldIndex);
-          likedUsers.insert(newIndex, item);
+          // Reorder by stable IDs in the full list. Hidden users keep their slots.
+          final ordered = List<UserDTO>.of(likedUsers);
+          final item = ordered.removeAt(oldIndex);
+          ordered.insert(newIndex, item);
+          final visibleIds = likedUsers.map((u) => u.id).toSet();
+          var visibleIndex = 0;
+          for (var i = 0; i < userPreferenceService.likedUsers.length; i++) {
+            if (visibleIds.contains(userPreferenceService.likedUsers[i].id)) {
+              userPreferenceService.likedUsers[i] = ordered[visibleIndex++];
+            }
+          }
           // 保存整个列表的新顺序
           userPreferenceService.saveLikedUsers();
         },

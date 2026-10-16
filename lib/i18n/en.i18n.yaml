@@ -2576,11 +2576,11 @@ translation:
   advancedSettings: "Advanced Settings"
   translationPrompt: "Translation Prompt"
   promptHint: "Please enter translation prompt, use [TL] as the placeholder for the target language"
-  promptHelperText: "The prompt must contain [TL] as the placeholder for the target language"  
+  promptHelperText: "The prompt must contain [TL] as the placeholder for the target language"
   promptMustContainTargetLang: "The prompt must contain [TL] placeholder"
   aiTranslationWillBeDisabled: "AI translation will be disabled"
   aiTranslationWillBeDisabledDueToConfigChange: "Due to the change of basic configuration, AI translation will be disabled"
-  aiTranslationWillBeDisabledDueToPromptChange: "Due to the change of translation prompt, AI translation will be disabled" 
+  aiTranslationWillBeDisabledDueToPromptChange: "Due to the change of translation prompt, AI translation will be disabled"
   aiTranslationWillBeDisabledDueToParamChange: "Due to the change of parameter configuration, AI translation will be disabled"
   onlyOpenAIAPISupported: "Currently only supports OpenAI-compatible API format (application/json request body)"
   streamingTranslation: "Streaming Translation"
@@ -3120,10 +3120,10 @@ searchFilter:
   copyToClipboard: "Copy to Clipboard"
   copied: "Copied"
   filterCount: "${count} filters"
-  
+
   # Filter Button Widget
   filterSettings: "Filter Settings"
-  
+
   # Filter Row Widget
   field: "Field"
   operator: "Operator"
@@ -3146,7 +3146,7 @@ searchFilter:
   pleaseFillStartValue: "Please fill start value"
   pleaseFillEndValue: "Please fill end value"
   rangeValueFormatError: "Range value format error"
-  
+
   # Filter Operators
   contains: "Contains"
   equals: "Equals"
@@ -3158,7 +3158,7 @@ searchFilter:
   range: "Range"
   in: "Contains Any"
   notIn: "Not Contains Any"
-  
+
   # Filter Field Types
   username: "Username"
   nickname: "Nickname"
@@ -3178,16 +3178,16 @@ searchFilter:
   videoCount: "Video Count"
   createDate: "Create Date"
   content: "Content"
-  
+
   # Rating Options
   all: "All"
   adult: "Adult"
   general: "General"
-  
+
   # Boolean Values
   yes: "Yes"
   no: "No"
-  
+
   # Content Types
   users: "Users"
   videos: "Videos"
@@ -3196,7 +3196,7 @@ searchFilter:
   forumThreads: "Forum Threads"
   forumPosts: "Forum Posts"
   playlists: "Playlists"
-  
+
   # Sort Types for common search
   sortTypes:
     relevance: "Relevance"
@@ -3979,3 +3979,45 @@ ai:
   saveAndLeave: "Save and leave"
   discardChanges: "Discard"
   savedToast: "Saved"
+
+followSearch:
+  scopeLoaded: "Loaded"
+  scopeAll: "Whole list"
+  hint: "Search name or @username"
+  loaded: "Loaded data"
+  all: "Full list"
+  loadedCount: "Loaded ${count} / ${total}"
+  noLoadedMatches: "No matches in loaded data. Try full-list search."
+  noAllMatches: "No matches in the full list."
+  noLocalMatches: "No matching special follows."
+  probing: "Checking the largest supported page size…"
+  complete: "Full list ready: ${count} users · ${size} per page · ${rounds} requests"
+  incomplete: "Full list is incomplete. Loaded results remain searchable."
+  progress: "${current} / ${total} users · ${size} per page · ${done} / ~${rounds} requests · about ${time} left"
+  longWait: "A large list can take a long time. The estimate includes extra waiting time and updates with request speed."
+  failed: "Could not finish loading. You can search loaded results or retry."
+  cancelled: "Loading cancelled. Loaded results are kept."
+  seconds: "${value} sec"
+  minutes: "${value} min"
+  continueSearch: "Continue loading"
+pagedSearch:
+  mediaHint: "Search title or author"
+  authorWorksHint: "Search this author's works"
+  nameHint: "Search by name"
+  noMatches: "No matching results."
+  scopeLoaded: "Loaded"
+  scopeAll: "Whole list"
+  all: "Full list"
+  loadedCount: "Loaded ${count} / ${total}"
+  noLoadedMatches: "No matches in loaded data. Try full-list search."
+  noAllMatches: "No matches in the full list."
+  probing: "Checking the largest supported page size…"
+  complete: "Full list ready: ${count} items · ${size} per page · ${rounds} requests"
+  incomplete: "Full list is incomplete. Loaded results remain searchable."
+  progress: "${current} / ${total} items · ${size} per page · ${done} / ~${rounds} requests · about ${time} left"
+  longWait: "A large list can take a long time. The estimate includes extra waiting time and updates with request speed."
+  failed: "Could not finish loading. You can search loaded results or retry."
+  cancelled: "Loading cancelled. Loaded results are kept."
+  seconds: "${value} sec"
+  minutes: "${value} min"
+  continueSearch: "Continue loading"

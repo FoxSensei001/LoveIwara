@@ -12,6 +12,8 @@ import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/post_tile_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/ui/pages/author_profile/author_search_query.dart';
+import 'package:i_iwara/app/ui/pages/search/repositories/search_repositories.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/post_input_dialog.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
@@ -33,6 +35,13 @@ class ProfilePostTabListWidget extends StatefulWidget {
   final VoidCallback? onPaginationToggle;
   final VoidCallback? onPageChanged;
 
+  /// 页面 header 搜索钮里的词。非空时本 tab 改走 `/search` + `{author:…}`
+  /// （见 author_search_query.dart）。
+  final String searchKeyword;
+
+  /// 作者的 @username，`{author:…}` 只认它。拿不到时不进搜索态。
+  final String? authorUsername;
+
   const ProfilePostTabListWidget({
     super.key,
     required this.userId,
@@ -45,6 +54,8 @@ class ProfilePostTabListWidget extends StatefulWidget {
     this.onPageChanged,
     this.overlayTopInset = 0,
     this.scrimSolidExtent = 0,
+    this.searchKeyword = '',
+    this.authorUsername,
   });
 
   void refresh() {
@@ -61,7 +72,11 @@ class ProfilePostTabListWidget extends StatefulWidget {
 
 class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
     with AutomaticKeepAliveClientMixin {
-  late UserzPostListRepository listSourceRepository;
+  late ExtendedLoadingMoreBase<PostModel> listSourceRepository;
+
+  bool get _searching =>
+      widget.searchKeyword.trim().isNotEmpty &&
+      (widget.authorUsername?.isNotEmpty ?? false);
 
   /// 仅在「没有 PrimaryScrollController 可用」时才启用的后备 controller。
   ///
@@ -85,7 +100,29 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
   @override
   void initState() {
     super.initState();
-    listSourceRepository = UserzPostListRepository(userId: widget.userId);
+    _initRepository();
+  }
+
+  /// 搜索态按标题 / 正文搜，不带排序＝按相关度。
+  void _initRepository() {
+    listSourceRepository = _searching
+        ? PostSearchRepository(
+            query: authorSearchQuery(
+              keyword: widget.searchKeyword,
+              username: widget.authorUsername!,
+            ),
+          )
+        : UserzPostListRepository(userId: widget.userId);
+  }
+
+  @override
+  void didUpdateWidget(ProfilePostTabListWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.searchKeyword != widget.searchKeyword ||
+        oldWidget.authorUsername != widget.authorUsername) {
+      listSourceRepository.dispose();
+      _initRepository();
+    }
   }
 
   @override
@@ -188,6 +225,7 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
               : null,
           paddingTop: headerExtent,
           emptyIcon: Icons.article_outlined,
+          emptyMessage: _searching ? t.pagedSearch.noMatches : null,
           itemBuilder: buildItem,
         ),
       ),

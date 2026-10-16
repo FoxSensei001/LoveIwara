@@ -98,6 +98,8 @@ class TranslationsZhCn extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsLocalMediaZhCn localMedia = _TranslationsLocalMediaZhCn._(_root);
 	@override late final _TranslationsHistoryPageZhCn historyPage = _TranslationsHistoryPageZhCn._(_root);
 	@override late final _TranslationsAiZhCn ai = _TranslationsAiZhCn._(_root);
+	@override late final _TranslationsFollowSearchZhCn followSearch = _TranslationsFollowSearchZhCn._(_root);
+	@override late final _TranslationsPagedSearchZhCn pagedSearch = _TranslationsPagedSearchZhCn._(_root);
 }
 
 // Path: personalProfile
@@ -3138,6 +3140,63 @@ class _TranslationsAiZhCn extends TranslationsAiEn {
 	@override String get saveAndLeave => '保存并离开';
 	@override String get discardChanges => '放弃修改';
 	@override String get savedToast => '已保存';
+}
+
+// Path: followSearch
+class _TranslationsFollowSearchZhCn extends TranslationsFollowSearchEn {
+	_TranslationsFollowSearchZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get scopeLoaded => '已加载';
+	@override String get scopeAll => '整个列表';
+	@override String get hint => '搜索昵称或 @用户名';
+	@override String get loaded => '已加载数据';
+	@override String get all => '全量搜索';
+	@override String loadedCount({required Object count, required Object total}) => '已加载 ${count} / ${total}';
+	@override String get noLoadedMatches => '已加载数据中没有匹配结果，可尝试全量搜索。';
+	@override String get noAllMatches => '完整列表中没有匹配结果。';
+	@override String get noLocalMatches => '没有匹配的特别关注。';
+	@override String get probing => '正在探测接口支持的最大分页大小…';
+	@override String complete({required Object count, required Object size, required Object rounds}) => '全量数据已就绪：${count} 位用户 · 每页 ${size} 条 · 共 ${rounds} 轮请求';
+	@override String get incomplete => '全量数据尚未加载完整，仍可搜索已加载结果。';
+	@override String progress({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} 位用户 · 每页 ${size} 条 · 请求 ${done} / 约 ${rounds} 轮 · 预计还需 ${time}';
+	@override String get longWait => '列表较大时可能需要等待很久。预估已增加等待余量，并会根据实际请求速度更新。';
+	@override String get failed => '加载未完成，可搜索已加载结果或重试。';
+	@override String get cancelled => '已取消加载，已获取的数据会保留。';
+	@override String seconds({required Object value}) => '${value} 秒';
+	@override String minutes({required Object value}) => '${value} 分钟';
+	@override String get continueSearch => '继续加载';
+}
+
+// Path: pagedSearch
+class _TranslationsPagedSearchZhCn extends TranslationsPagedSearchEn {
+	_TranslationsPagedSearchZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get mediaHint => '搜索标题或作者';
+	@override String get authorWorksHint => '搜索该作者的作品';
+	@override String get nameHint => '搜索名称';
+	@override String get noMatches => '没有匹配的结果。';
+	@override String get scopeLoaded => '已加载';
+	@override String get scopeAll => '整个列表';
+	@override String get all => '全量搜索';
+	@override String loadedCount({required Object count, required Object total}) => '已加载 ${count} / ${total}';
+	@override String get noLoadedMatches => '已加载数据中没有匹配结果，可尝试全量搜索。';
+	@override String get noAllMatches => '完整列表中没有匹配结果。';
+	@override String get probing => '正在探测接口支持的最大分页大小…';
+	@override String complete({required Object count, required Object size, required Object rounds}) => '全量数据已就绪：${count} 项 · 每页 ${size} 条 · 共 ${rounds} 轮请求';
+	@override String get incomplete => '全量数据尚未加载完整，仍可搜索已加载结果。';
+	@override String progress({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} 项 · 每页 ${size} 条 · 请求 ${done} / 约 ${rounds} 轮 · 预计还需 ${time}';
+	@override String get longWait => '列表较大时可能需要等待很久。预估已增加等待余量，并会根据实际请求速度更新。';
+	@override String get failed => '加载未完成，可搜索已加载结果或重试。';
+	@override String get cancelled => '已取消加载，已获取的数据会保留。';
+	@override String seconds({required Object value}) => '${value} 秒';
+	@override String minutes({required Object value}) => '${value} 分钟';
+	@override String get continueSearch => '继续加载';
 }
 
 // Path: common.pagination
@@ -8759,6 +8818,45 @@ extension on TranslationsZhCn {
 			'ai.saveAndLeave' => '保存并离开',
 			'ai.discardChanges' => '放弃修改',
 			'ai.savedToast' => '已保存',
+			'followSearch.scopeLoaded' => '已加载',
+			'followSearch.scopeAll' => '整个列表',
+			'followSearch.hint' => '搜索昵称或 @用户名',
+			'followSearch.loaded' => '已加载数据',
+			'followSearch.all' => '全量搜索',
+			'followSearch.loadedCount' => ({required Object count, required Object total}) => '已加载 ${count} / ${total}',
+			'followSearch.noLoadedMatches' => '已加载数据中没有匹配结果，可尝试全量搜索。',
+			'followSearch.noAllMatches' => '完整列表中没有匹配结果。',
+			'followSearch.noLocalMatches' => '没有匹配的特别关注。',
+			'followSearch.probing' => '正在探测接口支持的最大分页大小…',
+			'followSearch.complete' => ({required Object count, required Object size, required Object rounds}) => '全量数据已就绪：${count} 位用户 · 每页 ${size} 条 · 共 ${rounds} 轮请求',
+			'followSearch.incomplete' => '全量数据尚未加载完整，仍可搜索已加载结果。',
+			'followSearch.progress' => ({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} 位用户 · 每页 ${size} 条 · 请求 ${done} / 约 ${rounds} 轮 · 预计还需 ${time}',
+			'followSearch.longWait' => '列表较大时可能需要等待很久。预估已增加等待余量，并会根据实际请求速度更新。',
+			'followSearch.failed' => '加载未完成，可搜索已加载结果或重试。',
+			'followSearch.cancelled' => '已取消加载，已获取的数据会保留。',
+			'followSearch.seconds' => ({required Object value}) => '${value} 秒',
+			'followSearch.minutes' => ({required Object value}) => '${value} 分钟',
+			'followSearch.continueSearch' => '继续加载',
+			'pagedSearch.mediaHint' => '搜索标题或作者',
+			'pagedSearch.authorWorksHint' => '搜索该作者的作品',
+			'pagedSearch.nameHint' => '搜索名称',
+			'pagedSearch.noMatches' => '没有匹配的结果。',
+			'pagedSearch.scopeLoaded' => '已加载',
+			'pagedSearch.scopeAll' => '整个列表',
+			'pagedSearch.all' => '全量搜索',
+			'pagedSearch.loadedCount' => ({required Object count, required Object total}) => '已加载 ${count} / ${total}',
+			'pagedSearch.noLoadedMatches' => '已加载数据中没有匹配结果，可尝试全量搜索。',
+			'pagedSearch.noAllMatches' => '完整列表中没有匹配结果。',
+			'pagedSearch.probing' => '正在探测接口支持的最大分页大小…',
+			'pagedSearch.complete' => ({required Object count, required Object size, required Object rounds}) => '全量数据已就绪：${count} 项 · 每页 ${size} 条 · 共 ${rounds} 轮请求',
+			'pagedSearch.incomplete' => '全量数据尚未加载完整，仍可搜索已加载结果。',
+			'pagedSearch.progress' => ({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} 项 · 每页 ${size} 条 · 请求 ${done} / 约 ${rounds} 轮 · 预计还需 ${time}',
+			'pagedSearch.longWait' => '列表较大时可能需要等待很久。预估已增加等待余量，并会根据实际请求速度更新。',
+			'pagedSearch.failed' => '加载未完成，可搜索已加载结果或重试。',
+			'pagedSearch.cancelled' => '已取消加载，已获取的数据会保留。',
+			'pagedSearch.seconds' => ({required Object value}) => '${value} 秒',
+			'pagedSearch.minutes' => ({required Object value}) => '${value} 分钟',
+			'pagedSearch.continueSearch' => '继续加载',
 			_ => null,
 		};
 	}

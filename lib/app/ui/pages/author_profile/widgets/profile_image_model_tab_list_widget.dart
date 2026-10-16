@@ -12,6 +12,8 @@ import '../../../../models/image.model.dart';
 import '../../../../models/tag.model.dart';
 import '../../popular_media_list/widgets/media_filter_drawer.dart';
 import '../controllers/userz_image_model_list_controller.dart';
+import 'package:i_iwara/app/ui/pages/author_profile/author_search_query.dart';
+import 'package:i_iwara/app/ui/pages/search/repositories/search_repositories.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
@@ -36,6 +38,13 @@ class ProfileImageModelTabListWidget extends StatefulWidget {
   final VoidCallback? onPaginationToggle;
   final VoidCallback? onMultiSelectToggle;
 
+  /// 页面 header 搜索钮里的词。非空时本 tab 改走 `/search` + `{author:…}`
+  /// （见 author_search_query.dart），排序与筛选照旧作用在搜索上。
+  final String searchKeyword;
+
+  /// 作者的 @username，`{author:…}` 只认它。拿不到时不进搜索态。
+  final String? authorUsername;
+
   const ProfileImageModelTabListWidget({
     super.key,
     required this.tabKey,
@@ -51,6 +60,8 @@ class ProfileImageModelTabListWidget extends StatefulWidget {
     this.isPaginated = false,
     this.onPaginationToggle,
     this.onMultiSelectToggle,
+    this.searchKeyword = '',
+    this.authorUsername,
   });
 
   @override
@@ -61,7 +72,11 @@ class ProfileImageModelTabListWidget extends StatefulWidget {
 class _ProfileImageModelTabListWidgetState
     extends State<ProfileImageModelTabListWidget>
     with AutomaticKeepAliveClientMixin {
-  late UserzImageModelListRepository imageListRepository;
+  late ExtendedLoadingMoreBase<ImageModel> imageListRepository;
+
+  bool get _searching =>
+      widget.searchKeyword.trim().isNotEmpty &&
+      (widget.authorUsername?.isNotEmpty ?? false);
 
   /// 带回执的刷新信号：header 上的刷新钮据此在刷完前显示沙漏。
   final ListRefreshSignal _refreshSignal = ListRefreshSignal();
@@ -98,6 +113,18 @@ class _ProfileImageModelTabListWidgetState
   }
 
   void _initRepository() {
+    if (_searching) {
+      imageListRepository = ImageSearchRepository(
+        query: authorSearchQuery(
+          keyword: widget.searchKeyword,
+          username: widget.authorUsername!,
+          tagIds: _filterTags.map((tag) => tag.id).toList(),
+          date: _filterDate,
+        ),
+        sortKey: authorSearchSort(getSort()),
+      );
+      return;
+    }
     imageListRepository = UserzImageModelListRepository(
       userId: widget.userId,
       sortType: getSort(),
@@ -131,6 +158,16 @@ class _ProfileImageModelTabListWidgetState
         });
       },
     );
+  }
+
+  @override
+  void didUpdateWidget(ProfileImageModelTabListWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.searchKeyword != widget.searchKeyword ||
+        oldWidget.authorUsername != widget.authorUsername) {
+      imageListRepository.dispose();
+      _initRepository();
+    }
   }
 
   @override
@@ -189,6 +226,7 @@ class _ProfileImageModelTabListWidgetState
         isPaginated: widget.isPaginated,
         refreshSignal: _refreshSignal,
         emptyIcon: Icons.image_outlined,
+        emptyMessage: _searching ? t.pagedSearch.noMatches : null,
         onPageChanged: widget.onPageChanged,
         itemBuilder: (context, image, index) {
           return Obx(() {

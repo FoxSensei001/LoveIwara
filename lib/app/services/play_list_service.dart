@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart' show DioException;
+import 'package:dio/dio.dart' show CancelToken, DioException;
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/light_play_list.model.dart';
@@ -61,15 +61,20 @@ class PlayListService extends GetxService {
   }
 
   // 获取播放列表
+  ///
+  /// [cancelToken] / [rethrowErrors] 同 [getPlaylistVideos]：给列表搜索用。
   Future<ApiResult<PageData<PlaylistModel>>> getPlaylists({
     required String userId,
     required int page,
     int limit = 20,
+    CancelToken? cancelToken,
+    bool rethrowErrors = false,
   }) async {
     try {
       final response = await apiService.get(
         '/playlists',
         queryParameters: {'user': userId, 'page': page, 'limit': limit},
+        cancelToken: cancelToken,
       );
 
       final PageData<PlaylistModel> pageData = PageData(
@@ -82,6 +87,9 @@ class PlayListService extends GetxService {
       );
       return ApiResult.success(data: pageData);
     } catch (e) {
+      if (rethrowErrors || (e is DioException && CancelToken.isCancel(e))) {
+        rethrow;
+      }
       LogUtils.e('获取播放列表失败', tag: 'PlayListService', error: e);
       final errorMessage = CommonUtils.parseExceptionMessage(e);
       return ApiResult.fail(errorMessage, exception: e);
@@ -131,9 +139,7 @@ class PlayListService extends GetxService {
         final rawUser = playlist['user'];
         return (
           title: playlist['title'] as String,
-          user: rawUser is Map<String, dynamic>
-              ? User.fromJson(rawUser)
-              : null,
+          user: rawUser is Map<String, dynamic> ? User.fromJson(rawUser) : null,
         );
       });
       return ApiResult.success(data: info);
@@ -195,10 +201,16 @@ class PlayListService extends GetxService {
   /// ⚠️ 跨站取回来的条目是另一个站的视频，点开会触发既有的
   /// [IwaraDifferentSiteRecovery]（切站 + 重开）。那是这个 App 一直以来处理跨站
   /// 资源的方式，不是这里新引入的。
+  ///
+  /// [rethrowErrors] 给列表搜索用：它要拿原始 [DioException] 判断「分页大小被
+  /// 服务端拒绝」，不能被包成 [ApiResult.fail]。被 [cancelToken] 取消的请求
+  /// 一律原样抛出，不记错误日志。
   Future<ApiResult<PageData<Video>>> getPlaylistVideos({
     required String playlistId,
     int page = 0,
     int limit = 32,
+    CancelToken? cancelToken,
+    bool rethrowErrors = false,
   }) async {
     try {
       final pageData = await _withPlaylistSiteFallback(
@@ -208,10 +220,14 @@ class PlayListService extends GetxService {
           page: page,
           limit: limit,
           site: site,
+          cancelToken: cancelToken,
         ),
       );
       return ApiResult.success(data: pageData);
     } catch (e) {
+      if (rethrowErrors || (e is DioException && CancelToken.isCancel(e))) {
+        rethrow;
+      }
       // ⛔ 把响应体也记下来：跨站、被删、无权限在状态码上分不开，
       // 只有服务端那句 message 能把它们分开。
       LogUtils.e(
@@ -274,11 +290,13 @@ class PlayListService extends GetxService {
     required int page,
     required int limit,
     IwaraSite? site,
+    CancelToken? cancelToken,
   }) async {
     final response = await apiService.get(
       '/playlist/$playlistId',
       queryParameters: {'page': page, 'limit': limit},
       site: site,
+      cancelToken: cancelToken,
     );
     return PageData(
       page: response.data['page'],

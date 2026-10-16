@@ -98,6 +98,8 @@ class TranslationsId extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsLocalMediaId localMedia = _TranslationsLocalMediaId._(_root);
 	@override late final _TranslationsHistoryPageId historyPage = _TranslationsHistoryPageId._(_root);
 	@override late final _TranslationsAiId ai = _TranslationsAiId._(_root);
+	@override late final _TranslationsFollowSearchId followSearch = _TranslationsFollowSearchId._(_root);
+	@override late final _TranslationsPagedSearchId pagedSearch = _TranslationsPagedSearchId._(_root);
 }
 
 // Path: personalProfile
@@ -3116,6 +3118,63 @@ class _TranslationsAiId extends TranslationsAiEn {
 	@override String get saveAndLeave => 'Save and leave';
 	@override String get discardChanges => 'Discard';
 	@override String get savedToast => 'Saved';
+}
+
+// Path: followSearch
+class _TranslationsFollowSearchId extends TranslationsFollowSearchEn {
+	_TranslationsFollowSearchId._(TranslationsId root) : this._root = root, super.internal(root);
+
+	final TranslationsId _root; // ignore: unused_field
+
+	// Translations
+	@override String get scopeLoaded => 'Dimuat';
+	@override String get scopeAll => 'Seluruh daftar';
+	@override String get hint => 'Cari nama atau @nama pengguna';
+	@override String get loaded => 'Data dimuat';
+	@override String get all => 'Daftar lengkap';
+	@override String loadedCount({required Object count, required Object total}) => 'Dimuat ${count} / ${total}';
+	@override String get noLoadedMatches => 'Tidak ada kecocokan pada data yang dimuat. Coba daftar lengkap.';
+	@override String get noAllMatches => 'Tidak ada kecocokan dalam daftar lengkap.';
+	@override String get noLocalMatches => 'Tidak ada ikutan khusus yang cocok.';
+	@override String get probing => 'Memeriksa ukuran halaman maksimum yang didukung…';
+	@override String complete({required Object count, required Object size, required Object rounds}) => 'Daftar lengkap siap: ${count} pengguna · ${size} per halaman · ${rounds} permintaan';
+	@override String get incomplete => 'Daftar belum lengkap. Hasil yang dimuat masih dapat dicari.';
+	@override String progress({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} pengguna · ${size} per halaman · ${done} / ~${rounds} permintaan · sekitar ${time} tersisa';
+	@override String get longWait => 'Daftar besar dapat memakan waktu lama. Perkiraan mencakup waktu tambahan dan diperbarui sesuai kecepatan permintaan.';
+	@override String get failed => 'Pemuatan belum selesai. Cari hasil yang dimuat atau coba lagi.';
+	@override String get cancelled => 'Pemuatan dibatalkan. Data yang dimuat disimpan.';
+	@override String seconds({required Object value}) => '${value} dtk';
+	@override String minutes({required Object value}) => '${value} mnt';
+	@override String get continueSearch => 'Lanjutkan memuat';
+}
+
+// Path: pagedSearch
+class _TranslationsPagedSearchId extends TranslationsPagedSearchEn {
+	_TranslationsPagedSearchId._(TranslationsId root) : this._root = root, super.internal(root);
+
+	final TranslationsId _root; // ignore: unused_field
+
+	// Translations
+	@override String get mediaHint => 'Cari judul atau pembuat';
+	@override String get authorWorksHint => 'Cari karya pembuat ini';
+	@override String get nameHint => 'Cari nama';
+	@override String get noMatches => 'Tidak ada hasil yang cocok.';
+	@override String get scopeLoaded => 'Dimuat';
+	@override String get scopeAll => 'Seluruh daftar';
+	@override String get all => 'Daftar lengkap';
+	@override String loadedCount({required Object count, required Object total}) => 'Dimuat ${count} / ${total}';
+	@override String get noLoadedMatches => 'Tidak ada kecocokan pada data yang dimuat. Coba daftar lengkap.';
+	@override String get noAllMatches => 'Tidak ada kecocokan dalam daftar lengkap.';
+	@override String get probing => 'Memeriksa ukuran halaman maksimum yang didukung…';
+	@override String complete({required Object count, required Object size, required Object rounds}) => 'Daftar lengkap siap: ${count} item · ${size} per halaman · ${rounds} permintaan';
+	@override String get incomplete => 'Daftar belum lengkap. Hasil yang dimuat masih dapat dicari.';
+	@override String progress({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} item · ${size} per halaman · ${done} / ~${rounds} permintaan · sekitar ${time} tersisa';
+	@override String get longWait => 'Daftar besar dapat memakan waktu lama. Perkiraan mencakup waktu tambahan dan diperbarui sesuai kecepatan permintaan.';
+	@override String get failed => 'Pemuatan belum selesai. Cari hasil yang dimuat atau coba lagi.';
+	@override String get cancelled => 'Pemuatan dibatalkan. Data yang dimuat disimpan.';
+	@override String seconds({required Object value}) => '${value} dtk';
+	@override String minutes({required Object value}) => '${value} mnt';
+	@override String get continueSearch => 'Lanjutkan memuat';
 }
 
 // Path: common.pagination
@@ -8715,6 +8774,45 @@ extension on TranslationsId {
 			'ai.saveAndLeave' => 'Save and leave',
 			'ai.discardChanges' => 'Discard',
 			'ai.savedToast' => 'Saved',
+			'followSearch.scopeLoaded' => 'Dimuat',
+			'followSearch.scopeAll' => 'Seluruh daftar',
+			'followSearch.hint' => 'Cari nama atau @nama pengguna',
+			'followSearch.loaded' => 'Data dimuat',
+			'followSearch.all' => 'Daftar lengkap',
+			'followSearch.loadedCount' => ({required Object count, required Object total}) => 'Dimuat ${count} / ${total}',
+			'followSearch.noLoadedMatches' => 'Tidak ada kecocokan pada data yang dimuat. Coba daftar lengkap.',
+			'followSearch.noAllMatches' => 'Tidak ada kecocokan dalam daftar lengkap.',
+			'followSearch.noLocalMatches' => 'Tidak ada ikutan khusus yang cocok.',
+			'followSearch.probing' => 'Memeriksa ukuran halaman maksimum yang didukung…',
+			'followSearch.complete' => ({required Object count, required Object size, required Object rounds}) => 'Daftar lengkap siap: ${count} pengguna · ${size} per halaman · ${rounds} permintaan',
+			'followSearch.incomplete' => 'Daftar belum lengkap. Hasil yang dimuat masih dapat dicari.',
+			'followSearch.progress' => ({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} pengguna · ${size} per halaman · ${done} / ~${rounds} permintaan · sekitar ${time} tersisa',
+			'followSearch.longWait' => 'Daftar besar dapat memakan waktu lama. Perkiraan mencakup waktu tambahan dan diperbarui sesuai kecepatan permintaan.',
+			'followSearch.failed' => 'Pemuatan belum selesai. Cari hasil yang dimuat atau coba lagi.',
+			'followSearch.cancelled' => 'Pemuatan dibatalkan. Data yang dimuat disimpan.',
+			'followSearch.seconds' => ({required Object value}) => '${value} dtk',
+			'followSearch.minutes' => ({required Object value}) => '${value} mnt',
+			'followSearch.continueSearch' => 'Lanjutkan memuat',
+			'pagedSearch.mediaHint' => 'Cari judul atau pembuat',
+			'pagedSearch.authorWorksHint' => 'Cari karya pembuat ini',
+			'pagedSearch.nameHint' => 'Cari nama',
+			'pagedSearch.noMatches' => 'Tidak ada hasil yang cocok.',
+			'pagedSearch.scopeLoaded' => 'Dimuat',
+			'pagedSearch.scopeAll' => 'Seluruh daftar',
+			'pagedSearch.all' => 'Daftar lengkap',
+			'pagedSearch.loadedCount' => ({required Object count, required Object total}) => 'Dimuat ${count} / ${total}',
+			'pagedSearch.noLoadedMatches' => 'Tidak ada kecocokan pada data yang dimuat. Coba daftar lengkap.',
+			'pagedSearch.noAllMatches' => 'Tidak ada kecocokan dalam daftar lengkap.',
+			'pagedSearch.probing' => 'Memeriksa ukuran halaman maksimum yang didukung…',
+			'pagedSearch.complete' => ({required Object count, required Object size, required Object rounds}) => 'Daftar lengkap siap: ${count} item · ${size} per halaman · ${rounds} permintaan',
+			'pagedSearch.incomplete' => 'Daftar belum lengkap. Hasil yang dimuat masih dapat dicari.',
+			'pagedSearch.progress' => ({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} item · ${size} per halaman · ${done} / ~${rounds} permintaan · sekitar ${time} tersisa',
+			'pagedSearch.longWait' => 'Daftar besar dapat memakan waktu lama. Perkiraan mencakup waktu tambahan dan diperbarui sesuai kecepatan permintaan.',
+			'pagedSearch.failed' => 'Pemuatan belum selesai. Cari hasil yang dimuat atau coba lagi.',
+			'pagedSearch.cancelled' => 'Pemuatan dibatalkan. Data yang dimuat disimpan.',
+			'pagedSearch.seconds' => ({required Object value}) => '${value} dtk',
+			'pagedSearch.minutes' => ({required Object value}) => '${value} mnt',
+			'pagedSearch.continueSearch' => 'Lanjutkan memuat',
 			_ => null,
 		};
 	}

@@ -22,12 +22,23 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/app/ui/widgets/paged_search/paged_search_row.dart';
+import 'package:i_iwara/app/ui/widgets/paged_search/paged_search_view.dart';
+import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import 'package:i_iwara/common/constants.dart';
+import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
 
-enum _PlaylistDetailMenuAction { editTitle, deletePlaylist, share, copyLink }
+enum _PlaylistDetailMenuAction {
+  togglePagination,
+  refresh,
+  editTitle,
+  deletePlaylist,
+  share,
+  copyLink,
+}
 
 /// 播放列表详情（玻璃化 + 瀑布/分页双模式）。
 class PlayListDetailPage extends StatefulWidget {
@@ -58,6 +69,9 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
 
   late bool _isPaginated = CommonConstants.isPaginated;
 
+  /// header 搜索钮里的搜索词。
+  final TextEditingController _searchInput = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -68,6 +82,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
 
   @override
   void dispose() {
+    _searchInput.dispose();
     _scrollController.dispose();
     _refreshSignal.dispose();
     _showBackToTop.dispose();
@@ -127,7 +142,14 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
               },
               isSelected: (k) => controller.selectedVideos.contains(k),
               toggle: (k) => controller.toggleSelection(k as String),
-              loadedKeys: () => [for (final v in controller.repository) v.id],
+              // 搜索结果盖在列表上时，「已加载」指的是眼前这批结果
+              loadedKeys: () => [
+                for (final v
+                    in controller.search.showingResults
+                        ? controller.search.results
+                        : controller.repository)
+                  v.id,
+              ],
               replaceSelection: (keys) {
                 controller.selectedVideos
                   ..clear()
@@ -148,6 +170,15 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
     double statusBarHeight,
   ) {
     final t = slang.Translations.of(context);
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    // 与 MediaListView 不传 delegate 时的默认列宽同一条公式；显式传给浏览列表
+    // 和搜索结果两边，结果网格的列数才和浏览时一致。
+    final gridDelegate = SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+      maxCrossAxisExtent:
+          screenWidth / MediaLayoutUtils.calculateCrossAxisCount(screenWidth),
+      crossAxisSpacing: MediaLayoutUtils.crossAxisSpacing,
+      mainAxisSpacing: MediaLayoutUtils.mainAxisSpacing,
+    );
     return GlassHeaderOverlay(
       liquid: true,
       headerExtent: headerExtent,
@@ -161,68 +192,73 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
           }
           return false;
         },
-        child: MediaListView<Video>(
-          sourceList: controller.repository,
-          isPaginated: _isPaginated,
-          refreshSignal: _refreshSignal,
+        // 有搜索词时结果网格盖在浏览列表上，卡片（含多选）同一套。
+        child: PagedSearchView<Video>(
+          search: controller.search,
           scrollController: _scrollController,
           paddingTop: headerExtent,
-          emptyIcon: Icons.video_library_outlined,
-          // 换页后原来的选择已经不在屏幕上了，留着只会误删
-          onPageChanged: () => controller.selectedVideos.clear(),
-          itemBuilderWithWidth: (context, video, index, width) =>
-              _buildVideoItem(context, video, width),
-          itemBuilder: (context, video, index) =>
-              _buildVideoItem(context, video, 220),
+          gridDelegate: gridDelegate,
+          itemBuilder: _buildVideoItem,
+          browseBuilder: (scrollController) => MediaListView<Video>(
+            sourceList: controller.repository,
+            isPaginated: _isPaginated,
+            refreshSignal: _refreshSignal,
+            onPaginatedRefresh: controller.repository.resetPagingState,
+            scrollController: scrollController,
+            paddingTop: headerExtent,
+            emptyIcon: Icons.video_library_outlined,
+            extendedListDelegate: gridDelegate,
+            // 换页后原来的选择已经不在屏幕上了，留着只会误删
+            onPageChanged: () => controller.selectedVideos.clear(),
+            itemBuilderWithWidth: (context, video, index, width) =>
+                _buildVideoItem(context, video, width),
+            itemBuilder: (context, video, index) =>
+                _buildVideoItem(context, video, 220),
+          ),
         ),
       ),
-      // header 行：左 返回圆钮 / 中 播放列表标题胶囊 / 右 动作胶囊
-      header: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          children: [
-            GlassIconButton(
-              standalone: true,
-              icon: const Icon(Icons.arrow_back),
-              tooltip: t.common.back,
-              onPressed: () => AppService.tryPop(),
-            ),
-            const SizedBox(width: 8),
-            // 选择态下标题胶囊改报「已选 N 项」：单壳常驻、只换内容
-            Expanded(
-              child: Align(
-                alignment: Alignment.centerLeft,
-                // 不套 Align 的话 Expanded 给的是紧约束，胶囊会被撑满整个
-                // 中间区域而不是抱住标题文字（对齐 my_favorites / author_profile
-                // 等页同款胶囊的写法）。
-                child: Obx(
-                  () => GlassCapsuleMorph(
-                    child: controller.isMultiSelect.value
-                        ? SizedBox(
-                            key: const ValueKey('selection'),
-                            width: 168,
-                            child: GlassSelectionSummary(
-                              selectedCount: controller.selectedVideos.length,
-                              allSelected: false,
-                              onToggleAll: null,
-                            ),
-                          )
-                        : KeyedSubtree(
-                            key: const ValueKey('title'),
-                            child: GlassTitlePill(
-                              flat: true,
-                              title: controller.playlistTitle.value.isEmpty
-                                  ? null
-                                  : controller.playlistTitle.value,
-                            ),
-                          ),
+      // header 行：左 返回圆钮 / 中 播放列表标题胶囊 / 搜索钮 / 右 动作胶囊
+      header: Obx(
+        () => PagedSearchHeaderRow(
+          keyPrefix: 'playlist',
+          search: controller.search,
+          input: _searchInput,
+          hintText: t.pagedSearch.mediaHint,
+          onChanged: controller.search.setQuery,
+          // 多选态展开搜索也留着动作胶囊：退出多选的键在里面
+          keepActions: controller.isMultiSelect.value,
+          leading: GlassIconButton(
+            standalone: true,
+            icon: const Icon(Icons.arrow_back),
+            tooltip: t.common.back,
+            onPressed: () => AppService.tryPop(),
+          ),
+          // 选择态下标题胶囊改报「已选 N 项」：单壳常驻、只换内容
+          title: GlassCapsuleMorph(
+            child: controller.isMultiSelect.value
+                ? SizedBox(
+                    key: const ValueKey('selection'),
+                    width: 168,
+                    child: GlassSelectionSummary(
+                      selectedCount: controller.selectedVideos.length,
+                      allSelected: false,
+                      onToggleAll: null,
+                    ),
+                  )
+                : KeyedSubtree(
+                    key: const ValueKey('title'),
+                    child: GlassTitlePill(
+                      flat: true,
+                      title: controller.playlistTitle.value.isEmpty
+                          ? null
+                          : controller.playlistTitle.value,
+                    ),
                   ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            _buildActionGroup(context),
-          ],
+          ),
+          actions: _buildActionGroup(
+            context,
+            compact: screenWidth < PagedSearchHeaderRow.wideRowWidth,
+          ),
         ),
       ),
       extra: [
@@ -235,10 +271,14 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
   }
 
   /// 右侧动作胶囊：[多选（仅自己的列表）] 瀑布/分页 · 刷新 · 更多。
-  Widget _buildActionGroup(BuildContext context) {
+  ///
+  /// 窄屏（[compact]）只留多选与更多，瀑布/分页和刷新收进更多菜单：一行里
+  /// 还要摆标题和搜索钮，四枚键会把标题挤没。
+  Widget _buildActionGroup(BuildContext context, {required bool compact}) {
     final t = slang.Translations.of(context);
     return Obx(
       () => GlassButtonGroup(
+        touchFlexSignature: 'playlist-detail|$compact',
         children: [
           GlassGroupSlot(
             visible: widget.isMine,
@@ -252,17 +292,23 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
               onPressed: () => controller.toggleMultiSelect(),
             ),
           ),
-          GlassIconButton(
-            icon: Icon(_isPaginated ? Icons.grid_view : Icons.view_stream),
-            tooltip: _isPaginated
-                ? t.common.pagination.waterfall
-                : t.common.pagination.pagination,
-            onPressed: _togglePaginationMode,
+          GlassGroupSlot(
+            visible: !compact,
+            child: GlassIconButton(
+              icon: Icon(_isPaginated ? Icons.grid_view : Icons.view_stream),
+              tooltip: _isPaginated
+                  ? t.common.pagination.waterfall
+                  : t.common.pagination.pagination,
+              onPressed: _togglePaginationMode,
+            ),
           ),
-          GlassAsyncIconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: t.common.refresh,
-            onPressed: _refreshList,
+          GlassGroupSlot(
+            visible: !compact,
+            child: GlassAsyncIconButton(
+              icon: const Icon(Icons.refresh),
+              tooltip: t.common.refresh,
+              onPressed: _refreshList,
+            ),
           ),
           Builder(
             builder: (anchorContext) => GlassIconButton(
@@ -271,7 +317,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
               // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
               // 松手选中（见 GlassTapArea.opensOverlay）。
               opensOverlay: true,
-              onPressed: () => _openMoreMenu(anchorContext),
+              onPressed: () => _openMoreMenu(anchorContext, compact: compact),
             ),
           ),
         ],
@@ -279,12 +325,31 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
     );
   }
 
-  /// 「更多」菜单：编辑标题 / 删除播放列表（均仅自己的列表）· 分享 · 复制链接。
-  Future<void> _openMoreMenu(BuildContext anchorContext) async {
+  /// 「更多」菜单：[瀑布/分页 · 刷新（仅窄屏）] 编辑标题 / 删除播放列表
+  /// （均仅自己的列表）· 分享 · 复制链接。
+  Future<void> _openMoreMenu(
+    BuildContext anchorContext, {
+    required bool compact,
+  }) async {
     final t = slang.Translations.of(anchorContext);
     final action = await showGlassMenu<_PlaylistDetailMenuAction>(
       anchorContext: anchorContext,
       entries: [
+        if (compact) ...[
+          GlassMenuOption(
+            value: _PlaylistDetailMenuAction.togglePagination,
+            icon: _isPaginated ? Icons.grid_view : Icons.view_stream,
+            label: _isPaginated
+                ? t.common.pagination.waterfall
+                : t.common.pagination.pagination,
+          ),
+          GlassMenuOption(
+            value: _PlaylistDetailMenuAction.refresh,
+            icon: Icons.refresh,
+            label: t.common.refresh,
+          ),
+          const GlassMenuSeparator(),
+        ],
         if (widget.isMine)
           GlassMenuOption(
             value: _PlaylistDetailMenuAction.editTitle,
@@ -312,6 +377,12 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
     );
     if (action == null) return;
     switch (action) {
+      case _PlaylistDetailMenuAction.togglePagination:
+        _togglePaginationMode();
+        break;
+      case _PlaylistDetailMenuAction.refresh:
+        _refreshList();
+        break;
       case _PlaylistDetailMenuAction.editTitle:
         _showEditTitleDialog();
         break;
@@ -506,8 +577,13 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
   List<String> _selectedVideoTitles() {
     final selected = controller.selectedVideos;
     final titles = <String>[];
-    for (final video in controller.repository) {
-      if (!selected.contains(video.id)) continue;
+    final seen = <String>{};
+    // 勾选可能来自「整个列表」的搜索结果，那些不一定在浏览列表里
+    for (final video in [
+      ...controller.repository,
+      ...controller.search.results,
+    ]) {
+      if (!selected.contains(video.id) || !seen.add(video.id)) continue;
       final title = video.title?.trim() ?? '';
       titles.add(title.isEmpty ? slang.t.common.noTitle : title);
       if (titles.length >= 3) break;

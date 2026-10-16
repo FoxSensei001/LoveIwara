@@ -98,6 +98,8 @@ class TranslationsRu extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsLocalMediaRu localMedia = _TranslationsLocalMediaRu._(_root);
 	@override late final _TranslationsHistoryPageRu historyPage = _TranslationsHistoryPageRu._(_root);
 	@override late final _TranslationsAiRu ai = _TranslationsAiRu._(_root);
+	@override late final _TranslationsFollowSearchRu followSearch = _TranslationsFollowSearchRu._(_root);
+	@override late final _TranslationsPagedSearchRu pagedSearch = _TranslationsPagedSearchRu._(_root);
 }
 
 // Path: personalProfile
@@ -3116,6 +3118,63 @@ class _TranslationsAiRu extends TranslationsAiEn {
 	@override String get saveAndLeave => 'Save and leave';
 	@override String get discardChanges => 'Discard';
 	@override String get savedToast => 'Saved';
+}
+
+// Path: followSearch
+class _TranslationsFollowSearchRu extends TranslationsFollowSearchEn {
+	_TranslationsFollowSearchRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get scopeLoaded => 'Загружено';
+	@override String get scopeAll => 'Весь список';
+	@override String get hint => 'Поиск по имени или @нику';
+	@override String get loaded => 'Загруженные данные';
+	@override String get all => 'Весь список';
+	@override String loadedCount({required Object count, required Object total}) => 'Загружено ${count} / ${total}';
+	@override String get noLoadedMatches => 'В загруженных данных нет совпадений. Попробуйте весь список.';
+	@override String get noAllMatches => 'Во всём списке нет совпадений.';
+	@override String get noLocalMatches => 'Нет подходящих особых подписок.';
+	@override String get probing => 'Проверка максимального размера страницы…';
+	@override String complete({required Object count, required Object size, required Object rounds}) => 'Весь список готов: ${count} пользователей · ${size} на странице · ${rounds} запросов';
+	@override String get incomplete => 'Список неполный. Загруженные результаты доступны для поиска.';
+	@override String progress({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} пользователей · ${size} на странице · ${done} / ~${rounds} запросов · осталось около ${time}';
+	@override String get longWait => 'Большой список может загружаться долго. Оценка включает запас и обновляется по скорости запросов.';
+	@override String get failed => 'Загрузка не завершена. Ищите в загруженных данных или повторите попытку.';
+	@override String get cancelled => 'Загрузка отменена. Полученные данные сохранены.';
+	@override String seconds({required Object value}) => '${value} сек.';
+	@override String minutes({required Object value}) => '${value} мин.';
+	@override String get continueSearch => 'Продолжить загрузку';
+}
+
+// Path: pagedSearch
+class _TranslationsPagedSearchRu extends TranslationsPagedSearchEn {
+	_TranslationsPagedSearchRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get mediaHint => 'Поиск по названию или автору';
+	@override String get authorWorksHint => 'Поиск по работам автора';
+	@override String get nameHint => 'Поиск по названию';
+	@override String get noMatches => 'Совпадений не найдено.';
+	@override String get scopeLoaded => 'Загружено';
+	@override String get scopeAll => 'Весь список';
+	@override String get all => 'Весь список';
+	@override String loadedCount({required Object count, required Object total}) => 'Загружено ${count} / ${total}';
+	@override String get noLoadedMatches => 'В загруженных данных нет совпадений. Попробуйте весь список.';
+	@override String get noAllMatches => 'Во всём списке нет совпадений.';
+	@override String get probing => 'Проверка максимального размера страницы…';
+	@override String complete({required Object count, required Object size, required Object rounds}) => 'Весь список готов: ${count} элементов · ${size} на странице · ${rounds} запросов';
+	@override String get incomplete => 'Список неполный. Загруженные результаты доступны для поиска.';
+	@override String progress({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} элементов · ${size} на странице · ${done} / ~${rounds} запросов · осталось около ${time}';
+	@override String get longWait => 'Большой список может загружаться долго. Оценка включает запас и обновляется по скорости запросов.';
+	@override String get failed => 'Загрузка не завершена. Ищите в загруженных данных или повторите попытку.';
+	@override String get cancelled => 'Загрузка отменена. Полученные данные сохранены.';
+	@override String seconds({required Object value}) => '${value} сек.';
+	@override String minutes({required Object value}) => '${value} мин.';
+	@override String get continueSearch => 'Продолжить загрузку';
 }
 
 // Path: common.pagination
@@ -8715,6 +8774,45 @@ extension on TranslationsRu {
 			'ai.saveAndLeave' => 'Save and leave',
 			'ai.discardChanges' => 'Discard',
 			'ai.savedToast' => 'Saved',
+			'followSearch.scopeLoaded' => 'Загружено',
+			'followSearch.scopeAll' => 'Весь список',
+			'followSearch.hint' => 'Поиск по имени или @нику',
+			'followSearch.loaded' => 'Загруженные данные',
+			'followSearch.all' => 'Весь список',
+			'followSearch.loadedCount' => ({required Object count, required Object total}) => 'Загружено ${count} / ${total}',
+			'followSearch.noLoadedMatches' => 'В загруженных данных нет совпадений. Попробуйте весь список.',
+			'followSearch.noAllMatches' => 'Во всём списке нет совпадений.',
+			'followSearch.noLocalMatches' => 'Нет подходящих особых подписок.',
+			'followSearch.probing' => 'Проверка максимального размера страницы…',
+			'followSearch.complete' => ({required Object count, required Object size, required Object rounds}) => 'Весь список готов: ${count} пользователей · ${size} на странице · ${rounds} запросов',
+			'followSearch.incomplete' => 'Список неполный. Загруженные результаты доступны для поиска.',
+			'followSearch.progress' => ({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} пользователей · ${size} на странице · ${done} / ~${rounds} запросов · осталось около ${time}',
+			'followSearch.longWait' => 'Большой список может загружаться долго. Оценка включает запас и обновляется по скорости запросов.',
+			'followSearch.failed' => 'Загрузка не завершена. Ищите в загруженных данных или повторите попытку.',
+			'followSearch.cancelled' => 'Загрузка отменена. Полученные данные сохранены.',
+			'followSearch.seconds' => ({required Object value}) => '${value} сек.',
+			'followSearch.minutes' => ({required Object value}) => '${value} мин.',
+			'followSearch.continueSearch' => 'Продолжить загрузку',
+			'pagedSearch.mediaHint' => 'Поиск по названию или автору',
+			'pagedSearch.authorWorksHint' => 'Поиск по работам автора',
+			'pagedSearch.nameHint' => 'Поиск по названию',
+			'pagedSearch.noMatches' => 'Совпадений не найдено.',
+			'pagedSearch.scopeLoaded' => 'Загружено',
+			'pagedSearch.scopeAll' => 'Весь список',
+			'pagedSearch.all' => 'Весь список',
+			'pagedSearch.loadedCount' => ({required Object count, required Object total}) => 'Загружено ${count} / ${total}',
+			'pagedSearch.noLoadedMatches' => 'В загруженных данных нет совпадений. Попробуйте весь список.',
+			'pagedSearch.noAllMatches' => 'Во всём списке нет совпадений.',
+			'pagedSearch.probing' => 'Проверка максимального размера страницы…',
+			'pagedSearch.complete' => ({required Object count, required Object size, required Object rounds}) => 'Весь список готов: ${count} элементов · ${size} на странице · ${rounds} запросов',
+			'pagedSearch.incomplete' => 'Список неполный. Загруженные результаты доступны для поиска.',
+			'pagedSearch.progress' => ({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} элементов · ${size} на странице · ${done} / ~${rounds} запросов · осталось около ${time}',
+			'pagedSearch.longWait' => 'Большой список может загружаться долго. Оценка включает запас и обновляется по скорости запросов.',
+			'pagedSearch.failed' => 'Загрузка не завершена. Ищите в загруженных данных или повторите попытку.',
+			'pagedSearch.cancelled' => 'Загрузка отменена. Полученные данные сохранены.',
+			'pagedSearch.seconds' => ({required Object value}) => '${value} сек.',
+			'pagedSearch.minutes' => ({required Object value}) => '${value} мин.',
+			'pagedSearch.continueSearch' => 'Продолжить загрузку',
 			_ => null,
 		};
 	}

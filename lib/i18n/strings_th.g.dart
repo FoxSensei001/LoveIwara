@@ -98,6 +98,8 @@ class TranslationsTh extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsLocalMediaTh localMedia = _TranslationsLocalMediaTh._(_root);
 	@override late final _TranslationsHistoryPageTh historyPage = _TranslationsHistoryPageTh._(_root);
 	@override late final _TranslationsAiTh ai = _TranslationsAiTh._(_root);
+	@override late final _TranslationsFollowSearchTh followSearch = _TranslationsFollowSearchTh._(_root);
+	@override late final _TranslationsPagedSearchTh pagedSearch = _TranslationsPagedSearchTh._(_root);
 }
 
 // Path: personalProfile
@@ -3116,6 +3118,63 @@ class _TranslationsAiTh extends TranslationsAiEn {
 	@override String get saveAndLeave => 'Save and leave';
 	@override String get discardChanges => 'Discard';
 	@override String get savedToast => 'Saved';
+}
+
+// Path: followSearch
+class _TranslationsFollowSearchTh extends TranslationsFollowSearchEn {
+	_TranslationsFollowSearchTh._(TranslationsTh root) : this._root = root, super.internal(root);
+
+	final TranslationsTh _root; // ignore: unused_field
+
+	// Translations
+	@override String get scopeLoaded => 'โหลดแล้ว';
+	@override String get scopeAll => 'ทั้งรายการ';
+	@override String get hint => 'ค้นหาชื่อหรือ @ชื่อผู้ใช้';
+	@override String get loaded => 'ข้อมูลที่โหลดแล้ว';
+	@override String get all => 'ค้นหาทั้งหมด';
+	@override String loadedCount({required Object count, required Object total}) => 'โหลดแล้ว ${count} / ${total}';
+	@override String get noLoadedMatches => 'ไม่พบในข้อมูลที่โหลดแล้ว ลองค้นหาทั้งหมด';
+	@override String get noAllMatches => 'ไม่พบในรายการทั้งหมด';
+	@override String get noLocalMatches => 'ไม่พบการติดตามพิเศษที่ตรงกัน';
+	@override String get probing => 'กำลังตรวจสอบขนาดหน้าสูงสุดที่รองรับ…';
+	@override String complete({required Object count, required Object size, required Object rounds}) => 'โหลดทั้งหมดแล้ว: ${count} ผู้ใช้ · ${size} ต่อหน้า · ${rounds} คำขอ';
+	@override String get incomplete => 'รายการยังไม่ครบ ยังค้นหาในข้อมูลที่โหลดแล้วได้';
+	@override String progress({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} ผู้ใช้ · ${size} ต่อหน้า · ${done} / ประมาณ ${rounds} คำขอ · เหลือประมาณ ${time}';
+	@override String get longWait => 'รายการขนาดใหญ่อาจใช้เวลานาน การประมาณรวมเวลาเผื่อและปรับตามความเร็วของคำขอ';
+	@override String get failed => 'โหลดไม่สำเร็จ ค้นหาในข้อมูลที่โหลดแล้วหรือลองใหม่';
+	@override String get cancelled => 'ยกเลิกการโหลดแล้ว ข้อมูลที่ได้รับยังคงอยู่';
+	@override String seconds({required Object value}) => '${value} วินาที';
+	@override String minutes({required Object value}) => '${value} นาที';
+	@override String get continueSearch => 'โหลดต่อ';
+}
+
+// Path: pagedSearch
+class _TranslationsPagedSearchTh extends TranslationsPagedSearchEn {
+	_TranslationsPagedSearchTh._(TranslationsTh root) : this._root = root, super.internal(root);
+
+	final TranslationsTh _root; // ignore: unused_field
+
+	// Translations
+	@override String get mediaHint => 'ค้นหาชื่อเรื่องหรือผู้สร้าง';
+	@override String get authorWorksHint => 'ค้นหาผลงานของผู้สร้างนี้';
+	@override String get nameHint => 'ค้นหาตามชื่อ';
+	@override String get noMatches => 'ไม่พบผลลัพธ์ที่ตรงกัน';
+	@override String get scopeLoaded => 'โหลดแล้ว';
+	@override String get scopeAll => 'ทั้งรายการ';
+	@override String get all => 'ค้นหาทั้งหมด';
+	@override String loadedCount({required Object count, required Object total}) => 'โหลดแล้ว ${count} / ${total}';
+	@override String get noLoadedMatches => 'ไม่พบในข้อมูลที่โหลดแล้ว ลองค้นหาทั้งหมด';
+	@override String get noAllMatches => 'ไม่พบในรายการทั้งหมด';
+	@override String get probing => 'กำลังตรวจสอบขนาดหน้าสูงสุดที่รองรับ…';
+	@override String complete({required Object count, required Object size, required Object rounds}) => 'โหลดทั้งหมดแล้ว: ${count} รายการ · ${size} ต่อหน้า · ${rounds} คำขอ';
+	@override String get incomplete => 'รายการยังไม่ครบ ยังค้นหาในข้อมูลที่โหลดแล้วได้';
+	@override String progress({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} รายการ · ${size} ต่อหน้า · ${done} / ประมาณ ${rounds} คำขอ · เหลือประมาณ ${time}';
+	@override String get longWait => 'รายการขนาดใหญ่อาจใช้เวลานาน การประมาณรวมเวลาเผื่อและปรับตามความเร็วของคำขอ';
+	@override String get failed => 'โหลดไม่สำเร็จ ค้นหาในข้อมูลที่โหลดแล้วหรือลองใหม่';
+	@override String get cancelled => 'ยกเลิกการโหลดแล้ว ข้อมูลที่ได้รับยังคงอยู่';
+	@override String seconds({required Object value}) => '${value} วินาที';
+	@override String minutes({required Object value}) => '${value} นาที';
+	@override String get continueSearch => 'โหลดต่อ';
 }
 
 // Path: common.pagination
@@ -8715,6 +8774,45 @@ extension on TranslationsTh {
 			'ai.saveAndLeave' => 'Save and leave',
 			'ai.discardChanges' => 'Discard',
 			'ai.savedToast' => 'Saved',
+			'followSearch.scopeLoaded' => 'โหลดแล้ว',
+			'followSearch.scopeAll' => 'ทั้งรายการ',
+			'followSearch.hint' => 'ค้นหาชื่อหรือ @ชื่อผู้ใช้',
+			'followSearch.loaded' => 'ข้อมูลที่โหลดแล้ว',
+			'followSearch.all' => 'ค้นหาทั้งหมด',
+			'followSearch.loadedCount' => ({required Object count, required Object total}) => 'โหลดแล้ว ${count} / ${total}',
+			'followSearch.noLoadedMatches' => 'ไม่พบในข้อมูลที่โหลดแล้ว ลองค้นหาทั้งหมด',
+			'followSearch.noAllMatches' => 'ไม่พบในรายการทั้งหมด',
+			'followSearch.noLocalMatches' => 'ไม่พบการติดตามพิเศษที่ตรงกัน',
+			'followSearch.probing' => 'กำลังตรวจสอบขนาดหน้าสูงสุดที่รองรับ…',
+			'followSearch.complete' => ({required Object count, required Object size, required Object rounds}) => 'โหลดทั้งหมดแล้ว: ${count} ผู้ใช้ · ${size} ต่อหน้า · ${rounds} คำขอ',
+			'followSearch.incomplete' => 'รายการยังไม่ครบ ยังค้นหาในข้อมูลที่โหลดแล้วได้',
+			'followSearch.progress' => ({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} ผู้ใช้ · ${size} ต่อหน้า · ${done} / ประมาณ ${rounds} คำขอ · เหลือประมาณ ${time}',
+			'followSearch.longWait' => 'รายการขนาดใหญ่อาจใช้เวลานาน การประมาณรวมเวลาเผื่อและปรับตามความเร็วของคำขอ',
+			'followSearch.failed' => 'โหลดไม่สำเร็จ ค้นหาในข้อมูลที่โหลดแล้วหรือลองใหม่',
+			'followSearch.cancelled' => 'ยกเลิกการโหลดแล้ว ข้อมูลที่ได้รับยังคงอยู่',
+			'followSearch.seconds' => ({required Object value}) => '${value} วินาที',
+			'followSearch.minutes' => ({required Object value}) => '${value} นาที',
+			'followSearch.continueSearch' => 'โหลดต่อ',
+			'pagedSearch.mediaHint' => 'ค้นหาชื่อเรื่องหรือผู้สร้าง',
+			'pagedSearch.authorWorksHint' => 'ค้นหาผลงานของผู้สร้างนี้',
+			'pagedSearch.nameHint' => 'ค้นหาตามชื่อ',
+			'pagedSearch.noMatches' => 'ไม่พบผลลัพธ์ที่ตรงกัน',
+			'pagedSearch.scopeLoaded' => 'โหลดแล้ว',
+			'pagedSearch.scopeAll' => 'ทั้งรายการ',
+			'pagedSearch.all' => 'ค้นหาทั้งหมด',
+			'pagedSearch.loadedCount' => ({required Object count, required Object total}) => 'โหลดแล้ว ${count} / ${total}',
+			'pagedSearch.noLoadedMatches' => 'ไม่พบในข้อมูลที่โหลดแล้ว ลองค้นหาทั้งหมด',
+			'pagedSearch.noAllMatches' => 'ไม่พบในรายการทั้งหมด',
+			'pagedSearch.probing' => 'กำลังตรวจสอบขนาดหน้าสูงสุดที่รองรับ…',
+			'pagedSearch.complete' => ({required Object count, required Object size, required Object rounds}) => 'โหลดทั้งหมดแล้ว: ${count} รายการ · ${size} ต่อหน้า · ${rounds} คำขอ',
+			'pagedSearch.incomplete' => 'รายการยังไม่ครบ ยังค้นหาในข้อมูลที่โหลดแล้วได้',
+			'pagedSearch.progress' => ({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} รายการ · ${size} ต่อหน้า · ${done} / ประมาณ ${rounds} คำขอ · เหลือประมาณ ${time}',
+			'pagedSearch.longWait' => 'รายการขนาดใหญ่อาจใช้เวลานาน การประมาณรวมเวลาเผื่อและปรับตามความเร็วของคำขอ',
+			'pagedSearch.failed' => 'โหลดไม่สำเร็จ ค้นหาในข้อมูลที่โหลดแล้วหรือลองใหม่',
+			'pagedSearch.cancelled' => 'ยกเลิกการโหลดแล้ว ข้อมูลที่ได้รับยังคงอยู่',
+			'pagedSearch.seconds' => ({required Object value}) => '${value} วินาที',
+			'pagedSearch.minutes' => ({required Object value}) => '${value} นาที',
+			'pagedSearch.continueSearch' => 'โหลดต่อ',
 			_ => null,
 		};
 	}

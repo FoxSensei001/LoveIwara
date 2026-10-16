@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/ui/pages/favorite/favorite_list_page.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/db/migrations/migration_v4.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -35,29 +36,34 @@ void main() {
 
   Future<void> pumpPage(WidgetTester tester) async {
     await tester.pumpWidget(
-      TranslationProvider(
-        child: const MaterialApp(home: FavoriteListPage()),
-      ),
+      TranslationProvider(child: const MaterialApp(home: FavoriteListPage())),
     );
     await tester.pumpAndSettle();
   }
 
-  testWidgets('取消新建收藏夹后，弹窗退场动画期间不会用到已销毁的 controller', (
-    tester,
-  ) async {
+  testWidgets('取消新建收藏夹后，弹窗退场动画期间不会用到已销毁的 controller', (tester) async {
     await pumpPage(tester);
+    // 只认弹窗里的输入框：页面 header 的搜索钮里常驻一只（收起时不可见）
+    final dialogField = find.descendant(
+      of: find.byType(GlassAlertDialog),
+      matching: find.byType(TextField),
+    );
 
     await tester.tap(find.byIcon(Icons.create_new_folder));
     await tester.pumpAndSettle();
-    expect(find.byType(TextField), findsOneWidget);
+    expect(dialogField, findsOneWidget);
 
-    await tester.enterText(find.byType(TextField), '新建收藏夹');
+    await tester.enterText(dialogField, '新建收藏夹');
     await tester.pump();
 
     // 取消：弹窗开始退场，controller 必须活到弹窗真正卸载
-    await tester.tap(find.text(TranslationProvider.of(tester.element(
-      find.byType(FavoriteListPage),
-    )).translations.common.cancel));
+    await tester.tap(
+      find.text(
+        TranslationProvider.of(
+          tester.element(find.byType(FavoriteListPage)),
+        ).translations.common.cancel,
+      ),
+    );
 
     // 逐帧推进退场动画——崩溃正是发生在这几帧里
     await tester.pump();
@@ -66,6 +72,6 @@ void main() {
 
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
-    expect(find.byType(TextField), findsNothing);
+    expect(dialogField, findsNothing);
   });
 }

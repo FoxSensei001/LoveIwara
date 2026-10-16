@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart' show CancelToken;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
@@ -684,6 +685,8 @@ class _FakePlayListService extends GetxService implements PlayListService {
     required String userId,
     required int page,
     int limit = 20,
+    CancelToken? cancelToken,
+    bool rethrowErrors = false,
   }) async {
     final results = page == 0
         ? List<PlaylistModel>.from(_playlists)
@@ -730,6 +733,8 @@ class _FakePlayListService extends GetxService implements PlayListService {
     required String playlistId,
     int page = 0,
     int limit = 32,
+    CancelToken? cancelToken,
+    bool rethrowErrors = false,
   }) async {
     return ApiResult.success(
       data: PageData<Video>(

@@ -131,9 +131,19 @@ class FavoriteService extends GetxService {
     final List<dynamic> params = [folderId];
     final List<String> conditions = ['folder_id = ?'];
 
-    if (searchText != null && searchText.isNotEmpty) {
-      conditions.add('title LIKE ?');
-      params.add('%$searchText%');
+    // 关键字按空白拆词、AND 语义：每个词都要落在标题、作者名或作者 @id 之一
+    // （与最爱等线上列表的 `matchesTextSearch` 同一条规则）。
+    if (searchText != null) {
+      for (final word in searchText.trim().split(RegExp(r'\s+'))) {
+        final needle = word.startsWith('@') ? word.substring(1) : word;
+        if (needle.isEmpty) continue;
+        conditions.add(
+          "(title LIKE ? ESCAPE '\\' OR author_name LIKE ? ESCAPE '\\' "
+          "OR author_username LIKE ? ESCAPE '\\')",
+        );
+        final pattern = '%${_escapeLike(needle)}%';
+        params.addAll([pattern, pattern, pattern]);
+      }
     }
 
     if (startDate != null) {

@@ -21,6 +21,9 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.da
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/paged_search/paged_search_controller.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
+import 'package:i_iwara/app/ui/widgets/paged_search/paged_search_row.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -38,6 +41,9 @@ class MyFavorites extends StatefulWidget {
 
 class _MyFavoritesState extends State<MyFavorites>
     with SingleTickerProviderStateMixin {
+  /// header 与列表首屏之间的呼吸。
+  static const double _headerBottomGap = 8;
+
   late TabController _tabController;
   late FavoritesController controller;
   final ScrollController _videoScrollController = ScrollController();
@@ -60,6 +66,16 @@ class _MyFavoritesState extends State<MyFavorites>
   /// 列表滚过一段距离后显示右下角「回到顶部」浮钮。
   final ValueNotifier<bool> _showBackToTop = ValueNotifier<bool>(false);
 
+  /// 两个 tab 各自的搜索词；切 tab 时输入框跟着换成该 tab 的那份。
+  final List<TextEditingController> _searchInputs = List.generate(
+    2,
+    (_) => TextEditingController(),
+  );
+  bool _scrollSyncPending = false;
+
+  /// 当前 tab 是否正显示搜索结果。结果网格没有分页栏，回顶浮钮的高度跟着变。
+  bool _showingResults = false;
+
   @override
   void initState() {
     super.initState();
@@ -81,6 +97,8 @@ class _MyFavoritesState extends State<MyFavorites>
     // 两个 tab 各持一个滚动控制器，共用同一个监听驱动回顶浮钮
     _videoScrollController.addListener(_onScroll);
     _imageScrollController.addListener(_onScroll);
+    controller.videoSearch.addListener(_queueBackToTopSync);
+    controller.imageSearch.addListener(_queueBackToTopSync);
   }
 
   @override
@@ -88,6 +106,11 @@ class _MyFavoritesState extends State<MyFavorites>
     _videoScrollController.removeListener(_onScroll);
     _imageScrollController.removeListener(_onScroll);
     _tabController.removeListener(_handleTabChange);
+    controller.videoSearch.removeListener(_queueBackToTopSync);
+    controller.imageSearch.removeListener(_queueBackToTopSync);
+    for (final input in _searchInputs) {
+      input.dispose();
+    }
     _tabController.dispose();
     _showBackToTop.dispose();
     _videoRefreshSignal.dispose();
@@ -109,7 +132,29 @@ class _MyFavoritesState extends State<MyFavorites>
     if (_tabController.indexIsChanging) return;
     if (mounted) setState(() {});
     _syncBackToTop();
+    _queueBackToTopSync();
   }
+
+  PagedSearchController<dynamic> get _activeSearch =>
+      _isVideoTab ? controller.videoSearch : controller.imageSearch;
+
+  /// 结果网格与浏览列表互换时滚动位置会跳，回顶浮钮要在下一帧重新对一次
+  /// （顺带对齐浮钮高度）。搜索通知可能来自刷新途中，挪到帧后再 setState。
+  void _queueBackToTopSync() {
+    if (_scrollSyncPending) return;
+    _scrollSyncPending = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollSyncPending = false;
+      if (!mounted) return;
+      final showing = _activeSearch.showingResults;
+      if (showing != _showingResults) {
+        setState(() => _showingResults = showing);
+      }
+      _syncBackToTop();
+    });
+  }
+
+  void _updateSearch(String query) => _activeSearch.setQuery(query);
 
   ScrollController get _activeScrollController =>
       _isVideoTab ? _videoScrollController : _imageScrollController;
@@ -239,19 +284,37 @@ class _MyFavoritesState extends State<MyFavorites>
   }
 
   /// 右侧动作胶囊：多选 · 瀑布/分页 · 刷新（刷新中原位换沙漏并置灰）。
-  Widget _buildActionGroup(BuildContext context) {
+  ///
+  /// [compact]（窄屏）只留多选键，瀑布/分页与刷新收进「更多」菜单——header
+  /// 这一行还要放搜索圆钮，三枚键平铺会把分段胶囊挤成下拉钮。
+  Widget _buildActionGroup(BuildContext context, {bool compact = false}) {
     final t = slang.Translations.of(context);
     return Obx(() {
       final bool isMultiSelect = _isVideoTab
           ? _videoBatchController.isMultiSelect.value
           : _imageBatchController.isMultiSelect.value;
+      final multiSelectButton = GlassIconButton(
+        icon: Icon(isMultiSelect ? Icons.close : Icons.checklist),
+        tooltip: isMultiSelect ? t.common.exitEditMode : t.common.editMode,
+        onPressed: _toggleMultiSelect,
+      );
+      if (compact) {
+        return GlassButtonGroup(
+          children: [
+            multiSelectButton,
+            Builder(
+              builder: (anchorContext) => GlassAsyncIconButton(
+                icon: const Icon(Icons.more_horiz),
+                tooltip: t.common.more,
+                onPressed: () => _showMoreMenu(anchorContext),
+              ),
+            ),
+          ],
+        );
+      }
       return GlassButtonGroup(
         children: [
-          GlassIconButton(
-            icon: Icon(isMultiSelect ? Icons.close : Icons.checklist),
-            tooltip: isMultiSelect ? t.common.exitEditMode : t.common.editMode,
-            onPressed: _toggleMultiSelect,
-          ),
+          multiSelectButton,
           GlassIconButton(
             icon: Icon(_isPaginated ? Icons.grid_view : Icons.view_stream),
             tooltip: _isPaginated
@@ -267,6 +330,31 @@ class _MyFavoritesState extends State<MyFavorites>
         ],
       );
     });
+  }
+
+  /// 窄屏「更多」菜单：瀑布/分页 · 刷新。刷新时按钮跟着这个 future 转沙漏。
+  Future<void> _showMoreMenu(BuildContext anchorContext) async {
+    final t = slang.Translations.of(context);
+    final action = await showGlassMenu<int>(
+      anchorContext: anchorContext,
+      entries: [
+        GlassMenuOption(
+          value: 0,
+          label: _isPaginated
+              ? t.common.pagination.waterfall
+              : t.common.pagination.pagination,
+          leading: Icon(_isPaginated ? Icons.view_stream : Icons.grid_view),
+        ),
+        GlassMenuOption(
+          value: 1,
+          label: t.common.refresh,
+          leading: const Icon(Icons.refresh),
+        ),
+      ],
+    );
+    if (!mounted) return;
+    if (action == 0) _togglePaginationMode();
+    if (action == 1) await _refreshCurrentTab();
   }
 
   /// 当前 tab 对应的批量选择控制器。
@@ -286,14 +374,15 @@ class _MyFavoritesState extends State<MyFavorites>
     ];
   }
 
-  /// 滚过一段后出现在右下角的「回到顶部」浮钮；分页模式下抬到分页栏之上。
+  /// 滚过一段后出现在右下角的「回到顶部」浮钮；分页模式下抬到分页栏之上
+  /// （搜索结果网格没有分页栏，不用抬）。
   Widget _buildScrollToTopFab(BuildContext context) {
     return Positioned(
       right: 16,
       bottom:
           computeBottomSafeInset(MediaQuery.of(context)) +
           16 +
-          (_isPaginated ? PaginationBar.barHeight : 0),
+          (_isPaginated && !_showingResults ? PaginationBar.barHeight : 0),
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
         builder: (context, visible, _) =>
@@ -307,7 +396,8 @@ class _MyFavoritesState extends State<MyFavorites>
     final t = slang.Translations.of(context);
     final currentSite = Get.find<AppService>().currentSiteMode;
     final double statusBarHeight = MediaQuery.of(context).padding.top;
-    final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
+    const double headerHeight = GlassTokens.headerRowHeight;
+    final double headerExtent = statusBarHeight + headerHeight;
 
     final tabItems = [
       GlassSegmentItem(
@@ -345,16 +435,22 @@ class _MyFavoritesState extends State<MyFavorites>
             active: active,
             // 交给通用键鼠多选
             model: _isVideoTab
+                // 显示搜索结果时，「已加载的项」就是结果网格里那些
                 ? _videoBatchController.selectionModel(
-                    loadedItems: () => controller.videoRepository,
+                    loadedItems: () => controller.videoSearch.showingResults
+                        ? controller.videoSearch.results
+                        : controller.videoRepository,
                   )
                 : _imageBatchController.selectionModel(
-                    loadedItems: () => controller.imageRepository,
+                    loadedItems: () => controller.imageSearch.showingResults
+                        ? controller.imageSearch.results
+                        : controller.imageRepository,
                   ),
             onExit: batch.exitMultiSelect,
             child: _buildBody(
               context,
               headerExtent,
+              headerHeight,
               statusBarHeight,
               tabItems,
               currentSite,
@@ -368,6 +464,7 @@ class _MyFavoritesState extends State<MyFavorites>
   Widget _buildBody(
     BuildContext context,
     double headerExtent,
+    double headerHeight,
     double statusBarHeight,
     List<GlassSegmentItem> tabItems,
     IwaraSite currentSite,
@@ -376,6 +473,7 @@ class _MyFavoritesState extends State<MyFavorites>
     return GlassHeaderOverlay(
       headerExtent: headerExtent,
       headerTop: statusBarHeight,
+      headerHeight: headerHeight,
       solidExtent: statusBarHeight,
       liquid: true,
       body: TabBarView(
@@ -385,7 +483,7 @@ class _MyFavoritesState extends State<MyFavorites>
           Obx(
             () => FavoriteVideoList(
               scrollController: _videoScrollController,
-              paddingTop: headerExtent,
+              paddingTop: headerExtent + _headerBottomGap,
               isPaginated: _isPaginated,
               refreshSignal: _videoRefreshSignal,
               isMultiSelectMode: _videoBatchController.isMultiSelect.value,
@@ -402,7 +500,7 @@ class _MyFavoritesState extends State<MyFavorites>
           Obx(
             () => FavoriteImageList(
               scrollController: _imageScrollController,
-              paddingTop: headerExtent,
+              paddingTop: headerExtent + _headerBottomGap,
               isPaginated: _isPaginated,
               refreshSignal: _imageRefreshSignal,
               isMultiSelectMode: _imageBatchController.isMultiSelect.value,
@@ -417,60 +515,63 @@ class _MyFavoritesState extends State<MyFavorites>
           ),
         ],
       ),
-      // header 行：左 返回圆钮 / 中 分段胶囊（视频/图库 + AI 站点徽标）/
-      // 右 动作胶囊（多选 · 瀑布分页 · 刷新）
-      header: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
+      // header 一行：左 返回圆钮 / 中 分段胶囊（视频/图库 + AI 站点徽标）/
+      // 搜索圆钮（点开向左长成输入框，盖住分段胶囊）/ 右 动作胶囊
+      header: PagedSearchHeaderRow(
+        keyPrefix: 'favorite',
+        search: _activeSearch,
+        input: _searchInputs[_tabController.index],
+        hintText: t.pagedSearch.mediaHint,
+        onChanged: _updateSearch,
+        // 多选态展开搜索也留着动作胶囊：退出多选的键在里面
+        keepActions: _activeBatch.isMultiSelect.value,
+        leading: GlassIconButton(
+          standalone: true,
+          icon: const Icon(Icons.arrow_back),
+          tooltip: t.common.back,
+          onPressed: () => AppService.tryPop(),
+        ),
+        title: Row(
           children: [
-            GlassIconButton(
-              standalone: true,
-              icon: const Icon(Icons.arrow_back),
-              tooltip: t.common.back,
-              onPressed: () => AppService.tryPop(),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Row(
-                children: [
-                  // 空间够就平铺分段胶囊，露不出 2.5 个完整段就退化成下拉钮
-                  // （全站同一条约定，见 GlassAdaptiveSegmentedControl）。
-                  // Flexible：站点徽标先量，胶囊拿剩下的那点宽度去判定。
-                  Flexible(
-                    // 选择态下这只胶囊改报「已选 N 项」：进选择态是一次页面级
-                    // 的模式切换，header 不该毫无反应
-                    child: Obx(
-                      () => GlassAdaptiveSegmentedControl(
-                        selectedIndex: _tabController.index,
-                        progress: _tabController.animation,
-                        onChanged: _tabController.animateTo,
-                        items: tabItems,
-                        replacement: _activeBatch.isMultiSelect.value
-                            ? SizedBox(
-                                key: const ValueKey('selection'),
-                                width: 168,
-                                child: GlassSelectionSummary(
-                                  selectedCount: _activeBatch.selectedCount,
-                                  allSelected: false,
-                                  // 懒加载列表够不到未加载的部分，不给全选
-                                  onToggleAll: null,
-                                ),
-                              )
-                            : null,
-                      ),
-                    ),
-                  ),
-                  // AI 站点模式下标明当前看的是哪个站的最爱
-                  if (currentSite.isAi) ...[
-                    const SizedBox(width: 8),
-                    IwaraSiteBadge(site: currentSite),
-                  ],
-                ],
+            // 空间够就平铺分段胶囊，露不出 2.5 个完整段就退化成下拉钮
+            // （全站同一条约定，见 GlassAdaptiveSegmentedControl）。
+            // Flexible：站点徽标先量，胶囊拿剩下的那点宽度去判定。
+            Flexible(
+              // 选择态下这只胶囊改报「已选 N 项」：进选择态是一次页面级
+              // 的模式切换，header 不该毫无反应
+              child: Obx(
+                () => GlassAdaptiveSegmentedControl(
+                  selectedIndex: _tabController.index,
+                  progress: _tabController.animation,
+                  onChanged: _tabController.animateTo,
+                  items: tabItems,
+                  replacement: _activeBatch.isMultiSelect.value
+                      ? SizedBox(
+                          key: const ValueKey('selection'),
+                          width: 168,
+                          child: GlassSelectionSummary(
+                            selectedCount: _activeBatch.selectedCount,
+                            allSelected: false,
+                            // 懒加载列表够不到未加载的部分，不给全选
+                            onToggleAll: null,
+                          ),
+                        )
+                      : null,
+                ),
               ),
             ),
-            const SizedBox(width: 8),
-            _buildActionGroup(context),
+            // AI 站点模式下标明当前看的是哪个站的最爱
+            if (currentSite.isAi) ...[
+              const SizedBox(width: 8),
+              IwaraSiteBadge(site: currentSite),
+            ],
           ],
+        ),
+        actions: _buildActionGroup(
+          context,
+          compact:
+              MediaQuery.sizeOf(context).width <
+              PagedSearchHeaderRow.wideRowWidth,
         ),
       ),
       extra: [

@@ -3096,10 +3096,10 @@ searchFilter:
   copyToClipboard: "คัดลอกไปยังคลิปบอร์ด"
   copied: "คัดลอกแล้ว"
   filterCount: "${count} ตัวกรอง"
-  
+
   # Filter Button Widget
   filterSettings: "การตั้งค่าตัวกรอง"
-  
+
   # Filter Row Widget
   field: "ฟิลด์"
   operator: "ตัวดำเนินการ"
@@ -3122,7 +3122,7 @@ searchFilter:
   pleaseFillStartValue: "โปรดกรอกค่าเริ่มต้น"
   pleaseFillEndValue: "โปรดกรอกค่าสิ้นสุด"
   rangeValueFormatError: "รูปแบบค่าช่วงไม่ถูกต้อง"
-  
+
   # Filter Operators
   contains: "มีคำว่า"
   equals: "เท่ากับ"
@@ -3134,7 +3134,7 @@ searchFilter:
   range: "ช่วง"
   in: "มีอย่างใดอย่างหนึ่ง"
   notIn: "ไม่มีอย่างใดอย่างหนึ่ง"
-  
+
   # Filter Field Types
   username: "ชื่อผู้ใช้"
   nickname: "ชื่อเล่น"
@@ -3154,16 +3154,16 @@ searchFilter:
   videoCount: "จำนวนวิดีโอ"
   createDate: "วันที่สร้าง"
   content: "เนื้อหา"
-  
+
   # Rating Options
   all: "ทั้งหมด"
   adult: "ผู้ใหญ่"
   general: "ทั่วไป"
-  
+
   # Boolean Values
   yes: "ใช่"
   no: "ไม่"
-  
+
   # Content Types
   users: "ผู้ใช้"
   videos: "วิดีโอ"
@@ -3172,7 +3172,7 @@ searchFilter:
   forumThreads: "กระทู้ในฟอรัม"
   forumPosts: "โพสต์ในฟอรัม"
   playlists: "เพลย์ลิสต์"
-  
+
   # Sort Types for common search
   sortTypes:
     relevance: "ความเกี่ยวข้อง"
@@ -3955,3 +3955,45 @@ ai:
   saveAndLeave: "Save and leave"
   discardChanges: "Discard"
   savedToast: "Saved"
+
+followSearch:
+  scopeLoaded: "โหลดแล้ว"
+  scopeAll: "ทั้งรายการ"
+  hint: "ค้นหาชื่อหรือ @ชื่อผู้ใช้"
+  loaded: "ข้อมูลที่โหลดแล้ว"
+  all: "ค้นหาทั้งหมด"
+  loadedCount: "โหลดแล้ว ${count} / ${total}"
+  noLoadedMatches: "ไม่พบในข้อมูลที่โหลดแล้ว ลองค้นหาทั้งหมด"
+  noAllMatches: "ไม่พบในรายการทั้งหมด"
+  noLocalMatches: "ไม่พบการติดตามพิเศษที่ตรงกัน"
+  probing: "กำลังตรวจสอบขนาดหน้าสูงสุดที่รองรับ…"
+  complete: "โหลดทั้งหมดแล้ว: ${count} ผู้ใช้ · ${size} ต่อหน้า · ${rounds} คำขอ"
+  incomplete: "รายการยังไม่ครบ ยังค้นหาในข้อมูลที่โหลดแล้วได้"
+  progress: "${current} / ${total} ผู้ใช้ · ${size} ต่อหน้า · ${done} / ประมาณ ${rounds} คำขอ · เหลือประมาณ ${time}"
+  longWait: "รายการขนาดใหญ่อาจใช้เวลานาน การประมาณรวมเวลาเผื่อและปรับตามความเร็วของคำขอ"
+  failed: "โหลดไม่สำเร็จ ค้นหาในข้อมูลที่โหลดแล้วหรือลองใหม่"
+  cancelled: "ยกเลิกการโหลดแล้ว ข้อมูลที่ได้รับยังคงอยู่"
+  seconds: "${value} วินาที"
+  minutes: "${value} นาที"
+  continueSearch: "โหลดต่อ"
+pagedSearch:
+  mediaHint: "ค้นหาชื่อเรื่องหรือผู้สร้าง"
+  authorWorksHint: "ค้นหาผลงานของผู้สร้างนี้"
+  nameHint: "ค้นหาตามชื่อ"
+  noMatches: "ไม่พบผลลัพธ์ที่ตรงกัน"
+  scopeLoaded: "โหลดแล้ว"
+  scopeAll: "ทั้งรายการ"
+  all: "ค้นหาทั้งหมด"
+  loadedCount: "โหลดแล้ว ${count} / ${total}"
+  noLoadedMatches: "ไม่พบในข้อมูลที่โหลดแล้ว ลองค้นหาทั้งหมด"
+  noAllMatches: "ไม่พบในรายการทั้งหมด"
+  probing: "กำลังตรวจสอบขนาดหน้าสูงสุดที่รองรับ…"
+  complete: "โหลดทั้งหมดแล้ว: ${count} รายการ · ${size} ต่อหน้า · ${rounds} คำขอ"
+  incomplete: "รายการยังไม่ครบ ยังค้นหาในข้อมูลที่โหลดแล้วได้"
+  progress: "${current} / ${total} รายการ · ${size} ต่อหน้า · ${done} / ประมาณ ${rounds} คำขอ · เหลือประมาณ ${time}"
+  longWait: "รายการขนาดใหญ่อาจใช้เวลานาน การประมาณรวมเวลาเผื่อและปรับตามความเร็วของคำขอ"
+  failed: "โหลดไม่สำเร็จ ค้นหาในข้อมูลที่โหลดแล้วหรือลองใหม่"
+  cancelled: "ยกเลิกการโหลดแล้ว ข้อมูลที่ได้รับยังคงอยู่"
+  seconds: "${value} วินาที"
+  minutes: "${value} นาที"
+  continueSearch: "โหลดต่อ"

@@ -1,3 +1,4 @@
+import 'follow_search_list.dart';
 import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/user.model.dart';
@@ -42,22 +43,29 @@ class _FollowingListState extends State<FollowingList>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return MediaListView<User>(
-      sourceList: widget.controller.followingRepository,
-      isPaginated: widget.isPaginated,
-      refreshSignal: widget.refreshSignal,
+    return FollowSearchList(
+      search: widget.controller.followingSearch,
       scrollController: widget.scrollController,
       paddingTop: widget.paddingTop,
-      emptyIcon: Icons.person_add_alt_1_outlined,
-      // 用户卡是通栏条目：窄屏一列，宽屏才分列
-      extendedListDelegate:
-          const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 600,
-            crossAxisSpacing: 5,
-            mainAxisSpacing: 0,
-          ),
-      // 接口返回的关注/被关注状态不可靠，这里只做纯列表展示，不露出关注按钮
-      itemBuilder: (context, user, index) => UserCard(user: user),
+      browseBuilder: (scrollController) => MediaListView<User>(
+        sourceList: widget.controller.followingRepository,
+        isPaginated: widget.isPaginated,
+        refreshSignal: widget.refreshSignal,
+        onPaginatedRefresh:
+            widget.controller.followingRepository.resetPagingState,
+        scrollController: scrollController,
+        paddingTop: widget.paddingTop,
+        emptyIcon: Icons.person_add_alt_1_outlined,
+        // 用户卡是通栏条目：窄屏一列，宽屏才分列
+        extendedListDelegate:
+            const SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 600,
+              crossAxisSpacing: 5,
+              mainAxisSpacing: 0,
+            ),
+        // 接口返回的关注/被关注状态不可靠，这里只做纯列表展示，不露出关注按钮
+        itemBuilder: (context, user, index) => UserCard(user: user),
+      ),
     );
   }
 }

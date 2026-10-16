@@ -7,10 +7,16 @@ import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/ui/pages/favorites/repositories/favorite_image_repository.dart';
 import 'package:i_iwara/app/ui/pages/favorites/repositories/favorite_video_repository.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
+import 'package:i_iwara/app/ui/widgets/paged_search/paged_search_controller.dart';
 
 class FavoritesController extends GetxController {
   late FavoriteVideoRepository videoRepository;
   late FavoriteImageRepository imageRepository;
+
+  /// 两个 tab 各自的搜索：只在本地过滤已加载的项，或另起一套请求扫完整个列表，
+  /// 都不会动浏览列表的翻页游标。
+  late PagedSearchController<Video> videoSearch;
+  late PagedSearchController<ImageModel> imageSearch;
   final VideoService _videoService = Get.find();
   final GalleryService _galleryService = Get.find();
 
@@ -21,8 +27,42 @@ class FavoritesController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    videoRepository = FavoriteVideoRepository();
-    imageRepository = FavoriteImageRepository();
+    videoSearch = PagedSearchController<Video>(
+      fetchPage: (page, limit, token) async {
+        final result = await _videoService.fetchFavoriteVideos(
+          page: page,
+          limit: limit,
+          cancelToken: token,
+          rethrowErrors: true,
+        );
+        if (!result.isSuccess || result.data == null) {
+          throw Exception(result.message);
+        }
+        return result.data!;
+      },
+      idOf: (video) => video.id,
+      matches: (query, video) =>
+          matchesMediaSearch(query, video.title, video.user),
+    );
+    imageSearch = PagedSearchController<ImageModel>(
+      fetchPage: (page, limit, token) async {
+        final result = await _galleryService.fetchFavoriteImages(
+          page: page,
+          limit: limit,
+          cancelToken: token,
+          rethrowErrors: true,
+        );
+        if (!result.isSuccess || result.data == null) {
+          throw Exception(result.message);
+        }
+        return result.data!;
+      },
+      idOf: (image) => image.id,
+      matches: (query, image) =>
+          matchesMediaSearch(query, image.title, image.user),
+    );
+    videoRepository = FavoriteVideoRepository(search: videoSearch);
+    imageRepository = FavoriteImageRepository(search: imageSearch);
   }
 
   // 处理视频的最爱状态
@@ -155,6 +195,8 @@ class FavoritesController extends GetxController {
 
   @override
   void onClose() {
+    videoSearch.dispose();
+    imageSearch.dispose();
     videoRepository.dispose();
     imageRepository.dispose();
     super.onClose();

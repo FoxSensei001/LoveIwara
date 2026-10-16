@@ -13,6 +13,8 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_filter_dra
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import '../controllers/userz_video_list_controller.dart';
+import 'package:i_iwara/app/ui/pages/author_profile/author_search_query.dart';
+import 'package:i_iwara/app/ui/pages/search/repositories/search_repositories.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:get/get.dart';
 
@@ -42,6 +44,13 @@ class ProfileVideoTabListWidget extends StatefulWidget {
   })?
   onOpenVideo;
 
+  /// 页面 header 搜索钮里的词。非空时本 tab 改走 `/search` + `{author:…}`
+  /// （见 author_search_query.dart），排序与筛选照旧作用在搜索上。
+  final String searchKeyword;
+
+  /// 作者的 @username，`{author:…}` 只认它。拿不到时不进搜索态。
+  final String? authorUsername;
+
   const ProfileVideoTabListWidget({
     super.key,
     required this.tabKey,
@@ -58,6 +67,8 @@ class ProfileVideoTabListWidget extends StatefulWidget {
     this.onPaginationToggle,
     this.onMultiSelectToggle,
     this.onOpenVideo,
+    this.searchKeyword = '',
+    this.authorUsername,
   });
 
   @override
@@ -67,7 +78,11 @@ class ProfileVideoTabListWidget extends StatefulWidget {
 
 class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
     with AutomaticKeepAliveClientMixin {
-  late UserzVideoListRepository videoListRepository;
+  late ExtendedLoadingMoreBase<Video> videoListRepository;
+
+  bool get _searching =>
+      widget.searchKeyword.trim().isNotEmpty &&
+      (widget.authorUsername?.isNotEmpty ?? false);
 
   /// 带回执的刷新信号：header 上的刷新钮据此在刷完前显示沙漏。
   final ListRefreshSignal _refreshSignal = ListRefreshSignal();
@@ -104,6 +119,18 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
   }
 
   void _initRepository() {
+    if (_searching) {
+      videoListRepository = VideoSearchRepository(
+        query: authorSearchQuery(
+          keyword: widget.searchKeyword,
+          username: widget.authorUsername!,
+          tagIds: _filterTags.map((tag) => tag.id).toList(),
+          date: _filterDate,
+        ),
+        sortKey: authorSearchSort(getSort()),
+      );
+      return;
+    }
     videoListRepository = UserzVideoListRepository(
       userId: widget.userId,
       sortType: getSort(),
@@ -137,6 +164,16 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
         });
       },
     );
+  }
+
+  @override
+  void didUpdateWidget(ProfileVideoTabListWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.searchKeyword != widget.searchKeyword ||
+        oldWidget.authorUsername != widget.authorUsername) {
+      videoListRepository.dispose();
+      _initRepository();
+    }
   }
 
   @override
@@ -195,6 +232,7 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
         isPaginated: widget.isPaginated,
         refreshSignal: _refreshSignal,
         emptyIcon: Icons.video_library_outlined,
+        emptyMessage: _searching ? t.pagedSearch.noMatches : null,
         onPageChanged: widget.onPageChanged,
         itemBuilder: (context, video, index) {
           return Obx(() {
@@ -222,11 +260,17 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
                           // 这一栏**真正发出去的那份查询**（排序 + 标签 + 年月
                           // + 那条恒定的 user=）。交给详情页之后，「接着看」的
                           // 来源池就顺着同一份查询一直翻，而不是只有进来那一刻
-                          // 加载出来的那几十条。
-                          query: MediaListQuery.pruned(
-                            mediaType: PlaybackMediaType.video,
-                            params: videoListRepository.buildQueryParams(0, 20),
-                          ),
+                          // 加载出来的那几十条。搜索结果不是这套列表接口，
+                          // 只交出已加载的那些。
+                          query: _searching
+                              ? null
+                              : MediaListQuery.pruned(
+                                  mediaType: PlaybackMediaType.video,
+                                  params: videoListRepository.buildQueryParams(
+                                    0,
+                                    20,
+                                  ),
+                                ),
                         );
                       },
               ),

@@ -98,6 +98,8 @@ class TranslationsDe extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsLocalMediaDe localMedia = _TranslationsLocalMediaDe._(_root);
 	@override late final _TranslationsHistoryPageDe historyPage = _TranslationsHistoryPageDe._(_root);
 	@override late final _TranslationsAiDe ai = _TranslationsAiDe._(_root);
+	@override late final _TranslationsFollowSearchDe followSearch = _TranslationsFollowSearchDe._(_root);
+	@override late final _TranslationsPagedSearchDe pagedSearch = _TranslationsPagedSearchDe._(_root);
 }
 
 // Path: personalProfile
@@ -3116,6 +3118,63 @@ class _TranslationsAiDe extends TranslationsAiEn {
 	@override String get saveAndLeave => 'Save and leave';
 	@override String get discardChanges => 'Discard';
 	@override String get savedToast => 'Saved';
+}
+
+// Path: followSearch
+class _TranslationsFollowSearchDe extends TranslationsFollowSearchEn {
+	_TranslationsFollowSearchDe._(TranslationsDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDe _root; // ignore: unused_field
+
+	// Translations
+	@override String get scopeLoaded => 'Geladen';
+	@override String get scopeAll => 'Ganze Liste';
+	@override String get hint => 'Name oder @Benutzername suchen';
+	@override String get loaded => 'Geladene Daten';
+	@override String get all => 'Gesamte Liste';
+	@override String loadedCount({required Object count, required Object total}) => 'Geladen: ${count} / ${total}';
+	@override String get noLoadedMatches => 'Keine Treffer in geladenen Daten. Versuche die gesamte Liste.';
+	@override String get noAllMatches => 'Keine Treffer in der gesamten Liste.';
+	@override String get noLocalMatches => 'Keine passenden besonderen Abos.';
+	@override String get probing => 'Größte unterstützte Seitengröße wird geprüft…';
+	@override String complete({required Object count, required Object size, required Object rounds}) => 'Gesamte Liste bereit: ${count} Nutzer · ${size} pro Seite · ${rounds} Anfragen';
+	@override String get incomplete => 'Liste unvollständig. Geladene Ergebnisse bleiben durchsuchbar.';
+	@override String progress({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} Nutzer · ${size} pro Seite · ${done} / ca. ${rounds} Anfragen · noch ca. ${time}';
+	@override String get longWait => 'Große Listen können lange dauern. Die Schätzung enthält einen Puffer und wird an die Anfragegeschwindigkeit angepasst.';
+	@override String get failed => 'Laden nicht abgeschlossen. Durchsuche geladene Ergebnisse oder versuche es erneut.';
+	@override String get cancelled => 'Laden abgebrochen. Geladene Daten bleiben erhalten.';
+	@override String seconds({required Object value}) => '${value} Sek.';
+	@override String minutes({required Object value}) => '${value} Min.';
+	@override String get continueSearch => 'Weiter laden';
+}
+
+// Path: pagedSearch
+class _TranslationsPagedSearchDe extends TranslationsPagedSearchEn {
+	_TranslationsPagedSearchDe._(TranslationsDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDe _root; // ignore: unused_field
+
+	// Translations
+	@override String get mediaHint => 'Titel oder Autor suchen';
+	@override String get authorWorksHint => 'Werke dieses Autors durchsuchen';
+	@override String get nameHint => 'Namen suchen';
+	@override String get noMatches => 'Keine passenden Ergebnisse.';
+	@override String get scopeLoaded => 'Geladen';
+	@override String get scopeAll => 'Ganze Liste';
+	@override String get all => 'Gesamte Liste';
+	@override String loadedCount({required Object count, required Object total}) => 'Geladen: ${count} / ${total}';
+	@override String get noLoadedMatches => 'Keine Treffer in geladenen Daten. Versuche die gesamte Liste.';
+	@override String get noAllMatches => 'Keine Treffer in der gesamten Liste.';
+	@override String get probing => 'Größte unterstützte Seitengröße wird geprüft…';
+	@override String complete({required Object count, required Object size, required Object rounds}) => 'Gesamte Liste bereit: ${count} Einträge · ${size} pro Seite · ${rounds} Anfragen';
+	@override String get incomplete => 'Liste unvollständig. Geladene Ergebnisse bleiben durchsuchbar.';
+	@override String progress({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} Einträge · ${size} pro Seite · ${done} / ca. ${rounds} Anfragen · noch ca. ${time}';
+	@override String get longWait => 'Große Listen können lange dauern. Die Schätzung enthält einen Puffer und wird an die Anfragegeschwindigkeit angepasst.';
+	@override String get failed => 'Laden nicht abgeschlossen. Durchsuche geladene Ergebnisse oder versuche es erneut.';
+	@override String get cancelled => 'Laden abgebrochen. Geladene Daten bleiben erhalten.';
+	@override String seconds({required Object value}) => '${value} Sek.';
+	@override String minutes({required Object value}) => '${value} Min.';
+	@override String get continueSearch => 'Weiter laden';
 }
 
 // Path: common.pagination
@@ -8715,6 +8774,45 @@ extension on TranslationsDe {
 			'ai.saveAndLeave' => 'Save and leave',
 			'ai.discardChanges' => 'Discard',
 			'ai.savedToast' => 'Saved',
+			'followSearch.scopeLoaded' => 'Geladen',
+			'followSearch.scopeAll' => 'Ganze Liste',
+			'followSearch.hint' => 'Name oder @Benutzername suchen',
+			'followSearch.loaded' => 'Geladene Daten',
+			'followSearch.all' => 'Gesamte Liste',
+			'followSearch.loadedCount' => ({required Object count, required Object total}) => 'Geladen: ${count} / ${total}',
+			'followSearch.noLoadedMatches' => 'Keine Treffer in geladenen Daten. Versuche die gesamte Liste.',
+			'followSearch.noAllMatches' => 'Keine Treffer in der gesamten Liste.',
+			'followSearch.noLocalMatches' => 'Keine passenden besonderen Abos.',
+			'followSearch.probing' => 'Größte unterstützte Seitengröße wird geprüft…',
+			'followSearch.complete' => ({required Object count, required Object size, required Object rounds}) => 'Gesamte Liste bereit: ${count} Nutzer · ${size} pro Seite · ${rounds} Anfragen',
+			'followSearch.incomplete' => 'Liste unvollständig. Geladene Ergebnisse bleiben durchsuchbar.',
+			'followSearch.progress' => ({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} Nutzer · ${size} pro Seite · ${done} / ca. ${rounds} Anfragen · noch ca. ${time}',
+			'followSearch.longWait' => 'Große Listen können lange dauern. Die Schätzung enthält einen Puffer und wird an die Anfragegeschwindigkeit angepasst.',
+			'followSearch.failed' => 'Laden nicht abgeschlossen. Durchsuche geladene Ergebnisse oder versuche es erneut.',
+			'followSearch.cancelled' => 'Laden abgebrochen. Geladene Daten bleiben erhalten.',
+			'followSearch.seconds' => ({required Object value}) => '${value} Sek.',
+			'followSearch.minutes' => ({required Object value}) => '${value} Min.',
+			'followSearch.continueSearch' => 'Weiter laden',
+			'pagedSearch.mediaHint' => 'Titel oder Autor suchen',
+			'pagedSearch.authorWorksHint' => 'Werke dieses Autors durchsuchen',
+			'pagedSearch.nameHint' => 'Namen suchen',
+			'pagedSearch.noMatches' => 'Keine passenden Ergebnisse.',
+			'pagedSearch.scopeLoaded' => 'Geladen',
+			'pagedSearch.scopeAll' => 'Ganze Liste',
+			'pagedSearch.all' => 'Gesamte Liste',
+			'pagedSearch.loadedCount' => ({required Object count, required Object total}) => 'Geladen: ${count} / ${total}',
+			'pagedSearch.noLoadedMatches' => 'Keine Treffer in geladenen Daten. Versuche die gesamte Liste.',
+			'pagedSearch.noAllMatches' => 'Keine Treffer in der gesamten Liste.',
+			'pagedSearch.probing' => 'Größte unterstützte Seitengröße wird geprüft…',
+			'pagedSearch.complete' => ({required Object count, required Object size, required Object rounds}) => 'Gesamte Liste bereit: ${count} Einträge · ${size} pro Seite · ${rounds} Anfragen',
+			'pagedSearch.incomplete' => 'Liste unvollständig. Geladene Ergebnisse bleiben durchsuchbar.',
+			'pagedSearch.progress' => ({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} Einträge · ${size} pro Seite · ${done} / ca. ${rounds} Anfragen · noch ca. ${time}',
+			'pagedSearch.longWait' => 'Große Listen können lange dauern. Die Schätzung enthält einen Puffer und wird an die Anfragegeschwindigkeit angepasst.',
+			'pagedSearch.failed' => 'Laden nicht abgeschlossen. Durchsuche geladene Ergebnisse oder versuche es erneut.',
+			'pagedSearch.cancelled' => 'Laden abgebrochen. Geladene Daten bleiben erhalten.',
+			'pagedSearch.seconds' => ({required Object value}) => '${value} Sek.',
+			'pagedSearch.minutes' => ({required Object value}) => '${value} Min.',
+			'pagedSearch.continueSearch' => 'Weiter laden',
 			_ => null,
 		};
 	}

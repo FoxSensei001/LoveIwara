@@ -103,6 +103,7 @@ Widget? buildIndicator(
   IndicatorStatus status,
   VoidCallback onErrorRefresh, {
   IconData? emptyIcon,
+  String? emptyMessage,
   double paddingTop = 0,
   String? errorMessage,
   SkeletonLayoutConfig? skeletonLayoutConfig,
@@ -357,7 +358,8 @@ Widget? buildIndicator(
             ),
             const SizedBox(height: 16),
             Text(
-              slang.t.common.noData,
+              emptyMessage ?? slang.t.common.noData,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 color: Theme.of(context).hintColor,
                 fontSize: 16,

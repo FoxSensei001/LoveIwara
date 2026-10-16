@@ -1,3 +1,5 @@
+import 'follow_search_controller.dart';
+import 'package:i_iwara/app/services/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/follows/repositories/followers_list_repository.dart';
@@ -8,10 +10,11 @@ class FollowsController extends GetxController {
   final String userId;
   final bool initIsFollowing;
 
-  FollowsController({
-    required this.userId,
-    required this.initIsFollowing,
-  });
+  FollowsController({required this.userId, required this.initIsFollowing});
+
+  late FollowSearchController followingSearch;
+  late FollowSearchController followersSearch;
+  final RxString specialSearchQuery = ''.obs;
 
   late FollowingListRepository followingRepository;
   late FollowersListRepository followersRepository;
@@ -33,8 +36,45 @@ class FollowsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    followingRepository = FollowingListRepository(userId);
-    followersRepository = FollowersListRepository(userId);
+    final service = Get.find<UserService>();
+    followingSearch = FollowSearchController(
+      fetchPage: (page, limit, token) async {
+        final result = await service.fetchFollowingUsers(
+          page: page,
+          limit: limit,
+          userId: userId,
+          cancelToken: token,
+          rethrowErrors: true,
+        );
+        if (!result.isSuccess || result.data == null) {
+          throw Exception(result.message);
+        }
+        return result.data!;
+      },
+    );
+    followersSearch = FollowSearchController(
+      fetchPage: (page, limit, token) async {
+        final result = await service.fetchFollowers(
+          page: page,
+          limit: limit,
+          userId: userId,
+          cancelToken: token,
+          rethrowErrors: true,
+        );
+        if (!result.isSuccess || result.data == null) {
+          throw Exception(result.message);
+        }
+        return result.data!;
+      },
+    );
+    followingRepository = FollowingListRepository(
+      userId,
+      search: followingSearch,
+    );
+    followersRepository = FollowersListRepository(
+      userId,
+      search: followersSearch,
+    );
   }
 
   /// 刷新指定 tab。特别关注（index 2）是本地数据，没有可刷新的远端来源。
@@ -64,6 +104,8 @@ class FollowsController extends GetxController {
 
   @override
   void onClose() {
+    followingSearch.dispose();
+    followersSearch.dispose();
     followingRepository.dispose();
     followersRepository.dispose();
     followingListScrollController.dispose();
@@ -71,4 +113,4 @@ class FollowsController extends GetxController {
     specialFollowsScrollController.dispose();
     super.onClose();
   }
-} 
+}

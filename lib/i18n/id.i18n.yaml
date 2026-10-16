@@ -3096,10 +3096,10 @@ searchFilter:
   copyToClipboard: "Salin ke Papan Klip"
   copied: "Disalin"
   filterCount: "${count} filter"
-  
+
   # Filter Button Widget
   filterSettings: "Pengaturan Filter"
-  
+
   # Filter Row Widget
   field: "Bidang"
   operator: "Operator"
@@ -3122,7 +3122,7 @@ searchFilter:
   pleaseFillStartValue: "Silakan isi nilai awal"
   pleaseFillEndValue: "Silakan isi nilai akhir"
   rangeValueFormatError: "Kesalahan format nilai rentang"
-  
+
   # Filter Operators
   contains: "Mengandung"
   equals: "Sama dengan"
@@ -3134,7 +3134,7 @@ searchFilter:
   range: "Rentang"
   in: "Mengandung Salah Satu"
   notIn: "Tidak Mengandung Salah Satu"
-  
+
   # Filter Field Types
   username: "Nama Pengguna"
   nickname: "Nama Panggilan"
@@ -3154,16 +3154,16 @@ searchFilter:
   videoCount: "Jumlah Video"
   createDate: "Tanggal Dibuat"
   content: "Konten"
-  
+
   # Rating Options
   all: "Semua"
   adult: "Dewasa"
   general: "Umum"
-  
+
   # Boolean Values
   yes: "Ya"
   no: "Tidak"
-  
+
   # Content Types
   users: "Pengguna"
   videos: "Video"
@@ -3172,7 +3172,7 @@ searchFilter:
   forumThreads: "Utas Forum"
   forumPosts: "Postingan Forum"
   playlists: "Daftar Putar"
-  
+
   # Sort Types for common search
   sortTypes:
     relevance: "Relevansi"
@@ -3955,3 +3955,45 @@ ai:
   saveAndLeave: "Save and leave"
   discardChanges: "Discard"
   savedToast: "Saved"
+
+followSearch:
+  scopeLoaded: "Dimuat"
+  scopeAll: "Seluruh daftar"
+  hint: "Cari nama atau @nama pengguna"
+  loaded: "Data dimuat"
+  all: "Daftar lengkap"
+  loadedCount: "Dimuat ${count} / ${total}"
+  noLoadedMatches: "Tidak ada kecocokan pada data yang dimuat. Coba daftar lengkap."
+  noAllMatches: "Tidak ada kecocokan dalam daftar lengkap."
+  noLocalMatches: "Tidak ada ikutan khusus yang cocok."
+  probing: "Memeriksa ukuran halaman maksimum yang didukung…"
+  complete: "Daftar lengkap siap: ${count} pengguna · ${size} per halaman · ${rounds} permintaan"
+  incomplete: "Daftar belum lengkap. Hasil yang dimuat masih dapat dicari."
+  progress: "${current} / ${total} pengguna · ${size} per halaman · ${done} / ~${rounds} permintaan · sekitar ${time} tersisa"
+  longWait: "Daftar besar dapat memakan waktu lama. Perkiraan mencakup waktu tambahan dan diperbarui sesuai kecepatan permintaan."
+  failed: "Pemuatan belum selesai. Cari hasil yang dimuat atau coba lagi."
+  cancelled: "Pemuatan dibatalkan. Data yang dimuat disimpan."
+  seconds: "${value} dtk"
+  minutes: "${value} mnt"
+  continueSearch: "Lanjutkan memuat"
+pagedSearch:
+  mediaHint: "Cari judul atau pembuat"
+  authorWorksHint: "Cari karya pembuat ini"
+  nameHint: "Cari nama"
+  noMatches: "Tidak ada hasil yang cocok."
+  scopeLoaded: "Dimuat"
+  scopeAll: "Seluruh daftar"
+  all: "Daftar lengkap"
+  loadedCount: "Dimuat ${count} / ${total}"
+  noLoadedMatches: "Tidak ada kecocokan pada data yang dimuat. Coba daftar lengkap."
+  noAllMatches: "Tidak ada kecocokan dalam daftar lengkap."
+  probing: "Memeriksa ukuran halaman maksimum yang didukung…"
+  complete: "Daftar lengkap siap: ${count} item · ${size} per halaman · ${rounds} permintaan"
+  incomplete: "Daftar belum lengkap. Hasil yang dimuat masih dapat dicari."
+  progress: "${current} / ${total} item · ${size} per halaman · ${done} / ~${rounds} permintaan · sekitar ${time} tersisa"
+  longWait: "Daftar besar dapat memakan waktu lama. Perkiraan mencakup waktu tambahan dan diperbarui sesuai kecepatan permintaan."
+  failed: "Pemuatan belum selesai. Cari hasil yang dimuat atau coba lagi."
+  cancelled: "Pemuatan dibatalkan. Data yang dimuat disimpan."
+  seconds: "${value} dtk"
+  minutes: "${value} mnt"
+  continueSearch: "Lanjutkan memuat"

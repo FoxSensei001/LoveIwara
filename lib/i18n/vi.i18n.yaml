@@ -3096,10 +3096,10 @@ searchFilter:
   copyToClipboard: "Sao chép vào bộ nhớ tạm"
   copied: "Đã sao chép"
   filterCount: "${count} bộ lọc"
-  
+
   # Filter Button Widget
   filterSettings: "Cài đặt bộ lọc"
-  
+
   # Filter Row Widget
   field: "Trường"
   operator: "Toán tử"
@@ -3122,7 +3122,7 @@ searchFilter:
   pleaseFillStartValue: "Vui lòng nhập giá trị bắt đầu"
   pleaseFillEndValue: "Vui lòng nhập giá trị kết thúc"
   rangeValueFormatError: "Lỗi định dạng giá trị khoảng"
-  
+
   # Filter Operators
   contains: "Chứa"
   equals: "Bằng"
@@ -3134,7 +3134,7 @@ searchFilter:
   range: "Khoảng"
   in: "Chứa bất kỳ"
   notIn: "Không chứa bất kỳ"
-  
+
   # Filter Field Types
   username: "Tên người dùng"
   nickname: "Biệt danh"
@@ -3154,16 +3154,16 @@ searchFilter:
   videoCount: "Số video"
   createDate: "Ngày tạo"
   content: "Nội dung"
-  
+
   # Rating Options
   all: "Tất cả"
   adult: "Người lớn"
   general: "Chung"
-  
+
   # Boolean Values
   yes: "Có"
   no: "Không"
-  
+
   # Content Types
   users: "Người dùng"
   videos: "Video"
@@ -3172,7 +3172,7 @@ searchFilter:
   forumThreads: "Chủ đề diễn đàn"
   forumPosts: "Bài viết diễn đàn"
   playlists: "Danh sách phát"
-  
+
   # Sort Types for common search
   sortTypes:
     relevance: "Liên quan"
@@ -3955,3 +3955,45 @@ ai:
   saveAndLeave: "Save and leave"
   discardChanges: "Discard"
   savedToast: "Saved"
+
+followSearch:
+  scopeLoaded: "Đã tải"
+  scopeAll: "Toàn bộ"
+  hint: "Tìm tên hoặc @tên người dùng"
+  loaded: "Dữ liệu đã tải"
+  all: "Toàn bộ danh sách"
+  loadedCount: "Đã tải ${count} / ${total}"
+  noLoadedMatches: "Không có kết quả trong dữ liệu đã tải. Hãy thử toàn bộ danh sách."
+  noAllMatches: "Không có kết quả trong toàn bộ danh sách."
+  noLocalMatches: "Không có theo dõi đặc biệt phù hợp."
+  probing: "Đang kiểm tra kích thước trang tối đa được hỗ trợ…"
+  complete: "Đã tải toàn bộ: ${count} người dùng · ${size} mỗi trang · ${rounds} yêu cầu"
+  incomplete: "Danh sách chưa đầy đủ. Vẫn có thể tìm trong kết quả đã tải."
+  progress: "${current} / ${total} người dùng · ${size} mỗi trang · ${done} / ~${rounds} yêu cầu · còn khoảng ${time}"
+  longWait: "Danh sách lớn có thể mất nhiều thời gian. Ước tính có thêm thời gian dự phòng và cập nhật theo tốc độ yêu cầu."
+  failed: "Chưa tải xong. Tìm trong kết quả đã tải hoặc thử lại."
+  cancelled: "Đã hủy tải. Dữ liệu nhận được được giữ lại."
+  seconds: "${value} giây"
+  minutes: "${value} phút"
+  continueSearch: "Tiếp tục tải"
+pagedSearch:
+  mediaHint: "Tìm tiêu đề hoặc tác giả"
+  authorWorksHint: "Tìm trong tác phẩm của tác giả này"
+  nameHint: "Tìm theo tên"
+  noMatches: "Không có kết quả phù hợp."
+  scopeLoaded: "Đã tải"
+  scopeAll: "Toàn bộ"
+  all: "Toàn bộ danh sách"
+  loadedCount: "Đã tải ${count} / ${total}"
+  noLoadedMatches: "Không có kết quả trong dữ liệu đã tải. Hãy thử toàn bộ danh sách."
+  noAllMatches: "Không có kết quả trong toàn bộ danh sách."
+  probing: "Đang kiểm tra kích thước trang tối đa được hỗ trợ…"
+  complete: "Đã tải toàn bộ: ${count} mục · ${size} mỗi trang · ${rounds} yêu cầu"
+  incomplete: "Danh sách chưa đầy đủ. Vẫn có thể tìm trong kết quả đã tải."
+  progress: "${current} / ${total} mục · ${size} mỗi trang · ${done} / ~${rounds} yêu cầu · còn khoảng ${time}"
+  longWait: "Danh sách lớn có thể mất nhiều thời gian. Ước tính có thêm thời gian dự phòng và cập nhật theo tốc độ yêu cầu."
+  failed: "Chưa tải xong. Tìm trong kết quả đã tải hoặc thử lại."
+  cancelled: "Đã hủy tải. Dữ liệu nhận được được giữ lại."
+  seconds: "${value} giây"
+  minutes: "${value} phút"
+  continueSearch: "Tiếp tục tải"

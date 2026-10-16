@@ -98,6 +98,8 @@ class TranslationsZhTw extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsLocalMediaZhTw localMedia = _TranslationsLocalMediaZhTw._(_root);
 	@override late final _TranslationsHistoryPageZhTw historyPage = _TranslationsHistoryPageZhTw._(_root);
 	@override late final _TranslationsAiZhTw ai = _TranslationsAiZhTw._(_root);
+	@override late final _TranslationsFollowSearchZhTw followSearch = _TranslationsFollowSearchZhTw._(_root);
+	@override late final _TranslationsPagedSearchZhTw pagedSearch = _TranslationsPagedSearchZhTw._(_root);
 }
 
 // Path: personalProfile
@@ -3138,6 +3140,63 @@ class _TranslationsAiZhTw extends TranslationsAiEn {
 	@override String get saveAndLeave => 'Save and leave';
 	@override String get discardChanges => 'Discard';
 	@override String get savedToast => 'Saved';
+}
+
+// Path: followSearch
+class _TranslationsFollowSearchZhTw extends TranslationsFollowSearchEn {
+	_TranslationsFollowSearchZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get scopeLoaded => '已載入';
+	@override String get scopeAll => '整個清單';
+	@override String get hint => '搜尋暱稱或 @使用者名稱';
+	@override String get loaded => '已載入資料';
+	@override String get all => '全量搜尋';
+	@override String loadedCount({required Object count, required Object total}) => '已載入 ${count} / ${total}';
+	@override String get noLoadedMatches => '已載入資料中沒有符合的結果，可嘗試全量搜尋。';
+	@override String get noAllMatches => '完整清單中沒有符合的結果。';
+	@override String get noLocalMatches => '沒有符合的特別關注。';
+	@override String get probing => '正在探測介面支援的最大分頁大小…';
+	@override String complete({required Object count, required Object size, required Object rounds}) => '全量資料已就緒：${count} 位使用者 · 每頁 ${size} 筆 · 共 ${rounds} 次請求';
+	@override String get incomplete => '全量資料尚未載入完整，仍可搜尋已載入結果。';
+	@override String progress({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} 位使用者 · 每頁 ${size} 筆 · 請求 ${done} / 約 ${rounds} 輪 · 預計還需 ${time}';
+	@override String get longWait => '清單較大時可能需要等待很久。預估已增加等待餘裕，並會依實際請求速度更新。';
+	@override String get failed => '載入未完成，可搜尋已載入結果或重試。';
+	@override String get cancelled => '已取消載入，已取得的資料會保留。';
+	@override String seconds({required Object value}) => '${value} 秒';
+	@override String minutes({required Object value}) => '${value} 分鐘';
+	@override String get continueSearch => '繼續載入';
+}
+
+// Path: pagedSearch
+class _TranslationsPagedSearchZhTw extends TranslationsPagedSearchEn {
+	_TranslationsPagedSearchZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get mediaHint => '搜尋標題或作者';
+	@override String get authorWorksHint => '搜尋該作者的作品';
+	@override String get nameHint => '搜尋名稱';
+	@override String get noMatches => '沒有符合的結果。';
+	@override String get scopeLoaded => '已載入';
+	@override String get scopeAll => '整個清單';
+	@override String get all => '全量搜尋';
+	@override String loadedCount({required Object count, required Object total}) => '已載入 ${count} / ${total}';
+	@override String get noLoadedMatches => '已載入資料中沒有符合的結果，可嘗試全量搜尋。';
+	@override String get noAllMatches => '完整清單中沒有符合的結果。';
+	@override String get probing => '正在探測介面支援的最大分頁大小…';
+	@override String complete({required Object count, required Object size, required Object rounds}) => '全量資料已就緒：${count} 項 · 每頁 ${size} 筆 · 共 ${rounds} 次請求';
+	@override String get incomplete => '全量資料尚未載入完整，仍可搜尋已載入結果。';
+	@override String progress({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} 項 · 每頁 ${size} 筆 · 請求 ${done} / 約 ${rounds} 輪 · 預計還需 ${time}';
+	@override String get longWait => '清單較大時可能需要等待很久。預估已增加等待餘裕，並會依實際請求速度更新。';
+	@override String get failed => '載入未完成，可搜尋已載入結果或重試。';
+	@override String get cancelled => '已取消載入，已取得的資料會保留。';
+	@override String seconds({required Object value}) => '${value} 秒';
+	@override String minutes({required Object value}) => '${value} 分鐘';
+	@override String get continueSearch => '繼續載入';
 }
 
 // Path: common.pagination
@@ -8759,6 +8818,45 @@ extension on TranslationsZhTw {
 			'ai.saveAndLeave' => 'Save and leave',
 			'ai.discardChanges' => 'Discard',
 			'ai.savedToast' => 'Saved',
+			'followSearch.scopeLoaded' => '已載入',
+			'followSearch.scopeAll' => '整個清單',
+			'followSearch.hint' => '搜尋暱稱或 @使用者名稱',
+			'followSearch.loaded' => '已載入資料',
+			'followSearch.all' => '全量搜尋',
+			'followSearch.loadedCount' => ({required Object count, required Object total}) => '已載入 ${count} / ${total}',
+			'followSearch.noLoadedMatches' => '已載入資料中沒有符合的結果，可嘗試全量搜尋。',
+			'followSearch.noAllMatches' => '完整清單中沒有符合的結果。',
+			'followSearch.noLocalMatches' => '沒有符合的特別關注。',
+			'followSearch.probing' => '正在探測介面支援的最大分頁大小…',
+			'followSearch.complete' => ({required Object count, required Object size, required Object rounds}) => '全量資料已就緒：${count} 位使用者 · 每頁 ${size} 筆 · 共 ${rounds} 次請求',
+			'followSearch.incomplete' => '全量資料尚未載入完整，仍可搜尋已載入結果。',
+			'followSearch.progress' => ({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} 位使用者 · 每頁 ${size} 筆 · 請求 ${done} / 約 ${rounds} 輪 · 預計還需 ${time}',
+			'followSearch.longWait' => '清單較大時可能需要等待很久。預估已增加等待餘裕，並會依實際請求速度更新。',
+			'followSearch.failed' => '載入未完成，可搜尋已載入結果或重試。',
+			'followSearch.cancelled' => '已取消載入，已取得的資料會保留。',
+			'followSearch.seconds' => ({required Object value}) => '${value} 秒',
+			'followSearch.minutes' => ({required Object value}) => '${value} 分鐘',
+			'followSearch.continueSearch' => '繼續載入',
+			'pagedSearch.mediaHint' => '搜尋標題或作者',
+			'pagedSearch.authorWorksHint' => '搜尋該作者的作品',
+			'pagedSearch.nameHint' => '搜尋名稱',
+			'pagedSearch.noMatches' => '沒有符合的結果。',
+			'pagedSearch.scopeLoaded' => '已載入',
+			'pagedSearch.scopeAll' => '整個清單',
+			'pagedSearch.all' => '全量搜尋',
+			'pagedSearch.loadedCount' => ({required Object count, required Object total}) => '已載入 ${count} / ${total}',
+			'pagedSearch.noLoadedMatches' => '已載入資料中沒有符合的結果，可嘗試全量搜尋。',
+			'pagedSearch.noAllMatches' => '完整清單中沒有符合的結果。',
+			'pagedSearch.probing' => '正在探測介面支援的最大分頁大小…',
+			'pagedSearch.complete' => ({required Object count, required Object size, required Object rounds}) => '全量資料已就緒：${count} 項 · 每頁 ${size} 筆 · 共 ${rounds} 次請求',
+			'pagedSearch.incomplete' => '全量資料尚未載入完整，仍可搜尋已載入結果。',
+			'pagedSearch.progress' => ({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} 項 · 每頁 ${size} 筆 · 請求 ${done} / 約 ${rounds} 輪 · 預計還需 ${time}',
+			'pagedSearch.longWait' => '清單較大時可能需要等待很久。預估已增加等待餘裕，並會依實際請求速度更新。',
+			'pagedSearch.failed' => '載入未完成，可搜尋已載入結果或重試。',
+			'pagedSearch.cancelled' => '已取消載入，已取得的資料會保留。',
+			'pagedSearch.seconds' => ({required Object value}) => '${value} 秒',
+			'pagedSearch.minutes' => ({required Object value}) => '${value} 分鐘',
+			'pagedSearch.continueSearch' => '繼續載入',
 			_ => null,
 		};
 	}

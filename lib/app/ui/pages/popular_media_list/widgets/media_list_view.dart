@@ -307,6 +307,9 @@ class MediaListView<T> extends StatefulWidget {
   )?
   itemBuilderWithWidth;
   final IconData? emptyIcon;
+
+  /// 空态文案；不传时是通用的「暂无数据」（如带搜索词时改报「没有匹配」）。
+  final String? emptyMessage;
   final bool isPaginated;
   final ExtendedListDelegate? extendedListDelegate;
   final ScrollController? scrollController;
@@ -324,6 +327,10 @@ class MediaListView<T> extends StatefulWidget {
   /// 外部刷新信号。分页模式必须由本组件调用 [refresh]，否则只更新数据源而不会
   /// 更新当前显示的 [paginatedItems]。
   final ValueListenable<int>? refreshSignal;
+
+  /// Invalidates caller-owned snapshots before a paginated refresh. Infinite
+  /// repositories already invalidate their state through sourceList.refresh.
+  final VoidCallback? onPaginatedRefresh;
 
   /// 分页切换时的回调（用于多选模式下重置选择）
   final VoidCallback? onPageChanged;
@@ -344,6 +351,7 @@ class MediaListView<T> extends StatefulWidget {
     this.itemBuilderWithVisibleItems,
     this.itemBuilderWithWidth,
     this.emptyIcon,
+    this.emptyMessage,
     this.isPaginated = false,
     this.extendedListDelegate,
     this.scrollController,
@@ -355,6 +363,7 @@ class MediaListView<T> extends StatefulWidget {
     this.onPageChanged,
     this.onScrollMetricsChanged,
     this.refreshSignal,
+    this.onPaginatedRefresh,
     this.listCoordinator,
   }) : assert(
          itemBuilder != null ||
@@ -762,6 +771,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
 
   Future<void> refresh() async {
     if (widget.isPaginated) {
+      widget.onPaginatedRefresh?.call();
       // 用户/上游主动发起的新一轮加载，补发预算重新给满。
       _staleRetryCount = 0;
       await _loadPaginatedData(0);
@@ -1058,6 +1068,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
                 actualStatus,
                 () => widget.sourceList.errorRefresh(),
                 emptyIcon: widget.emptyIcon,
+                emptyMessage: widget.emptyMessage,
                 paddingTop: isFullScreenIndicator ? widget.paddingTop : 0,
                 errorMessage: errorMessage,
                 skeletonLayoutConfig: skeletonLayoutConfig,
@@ -1198,6 +1209,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
         _indicatorStatus,
         errorRefresh,
         emptyIcon: widget.emptyIcon,
+        emptyMessage: widget.emptyMessage,
         // 全屏指示器需要应用 paddingTop
         paddingTop: widget.paddingTop,
         errorMessage: _errorMessage,
@@ -1268,6 +1280,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
               _indicatorStatus,
               errorRefresh,
               emptyIcon: widget.emptyIcon,
+              emptyMessage: widget.emptyMessage,
               // 加载更多/错误/无更多 指示器不需要顶部padding
               paddingTop: 0,
               errorMessage: _errorMessage,

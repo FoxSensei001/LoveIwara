@@ -1,3 +1,4 @@
+import '../controllers/follow_search_controller.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/page_data.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
@@ -13,7 +14,15 @@ class FollowingListRepository extends ExtendedLoadingMoreBase<User> {
   final UserService _userService = Get.find();
   final String userId;
 
-  FollowingListRepository(this.userId);
+  final FollowSearchController search;
+
+  FollowingListRepository(this.userId, {required this.search});
+
+  @override
+  void resetPagingState() {
+    super.resetPagingState();
+    search.reset();
+  }
 
   @override
   Future<Map<String, dynamic>> fetchDataFromSource(
@@ -21,12 +30,15 @@ class FollowingListRepository extends ExtendedLoadingMoreBase<User> {
     int page,
     int limit,
   ) async {
+    final generation = currentGeneration;
     final result = await _userService.fetchFollowingUsers(
       page: page,
       limit: limit,
       userId: userId,
+      cancelToken: cancelToken,
     );
     if (result.isSuccess && result.data != null) {
+      if (!isStaleGeneration(generation)) search.recordLoaded(result.data!);
       return {'data': result.data!};
     }
     throw Exception(result.message);

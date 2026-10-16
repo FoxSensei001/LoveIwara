@@ -99,6 +99,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsLocalMediaEn localMedia = TranslationsLocalMediaEn.internal(_root);
 	late final TranslationsHistoryPageEn historyPage = TranslationsHistoryPageEn.internal(_root);
 	late final TranslationsAiEn ai = TranslationsAiEn.internal(_root);
+	late final TranslationsFollowSearchEn followSearch = TranslationsFollowSearchEn.internal(_root);
+	late final TranslationsPagedSearchEn pagedSearch = TranslationsPagedSearchEn.internal(_root);
 }
 
 // Path: personalProfile
@@ -8026,6 +8028,141 @@ class TranslationsAiEn {
 
 	/// en: 'Saved'
 	String get savedToast => 'Saved';
+}
+
+// Path: followSearch
+class TranslationsFollowSearchEn {
+	TranslationsFollowSearchEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Loaded'
+	String get scopeLoaded => 'Loaded';
+
+	/// en: 'Whole list'
+	String get scopeAll => 'Whole list';
+
+	/// en: 'Search name or @username'
+	String get hint => 'Search name or @username';
+
+	/// en: 'Loaded data'
+	String get loaded => 'Loaded data';
+
+	/// en: 'Full list'
+	String get all => 'Full list';
+
+	/// en: 'Loaded ${count} / ${total}'
+	String loadedCount({required Object count, required Object total}) => 'Loaded ${count} / ${total}';
+
+	/// en: 'No matches in loaded data. Try full-list search.'
+	String get noLoadedMatches => 'No matches in loaded data. Try full-list search.';
+
+	/// en: 'No matches in the full list.'
+	String get noAllMatches => 'No matches in the full list.';
+
+	/// en: 'No matching special follows.'
+	String get noLocalMatches => 'No matching special follows.';
+
+	/// en: 'Checking the largest supported page size…'
+	String get probing => 'Checking the largest supported page size…';
+
+	/// en: 'Full list ready: ${count} users · ${size} per page · ${rounds} requests'
+	String complete({required Object count, required Object size, required Object rounds}) => 'Full list ready: ${count} users · ${size} per page · ${rounds} requests';
+
+	/// en: 'Full list is incomplete. Loaded results remain searchable.'
+	String get incomplete => 'Full list is incomplete. Loaded results remain searchable.';
+
+	/// en: '${current} / ${total} users · ${size} per page · ${done} / ~${rounds} requests · about ${time} left'
+	String progress({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} users · ${size} per page · ${done} / ~${rounds} requests · about ${time} left';
+
+	/// en: 'A large list can take a long time. The estimate includes extra waiting time and updates with request speed.'
+	String get longWait => 'A large list can take a long time. The estimate includes extra waiting time and updates with request speed.';
+
+	/// en: 'Could not finish loading. You can search loaded results or retry.'
+	String get failed => 'Could not finish loading. You can search loaded results or retry.';
+
+	/// en: 'Loading cancelled. Loaded results are kept.'
+	String get cancelled => 'Loading cancelled. Loaded results are kept.';
+
+	/// en: '${value} sec'
+	String seconds({required Object value}) => '${value} sec';
+
+	/// en: '${value} min'
+	String minutes({required Object value}) => '${value} min';
+
+	/// en: 'Continue loading'
+	String get continueSearch => 'Continue loading';
+}
+
+// Path: pagedSearch
+class TranslationsPagedSearchEn {
+	TranslationsPagedSearchEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Search title or author'
+	String get mediaHint => 'Search title or author';
+
+	/// en: 'Search this author's works'
+	String get authorWorksHint => 'Search this author\'s works';
+
+	/// en: 'Search by name'
+	String get nameHint => 'Search by name';
+
+	/// en: 'No matching results.'
+	String get noMatches => 'No matching results.';
+
+	/// en: 'Loaded'
+	String get scopeLoaded => 'Loaded';
+
+	/// en: 'Whole list'
+	String get scopeAll => 'Whole list';
+
+	/// en: 'Full list'
+	String get all => 'Full list';
+
+	/// en: 'Loaded ${count} / ${total}'
+	String loadedCount({required Object count, required Object total}) => 'Loaded ${count} / ${total}';
+
+	/// en: 'No matches in loaded data. Try full-list search.'
+	String get noLoadedMatches => 'No matches in loaded data. Try full-list search.';
+
+	/// en: 'No matches in the full list.'
+	String get noAllMatches => 'No matches in the full list.';
+
+	/// en: 'Checking the largest supported page size…'
+	String get probing => 'Checking the largest supported page size…';
+
+	/// en: 'Full list ready: ${count} items · ${size} per page · ${rounds} requests'
+	String complete({required Object count, required Object size, required Object rounds}) => 'Full list ready: ${count} items · ${size} per page · ${rounds} requests';
+
+	/// en: 'Full list is incomplete. Loaded results remain searchable.'
+	String get incomplete => 'Full list is incomplete. Loaded results remain searchable.';
+
+	/// en: '${current} / ${total} items · ${size} per page · ${done} / ~${rounds} requests · about ${time} left'
+	String progress({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} items · ${size} per page · ${done} / ~${rounds} requests · about ${time} left';
+
+	/// en: 'A large list can take a long time. The estimate includes extra waiting time and updates with request speed.'
+	String get longWait => 'A large list can take a long time. The estimate includes extra waiting time and updates with request speed.';
+
+	/// en: 'Could not finish loading. You can search loaded results or retry.'
+	String get failed => 'Could not finish loading. You can search loaded results or retry.';
+
+	/// en: 'Loading cancelled. Loaded results are kept.'
+	String get cancelled => 'Loading cancelled. Loaded results are kept.';
+
+	/// en: '${value} sec'
+	String seconds({required Object value}) => '${value} sec';
+
+	/// en: '${value} min'
+	String minutes({required Object value}) => '${value} min';
+
+	/// en: 'Continue loading'
+	String get continueSearch => 'Continue loading';
 }
 
 // Path: common.pagination
@@ -16245,6 +16382,45 @@ extension on Translations {
 			'ai.saveAndLeave' => 'Save and leave',
 			'ai.discardChanges' => 'Discard',
 			'ai.savedToast' => 'Saved',
+			'followSearch.scopeLoaded' => 'Loaded',
+			'followSearch.scopeAll' => 'Whole list',
+			'followSearch.hint' => 'Search name or @username',
+			'followSearch.loaded' => 'Loaded data',
+			'followSearch.all' => 'Full list',
+			'followSearch.loadedCount' => ({required Object count, required Object total}) => 'Loaded ${count} / ${total}',
+			'followSearch.noLoadedMatches' => 'No matches in loaded data. Try full-list search.',
+			'followSearch.noAllMatches' => 'No matches in the full list.',
+			'followSearch.noLocalMatches' => 'No matching special follows.',
+			'followSearch.probing' => 'Checking the largest supported page size…',
+			'followSearch.complete' => ({required Object count, required Object size, required Object rounds}) => 'Full list ready: ${count} users · ${size} per page · ${rounds} requests',
+			'followSearch.incomplete' => 'Full list is incomplete. Loaded results remain searchable.',
+			'followSearch.progress' => ({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} users · ${size} per page · ${done} / ~${rounds} requests · about ${time} left',
+			'followSearch.longWait' => 'A large list can take a long time. The estimate includes extra waiting time and updates with request speed.',
+			'followSearch.failed' => 'Could not finish loading. You can search loaded results or retry.',
+			'followSearch.cancelled' => 'Loading cancelled. Loaded results are kept.',
+			'followSearch.seconds' => ({required Object value}) => '${value} sec',
+			'followSearch.minutes' => ({required Object value}) => '${value} min',
+			'followSearch.continueSearch' => 'Continue loading',
+			'pagedSearch.mediaHint' => 'Search title or author',
+			'pagedSearch.authorWorksHint' => 'Search this author\'s works',
+			'pagedSearch.nameHint' => 'Search by name',
+			'pagedSearch.noMatches' => 'No matching results.',
+			'pagedSearch.scopeLoaded' => 'Loaded',
+			'pagedSearch.scopeAll' => 'Whole list',
+			'pagedSearch.all' => 'Full list',
+			'pagedSearch.loadedCount' => ({required Object count, required Object total}) => 'Loaded ${count} / ${total}',
+			'pagedSearch.noLoadedMatches' => 'No matches in loaded data. Try full-list search.',
+			'pagedSearch.noAllMatches' => 'No matches in the full list.',
+			'pagedSearch.probing' => 'Checking the largest supported page size…',
+			'pagedSearch.complete' => ({required Object count, required Object size, required Object rounds}) => 'Full list ready: ${count} items · ${size} per page · ${rounds} requests',
+			'pagedSearch.incomplete' => 'Full list is incomplete. Loaded results remain searchable.',
+			'pagedSearch.progress' => ({required Object current, required Object total, required Object size, required Object done, required Object rounds, required Object time}) => '${current} / ${total} items · ${size} per page · ${done} / ~${rounds} requests · about ${time} left',
+			'pagedSearch.longWait' => 'A large list can take a long time. The estimate includes extra waiting time and updates with request speed.',
+			'pagedSearch.failed' => 'Could not finish loading. You can search loaded results or retry.',
+			'pagedSearch.cancelled' => 'Loading cancelled. Loaded results are kept.',
+			'pagedSearch.seconds' => ({required Object value}) => '${value} sec',
+			'pagedSearch.minutes' => ({required Object value}) => '${value} min',
+			'pagedSearch.continueSearch' => 'Continue loading',
 			_ => null,
 		};
 	}

@@ -19,6 +19,8 @@ import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/paged_search/paged_search_controller.dart';
+import 'package:i_iwara/app/ui/widgets/paged_search/paged_search_row.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
 
@@ -28,8 +30,11 @@ import 'package:i_iwara/utils/common_utils.dart';
 ///
 /// header 只有一行（与热门视频页同一条配方）：
 ///
-///     [返回] [视频 ▾]        …………        [ ⚙ │ 清除 │ ☑ ]
+///     [返回] [视频 ▾]        …………    (🔍) [ ⚙ │ 清除 │ ☑ ]
 ///
+/// 🔍 是全站同一只可展开的搜索钮（[PagedSearchHeaderRow]）：点开向左长成输入框，
+/// 按标题 / 作者过滤。这一页的列表整份都在内存里，所以没有「已加载 / 整个列表」
+/// 的范围选择，两个 tab 共用同一个搜索词。
 /// 左边是**在看什么**（类型），右边那坨玻璃里是**对这批东西做的事**：一枚键
 /// 管筛选 + 排序（点开是分两组的菜单）、一枚键清掉已看完的、一枚键进批量编辑。
 ///
@@ -45,7 +50,8 @@ import 'package:i_iwara/utils/common_utils.dart';
 /// - ⛔ **没有 `⋮`**：一个更多菜单里躺着两组毫不相干的东西读起来就是杂物
 ///   抽屉。筛选（全部 / 未看完）与排序（最近 / 最早）各只有两档，合并成一枚
 ///   `tune` 键、菜单里分两组各自打勾；清除已看完是**动作**不是选项，单独
-///   成键（仍然先弹确认）；
+///   成键（仍然先弹确认）。例外只有窄屏（< 600）：header 多了搜索钮，三枚键
+///   摆不下，清除挪进 `tune` 菜单最后一组；
 /// - ⛔ **条目上没有横滑删除**：这一页的列表躺在 [TabBarView] 里，横向手势
 ///   属于「视频 ↔ 图库」。两者抢同一个方向，想切 tab 而手指落在某一条上，
 ///   切过去的同时那条就没了（2026-08-29 报障）。移除改由批量编辑承担。
@@ -108,8 +114,18 @@ class _WatchLaterPageState extends State<WatchLaterPage>
   /// ⛔ 原先只留一份 `_items`（当前 tab 的那份）喂给 [TabBarView] 的两个孩子，
   /// 于是横滑到一半时右边那页画的是**左边这页的数据**——视频躺在图库页上，
   /// 滑完 tab 监听器才重查一次把它抹掉。「滑动过程中图库里有视频」就是这么来的。
+  ///
+  /// `_videoAll` / `_imageAll` 是库里查出来的整份，`_videoItems` / `_imageItems`
+  /// 是再按搜索词过滤后真正画出来的那份——选择、全选、移除都只认后者，
+  /// 看不见的条目不会被顺带勾上或删掉。
+  List<WatchLaterItem> _videoAll = const [];
+  List<WatchLaterItem> _imageAll = const [];
   List<WatchLaterItem> _videoItems = const [];
   List<WatchLaterItem> _imageItems = const [];
+
+  /// 搜索词，两个 tab 共用：「找那条 xx」不该因为它躺在另一个 tab 里就找不到。
+  final TextEditingController _searchInput = TextEditingController();
+  String _query = '';
 
   @override
   void initState() {
@@ -130,6 +146,7 @@ class _WatchLaterPageState extends State<WatchLaterPage>
   @override
   void dispose() {
     WatchLaterService.to.watchLaterChangedNotifier.removeListener(_reload);
+    _searchInput.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -219,26 +236,57 @@ class _WatchLaterPageState extends State<WatchLaterPage>
     if (!mounted) return;
     final sort = _sort;
     setState(() {
-      _videoItems = WatchLaterService.to.query(
+      _videoAll = WatchLaterService.to.query(
         itemType: WatchLaterItemType.video,
         unwatchedOnly: _unwatchedOnly,
         sort: sort,
       );
-      _imageItems = WatchLaterService.to.query(
+      _imageAll = WatchLaterService.to.query(
         itemType: WatchLaterItemType.image,
         unwatchedOnly: _unwatchedOnly,
         sort: sort,
       );
-      // 库变了（别处移除、筛选换了一批）之后，勾在已经不在列表里的条目上的
-      // 选择必须一并去掉，否则「已选 3 项」里有两项根本看不见。
-      if (_selectedKeys.isNotEmpty) {
-        final alive = <String>{
-          for (final item in _videoItems) _keyOf(item),
-          for (final item in _imageItems) _keyOf(item),
-        };
-        _selectedKeys.removeWhere((key) => !alive.contains(key));
-      }
+      _applyQuery();
     });
+  }
+
+  void _onQueryChanged(String query) {
+    if (query.trim() == _query.trim()) {
+      _query = query;
+      return;
+    }
+    setState(() {
+      _query = query;
+      _applyQuery();
+    });
+  }
+
+  /// 按搜索词从整份里过滤出要画的那份。调用方负责 setState。
+  void _applyQuery() {
+    List<WatchLaterItem> filter(List<WatchLaterItem> items) =>
+        _query.trim().isEmpty
+        ? items
+        : items
+              .where(
+                (item) => matchesTextSearch(_query, [
+                  item.title,
+                  item.author,
+                  item.authorUsername,
+                ]),
+              )
+              .toList(growable: false);
+    _videoItems = filter(_videoAll);
+    _imageItems = filter(_imageAll);
+    // 库变了（别处移除、筛选换了一批）或搜索词把它们滤掉之后，勾在已经不在
+    // 列表里的条目上的选择必须一并去掉，否则「已选 3 项」里有两项根本看不见，
+    // 移除时却会被一起删掉。
+    if (_selectedKeys.isNotEmpty) {
+      final alive = <String>{
+        for (final item in _videoItems) _keyOf(item),
+        for (final item in _imageItems) _keyOf(item),
+      };
+      _selectedKeys.removeWhere((key) => !alive.contains(key));
+    }
   }
 
   @override
@@ -338,116 +386,119 @@ class _WatchLaterPageState extends State<WatchLaterPage>
     final ValueListenable<double> tabProgress =
         _tabController.animation ??
         AlwaysStoppedAnimation<double>(_tabIndex.toDouble());
+    // 窄屏：一行里还要摆搜索钮，三枚动作键会把类型胶囊挤到放不下
+    // （320 宽只剩 51px，胶囊要 95px）。「清除已看完」收进筛选菜单。
+    final compact =
+        MediaQuery.sizeOf(context).width < PagedSearchHeaderRow.wideRowWidth;
 
-    return SizedBox(
-      height: GlassTokens.headerRowHeight,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          children: [
-            GlassIconButton(
-              standalone: true,
-              icon: const Icon(Icons.arrow_back),
-              tooltip: t.common.back,
-              onPressed: () => AppService.tryPop(),
-            ),
-            const SizedBox(width: 8),
-            // 类型（视频 / 图库）：**页面此刻在看什么**，所以挨着返回钮放在
-            // 最左——和其它页 header 上「当前是谁」的胶囊同一个位置。
-            // 独立一只胶囊（壳由 GlassCapsuleMorph 提供），不进右边那组。
-            GlassCapsuleMorph(
-              // 选择态下这只胶囊改报「已选 N 项」：进选择态是一次页面级的模式
-              // 切换，header 不该毫无反应。壳还是同一只，所以进出是一次宽度
-              // 形变而不是硬切（与热门页同一条配方）。
-              child: _selecting
-                  ? SizedBox(
-                      key: const ValueKey('selection'),
-                      // 「全选」在这一页是够得着的：列表整份都在内存里，不像
-                      // 热门页那种懒加载的无限列表。
-                      width: 208,
-                      child: GlassSelectionSummary(
-                        selectedCount: _selectedKeys.length,
-                        allSelected: _allSelected,
-                        onToggleAll: _currentItems.isEmpty
-                            ? null
-                            : _toggleSelectAll,
+    return PagedSearchHeaderRow(
+      keyPrefix: 'watch-later',
+      search: null,
+      input: _searchInput,
+      hintText: t.pagedSearch.mediaHint,
+      onChanged: _onQueryChanged,
+      // 选择态展开搜索也留着动作胶囊：退出选择态的键在里面
+      keepActions: _selecting,
+      leading: GlassIconButton(
+        standalone: true,
+        icon: const Icon(Icons.arrow_back),
+        tooltip: t.common.back,
+        onPressed: () => AppService.tryPop(),
+      ),
+      // 类型（视频 / 图库）：**页面此刻在看什么**，所以挨着返回钮放在
+      // 最左——和其它页 header 上「当前是谁」的胶囊同一个位置。
+      // 独立一只胶囊（壳由 GlassCapsuleMorph 提供），不进右边那组。
+      title: GlassCapsuleMorph(
+        // 选择态下这只胶囊改报「已选 N 项」：进选择态是一次页面级的模式
+        // 切换，header 不该毫无反应。壳还是同一只，所以进出是一次宽度
+        // 形变而不是硬切（与热门页同一条配方）。
+        child: _selecting
+            ? SizedBox(
+                key: const ValueKey('selection'),
+                // 「全选」在这一页是够得着的：列表整份都在内存里，不像
+                // 热门页那种懒加载的无限列表。
+                width: 208,
+                child: GlassSelectionSummary(
+                  selectedCount: _selectedKeys.length,
+                  allSelected: _allSelected,
+                  onToggleAll: _currentItems.isEmpty ? null : _toggleSelectAll,
+                ),
+              )
+            : LayoutBuilder(
+                key: const ValueKey('type'),
+                // 再窄（320 一档）连两枚键都让出来了也还差几像素：去掉牌面前的
+                // 小图标，只留「视频 ▾」。
+                builder: (context, box) => GlassDropdownTrigger(
+                  onTap: (anchorContext) => _openTypeMenu(anchorContext, t),
+                  child: IconTheme.merge(
+                    data: IconThemeData(color: cs.onSurface, size: 16),
+                    child: GlassFlipLabel(
+                      progress: tabProgress,
+                      // 恒宽：翻牌途中胶囊宽度不跟着抖（见类注释）。
+                      stableWidth: true,
+                      labels: [t.common.video, t.common.gallery],
+                      icons: box.maxWidth < _typeWithIconWidth
+                          ? null
+                          : const [
+                              Icon(Icons.video_library_outlined),
+                              Icon(Icons.photo_library_outlined),
+                            ],
+                      style: TextStyle(
+                        color: cs.onSurface,
+                        fontWeight: FontWeight.w600,
                       ),
-                    )
-                  : GlassDropdownTrigger(
-                      key: const ValueKey('type'),
-                      onTap: (anchorContext) => _openTypeMenu(anchorContext, t),
-                      child: IconTheme.merge(
-                        data: IconThemeData(color: cs.onSurface, size: 16),
-                        child: GlassFlipLabel(
-                          progress: tabProgress,
-                          // 恒宽：翻牌途中胶囊宽度不跟着抖（见类注释）。
-                          stableWidth: true,
-                          labels: [t.common.video, t.common.gallery],
-                          icons: const [
-                            Icon(Icons.video_library_outlined),
-                            Icon(Icons.photo_library_outlined),
-                          ],
-                          style: TextStyle(
-                            color: cs.onSurface,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-            ),
-            const Spacer(),
-            const SizedBox(width: 8),
-            // 右边这一组全是**对当前这批东西做的事**：怎么筛怎么排、清掉哪些。
-            // 两个位共处一坨玻璃。
-            GlassButtonGroup(
-              // 选择态会把前两个位收走，宽度跟着变——签名要带上它。
-              touchFlexSignature: 'watch-later|$_selecting',
-              children: [
-                // 筛选与排序合并成**一枚**键：这页的筛选只有「全部 /
-                // 未看完」两档、排序只有「最近 / 最早」两档，各占一个位是把
-                // 一行 header 摊给了四个选项。点开是一张分两组的菜单
-                // （筛选 / 排序），两组各自打勾。
-                //
-                // ⛔ 所以它是图标而不是带当前值的下拉钮：一枚钮管着两个维度，
-                // 标签上只写其中一个（"未看完 ▾"）会读成"这只管筛选"。
-                // 当前是否有非默认筛选生效改用小红点表达（全站同一套约定，
-                // 见热门页的筛选键）。
-                // 选择态下这两个位收走：此刻能做的只有「勾/取消勾」和底部
-                // 那条坞里的动作，筛选与清除都不该在这时候插一脚。
-                GlassGroupSlot(
-                  visible: !_selecting,
-                  child: Builder(
-                    builder: (buttonContext) => GlassIconButton(
-                      icon: const Icon(Icons.tune),
-                      tooltip: '${t.common.filter} · ${t.common.sort}',
-                      showBadge: _unwatchedOnly,
-                      opensOverlay: true,
-                      onPressed: () => _openFilterSortMenu(buttonContext, t),
                     ),
                   ),
                 ),
-                GlassGroupSlot(
-                  visible: !_selecting,
-                  child: GlassIconButton(
-                    icon: const Icon(Icons.cleaning_services_outlined),
-                    tooltip: t.watchLater.clearWatched,
-                    onPressed: () => _clearWatched(t),
-                  ),
-                ),
-                // 批量编辑 ↔ 退出：**同一枚键留在原位**做图标交叉过渡，
-                // 不是「一枚消失、另一枚冒出来」（见 GlassIconButton 内的
-                // GlassAnimatedIcon）。
-                GlassIconButton(
-                  icon: Icon(_selecting ? Icons.close : Icons.checklist),
-                  tooltip: _selecting
-                      ? t.common.exitEditMode
-                      : t.common.editMode,
-                  onPressed: () => _setSelecting(!_selecting),
-                ),
-              ],
+              ),
+      ),
+      // 右边这一组全是**对当前这批东西做的事**：怎么筛怎么排、清掉哪些。
+      // 两个位共处一坨玻璃。
+      actions: GlassButtonGroup(
+        // 选择态会把前两个位收走，宽度跟着变——签名要带上它。
+        touchFlexSignature: 'watch-later|$_selecting|$compact',
+        children: [
+          // 筛选与排序合并成**一枚**键：这页的筛选只有「全部 /
+          // 未看完」两档、排序只有「最近 / 最早」两档，各占一个位是把
+          // 一行 header 摊给了四个选项。点开是一张分两组的菜单
+          // （筛选 / 排序），两组各自打勾。
+          //
+          // ⛔ 所以它是图标而不是带当前值的下拉钮：一枚钮管着两个维度，
+          // 标签上只写其中一个（"未看完 ▾"）会读成"这只管筛选"。
+          // 当前是否有非默认筛选生效改用小红点表达（全站同一套约定，
+          // 见热门页的筛选键）。
+          // 选择态下这两个位收走：此刻能做的只有「勾/取消勾」和底部
+          // 那条坞里的动作，筛选与清除都不该在这时候插一脚。
+          GlassGroupSlot(
+            visible: !_selecting,
+            child: Builder(
+              builder: (buttonContext) => GlassIconButton(
+                icon: const Icon(Icons.tune),
+                tooltip: '${t.common.filter} · ${t.common.sort}',
+                showBadge: _unwatchedOnly,
+                opensOverlay: true,
+                onPressed: () =>
+                    _openFilterSortMenu(buttonContext, t, withClear: compact),
+              ),
             ),
-          ],
-        ),
+          ),
+          GlassGroupSlot(
+            visible: !_selecting && !compact,
+            child: GlassIconButton(
+              icon: const Icon(Icons.cleaning_services_outlined),
+              tooltip: t.watchLater.clearWatched,
+              onPressed: () => _clearWatched(t),
+            ),
+          ),
+          // 批量编辑 ↔ 退出：**同一枚键留在原位**做图标交叉过渡，
+          // 不是「一枚消失、另一枚冒出来」（见 GlassIconButton 内的
+          // GlassAnimatedIcon）。
+          GlassIconButton(
+            icon: Icon(_selecting ? Icons.close : Icons.checklist),
+            tooltip: _selecting ? t.common.exitEditMode : t.common.editMode,
+            onPressed: () => _setSelecting(!_selecting),
+          ),
+        ],
       ),
     );
   }
@@ -479,17 +530,25 @@ class _WatchLaterPageState extends State<WatchLaterPage>
     _tabController.animateTo(picked);
   }
 
+  /// 类型胶囊带小图标时要的宽度（实测约 95px），不够就只留文字。
+  static const double _typeWithIconWidth = 100;
+
   static const String _filterAllValue = 'filter:all';
   static const String _filterUnwatchedValue = 'filter:unwatched';
+  static const String _clearWatchedValue = 'action:clear-watched';
 
   /// 筛选 + 排序的合并菜单：两组，各自打勾，选回原值不做事。
   ///
   /// 「全部 / 未看完」是**筛选**不是第三个 tab（它不换内容的种类，只把同一批
   /// 东西筛掉一半），所以和排序一样是菜单里的一组，而不是 header 上的 tab。
+  ///
+  /// [withClear]：窄屏 header 摆不下「清除已看完」那枚键，它挪到这里自成最后
+  /// 一组（仍是动作、仍先弹确认），宽屏不出现。
   Future<void> _openFilterSortMenu(
     BuildContext anchorContext,
-    slang.Translations t,
-  ) async {
+    slang.Translations t, {
+    bool withClear = false,
+  }) async {
     final sort = _sort;
     final picked = await showGlassMenu<String>(
       anchorContext: anchorContext,
@@ -521,9 +580,22 @@ class _WatchLaterPageState extends State<WatchLaterPage>
           icon: Icons.arrow_upward,
           selected: sort == WatchLaterSort.earliestAdded,
         ),
+        if (withClear) ...[
+          const GlassMenuSeparator(),
+          GlassMenuOption<String>(
+            value: _clearWatchedValue,
+            label: t.watchLater.clearWatched,
+            icon: Icons.cleaning_services_outlined,
+          ),
+        ],
       ],
     );
     if (picked == null || !mounted) return;
+
+    if (picked == _clearWatchedValue) {
+      await _clearWatched(t);
+      return;
+    }
 
     if (picked == _filterAllValue || picked == _filterUnwatchedValue) {
       final unwatchedOnly = picked == _filterUnwatchedValue;
@@ -584,9 +656,11 @@ class _WatchLaterPageState extends State<WatchLaterPage>
       return Padding(
         padding: EdgeInsets.only(top: topInset),
         child: MyEmptyWidget(
-          // 「未看完」筛掉之后的空，和"一条都没加过"不是一回事——
-          // 后者说"还没有加入"是误导。
-          message: _unwatchedOnly
+          // 搜出来是空、「未看完」筛掉之后的空，和"一条都没加过"都不是一回事
+          // ——后者说"还没有加入"是误导。
+          message: _query.trim().isNotEmpty
+              ? t.pagedSearch.noMatches
+              : _unwatchedOnly
               ? (type == WatchLaterItemType.video
                     ? t.watchLater.emptyUnwatchedVideo
                     : t.watchLater.emptyUnwatchedGallery)

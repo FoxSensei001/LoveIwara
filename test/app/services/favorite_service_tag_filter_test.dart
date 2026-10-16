@@ -25,6 +25,8 @@ void main() {
     String id, {
     String folderId = 'default',
     String title = 'title',
+    String? authorName,
+    String? authorUsername,
     List<Tag>? tags,
     String? rawTags,
     int createdAt = 1000,
@@ -32,14 +34,17 @@ void main() {
     db.execute(
       '''
       INSERT INTO favorite_items
-        (id, folder_id, item_type, item_id, title, tags, created_at, updated_at)
-      VALUES (?, ?, 'video', ?, ?, ?, ?, ?)
+        (id, folder_id, item_type, item_id, title, author_name,
+         author_username, tags, created_at, updated_at)
+      VALUES (?, ?, 'video', ?, ?, ?, ?, ?, ?, ?)
       ''',
       [
         id,
         folderId,
         'item_$id',
         title,
+        authorName,
+        authorUsername,
         rawTags ?? (tags == null ? null : tagsJson(tags)),
         createdAt,
         createdAt,
@@ -120,10 +125,7 @@ void main() {
       );
       expect(both.map((item) => item.id).toList(), ['a']);
 
-      final single = await service.getFolderItems(
-        'default',
-        tagIds: ['anime'],
-      );
+      final single = await service.getFolderItems('default', tagIds: ['anime']);
       expect(single.map((item) => item.id).toSet(), {'a', 'b'});
     });
 
@@ -131,10 +133,7 @@ void main() {
       insertItem('a', tags: [tag('animation')]);
       insertItem('b', tags: [tag('anime')]);
 
-      final result = await service.getFolderItems(
-        'default',
-        tagIds: ['anime'],
-      );
+      final result = await service.getFolderItems('default', tagIds: ['anime']);
 
       expect(result.map((item) => item.id).toList(), ['b']);
     });
@@ -177,9 +176,24 @@ void main() {
       final day1 = DateTime(1970, 1, 1, 12).millisecondsSinceEpoch ~/ 1000;
       final day5 = DateTime(1970, 1, 5, 12).millisecondsSinceEpoch ~/ 1000;
 
-      insertItem('a', title: 'dance video', tags: [tag('anime')], createdAt: day1);
-      insertItem('b', title: 'dance video', tags: [tag('anime')], createdAt: day5);
-      insertItem('c', title: 'other video', tags: [tag('anime')], createdAt: day1);
+      insertItem(
+        'a',
+        title: 'dance video',
+        tags: [tag('anime')],
+        createdAt: day1,
+      );
+      insertItem(
+        'b',
+        title: 'dance video',
+        tags: [tag('anime')],
+        createdAt: day5,
+      );
+      insertItem(
+        'c',
+        title: 'other video',
+        tags: [tag('anime')],
+        createdAt: day1,
+      );
 
       final result = await service.getFolderItems(
         'default',
@@ -207,5 +221,45 @@ void main() {
 
     expect(count, items.length);
     expect(count, 1);
+  });
+
+  group('getFolderItems 关键字', () {
+    test('按空白拆词 AND，每个词可落在标题、作者名或 @id 上', () async {
+      insertItem('a', title: 'Hina dance', authorName: 'Mantis-X');
+      insertItem('b', title: 'Hina sleep', authorUsername: 'shinyoki');
+      insertItem('c', title: 'Other', authorName: 'Hina Fan');
+
+      Future<List<String>> ids(String text) async => [
+        for (final item in await service.getFolderItems(
+          'default',
+          searchText: text,
+        ))
+          item.id,
+      ]..sort();
+
+      expect(await ids('hina'), ['a', 'b', 'c']);
+      expect(await ids('hina mantis'), ['a']);
+      expect(await ids('@shinyoki'), ['b']);
+      expect(await ids('hina nobody'), isEmpty);
+      expect(
+        await service.countFolderItems('default', searchText: 'hina mantis'),
+        1,
+      );
+    });
+
+    test('关键字里的 % 和 _ 按字面匹配', () async {
+      insertItem('a', title: '100% real');
+      insertItem('b', title: '1000 real');
+      insertItem('c', title: 'a_b');
+      insertItem('d', title: 'axb');
+
+      final percent = await service.getFolderItems('default', searchText: '0%');
+      expect(percent.map((item) => item.id), ['a']);
+      final underscore = await service.getFolderItems(
+        'default',
+        searchText: 'a_b',
+      );
+      expect(underscore.map((item) => item.id), ['c']);
+    });
   });
 }

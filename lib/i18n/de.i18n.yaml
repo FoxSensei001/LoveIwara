@@ -3096,10 +3096,10 @@ searchFilter:
   copyToClipboard: "In die Zwischenablage kopieren"
   copied: "Kopiert"
   filterCount: "${count} Filter"
-  
+
   # Filter Button Widget
   filterSettings: "Filtereinstellungen"
-  
+
   # Filter Row Widget
   field: "Feld"
   operator: "Operator"
@@ -3122,7 +3122,7 @@ searchFilter:
   pleaseFillStartValue: "Bitte Startwert eingeben"
   pleaseFillEndValue: "Bitte Endwert eingeben"
   rangeValueFormatError: "Format des Bereichswerts fehlerhaft"
-  
+
   # Filter Operators
   contains: "Enthält"
   equals: "Gleich"
@@ -3134,7 +3134,7 @@ searchFilter:
   range: "Bereich"
   in: "Enthält beliebiges"
   notIn: "Enthält kein beliebiges"
-  
+
   # Filter Field Types
   username: "Benutzername"
   nickname: "Spitzname"
@@ -3154,16 +3154,16 @@ searchFilter:
   videoCount: "Videoanzahl"
   createDate: "Erstellungsdatum"
   content: "Inhalt"
-  
+
   # Rating Options
   all: "Alle"
   adult: "Erwachsene"
   general: "Allgemein"
-  
+
   # Boolean Values
   yes: "Ja"
   no: "Nein"
-  
+
   # Content Types
   users: "Nutzer"
   videos: "Videos"
@@ -3172,7 +3172,7 @@ searchFilter:
   forumThreads: "Forum-Threads"
   forumPosts: "Forumsbeiträge"
   playlists: "Wiedergabelisten"
-  
+
   # Sort Types for common search
   sortTypes:
     relevance: "Relevanz"
@@ -3955,3 +3955,45 @@ ai:
   saveAndLeave: "Save and leave"
   discardChanges: "Discard"
   savedToast: "Saved"
+
+followSearch:
+  scopeLoaded: "Geladen"
+  scopeAll: "Ganze Liste"
+  hint: "Name oder @Benutzername suchen"
+  loaded: "Geladene Daten"
+  all: "Gesamte Liste"
+  loadedCount: "Geladen: ${count} / ${total}"
+  noLoadedMatches: "Keine Treffer in geladenen Daten. Versuche die gesamte Liste."
+  noAllMatches: "Keine Treffer in der gesamten Liste."
+  noLocalMatches: "Keine passenden besonderen Abos."
+  probing: "Größte unterstützte Seitengröße wird geprüft…"
+  complete: "Gesamte Liste bereit: ${count} Nutzer · ${size} pro Seite · ${rounds} Anfragen"
+  incomplete: "Liste unvollständig. Geladene Ergebnisse bleiben durchsuchbar."
+  progress: "${current} / ${total} Nutzer · ${size} pro Seite · ${done} / ca. ${rounds} Anfragen · noch ca. ${time}"
+  longWait: "Große Listen können lange dauern. Die Schätzung enthält einen Puffer und wird an die Anfragegeschwindigkeit angepasst."
+  failed: "Laden nicht abgeschlossen. Durchsuche geladene Ergebnisse oder versuche es erneut."
+  cancelled: "Laden abgebrochen. Geladene Daten bleiben erhalten."
+  seconds: "${value} Sek."
+  minutes: "${value} Min."
+  continueSearch: "Weiter laden"
+pagedSearch:
+  mediaHint: "Titel oder Autor suchen"
+  authorWorksHint: "Werke dieses Autors durchsuchen"
+  nameHint: "Namen suchen"
+  noMatches: "Keine passenden Ergebnisse."
+  scopeLoaded: "Geladen"
+  scopeAll: "Ganze Liste"
+  all: "Gesamte Liste"
+  loadedCount: "Geladen: ${count} / ${total}"
+  noLoadedMatches: "Keine Treffer in geladenen Daten. Versuche die gesamte Liste."
+  noAllMatches: "Keine Treffer in der gesamten Liste."
+  probing: "Größte unterstützte Seitengröße wird geprüft…"
+  complete: "Gesamte Liste bereit: ${count} Einträge · ${size} pro Seite · ${rounds} Anfragen"
+  incomplete: "Liste unvollständig. Geladene Ergebnisse bleiben durchsuchbar."
+  progress: "${current} / ${total} Einträge · ${size} pro Seite · ${done} / ca. ${rounds} Anfragen · noch ca. ${time}"
+  longWait: "Große Listen können lange dauern. Die Schätzung enthält einen Puffer und wird an die Anfragegeschwindigkeit angepasst."
+  failed: "Laden nicht abgeschlossen. Durchsuche geladene Ergebnisse oder versuche es erneut."
+  cancelled: "Laden abgebrochen. Geladene Daten bleiben erhalten."
+  seconds: "${value} Sek."
+  minutes: "${value} Min."
+  continueSearch: "Weiter laden"

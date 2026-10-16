@@ -3096,10 +3096,10 @@ searchFilter:
   copyToClipboard: "Copier dans le presse-papiers"
   copied: "Copié"
   filterCount: "${count} filtres"
-  
+
   # Filter Button Widget
   filterSettings: "Paramètres de filtre"
-  
+
   # Filter Row Widget
   field: "Champ"
   operator: "Opérateur"
@@ -3122,7 +3122,7 @@ searchFilter:
   pleaseFillStartValue: "Veuillez saisir la valeur de début"
   pleaseFillEndValue: "Veuillez saisir la valeur de fin"
   rangeValueFormatError: "Format de valeur de plage incorrect"
-  
+
   # Filter Operators
   contains: "Contient"
   equals: "Égal à"
@@ -3134,7 +3134,7 @@ searchFilter:
   range: "Plage"
   in: "Contient au moins un"
   notIn: "Ne contient aucun"
-  
+
   # Filter Field Types
   username: "Nom d'utilisateur"
   nickname: "Pseudo"
@@ -3154,16 +3154,16 @@ searchFilter:
   videoCount: "Nombre de vidéos"
   createDate: "Date de création"
   content: "Contenu"
-  
+
   # Rating Options
   all: "Tout"
   adult: "Adulte"
   general: "Général"
-  
+
   # Boolean Values
   yes: "Oui"
   no: "Non"
-  
+
   # Content Types
   users: "Utilisateurs"
   videos: "Vidéos"
@@ -3172,7 +3172,7 @@ searchFilter:
   forumThreads: "Sujets du forum"
   forumPosts: "Messages du forum"
   playlists: "Playlists"
-  
+
   # Sort Types for common search
   sortTypes:
     relevance: "Pertinence"
@@ -3955,3 +3955,45 @@ ai:
   saveAndLeave: "Save and leave"
   discardChanges: "Discard"
   savedToast: "Saved"
+
+followSearch:
+  scopeLoaded: "Chargés"
+  scopeAll: "Liste entière"
+  hint: "Rechercher un nom ou @identifiant"
+  loaded: "Données chargées"
+  all: "Liste complète"
+  loadedCount: "Chargés : ${count} / ${total}"
+  noLoadedMatches: "Aucun résultat dans les données chargées. Essayez la liste complète."
+  noAllMatches: "Aucun résultat dans la liste complète."
+  noLocalMatches: "Aucun suivi spécial correspondant."
+  probing: "Vérification de la taille maximale des pages…"
+  complete: "Liste complète prête : ${count} utilisateurs · ${size} par page · ${rounds} requêtes"
+  incomplete: "Liste incomplète. Les résultats chargés restent consultables."
+  progress: "${current} / ${total} utilisateurs · ${size} par page · ${done} / ~${rounds} requêtes · encore environ ${time}"
+  longWait: "Une grande liste peut prendre longtemps. La durée estimée inclut une marge et suit la vitesse des requêtes."
+  failed: "Chargement inachevé. Cherchez dans les résultats chargés ou réessayez."
+  cancelled: "Chargement annulé. Les données reçues sont conservées."
+  seconds: "${value} s"
+  minutes: "${value} min"
+  continueSearch: "Continuer le chargement"
+pagedSearch:
+  mediaHint: "Rechercher un titre ou un auteur"
+  authorWorksHint: "Rechercher dans les œuvres de cet auteur"
+  nameHint: "Rechercher par nom"
+  noMatches: "Aucun résultat correspondant."
+  scopeLoaded: "Chargés"
+  scopeAll: "Liste entière"
+  all: "Liste complète"
+  loadedCount: "Chargés : ${count} / ${total}"
+  noLoadedMatches: "Aucun résultat dans les données chargées. Essayez la liste complète."
+  noAllMatches: "Aucun résultat dans la liste complète."
+  probing: "Vérification de la taille maximale des pages…"
+  complete: "Liste complète prête : ${count} éléments · ${size} par page · ${rounds} requêtes"
+  incomplete: "Liste incomplète. Les résultats chargés restent consultables."
+  progress: "${current} / ${total} éléments · ${size} par page · ${done} / ~${rounds} requêtes · encore environ ${time}"
+  longWait: "Une grande liste peut prendre longtemps. La durée estimée inclut une marge et suit la vitesse des requêtes."
+  failed: "Chargement inachevé. Cherchez dans les résultats chargés ou réessayez."
+  cancelled: "Chargement annulé. Les données reçues sont conservées."
+  seconds: "${value} s"
+  minutes: "${value} min"
+  continueSearch: "Continuer le chargement"
