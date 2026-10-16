@@ -12,6 +12,9 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 ///      （见 [GlassSearchInputField] 类注释里的实测）。中间一版又在正中之上加过
 ///      `fontSize × 0.22` 的「光学抬升」，真机上它把文字抬得比同一只胶囊里的放大镜
 ///      还高一档，2026-09-04 已经去掉：这里就是正中，跟图标同一条线。
+///   3. **各平台都在正中**——桌面主题默认 compact 密度，曾把输入行整体下推 4px
+///      （2026-10-16 报障：只有 macOS / Windows 上偏下）。居中矩阵因此按平台再跑一遍，
+///      默认的测试平台是 Android，只测它永远看不到桌面那一档。
 void main() {
   Widget pill({
     required FocusNode focusNode,
@@ -19,8 +22,10 @@ void main() {
     required double height,
     required double fontSize,
     Widget? trailing,
+    TargetPlatform? platform,
   }) {
     return MaterialApp(
+      theme: platform == null ? null : ThemeData(platform: platform),
       home: Scaffold(
         body: Center(
           child: SizedBox(
@@ -61,6 +66,7 @@ void main() {
     double height = 52,
     double fontSize = 15.5,
     String text = '',
+    TargetPlatform? platform,
   }) async {
     final focusNode = FocusNode();
     addTearDown(focusNode.dispose);
@@ -72,6 +78,7 @@ void main() {
         controller: controller,
         height: height,
         fontSize: fontSize,
+        platform: platform,
       ),
     );
     await tester.pump(const Duration(milliseconds: 300));
@@ -79,37 +86,46 @@ void main() {
   }
 
   // ── 垂直居中 ────────────────────────────────────────────────────────────
-  for (final form in const [('桌面 52', 52.0, 15.5), ('移动 44', 44.0, 14.5)]) {
-    for (final filled in const [false, true]) {
-      testWidgets('${form.$1}${filled ? '（有字）' : '（空）'}：文字落在胶囊的几何正中', (
-        tester,
-      ) async {
-        await pump(
-          tester,
-          height: form.$2,
-          fontSize: form.$3,
-          text: filled ? '已经打了几个字' : '',
-        );
-        final pillRect = tester.getRect(find.byType(GlassSurface));
-        // 就是几何正中：胶囊里的放大镜图标走的也是这一条线，两者不许错开。
-        final target = pillRect.center.dy;
-        final line = tester.getRect(find.byType(EditableText));
-        expect(
-          line.center.dy,
-          moreOrLessEquals(target, epsilon: 0.1),
-          reason: '输入行盒没落在正中：行盒 ${line.top}..${line.bottom}，胶囊 $pillRect',
-        );
+  for (final platform in const [
+    TargetPlatform.android,
+    TargetPlatform.iOS,
+    TargetPlatform.macOS,
+    TargetPlatform.windows,
+  ]) {
+    for (final form in const [('桌面 52', 52.0, 15.5), ('移动 44', 44.0, 14.5)]) {
+      for (final filled in const [false, true]) {
+        testWidgets(
+          '${platform.name} ${form.$1}${filled ? '（有字）' : '（空）'}：文字落在胶囊的几何正中',
+          (tester) async {
+            await pump(
+              tester,
+              height: form.$2,
+              fontSize: form.$3,
+              text: filled ? '已经打了几个字' : '',
+              platform: platform,
+            );
+            final pillRect = tester.getRect(find.byType(GlassSurface));
+            // 就是几何正中：胶囊里的放大镜图标走的也是这一条线，两者不许错开。
+            final target = pillRect.center.dy;
+            final line = tester.getRect(find.byType(EditableText));
+            expect(
+              line.center.dy,
+              moreOrLessEquals(target, epsilon: 0.1),
+              reason: '输入行盒没落在正中：行盒 ${line.top}..${line.bottom}，胶囊 $pillRect',
+            );
 
-        // 提示文字是 InputDecorator 自己摆的一只 Text，行盒规则得跟输入文字一致。
-        final hint = find.text('搜索建议: 132');
-        if (hint.evaluate().isNotEmpty) {
-          expect(
-            tester.getRect(hint).center.dy,
-            moreOrLessEquals(target, epsilon: 0.1),
-            reason: '提示文字与输入文字没落在同一高度',
-          );
-        }
-      });
+            // 提示文字是 InputDecorator 自己摆的一只 Text，行盒规则得跟输入文字一致。
+            final hint = find.text('搜索建议: 132');
+            if (hint.evaluate().isNotEmpty) {
+              expect(
+                tester.getRect(hint).center.dy,
+                moreOrLessEquals(target, epsilon: 0.1),
+                reason: '提示文字与输入文字没落在同一高度',
+              );
+            }
+          },
+        );
+      }
     }
   }
 

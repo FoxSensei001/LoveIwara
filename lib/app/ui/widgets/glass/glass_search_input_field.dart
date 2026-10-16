@@ -173,6 +173,12 @@ class GlassSearchInputField extends StatelessWidget {
               border: InputBorder.none,
               focusedBorder: InputBorder.none,
               contentPadding: EdgeInsets.zero,
+              // ⛔ 钉死标准密度。桌面端（macOS / Windows / Linux）主题默认是
+              // compact（v = -2），`InputDecorator` 外框高度不变，却把里头的
+              // 输入行和提示文字整体下推 4px——用户 2026-10-16 报的「只有电脑上
+              // 输入那一行靠下，手机上正好居中」就是这条。这里外框已经被
+              // isCollapsed + 零内边距收到行盒本身，密度没有可调的余量，只会错位。
+              visualDensity: VisualDensity.standard,
             ),
             onChanged: onChanged == null ? null : (_) => onChanged!(),
             onSubmitted: onSubmitted,
