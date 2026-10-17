@@ -570,23 +570,25 @@ class AppStartupCoordinator implements AppStartupRunner {
         configService[ConfigKey.APPLICATION_LOCALE];
     if (applicationLocale == 'system') {
       await slang.LocaleSettings.useDeviceLocale();
-      return;
-    }
+    } else {
+      slang.AppLocale? targetLocale;
+      for (final locale in slang.AppLocale.values) {
+        if (locale.languageTag.toLowerCase() ==
+            applicationLocale.toLowerCase()) {
+          targetLocale = locale;
+          break;
+        }
+      }
 
-    slang.AppLocale? targetLocale;
-    for (final locale in slang.AppLocale.values) {
-      if (locale.languageTag.toLowerCase() == applicationLocale.toLowerCase()) {
-        targetLocale = locale;
-        break;
+      if (targetLocale != null) {
+        await slang.LocaleSettings.setLocale(targetLocale);
+      } else {
+        await slang.LocaleSettings.useDeviceLocale();
       }
     }
-
-    if (targetLocale != null) {
-      await slang.LocaleSettings.setLocale(targetLocale);
-    } else {
-      await slang.LocaleSettings.useDeviceLocale();
-    }
-    // zh/ko/th/id 的复数解析器 slang 没内置，不注册的话用到复数词条会直接抛异常。
+    // zh/ko/th/id 的复数解析器 slang 没内置。不注册的话复数词条退回英语规则，
+    // 而且**每格式化一次**（列表卡片的「N 天前」）都 print 一条警告。
+    // ⛔ 「跟随系统」分支也必须走到这里：它原先提前 return，默认设置的用户全中招。
     CommonUtils.ensurePluralResolvers();
   }
 
