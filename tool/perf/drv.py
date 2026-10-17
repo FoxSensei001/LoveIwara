@@ -1,5 +1,7 @@
-import json, re, subprocess, sys, time, urllib.parse, urllib.request
-PKG="m.c.g.a.i_iwara.profile"; S="192.168.33.132:38357"
+import json, os, re, subprocess, sys, time, urllib.parse, urllib.request
+PKG="m.c.g.a.i_iwara.profile"
+# 被测设备的 adb 序列号或 host:port，从环境变量读，别写进仓库
+S=os.environ.get("ANDROID_SERIAL") or sys.exit("先设 ANDROID_SERIAL=<设备序列号或 host:port>")
 def adb(*a, capture=True):
     cmd=["adb","-s",S]+list(a)
     if capture: return subprocess.run(cmd,capture_output=True,text=True).stdout
