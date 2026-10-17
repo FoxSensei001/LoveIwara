@@ -1126,16 +1126,18 @@ class MyVideoStateController extends GetxController
   // 在类成员变量区域添加画中画状态标识
   final RxBool isPiPMode = false.obs;
 
-  // PiP 状态是全局的 (Floating.pipStatusStream)。当路由栈里存在多个视频详情页时，
-  // 每个 controller 都会订阅该 stream；如果直接在 stream 回调里调用 enterPiPMode()，
-  // 会导致非当前页的 controller 也进入 PiP 并触发 player.play()（本问题的根因）。
+  // PiP 状态是全局的。路由栈里可能同时有多个视频详情页，如果谁都响应 enabled，
+  // 非当前页的 controller 也会进入 PiP 并触发 player.play()。
   // 用一个“PiP 所有者”标记，确保只有触发 PiP 的那个 controller 响应 PiP enabled。
   static String? _pipOwnerKey;
   final String _pipControllerKey = UniqueKey().toString();
   bool _pipEnableInFlight = false;
 
-  // 在类成员变量区域添加
-  StreamSubscription<PiPStatus>? _pipStatusSubscription;
+  /// 画中画期间轮询系统状态的定时器，见 [_startPiPStatusPolling]。
+  Timer? _pipPollTimer;
+  bool _pipPollInFlight = false;
+  bool _pipSeenEnabled = false;
+  DateTime? _pipRequestedAt;
 
   // 在MyVideoStateController类成员变量区域添加
   final RxBool isSlidingBrightnessZone = false.obs; // 是否在滑动亮度区域
@@ -1986,9 +1988,6 @@ class MyVideoStateController extends GetxController
 
       // 应用音视频配置
       await _applyPlayerConfiguration();
-
-      // 添加画中画状态监听
-      _setupPiPListener();
 
       // 自动全屏：监听「详情页信息就位 / 这个视频播不了」的三个来源
       _setupAutoFullscreenWatchers();
@@ -2870,19 +2869,55 @@ class MyVideoStateController extends GetxController
     return aIndex.compareTo(bIndex);
   }
 
-  void _setupPiPListener() {
-    if (GetPlatform.isAndroid) {
-      // 添加防抖
-      Timer? debounceTimer;
-      _pipStatusSubscription = Floating().pipStatusStream
-          .distinct() // 避免重复状态
-          .listen((status) {
-            debounceTimer?.cancel();
-            debounceTimer = Timer(const Duration(milliseconds: 100), () {
-              _handlePiPStatus(status);
-            });
-          });
-    }
+  /// 本页发起画中画之后才开始轮询系统状态，看到退出就停。
+  ///
+  /// ⛔ 不要用 `Floating().pipStatusStream`：插件是单例，第一次订阅就起一只
+  /// **10ms** 的 `Timer.periodic`（每次一趟 MethodChannel），取消订阅也不会停，
+  /// 只有测试用的 `reset()` 能停。于是打开过一次视频详情页，之后整个进程每秒
+  /// 100 次平台通道往返，回到列表也照跑（2026-10-17 profile：列表滚动时占 UI
+  /// isolate 7%）。画中画只有 [enterPiPMode] 这一个入口，所以只在那之后轮询。
+  void _startPiPStatusPolling() {
+    _stopPiPStatusPolling();
+    _pipSeenEnabled = false;
+    _pipRequestedAt = DateTime.now();
+    _pipPollTimer = Timer.periodic(const Duration(milliseconds: 200), (
+      _,
+    ) async {
+      if (_isDisposed) {
+        _stopPiPStatusPolling();
+        return;
+      }
+      if (_pipPollInFlight) return;
+      _pipPollInFlight = true;
+      final PiPStatus status;
+      try {
+        status = await Floating().pipStatus;
+      } catch (_) {
+        return;
+      } finally {
+        _pipPollInFlight = false;
+      }
+      if (_pipPollTimer == null) return;
+      if (status == PiPStatus.enabled) {
+        _pipSeenEnabled = true;
+        _handlePiPStatus(status);
+        return;
+      }
+      // 刚调完 enable、系统还没真正切进画中画：这段时间读到的 disabled 不算退出。
+      final DateTime? requestedAt = _pipRequestedAt;
+      if (!_pipSeenEnabled &&
+          requestedAt != null &&
+          DateTime.now().difference(requestedAt) < const Duration(seconds: 3)) {
+        return;
+      }
+      _stopPiPStatusPolling();
+      _handlePiPStatus(status);
+    });
+  }
+
+  void _stopPiPStatusPolling() {
+    _pipPollTimer?.cancel();
+    _pipPollTimer = null;
   }
 
   void _handlePiPStatus(PiPStatus status) {
@@ -3367,10 +3402,7 @@ class MyVideoStateController extends GetxController
       '取消系统音量订阅',
       () async => _volumeListenerDisposer?.cancel(),
     );
-    await _runCleanupStep(
-      '取消画中画订阅',
-      () async => _pipStatusSubscription?.cancel(),
-    );
+    await _runCleanupStep('停止画中画轮询', () async => _stopPiPStatusPolling());
     await _runCleanupStep(
       '取消自动全屏监听',
       () async => _disposeAutoFullscreenWatchers(),
@@ -5747,6 +5779,7 @@ class MyVideoStateController extends GetxController
       // 通过 floating 插件启用画中画模式并传入宽高比
       await Floating().enable(ImmediatePiP(aspectRatio: ratio));
       isPiPMode.value = true;
+      _startPiPStatusPolling();
       await player.play();
     } catch (e) {
       // enable 失败时释放所有权，避免后续 PiP 事件被错误地归属到当前 controller。
@@ -5761,6 +5794,7 @@ class MyVideoStateController extends GetxController
 
   /// 退出画中画模式
   Future<void> exitPiPMode() async {
+    _stopPiPStatusPolling();
     await Floating().cancelOnLeavePiP();
     isPiPMode.value = false;
     if (_pipOwnerKey == _pipControllerKey) {
