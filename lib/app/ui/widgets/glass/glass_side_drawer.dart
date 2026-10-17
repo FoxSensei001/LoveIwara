@@ -102,7 +102,10 @@ Future<T?> showGlassSideDrawer<T>({
         : Colors.black54,
     transitionDuration: const Duration(milliseconds: 260),
     pageBuilder: (ctx, animation, secondaryAnimation) {
-      return themes.wrap(_GlassSideDrawerHost(builder: builder));
+      // 抽屉是不透明面：里面的液态键换用面板色调，见 [GlassOnOpaquePanel]。
+      return themes.wrap(
+        GlassOnOpaquePanel(child: _GlassSideDrawerHost(builder: builder)),
+      );
     },
     transitionBuilder: (ctx, animation, secondaryAnimation, child) {
       return SlideTransition(

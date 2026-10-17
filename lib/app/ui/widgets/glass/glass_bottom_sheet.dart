@@ -267,7 +267,8 @@ Future<T?> showGlassBottomSheet<T>({
     builder: (context) => RepaintBoundary(
       child: LiquidGlassScope(
         backend: flatGlassBackend(context),
-        child: builder(context),
+        // 弹层外壳是不透明面：里面的液态 chrome 换用面板色调，见该类。
+        child: GlassOnOpaquePanel(child: builder(context)),
       ),
     ),
   );
@@ -700,7 +701,8 @@ Future<T?> showGlassDraggableBottomSheet<T>({
     builder: (context) => RepaintBoundary(
       child: LiquidGlassScope(
         backend: flatGlassBackend(context),
-        child: builder(context),
+        // 弹层外壳是不透明面：里面的液态 chrome 换用面板色调，见该类。
+        child: GlassOnOpaquePanel(child: builder(context)),
       ),
     ),
   );

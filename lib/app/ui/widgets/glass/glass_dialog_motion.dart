@@ -140,7 +140,9 @@ class _GlassDialogTransitionState extends State<GlassDialogTransition> {
           behavior: ScrollConfiguration.of(context).copyWith(overscroll: false),
           child: LiquidGlassScope(
             backend: flatGlassBackend(context),
-            child: widget.child,
+            // 面板是不透明的 `cs.surface`：关闭钮 / 动作胶囊的液态玻璃换用
+            // 面板色调，否则与面板同色、整只隐身（见 [GlassOnOpaquePanel]）。
+            child: GlassOnOpaquePanel(child: widget.child),
           ),
         ),
       ),

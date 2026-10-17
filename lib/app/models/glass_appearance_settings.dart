@@ -2,10 +2,12 @@
 enum GlassQualityPreference { standard, premium }
 
 class GlassAppearanceSettings {
+  // 液态档的出厂值：完整折射 + 34% 底色 + 3.5 模糊（2026-10-17 用户定）。
+  // 只影响没存过这份配置的人；已存的配置里有的字段照旧用存下的值。
   const GlassAppearanceSettings({
-    this.quality = GlassQualityPreference.standard,
-    this.opacity = 0.24,
-    this.blur = 0.5,
+    this.quality = GlassQualityPreference.premium,
+    this.opacity = 0.34,
+    this.blur = 3.5,
     this.thickness = 20,
     this.refractiveIndex = 1.2,
     this.lightIntensity = 0.5,

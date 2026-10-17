@@ -387,6 +387,43 @@ class LiquidGlassScope extends InheritedWidget {
       backend != oldWidget.backend;
 }
 
+/// 标记「这片子树里的玻璃压在一块**不透明面板**上」：弹窗、底部弹层、侧边抽屉。
+///
+/// 这些面板是平涂的 `surface`（弹窗面板不许变成玻璃，是用户 2026-08-24 真机
+/// 纠正过的），身后没有内容可折射，而 chrome 的默认色调（浅色加白、深色压黑）
+/// 又恰好与面板同色——液态玻璃在上面整只隐身，主题设置怎么调都看不出变化。
+/// 液态档的玻璃读到本标记就改用 [GlassTokens.widgetsTintOnPanel]。
+///
+/// 由面板路由统一供（`GlassDialogTransition`、`showGlassBottomSheet`、
+/// `showGlassDraggableBottomSheet`、`GlassSideDrawer`），调用点不用管。
+/// 从面板里再浮出来的东西（玻璃菜单、toast）在自己的 overlay 路由里，读不到它，
+/// 照旧按页面 chrome 的色调画——它们身后确实有内容。
+class GlassOnOpaquePanel extends InheritedWidget {
+  const GlassOnOpaquePanel({super.key, required super.child});
+
+  static bool of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<GlassOnOpaquePanel>() != null;
+
+  @override
+  bool updateShouldNotify(GlassOnOpaquePanel oldWidget) => false;
+}
+
+/// [GlassTokens.widgetsTint] 与 [GlassTokens.widgetsTintOnPanel] 二选一。
+Color _widgetsTintFor(
+  BuildContext context,
+  ColorScheme cs, {
+  bool pressed = false,
+}) {
+  if (GlassOnOpaquePanel.of(context)) {
+    return pressed
+        ? GlassTokens.widgetsPressedTintOnPanel(cs)
+        : GlassTokens.widgetsTintOnPanel(cs);
+  }
+  return pressed
+      ? GlassTokens.widgetsPressedTint(cs)
+      : GlassTokens.widgetsTint(cs);
+}
+
 /// 把子树里**并排的几块玻璃收进同一层**，靠得够近时边缘互相吞并（metaball）。
 ///
 /// # 这是「液态」的第九个原语：融合
@@ -578,6 +615,8 @@ class GlassBlendGroup extends StatelessWidget {
     // [GlassChromeLayer] 包的 Row 里放了一枚自带 chrome 供档的
     // `IdentityAvatarButton`。调用点不该为此操心，所以由本类自己挡掉。
     if (GlassBlendGroup.isJoinable(context)) return child;
+    // 登记为外观参数的依赖：主题设置里拖滑块时，已经画出来的这一层要跟着变。
+    GlassAppearanceScope.of(context);
     final cs = Theme.of(context).colorScheme;
     return lgw.AdaptiveLiquidGlassLayer(
       quality: chromeGlassQuality(context),
@@ -587,7 +626,7 @@ class GlassBlendGroup extends StatelessWidget {
       // 完全一致，融合前后材质不该有肉眼差别。
       settings: GlassTokens.widgetsGlass(
         cs,
-        tint: GlassTokens.widgetsTint(cs),
+        tint: _widgetsTintFor(context, cs),
         blur: GlassPerfKnobs.headerBlur ? null : 0,
       ),
       child: _GlassBlendScope(joinable: true, child: child),
@@ -904,6 +943,9 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 登记为外观参数的依赖：主题设置里拖滑块时，已经画出来的玻璃要跟着变
+    // （此前只有 easy 档的 [LiquidGlassBox] 登记了）。
+    GlassAppearanceScope.of(context);
     final cs = Theme.of(context).colorScheme;
     final double m = materialize.clamp(0.0, 1.0);
     final double radius = circle
@@ -961,11 +1003,10 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
 
     // 按下的底色变化要和另外两档同一段过渡（pressDuration / easeOut）。
     // 他们的 glass 没有 AnimatedContainer 那样的隐式插值，这里自己插。
+    final Color restTint = _widgetsTintFor(context, cs);
     return TweenAnimationBuilder<Color?>(
       tween: ColorTween(
-        end: pressed
-            ? GlassTokens.widgetsPressedTint(cs)
-            : GlassTokens.widgetsTint(cs),
+        end: pressed ? _widgetsTintFor(context, cs, pressed: true) : restTint,
       ),
       duration: GlassTokens.pressDuration,
       curve: Curves.easeOut,
@@ -981,7 +1022,7 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
             quality: chromeGlassQuality(context),
             settings: GlassTokens.widgetsGlass(
               cs,
-              tint: tint ?? GlassTokens.widgetsTint(cs),
+              tint: tint ?? restTint,
               materialize: m,
               // 包自己那份影子在这条路上画了也看不见（见下面 [GlassOuterShadow]
               // 那段），关掉免得白花一次 GPU cutout。

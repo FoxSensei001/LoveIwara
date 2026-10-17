@@ -25,9 +25,9 @@ void main() {
       'shadows': 'false',
       'panelBlur': 100,
     });
-    expect(settings.quality, GlassQualityPreference.standard);
+    expect(settings.quality, GlassQualityPreference.premium);
     expect(settings.opacity, 0.8);
-    expect(settings.blur, 0);
+    expect(settings.blur, GlassAppearanceSettings.defaults.blur);
     expect(settings.thickness, 0);
     expect(settings.refractiveIndex, 1.2);
     expect(settings.shadows, isTrue);
@@ -43,7 +43,7 @@ void main() {
 
   test('用户参数传入真实 shader，底色更实且投影可关闭', () {
     final cs = ColorScheme.fromSeed(seedColor: Colors.blue);
-    expect(GlassTokens.widgetsTint(cs).a, closeTo(0.24, 0.001));
+    expect(GlassTokens.widgetsTint(cs).a, closeTo(0.34, 0.001));
     glassAppearance.value = const GlassAppearanceSettings(
       blur: 3,
       opacity: 0.4,
@@ -160,7 +160,8 @@ void main() {
       find.byType(lgw.GlassAdaptiveScope),
     );
     expect(scope.targetFrameMs * 1.5, lessThanOrEqualTo(1000 / 120));
-    expect(scope.minQuality, lgw.GlassQuality.standard);
+    // 出厂画质是固定完整折射，自适应窗口收在 premium。
+    expect(scope.minQuality, lgw.GlassQuality.premium);
     expect(scope.warmupPremiumThresholdMs, scope.targetFrameMs * 1.5);
   });
 
@@ -194,13 +195,17 @@ void main() {
     });
   }
 
-  test('清玻璃默认保留折射与投影，关闭独立模糊', () {
+  test('液态档出厂值：保留折射与投影，独立模糊 3.5', () {
     final cs = ColorScheme.fromSeed(seedColor: Colors.blue);
     final settings = GlassTokens.widgetsGlass(
       cs,
       tint: GlassTokens.widgetsTint(cs),
     );
-    expect(settings.blur, 0);
+    expect(
+      GlassAppearanceSettings.defaults.quality,
+      GlassQualityPreference.premium,
+    );
+    expect(settings.blur, 3.5);
     expect(settings.thickness, greaterThan(0));
     expect(settings.shadow, isNotEmpty);
   });

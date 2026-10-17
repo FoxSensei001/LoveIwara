@@ -118,7 +118,7 @@ dependencies:
   # 5.0.0 改为平铺样式与折射率参数；封装已迁移。继续精确锁定，升级渲染器后
   # 仍需验证 Windows release 首屏（4.3.1 曾白屏，4.3.3 修正了 ANGLE 编译）。
   liquid_glass_easy: 5.0.0
-  liquid_glass_widgets: ^1.11.1
+  liquid_glass_widgets: ^1.13.0
   local_auth: ^3.0.2
   local_auth_android: ^2.0.8
 dev_dependencies:

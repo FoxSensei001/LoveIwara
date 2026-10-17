@@ -383,7 +383,7 @@ abstract final class GlassTokens {
 
   /// chrome（按钮 / 按钮组 / 浮动底栏）那一档的玻璃色调。
   ///
-  /// 默认 24%：无模糊时仍托得住图标；用户可在主题设置中继续加厚底色。
+  /// 默认 34%（配 3.5 的背景模糊）；用户可在主题设置中调整底色浓度。
   /// 面板和导航分别保存不透明度，避免菜单可读性受导航调参影响。
   static Color widgetsTint(ColorScheme cs) {
     final bool isDark = cs.brightness == Brightness.dark;
@@ -407,6 +407,27 @@ abstract final class GlassTokens {
     final Color base = widgetsTint(cs);
     return Color.alphaBlend(cs.onSurface.withValues(alpha: 0.08), base);
   }
+
+  /// 压在**不透明面板**上的 chrome（弹窗的关闭钮 / 动作胶囊、底部弹层与侧边
+  /// 抽屉里的键）该用的玻璃色调，见 `GlassOnOpaquePanel`。
+  ///
+  /// ⛔ 不能沿用 [widgetsTint]：那是「浅色加白、深色压黑」，而面板本身就是
+  /// `surface`（浅色近白、深色近黑）——底色与面板同色，身后又是一整片平涂、
+  /// 没有任何内容可折射，玻璃整只隐身，只剩一圈影子。主题设置里的参数调到
+  /// 头也看不出变化（2026-10-17 用户报「弹窗的液态玻璃非常透明、设置对它
+  /// 完全没效果」）。
+  ///
+  /// 改用 `onSurface` 叠一层（iOS 弹窗里按钮那种灰底），浓度仍由用户的
+  /// 「不透明度」决定：默认 34% → 17%，滑到 80% → 40%。
+  static Color widgetsTintOnPanel(ColorScheme cs) => cs.onSurface.withValues(
+    alpha: (GlassPerfKnobs.tintAlpha ?? glassAppearance.value.opacity) * 0.5,
+  );
+
+  /// [widgetsTintOnPanel] 的按下态：同 [widgetsPressedTint]，再压深 8%。
+  static Color widgetsPressedTintOnPanel(ColorScheme cs) => Color.alphaBlend(
+    cs.onSurface.withValues(alpha: 0.08),
+    widgetsTintOnPanel(cs),
+  );
 
   /// 浮出面板底色：浅色加白、深色压暗；浓度由菜单面板参数单独控制。
   static Color liquidTint(ColorScheme cs) {
