@@ -3,6 +3,7 @@ import 'dart:developer' as developer;
 import 'dart:ui' show FramePhase;
 
 import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
@@ -234,6 +235,43 @@ class FramePerfProbe {
       WidgetsBinding.instance.rootElement?.visitChildren(visit);
       return developer.ServiceExtensionResponse.result(
         '{"hits":[${hits.map(_json).join(',')}]}',
+      );
+    });
+    // 列出每个「自己推了 layer」的渲染节点：layer 类型 + 最近的几层公开组件名，
+    // 按出现次数聚合。profile 包没有 debugDumpLayerTree，合成阶段贵在哪只能这样查。
+    developer.registerExtension('ext.glassperf.layers', (
+      String method,
+      Map<String, String> params,
+    ) async {
+      final Map<String, int> counts = <String, int>{};
+      void visit(Element e) {
+        if (e is RenderObjectElement) {
+          // ignore: invalid_use_of_protected_member
+          final ContainerLayer? layer = e.renderObject.layer;
+          if (layer != null) {
+            final List<String> chain = <String>[];
+            e.visitAncestorElements((Element a) {
+              final String t = a.widget.runtimeType.toString();
+              if (!t.startsWith('_')) chain.add(t);
+              return chain.length < 4;
+            });
+            final String extra = layer is OpacityLayer
+                ? ' alpha=${layer.alpha}'
+                : '';
+            final String key =
+                '${layer.runtimeType}$extra ${e.renderObject.runtimeType} '
+                '<- ${chain.join(' <- ')}';
+            counts[key] = (counts[key] ?? 0) + 1;
+          }
+        }
+        e.visitChildren(visit);
+      }
+
+      WidgetsBinding.instance.rootElement?.visitChildren(visit);
+      final List<MapEntry<String, int>> sorted = counts.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+      return developer.ServiceExtensionResponse.result(
+        '{"layers":[${sorted.map((x) => _json('${x.value} ${x.key}')).join(',')}]}',
       );
     });
     developer.registerExtension('ext.glassperf.state', (
