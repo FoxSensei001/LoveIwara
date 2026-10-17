@@ -1297,6 +1297,9 @@ class _TranslationsVideoDetailVi extends TranslationsVideoDetailEn {
 
 	// Translations
 	@override String get pipMode => 'Chế độ PiP';
+	@override String get pipUnsupported => 'Thiết bị không hỗ trợ ảnh trong ảnh';
+	@override String get pipEnterFailed => 'Không thể chuyển sang ảnh trong ảnh';
+	@override String get pipEnterOnLeaveHint => 'Hệ thống tạm thời chặn ảnh trong ảnh. Về màn hình chính, chế độ này sẽ tự bật';
 	@override String resumeFromLastPosition({required Object position}) => 'Tiếp tục từ vị trí lần trước: ${position}';
 	@override String resumedFromHistoryTip({required Object position}) => 'Đã tiếp tục từ ${position}';
 	@override String get restartFromBeginning => 'Bắt đầu lại';
@@ -6484,6 +6487,9 @@ extension on TranslationsVi {
 			'subscriptions.noSubscribedUsers' => 'Không có người dùng đã đăng ký',
 			'subscriptions.showAllSubscribedUsersContent' => 'Hiển thị nội dung của tất cả người dùng đã đăng ký',
 			'videoDetail.pipMode' => 'Chế độ PiP',
+			'videoDetail.pipUnsupported' => 'Thiết bị không hỗ trợ ảnh trong ảnh',
+			'videoDetail.pipEnterFailed' => 'Không thể chuyển sang ảnh trong ảnh',
+			'videoDetail.pipEnterOnLeaveHint' => 'Hệ thống tạm thời chặn ảnh trong ảnh. Về màn hình chính, chế độ này sẽ tự bật',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => 'Tiếp tục từ vị trí lần trước: ${position}',
 			'videoDetail.resumedFromHistoryTip' => ({required Object position}) => 'Đã tiếp tục từ ${position}',
 			'videoDetail.restartFromBeginning' => 'Bắt đầu lại',
@@ -6594,11 +6600,11 @@ extension on TranslationsVi {
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Hình ảnh phải ở mức 1× để lật trang bằng cách kéo. Video trong thư viện cũng hỗ trợ. Sân khấu đứng yên cho đến khi bạn thả ra.',
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'Thu phóng vào hình ảnh',
 			'videoDetail.gestureGuide.quest.zoomBody' => 'Hướng vào một chi tiết trong hình ảnh, giữ cò ngón trỏ, rồi đẩy cần gạt lên để phóng to hoặc xuống để thu nhỏ. Thu phóng neo tại điểm bạn nhấn.',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Thao tác này phóng to hình ảnh bên trong cửa sổ của nó. Nếu không giữ hình ảnh, lên/xuống sẽ điều chỉnh khoảng cách xem.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Di chuyển và khôi phục hình ảnh',
 			'videoDetail.gestureGuide.quest.panBody' => 'Sau khi đã thu phóng, giữ cò ngón trỏ và kéo để nhìn quanh. Nhấn đúp vào hình ảnh để thu phóng lên 2.5× hoặc khôi phục. Với bàn tay, chụm hai lần thật nhanh.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.panHint' => 'Kéo để di chuyển một hình ảnh đã thu phóng. Khôi phục về 1× trước khi kéo để lật trang.',
 			'videoDetail.gestureGuide.quest.slideshowTitle' => 'Bắt đầu trình chiếu',
 			'videoDetail.gestureGuide.quest.slideshowBody' => 'Trên một hình ảnh, A / X bắt đầu hoặc tạm dừng trình chiếu. Bảng cung cấp khoảng thời gian 3, 5, 10 hoặc 20 giây và chất lượng hình ảnh tiêu chuẩn hoặc gốc.',
@@ -7108,11 +7114,11 @@ extension on TranslationsVi {
 			'download.deleteByDate.confirmTitle' => 'Xác nhận xóa',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Xóa ${count} tác vụ tải xuống và tệp của chúng? Thao tác này không thể hoàn tác.',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Đang xóa ${done}/${total}…',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Đã xóa ${count} tác vụ',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Đã xóa ${deleted} tác vụ; bỏ qua ${skipped} (đang được dùng)',
 			'download.relocation.moveFiles' => 'Move files',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.moveFilesEllipsis' => 'Move files…',
 			'download.relocation.chooseDestination' => 'Move files to',
 			'download.relocation.currentDownloadDir' => 'Current download folder',
@@ -7622,11 +7628,11 @@ extension on TranslationsVi {
 			'navigationOrderSettings.edit' => 'Chỉnh sửa',
 			'navigationOrderSettings.reset' => 'Đặt lại',
 			'navigationOrderSettings.previewEffect' => 'Xem trước hiệu ứng',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.bottomNavigationPreview' => 'Xem trước thanh điều hướng dưới:',
 			'navigationOrderSettings.sidebarPreview' => 'Xem trước thanh bên:',
 			'navigationOrderSettings.confirmResetNavigationOrder' => 'Xác nhận đặt lại thứ tự điều hướng',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => 'Bạn có chắc muốn đặt lại thứ tự điều hướng về mặc định?',
 			'navigationOrderSettings.cancel' => 'Hủy',
 			'navigationOrderSettings.show' => 'Hiện',
@@ -8136,11 +8142,11 @@ extension on TranslationsVi {
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_a_fast' => 'Mode A (Fast)',
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
@@ -8650,11 +8656,11 @@ extension on TranslationsVi {
 			'ai.addProvider' => 'Thêm nhà cung cấp',
 			'ai.noProviders' => 'Chưa có nhà cung cấp nào. Hãy thêm để bật tính năng dịch, tìm kiếm và chữ ký bằng AI.',
 			'ai.pickPreset' => 'Chọn nhà cung cấp',
+			_ => null,
+		} ?? switch (path) {
 			'ai.providerNameLabel' => 'Tên',
 			'ai.apiKey' => 'Khóa API',
 			'ai.baseUrl' => 'Điểm cuối',
-			_ => null,
-		} ?? switch (path) {
 			'ai.model' => 'Mô hình',
 			'ai.modelPick' => 'Chọn mô hình',
 			'ai.modelEmpty' => 'Không thể tải danh sách mô hình — bạn cũng có thể nhập trực tiếp tên mô hình.',

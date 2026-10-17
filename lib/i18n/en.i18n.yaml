@@ -1519,6 +1519,9 @@ subscriptions:
 
 videoDetail:
   pipMode: PiP Mode
+  pipUnsupported: "Picture-in-picture is not supported on this device"
+  pipEnterFailed: "Failed to enter picture-in-picture"
+  pipEnterOnLeaveHint: "The system blocked picture-in-picture for now. Go to the home screen and it will open automatically"
   resumeFromLastPosition: 'Resume from last position: ${position}'
   resumedFromHistoryTip: 'Resumed from ${position}'
   restartFromBeginning: Start over

@@ -1496,6 +1496,9 @@ subscriptions:
 
 videoDetail:
   pipMode: Mode PiP
+  pipUnsupported: "Perangkat ini tidak mendukung gambar-dalam-gambar"
+  pipEnterFailed: "Gagal masuk ke mode gambar-dalam-gambar"
+  pipEnterOnLeaveHint: "Sistem memblokir gambar-dalam-gambar untuk saat ini. Kembali ke layar utama dan mode ini akan terbuka otomatis"
   resumeFromLastPosition: 'Lanjutkan dari posisi terakhir: ${position}'
   resumedFromHistoryTip: 'Dilanjutkan dari ${position}'
   restartFromBeginning: Mulai dari awal

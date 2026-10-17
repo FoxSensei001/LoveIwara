@@ -59,6 +59,7 @@ class MainActivity : FlutterFragmentActivity() {
     private var mediaStoreChannel: MethodChannel? = null
     private var mediaStoreObserver: ContentObserver? = null
     private var appLockChannel: MethodChannel? = null
+    private var pipBridge: PipBridge? = null
     private val screenLockReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == Intent.ACTION_SCREEN_OFF) {
@@ -86,6 +87,9 @@ class MainActivity : FlutterFragmentActivity() {
         // 同名实现：standard 是空壳，quest 才真正注册 `i_iwara/immersive` 通道。
         // 这样这里、以及 Dart 侧，都不需要写 `if (isQuest)` 分支。
         XrBridge.attach(this, flutterEngine)
+
+        pipBridge?.dispose()
+        pipBridge = PipBridge(this, flutterEngine.dartExecutor.binaryMessenger)
 
         appLockChannel = MethodChannel(
                 flutterEngine.dartExecutor.binaryMessenger,
@@ -897,7 +901,14 @@ class MainActivity : FlutterFragmentActivity() {
         mediaStoreChannel = null
         unregisterReceiver(screenLockReceiver)
         appLockChannel = null
+        pipBridge?.dispose()
+        pipBridge = null
         super.onDestroy()
+    }
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        pipBridge?.onUserLeaveHint()
     }
 
     override fun onNewIntent(intent: Intent) {

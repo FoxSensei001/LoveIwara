@@ -1297,6 +1297,9 @@ class _TranslationsVideoDetailId extends TranslationsVideoDetailEn {
 
 	// Translations
 	@override String get pipMode => 'Mode PiP';
+	@override String get pipUnsupported => 'Perangkat ini tidak mendukung gambar-dalam-gambar';
+	@override String get pipEnterFailed => 'Gagal masuk ke mode gambar-dalam-gambar';
+	@override String get pipEnterOnLeaveHint => 'Sistem memblokir gambar-dalam-gambar untuk saat ini. Kembali ke layar utama dan mode ini akan terbuka otomatis';
 	@override String resumeFromLastPosition({required Object position}) => 'Lanjutkan dari posisi terakhir: ${position}';
 	@override String resumedFromHistoryTip({required Object position}) => 'Dilanjutkan dari ${position}';
 	@override String get restartFromBeginning => 'Mulai dari awal';
@@ -6484,6 +6487,9 @@ extension on TranslationsId {
 			'subscriptions.noSubscribedUsers' => 'Tidak ada pengguna yang dilanggan',
 			'subscriptions.showAllSubscribedUsersContent' => 'Tampilkan konten semua pengguna yang dilanggan',
 			'videoDetail.pipMode' => 'Mode PiP',
+			'videoDetail.pipUnsupported' => 'Perangkat ini tidak mendukung gambar-dalam-gambar',
+			'videoDetail.pipEnterFailed' => 'Gagal masuk ke mode gambar-dalam-gambar',
+			'videoDetail.pipEnterOnLeaveHint' => 'Sistem memblokir gambar-dalam-gambar untuk saat ini. Kembali ke layar utama dan mode ini akan terbuka otomatis',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => 'Lanjutkan dari posisi terakhir: ${position}',
 			'videoDetail.resumedFromHistoryTip' => ({required Object position}) => 'Dilanjutkan dari ${position}',
 			'videoDetail.restartFromBeginning' => 'Mulai dari awal',
@@ -6594,11 +6600,11 @@ extension on TranslationsId {
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Gambar harus pada 1× untuk membalik halaman dengan menyeret. Video galeri juga mendukungnya. Panggung tetap diam hingga Anda melepaskan.',
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'Perbesar ke dalam gambar',
 			'videoDetail.gestureGuide.quest.zoomBody' => 'Arahkan ke detail pada gambar, tahan pemicu telunjuk, lalu dorong stik ke atas untuk memperbesar atau ke bawah untuk memperkecil. Zoom berjangkar di tempat Anda menekan.',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Ini memperbesar gambar di dalam jendelanya. Tanpa menahan gambar, atas/bawah menyesuaikan jarak pandang.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Geser dan pulihkan gambar',
 			'videoDetail.gestureGuide.quest.panBody' => 'Setelah diperbesar, tahan pemicu telunjuk dan seret untuk melihat sekeliling. Ketuk dua kali gambar untuk memperbesar ke 2,5× atau memulihkannya. Dengan tangan, cubit dua kali dengan cepat.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.panHint' => 'Menyeret akan menggeser gambar yang diperbesar. Pulihkan ke 1× sebelum menyeret untuk membalik halaman.',
 			'videoDetail.gestureGuide.quest.slideshowTitle' => 'Mulai tayangan slide',
 			'videoDetail.gestureGuide.quest.slideshowBody' => 'Pada gambar, A / X memulai atau menjeda tayangan slide. Panel menawarkan interval 3, 5, 10, atau 20 detik serta kualitas gambar standar atau asli.',
@@ -7108,11 +7114,11 @@ extension on TranslationsId {
 			'download.deleteByDate.confirmTitle' => 'Konfirmasi penghapusan',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Hapus ${count} tugas unduhan dan berkasnya? Tindakan ini tidak dapat dibatalkan.',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Menghapus ${done}/${total}…',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Menghapus ${count} tugas',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Menghapus ${deleted} tugas; ${skipped} dilewati (sedang digunakan)',
 			'download.relocation.moveFiles' => 'Move files',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.moveFilesEllipsis' => 'Move files…',
 			'download.relocation.chooseDestination' => 'Move files to',
 			'download.relocation.currentDownloadDir' => 'Current download folder',
@@ -7622,11 +7628,11 @@ extension on TranslationsId {
 			'navigationOrderSettings.edit' => 'Ubah',
 			'navigationOrderSettings.reset' => 'Atur Ulang',
 			'navigationOrderSettings.previewEffect' => 'Pratinjau Efek',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.bottomNavigationPreview' => 'Pratinjau Navigasi Bawah:',
 			'navigationOrderSettings.sidebarPreview' => 'Pratinjau Bilah Samping:',
 			'navigationOrderSettings.confirmResetNavigationOrder' => 'Konfirmasi Atur Ulang Urutan Navigasi',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => 'Apakah Anda yakin ingin mengatur ulang urutan navigasi ke pengaturan bawaan?',
 			'navigationOrderSettings.cancel' => 'Batal',
 			'navigationOrderSettings.show' => 'Tampilkan',
@@ -8136,11 +8142,11 @@ extension on TranslationsId {
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_a_fast' => 'Mode A (Fast)',
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
@@ -8650,11 +8656,11 @@ extension on TranslationsId {
 			'ai.addProvider' => 'Tambah penyedia',
 			'ai.noProviders' => 'Belum ada penyedia. Tambahkan satu untuk mengaktifkan terjemahan, pencarian, dan tanda tangan AI.',
 			'ai.pickPreset' => 'Pilih penyedia',
+			_ => null,
+		} ?? switch (path) {
 			'ai.providerNameLabel' => 'Nama',
 			'ai.apiKey' => 'Kunci API',
 			'ai.baseUrl' => 'Alamat endpoint',
-			_ => null,
-		} ?? switch (path) {
 			'ai.model' => 'Model AI',
 			'ai.modelPick' => 'Pilih model',
 			'ai.modelEmpty' => 'Gagal memuat daftar model — Anda juga bisa mengetik langsung nama modelnya.',

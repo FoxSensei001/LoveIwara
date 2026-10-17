@@ -3380,6 +3380,15 @@ class TranslationsVideoDetailEn {
 	/// en: 'PiP Mode'
 	String get pipMode => 'PiP Mode';
 
+	/// en: 'Picture-in-picture is not supported on this device'
+	String get pipUnsupported => 'Picture-in-picture is not supported on this device';
+
+	/// en: 'Failed to enter picture-in-picture'
+	String get pipEnterFailed => 'Failed to enter picture-in-picture';
+
+	/// en: 'The system blocked picture-in-picture for now. Go to the home screen and it will open automatically'
+	String get pipEnterOnLeaveHint => 'The system blocked picture-in-picture for now. Go to the home screen and it will open automatically';
+
 	/// en: 'Resume from last position: ${position}'
 	String resumeFromLastPosition({required Object position}) => 'Resume from last position: ${position}';
 
@@ -14100,6 +14109,9 @@ extension on Translations {
 			'subscriptions.noSubscribedUsers' => 'No subscribed users',
 			'subscriptions.showAllSubscribedUsersContent' => 'Show all subscribed users content',
 			'videoDetail.pipMode' => 'PiP Mode',
+			'videoDetail.pipUnsupported' => 'Picture-in-picture is not supported on this device',
+			'videoDetail.pipEnterFailed' => 'Failed to enter picture-in-picture',
+			'videoDetail.pipEnterOnLeaveHint' => 'The system blocked picture-in-picture for now. Go to the home screen and it will open automatically',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => 'Resume from last position: ${position}',
 			'videoDetail.resumedFromHistoryTip' => ({required Object position}) => 'Resumed from ${position}',
 			'videoDetail.restartFromBeginning' => 'Start over',
@@ -14188,11 +14200,11 @@ extension on Translations {
 			'videoDetail.gestureGuide.quest.press' => 'Press',
 			'videoDetail.gestureGuide.quest.hold' => 'Hold',
 			'videoDetail.gestureGuide.quest.release' => 'Release',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.result' => 'See the result',
 			'videoDetail.gestureGuide.quest.pinch' => 'Pinch',
 			'videoDetail.gestureGuide.quest.selectTitle' => 'Point and select',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.selectBody' => 'Aim the ray at a button, then press and release the index trigger. Use it for play, settings and sliders on the control panel.',
 			'videoDetail.gestureGuide.quest.selectHint' => 'The index trigger is behind the button face. The grip button on the inner handle grabs windows.',
 			'videoDetail.gestureGuide.quest.panelTitle' => 'Show or hide the panel',
@@ -14702,11 +14714,11 @@ extension on Translations {
 			'download.notice.failed' => ({required Object count}) => '${count} downloads failed',
 			'download.notice.retryAll' => 'Retry all',
 			'download.notice.view' => 'View',
+			_ => null,
+		} ?? switch (path) {
 			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			'download.notice.handle' => 'Handle…',
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
-			_ => null,
-		} ?? switch (path) {
 			'download.notice.migrate' => 'Move',
 			'download.notice.dismiss' => 'Dismiss',
 			'download.emptyTaskList' => 'No download tasks yet',
@@ -15216,11 +15228,11 @@ extension on Translations {
 			'translation.presetNames.gemini' => 'Google Gemini (native)',
 			'translation.presetNames.geminiReasoning' => 'Google Gemini Reasoning (thinking)',
 			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
+			_ => null,
+		} ?? switch (path) {
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek Reasoning (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
-			_ => null,
-		} ?? switch (path) {
 			'translation.fetchModelList' => 'Fetch model list',
 			'translation.fetchingModels' => 'Fetching...',
 			'translation.selectModel' => 'Select Model',
@@ -15730,11 +15742,11 @@ extension on Translations {
 			'anime4k.presetGroups.lite' => 'Lite',
 			'anime4k.presetGroups.moreLite' => 'More Lite',
 			'anime4k.presetGroups.custom' => 'Custom',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_a_hq' => 'Suitable for most 1080p animations, especially those dealing with blur, resampling and compression artifacts. Provides the highest perceived quality.',
 			'anime4k.presetDescriptions.mode_b_hq' => 'Suitable for animations with slight blur or ringing effects caused by scaling. Can effectively reduce ringing and aliasing.',
 			'anime4k.presetDescriptions.mode_c_hq' => 'Suitable for high-quality sources (such as native 1080p animations or movies). Denoises and provides the highest PSNR.',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_a_a_hq' => 'Enhanced version of Mode A, providing ultimate perceived quality and can reconstruct almost all degraded lines. May produce oversharpening or ringing.',
 			'anime4k.presetDescriptions.mode_b_b_hq' => 'Enhanced version of Mode B, providing higher perceived quality, further optimizing lines and reducing artifacts.',
 			'anime4k.presetDescriptions.mode_c_a_hq' => 'Perceived quality enhanced version of Mode C, maintaining high PSNR while attempting to reconstruct some line details.',
@@ -16244,11 +16256,11 @@ extension on Translations {
 			'localMedia.remove' => 'Remove',
 			'localMedia.removeFolder' => 'Remove source',
 			'localMedia.removeFolderSelectTitle' => 'Select a source to remove',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.longPressToRemove' => 'Long-press to remove this folder',
 			'localMedia.clearProgress' => 'Clear local watch history',
 			'localMedia.clearProgressCount' => ({required Object count}) => '${count} entries',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.clearProgressEmpty' => 'No local watch history yet',
 			'localMedia.clearProgressTitle' => 'Clear local watch history?',
 			'localMedia.clearProgressBody' => 'Only playback positions and watched marks are deleted. Your files and folders stay exactly as they are.',

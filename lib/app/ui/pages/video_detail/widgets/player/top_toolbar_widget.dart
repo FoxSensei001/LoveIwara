@@ -9,7 +9,6 @@ import 'player_icon.dart';
 import 'toolbar_fade_visibility.dart';
 import '../../controllers/my_video_state_controller.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;
-import 'package:floating/floating.dart';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:network_info_plus/network_info_plus.dart';
@@ -608,30 +607,22 @@ class _TopToolbarState extends State<TopToolbar> {
                               color: Colors.white,
                               size: iconSize,
                             ),
-                            onPressed: () async {
-                              final floating = Floating();
-                              if (await floating.isPipAvailable) {
-                                final status = await floating.pipStatus;
-                                if (status == PiPStatus.disabled ||
-                                    status == PiPStatus.automatic) {
+                            // ⛔ 别再先问系统「是否已在画中画」再决定进还是退：
+                            // 这颗按钮只在正常布局里出现，能点到就说明不在小窗里；
+                            // 那个状态读错一次，按钮就会静默走去「退出」。
+                            onPressed: () {
+                              final controller = widget.myVideoStateController;
+                              controller.enterPiPMode(
+                                beforeEnter: () {
                                   if (isFullScreen) {
                                     AppService.tryPop();
                                   }
-                                  if (widget
-                                      .myVideoStateController
-                                      .isDesktopAppFullScreen
-                                      .value) {
-                                    widget
-                                            .myVideoStateController
-                                            .isDesktopAppFullScreen
-                                            .value =
+                                  if (controller.isDesktopAppFullScreen.value) {
+                                    controller.isDesktopAppFullScreen.value =
                                         false;
                                   }
-                                  widget.myVideoStateController.enterPiPMode();
-                                } else if (status == PiPStatus.enabled) {
-                                  widget.myVideoStateController.exitPiPMode();
-                                }
-                              }
+                                },
+                              );
                             },
                           ),
                         _buildAnime4KButton(context, iconSize),

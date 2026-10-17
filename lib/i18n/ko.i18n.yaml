@@ -1496,6 +1496,9 @@ subscriptions:
 
 videoDetail:
   pipMode: PiP 모드
+  pipUnsupported: "이 기기는 PiP를 지원하지 않습니다"
+  pipEnterFailed: "PiP 모드로 전환하지 못했습니다"
+  pipEnterOnLeaveHint: "시스템이 지금은 PiP를 막았습니다. 홈 화면으로 나가면 자동으로 PiP로 전환됩니다"
   resumeFromLastPosition: '마지막 위치에서 이어서 재생: ${position}'
   resumedFromHistoryTip: '${position}에서 이어서 재생'
   restartFromBeginning: 처음부터 시작

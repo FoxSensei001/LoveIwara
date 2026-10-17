@@ -1319,6 +1319,9 @@ class _TranslationsVideoDetailZhCn extends TranslationsVideoDetailEn {
 
 	// Translations
 	@override String get pipMode => '画中画模式';
+	@override String get pipUnsupported => '设备不支持画中画';
+	@override String get pipEnterFailed => '进入画中画失败';
+	@override String get pipEnterOnLeaveHint => '系统暂时没让小窗弹出，回到桌面即可进入小窗';
 	@override String resumeFromLastPosition({required Object position}) => '从上次播放位置继续播放: ${position}';
 	@override String resumedFromHistoryTip({required Object position}) => '已从 ${position} 继续播放';
 	@override String get restartFromBeginning => '从头播放';
@@ -6528,6 +6531,9 @@ extension on TranslationsZhCn {
 			'subscriptions.noSubscribedUsers' => '暂无已订阅的用户',
 			'subscriptions.showAllSubscribedUsersContent' => '显示所有已订阅用户的内容',
 			'videoDetail.pipMode' => '画中画模式',
+			'videoDetail.pipUnsupported' => '设备不支持画中画',
+			'videoDetail.pipEnterFailed' => '进入画中画失败',
+			'videoDetail.pipEnterOnLeaveHint' => '系统暂时没让小窗弹出，回到桌面即可进入小窗',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => '从上次播放位置继续播放: ${position}',
 			'videoDetail.resumedFromHistoryTip' => ({required Object position}) => '已从 ${position} 继续播放',
 			'videoDetail.restartFromBeginning' => '从头播放',
@@ -6616,11 +6622,11 @@ extension on TranslationsZhCn {
 			'videoDetail.gestureGuide.quest.press' => '按下',
 			'videoDetail.gestureGuide.quest.hold' => '保持',
 			'videoDetail.gestureGuide.quest.release' => '松开',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.result' => '查看效果',
 			'videoDetail.gestureGuide.quest.pinch' => '捏合',
 			'videoDetail.gestureGuide.quest.selectTitle' => '用射线点选',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.selectBody' => '将射线对准按钮，轻扣并松开食指扳机即可选择。控制面板上的播放、设置和滑块都可以这样操作。',
 			'videoDetail.gestureGuide.quest.selectHint' => '食指扳机在圆盘背面；手柄内侧的侧握键用于抓取窗口。',
 			'videoDetail.gestureGuide.quest.panelTitle' => '唤出或收起面板',
@@ -7130,11 +7136,11 @@ extension on TranslationsZhCn {
 			'download.notice.retryAll' => '全部重试',
 			'download.notice.view' => '查看',
 			'download.notice.missing' => ({required Object count}) => '${count} 项已下载内容的文件不见了',
+			_ => null,
+		} ?? switch (path) {
 			'download.notice.handle' => '处理…',
 			'download.notice.outside' => ({required Object count}) => '旧下载目录里还有 ${count} 项',
 			'download.notice.migrate' => '迁移',
-			_ => null,
-		} ?? switch (path) {
 			'download.notice.dismiss' => '忽略',
 			'download.emptyTaskList' => '暂无下载任务',
 			'download.noMatchingTasks' => '没有匹配的任务',
@@ -7644,11 +7650,11 @@ extension on TranslationsZhCn {
 			'translation.presetNames.gemini' => 'Google Gemini (原生)',
 			'translation.presetNames.geminiReasoning' => 'Google Gemini 推理 (thinking)',
 			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
+			_ => null,
+		} ?? switch (path) {
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek 推理 (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow 硅基流动',
 			'translation.presetNames.zhipu' => '智谱 GLM',
-			_ => null,
-		} ?? switch (path) {
 			'translation.fetchModelList' => '获取模型列表',
 			'translation.fetchingModels' => '获取中…',
 			'translation.selectModel' => '选择模型',
@@ -8158,11 +8164,11 @@ extension on TranslationsZhCn {
 			'anime4k.presetGroups.lite' => '轻量级',
 			'anime4k.presetGroups.moreLite' => '更多轻量级',
 			'anime4k.presetGroups.custom' => '自定义',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_a_hq' => '适用于大多数1080p动漫，特别是处理模糊、重采样和压缩瑕疵。提供最高的感知质量。',
 			'anime4k.presetDescriptions.mode_b_hq' => '适用于轻微模糊或因缩放产生的振铃效应的动漫。可以有效减少振铃和锯齿。',
 			'anime4k.presetDescriptions.mode_c_hq' => '适用于几乎没有瑕疵的高质量片源（如原生1080p的动画电影或壁纸）。降噪并提供最高的PSNR。',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_a_a_hq' => 'Mode A的强化版，提供极致的感知质量，能重建几乎所有退化的线条。可能产生过度锐化或振铃。',
 			'anime4k.presetDescriptions.mode_b_b_hq' => 'Mode B的强化版，提供更高的感知质量，进一步优化线条和减少瑕疵。',
 			'anime4k.presetDescriptions.mode_c_a_hq' => 'Mode C的感知质量增强版，在保持高PSNR的同时尝试重建一些线条细节。',
@@ -8672,11 +8678,11 @@ extension on TranslationsZhCn {
 			'localMedia.remove' => '移除',
 			'localMedia.removeFolder' => '移除来源',
 			'localMedia.removeFolderSelectTitle' => '选择要移除的来源',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.longPressToRemove' => '长按可移除这个文件夹',
 			'localMedia.clearProgress' => '清除本机观看记录',
 			'localMedia.clearProgressCount' => ({required Object count}) => '共 ${count} 条',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.clearProgressEmpty' => '还没有任何本机观看记录',
 			'localMedia.clearProgressTitle' => '清除本机观看记录？',
 			'localMedia.clearProgressBody' => '只删观看进度和「已看完」标记，磁盘上的文件和已添加的文件夹一个不动。',

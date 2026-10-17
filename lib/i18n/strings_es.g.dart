@@ -1297,6 +1297,9 @@ class _TranslationsVideoDetailEs extends TranslationsVideoDetailEn {
 
 	// Translations
 	@override String get pipMode => 'Modo PiP';
+	@override String get pipUnsupported => 'Este dispositivo no admite imagen en imagen';
+	@override String get pipEnterFailed => 'No se pudo activar imagen en imagen';
+	@override String get pipEnterOnLeaveHint => 'El sistema bloqueó imagen en imagen por ahora. Ve a la pantalla de inicio y se abrirá automáticamente';
 	@override String resumeFromLastPosition({required Object position}) => 'Reanudar desde la última posición: ${position}';
 	@override String resumedFromHistoryTip({required Object position}) => 'Reanudado desde ${position}';
 	@override String get restartFromBeginning => 'Empezar de nuevo';
@@ -6484,6 +6487,9 @@ extension on TranslationsEs {
 			'subscriptions.noSubscribedUsers' => 'No hay usuarios suscritos',
 			'subscriptions.showAllSubscribedUsersContent' => 'Mostrar el contenido de todos los usuarios suscritos',
 			'videoDetail.pipMode' => 'Modo PiP',
+			'videoDetail.pipUnsupported' => 'Este dispositivo no admite imagen en imagen',
+			'videoDetail.pipEnterFailed' => 'No se pudo activar imagen en imagen',
+			'videoDetail.pipEnterOnLeaveHint' => 'El sistema bloqueó imagen en imagen por ahora. Ve a la pantalla de inicio y se abrirá automáticamente',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => 'Reanudar desde la última posición: ${position}',
 			'videoDetail.resumedFromHistoryTip' => ({required Object position}) => 'Reanudado desde ${position}',
 			'videoDetail.restartFromBeginning' => 'Empezar de nuevo',
@@ -6594,11 +6600,11 @@ extension on TranslationsEs {
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Las imágenes deben estar a 1× para pasar páginas arrastrando. Los videos de galería también lo admiten. El escenario permanece inmóvil hasta que suelte.',
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'Ampliar la imagen',
 			'videoDetail.gestureGuide.quest.zoomBody' => 'Apunte a un detalle de la imagen, mantenga el gatillo índice y luego empuje el joystick hacia arriba para ampliar o hacia abajo para reducir. El zoom se fija donde pulsó.',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Esto amplía la imagen dentro de su ventana. Sin mantener la imagen, arriba/abajo ajusta la distancia de visualización.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Desplazar y restaurar la imagen',
 			'videoDetail.gestureGuide.quest.panBody' => 'Una vez ampliada, mantenga el gatillo índice y arrastre para mirar alrededor. Toque dos veces la imagen para ampliarla a 2,5× o restaurarla. Con las manos, pellizque dos veces rápido.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.panHint' => 'Arrastrar desplaza una imagen ampliada. Restaure a 1× antes de arrastrar para pasar páginas.',
 			'videoDetail.gestureGuide.quest.slideshowTitle' => 'Iniciar una presentación',
 			'videoDetail.gestureGuide.quest.slideshowBody' => 'En una imagen, A / X inicia o pausa la presentación. El panel ofrece intervalos de 3, 5, 10 o 20 segundos y calidad de imagen estándar u original.',
@@ -7108,11 +7114,11 @@ extension on TranslationsEs {
 			'download.deleteByDate.confirmTitle' => 'Confirmar eliminación',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => '¿Eliminar ${count} tareas de descarga y sus archivos? Esta acción no se puede deshacer.',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Eliminando ${done}/${total}…',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Se eliminaron ${count} tarea(s)',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Se eliminaron ${deleted} tarea(s); ${skipped} omitidas (en uso)',
 			'download.relocation.moveFiles' => 'Move files',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.moveFilesEllipsis' => 'Move files…',
 			'download.relocation.chooseDestination' => 'Move files to',
 			'download.relocation.currentDownloadDir' => 'Current download folder',
@@ -7622,11 +7628,11 @@ extension on TranslationsEs {
 			'navigationOrderSettings.edit' => 'Editar',
 			'navigationOrderSettings.reset' => 'Restablecer',
 			'navigationOrderSettings.previewEffect' => 'Efecto de vista previa',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.bottomNavigationPreview' => 'Vista previa de la navegación inferior:',
 			'navigationOrderSettings.sidebarPreview' => 'Vista previa de la barra lateral:',
 			'navigationOrderSettings.confirmResetNavigationOrder' => 'Confirmar el restablecimiento del orden de navegación',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => '¿Seguro que quiere restablecer el orden de navegación a los ajustes predeterminados?',
 			'navigationOrderSettings.cancel' => 'Cancelar',
 			'navigationOrderSettings.show' => 'Mostrar',
@@ -8136,11 +8142,11 @@ extension on TranslationsEs {
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_a_fast' => 'Mode A (Fast)',
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
@@ -8650,11 +8656,11 @@ extension on TranslationsEs {
 			'ai.addProvider' => 'Añadir proveedor',
 			'ai.noProviders' => 'Aún no hay proveedores. Añade uno para habilitar la traducción, búsqueda y firma con IA.',
 			'ai.pickPreset' => 'Elegir proveedor',
+			_ => null,
+		} ?? switch (path) {
 			'ai.providerNameLabel' => 'Nombre',
 			'ai.apiKey' => 'Clave API',
 			'ai.baseUrl' => 'Punto de conexión',
-			_ => null,
-		} ?? switch (path) {
 			'ai.model' => 'Modelo',
 			'ai.modelPick' => 'Elegir modelo',
 			'ai.modelEmpty' => 'No se pudo cargar la lista de modelos; escribir el nombre del modelo también funciona.',

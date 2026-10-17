@@ -577,14 +577,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.1"
-  floating:
-    dependency: "direct main"
-    description:
-      name: floating
-      sha256: e51ce1dbcab3ea83da0ad1b07f2091b99c0e8680184c780a000567f41234d454
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "6.0.0"
   flutter:
     dependency: "direct main"
     description: flutter

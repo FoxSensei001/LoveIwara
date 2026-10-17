@@ -1496,6 +1496,9 @@ subscriptions:
 
 videoDetail:
   pipMode: Режим «картинка в картинке»
+  pipUnsupported: "Устройство не поддерживает режим «картинка в картинке»"
+  pipEnterFailed: "Не удалось включить режим «картинка в картинке»"
+  pipEnterOnLeaveHint: "Система пока не разрешила режим «картинка в картинке». Выйдите на главный экран — он включится автоматически"
   resumeFromLastPosition: 'Продолжить с места остановки: ${position}'
   resumedFromHistoryTip: 'Воспроизведение с ${position}'
   restartFromBeginning: Начать сначала

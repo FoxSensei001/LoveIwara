@@ -1348,6 +1348,9 @@ class _TranslationsVideoDetailZhTw extends TranslationsVideoDetailEn {
 
 	// Translations
 	@override String get pipMode => '畫中畫模式';
+	@override String get pipUnsupported => '裝置不支援畫中畫';
+	@override String get pipEnterFailed => '進入畫中畫失敗';
+	@override String get pipEnterOnLeaveHint => '系統暫時沒讓小窗彈出，回到桌面即可進入小窗';
 	@override String resumeFromLastPosition({required Object position}) => '從上次播放位置繼續播放: ${position}';
 	@override String resumedFromHistoryTip({required Object position}) => '已從 ${position} 繼續播放';
 	@override String get restartFromBeginning => '從頭播放';
@@ -6562,6 +6565,9 @@ extension on TranslationsZhTw {
 			'subscriptions.noSubscribedUsers' => '尚無已訂閱使用者',
 			'subscriptions.showAllSubscribedUsersContent' => '顯示所有已訂閱使用者的內容',
 			'videoDetail.pipMode' => '畫中畫模式',
+			'videoDetail.pipUnsupported' => '裝置不支援畫中畫',
+			'videoDetail.pipEnterFailed' => '進入畫中畫失敗',
+			'videoDetail.pipEnterOnLeaveHint' => '系統暫時沒讓小窗彈出，回到桌面即可進入小窗',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => '從上次播放位置繼續播放: ${position}',
 			'videoDetail.resumedFromHistoryTip' => ({required Object position}) => '已從 ${position} 繼續播放',
 			'videoDetail.restartFromBeginning' => '從頭播放',
@@ -6616,11 +6622,11 @@ extension on TranslationsZhTw {
 			'videoDetail.gestureGuide.mVerticalDrag' => '垂直滑動：左側亮度 / 右側音量',
 			'videoDetail.gestureGuide.mLongPress' => '長按：臨時倍速播放',
 			'videoDetail.gestureGuide.mPinch' => '雙指捏合：縮放畫面',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.mRotate' => '雙指旋轉：旋轉畫面',
 			'videoDetail.gestureGuide.dTap' => '單擊：顯示 / 隱藏控制列',
 			'videoDetail.gestureGuide.dDoubleTap' => '雙擊：左側後退 / 中央暫停 / 右側快進',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.dKeys' => '快退 / 快進鍵：單擊瞬間跳轉，長按進入倍速播放；調速鍵：常速播放時逐檔調整倍速；空白鍵：播放 / 暫停',
 			'videoDetail.gestureGuide.dTrackpadPinch' => '觸控板捏合：縮放畫面',
 			'videoDetail.gestureGuide.dTrackpadRotate' => '觸控板旋轉：旋轉畫面',
@@ -7130,11 +7136,11 @@ extension on TranslationsZhTw {
 			'download.errorDetailCopyHint' => '長按複製錯誤詳情',
 			'download.restoredPaused.banner' => ({required Object num}) => '上次離開時有 ${num} 個任務未完成，已暫停',
 			'download.restoredPaused.resume' => '全部繼續',
+			_ => null,
+		} ?? switch (path) {
 			'download.restoredPaused.dismiss' => '忽略',
 			'download.actions.open' => '開啟',
 			'download.actions.play' => '播放',
-			_ => null,
-		} ?? switch (path) {
 			'download.actions.openWith' => '用其他應用程式開啟',
 			'download.actions.redownload' => '重新下載',
 			'download.actions.relocate' => '移動檔案到…',
@@ -7644,11 +7650,11 @@ extension on TranslationsZhTw {
 			'translation.streamingTranslationDataTimeout' => '流式翻譯接收資料超時',
 			'translation.dataReceptionTimeout' => '接收資料超時',
 			'translation.streamDataParseError' => '解析流資料時出錯',
+			_ => null,
+		} ?? switch (path) {
 			'translation.streamingTranslationFailed' => '流式翻譯失敗',
 			'translation.fallbackTranslationFailed' => '降級到普通翻譯也失敗',
 			'translation.translationSettings' => '翻譯設定',
-			_ => null,
-		} ?? switch (path) {
 			'translation.enableGoogleTranslation' => '啟用 Google 翻譯',
 			'translation.thinking' => '思考中…',
 			'translation.thoughtProcess' => '思考過程',
@@ -8158,11 +8164,11 @@ extension on TranslationsZhTw {
 			'anime4k.presetGroups.lite' => '輕量級',
 			'anime4k.presetGroups.moreLite' => '更多輕量級',
 			'anime4k.presetGroups.custom' => '自訂',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_a_hq' => '適用於大多數1080p動漫，特別是處理模糊、重採樣和壓縮瑕疵。提供最高的感知品質。',
 			'anime4k.presetDescriptions.mode_b_hq' => '適用於輕微模糊或因縮放產生的振鈴效應的動漫。可以有效減少振鈴和鋸齒。',
 			'anime4k.presetDescriptions.mode_c_hq' => '適用於幾乎沒有瑕疵的高品質片源（如原生1080p的動畫電影或桌布）。降噪並提供最高的PSNR。',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_a_a_hq' => 'Mode A的強化版，提供極致的感知品質，能重建幾乎所有退化的線條。可能產生過度銳化或振鈴。',
 			'anime4k.presetDescriptions.mode_b_b_hq' => 'Mode B的強化版，提供更高的感知品質，進一步最佳化線條和減少瑕疵。',
 			'anime4k.presetDescriptions.mode_c_a_hq' => 'Mode C的感知品質增強版，在保持高PSNR的同時嘗試重建一些線條細節。',
@@ -8672,11 +8678,11 @@ extension on TranslationsZhTw {
 			'localMedia.remove' => '移除',
 			'localMedia.removeFolder' => '移除來源',
 			'localMedia.removeFolderSelectTitle' => '選擇要移除的來源',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.longPressToRemove' => '長按可移除這個資料夾',
 			'localMedia.clearProgress' => '清除本機觀看記錄',
 			'localMedia.clearProgressCount' => ({required Object count}) => '共 ${count} 筆',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.clearProgressEmpty' => '還沒有任何本機觀看記錄',
 			'localMedia.clearProgressTitle' => '清除本機觀看記錄？',
 			'localMedia.clearProgressBody' => '只刪觀看進度和「已看完」標記，磁碟上的檔案和已加入的資料夾一個不動。',

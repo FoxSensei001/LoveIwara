@@ -1496,6 +1496,9 @@ subscriptions:
 
 videoDetail:
   pipMode: Mode PiP
+  pipUnsupported: "L'image dans l'image n'est pas prise en charge sur cet appareil"
+  pipEnterFailed: "Impossible de passer en image dans l'image"
+  pipEnterOnLeaveHint: "Le système a bloqué l'image dans l'image pour l'instant. Revenez à l'écran d'accueil et elle s'ouvrira automatiquement"
   resumeFromLastPosition: 'Reprendre à la dernière position : ${position}'
   resumedFromHistoryTip: 'Reprise à ${position}'
   restartFromBeginning: Recommencer

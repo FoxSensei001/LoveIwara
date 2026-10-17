@@ -50,6 +50,7 @@ import 'package:i_iwara/app/services/message_service.dart';
 import 'package:i_iwara/common/anime4k_presets.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
+import 'package:i_iwara/utils/android_pip.dart';
 import 'package:i_iwara/utils/desktop_native_fullscreen.dart';
 import 'package:i_iwara/app/services/page_departure_guard.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -84,7 +85,6 @@ import '../../../../models/download/download_task_ext_data.model.dart';
 import '../widgets/player/custom_slider_bar_shape_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import '../widgets/private_or_deleted_video_widget.dart';
-import 'package:floating/floating.dart';
 import '../services/video_cache_manager.dart';
 import 'dlna_cast_service.dart';
 
@@ -1133,11 +1133,12 @@ class MyVideoStateController extends GetxController
   final String _pipControllerKey = UniqueKey().toString();
   bool _pipEnableInFlight = false;
 
-  /// 画中画期间轮询系统状态的定时器，见 [_startPiPStatusPolling]。
-  Timer? _pipPollTimer;
-  bool _pipPollInFlight = false;
-  bool _pipSeenEnabled = false;
-  DateTime? _pipRequestedAt;
+  /// 系统推来的进出画中画事件，见 [_handlePiPStatus]。
+  StreamSubscription<bool>? _pipModeSubscription;
+
+  /// 谁设了「离开应用时自动进小窗」（[enterPiPMode] 的兜底分支）。系统里这个开关
+  /// 只有一份，所以和 [_pipOwnerKey] 一样是静态的。
+  static String? _pipAutoEnterOwnerKey;
 
   // 在MyVideoStateController类成员变量区域添加
   final RxBool isSlidingBrightnessZone = false.obs; // 是否在滑动亮度区域
@@ -1782,6 +1783,12 @@ class MyVideoStateController extends GetxController
       // 添加生命周期观察者
       WidgetsBinding.instance.addObserver(this);
       LogUtils.d('已添加生命周期观察者', 'MyVideoStateController');
+
+      if (GetPlatform.isAndroid) {
+        _pipModeSubscription = AndroidPip.modeChanges.listen(_handlePiPStatus);
+        // 新开一个详情页就撤掉上一页留下的自动进小窗，否则回桌面缩进小窗的是这一页。
+        unawaited(_disarmPiPAutoEnter(onlyMine: false));
+      }
 
       // 动画
       animationController = AnimationController(
@@ -2869,78 +2876,44 @@ class MyVideoStateController extends GetxController
     return aIndex.compareTo(bIndex);
   }
 
-  /// 本页发起画中画之后才开始轮询系统状态，看到退出就停。
+  /// 系统推来的进出画中画事件（原生 `onPictureInPictureModeChanged`），不轮询。
   ///
-  /// ⛔ 不要用 `Floating().pipStatusStream`：插件是单例，第一次订阅就起一只
-  /// **10ms** 的 `Timer.periodic`（每次一趟 MethodChannel），取消订阅也不会停，
-  /// 只有测试用的 `reset()` 能停。于是打开过一次视频详情页，之后整个进程每秒
-  /// 100 次平台通道往返，回到列表也照跑（2026-10-17 profile：列表滚动时占 UI
-  /// isolate 7%）。画中画只有 [enterPiPMode] 这一个入口，所以只在那之后轮询。
-  void _startPiPStatusPolling() {
-    _stopPiPStatusPolling();
-    _pipSeenEnabled = false;
-    _pipRequestedAt = DateTime.now();
-    _pipPollTimer = Timer.periodic(const Duration(milliseconds: 200), (
-      _,
-    ) async {
-      if (_isDisposed) {
-        _stopPiPStatusPolling();
-        return;
-      }
-      if (_pipPollInFlight) return;
-      _pipPollInFlight = true;
-      final PiPStatus status;
-      try {
-        status = await Floating().pipStatus;
-      } catch (_) {
-        return;
-      } finally {
-        _pipPollInFlight = false;
-      }
-      if (_pipPollTimer == null) return;
-      if (status == PiPStatus.enabled) {
-        _pipSeenEnabled = true;
-        _handlePiPStatus(status);
-        return;
-      }
-      // 刚调完 enable、系统还没真正切进画中画：这段时间读到的 disabled 不算退出。
-      final DateTime? requestedAt = _pipRequestedAt;
-      if (!_pipSeenEnabled &&
-          requestedAt != null &&
-          DateTime.now().difference(requestedAt) < const Duration(seconds: 3)) {
-        return;
-      }
-      _stopPiPStatusPolling();
-      _handlePiPStatus(status);
-    });
-  }
-
-  void _stopPiPStatusPolling() {
-    _pipPollTimer?.cancel();
-    _pipPollTimer = null;
-  }
-
-  void _handlePiPStatus(PiPStatus status) {
+  /// ⛔ 别换回 `floating` 插件的 `pipStatusStream`：插件单例第一次订阅就起一只 10ms
+  /// 的 `Timer.periodic` 且永不停（2026-10-17 profile：列表滚动时占 UI isolate 7%）。
+  void _handlePiPStatus(bool inPip) {
     if (_isDisposed) return;
 
-    if (status == PiPStatus.enabled) {
+    if (inPip) {
       // 只允许 PiP 所有者更新 PiP UI 状态，避免后台详情页误入 PiP 并抢占播放。
       if (_pipOwnerKey != _pipControllerKey) {
         return;
       }
       if (!isPiPMode.value) {
         isPiPMode.value = true;
+        // 走「离开时自动进入」兜底进来的：用户点过小窗，进了就该播（当场进入那条路
+        // 在 [enterPiPMode] 里自己 play）。
+        if (_pipAutoEnterOwnerKey == _pipControllerKey) {
+          unawaited(player.play());
+        }
       }
       return;
     }
 
-    // 任何非 enabled 状态都视为退出 PiP。
     if (isPiPMode.value) {
       isPiPMode.value = false;
     }
     if (_pipOwnerKey == _pipControllerKey) {
       _pipOwnerKey = null;
+      // 自动进小窗是一次性的兜底，用过就撤。
+      unawaited(_disarmPiPAutoEnter(onlyMine: false));
     }
+  }
+
+  Future<void> _disarmPiPAutoEnter({bool onlyMine = true}) async {
+    final owner = _pipAutoEnterOwnerKey;
+    if (owner == null || (onlyMine && owner != _pipControllerKey)) return;
+    _pipAutoEnterOwnerKey = null;
+    await AndroidPip.setAutoEnter();
   }
 
   // 设置亮度
@@ -3402,7 +3375,11 @@ class MyVideoStateController extends GetxController
       '取消系统音量订阅',
       () async => _volumeListenerDisposer?.cancel(),
     );
-    await _runCleanupStep('停止画中画轮询', () async => _stopPiPStatusPolling());
+    await _runCleanupStep(
+      '取消画中画订阅',
+      () async => _pipModeSubscription?.cancel(),
+    );
+    await _runCleanupStep('撤销离开时自动画中画', _disarmPiPAutoEnter);
     await _runCleanupStep(
       '取消自动全屏监听',
       () async => _disposeAutoFullscreenWatchers(),
@@ -3467,6 +3444,14 @@ class MyVideoStateController extends GetxController
     if (state == AppLifecycleState.resumed) {
       // LogUtils.d('应用进入前台，设置默认屏幕亮度', 'MyVideoStateController');
       setDefaultBrightness();
+      // 进出事件是兜底之外的唯一信号；万一漏了（例如系统报已进入却没真进），回前台时对一次账。
+      if (isPiPMode.value && GetPlatform.isAndroid) {
+        unawaited(
+          AndroidPip.isInPip().then((inPip) {
+            if (!inPip) _handlePiPStatus(false);
+          }),
+        );
+      }
     }
 
     super.didChangeAppLifecycleState(state);
@@ -4948,6 +4933,8 @@ class MyVideoStateController extends GetxController
   void onCoveredByAnotherPage() {
     if (_isDisposed) return;
     LogUtils.d('被别的页面盖住，暂停并复位', 'MyVideoStateController');
+    // 否则回桌面时缩进小窗的是盖在上面的那一页。
+    unawaited(_disarmPiPAutoEnter());
     suspendForCoveredRoute();
     pausePlayback();
     setDefaultBrightness();
@@ -5750,56 +5737,75 @@ class MyVideoStateController extends GetxController
     await setShader(presetId: presetId);
   }
 
-  /// 进入画中画模式
-  Future<void> enterPiPMode() async {
-    if (_isDisposed) return;
+  /// 进入画中画模式。失败一律在这里落日志并提示，调用方不必 await。
+  ///
+  /// [beforeEnter] 在确认设备支持之后、真正进入之前执行（工具栏用它退出全屏）：
+  /// 不支持的设备上点了按钮，不该先被踢出全屏再弹提示。
+  Future<void> enterPiPMode({VoidCallback? beforeEnter}) async {
+    if (_isDisposed || _pipEnableInFlight) return;
 
-    // 获取当前视频的宽度和高度以构造画中画窗口的比例
-    final int width = sourceVideoWidth.value;
-    final int height = sourceVideoHeight.value;
-    if (height == 0 || width == 0) {
-      return;
-    }
-
-    if (_pipEnableInFlight) {
-      return;
+    // 宽高还没拿到时按 16:9 进；原生侧会把超出系统范围的比例夹到边界上。
+    int width = sourceVideoWidth.value;
+    int height = sourceVideoHeight.value;
+    if (width <= 0 || height <= 0) {
+      width = 16;
+      height = 9;
     }
 
     _pipEnableInFlight = true;
-    _pipOwnerKey = _pipControllerKey;
-
-    // 利用视频的宽高构造比例参数（Rational类型）
-    final ratio = Rational(width, height);
-    LogUtils.d(
-      "进入画中画模式，设置宽高比为：$width:$height, Rational: $ratio",
-      "MyVideoStateController",
-    );
-
     try {
-      // 通过 floating 插件启用画中画模式并传入宽高比
-      await Floating().enable(ImmediatePiP(aspectRatio: ratio));
-      isPiPMode.value = true;
-      _startPiPStatusPolling();
-      await player.play();
-    } catch (e) {
-      // enable 失败时释放所有权，避免后续 PiP 事件被错误地归属到当前 controller。
-      if (_pipOwnerKey == _pipControllerKey && !isPiPMode.value) {
+      if (!await AndroidPip.isSupported()) {
+        _showPiPMessage(slang.t.videoDetail.pipUnsupported);
+        return;
+      }
+      if (_isDisposed) return;
+      beforeEnter?.call();
+      _pipOwnerKey = _pipControllerKey;
+      LogUtils.d('进入画中画模式，宽高：$width:$height', 'MyVideoStateController');
+
+      final result = await AndroidPip.enter(width: width, height: height);
+      if (_isDisposed) return;
+      if (result.entered) {
+        isPiPMode.value = true;
+        await player.play();
+        return;
+      }
+
+      LogUtils.w(
+        '进入画中画失败：${result.failure?.name}，${result.detail}',
+        'MyVideoStateController',
+      );
+      // 系统拒绝「当场」进入（Activity 不在 resumed）时，改设离开应用时自动进小窗：
+      // 用户回一趟桌面就能进，不必再回来重点一次。只在 Android 12+ 有效，见
+      // [AndroidPipEnterResult.canDeferToLeave]。被别的页面盖住、本页关闭、
+      // 新开详情页、进出过一次小窗，都会撤销。
+      if (result.canDeferToLeave &&
+          await AndroidPip.setAutoEnter(width: width, height: height)) {
+        if (_isDisposed) {
+          // 等结果的这段时间里 onClose 已经跑过，没人会再来撤它。
+          await AndroidPip.setAutoEnter();
+          return;
+        }
+        _pipAutoEnterOwnerKey = _pipControllerKey;
+        _showPiPMessage(slang.t.videoDetail.pipEnterOnLeaveHint);
+        return;
+      }
+      if (_pipOwnerKey == _pipControllerKey) {
         _pipOwnerKey = null;
       }
-      rethrow;
+      _showPiPMessage(
+        result.failure == AndroidPipFailure.unsupported
+            ? slang.t.videoDetail.pipUnsupported
+            : slang.t.videoDetail.pipEnterFailed,
+      );
     } finally {
       _pipEnableInFlight = false;
     }
   }
 
-  /// 退出画中画模式
-  Future<void> exitPiPMode() async {
-    _stopPiPStatusPolling();
-    await Floating().cancelOnLeavePiP();
-    isPiPMode.value = false;
-    if (_pipOwnerKey == _pipControllerKey) {
-      _pipOwnerKey = null;
-    }
+  void _showPiPMessage(String message) {
+    if (!Get.isRegistered<MessageService>()) return;
+    Get.find<MessageService>().showMessage(message, AppToastType.warning);
   }
 
   // 统一的position监听器设置

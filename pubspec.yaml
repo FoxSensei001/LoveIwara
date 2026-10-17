@@ -63,7 +63,6 @@ dependencies:
   dynamic_color: ^1.7.0
   toastification: ^3.2.0
   app_links: ^7.0.0
-  floating: ^6.0.0
   flutter_file_dialog: ^3.0.2
   # 13.x 的 permission_handler_android 14 要求 compileSdk 37（Android 17 的
   # ACCESS_LOCAL_NETWORK / CINNAMON_BUN 符号），本机与 CI 目前均停在 36。

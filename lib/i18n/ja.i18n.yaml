@@ -1497,6 +1497,9 @@ subscriptions:
 
 videoDetail:
   pipMode: ピプモード
+  pipUnsupported: "この端末はピクチャーインピクチャーに対応していません"
+  pipEnterFailed: "ピクチャーインピクチャーに切り替えられませんでした"
+  pipEnterOnLeaveHint: "いまはシステムに拒否されました。ホーム画面に戻ると自動で小窓になります"
   resumeFromLastPosition: '${position} から続けて再生'
   resumedFromHistoryTip: '${position} から再開しました'
   restartFromBeginning: 最初から

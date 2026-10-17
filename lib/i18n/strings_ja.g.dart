@@ -1297,6 +1297,9 @@ class _TranslationsVideoDetailJa extends TranslationsVideoDetailEn {
 
 	// Translations
 	@override String get pipMode => 'ピプモード';
+	@override String get pipUnsupported => 'この端末はピクチャーインピクチャーに対応していません';
+	@override String get pipEnterFailed => 'ピクチャーインピクチャーに切り替えられませんでした';
+	@override String get pipEnterOnLeaveHint => 'いまはシステムに拒否されました。ホーム画面に戻ると自動で小窓になります';
 	@override String resumeFromLastPosition({required Object position}) => '${position} から続けて再生';
 	@override String resumedFromHistoryTip({required Object position}) => '${position} から再開しました';
 	@override String get restartFromBeginning => '最初から';
@@ -6484,6 +6487,9 @@ extension on TranslationsJa {
 			'subscriptions.noSubscribedUsers' => '購読中のユーザーがいません',
 			'subscriptions.showAllSubscribedUsersContent' => 'すべての購読中のユーザーのコンテンツを表示',
 			'videoDetail.pipMode' => 'ピプモード',
+			'videoDetail.pipUnsupported' => 'この端末はピクチャーインピクチャーに対応していません',
+			'videoDetail.pipEnterFailed' => 'ピクチャーインピクチャーに切り替えられませんでした',
+			'videoDetail.pipEnterOnLeaveHint' => 'いまはシステムに拒否されました。ホーム画面に戻ると自動で小窓になります',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => '${position} から続けて再生',
 			'videoDetail.resumedFromHistoryTip' => ({required Object position}) => '${position} から再開しました',
 			'videoDetail.restartFromBeginning' => '最初から',
@@ -6594,11 +6600,11 @@ extension on TranslationsJa {
 			'videoDetail.gestureGuide.quest.swipeHint' => '画像は 1× のときにページ送りできます。ギャラリー内の動画にも対応しています。ドラッグ中は画面が動かず、離してから切り替わります。',
 			'videoDetail.gestureGuide.quest.zoomTitle' => '画像の細部を拡大',
 			'videoDetail.gestureGuide.quest.zoomBody' => '見たい部分にレイを合わせてトリガーを押し続け、スティックを上に倒すと拡大、下に倒すと縮小します。押した位置が拡大の中心になります。',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'ウィンドウの大きさは変わらず、中の画像だけが拡大します。画像を押していないときの上下操作は視聴距離を変えます。',
 			'videoDetail.gestureGuide.quest.panTitle' => '拡大画像の移動とリセット',
 			'videoDetail.gestureGuide.quest.panBody' => '拡大後はトリガーを押したままドラッグして、別の部分を見られます。画像をダブルクリックすると 2.5× 拡大とリセットを切り替えます。手の場合は素早く 2 回ピンチします。',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.panHint' => '拡大中のドラッグは画像の移動です。ページ送りは 1× に戻してから行ってください。',
 			'videoDetail.gestureGuide.quest.slideshowTitle' => 'スライドショーを開始',
 			'videoDetail.gestureGuide.quest.slideshowBody' => '画像を表示中は A / X でスライドショーを開始・停止できます。パネルで 3・5・10・20 秒の間隔や標準・元画像の画質を選べます。',
@@ -7108,11 +7114,11 @@ extension on TranslationsJa {
 			'download.deleteByDate.confirmTitle' => '削除の確認',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => '${count}件のダウンロードタスクとそのファイルを削除しますか？この操作は取り消せません。',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '削除中 ${done}/${total}…',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count}件のタスクを削除しました',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '${deleted}件を削除、${skipped}件をスキップ（使用中）',
 			'download.relocation.moveFiles' => 'ファイルを移動',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.moveFilesEllipsis' => 'ファイルを移動…',
 			'download.relocation.chooseDestination' => 'ファイルの移動先',
 			'download.relocation.currentDownloadDir' => '現在のダウンロードフォルダ',
@@ -7622,11 +7628,11 @@ extension on TranslationsJa {
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'AndroidデバイスはWEBM形式のサポートが限定的です。外部プレイヤーの使用またはWEBMをサポートするプレイヤーアプリのダウンロードをお勧めします',
 			'mediaPlayer.currentDeviceCodecNotSupported' => '現在のデバイスはこのビデオ形式のコーデックをサポートしていません',
 			'mediaPlayer.checkNetworkConnection' => 'ネットワーク接続を確認して再試行してください',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.appMayLackMediaPermission' => 'アプリに必要なメディア再生権限が不足している可能性があります',
 			'mediaPlayer.tryOtherVideoPlayer' => '他のビデオプレイヤーをお試しください',
 			'mediaPlayer.unrecognizedVideoFormat' => '認識できない動画ファイル',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.unrecognizedVideoFormatSuggestion' => 'リンクが失効したか、返ってきたものが動画ではない可能性があります。再試行するか、他のアプリで開いてください。',
 			'mediaPlayer.accessDenied' => 'サーバーがこのアクセスを拒否しました（403）',
 			'mediaPlayer.accessDeniedSuggestion' => '再生リンクの有効期限が切れている可能性が高いです。「再試行」で取り直すか、他のアプリで開いてください。',
@@ -8136,11 +8142,11 @@ extension on TranslationsJa {
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_a_fast' => 'Mode A (Fast)',
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
@@ -8650,11 +8656,11 @@ extension on TranslationsJa {
 			'ai.addProvider' => 'プロバイダーを追加',
 			'ai.noProviders' => 'プロバイダーがまだありません。追加するとAI翻訳・検索・署名機能が利用可能になります。',
 			'ai.pickPreset' => 'プロバイダーを選択',
+			_ => null,
+		} ?? switch (path) {
 			'ai.providerNameLabel' => '名前',
 			'ai.apiKey' => 'APIキー',
 			'ai.baseUrl' => 'エンドポイント',
-			_ => null,
-		} ?? switch (path) {
 			'ai.model' => 'モデル',
 			'ai.modelPick' => 'モデルを選択',
 			'ai.modelEmpty' => 'モデルリストを取得できませんでした。直接モデル名を入力しても利用できます。',

@@ -1496,6 +1496,9 @@ subscriptions:
 
 videoDetail:
   pipMode: PiP-Modus
+  pipUnsupported: "Bild-in-Bild wird auf diesem Gerät nicht unterstützt"
+  pipEnterFailed: "Bild-in-Bild konnte nicht gestartet werden"
+  pipEnterOnLeaveHint: "Das System hat Bild-in-Bild gerade blockiert. Wechsle zum Startbildschirm, dann startet es automatisch"
   resumeFromLastPosition: 'Von der letzten Position fortsetzen: ${position}'
   resumedFromHistoryTip: 'Fortgesetzt ab ${position}'
   restartFromBeginning: Von vorne beginnen

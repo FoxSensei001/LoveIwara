@@ -1297,6 +1297,9 @@ class _TranslationsVideoDetailRu extends TranslationsVideoDetailEn {
 
 	// Translations
 	@override String get pipMode => 'Режим «картинка в картинке»';
+	@override String get pipUnsupported => 'Устройство не поддерживает режим «картинка в картинке»';
+	@override String get pipEnterFailed => 'Не удалось включить режим «картинка в картинке»';
+	@override String get pipEnterOnLeaveHint => 'Система пока не разрешила режим «картинка в картинке». Выйдите на главный экран — он включится автоматически';
 	@override String resumeFromLastPosition({required Object position}) => 'Продолжить с места остановки: ${position}';
 	@override String resumedFromHistoryTip({required Object position}) => 'Воспроизведение с ${position}';
 	@override String get restartFromBeginning => 'Начать сначала';
@@ -6484,6 +6487,9 @@ extension on TranslationsRu {
 			'subscriptions.noSubscribedUsers' => 'Нет подписок',
 			'subscriptions.showAllSubscribedUsersContent' => 'Контент всех авторов',
 			'videoDetail.pipMode' => 'Режим «картинка в картинке»',
+			'videoDetail.pipUnsupported' => 'Устройство не поддерживает режим «картинка в картинке»',
+			'videoDetail.pipEnterFailed' => 'Не удалось включить режим «картинка в картинке»',
+			'videoDetail.pipEnterOnLeaveHint' => 'Система пока не разрешила режим «картинка в картинке». Выйдите на главный экран — он включится автоматически',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => 'Продолжить с места остановки: ${position}',
 			'videoDetail.resumedFromHistoryTip' => ({required Object position}) => 'Воспроизведение с ${position}',
 			'videoDetail.restartFromBeginning' => 'Начать сначала',
@@ -6594,11 +6600,11 @@ extension on TranslationsRu {
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Для перелистывания изображение должно быть в масштабе 1×. Поддерживаются и видео в галерее. Сцена остается на месте до отпускания.',
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'Масштабирование изображения',
 			'videoDetail.gestureGuide.quest.zoomBody' => 'Наведите на деталь, зажмите триггер и отклоните стик вверх для приближения или вниз для отдаления. Центр зума фиксируется в точке нажатия.',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Масштабирует изображение внутри его окна. Без зажатия изображения стик вверх/вниз меняет расстояние до экрана.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Панорамирование и сброс',
 			'videoDetail.gestureGuide.quest.panBody' => 'При приближении удерживайте триггер и двигайте руку для осмотра. Двойное нажатие по изображению увеличивает до 2.5× или сбрасывает масштаб. Руками: быстрый двойной щипок.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.panHint' => 'Перетаскивание перемещает увеличенное изображение. Сбросьте до 1× перед перелистыванием страниц.',
 			'videoDetail.gestureGuide.quest.slideshowTitle' => 'Запуск слайд-шоу',
 			'videoDetail.gestureGuide.quest.slideshowBody' => 'Кнопки A / X на изображении запускают слайд-шоу. На панели можно выбрать интервал (3, 5, 10 или 20 с) и качество.',
@@ -7108,11 +7114,11 @@ extension on TranslationsRu {
 			'download.deleteByDate.confirmTitle' => 'Подтвердите удаление',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Удалить задач загрузки (${count}) и их файлы? Это действие нельзя отменить.',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Удаление ${done}/${total}…',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Удалено задач: ${count}',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Удалено задач: ${deleted}; пропущено: ${skipped} (используются)',
 			'download.relocation.moveFiles' => 'Move files',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.moveFilesEllipsis' => 'Move files…',
 			'download.relocation.chooseDestination' => 'Move files to',
 			'download.relocation.currentDownloadDir' => 'Current download folder',
@@ -7622,11 +7628,11 @@ extension on TranslationsRu {
 			'navigationOrderSettings.edit' => 'Изменить',
 			'navigationOrderSettings.reset' => 'Сбросить',
 			'navigationOrderSettings.previewEffect' => 'Предпросмотр',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.bottomNavigationPreview' => 'Предпросмотр нижней навигации:',
 			'navigationOrderSettings.sidebarPreview' => 'Предпросмотр бокового меню:',
 			'navigationOrderSettings.confirmResetNavigationOrder' => 'Подтвердите сброс порядка навигации',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => 'Вы уверены, что хотите сбросить порядок навигации к настройкам по умолчанию?',
 			'navigationOrderSettings.cancel' => 'Отмена',
 			'navigationOrderSettings.show' => 'Показать',
@@ -8136,11 +8142,11 @@ extension on TranslationsRu {
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_a_fast' => 'Mode A (Fast)',
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
@@ -8650,11 +8656,11 @@ extension on TranslationsRu {
 			'ai.addProvider' => 'Добавить провайдера',
 			'ai.noProviders' => 'Провайдеры пока не добавлены. Добавьте хотя бы одного, чтобы включить перевод, поиск и подпись с помощью ИИ.',
 			'ai.pickPreset' => 'Выбрать провайдера',
+			_ => null,
+		} ?? switch (path) {
 			'ai.providerNameLabel' => 'Название',
 			'ai.apiKey' => 'API-ключ',
 			'ai.baseUrl' => 'Конечная точка',
-			_ => null,
-		} ?? switch (path) {
 			'ai.model' => 'Модель',
 			'ai.modelPick' => 'Выбрать модель',
 			'ai.modelEmpty' => 'Не удалось загрузить список моделей — можно также ввести название модели вручную.',

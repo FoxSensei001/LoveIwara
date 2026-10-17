@@ -1568,6 +1568,9 @@ subscriptions:
 
 videoDetail:
   pipMode: 畫中畫模式
+  pipUnsupported: "裝置不支援畫中畫"
+  pipEnterFailed: "進入畫中畫失敗"
+  pipEnterOnLeaveHint: "系統暫時沒讓小窗彈出，回到桌面即可進入小窗"
   resumeFromLastPosition: '從上次播放位置繼續播放: ${position}'
   resumedFromHistoryTip: '已從 ${position} 繼續播放'
   restartFromBeginning: 從頭播放

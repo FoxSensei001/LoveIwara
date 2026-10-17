@@ -1297,6 +1297,9 @@ class _TranslationsVideoDetailKo extends TranslationsVideoDetailEn {
 
 	// Translations
 	@override String get pipMode => 'PiP 모드';
+	@override String get pipUnsupported => '이 기기는 PiP를 지원하지 않습니다';
+	@override String get pipEnterFailed => 'PiP 모드로 전환하지 못했습니다';
+	@override String get pipEnterOnLeaveHint => '시스템이 지금은 PiP를 막았습니다. 홈 화면으로 나가면 자동으로 PiP로 전환됩니다';
 	@override String resumeFromLastPosition({required Object position}) => '마지막 위치에서 이어서 재생: ${position}';
 	@override String resumedFromHistoryTip({required Object position}) => '${position}에서 이어서 재생';
 	@override String get restartFromBeginning => '처음부터 시작';
@@ -6484,6 +6487,9 @@ extension on TranslationsKo {
 			'subscriptions.noSubscribedUsers' => '구독한 사용자가 없습니다',
 			'subscriptions.showAllSubscribedUsersContent' => '구독한 사용자의 모든 콘텐츠 표시',
 			'videoDetail.pipMode' => 'PiP 모드',
+			'videoDetail.pipUnsupported' => '이 기기는 PiP를 지원하지 않습니다',
+			'videoDetail.pipEnterFailed' => 'PiP 모드로 전환하지 못했습니다',
+			'videoDetail.pipEnterOnLeaveHint' => '시스템이 지금은 PiP를 막았습니다. 홈 화면으로 나가면 자동으로 PiP로 전환됩니다',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => '마지막 위치에서 이어서 재생: ${position}',
 			'videoDetail.resumedFromHistoryTip' => ({required Object position}) => '${position}에서 이어서 재생',
 			'videoDetail.restartFromBeginning' => '처음부터 시작',
@@ -6594,11 +6600,11 @@ extension on TranslationsKo {
 			'videoDetail.gestureGuide.quest.swipeHint' => '이미지를 끌어 페이지를 넘기려면 1배 상태여야 합니다. 갤러리 동영상도 지원합니다. 놓을 때까지 스테이지는 그대로 유지됩니다.',
 			'videoDetail.gestureGuide.quest.zoomTitle' => '이미지 확대',
 			'videoDetail.gestureGuide.quest.zoomBody' => '이미지의 세부 부분에 광선을 맞추고 검지 트리거를 누른 뒤 스틱을 위로 밀면 확대, 아래로 밀면 축소됩니다. 확대는 누른 지점을 기준으로 고정됩니다.',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomHint' => '이미지 창 안의 이미지를 확대합니다. 이미지를 잡지 않은 상태에서는 위/아래가 시청 거리를 조정합니다.',
 			'videoDetail.gestureGuide.quest.panTitle' => '이미지 이동 및 복원',
 			'videoDetail.gestureGuide.quest.panBody' => '확대한 후 검지 트리거를 누른 채 끌면 주변을 둘러볼 수 있습니다. 이미지를 두 번 탭하면 2.5배로 확대하거나 원래대로 되돌립니다. 손을 사용할 때는 빠르게 두 번 집으세요.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.panHint' => '끌면 확대된 이미지가 이동합니다. 페이지를 넘기려면 1배로 되돌린 후 끌어야 합니다.',
 			'videoDetail.gestureGuide.quest.slideshowTitle' => '슬라이드쇼 시작',
 			'videoDetail.gestureGuide.quest.slideshowBody' => '이미지에서 A / X는 슬라이드쇼를 시작하거나 일시정지합니다. 패널에서 3초, 5초, 10초, 20초 간격과 일반 또는 원본 화질을 선택할 수 있습니다.',
@@ -7108,11 +7114,11 @@ extension on TranslationsKo {
 			'download.deleteByDate.confirmTitle' => '삭제 확인',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => '${count}개의 다운로드 작업과 해당 파일을 삭제하시겠습니까? 되돌릴 수 없습니다.',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '삭제 중 ${done}/${total}…',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count}개 작업 삭제됨',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '${deleted}개 작업 삭제됨, ${skipped}개 건너뜀(사용 중)',
 			'download.relocation.moveFiles' => 'Move files',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.moveFilesEllipsis' => 'Move files…',
 			'download.relocation.chooseDestination' => 'Move files to',
 			'download.relocation.currentDownloadDir' => 'Current download folder',
@@ -7622,11 +7628,11 @@ extension on TranslationsKo {
 			'navigationOrderSettings.edit' => '편집',
 			'navigationOrderSettings.reset' => '초기화',
 			'navigationOrderSettings.previewEffect' => '미리보기 효과',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.bottomNavigationPreview' => '하단 내비게이션 미리보기:',
 			'navigationOrderSettings.sidebarPreview' => '사이드바 미리보기:',
 			'navigationOrderSettings.confirmResetNavigationOrder' => '내비게이션 순서 초기화 확인',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => '내비게이션 순서를 기본 설정으로 초기화하시겠습니까?',
 			'navigationOrderSettings.cancel' => '취소',
 			'navigationOrderSettings.show' => '표시',
@@ -8136,11 +8142,11 @@ extension on TranslationsKo {
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_a_fast' => 'Mode A (Fast)',
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
@@ -8650,11 +8656,11 @@ extension on TranslationsKo {
 			'ai.addProvider' => '제공자 추가',
 			'ai.noProviders' => '등록된 제공자가 없습니다. 제공자를 추가하면 AI 번역, 검색, 서명 기능을 사용할 수 있습니다.',
 			'ai.pickPreset' => '제공자 선택',
+			_ => null,
+		} ?? switch (path) {
 			'ai.providerNameLabel' => '이름',
 			'ai.apiKey' => 'API 키',
 			'ai.baseUrl' => '엔드포인트',
-			_ => null,
-		} ?? switch (path) {
 			'ai.model' => '모델',
 			'ai.modelPick' => '모델 선택',
 			'ai.modelEmpty' => '모델 목록을 불러오지 못했습니다. 모델 이름을 직접 입력해도 됩니다.',

@@ -1496,6 +1496,9 @@ subscriptions:
 
 videoDetail:
   pipMode: Modo PiP
+  pipUnsupported: "Este dispositivo no admite imagen en imagen"
+  pipEnterFailed: "No se pudo activar imagen en imagen"
+  pipEnterOnLeaveHint: "El sistema bloqueó imagen en imagen por ahora. Ve a la pantalla de inicio y se abrirá automáticamente"
   resumeFromLastPosition: 'Reanudar desde la última posición: ${position}'
   resumedFromHistoryTip: 'Reanudado desde ${position}'
   restartFromBeginning: Empezar de nuevo

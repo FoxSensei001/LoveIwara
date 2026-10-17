@@ -1297,6 +1297,9 @@ class _TranslationsVideoDetailTh extends TranslationsVideoDetailEn {
 
 	// Translations
 	@override String get pipMode => 'โหมดภาพซ้อนภาพ (PiP)';
+	@override String get pipUnsupported => 'อุปกรณ์นี้ไม่รองรับภาพซ้อนภาพ';
+	@override String get pipEnterFailed => 'เข้าสู่โหมดภาพซ้อนภาพไม่สำเร็จ';
+	@override String get pipEnterOnLeaveHint => 'ระบบยังไม่อนุญาตภาพซ้อนภาพในตอนนี้ กลับไปที่หน้าจอหลักแล้วจะเปิดให้อัตโนมัติ';
 	@override String resumeFromLastPosition({required Object position}) => 'เล่นต่อจากตำแหน่งล่าสุด: ${position}';
 	@override String resumedFromHistoryTip({required Object position}) => 'เล่นต่อจาก ${position}';
 	@override String get restartFromBeginning => 'เริ่มใหม่ตั้งแต่ต้น';
@@ -6484,6 +6487,9 @@ extension on TranslationsTh {
 			'subscriptions.noSubscribedUsers' => 'ไม่มีผู้ใช้ที่ติดตาม',
 			'subscriptions.showAllSubscribedUsersContent' => 'แสดงเนื้อหาของผู้ใช้ที่ติดตามทั้งหมด',
 			'videoDetail.pipMode' => 'โหมดภาพซ้อนภาพ (PiP)',
+			'videoDetail.pipUnsupported' => 'อุปกรณ์นี้ไม่รองรับภาพซ้อนภาพ',
+			'videoDetail.pipEnterFailed' => 'เข้าสู่โหมดภาพซ้อนภาพไม่สำเร็จ',
+			'videoDetail.pipEnterOnLeaveHint' => 'ระบบยังไม่อนุญาตภาพซ้อนภาพในตอนนี้ กลับไปที่หน้าจอหลักแล้วจะเปิดให้อัตโนมัติ',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => 'เล่นต่อจากตำแหน่งล่าสุด: ${position}',
 			'videoDetail.resumedFromHistoryTip' => ({required Object position}) => 'เล่นต่อจาก ${position}',
 			'videoDetail.restartFromBeginning' => 'เริ่มใหม่ตั้งแต่ต้น',
@@ -6594,11 +6600,11 @@ extension on TranslationsTh {
 			'videoDetail.gestureGuide.quest.swipeHint' => 'รูปภาพต้องอยู่ที่ขนาด 1× จึงจะเปลี่ยนหน้าด้วยการลากได้ วิดีโอในแกลเลอรีก็รองรับเช่นกัน หน้าจอจะอยู่นิ่งจนกว่าคุณจะปล่อย',
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'ซูมดูรายละเอียดรูปภาพ',
 			'videoDetail.gestureGuide.quest.zoomBody' => 'เล็งไปที่รายละเอียดในภาพ กดไกชี้ค้างไว้ แล้วดันก้านอนาล็อกขึ้นเพื่อซูมเข้า หรือลงเพื่อซูมออก การซูมจะยึดตำแหน่งที่คุณกดไว้',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'การดำเนินการนี้จะขยายรูปภาพภายในหน้าต่าง หากไม่ได้จับรูปภาพไว้ การดันขึ้น/ลงจะเป็นการปรับระยะการมอง',
 			'videoDetail.gestureGuide.quest.panTitle' => 'เลื่อนและคืนค่ารูปภาพ',
 			'videoDetail.gestureGuide.quest.panBody' => 'เมื่อซูมเข้าแล้ว ให้กดไกชี้ค้างไว้แล้วลากเพื่อดูรอบๆ แตะสองครั้งที่รูปภาพเพื่อซูมเป็น 2.5× หรือคืนค่าเดิม สำหรับมือ ให้จีบนิ้วสองครั้งอย่างรวดเร็ว',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.panHint' => 'การลากจะเป็นการเลื่อนดูภาพที่ซูมอยู่ คืนค่าเป็น 1× ก่อนลากเพื่อเปลี่ยนหน้า',
 			'videoDetail.gestureGuide.quest.slideshowTitle' => 'เริ่มการฉายสไลด์',
 			'videoDetail.gestureGuide.quest.slideshowBody' => 'เมื่อดูรูปภาพ กดปุ่ม A / X เพื่อเริ่มหรือหยุดการฉายสไลด์ชั่วคราว แผงควบคุมมีช่วงเวลา 3, 5, 10 หรือ 20 วินาที และคุณภาพของภาพแบบมาตรฐานหรือต้นฉบับ',
@@ -7108,11 +7114,11 @@ extension on TranslationsTh {
 			'download.deleteByDate.confirmTitle' => 'ยืนยันการลบ',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => 'ลบ ${count} งานดาวน์โหลดและไฟล์ของงานเหล่านั้นหรือไม่? การดำเนินการนี้ไม่สามารถยกเลิกได้',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'กำลังลบ ${done}/${total}…',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'ลบ ${count} งานแล้ว',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'ลบ ${deleted} งานแล้ว; ข้าม ${skipped} งาน (กำลังถูกใช้งาน)',
 			'download.relocation.moveFiles' => 'Move files',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.moveFilesEllipsis' => 'Move files…',
 			'download.relocation.chooseDestination' => 'Move files to',
 			'download.relocation.currentDownloadDir' => 'Current download folder',
@@ -7622,11 +7628,11 @@ extension on TranslationsTh {
 			'navigationOrderSettings.edit' => 'แก้ไข',
 			'navigationOrderSettings.reset' => 'รีเซ็ต',
 			'navigationOrderSettings.previewEffect' => 'ตัวอย่างผลลัพธ์',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.bottomNavigationPreview' => 'ตัวอย่างแถบนำทางด้านล่าง:',
 			'navigationOrderSettings.sidebarPreview' => 'ตัวอย่างแถบด้านข้าง:',
 			'navigationOrderSettings.confirmResetNavigationOrder' => 'ยืนยันการรีเซ็ตลำดับการนำทาง',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => 'คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ตลำดับการนำทางกลับเป็นค่าเริ่มต้น?',
 			'navigationOrderSettings.cancel' => 'ยกเลิก',
 			'navigationOrderSettings.show' => 'แสดง',
@@ -8136,11 +8142,11 @@ extension on TranslationsTh {
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_a_fast' => 'Mode A (Fast)',
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
@@ -8650,11 +8656,11 @@ extension on TranslationsTh {
 			'ai.addProvider' => 'เพิ่มผู้ให้บริการ',
 			'ai.noProviders' => 'ยังไม่มีผู้ให้บริการ เพิ่มผู้ให้บริการเพื่อเปิดใช้งานการแปล การค้นหา และลายเซ็นด้วย AI',
 			'ai.pickPreset' => 'เลือกผู้ให้บริการ',
+			_ => null,
+		} ?? switch (path) {
 			'ai.providerNameLabel' => 'ชื่อ',
 			'ai.apiKey' => 'คีย์ API',
 			'ai.baseUrl' => 'ปลายทาง API',
-			_ => null,
-		} ?? switch (path) {
 			'ai.model' => 'โมเดล',
 			'ai.modelPick' => 'เลือกโมเดล',
 			'ai.modelEmpty' => 'ไม่สามารถโหลดรายการโมเดลได้ คุณยังสามารถพิมพ์ชื่อโมเดลได้โดยตรง',

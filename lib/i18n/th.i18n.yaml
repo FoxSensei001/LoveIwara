@@ -1496,6 +1496,9 @@ subscriptions:
 
 videoDetail:
   pipMode: โหมดภาพซ้อนภาพ (PiP)
+  pipUnsupported: "อุปกรณ์นี้ไม่รองรับภาพซ้อนภาพ"
+  pipEnterFailed: "เข้าสู่โหมดภาพซ้อนภาพไม่สำเร็จ"
+  pipEnterOnLeaveHint: "ระบบยังไม่อนุญาตภาพซ้อนภาพในตอนนี้ กลับไปที่หน้าจอหลักแล้วจะเปิดให้อัตโนมัติ"
   resumeFromLastPosition: 'เล่นต่อจากตำแหน่งล่าสุด: ${position}'
   resumedFromHistoryTip: 'เล่นต่อจาก ${position}'
   restartFromBeginning: เริ่มใหม่ตั้งแต่ต้น

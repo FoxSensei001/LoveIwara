@@ -1496,6 +1496,9 @@ subscriptions:
 
 videoDetail:
   pipMode: Chế độ PiP
+  pipUnsupported: "Thiết bị không hỗ trợ ảnh trong ảnh"
+  pipEnterFailed: "Không thể chuyển sang ảnh trong ảnh"
+  pipEnterOnLeaveHint: "Hệ thống tạm thời chặn ảnh trong ảnh. Về màn hình chính, chế độ này sẽ tự bật"
   resumeFromLastPosition: 'Tiếp tục từ vị trí lần trước: ${position}'
   resumedFromHistoryTip: 'Đã tiếp tục từ ${position}'
   restartFromBeginning: Bắt đầu lại
