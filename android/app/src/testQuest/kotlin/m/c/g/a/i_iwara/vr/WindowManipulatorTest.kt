@@ -222,6 +222,42 @@ class WindowManipulatorTest {
         assertEquals(1f, f.pose.forward().dot((f.pose.t - f.eye).normalize()), 0.0001f)
     }
 
+    @Test fun aRayThatFlipsToAFixedDirectionForAFrameIsHeldUntilItSettles() {
+        val filter = RayOutlierFilter()
+        val origin = Vector3(0f, 1.6f, 0f)
+        fun ray(yawDeg: Double, from: Vector3 = origin): WindowManipulator.PointerRay {
+            val r = Math.toRadians(yawDeg)
+            return WindowManipulator.PointerRay(from, Vector3(sin(r).toFloat(), 0f, cos(r).toFloat()))
+        }
+        val flipped = ray(-90.0)
+        var yaw = 0.0
+        repeat(6) { i ->
+            // Good frames keep moving; every other frame is the same fixed bad direction.
+            yaw += 2.0
+            val good = ray(yaw, origin + Vector3(0f, 0f, i * 0.001f))
+            assertEquals(good.direction.z, filter.filter(good).direction.z, 0f)
+            val held = filter.filter(flipped)
+            assertEquals("A one-frame flip must not steer the ray", good.direction.z, held.direction.z, 0f)
+            assertSame("Reading the same sample twice must not advance the filter", held, filter.filter(flipped))
+        }
+        // A direction that stays put is genuine (tracking re-acquired) and is taken after it settles.
+        val turned = (0 until RayOutlierFilter.SETTLE_SAMPLES).map { filter.filter(ray(120.0 + it * 0.5)) }
+        val lastGood = ray(yaw).direction.z
+        assertTrue("Unsettled samples are held", turned.dropLast(1).all { it.direction.z == lastGood })
+        assertEquals(sin(Math.toRadians(121.0)).toFloat(), turned.last().direction.x, 0.0001f)
+
+        // A real turn past the threshold that keeps alternating with the glitch must still be taken.
+        val fresh = RayOutlierFilter()
+        fresh.filter(ray(0.0))
+        var taken: WindowManipulator.PointerRay? = null
+        for (k in 0 until RayOutlierFilter.SETTLE_SAMPLES) {
+            val real = ray(120.0 + k)
+            if (fresh.filter(real) === real) { taken = real; break }
+            fresh.filter(ray(-90.0, origin + Vector3(0f, 0f, 0.01f * (k + 1))))
+        }
+        assertNotNull("Alternating with a glitch must not freeze the ray on the old direction", taken)
+    }
+
     @Test fun draggingTheInitialUiWindowSurvivesReleaseAfterTrackingTimesOut() {
         val f = Fixture(WindowKind.UI)
         val readiness = HeadPoseReadiness()

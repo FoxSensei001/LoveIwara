@@ -18,6 +18,7 @@ import com.meta.spatial.runtime.PanelSceneObject
 import com.meta.spatial.runtime.PanelShapeLayerBlendType
 import com.meta.spatial.runtime.PointerEvent
 import com.meta.spatial.runtime.PointerEventType
+import com.meta.spatial.toolkit.AvatarAttachment
 import com.meta.spatial.toolkit.CylinderShapeOptions
 import com.meta.spatial.toolkit.DpPerMeterDisplayOptions
 import com.meta.spatial.toolkit.Panel
@@ -35,6 +36,7 @@ import com.meta.spatial.toolkit.getAbsoluteTransform
 import m.c.g.a.i_iwara.questui.WindowFrameState
 import m.c.g.a.i_iwara.questui.WindowFrameZone
 import kotlin.math.abs
+import kotlin.math.acos
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.max
@@ -192,10 +194,23 @@ class WindowManipulator(
     private val hits = arrayOfNulls<Hit>(2)
     private val sessions = arrayOfNulls<Session>(2)
 
-    /** ISDK 最近一次报过的每只手的指针实体（与光标同一条射线）。 */
-    private val raySource = arrayOfNulls<Entity>(2)
+    /**
+     * ISDK 最近一次报过的指针实体（与光标同一条射线），按 [手][设备] 分槽：设备 0 = 裸手、1 = 手柄。
+     *
+     * ⛔ 每一侧有两个来源实体（`left_hand` 与 `left_controller`），`getHandForPointerEvent` 只分左右。
+     * 不分槽时，只要同侧不在用的那个设备发了事件（比如放下的手柄，姿态停在原处），这只手的射线
+     * 就会被换成它那条，抓着的窗跟着跳。用户 2026-10-18 报过手势长按拖拽时射线甩到固定方向，
+     * 这是候选病根之一，还没在真机上证实（看 `ray source` 日志）。
+     */
+    private val raySource = Array(2) { arrayOfNulls<Entity>(2) }
+    private val rayFilters = Array(2) { RayOutlierFilter() }
+    /** 过滤器跟的是哪个来源：设备槽 + 实体；换了就重来，不拿上一个设备的射线去比。 */
+    private val rayFilterDevice = IntArray(2) { -1 }
+    private val rayFilterSource = arrayOfNulls<Entity>(2)
     private var isdk: IsdkSystem? = null
     private var rayChecksLogged = 0
+    private var rayGlitchesLogged = 0
+    private var raySourceLogs = 0
     private val observer: (PointerEvent) -> Unit = { ev -> onPointerEvent(ev) }
 
     /** 窗框面板注册时拿这个（`createWindowFrameView(ctx, frameState(kind))`）。 */
@@ -246,7 +261,8 @@ class WindowManipulator(
             sessions[i]?.slot?.state?.activeZone = WindowFrameZone.NONE
             sessions[i] = null
             hits[i] = null
-            raySource[i] = null
+            raySource[i].fill(null)
+            resetRayFilter(i)
         }
         for (slot in slots.values) {
             slot.state.activeZone = WindowFrameZone.NONE
@@ -644,16 +660,43 @@ class WindowManipulator(
 
     private fun rayFor(hand: Int, input: SpatialInputPoller): PointerRay? {
         if (!input.handActive[hand]) {
-            raySource[hand] = null
+            // Keep the source slots: they are long-lived attachment entities, and clearing them made the
+            // first frames after re-acquire use the body pose and then jump, unfiltered, to the ISDK ray.
+            resetRayFilter(hand)
             return null
         }
-        val source = raySource[hand]
-        val pose = source?.let { runCatching { getAbsoluteTransform(it) }.getOrNull() }
-            ?: input.handPoses[hand]
-            ?: return null
+        // Only the device that is active on this side may steer its ray.
+        val device = if (input.isController[hand]) DEVICE_CONTROLLER else DEVICE_HAND
+        val source = raySource[hand][device]
+        val sourcePose = source?.let { runCatching { getAbsoluteTransform(it) }.getOrNull() }
+        val pose = sourcePose ?: input.handPoses[hand] ?: return null
         val dir = pose.forward()
         if (dir.length() < 1e-4f) return null
-        return PointerRay(pose.t, dir.normalize())
+        val poseSource = if (sourcePose != null) source else null
+        if (device != rayFilterDevice[hand] || poseSource !== rayFilterSource[hand]) {
+            resetRayFilter(hand)
+            rayFilterDevice[hand] = device
+            rayFilterSource[hand] = poseSource
+        }
+        val filter = rayFilters[hand]
+        val ray = filter.filter(PointerRay(pose.t, dir.normalize()))
+        if (filter.heldFreshSample && rayGlitchesLogged < RAY_GLITCH_LOGS) {
+            rayGlitchesLogged++
+            Log.i(TAG, "IMMERSIVE ray glitch held hand=$hand device=$device " +
+                "angle=${"%.1f".format(filter.lastRejectedDegrees)}")
+        }
+        // A held direction that is then taken: either a real re-acquire, or a glitch long enough to pass.
+        if (filter.acceptedAfterHeld > 0 && rayGlitchesLogged < RAY_GLITCH_LOGS) {
+            rayGlitchesLogged++
+            Log.i(TAG, "IMMERSIVE ray glitch settled hand=$hand device=$device held=${filter.acceptedAfterHeld}")
+        }
+        return ray
+    }
+
+    private fun resetRayFilter(hand: Int) {
+        rayFilters[hand].reset()
+        rayFilterDevice[hand] = -1
+        rayFilterSource[hand] = null
     }
 
     /**
@@ -851,7 +894,22 @@ class WindowManipulator(
         val system = isdk ?: return
         val hand = runCatching { system.getHandForPointerEvent(ev) }.getOrNull() ?: return
         val index = if (hand == Hand.LEFT) 0 else 1
-        raySource[index] = ev.source
+        // Same rule as ISDK's own cursor system (`isHandDevice`): a hand is a `*_hand` attachment.
+        val type = runCatching { ev.source.tryGetComponent<AvatarAttachment>()?.type }.getOrNull()
+        val slots = raySource[index]
+        val devices = when (type) {
+            "left_hand", "right_hand" -> DEVICES_HAND
+            null -> DEVICES_BOTH // Unclassifiable: keep the old behaviour (any source steers this side).
+            else -> DEVICES_CONTROLLER
+        }
+        for (device in devices) {
+            if (slots[device] === ev.source) continue
+            if (raySourceLogs < RAY_SOURCE_LOGS) {
+                raySourceLogs++
+                Log.i(TAG, "IMMERSIVE ray source hand=$index device=$device type=$type")
+            }
+            slots[device] = ev.source
+        }
         if (rayChecksLogged >= RAY_CHECKS || ev.type != PointerEventType.Hover.id) return
         // 自检：ISDK 报的命中点与我们按同一实体位姿算出的射线差多远（真机日志对账用）
         val hitPoint = ev.hitInfo.point
@@ -885,7 +943,122 @@ class WindowManipulator(
         const val MIN_DISTANCE_M = 0.4f
         const val MAX_DISTANCE_M = 12f
         const val RAY_CHECKS = 3
+        const val RAY_GLITCH_LOGS = 20
+        const val RAY_SOURCE_LOGS = 20
+        const val DEVICE_HAND = 0
+        const val DEVICE_CONTROLLER = 1
+        val DEVICES_HAND = intArrayOf(DEVICE_HAND)
+        val DEVICES_CONTROLLER = intArrayOf(DEVICE_CONTROLLER)
+        val DEVICES_BOTH = intArrayOf(DEVICE_HAND, DEVICE_CONTROLLER)
 
         val PARKED_POSE = Pose(Vector3(0f, -100f, 0f), Quaternion(0f, 0f, 0f))
+    }
+}
+
+/**
+ * Drops pointer poses that turn further in one frame than a hand can, and keeps the last good ray.
+ *
+ * The hand's pointer pose "may or may not be valid at any time" (Meta native hand tracking docs),
+ * and Spatial SDK does not expose the validity bit. The reported symptom (user, 2026-10-18) is a ray that
+ * snaps to one fixed direction and back during a long pinch-drag; an invalid pose is one candidate cause.
+ * Real motion should stay well below [MAX_STEP_DEGREES] per frame, so a jump that large is held. A held
+ * direction is taken once [SETTLE_SAMPLES] held samples agree with it (a genuine re-acquire), counted per
+ * candidate rather than in a row: a real turn interleaved with the glitch must not reset its own count.
+ * Nothing is held longer than [MAX_HELD_SAMPLES]; after that the latest sample is taken as it is.
+ *
+ * Callers read the ray several times per frame, and tests drive it without polling, so state only
+ * advances on a new sample: an identical sample returns the previous verdict unchanged.
+ */
+internal class RayOutlierFilter {
+    private var accepted: WindowManipulator.PointerRay? = null
+    private var lastRaw: WindowManipulator.PointerRay? = null
+    private var lastOut: WindowManipulator.PointerRay? = null
+    private val candidates = arrayOfNulls<WindowManipulator.PointerRay>(2)
+    private val candidateSamples = IntArray(2)
+    private var heldSamples = 0
+
+    /** The last new sample was rejected (the caller logs it once, not once per read). */
+    var heldFreshSample = false
+        private set
+    var lastRejectedDegrees = 0f
+        private set
+
+    /** The last new sample was taken after this many held samples; 0 = it was not held first. */
+    var acceptedAfterHeld = 0
+        private set
+
+    fun filter(raw: WindowManipulator.PointerRay): WindowManipulator.PointerRay {
+        val previous = lastRaw
+        val out = lastOut
+        if (previous != null && out != null && same(previous, raw)) {
+            heldFreshSample = false
+            acceptedAfterHeld = 0
+            return out
+        }
+        lastRaw = raw
+        val result = decide(raw)
+        lastOut = result
+        return result
+    }
+
+    private fun decide(raw: WindowManipulator.PointerRay): WindowManipulator.PointerRay {
+        heldFreshSample = false
+        acceptedAfterHeld = 0
+        val good = accepted ?: return accept(raw)
+        if (raw.direction.dot(good.direction) >= COS_MAX_STEP) return accept(raw)
+        heldSamples++
+        var slot = candidates.indexOfFirst { it != null && raw.direction.dot(it.direction) >= COS_MAX_STEP }
+        if (slot < 0) {
+            // A new direction takes a free slot, else replaces the weaker candidate.
+            slot = when {
+                candidates[0] == null -> 0
+                candidates[1] == null -> 1
+                candidateSamples[0] <= candidateSamples[1] -> 0
+                else -> 1
+            }
+            candidateSamples[slot] = 0
+        }
+        candidates[slot] = raw
+        if (++candidateSamples[slot] >= SETTLE_SAMPLES || heldSamples >= MAX_HELD_SAMPLES) {
+            acceptedAfterHeld = heldSamples
+            return accept(raw)
+        }
+        heldFreshSample = true
+        lastRejectedDegrees = Math.toDegrees(
+            acos(raw.direction.dot(good.direction).coerceIn(-1f, 1f).toDouble())
+        ).toFloat()
+        return good
+    }
+
+    private fun accept(raw: WindowManipulator.PointerRay): WindowManipulator.PointerRay {
+        accepted = raw
+        candidates.fill(null)
+        candidateSamples.fill(0)
+        heldSamples = 0
+        return raw
+    }
+
+    fun reset() {
+        accepted = null
+        lastRaw = null
+        lastOut = null
+        candidates.fill(null)
+        candidateSamples.fill(0)
+        heldSamples = 0
+        heldFreshSample = false
+        acceptedAfterHeld = 0
+    }
+
+    private fun same(a: WindowManipulator.PointerRay, b: WindowManipulator.PointerRay): Boolean =
+        a.origin.x == b.origin.x && a.origin.y == b.origin.y && a.origin.z == b.origin.z &&
+            a.direction.x == b.direction.x && a.direction.y == b.direction.y && a.direction.z == b.direction.z
+
+    companion object {
+        /** 50° in one frame is ~3600°/s at 72 Hz, beyond what a hand ray turns; not measured on device yet. */
+        const val MAX_STEP_DEGREES = 50.0
+        val COS_MAX_STEP = cos(Math.toRadians(MAX_STEP_DEGREES)).toFloat()
+        const val SETTLE_SAMPLES = 3
+        /** ~110 ms at 72 Hz: the longest the ray may lag behind the hand. */
+        const val MAX_HELD_SAMPLES = 8
     }
 }
