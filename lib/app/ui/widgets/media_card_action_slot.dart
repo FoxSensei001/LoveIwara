@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/ui/widgets/media_action_menu.dart';
+import 'package:i_iwara/app/ui/widgets/settled_opacity.dart';
 
 /// 这枚钮的可点面积边长（图标 18 + 四周 11 的内边距，见 MediaActionMenuButton）。
 ///
@@ -58,10 +59,14 @@ class MediaCardActionSlot extends StatelessWidget {
       bottom: 0,
       child: IgnorePointer(
         ignoring: isMultiSelectMode,
-        child: AnimatedOpacity(
-          opacity: isMultiSelectMode ? 0 : 1,
+        // 不用 AnimatedOpacity：停在 1.0 时它照样推一层合成层，一张卡一层
+        // （见 SettledOpacity）。
+        child: TweenAnimationBuilder<double>(
+          tween: Tween<double>(end: isMultiSelectMode ? 0 : 1),
           duration: duration,
           curve: Curves.easeOut,
+          builder: (context, opacity, child) =>
+              SettledOpacity(opacity: opacity, child: child),
           child: AnimatedScale(
             scale: isMultiSelectMode ? 0.8 : 1,
             duration: duration,

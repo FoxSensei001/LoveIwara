@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/settled_opacity.dart';
 
 /// # 液态玻璃形变过渡词汇表
 ///
@@ -438,7 +439,8 @@ class _GlassCapsuleRevealState extends State<GlassCapsuleReveal>
           child: IgnorePointer(
             // 还没显形到一半时不该接手势（此时它几乎看不见）
             ignoring: contentT < 0.5,
-            child: Opacity(
+            // 不用 Opacity：停在 1.0 时它照样推一层，列表卡片里一张一层。
+            child: SettledOpacity(
               opacity: contentT,
               child: Transform.scale(
                 scale: 0.88 + 0.12 * contentT,

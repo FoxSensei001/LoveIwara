@@ -4,6 +4,7 @@ import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/widgets/media_action_menu.dart';
 import 'package:i_iwara/app/ui/widgets/media_card_action_slot.dart';
+import 'package:i_iwara/app/ui/widgets/settled_opacity.dart';
 import 'package:i_iwara/app/ui/widgets/media_card_action_state.dart';
 
 /// 只挂 mixin 的最小宿主：把 effectiveLiked / effectiveLikeCount 打到屏幕上，
@@ -166,7 +167,7 @@ void main() {
       expect(tester.takeException(), isNull);
       expect(find.byType(MediaActionMenuButton), findsOneWidget);
       expect(
-        tester.widget<AnimatedOpacity>(inSlot(AnimatedOpacity)).opacity,
+        tester.widget<SettledOpacity>(inSlot(SettledOpacity)).opacity,
         1,
       );
       expect(
@@ -188,7 +189,7 @@ void main() {
       );
 
       expect(
-        tester.widget<AnimatedOpacity>(inSlot(AnimatedOpacity)).opacity,
+        tester.widget<SettledOpacity>(inSlot(SettledOpacity)).opacity,
         0,
       );
       expect(tester.widget<AnimatedScale>(inSlot(AnimatedScale)).scale, 0.8);
