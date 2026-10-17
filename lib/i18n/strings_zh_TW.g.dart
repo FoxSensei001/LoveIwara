@@ -1746,6 +1746,10 @@ class _TranslationsDownloadNotificationsZhTw extends TranslationsDownloadNotific
 	@override String get fixInSettings => '前往設定修復';
 	@override String get channelName => '下載狀態';
 	@override String get channelDescription => '下載完成與失敗的通知';
+	@override String get progressChannelName => '下載進度';
+	@override String get progressChannelDescription => '有下載在進行時常駐顯示，確保關閉螢幕或切到其他應用時下載不中斷';
+	@override String ongoingTitle({required Object count}) => '正在下載 ${count} 項';
+	@override String ongoingQueued({required Object count}) => '${count} 項等待中';
 }
 
 // Path: favorite
@@ -7463,6 +7467,10 @@ extension on TranslationsZhTw {
 			'downloadNotifications.fixInSettings' => '前往設定修復',
 			'downloadNotifications.channelName' => '下載狀態',
 			'downloadNotifications.channelDescription' => '下載完成與失敗的通知',
+			'downloadNotifications.progressChannelName' => '下載進度',
+			'downloadNotifications.progressChannelDescription' => '有下載在進行時常駐顯示，確保關閉螢幕或切到其他應用時下載不中斷',
+			'downloadNotifications.ongoingTitle' => ({required Object count}) => '正在下載 ${count} 項',
+			'downloadNotifications.ongoingQueued' => ({required Object count}) => '${count} 項等待中',
 			'favorite.errors.addFailed' => '追加失敗',
 			'favorite.errors.addSuccess' => '追加成功',
 			'favorite.errors.deleteFolderFailed' => '刪除資料夾失敗',
@@ -7639,12 +7647,12 @@ extension on TranslationsZhTw {
 			'translation.streamingTranslationFailed' => '流式翻譯失敗',
 			'translation.fallbackTranslationFailed' => '降級到普通翻譯也失敗',
 			'translation.translationSettings' => '翻譯設定',
+			_ => null,
+		} ?? switch (path) {
 			'translation.enableGoogleTranslation' => '啟用 Google 翻譯',
 			'translation.thinking' => '思考中…',
 			'translation.thoughtProcess' => '思考過程',
 			'translation.modelCompatibility' => '模型相容性',
-			_ => null,
-		} ?? switch (path) {
 			'translation.modelCompatibilityDescription' => '為推理模型(o1/o3、DeepSeek-R1、QwQ 等)等當代模型適配請求參數',
 			'translation.reasoningModel' => '推理模型',
 			'translation.reasoningModelDescription' => '適用於 o1/o3、DeepSeek-R1、QwQ 等：將提示詞併入使用者訊息、不下發 temperature、改用 max_completion_tokens',
@@ -8153,12 +8161,12 @@ extension on TranslationsZhTw {
 			'anime4k.presetDescriptions.mode_a_hq' => '適用於大多數1080p動漫，特別是處理模糊、重採樣和壓縮瑕疵。提供最高的感知品質。',
 			'anime4k.presetDescriptions.mode_b_hq' => '適用於輕微模糊或因縮放產生的振鈴效應的動漫。可以有效減少振鈴和鋸齒。',
 			'anime4k.presetDescriptions.mode_c_hq' => '適用於幾乎沒有瑕疵的高品質片源（如原生1080p的動畫電影或桌布）。降噪並提供最高的PSNR。',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_a_a_hq' => 'Mode A的強化版，提供極致的感知品質，能重建幾乎所有退化的線條。可能產生過度銳化或振鈴。',
 			'anime4k.presetDescriptions.mode_b_b_hq' => 'Mode B的強化版，提供更高的感知品質，進一步最佳化線條和減少瑕疵。',
 			'anime4k.presetDescriptions.mode_c_a_hq' => 'Mode C的感知品質增強版，在保持高PSNR的同時嘗試重建一些線條細節。',
 			'anime4k.presetDescriptions.mode_a_fast' => 'Mode A的快速版本，平衡了品質與性能，適用於大多數1080p動漫。',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_b_fast' => 'Mode B的快速版本，用於處理輕微瑕疵和振鈴，性能開銷較低。',
 			'anime4k.presetDescriptions.mode_c_fast' => 'Mode C的快速版本，適用於高品質片源的快速降噪和放大。',
 			'anime4k.presetDescriptions.mode_a_a_fast' => 'Mode A+A的快速版本，在性能有限的裝置上追求更高的感知品質。',
@@ -8667,12 +8675,12 @@ extension on TranslationsZhTw {
 			'localMedia.longPressToRemove' => '長按可移除這個資料夾',
 			'localMedia.clearProgress' => '清除本機觀看記錄',
 			'localMedia.clearProgressCount' => ({required Object count}) => '共 ${count} 筆',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.clearProgressEmpty' => '還沒有任何本機觀看記錄',
 			'localMedia.clearProgressTitle' => '清除本機觀看記錄？',
 			'localMedia.clearProgressBody' => '只刪觀看進度和「已看完」標記，磁碟上的檔案和已加入的資料夾一個不動。',
 			'localMedia.clearProgressDone' => ({required Object count}) => '已清除 ${count} 筆本機觀看記錄',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.clearAction' => '清除',
 			'localMedia.iosManualRescanNotice' => 'iOS 不會自動發現新檔案，新增或刪除檔案後需要手動重新掃描。',
 			'historyPage.removeFromHistory' => '從歷史中刪除',

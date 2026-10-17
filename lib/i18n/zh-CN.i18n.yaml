@@ -2470,6 +2470,10 @@ downloadNotifications:
   fixInSettings: 去设置修复
   channelName: 下载状态
   channelDescription: 下载完成与失败的通知
+  progressChannelName: '下载进度'
+  progressChannelDescription: '有下载在进行时常驻显示，保证熄屏或切到其他应用时下载不中断'
+  ongoingTitle: '正在下载 ${count} 项'
+  ongoingQueued: '${count} 项等待中'
 favorite:
   errors:
     addFailed: 追加失败

@@ -2467,6 +2467,10 @@ downloadNotifications:
   fixInSettings: Fix in Settings
   channelName: Download status
   channelDescription: Notifications for completed and failed downloads
+  progressChannelName: 'Download progress'
+  progressChannelDescription: 'Shown while downloads are running so they keep going with the screen off or in another app'
+  ongoingTitle: 'Downloading ${count}'
+  ongoingQueued: '${count} queued'
 
 favorite:
   errors:

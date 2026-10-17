@@ -2443,6 +2443,10 @@ downloadNotifications:
   fixInSettings: 'In den Einstellungen beheben'
   channelName: Download-Status
   channelDescription: Benachrichtigungen für abgeschlossene und fehlgeschlagene Downloads
+  progressChannelName: 'Download-Fortschritt'
+  progressChannelDescription: 'Wird während laufender Downloads angezeigt, damit sie bei ausgeschaltetem Bildschirm oder in anderen Apps weiterlaufen'
+  ongoingTitle: '${count} werden heruntergeladen'
+  ongoingQueued: '${count} in Warteschlange'
 
 favorite:
   errors:

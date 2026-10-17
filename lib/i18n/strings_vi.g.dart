@@ -1695,6 +1695,10 @@ class _TranslationsDownloadNotificationsVi extends TranslationsDownloadNotificat
 	@override String get fixInSettings => 'Sửa trong Cài đặt';
 	@override String get channelName => 'Trạng thái tải xuống';
 	@override String get channelDescription => 'Thông báo cho các tải xuống đã hoàn thành và thất bại';
+	@override String get progressChannelName => 'Tiến trình tải xuống';
+	@override String get progressChannelDescription => 'Hiển thị khi đang tải xuống để việc tải tiếp tục khi tắt màn hình hoặc sang ứng dụng khác';
+	@override String ongoingTitle({required Object count}) => 'Đang tải xuống ${count} mục';
+	@override String ongoingQueued({required Object count}) => '${count} mục đang chờ';
 }
 
 // Path: favorite
@@ -7385,6 +7389,10 @@ extension on TranslationsVi {
 			'downloadNotifications.fixInSettings' => 'Sửa trong Cài đặt',
 			'downloadNotifications.channelName' => 'Trạng thái tải xuống',
 			'downloadNotifications.channelDescription' => 'Thông báo cho các tải xuống đã hoàn thành và thất bại',
+			'downloadNotifications.progressChannelName' => 'Tiến trình tải xuống',
+			'downloadNotifications.progressChannelDescription' => 'Hiển thị khi đang tải xuống để việc tải tiếp tục khi tắt màn hình hoặc sang ứng dụng khác',
+			'downloadNotifications.ongoingTitle' => ({required Object count}) => 'Đang tải xuống ${count} mục',
+			'downloadNotifications.ongoingQueued' => ({required Object count}) => '${count} mục đang chờ',
 			'favorite.errors.addFailed' => 'Thêm thất bại',
 			'favorite.errors.addSuccess' => 'Thêm thành công',
 			'favorite.errors.deleteFolderFailed' => 'Xóa thư mục thất bại',
@@ -7617,12 +7625,12 @@ extension on TranslationsVi {
 			'navigationOrderSettings.bottomNavigationPreview' => 'Xem trước thanh điều hướng dưới:',
 			'navigationOrderSettings.sidebarPreview' => 'Xem trước thanh bên:',
 			'navigationOrderSettings.confirmResetNavigationOrder' => 'Xác nhận đặt lại thứ tự điều hướng',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => 'Bạn có chắc muốn đặt lại thứ tự điều hướng về mặc định?',
 			'navigationOrderSettings.cancel' => 'Hủy',
 			'navigationOrderSettings.show' => 'Hiện',
 			'navigationOrderSettings.hide' => 'Ẩn',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.hidden' => 'Đã ẩn',
 			'navigationOrderSettings.hideHint' => 'Nhấn biểu tượng con mắt để hiện hoặc ẩn Cộng đồng và tệp cục bộ',
 			'navigationOrderSettings.videoDescription' => 'Duyệt nội dung video phổ biến',
@@ -8131,12 +8139,12 @@ extension on TranslationsVi {
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_a_fast' => 'Mode A (Fast)',
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
 			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
 			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
 			'anime4k.presetNames.upscale_only_s' => 'Nâng tỉ lệ CNN (cực nhanh)',
@@ -8645,12 +8653,12 @@ extension on TranslationsVi {
 			'ai.providerNameLabel' => 'Tên',
 			'ai.apiKey' => 'Khóa API',
 			'ai.baseUrl' => 'Điểm cuối',
+			_ => null,
+		} ?? switch (path) {
 			'ai.model' => 'Mô hình',
 			'ai.modelPick' => 'Chọn mô hình',
 			'ai.modelEmpty' => 'Không thể tải danh sách mô hình — bạn cũng có thể nhập trực tiếp tên mô hình.',
 			'ai.advanced' => 'Nâng cao',
-			_ => null,
-		} ?? switch (path) {
 			'ai.reasoning' => 'Mô hình suy luận',
 			'ai.streaming' => 'Đầu ra dạng luồng',
 			'ai.structuredOutput' => 'Đầu ra có cấu trúc',

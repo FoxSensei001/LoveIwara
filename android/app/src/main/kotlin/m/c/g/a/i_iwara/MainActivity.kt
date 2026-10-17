@@ -52,6 +52,7 @@ class MainActivity : FlutterFragmentActivity() {
     private val ORIENTATION_CHANNEL = "i_iwara/orientation"
     private val APP_LOCK_CHANNEL = "i_iwara/app_lock"
     private val EXTERNAL_PLAYER_CHANNEL = "i_iwara/external_player"
+    private val DOWNLOAD_KEEP_ALIVE_CHANNEL = "i_iwara/download_keep_alive"
 
     private var volumeKeyEnabled = false
     private var fileHandlerChannel: MethodChannel? = null
@@ -144,6 +145,25 @@ class MainActivity : FlutterFragmentActivity() {
                 .setMethodCallHandler { call, result ->
                     when (call.method) {
                         "getDeviceFormFactorInfo" -> result.success(getDeviceFormFactorInfo())
+                        else -> result.notImplemented()
+                    }
+                }
+
+        // 下载保活（issue #136）：有下载在跑时挂前台服务 + 进度常驻通知，熄屏 / 切走不停。
+        // 启停时机全由 Dart 侧 DownloadKeepAlive 决定，见 DownloadKeepAliveService。
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, DOWNLOAD_KEEP_ALIVE_CHANNEL)
+                .setMethodCallHandler { call, result ->
+                    when (call.method) {
+                        "start" -> result.success(
+                                DownloadKeepAliveService.start(this, keepAliveContent(call))
+                        )
+                        "update" -> result.success(
+                                DownloadKeepAliveService.update(this, keepAliveContent(call))
+                        )
+                        "stop" -> {
+                            DownloadKeepAliveService.stop(this)
+                            result.success(null)
+                        }
                         else -> result.notImplemented()
                     }
                 }
@@ -500,6 +520,15 @@ class MainActivity : FlutterFragmentActivity() {
         if (extension.isEmpty()) return "video/*"
         return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension) ?: "video/*"
     }
+
+    private fun keepAliveContent(call: MethodCall) =
+            DownloadKeepAliveService.Content(
+                    channelName = call.argument<String>("channelName") ?: "",
+                    channelDescription = call.argument<String>("channelDescription") ?: "",
+                    title = call.argument<String>("title") ?: "",
+                    text = call.argument<String>("text") ?: "",
+                    progress = call.argument<Int>("progress"),
+            )
 
     /**
      * 本机有几个能接手的播放器（不含我们自己：本 App 也注册了 VIEW 的视频通配
@@ -860,6 +889,9 @@ class MainActivity : FlutterFragmentActivity() {
     }
 
     override fun onDestroy() {
+        // Flutter 引擎随本 Activity 一起销毁，下载也就停了；保活服务不收的话会以前台
+        // 身份把进程连同两把锁一直吊着（Android 11 及以下双击返回退出就会走到这里）。
+        DownloadKeepAliveService.stop(this)
         unregisterMediaStoreObserver()
         mediaStoreChannel?.setMethodCallHandler(null)
         mediaStoreChannel = null

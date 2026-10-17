@@ -1717,6 +1717,10 @@ class _TranslationsDownloadNotificationsZhCn extends TranslationsDownloadNotific
 	@override String get fixInSettings => '去设置修复';
 	@override String get channelName => '下载状态';
 	@override String get channelDescription => '下载完成与失败的通知';
+	@override String get progressChannelName => '下载进度';
+	@override String get progressChannelDescription => '有下载在进行时常驻显示，保证熄屏或切到其他应用时下载不中断';
+	@override String ongoingTitle({required Object count}) => '正在下载 ${count} 项';
+	@override String ongoingQueued({required Object count}) => '${count} 项等待中';
 }
 
 // Path: favorite
@@ -7429,6 +7433,10 @@ extension on TranslationsZhCn {
 			'downloadNotifications.fixInSettings' => '去设置修复',
 			'downloadNotifications.channelName' => '下载状态',
 			'downloadNotifications.channelDescription' => '下载完成与失败的通知',
+			'downloadNotifications.progressChannelName' => '下载进度',
+			'downloadNotifications.progressChannelDescription' => '有下载在进行时常驻显示，保证熄屏或切到其他应用时下载不中断',
+			'downloadNotifications.ongoingTitle' => ({required Object count}) => '正在下载 ${count} 项',
+			'downloadNotifications.ongoingQueued' => ({required Object count}) => '${count} 项等待中',
 			'favorite.errors.addFailed' => '追加失败',
 			'favorite.errors.addSuccess' => '追加成功',
 			'favorite.errors.deleteFolderFailed' => '删除文件夹失败',
@@ -7639,12 +7647,12 @@ extension on TranslationsZhCn {
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek 推理 (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow 硅基流动',
 			'translation.presetNames.zhipu' => '智谱 GLM',
+			_ => null,
+		} ?? switch (path) {
 			'translation.fetchModelList' => '获取模型列表',
 			'translation.fetchingModels' => '获取中…',
 			'translation.selectModel' => '选择模型',
 			'translation.searchModel' => '搜索模型',
-			_ => null,
-		} ?? switch (path) {
 			'translation.noModelsFound' => '未找到模型',
 			'mediaPlayer.videoPlayerError' => '视频播放器错误',
 			'mediaPlayer.videoLoadFailed' => '视频加载失败',
@@ -8153,12 +8161,12 @@ extension on TranslationsZhCn {
 			'anime4k.presetDescriptions.mode_a_hq' => '适用于大多数1080p动漫，特别是处理模糊、重采样和压缩瑕疵。提供最高的感知质量。',
 			'anime4k.presetDescriptions.mode_b_hq' => '适用于轻微模糊或因缩放产生的振铃效应的动漫。可以有效减少振铃和锯齿。',
 			'anime4k.presetDescriptions.mode_c_hq' => '适用于几乎没有瑕疵的高质量片源（如原生1080p的动画电影或壁纸）。降噪并提供最高的PSNR。',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_a_a_hq' => 'Mode A的强化版，提供极致的感知质量，能重建几乎所有退化的线条。可能产生过度锐化或振铃。',
 			'anime4k.presetDescriptions.mode_b_b_hq' => 'Mode B的强化版，提供更高的感知质量，进一步优化线条和减少瑕疵。',
 			'anime4k.presetDescriptions.mode_c_a_hq' => 'Mode C的感知质量增强版，在保持高PSNR的同时尝试重建一些线条细节。',
 			'anime4k.presetDescriptions.mode_a_fast' => 'Mode A的快速版本，平衡了质量与性能，适用于大多数1080p动漫。',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_b_fast' => 'Mode B的快速版本，用于处理轻微瑕疵和振铃，性能开销较低。',
 			'anime4k.presetDescriptions.mode_c_fast' => 'Mode C的快速版本，适用于高质量片源的快速降噪和放大。',
 			'anime4k.presetDescriptions.mode_a_a_fast' => 'Mode A+A的快速版本，在性能有限的设备上追求更高的感知质量。',
@@ -8667,12 +8675,12 @@ extension on TranslationsZhCn {
 			'localMedia.longPressToRemove' => '长按可移除这个文件夹',
 			'localMedia.clearProgress' => '清除本机观看记录',
 			'localMedia.clearProgressCount' => ({required Object count}) => '共 ${count} 条',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.clearProgressEmpty' => '还没有任何本机观看记录',
 			'localMedia.clearProgressTitle' => '清除本机观看记录？',
 			'localMedia.clearProgressBody' => '只删观看进度和「已看完」标记，磁盘上的文件和已添加的文件夹一个不动。',
 			'localMedia.clearProgressDone' => ({required Object count}) => '已清除 ${count} 条本机观看记录',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.clearAction' => '清除',
 			'localMedia.iosManualRescanNotice' => 'iOS 不会自动发现新文件，添加或删除文件后需要手动重新扫描。',
 			'historyPage.removeFromHistory' => '从历史中删除',

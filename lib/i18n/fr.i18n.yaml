@@ -2443,6 +2443,10 @@ downloadNotifications:
   fixInSettings: 'Corriger dans les réglages'
   channelName: État des téléchargements
   channelDescription: Notifications de téléchargements terminés et échoués
+  progressChannelName: 'Progression des téléchargements'
+  progressChannelDescription: 'Affichée pendant les téléchargements pour qu''ils continuent écran éteint ou dans une autre app'
+  ongoingTitle: '${count} en cours de téléchargement'
+  ongoingQueued: '${count} en attente'
 
 favorite:
   errors:

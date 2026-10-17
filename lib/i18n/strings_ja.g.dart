@@ -1695,6 +1695,10 @@ class _TranslationsDownloadNotificationsJa extends TranslationsDownloadNotificat
 	@override String get fixInSettings => '設定で修正';
 	@override String get channelName => 'ダウンロード状態';
 	@override String get channelDescription => 'ダウンロードの完了と失敗の通知';
+	@override String get progressChannelName => 'ダウンロードの進行状況';
+	@override String get progressChannelDescription => 'ダウンロード中は常に表示され、画面オフや他のアプリ使用中もダウンロードを継続します';
+	@override String ongoingTitle({required Object count}) => '${count} 件をダウンロード中';
+	@override String ongoingQueued({required Object count}) => '${count} 件待機中';
 }
 
 // Path: favorite
@@ -7385,6 +7389,10 @@ extension on TranslationsJa {
 			'downloadNotifications.fixInSettings' => '設定で修正',
 			'downloadNotifications.channelName' => 'ダウンロード状態',
 			'downloadNotifications.channelDescription' => 'ダウンロードの完了と失敗の通知',
+			'downloadNotifications.progressChannelName' => 'ダウンロードの進行状況',
+			'downloadNotifications.progressChannelDescription' => 'ダウンロード中は常に表示され、画面オフや他のアプリ使用中もダウンロードを継続します',
+			'downloadNotifications.ongoingTitle' => ({required Object count}) => '${count} 件をダウンロード中',
+			'downloadNotifications.ongoingQueued' => ({required Object count}) => '${count} 件待機中',
 			'favorite.errors.addFailed' => '追加に失敗しました',
 			'favorite.errors.addSuccess' => '追加に成功しました',
 			'favorite.errors.deleteFolderFailed' => 'フォルダーの削除に失敗しました',
@@ -7617,12 +7625,12 @@ extension on TranslationsJa {
 			'mediaPlayer.appMayLackMediaPermission' => 'アプリに必要なメディア再生権限が不足している可能性があります',
 			'mediaPlayer.tryOtherVideoPlayer' => '他のビデオプレイヤーをお試しください',
 			'mediaPlayer.unrecognizedVideoFormat' => '認識できない動画ファイル',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.unrecognizedVideoFormatSuggestion' => 'リンクが失効したか、返ってきたものが動画ではない可能性があります。再試行するか、他のアプリで開いてください。',
 			'mediaPlayer.accessDenied' => 'サーバーがこのアクセスを拒否しました（403）',
 			'mediaPlayer.accessDeniedSuggestion' => '再生リンクの有効期限が切れている可能性が高いです。「再試行」で取り直すか、他のアプリで開いてください。',
 			'mediaPlayer.mute' => 'ミュート',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.unmute' => 'ミュート解除',
 			'mediaPlayer.video' => 'ビデオ',
 			'mediaPlayer.serverSelector' => 'CDNサーバー選択',
@@ -8131,12 +8139,12 @@ extension on TranslationsJa {
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_a_fast' => 'Mode A (Fast)',
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
 			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
 			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
 			'anime4k.presetNames.upscale_only_s' => 'CNNアップスケーリング (超高速)',
@@ -8645,12 +8653,12 @@ extension on TranslationsJa {
 			'ai.providerNameLabel' => '名前',
 			'ai.apiKey' => 'APIキー',
 			'ai.baseUrl' => 'エンドポイント',
+			_ => null,
+		} ?? switch (path) {
 			'ai.model' => 'モデル',
 			'ai.modelPick' => 'モデルを選択',
 			'ai.modelEmpty' => 'モデルリストを取得できませんでした。直接モデル名を入力しても利用できます。',
 			'ai.advanced' => '詳細設定',
-			_ => null,
-		} ?? switch (path) {
 			'ai.reasoning' => '推論モデル',
 			'ai.streaming' => 'ストリーミング出力',
 			'ai.structuredOutput' => '構造化出力',

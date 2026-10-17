@@ -2443,6 +2443,10 @@ downloadNotifications:
   fixInSettings: '설정에서 수정'
   channelName: 다운로드 상태
   channelDescription: 완료 및 실패한 다운로드 알림
+  progressChannelName: '다운로드 진행 상황'
+  progressChannelDescription: '다운로드 중에 계속 표시되어 화면이 꺼지거나 다른 앱을 사용할 때도 다운로드가 계속됩니다'
+  ongoingTitle: '${count}개 다운로드 중'
+  ongoingQueued: '${count}개 대기 중'
 
 favorite:
   errors:

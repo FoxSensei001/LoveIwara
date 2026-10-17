@@ -2515,6 +2515,10 @@ downloadNotifications:
   fixInSettings: '前往設定修復'
   channelName: 下載狀態
   channelDescription: 下載完成與失敗的通知
+  progressChannelName: '下載進度'
+  progressChannelDescription: '有下載在進行時常駐顯示，確保關閉螢幕或切到其他應用時下載不中斷'
+  ongoingTitle: '正在下載 ${count} 項'
+  ongoingQueued: '${count} 項等待中'
 
 favorite:
   errors:

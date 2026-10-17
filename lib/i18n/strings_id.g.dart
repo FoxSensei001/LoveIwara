@@ -1695,6 +1695,10 @@ class _TranslationsDownloadNotificationsId extends TranslationsDownloadNotificat
 	@override String get fixInSettings => 'Perbaiki di Pengaturan';
 	@override String get channelName => 'Status unduhan';
 	@override String get channelDescription => 'Notifikasi untuk unduhan yang selesai dan gagal';
+	@override String get progressChannelName => 'Progres unduhan';
+	@override String get progressChannelDescription => 'Ditampilkan selama unduhan berjalan agar tetap lanjut saat layar mati atau di aplikasi lain';
+	@override String ongoingTitle({required Object count}) => 'Mengunduh ${count}';
+	@override String ongoingQueued({required Object count}) => '${count} dalam antrean';
 }
 
 // Path: favorite
@@ -7385,6 +7389,10 @@ extension on TranslationsId {
 			'downloadNotifications.fixInSettings' => 'Perbaiki di Pengaturan',
 			'downloadNotifications.channelName' => 'Status unduhan',
 			'downloadNotifications.channelDescription' => 'Notifikasi untuk unduhan yang selesai dan gagal',
+			'downloadNotifications.progressChannelName' => 'Progres unduhan',
+			'downloadNotifications.progressChannelDescription' => 'Ditampilkan selama unduhan berjalan agar tetap lanjut saat layar mati atau di aplikasi lain',
+			'downloadNotifications.ongoingTitle' => ({required Object count}) => 'Mengunduh ${count}',
+			'downloadNotifications.ongoingQueued' => ({required Object count}) => '${count} dalam antrean',
 			'favorite.errors.addFailed' => 'Gagal menambahkan',
 			'favorite.errors.addSuccess' => 'Berhasil ditambahkan',
 			'favorite.errors.deleteFolderFailed' => 'Gagal menghapus folder',
@@ -7617,12 +7625,12 @@ extension on TranslationsId {
 			'navigationOrderSettings.bottomNavigationPreview' => 'Pratinjau Navigasi Bawah:',
 			'navigationOrderSettings.sidebarPreview' => 'Pratinjau Bilah Samping:',
 			'navigationOrderSettings.confirmResetNavigationOrder' => 'Konfirmasi Atur Ulang Urutan Navigasi',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => 'Apakah Anda yakin ingin mengatur ulang urutan navigasi ke pengaturan bawaan?',
 			'navigationOrderSettings.cancel' => 'Batal',
 			'navigationOrderSettings.show' => 'Tampilkan',
 			'navigationOrderSettings.hide' => 'Sembunyikan',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.hidden' => 'Tersembunyi',
 			'navigationOrderSettings.hideHint' => 'Ketuk ikon mata untuk menampilkan atau menyembunyikan Komunitas dan berkas lokal',
 			'navigationOrderSettings.videoDescription' => 'Telusuri konten video populer',
@@ -8131,12 +8139,12 @@ extension on TranslationsId {
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_a_fast' => 'Mode A (Fast)',
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
 			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
 			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
 			'anime4k.presetNames.upscale_only_s' => 'Peningkatan Resolusi CNN (Ultra Cepat)',
@@ -8645,12 +8653,12 @@ extension on TranslationsId {
 			'ai.providerNameLabel' => 'Nama',
 			'ai.apiKey' => 'Kunci API',
 			'ai.baseUrl' => 'Alamat endpoint',
+			_ => null,
+		} ?? switch (path) {
 			'ai.model' => 'Model AI',
 			'ai.modelPick' => 'Pilih model',
 			'ai.modelEmpty' => 'Gagal memuat daftar model — Anda juga bisa mengetik langsung nama modelnya.',
 			'ai.advanced' => 'Lanjutan',
-			_ => null,
-		} ?? switch (path) {
 			'ai.reasoning' => 'Model penalaran',
 			'ai.streaming' => 'Keluaran streaming',
 			'ai.structuredOutput' => 'Keluaran terstruktur',

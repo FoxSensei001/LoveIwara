@@ -2443,6 +2443,10 @@ downloadNotifications:
   fixInSettings: 'Corregir en Ajustes'
   channelName: Estado de las descargas
   channelDescription: Notificaciones de descargas completadas y fallidas
+  progressChannelName: 'Progreso de descarga'
+  progressChannelDescription: 'Se muestra mientras hay descargas en curso para que continúen con la pantalla apagada o en otra app'
+  ongoingTitle: 'Descargando ${count}'
+  ongoingQueued: '${count} en cola'
 
 favorite:
   errors:

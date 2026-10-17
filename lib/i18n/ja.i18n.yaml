@@ -2446,6 +2446,10 @@ downloadNotifications:
   fixInSettings: '設定で修正'
   channelName: ダウンロード状態
   channelDescription: ダウンロードの完了と失敗の通知
+  progressChannelName: 'ダウンロードの進行状況'
+  progressChannelDescription: 'ダウンロード中は常に表示され、画面オフや他のアプリ使用中もダウンロードを継続します'
+  ongoingTitle: '${count} 件をダウンロード中'
+  ongoingQueued: '${count} 件待機中'
 
 favorite:
   errors:

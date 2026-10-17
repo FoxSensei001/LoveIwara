@@ -1695,6 +1695,10 @@ class _TranslationsDownloadNotificationsRu extends TranslationsDownloadNotificat
 	@override String get fixInSettings => 'Исправить в настройках';
 	@override String get channelName => 'Статус загрузки';
 	@override String get channelDescription => 'Уведомления о завершённых и неудачных загрузках';
+	@override String get progressChannelName => 'Ход загрузки';
+	@override String get progressChannelDescription => 'Показывается во время загрузок, чтобы они продолжались при выключенном экране или в другом приложении';
+	@override String ongoingTitle({required Object count}) => 'Загружается: ${count}';
+	@override String ongoingQueued({required Object count}) => 'В очереди: ${count}';
 }
 
 // Path: favorite
@@ -7385,6 +7389,10 @@ extension on TranslationsRu {
 			'downloadNotifications.fixInSettings' => 'Исправить в настройках',
 			'downloadNotifications.channelName' => 'Статус загрузки',
 			'downloadNotifications.channelDescription' => 'Уведомления о завершённых и неудачных загрузках',
+			'downloadNotifications.progressChannelName' => 'Ход загрузки',
+			'downloadNotifications.progressChannelDescription' => 'Показывается во время загрузок, чтобы они продолжались при выключенном экране или в другом приложении',
+			'downloadNotifications.ongoingTitle' => ({required Object count}) => 'Загружается: ${count}',
+			'downloadNotifications.ongoingQueued' => ({required Object count}) => 'В очереди: ${count}',
 			'favorite.errors.addFailed' => 'Не удалось добавить',
 			'favorite.errors.addSuccess' => 'Добавлено',
 			'favorite.errors.deleteFolderFailed' => 'Не удалось удалить папку',
@@ -7617,12 +7625,12 @@ extension on TranslationsRu {
 			'navigationOrderSettings.bottomNavigationPreview' => 'Предпросмотр нижней навигации:',
 			'navigationOrderSettings.sidebarPreview' => 'Предпросмотр бокового меню:',
 			'navigationOrderSettings.confirmResetNavigationOrder' => 'Подтвердите сброс порядка навигации',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => 'Вы уверены, что хотите сбросить порядок навигации к настройкам по умолчанию?',
 			'navigationOrderSettings.cancel' => 'Отмена',
 			'navigationOrderSettings.show' => 'Показать',
 			'navigationOrderSettings.hide' => 'Скрыть',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.hidden' => 'Скрыто',
 			'navigationOrderSettings.hideHint' => 'Нажмите значок глаза, чтобы показать или скрыть разделы «Сообщество» и локальные файлы',
 			'navigationOrderSettings.videoDescription' => 'Просматривайте популярный видеоконтент',
@@ -8131,12 +8139,12 @@ extension on TranslationsRu {
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_a_fast' => 'Mode A (Fast)',
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
 			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
 			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
 			'anime4k.presetNames.upscale_only_s' => 'Масштабирование CNN (сверхбыстро)',
@@ -8645,12 +8653,12 @@ extension on TranslationsRu {
 			'ai.providerNameLabel' => 'Название',
 			'ai.apiKey' => 'API-ключ',
 			'ai.baseUrl' => 'Конечная точка',
+			_ => null,
+		} ?? switch (path) {
 			'ai.model' => 'Модель',
 			'ai.modelPick' => 'Выбрать модель',
 			'ai.modelEmpty' => 'Не удалось загрузить список моделей — можно также ввести название модели вручную.',
 			'ai.advanced' => 'Расширенные',
-			_ => null,
-		} ?? switch (path) {
 			'ai.reasoning' => 'Модель рассуждений',
 			'ai.streaming' => 'Потоковый вывод',
 			'ai.structuredOutput' => 'Структурированный вывод',

@@ -1695,6 +1695,10 @@ class _TranslationsDownloadNotificationsFr extends TranslationsDownloadNotificat
 	@override String get fixInSettings => 'Corriger dans les réglages';
 	@override String get channelName => 'État des téléchargements';
 	@override String get channelDescription => 'Notifications de téléchargements terminés et échoués';
+	@override String get progressChannelName => 'Progression des téléchargements';
+	@override String get progressChannelDescription => 'Affichée pendant les téléchargements pour qu\'ils continuent écran éteint ou dans une autre app';
+	@override String ongoingTitle({required Object count}) => '${count} en cours de téléchargement';
+	@override String ongoingQueued({required Object count}) => '${count} en attente';
 }
 
 // Path: favorite
@@ -7385,6 +7389,10 @@ extension on TranslationsFr {
 			'downloadNotifications.fixInSettings' => 'Corriger dans les réglages',
 			'downloadNotifications.channelName' => 'État des téléchargements',
 			'downloadNotifications.channelDescription' => 'Notifications de téléchargements terminés et échoués',
+			'downloadNotifications.progressChannelName' => 'Progression des téléchargements',
+			'downloadNotifications.progressChannelDescription' => 'Affichée pendant les téléchargements pour qu\'ils continuent écran éteint ou dans une autre app',
+			'downloadNotifications.ongoingTitle' => ({required Object count}) => '${count} en cours de téléchargement',
+			'downloadNotifications.ongoingQueued' => ({required Object count}) => '${count} en attente',
 			'favorite.errors.addFailed' => 'Échec de l\'ajout',
 			'favorite.errors.addSuccess' => 'Ajout réussi',
 			'favorite.errors.deleteFolderFailed' => 'Échec de la suppression du dossier',
@@ -7617,12 +7625,12 @@ extension on TranslationsFr {
 			'navigationOrderSettings.bottomNavigationPreview' => 'Aperçu de la navigation inférieure :',
 			'navigationOrderSettings.sidebarPreview' => 'Aperçu de la barre latérale :',
 			'navigationOrderSettings.confirmResetNavigationOrder' => 'Confirmer la réinitialisation de l\'ordre de navigation',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => 'Voulez-vous vraiment rétablir l\'ordre de navigation par défaut ?',
 			'navigationOrderSettings.cancel' => 'Annuler',
 			'navigationOrderSettings.show' => 'Afficher',
 			'navigationOrderSettings.hide' => 'Masquer',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.hidden' => 'Masqué',
 			'navigationOrderSettings.hideHint' => 'Appuyez sur l\'icône en forme d\'œil pour afficher ou masquer Communauté et les fichiers locaux',
 			'navigationOrderSettings.videoDescription' => 'Parcourir les vidéos populaires',
@@ -8131,12 +8139,12 @@ extension on TranslationsFr {
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_a_fast' => 'Mode A (Fast)',
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
 			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
 			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
 			'anime4k.presetNames.upscale_only_s' => 'Mise à l\'échelle CNN (ultra rapide)',
@@ -8645,12 +8653,12 @@ extension on TranslationsFr {
 			'ai.providerNameLabel' => 'Nom',
 			'ai.apiKey' => 'Clé API',
 			'ai.baseUrl' => 'Point de terminaison',
+			_ => null,
+		} ?? switch (path) {
 			'ai.model' => 'Modèle',
 			'ai.modelPick' => 'Choisir un modèle',
 			'ai.modelEmpty' => 'Impossible de charger la liste des modèles — vous pouvez aussi saisir le nom directement.',
 			'ai.advanced' => 'Avancé',
-			_ => null,
-		} ?? switch (path) {
 			'ai.reasoning' => 'Modèle de raisonnement',
 			'ai.streaming' => 'Sortie en flux',
 			'ai.structuredOutput' => 'Sortie structurée',

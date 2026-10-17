@@ -98,7 +98,10 @@ class DownloadNotificationService extends GetxService {
 
   /// Android 弹通知前确保已有权限：已授权直接放行；未授权则本会话仅请求一次，
   /// 之后（用户拒绝/永久拒绝）不再打扰，避免每次下载完成都弹框。
-  Future<bool> _ensureAndroidPermission() async {
+  ///
+  /// 下载一开跑就会经 `DownloadKeepAlive` 调到这里：进度常驻通知要在下载过程中
+  /// 显示，等到第一次下载完成才要权限就晚了。两处共用同一个「只问一次」。
+  Future<bool> ensureAndroidPermission() async {
     if (!Get.isRegistered<PermissionService>()) return true;
     final ps = Get.find<PermissionService>();
     if (await ps.hasNotificationPermission()) return true;
@@ -230,7 +233,7 @@ class DownloadNotificationService extends GetxService {
 
       // Android 13+：通知默认开启但需运行时权限。开关默认开，用户可能从未进过
       // 设置页，故首次实际要弹通知时若未授权则在此就地请求一次（in-context）。
-      if (GetPlatform.isAndroid && !await _ensureAndroidPermission()) {
+      if (GetPlatform.isAndroid && !await ensureAndroidPermission()) {
         return;
       }
 

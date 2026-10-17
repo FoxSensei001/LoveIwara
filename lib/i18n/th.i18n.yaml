@@ -2443,6 +2443,10 @@ downloadNotifications:
   fixInSettings: 'แก้ไขในการตั้งค่า'
   channelName: สถานะการดาวน์โหลด
   channelDescription: การแจ้งเตือนสำหรับการดาวน์โหลดที่เสร็จสมบูรณ์และล้มเหลว
+  progressChannelName: 'ความคืบหน้าการดาวน์โหลด'
+  progressChannelDescription: 'แสดงค้างไว้ขณะดาวน์โหลด เพื่อให้ดาวน์โหลดต่อได้แม้ปิดหน้าจอหรือสลับไปแอปอื่น'
+  ongoingTitle: 'กำลังดาวน์โหลด ${count} รายการ'
+  ongoingQueued: 'รอคิว ${count} รายการ'
 
 favorite:
   errors:

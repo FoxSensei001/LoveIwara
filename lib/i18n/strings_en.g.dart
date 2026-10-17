@@ -4388,6 +4388,18 @@ class TranslationsDownloadNotificationsEn {
 
 	/// en: 'Notifications for completed and failed downloads'
 	String get channelDescription => 'Notifications for completed and failed downloads';
+
+	/// en: 'Download progress'
+	String get progressChannelName => 'Download progress';
+
+	/// en: 'Shown while downloads are running so they keep going with the screen off or in another app'
+	String get progressChannelDescription => 'Shown while downloads are running so they keep going with the screen off or in another app';
+
+	/// en: 'Downloading ${count}'
+	String ongoingTitle({required Object count}) => 'Downloading ${count}';
+
+	/// en: '${count} queued'
+	String ongoingQueued({required Object count}) => '${count} queued';
 }
 
 // Path: favorite
@@ -14993,6 +15005,10 @@ extension on Translations {
 			'downloadNotifications.fixInSettings' => 'Fix in Settings',
 			'downloadNotifications.channelName' => 'Download status',
 			'downloadNotifications.channelDescription' => 'Notifications for completed and failed downloads',
+			'downloadNotifications.progressChannelName' => 'Download progress',
+			'downloadNotifications.progressChannelDescription' => 'Shown while downloads are running so they keep going with the screen off or in another app',
+			'downloadNotifications.ongoingTitle' => ({required Object count}) => 'Downloading ${count}',
+			'downloadNotifications.ongoingQueued' => ({required Object count}) => '${count} queued',
 			'favorite.errors.addFailed' => 'Add failed',
 			'favorite.errors.addSuccess' => 'Add success',
 			'favorite.errors.deleteFolderFailed' => 'Delete folder failed',
@@ -15203,12 +15219,12 @@ extension on Translations {
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek Reasoning (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
+			_ => null,
+		} ?? switch (path) {
 			'translation.fetchModelList' => 'Fetch model list',
 			'translation.fetchingModels' => 'Fetching...',
 			'translation.selectModel' => 'Select Model',
 			'translation.searchModel' => 'Search model',
-			_ => null,
-		} ?? switch (path) {
 			'translation.noModelsFound' => 'No models found',
 			'bottomNav.video' => 'Video',
 			'bottomNav.gallery' => 'Gallery',
@@ -15717,12 +15733,12 @@ extension on Translations {
 			'anime4k.presetDescriptions.mode_a_hq' => 'Suitable for most 1080p animations, especially those dealing with blur, resampling and compression artifacts. Provides the highest perceived quality.',
 			'anime4k.presetDescriptions.mode_b_hq' => 'Suitable for animations with slight blur or ringing effects caused by scaling. Can effectively reduce ringing and aliasing.',
 			'anime4k.presetDescriptions.mode_c_hq' => 'Suitable for high-quality sources (such as native 1080p animations or movies). Denoises and provides the highest PSNR.',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_a_a_hq' => 'Enhanced version of Mode A, providing ultimate perceived quality and can reconstruct almost all degraded lines. May produce oversharpening or ringing.',
 			'anime4k.presetDescriptions.mode_b_b_hq' => 'Enhanced version of Mode B, providing higher perceived quality, further optimizing lines and reducing artifacts.',
 			'anime4k.presetDescriptions.mode_c_a_hq' => 'Perceived quality enhanced version of Mode C, maintaining high PSNR while attempting to reconstruct some line details.',
 			'anime4k.presetDescriptions.mode_a_fast' => 'Fast version of Mode A, balancing quality and performance, suitable for most 1080p animations.',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_b_fast' => 'Fast version of Mode B, for handling slight artifacts and ringing with lower overhead.',
 			'anime4k.presetDescriptions.mode_c_fast' => 'Fast version of Mode C, for fast denoising and upscaling of high-quality sources.',
 			'anime4k.presetDescriptions.mode_a_a_fast' => 'Fast version of Mode A+A, pursuing higher perceived quality in performance-constrained devices.',
@@ -16231,12 +16247,12 @@ extension on Translations {
 			'localMedia.longPressToRemove' => 'Long-press to remove this folder',
 			'localMedia.clearProgress' => 'Clear local watch history',
 			'localMedia.clearProgressCount' => ({required Object count}) => '${count} entries',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.clearProgressEmpty' => 'No local watch history yet',
 			'localMedia.clearProgressTitle' => 'Clear local watch history?',
 			'localMedia.clearProgressBody' => 'Only playback positions and watched marks are deleted. Your files and folders stay exactly as they are.',
 			'localMedia.clearProgressDone' => ({required Object count}) => 'Cleared ${count} local watch history entries',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.clearAction' => 'Clear',
 			'localMedia.iosManualRescanNotice' => 'iOS does not automatically detect new files. You will need to manually rescan after adding or deleting files.',
 			'historyPage.removeFromHistory' => 'Remove from history',

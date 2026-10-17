@@ -1695,6 +1695,10 @@ class _TranslationsDownloadNotificationsKo extends TranslationsDownloadNotificat
 	@override String get fixInSettings => '설정에서 수정';
 	@override String get channelName => '다운로드 상태';
 	@override String get channelDescription => '완료 및 실패한 다운로드 알림';
+	@override String get progressChannelName => '다운로드 진행 상황';
+	@override String get progressChannelDescription => '다운로드 중에 계속 표시되어 화면이 꺼지거나 다른 앱을 사용할 때도 다운로드가 계속됩니다';
+	@override String ongoingTitle({required Object count}) => '${count}개 다운로드 중';
+	@override String ongoingQueued({required Object count}) => '${count}개 대기 중';
 }
 
 // Path: favorite
@@ -7385,6 +7389,10 @@ extension on TranslationsKo {
 			'downloadNotifications.fixInSettings' => '설정에서 수정',
 			'downloadNotifications.channelName' => '다운로드 상태',
 			'downloadNotifications.channelDescription' => '완료 및 실패한 다운로드 알림',
+			'downloadNotifications.progressChannelName' => '다운로드 진행 상황',
+			'downloadNotifications.progressChannelDescription' => '다운로드 중에 계속 표시되어 화면이 꺼지거나 다른 앱을 사용할 때도 다운로드가 계속됩니다',
+			'downloadNotifications.ongoingTitle' => ({required Object count}) => '${count}개 다운로드 중',
+			'downloadNotifications.ongoingQueued' => ({required Object count}) => '${count}개 대기 중',
 			'favorite.errors.addFailed' => '추가 실패',
 			'favorite.errors.addSuccess' => '추가 성공',
 			'favorite.errors.deleteFolderFailed' => '폴더 삭제 실패',
@@ -7617,12 +7625,12 @@ extension on TranslationsKo {
 			'navigationOrderSettings.bottomNavigationPreview' => '하단 내비게이션 미리보기:',
 			'navigationOrderSettings.sidebarPreview' => '사이드바 미리보기:',
 			'navigationOrderSettings.confirmResetNavigationOrder' => '내비게이션 순서 초기화 확인',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => '내비게이션 순서를 기본 설정으로 초기화하시겠습니까?',
 			'navigationOrderSettings.cancel' => '취소',
 			'navigationOrderSettings.show' => '표시',
 			'navigationOrderSettings.hide' => '숨기기',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.hidden' => '숨김',
 			'navigationOrderSettings.hideHint' => '커뮤니티와 로컬 파일을 표시하거나 숨기려면 눈 아이콘을 탭하세요',
 			'navigationOrderSettings.videoDescription' => '인기 동영상 콘텐츠 탐색',
@@ -8131,12 +8139,12 @@ extension on TranslationsKo {
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_a_fast' => 'Mode A (Fast)',
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
 			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
 			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
 			'anime4k.presetNames.upscale_only_s' => 'CNN 업스케일링(초고속)',
@@ -8645,12 +8653,12 @@ extension on TranslationsKo {
 			'ai.providerNameLabel' => '이름',
 			'ai.apiKey' => 'API 키',
 			'ai.baseUrl' => '엔드포인트',
+			_ => null,
+		} ?? switch (path) {
 			'ai.model' => '모델',
 			'ai.modelPick' => '모델 선택',
 			'ai.modelEmpty' => '모델 목록을 불러오지 못했습니다. 모델 이름을 직접 입력해도 됩니다.',
 			'ai.advanced' => '고급',
-			_ => null,
-		} ?? switch (path) {
 			'ai.reasoning' => '추론 모델',
 			'ai.streaming' => '스트리밍 출력',
 			'ai.structuredOutput' => '구조화된 출력',

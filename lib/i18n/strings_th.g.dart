@@ -1695,6 +1695,10 @@ class _TranslationsDownloadNotificationsTh extends TranslationsDownloadNotificat
 	@override String get fixInSettings => 'แก้ไขในการตั้งค่า';
 	@override String get channelName => 'สถานะการดาวน์โหลด';
 	@override String get channelDescription => 'การแจ้งเตือนสำหรับการดาวน์โหลดที่เสร็จสมบูรณ์และล้มเหลว';
+	@override String get progressChannelName => 'ความคืบหน้าการดาวน์โหลด';
+	@override String get progressChannelDescription => 'แสดงค้างไว้ขณะดาวน์โหลด เพื่อให้ดาวน์โหลดต่อได้แม้ปิดหน้าจอหรือสลับไปแอปอื่น';
+	@override String ongoingTitle({required Object count}) => 'กำลังดาวน์โหลด ${count} รายการ';
+	@override String ongoingQueued({required Object count}) => 'รอคิว ${count} รายการ';
 }
 
 // Path: favorite
@@ -7385,6 +7389,10 @@ extension on TranslationsTh {
 			'downloadNotifications.fixInSettings' => 'แก้ไขในการตั้งค่า',
 			'downloadNotifications.channelName' => 'สถานะการดาวน์โหลด',
 			'downloadNotifications.channelDescription' => 'การแจ้งเตือนสำหรับการดาวน์โหลดที่เสร็จสมบูรณ์และล้มเหลว',
+			'downloadNotifications.progressChannelName' => 'ความคืบหน้าการดาวน์โหลด',
+			'downloadNotifications.progressChannelDescription' => 'แสดงค้างไว้ขณะดาวน์โหลด เพื่อให้ดาวน์โหลดต่อได้แม้ปิดหน้าจอหรือสลับไปแอปอื่น',
+			'downloadNotifications.ongoingTitle' => ({required Object count}) => 'กำลังดาวน์โหลด ${count} รายการ',
+			'downloadNotifications.ongoingQueued' => ({required Object count}) => 'รอคิว ${count} รายการ',
 			'favorite.errors.addFailed' => 'เพิ่มไม่สำเร็จ',
 			'favorite.errors.addSuccess' => 'เพิ่มสำเร็จ',
 			'favorite.errors.deleteFolderFailed' => 'ลบโฟลเดอร์ไม่สำเร็จ',
@@ -7617,12 +7625,12 @@ extension on TranslationsTh {
 			'navigationOrderSettings.bottomNavigationPreview' => 'ตัวอย่างแถบนำทางด้านล่าง:',
 			'navigationOrderSettings.sidebarPreview' => 'ตัวอย่างแถบด้านข้าง:',
 			'navigationOrderSettings.confirmResetNavigationOrder' => 'ยืนยันการรีเซ็ตลำดับการนำทาง',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => 'คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ตลำดับการนำทางกลับเป็นค่าเริ่มต้น?',
 			'navigationOrderSettings.cancel' => 'ยกเลิก',
 			'navigationOrderSettings.show' => 'แสดง',
 			'navigationOrderSettings.hide' => 'ซ่อน',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.hidden' => 'ซ่อนอยู่',
 			'navigationOrderSettings.hideHint' => 'แตะไอคอนรูปตาเพื่อแสดงหรือซ่อนชุมชนและไฟล์ในเครื่อง',
 			'navigationOrderSettings.videoDescription' => 'เรียกดูเนื้อหาวิดีโอยอดนิยม',
@@ -8131,12 +8139,12 @@ extension on TranslationsTh {
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_a_fast' => 'Mode A (Fast)',
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
 			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
 			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
 			'anime4k.presetNames.upscale_only_s' => 'ขยายภาพด้วย CNN (เร็วมาก)',
@@ -8645,12 +8653,12 @@ extension on TranslationsTh {
 			'ai.providerNameLabel' => 'ชื่อ',
 			'ai.apiKey' => 'คีย์ API',
 			'ai.baseUrl' => 'ปลายทาง API',
+			_ => null,
+		} ?? switch (path) {
 			'ai.model' => 'โมเดล',
 			'ai.modelPick' => 'เลือกโมเดล',
 			'ai.modelEmpty' => 'ไม่สามารถโหลดรายการโมเดลได้ คุณยังสามารถพิมพ์ชื่อโมเดลได้โดยตรง',
 			'ai.advanced' => 'ขั้นสูง',
-			_ => null,
-		} ?? switch (path) {
 			'ai.reasoning' => 'โมเดลการให้เหตุผล',
 			'ai.streaming' => 'เอาต์พุตแบบสตรีม',
 			'ai.structuredOutput' => 'เอาต์พุตที่มีโครงสร้าง',

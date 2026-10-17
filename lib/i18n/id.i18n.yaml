@@ -2443,6 +2443,10 @@ downloadNotifications:
   fixInSettings: 'Perbaiki di Pengaturan'
   channelName: Status unduhan
   channelDescription: Notifikasi untuk unduhan yang selesai dan gagal
+  progressChannelName: 'Progres unduhan'
+  progressChannelDescription: 'Ditampilkan selama unduhan berjalan agar tetap lanjut saat layar mati atau di aplikasi lain'
+  ongoingTitle: 'Mengunduh ${count}'
+  ongoingQueued: '${count} dalam antrean'
 
 favorite:
   errors:

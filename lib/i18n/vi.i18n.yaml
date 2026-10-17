@@ -2443,6 +2443,10 @@ downloadNotifications:
   fixInSettings: 'Sửa trong Cài đặt'
   channelName: Trạng thái tải xuống
   channelDescription: Thông báo cho các tải xuống đã hoàn thành và thất bại
+  progressChannelName: 'Tiến trình tải xuống'
+  progressChannelDescription: 'Hiển thị khi đang tải xuống để việc tải tiếp tục khi tắt màn hình hoặc sang ứng dụng khác'
+  ongoingTitle: 'Đang tải xuống ${count} mục'
+  ongoingQueued: '${count} mục đang chờ'
 
 favorite:
   errors:

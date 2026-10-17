@@ -1695,6 +1695,10 @@ class _TranslationsDownloadNotificationsDe extends TranslationsDownloadNotificat
 	@override String get fixInSettings => 'In den Einstellungen beheben';
 	@override String get channelName => 'Download-Status';
 	@override String get channelDescription => 'Benachrichtigungen für abgeschlossene und fehlgeschlagene Downloads';
+	@override String get progressChannelName => 'Download-Fortschritt';
+	@override String get progressChannelDescription => 'Wird während laufender Downloads angezeigt, damit sie bei ausgeschaltetem Bildschirm oder in anderen Apps weiterlaufen';
+	@override String ongoingTitle({required Object count}) => '${count} werden heruntergeladen';
+	@override String ongoingQueued({required Object count}) => '${count} in Warteschlange';
 }
 
 // Path: favorite
@@ -7385,6 +7389,10 @@ extension on TranslationsDe {
 			'downloadNotifications.fixInSettings' => 'In den Einstellungen beheben',
 			'downloadNotifications.channelName' => 'Download-Status',
 			'downloadNotifications.channelDescription' => 'Benachrichtigungen für abgeschlossene und fehlgeschlagene Downloads',
+			'downloadNotifications.progressChannelName' => 'Download-Fortschritt',
+			'downloadNotifications.progressChannelDescription' => 'Wird während laufender Downloads angezeigt, damit sie bei ausgeschaltetem Bildschirm oder in anderen Apps weiterlaufen',
+			'downloadNotifications.ongoingTitle' => ({required Object count}) => '${count} werden heruntergeladen',
+			'downloadNotifications.ongoingQueued' => ({required Object count}) => '${count} in Warteschlange',
 			'favorite.errors.addFailed' => 'Hinzufügen fehlgeschlagen',
 			'favorite.errors.addSuccess' => 'Erfolgreich hinzugefügt',
 			'favorite.errors.deleteFolderFailed' => 'Ordner löschen fehlgeschlagen',
@@ -7617,12 +7625,12 @@ extension on TranslationsDe {
 			'navigationOrderSettings.bottomNavigationPreview' => 'Vorschau der unteren Navigation:',
 			'navigationOrderSettings.sidebarPreview' => 'Vorschau der Seitenleiste:',
 			'navigationOrderSettings.confirmResetNavigationOrder' => 'Zurücksetzen der Navigationsreihenfolge bestätigen',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.confirmResetNavigationOrderDesc' => 'Möchten Sie die Navigationsreihenfolge wirklich auf die Standardeinstellungen zurücksetzen?',
 			'navigationOrderSettings.cancel' => 'Abbrechen',
 			'navigationOrderSettings.show' => 'Anzeigen',
 			'navigationOrderSettings.hide' => 'Ausblenden',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.hidden' => 'Ausgeblendet',
 			'navigationOrderSettings.hideHint' => 'Tippen Sie auf das Augensymbol, um Community und lokale Dateien ein- oder auszublenden',
 			'navigationOrderSettings.videoDescription' => 'Beliebte Videoinhalte durchsuchen',
@@ -8131,12 +8139,12 @@ extension on TranslationsDe {
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_a_fast' => 'Mode A (Fast)',
 			'anime4k.presetNames.mode_b_fast' => 'Mode B (Fast)',
 			'anime4k.presetNames.mode_c_fast' => 'Mode C (Fast)',
 			'anime4k.presetNames.mode_a_a_fast' => 'Mode A+A (Fast)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_b_fast' => 'Mode B+B (Fast)',
 			'anime4k.presetNames.mode_c_a_fast' => 'Mode C+A (Fast)',
 			'anime4k.presetNames.upscale_only_s' => 'CNN-Upscaling (Ultraschnell)',
@@ -8645,12 +8653,12 @@ extension on TranslationsDe {
 			'ai.providerNameLabel' => 'Bezeichnung',
 			'ai.apiKey' => 'API-Schlüssel',
 			'ai.baseUrl' => 'Endpunkt',
+			_ => null,
+		} ?? switch (path) {
 			'ai.model' => 'Modell',
 			'ai.modelPick' => 'Modell auswählen',
 			'ai.modelEmpty' => 'Modellliste konnte nicht geladen werden — Sie können den Modellnamen auch direkt eingeben.',
 			'ai.advanced' => 'Erweitert',
-			_ => null,
-		} ?? switch (path) {
 			'ai.reasoning' => 'Reasoning-Modell',
 			'ai.streaming' => 'Streaming-Ausgabe',
 			'ai.structuredOutput' => 'Strukturierte Ausgabe',

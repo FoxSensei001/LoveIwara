@@ -12,6 +12,7 @@ import 'package:i_iwara/app/models/download/download_category.model.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/download/download_keep_alive.dart';
 import 'package:i_iwara/app/services/download/download_state_log.dart';
 import 'package:i_iwara/app/services/download/download_task_store.dart';
 import 'package:i_iwara/app/services/download_notification_service.dart';
@@ -71,6 +72,9 @@ class DownloadService extends GetxService {
   /// 已完成任务量大且只读，仍在 DB 分页，通过 [DownloadTaskStore.completedRevision]
   /// 精确失效（见该类的类注释）。
   final DownloadTaskStore store = DownloadTaskStore();
+
+  /// 安卓：有下载在跑时挂前台服务 + 进度通知，熄屏 / 切走不停（issue #136）。
+  late final DownloadKeepAlive _keepAlive = DownloadKeepAlive(store);
 
   // 获取所有活跃任务（仅包含下载中的任务）
   Map<String, DownloadTask> get tasks => _activeTasks;
@@ -532,6 +536,7 @@ class DownloadService extends GetxService {
   Future<void> onInit() async {
     super.onInit();
     await _loadActiveTasks();
+    _keepAlive.attach();
   }
 
   // =============================== 加载活跃任务 ===============================
@@ -2656,6 +2661,8 @@ class DownloadService extends GetxService {
 
   @override
   void onClose() {
+    _keepAlive.dispose();
+
     // 取消所有下载
     for (var cancelToken in _activeDownloads.values) {
       cancelToken.cancel(slang.t.download.errors.serviceIsClosing);

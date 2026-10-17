@@ -2443,6 +2443,10 @@ downloadNotifications:
   fixInSettings: 'Исправить в настройках'
   channelName: Статус загрузки
   channelDescription: Уведомления о завершённых и неудачных загрузках
+  progressChannelName: 'Ход загрузки'
+  progressChannelDescription: 'Показывается во время загрузок, чтобы они продолжались при выключенном экране или в другом приложении'
+  ongoingTitle: 'Загружается: ${count}'
+  ongoingQueued: 'В очереди: ${count}'
 
 favorite:
   errors:
