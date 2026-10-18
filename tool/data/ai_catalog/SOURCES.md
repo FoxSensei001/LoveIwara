@@ -10,9 +10,9 @@
 | 包 | `packages/provider-registry` |
 | 取用的文件 | `data/providers.json`、`data/models.json` |
 | 许可 | **MIT**（见下） |
-| 本次抓取的 commit | `8d35232690e3a4763e7e51cbed1ddde29784e166`（2026-10-12） |
-| `providers.json` version | `3416349586ffa541` |
-| `models.json` version | `1820f779a1cc60bd` |
+| 本次抓取的 commit | `5abadcc4259bdaaac31810c6ec1cc599751f90d3`（2026-10-18） |
+| `providers.json` version | `1b44511badb438e6` |
+| `models.json` version | `371e196f7e841bbc` |
 
 ## ⚠️ 许可要点
 

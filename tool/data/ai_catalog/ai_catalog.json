@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "rev": "39b2c34c5ef81ada",
-  "builtAt": "2026-10-11T19:23:31.074083Z",
-  "count": 659,
+  "rev": "4b582fef958963d0",
+  "builtAt": "2026-10-18T19:19:56.955202Z",
+  "count": 662,
   "upstream": {
     "source": "CherryHQ/cherry-studio @ packages/provider-registry (MIT)",
-    "providers": "3416349586ffa541",
-    "models": "1820f779a1cc60bd"
+    "providers": "1b44511badb438e6",
+    "models": "371e196f7e841bbc"
   },
   "providers": {
     "silicon": {
@@ -2999,6 +2999,18 @@
       "w": 1048576,
       "o": 65536
     },
+    "gemini-4-argon": {
+      "n": "Gemini 4 Argon",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 1048576
+    },
     "gemini-flash-latest": {
       "n": "Gemini Flash Latest",
       "c": [
@@ -3410,6 +3422,26 @@
       ],
       "w": 1048576,
       "o": 1048576
+    },
+    "muse-spark-open-816b-a42b": {
+      "n": "Muse Spark Open 816B A42B",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 1048576
+    },
+    "muse-spark-open-816b-a42b-nvfp4": {
+      "n": "Muse Spark Open 816B A42B NVFP4",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 1048576
     },
     "phi-4": {
       "n": "Microsoft: Phi 4",
