@@ -40,6 +40,7 @@ class LocalCardShell extends StatelessWidget {
     this.onTap,
     this.onMenu,
     this.onLongPress,
+    this.continuousCorners = false,
   });
 
   /// 封面比例。两族卡片同一个，同一张网格里的行高才对得齐。
@@ -72,14 +73,24 @@ class LocalCardShell extends StatelessWidget {
   /// 覆盖长按。一般不传：长按默认就是 [onMenu]。
   final VoidCallback? onLongPress;
 
+  /// 用连续圆角（超椭圆，iOS 的圆角）。目前只有下载页打开
+  /// （2026-10-18 决定只改下载页，推广到全站要先问用户）。
+  final bool continuousCorners;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     const borderRadius = BorderRadius.all(Radius.circular(radius));
+    final side = BorderSide(
+      color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
+    );
+    final ShapeBorder shape = continuousCorners
+        ? RoundedSuperellipseBorder(borderRadius: borderRadius, side: side)
+        : RoundedRectangleBorder(borderRadius: borderRadius, side: side);
     return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: borderRadius,
-        boxShadow: <BoxShadow>[
+      decoration: ShapeDecoration(
+        shape: shape,
+        shadows: <BoxShadow>[
           BoxShadow(
             color: theme.colorScheme.shadow.withValues(alpha: 0.08),
             blurRadius: 8,
@@ -90,12 +101,7 @@ class LocalCardShell extends StatelessWidget {
       child: Material(
         color: theme.colorScheme.surface,
         clipBehavior: Clip.antiAlias,
-        shape: RoundedRectangleBorder(
-          borderRadius: borderRadius,
-          side: BorderSide(
-            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
-          ),
-        ),
+        shape: shape,
         // Builder 拿**卡片自己**那层 context 当长按菜单的锚点：菜单该贴着这张卡
         // 开，而不是贴着调用方那个撑满整条 sliver 的 context。
         child: Builder(

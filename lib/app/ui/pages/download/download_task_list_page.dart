@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/widgets/timeline_group.dart';
@@ -43,6 +44,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
+import 'package:i_iwara/app/ui/widgets/motion/ios_motion.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/utils/loading_more_refresh_guard.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -124,6 +126,32 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   /// 「需处理」筛选开着时，失效集合一变就要让历史区重拉。
   Worker? _missingIdsWorker;
 
+  /// 盯「下载中」与「失败」两个分区：下完的留下来谢幕、失败的给一下触感。
+  Worker? _downloadingWorker;
+  Worker? _failedWorker;
+
+  /// 上一刻在「下载中」的任务句柄（离区后仍能读到它的最终状态；谢幕时接着用
+  /// 同一个句柄画，卡片结构不变、不重建）。
+  Map<String, DownloadTaskHandle> _lastDownloading = {};
+  Set<String> _lastFailed = {};
+
+  /// 最近一次「下载中」变化里离开的那几条。Store 先改「下载中」再改「失败」，
+  /// 等「失败」那边收到通知时，失败的那条已经不在 [_lastDownloading] 里了。
+  Set<String> _leftDownloading = {};
+
+  /// 刚下完、还在进行中区谢幕的任务（见 [DownloadTileCelebration]）。
+  final Map<String, _Celebration> _celebrating = {};
+
+  /// 谢幕完刚进历史区的：在历史区里演一次入场。
+  final Set<String> _arrivingHistory = {};
+
+  /// 上一次画出来的进行中卡片 id：只有画在屏幕上的那些下完了才谢幕。
+  Set<String> _lastActiveVisibleIds = const {};
+
+  /// 进行中区的排序键：按加入顺序固定，暂停 / 继续 / 失败都不让卡片跳位。
+  /// 刚入队、库里还没回填 created_at 的，用第一次见到它的时刻。
+  final Map<String, int> _firstSeenAt = {};
+
   // 批量删除模式
   bool _isSelectionMode = false;
   final Set<String> _selectedTaskIds = {};
@@ -159,6 +187,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   }
 
   void _toggleItemSelection(String taskId) {
+    iosHaptic(IosHaptic.selection);
     setState(() {
       _isSelectionMode = true;
       if (_selectedTaskIds.contains(taskId)) {
@@ -174,14 +203,9 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   ///
   /// 历史区是分页的：没滚到的那些不在这里，全选 / 连选也就只覆盖已加载的部分。
   List<String> _orderedVisibleIds() => [
-    for (final ids in [
-      _store.downloadingIds,
-      _store.failedIds,
-      _store.pausedIds,
-      _store.pendingIds,
-    ])
-      for (final task in _visibleTasksOf(ids)) task.id,
-    for (final task in _historySource) task.id,
+    for (final task in _orderedActiveTasks()) task.id,
+    for (final task in _historySource)
+      if (!_celebrating.containsKey(task.id)) task.id,
   ];
 
   /// 交给通用键鼠多选（Cmd/Ctrl/Shift+点击、Cmd/Ctrl+A、Delete、反选，见
@@ -386,6 +410,34 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       });
     });
 
+    // 下完的那一条：Store 一完成就把它移出活跃区，这里把它多留一会儿谢幕。
+    // ⛔ rxEver，不是 ever（二次进页面会失聪）。
+    _lastDownloading = _snapshotDownloading();
+    _lastFailed = _store.failedIds.toSet();
+    _downloadingWorker = rxEver(_store.downloadingIds, (_) {
+      final now = _snapshotDownloading();
+      _leftDownloading = _lastDownloading.keys
+          .where((id) => !now.containsKey(id))
+          .toSet();
+      for (final entry in _lastDownloading.entries) {
+        if (now.containsKey(entry.key)) continue;
+        final handle = entry.value;
+        if (handle.task.status == DownloadStatus.completed &&
+            _lastActiveVisibleIds.contains(handle.task.id)) {
+          _startCelebration(handle);
+        }
+      }
+      _lastDownloading = now;
+    });
+    _failedWorker = rxEver(_store.failedIds, (ids) {
+      final now = ids.toSet();
+      // 只有「正在下、突然失败」才震：启动装载、手动操作带来的变化不算。
+      if (now.difference(_lastFailed).any(_leftDownloading.contains)) {
+        iosHaptic(IosHaptic.warning);
+      }
+      _lastFailed = now;
+    });
+
     // 文件健康缓存：横幅 / 需处理筛选片 / 卡片标签都读它。进页时顺手重算一次
     // 「旧目录里还有几项」（改完下载目录回来就能看到）。
     if (DownloadFileHealth.isReady) {
@@ -399,6 +451,73 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
         _runAfterFrame(_refreshHistory);
       });
     }
+  }
+
+  Map<String, DownloadTaskHandle> _snapshotDownloading() => {
+    for (final id in _store.downloadingIds) id: ?_store.handleOf(id),
+  };
+
+  /// 谢幕：环走满（约 0.3 秒）→ 对勾弹出 + 成功触感 → 停一下 → 收起，然后在
+  /// 历史区顶上入场。时长跟着慢放（timeDilation）走，方便逐帧看。
+  void _startCelebration(DownloadTaskHandle handle) {
+    final task = handle.task;
+    if (!mounted || _celebrating.containsKey(task.id)) return;
+    // 筛着「已完成」/「进行中」时不谢幕：前者进行中区本该是空的，后者历史区不显示。
+    if (_statusFilter != DownloadStatusFilter.all) return;
+    final slow = timeDilation;
+    final celebration = _Celebration(handle);
+    celebration.timers.add(
+      Timer(Duration(milliseconds: (320 * slow).round()), () {
+        if (!mounted) return;
+        iosHaptic(IosHaptic.success);
+        setState(() => celebration.checkShown = true);
+      }),
+    );
+    celebration.timers.add(
+      Timer(Duration(milliseconds: (1250 * slow).round()), () {
+        if (!mounted) return;
+        setState(() {
+          _celebrating.remove(task.id);
+          _arrivingHistory.add(task.id);
+        });
+        // 入场只演一次：过后这张卡再被重建（滚出去又滚回来、刷新）就别再演。
+        Timer(Duration(milliseconds: (1000 * slow).round()), () {
+          _arrivingHistory.remove(task.id);
+        });
+      }),
+    );
+    setState(() => _celebrating[task.id] = celebration);
+  }
+
+  int _orderKeyOf(DownloadTask task) =>
+      task.createdAt?.millisecondsSinceEpoch ??
+      _firstSeenAt.putIfAbsent(
+        task.id,
+        () => DateTime.now().millisecondsSinceEpoch,
+      );
+
+  /// 进行中区从上到下的顺序：四个分区合在一起、按加入顺序排（不再按状态分组
+  /// ——那样点一下暂停，卡片就从手指底下跳到失败项后面去了），外加正在谢幕的。
+  List<DownloadTask> _orderedActiveTasks() {
+    final tasks = <DownloadTask>[
+      ..._visibleTasksOf(_store.downloadingIds),
+      ..._visibleTasksOf(_store.failedIds),
+      ..._visibleTasksOf(_store.pausedIds),
+      ..._visibleTasksOf(_store.pendingIds),
+    ];
+    final ids = {for (final t in tasks) t.id};
+    // 谢幕中的：筛选一改（搜索、分类、状态）照样要藏；万一又回到了 Store
+    //（谢幕期间被重下），以 Store 那条为准，别一条任务画两张。
+    if (_statusFilter == DownloadStatusFilter.all) {
+      for (final c in _celebrating.values) {
+        if (!ids.contains(c.task.id) && _filterTask(c.task)) tasks.add(c.task);
+      }
+    }
+    tasks.sort((a, b) {
+      final byTime = _orderKeyOf(a).compareTo(_orderKeyOf(b));
+      return byTime != 0 ? byTime : a.id.compareTo(b.id);
+    });
+    return tasks;
   }
 
   /// 在下一帧结束后执行 [action]（仍挂载时），用于把 setState / DB 读等副作用移出
@@ -424,6 +543,11 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     _searchDebounce?.cancel();
     _completedRevisionWorker?.dispose();
     _missingIdsWorker?.dispose();
+    _downloadingWorker?.dispose();
+    _failedWorker?.dispose();
+    for (final c in _celebrating.values) {
+      c.dispose();
+    }
     _scrollController.dispose();
     _showBackToTop.dispose();
     _historySource.dispose();
@@ -1331,14 +1455,9 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     // 不会出现在两处，也不会与历史区（只装 completed）重复。
     //
     // 分区不再各挂一行「标题 (N)」：卡片自己的状态行已经说清了它是下载中还是
-    // 暂停，四行标题只是在重复。组内顺序照旧：下载中 → 失败（方便快速重试）→
-    // 暂停 → 等待。
-    final activeTasks = <DownloadTask>[
-      ..._visibleTasksOf(_store.downloadingIds),
-      ..._visibleTasksOf(_store.failedIds),
-      ..._visibleTasksOf(_store.pausedIds),
-      ..._visibleTasksOf(_store.pendingIds),
-    ];
+    // 暂停，四行标题只是在重复。顺序按加入时间固定（见 [_orderedActiveTasks]）。
+    final activeTasks = _orderedActiveTasks();
+    _lastActiveVisibleIds = {for (final t in activeTasks) t.id};
     final hasActive = activeTasks.isNotEmpty;
     final activeRows = (activeTasks.length / rowColumns).ceil();
 
@@ -1363,10 +1482,32 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
           // 提示横幅：上次未完成 / 失败 / 文件失效 / 旧目录里还有 —— 同一时间只摆
           // 优先级最高的一条。
           SliverToBoxAdapter(child: _buildNoticeBanner(context)),
-          if (hasActive) ...[
-            SliverToBoxAdapter(
-              child: _buildActiveHeader(context, activeTasks.length),
+          // 标题行有出有入：最后一张卡收起时，它跟着收，不是硬切。
+          SliverToBoxAdapter(
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOutCubic,
+              alignment: Alignment.topCenter,
+              child: hasActive
+                  ? _buildActiveHeader(context, activeTasks.length)
+                  : const SizedBox(width: double.infinity),
             ),
+          ),
+          // 单列（手机）：卡片进出带动画——新加入展开、删除 / 下完收起。
+          // 多列时删一张会让后面每张换行，那种挪动不做动画，照旧按行排。
+          if (rowColumns == 1)
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: _gutter),
+              sliver: PresenceSliverList<DownloadTask>(
+                items: activeTasks,
+                keyOf: (task) => task.id,
+                itemBuilder: (context, task) => Padding(
+                  padding: const EdgeInsets.only(bottom: _itemGap),
+                  child: _buildActiveItem(task),
+                ),
+              ),
+            ),
+          if (hasActive && rowColumns > 1) ...[
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: _gutter),
               sliver: SliverList.builder(
@@ -1385,8 +1526,8 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
                                 ? KeyedSubtree(
                                     // 一条移走后下面的行别复用它的进度环动画。
                                     key: ValueKey(activeTasks[start + c].id),
-                                    child: _buildActiveTaskItem(
-                                      activeTasks[start + c].id,
+                                    child: _buildActiveItem(
+                                      activeTasks[start + c],
                                     ),
                                   )
                                 : const SizedBox.shrink(),
@@ -1439,7 +1580,10 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
             children: [
               GlassTextActionButton(
                 label: t.pauseAll,
-                onPressed: () => DownloadService.to.pauseAll(),
+                onPressed: () {
+                  iosHaptic(IosHaptic.medium);
+                  DownloadService.to.pauseAll();
+                },
               ),
             ],
           )
@@ -1449,7 +1593,10 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
             children: [
               GlassTextActionButton(
                 label: t.resumeAll,
-                onPressed: () => DownloadService.to.resumeAll(),
+                onPressed: () {
+                  iosHaptic(IosHaptic.medium);
+                  DownloadService.to.resumeAll();
+                },
               ),
             ],
           )
@@ -1460,11 +1607,18 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       child: Row(
         children: [
           Expanded(
-            child: Text(
-              '${t.actions.statusActive} · $count',
-              style: _listLabelStyle(context),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            child: Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    '${t.actions.statusActive} · ',
+                    style: _listLabelStyle(context),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                RollingText('$count', style: _listLabelStyle(context)),
+              ],
             ),
           ),
           AnimatedSwitcher(
@@ -1495,7 +1649,11 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     return StreamBuilder<Iterable<DownloadTask>>(
       stream: _historySource.rebuild,
       builder: (context, _) {
-        final source = _historySource;
+        // 还在进行中区谢幕的，先别在历史区露面（否则同一条两处各一张）。
+        final source = [
+          for (final task in _historySource)
+            if (!_celebrating.containsKey(task.id)) task,
+        ];
         if (source.isEmpty) return const SliverToBoxAdapter();
 
         final now = DateTime.now();
@@ -1523,6 +1681,17 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
             ? 0.0
             : DownloadTaskTile.gridExtentFor(context, grid.cellWidth);
 
+        // 每项按任务 id 带 key（入场动画要跟着那一条走）。顶上插进一条时下标
+        // 全体后移，没有这个回调 sliver 会按下标配元素 → key 对不上 → 整屏卡片
+        // 重建。
+        int? Function(Key) indexIn(int start, int end) => (key) {
+          if (key is! ValueKey<String>) return null;
+          for (var i = start; i < end; i++) {
+            if (source[i].id == key.value) return i - start;
+          }
+          return null;
+        };
+
         return SliverMainAxisGroup(
           slivers: [
             for (final group in groups) ...[
@@ -1538,25 +1707,38 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
                 sliver: grid == null
                     ? SliverList.builder(
                         itemCount: group.end - group.start,
+                        findChildIndexCallback: indexIn(group.start, group.end),
                         itemBuilder: (context, i) {
                           final index = group.start + i;
                           _maybeLoadMoreHistory(index);
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: _itemGap),
-                            child: _buildTaskItem(source[index]),
+                          final task = source[index];
+                          return PresenceIn(
+                            key: ValueKey(task.id),
+                            animateIn: _arrivingHistory.contains(task.id),
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: _itemGap),
+                              child: _buildTaskItem(task),
+                            ),
                           );
                         },
                       )
                     : SliverGrid.builder(
                         gridDelegate: grid.delegate(extent),
                         itemCount: group.end - group.start,
+                        findChildIndexCallback: indexIn(group.start, group.end),
                         itemBuilder: (context, i) {
                           final index = group.start + i;
                           _maybeLoadMoreHistory(index);
-                          return DownloadTileLayoutScope(
-                            layout: DownloadTileLayout.grid,
-                            onLongPress: _onTileLongPress,
-                            child: _buildTaskItem(source[index]),
+                          final task = source[index];
+                          return PresenceIn(
+                            key: ValueKey(task.id),
+                            animateIn: _arrivingHistory.contains(task.id),
+                            expandHeight: false,
+                            child: DownloadTileLayoutScope(
+                              layout: DownloadTileLayout.grid,
+                              onLongPress: _onTileLongPress,
+                              child: _buildTaskItem(task),
+                            ),
                           );
                         },
                       ),
@@ -1770,15 +1952,27 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     return result;
   }
 
+  /// 进行中区的一张卡。谢幕中的已不在 Store 里，用离区前留下的句柄画。
+  ///
+  /// 两条路结构完全一样（Obx → [DownloadTileCelebration] → 卡片），开始谢幕时
+  /// 卡片不重建，进度环接着从当前进度走满。
+  Widget _buildActiveItem(DownloadTask task) {
+    final celebration = _celebrating[task.id];
+    final handle = celebration?.handle ?? _store.handleOf(task.id);
+    if (handle == null) return const SizedBox.shrink();
+    return _buildActiveTaskItem(handle, checkShown: celebration?.checkShown);
+  }
+
   /// 活跃区的一行：只订阅自己那条任务的句柄。
   ///
   /// 这样一条任务暂停 / 继续 / 失败时，只有它自己重建，其余行与底部历史区纹丝不动。
-  Widget _buildActiveTaskItem(String taskId) {
-    final handle = _store.handleOf(taskId);
-    if (handle == null) return const SizedBox.shrink();
+  Widget _buildActiveTaskItem(DownloadTaskHandle handle, {bool? checkShown}) {
     return Obx(() {
       handle.revision.value; // 订阅这一行
-      return _buildTaskItem(handle.task);
+      return DownloadTileCelebration(
+        checkShown: checkShown,
+        child: _buildTaskItem(handle.task),
+      );
     });
   }
 
@@ -2624,5 +2818,22 @@ class _DeleteProgressDialogState extends State<_DeleteProgressDialog> {
         ),
       ),
     );
+  }
+}
+
+/// 一条正在谢幕的任务（见 [_DownloadTaskListPageState._startCelebration]）。
+class _Celebration {
+  _Celebration(this.handle);
+
+  /// 离开 Store 前的那个句柄：谢幕时接着用它画，卡片结构与之前完全一样。
+  final DownloadTaskHandle handle;
+  DownloadTask get task => handle.task;
+  bool checkShown = false;
+  final List<Timer> timers = [];
+
+  void dispose() {
+    for (final timer in timers) {
+      timer.cancel();
+    }
   }
 }

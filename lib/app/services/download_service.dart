@@ -1675,6 +1675,7 @@ class DownloadService extends GetxService {
         LogUtils.d('开始接收数据流', 'DownloadService');
 
         // 为当前任务创建专用的计时器
+        task.resetSpeed();
         _taskTimers[task.id]?.cancel();
         _taskTimers[task.id] = Timer.periodic(const Duration(seconds: 1), (_) {
           // 如果是图库类型，则用不到taskTimer，因为图库里的图片下载完成会自动触发数据库的更新和内存状态的更新

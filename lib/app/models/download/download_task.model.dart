@@ -51,6 +51,10 @@ class DownloadTask {
   DateTime? lastSpeedUpdateTime; // 上次速度更新时间
   int lastDownloadedBytes = 0; // 上次下载的字节数
 
+  /// 连续几秒一个字节都没收到。平均值衰减得慢，彻底卡住时要尽快归零，
+  /// 否则界面会一直挂着一个越来越小的速度和越来越长的剩余时间。
+  int _stalledSeconds = 0;
+
   DownloadTask({
     String? id,
     required this.url,
@@ -149,17 +153,34 @@ class DownloadTask {
     };
   }
 
-  // 更新下载速度
+  /// 更新下载速度（每秒调一次）。
+  ///
+  /// 显示的是滑动平均，不是这一秒的瞬时值：网速一秒一个样，瞬时值会让
+  /// 「剩余 1:04」下一秒变「剩余 3:40」。新的一秒占 30% 权重，变化大约三四秒
+  /// 跟上，又不会每秒乱跳。
   void updateSpeed() {
     final now = DateTime.now();
-    if (lastSpeedUpdateTime != null) {
-      final duration = now.difference(lastSpeedUpdateTime!).inSeconds;
-      if (duration > 0) {
+    final last = lastSpeedUpdateTime;
+    if (last != null) {
+      final ms = now.difference(last).inMilliseconds;
+      if (ms > 0) {
         final bytesDownloaded = downloadedBytes - lastDownloadedBytes;
-        speed = (bytesDownloaded / duration).round();
+        final instant = bytesDownloaded * 1000 / ms;
+        _stalledSeconds = bytesDownloaded <= 0 ? _stalledSeconds + 1 : 0;
+        speed = _stalledSeconds >= 2
+            ? 0
+            : (speed == 0 ? instant : speed * 0.7 + instant * 0.3).round();
       }
     }
     lastSpeedUpdateTime = now;
+    lastDownloadedBytes = downloadedBytes;
+  }
+
+  /// 一轮新的下载开始时清掉速度：别拿上一轮（暂停前）的数接着平均。
+  void resetSpeed() {
+    speed = 0;
+    _stalledSeconds = 0;
+    lastSpeedUpdateTime = null;
     lastDownloadedBytes = downloadedBytes;
   }
 }

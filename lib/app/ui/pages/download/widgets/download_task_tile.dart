@@ -10,6 +10,7 @@ import 'package:i_iwara/app/ui/pages/download/widgets/download_error_label.dart'
 import 'package:i_iwara/app/ui/pages/download/widgets/download_scale.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_task_actions.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.dart';
+import 'package:i_iwara/app/ui/widgets/motion/ios_motion.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 下载卡片的两种形态。
@@ -44,6 +45,36 @@ class DownloadTileLayoutScope extends InheritedWidget {
   @override
   bool updateShouldNotify(DownloadTileLayoutScope oldWidget) =>
       layout != oldWidget.layout || onLongPress != oldWidget.onLongPress;
+}
+
+/// 刚下完、还留在进行中区「谢幕」的那张卡（页面包在它外面）。
+///
+/// 任务一完成，Store 就把它移出活跃区；页面把它多留约一秒：环走满 → 对勾 →
+/// 收起，再出现在历史区顶上——让人看见「它下完了、去了哪」。这期间卡片按
+/// 进行中的长条画，封面中央换成对勾。
+///
+/// 进行中区的每张卡外面**都**包一层（不谢幕时 [checkShown] 为 null）：开始谢幕
+/// 时外层结构不变，卡片不会重建，进度环才能接着从当前进度走满。
+class DownloadTileCelebration extends InheritedWidget {
+  const DownloadTileCelebration({
+    super.key,
+    required this.checkShown,
+    required super.child,
+  });
+
+  /// null：没在谢幕；false：环正在走满；true：对勾已经弹出来。
+  final bool? checkShown;
+
+  /// 只在谢幕中返回非 null。
+  static DownloadTileCelebration? maybeOf(BuildContext context) {
+    final scope = context
+        .dependOnInheritedWidgetOfExactType<DownloadTileCelebration>();
+    return scope?.checkShown == null ? null : scope;
+  }
+
+  @override
+  bool updateShouldNotify(DownloadTileCelebration oldWidget) =>
+      checkShown != oldWidget.checkShown;
 }
 
 /// 卡片说明行里的作者。
@@ -147,9 +178,11 @@ class _DownloadTaskTileState extends State<DownloadTaskTile> {
 
   @override
   Widget build(BuildContext context) {
-    final body = DownloadTileLayoutScope.of(context) == DownloadTileLayout.grid
-        ? _buildGrid(context)
-        : _buildRow(context);
+    // 谢幕中的卡永远在进行中区，按长条画。
+    final grid =
+        DownloadTileCelebration.maybeOf(context) == null &&
+        DownloadTileLayoutScope.of(context) == DownloadTileLayout.grid;
+    final body = grid ? _buildGrid(context) : _buildRow(context);
     return RepaintBoundary(
       child: GestureDetector(
         onSecondaryTapUp: _isDesktop ? _openMenuAt : null,
@@ -186,14 +219,21 @@ class _DownloadTaskTileState extends State<DownloadTaskTile> {
     final scale = DownloadUiScale.of(context);
     final narrow = MediaQuery.sizeOf(context).width < 600;
     final coverWidth = (narrow ? 118.0 : 132.0) * scale;
-    const borderRadius = BorderRadius.all(
-      Radius.circular(LocalCardShell.radius),
+    // 连续圆角（超椭圆）：iOS 的圆角，曲率在直边与圆弧之间是渐变的。
+    final shape = RoundedSuperellipseBorder(
+      borderRadius: const BorderRadius.all(
+        Radius.circular(LocalCardShell.radius),
+      ),
+      side: BorderSide(
+        color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
+      ),
     );
 
+    // 按压：整张卡用弹簧缩一点、压暗一点，松手带回弹（不用 Material 水波纹）。
     return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: borderRadius,
-        boxShadow: [
+      decoration: ShapeDecoration(
+        shape: shape,
+        shadows: [
           BoxShadow(
             color: theme.colorScheme.shadow.withValues(alpha: 0.08),
             blurRadius: 8,
@@ -201,60 +241,79 @@ class _DownloadTaskTileState extends State<DownloadTaskTile> {
           ),
         ],
       ),
-      child: Material(
-        color: theme.colorScheme.surface,
-        clipBehavior: Clip.antiAlias,
-        shape: RoundedRectangleBorder(
-          borderRadius: borderRadius,
-          side: BorderSide(
-            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
+      child: PressScale(
+        onTap: widget.onTap,
+        onLongPress: _longPress(context),
+        builder: (context, press) => Transform.scale(
+          scale: 1 - 0.025 * press,
+          child: Material(
+            color: theme.colorScheme.surface,
+            clipBehavior: Clip.antiAlias,
+            shape: shape,
+            child: Stack(
+              children: [
+                _buildRowBody(context, coverWidth, scale),
+                if (press > 0)
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: ColoredBox(
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.06 * press.clamp(0.0, 1.0),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
-        child: InkWell(
-          onTap: widget.onTap,
-          onLongPress: _longPress(context),
-          child: MediaQuery.withClampedTextScaling(
-            maxScaleFactor: 2,
-            child: Builder(
-              builder: (context) => SizedBox(
-                height: _rowHeight(context, coverWidth),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SizedBox(width: coverWidth, child: _buildRowCover(context)),
-                    Expanded(
-                      child: Padding(
-                        padding: _rowPad,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            SizedBox(
-                              height: LocalCardText.titleExtent(context),
-                              child: _DownloadTitle(
-                                title: widget.title,
-                                icon: widget.titleIcon,
-                              ),
-                            ),
-                            _buildMeta(context),
-                          ],
+      ),
+    );
+  }
+
+  Widget _buildRowBody(BuildContext context, double coverWidth, double scale) {
+    return MediaQuery.withClampedTextScaling(
+      maxScaleFactor: 2,
+      child: Builder(
+        builder: (context) => SizedBox(
+          height: _rowHeight(context, coverWidth),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(width: coverWidth, child: _buildRowCover(context)),
+              Expanded(
+                child: Padding(
+                  padding: _rowPad,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        height: LocalCardText.titleExtent(context),
+                        child: _DownloadTitle(
+                          title: widget.title,
+                          icon: widget.titleIcon,
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 2 * scale, right: 2),
-                      child: Align(
-                        alignment: Alignment.topCenter,
-                        child: DownloadTaskMoreButton(
-                          task: task,
-                          handlers: widget.handlers,
-                        ),
-                      ),
-                    ),
-                  ],
+                      _buildMeta(context),
+                    ],
+                  ),
                 ),
               ),
-            ),
+              Padding(
+                padding: EdgeInsets.only(top: 2 * scale, right: 2),
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  // 按 ⋮ 时整张卡别跟着缩。
+                  child: PressScaleClaim(
+                    child: DownloadTaskMoreButton(
+                      task: task,
+                      handlers: widget.handlers,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -264,6 +323,14 @@ class _DownloadTaskTileState extends State<DownloadTaskTile> {
   /// 长条的封面：进行中是「封面 + 压暗 + 中央操作钮（外圈进度环）」，点封面
   /// 就是主操作；已完成是「封面 + 角标」，点它与点卡片一样是打开。
   Widget _buildRowCover(BuildContext context) {
+    final celebration = DownloadTileCelebration.maybeOf(context);
+    if (celebration != null) {
+      return _ActiveCover(
+        task: task,
+        cover: widget.cover,
+        checkShown: celebration.checkShown,
+      );
+    }
     if (task.status == DownloadStatus.completed) {
       return _CompletedCover(
         task: task,
@@ -294,6 +361,7 @@ class _DownloadTaskTileState extends State<DownloadTaskTile> {
       onMenu: (anchorContext) =>
           showDownloadTaskMenu(anchorContext, task, handlers: widget.handlers),
       onLongPress: _longPress(context),
+      continuousCorners: true,
     );
   }
 
@@ -303,6 +371,22 @@ class _DownloadTaskTileState extends State<DownloadTaskTile> {
 
   /// 卡片上唯一一行小字。进行中报进度，已完成报出处；两种都只有一行。
   Widget _buildMeta(BuildContext context) {
+    final celebration = DownloadTileCelebration.maybeOf(context);
+    if (celebration != null) {
+      final t = slang.Translations.of(context).download;
+      return LocalCardText.metaText(
+        context,
+        celebration.checkShown == true
+            ? [
+                t.completed,
+                if (task.totalBytes > 0 &&
+                    widget.progressUnit == DownloadProgressUnit.bytes)
+                  formatDownloadBytes(task.totalBytes),
+              ].join(' · ')
+            : '100%',
+        color: Theme.of(context).colorScheme.primary,
+      );
+    }
     if (task.status == DownloadStatus.completed) {
       return _CompletedMeta(
         task: task,
@@ -316,11 +400,15 @@ class _DownloadTaskTileState extends State<DownloadTaskTile> {
     return Obx(() {
       DownloadService.to.getProgressTrigger(task.id).value;
       final theme = Theme.of(context);
-      final downloading = task.status == DownloadStatus.downloading;
+      if (task.status == DownloadStatus.downloading) {
+        return _RollingProgressLine(
+          segments: _downloadingSegments(context, task, widget.progressUnit),
+          color: theme.colorScheme.primary,
+        );
+      }
       return LocalCardText.metaText(
         context,
         _progressLine(context, task, widget.progressUnit),
-        color: downloading ? theme.colorScheme.primary : null,
       );
     });
   }
@@ -343,9 +431,6 @@ String _progressLine(
   final total = task.totalBytes;
   final images = unit == DownloadProgressUnit.images;
   String amount(int v) => images ? '$v' : formatDownloadBytes(v);
-  final percent = total > 0
-      ? '${(done / total * 100).clamp(0, 100).floor()}%'
-      : null;
 
   switch (task.status) {
     case DownloadStatus.pending:
@@ -356,22 +441,103 @@ String _progressLine(
           : amount(done);
       return '${t.paused} · $progress';
     case DownloadStatus.downloading:
-      if (images) {
-        return [total > 0 ? '$done / $total' : '$done', ?percent].join(' · ');
-      }
-      final speed = task.speed > 0
-          ? '${formatDownloadBytes(task.speed)}/s'
-          : null;
-      String? eta;
-      if (task.speed > 0 && total > done) {
-        eta = t.remainingTime(
-          time: _formatEta(((total - done) / task.speed).ceil()),
-        );
-      }
-      return [percent ?? amount(done), ?speed, ?eta].join(' · ');
+      return _downloadingSegments(
+        context,
+        task,
+        unit,
+      ).map((s) => s.text).join(' · ');
     case DownloadStatus.failed:
     case DownloadStatus.completed:
       return '';
+  }
+}
+
+/// 下载中那一行拆成几段，每段各自逐位滚动（[_RollingProgressLine]）。
+/// `id` 让「速度」那段在出现 / 消失时不会把「剩余时间」的数字错配过去。
+List<({String id, String text, bool countsDown})> _downloadingSegments(
+  BuildContext context,
+  DownloadTask task,
+  DownloadProgressUnit unit,
+) {
+  final t = slang.Translations.of(context).download;
+  final done = task.downloadedBytes;
+  final total = task.totalBytes;
+  final percent = total > 0
+      ? '${(done / total * 100).clamp(0, 100).floor()}%'
+      : null;
+  if (unit == DownloadProgressUnit.images) {
+    return [
+      (
+        id: 'count',
+        text: total > 0 ? '$done / $total' : '$done',
+        countsDown: false,
+      ),
+      if (percent != null) (id: 'percent', text: percent, countsDown: false),
+    ];
+  }
+  return [
+    (
+      id: 'percent',
+      text: percent ?? formatDownloadBytes(done),
+      countsDown: false,
+    ),
+    if (task.speed > 0)
+      (
+        id: 'speed',
+        text: '${formatDownloadBytes(task.speed)}/s',
+        countsDown: false,
+      ),
+    if (task.speed > 0 && total > done)
+      (
+        id: 'eta',
+        text: t.remainingTime(
+          time: _formatEta(((total - done) / task.speed).ceil()),
+        ),
+        countsDown: true,
+      ),
+  ];
+}
+
+/// 下载中的状态行：`42% · 3.1 MB/s · 剩 1:04`，数字逐位滚动。
+class _RollingProgressLine extends StatelessWidget {
+  const _RollingProgressLine({required this.segments, required this.color});
+
+  final List<({String id, String text, bool countsDown})> segments;
+  final Color color;
+
+  static const _strut = StrutStyle(
+    fontSize: 12,
+    height: 1.4,
+    forceStrutHeight: true,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final style = LocalCardText.metaStyle(Theme.of(context), color: color);
+    return SizedBox(
+      height: LocalCardText.metaExtent(context),
+      child: ClipRect(
+        child: OverflowBox(
+          alignment: AlignmentDirectional.centerStart,
+          maxWidth: double.infinity,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (var i = 0; i < segments.length; i++) ...[
+                if (i > 0) Text(' · ', style: style, strutStyle: _strut),
+                RollingText(
+                  segments[i].text,
+                  key: ValueKey(segments[i].id),
+                  style: style,
+                  strutStyle: _strut,
+                  countsDown: segments[i].countsDown,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -497,9 +663,11 @@ class _CompletedMeta extends StatelessWidget {
     if (onTap == null || name.isEmpty) return text;
     return Align(
       alignment: Alignment.centerLeft,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(onTap: onTap, child: text),
+      child: PressScaleClaim(
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(onTap: onTap, child: text),
+        ),
       ),
     );
   }
@@ -643,19 +811,31 @@ class _MissingChip extends StatelessWidget {
 ///
 /// 封面压暗一层，中央一枚圆钮，外圈是进度环：
 ///
-/// | 状态   | 压暗 | 圆钮                | 外圈        | 点了     |
-/// |--------|------|---------------------|-------------|----------|
-/// | 下载中 | 浅   | 暂停                | 白色，按进度 | 暂停     |
-/// | 等待   | 深   | 暂停                | 只有轨道     | 暂停     |
-/// | 暂停   | 深   | 继续                | 半透明，停在当前进度 | 继续 |
-/// | 失败   | 深   | 重试（错误色底）     | 无          | 重试     |
+/// | 状态   | 压暗 | 圆钮                | 外圈                  | 点了     |
+/// |--------|------|---------------------|-----------------------|----------|
+/// | 下载中 | 浅   | 暂停                | 白色，按进度           | 暂停     |
+/// | 等待   | 深   | 暂停                | 一小段弧在转           | 暂停     |
+/// | 暂停   | 深   | 继续                | 半透明，停在当前进度   | 继续     |
+/// | 失败   | 深   | 重试（错误色底）     | 无                    | 重试     |
+/// | 谢幕   | 浅   | 对勾（主色底）       | 走满后淡出             | 无       |
 ///
+/// 「等待」转弧、「暂停」静止：两者圆钮一样，靠动不动一眼分开。
 /// 服务正在处理这条（暂停 / 继续的过渡期）时圆钮换成转圈、不响应点击。
+/// 按下时只有中间那枚钮缩（[PressScale]），点击给一下轻触感。
 class _ActiveCover extends StatelessWidget {
-  const _ActiveCover({required this.task, required this.cover});
+  const _ActiveCover({
+    required this.task,
+    required this.cover,
+    this.checkShown,
+  });
 
   final DownloadTask task;
   final Widget cover;
+
+  /// 非 null＝谢幕中（见 [DownloadTileCelebration]）。
+  final bool? checkShown;
+
+  static final _popCurve = SpringCurve(IosSprings.pop, 0.6);
 
   @override
   Widget build(BuildContext context) {
@@ -663,36 +843,44 @@ class _ActiveCover extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final scale = DownloadUiScale.of(context);
     final status = task.status;
-    final downloading = status == DownloadStatus.downloading;
-    final failed = status == DownloadStatus.failed;
+    final celebrating = checkShown != null;
+    final checked = checkShown ?? false;
+    final downloading = status == DownloadStatus.downloading || celebrating;
+    final failed = !celebrating && status == DownloadStatus.failed;
+    final pending = !celebrating && status == DownloadStatus.pending;
 
-    final (
-      IconData icon,
-      String tooltip,
-      VoidCallback action,
-    ) = switch (status) {
-      DownloadStatus.paused => (
-        Icons.play_arrow_rounded,
-        t.download.resume,
-        () => DownloadService.to.resumeTask(task.id),
-      ),
-      DownloadStatus.failed => (
-        Icons.refresh_rounded,
-        t.common.retry,
-        () => DownloadService.to.retryTask(task.id),
-      ),
-      _ => (
-        Icons.pause_rounded,
-        t.download.pause,
-        () => DownloadService.to.pauseTask(task.id),
-      ),
-    };
+    final (IconData icon, String tooltip, VoidCallback? action) = celebrating
+        ? (
+            checked ? Icons.check_rounded : Icons.pause_rounded,
+            t.download.completed,
+            null,
+          )
+        : switch (status) {
+            DownloadStatus.paused => (
+              Icons.play_arrow_rounded,
+              t.download.resume,
+              () => DownloadService.to.resumeTask(task.id),
+            ),
+            DownloadStatus.failed => (
+              Icons.refresh_rounded,
+              t.common.retry,
+              () => DownloadService.to.retryTask(task.id),
+            ),
+            _ => (
+              Icons.pause_rounded,
+              t.download.pause,
+              () => DownloadService.to.pauseTask(task.id),
+            ),
+          };
 
     final dimension = 40 * scale;
+    final strokeWidth = 2.5 * scale;
     return Obx(() {
       final processing = DownloadService.to.isTaskProcessing(task.id);
       DownloadService.to.getProgressTrigger(task.id).value;
-      final progress = task.totalBytes > 0
+      final progress = celebrating
+          ? 1.0
+          : task.totalBytes > 0
           ? (task.downloadedBytes / task.totalBytes).clamp(0.0, 1.0)
           : null;
 
@@ -709,92 +897,134 @@ class _ActiveCover extends StatelessWidget {
               icon,
               key: ValueKey(icon),
               size: dimension * 0.55,
-              color: failed ? cs.onErrorContainer : Colors.white,
+              color: failed
+                  ? cs.onErrorContainer
+                  : checked
+                  ? cs.onPrimary
+                  : Colors.white,
             );
+
+      final Widget ring = failed
+          ? const SizedBox.shrink(key: ValueKey('none'))
+          : pending
+          ? WaitingArc(
+              key: const ValueKey('waiting'),
+              color: Colors.white.withValues(alpha: 0.85),
+              trackColor: Colors.white.withValues(alpha: 0.22),
+              strokeWidth: strokeWidth,
+            )
+          : TweenAnimationBuilder<double>(
+              key: const ValueKey('ring'),
+              tween: Tween(end: progress ?? 0),
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOutCubic,
+              builder: (context, value, _) => CircularProgressIndicator(
+                // 总大小未知时在下的给转圈，别停在 0 像是卡住了。
+                value: downloading && progress == null ? null : value,
+                strokeWidth: strokeWidth,
+                strokeCap: StrokeCap.round,
+                color: downloading
+                    ? Colors.white
+                    : Colors.white.withValues(alpha: 0.55),
+                backgroundColor: Colors.white.withValues(alpha: 0.22),
+              ),
+            );
+
+      void onTap() {
+        if (processing || action == null) return;
+        iosHaptic(IosHaptic.light);
+        action();
+      }
 
       return Tooltip(
         message: tooltip,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            cover,
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 220),
-              color: Colors.black.withValues(alpha: downloading ? 0.28 : 0.5),
-            ),
-            Center(
-              child: SizedBox.square(
-                dimension: dimension,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 220),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: failed
-                            ? cs.errorContainer
-                            : Colors.black.withValues(alpha: 0.35),
-                      ),
-                    ),
-                    if (!failed)
-                      TweenAnimationBuilder<double>(
-                        tween: Tween(
-                          end: status == DownloadStatus.pending
-                              ? 0
-                              : progress ?? 0,
-                        ),
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeOutCubic,
-                        builder: (context, value, _) =>
-                            CircularProgressIndicator(
-                              // 总大小未知时在下的给转圈，别停在 0 像是卡住了。
-                              value: downloading && progress == null
-                                  ? null
-                                  : value,
-                              strokeWidth: 2.5 * scale,
-                              strokeCap: StrokeCap.round,
-                              color: downloading
-                                  ? Colors.white
-                                  : Colors.white.withValues(alpha: 0.55),
-                              backgroundColor: Colors.white.withValues(
-                                alpha: 0.22,
-                              ),
-                            ),
-                      ),
-                    Center(
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 180),
-                        transitionBuilder: (child, animation) =>
-                            ScaleTransition(
-                              scale: Tween(
-                                begin: 0.6,
-                                end: 1.0,
-                              ).animate(animation),
-                              child: FadeTransition(
-                                opacity: animation,
-                                child: child,
-                              ),
-                            ),
-                        child: glyph,
-                      ),
-                    ),
-                  ],
+        // 处理中 / 谢幕中也要接住点击（空操作）：交出 null 会漏到外层整卡，视频卡
+        // 外层是「进在线详情」，转圈时多点一下就跳走了。
+        child: PressScale(
+          onTap: onTap,
+          builder: (context, press) {
+            final p = press.clamp(0.0, 1.0);
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                cover,
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 220),
+                  color: Colors.black.withValues(
+                    alpha:
+                        (checked
+                            ? 0.18
+                            : downloading
+                            ? 0.28
+                            : 0.5) +
+                        0.12 * p,
+                  ),
                 ),
-              ),
-            ),
-            // 水波纹要画在最上层：画在底层 Material 上会被封面整张盖住。
-            Positioned.fill(
-              child: Material(
-                color: Colors.transparent,
-                // 处理中也要接住点击（空回调）：交出 null 会漏到外层整卡，视频卡外层
-                // 是「进在线详情」，转圈时多点一下就跳走了。
-                child: InkWell(onTap: processing ? () {} : action),
-              ),
-            ),
-          ],
+                Center(
+                  child: Transform.scale(
+                    scale: 1 - 0.12 * press,
+                    child: SizedBox.square(
+                      dimension: dimension,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 220),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: failed
+                                  ? cs.errorContainer
+                                  : checked
+                                  ? cs.primary
+                                  : Colors.black.withValues(alpha: 0.35),
+                            ),
+                          ),
+                          AnimatedOpacity(
+                            duration: const Duration(milliseconds: 200),
+                            opacity: checked ? 0 : 1,
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              child: ring,
+                            ),
+                          ),
+                          Center(
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 600),
+                              switchInCurve: _popCurve,
+                              transitionBuilder: (child, animation) =>
+                                  ScaleTransition(
+                                    scale: Tween(
+                                      begin: 0.6,
+                                      end: 1.0,
+                                    ).animate(animation),
+                                    child: FadeTransition(
+                                      opacity: animation.drive(
+                                        _ClampedInterval(),
+                                      ),
+                                      child: child,
+                                    ),
+                                  ),
+                              child: glyph,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       );
     });
   }
+}
+
+/// 弹簧曲线会冲过 1，而 [Interval] 只收 [0, 1]：先夹住，再取前半段淡入。
+class _ClampedInterval extends Animatable<double> {
+  static const _interval = Interval(0, 0.5);
+
+  @override
+  double transform(double t) => _interval.transform(t.clamp(0.0, 1.0));
 }
