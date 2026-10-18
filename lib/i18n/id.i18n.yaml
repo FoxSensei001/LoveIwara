@@ -744,6 +744,8 @@ settings:
   autoEnterFullscreenKindSystemDesc: Biarkan pengelola jendela membuat jendela menjadi layar penuh
   autoEnterFullscreenKindApp: Layar Penuh Aplikasi
   autoEnterFullscreenKindAppDesc: Pertahankan jendela apa adanya dan ubah seluruh aplikasi menjadi pemutar
+  autoEnterPipOnLeave: "Gambar-dalam-gambar saat keluar"
+  autoEnterPipOnLeaveDesc: "Saat video diputar di halaman detail atau layar penuh, kembali ke layar utama atau pindah aplikasi akan mengecilkannya ke gambar-dalam-gambar. Tidak saat dijeda, atau saat kunci aplikasi atau mode privasi latar belakang aktif"
   signature: Tanda Tangan
   enableSignature: Aktifkan Tanda Tangan
   enableSignatureDesc: Konfigurasi ini menentukan apakah aplikasi akan menambahkan tanda tangan saat membalas

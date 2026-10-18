@@ -767,6 +767,8 @@ settings:
   autoEnterFullscreenKindSystemDesc: 讓視窗管理員把視窗變成全螢幕
   autoEnterFullscreenKindApp: 應用全螢幕
   autoEnterFullscreenKindAppDesc: 視窗大小不變，整個應用變成播放器
+  autoEnterPipOnLeave: "回桌面自動進小窗"
+  autoEnterPipOnLeaveDesc: "在影片詳情頁或全螢幕播放時，回到桌面或切到別的應用會自動縮成小窗。暫停時不會；開著應用鎖或後台隱私模式時也不會"
   signature: 小尾巴
   enableSignature: 小尾巴啟用
   enableSignatureDesc: 此配置決定回覆時是否自動添加小尾巴

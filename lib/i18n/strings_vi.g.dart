@@ -896,6 +896,8 @@ class _TranslationsSettingsVi extends TranslationsSettingsEn {
 	@override String get autoEnterFullscreenKindSystemDesc => 'Để trình quản lý cửa sổ đưa cửa sổ vào chế độ toàn màn hình';
 	@override String get autoEnterFullscreenKindApp => 'Toàn màn hình ứng dụng';
 	@override String get autoEnterFullscreenKindAppDesc => 'Giữ nguyên cửa sổ và biến toàn bộ ứng dụng thành trình phát';
+	@override String get autoEnterPipOnLeave => 'Ảnh trong ảnh khi rời ứng dụng';
+	@override String get autoEnterPipOnLeaveDesc => 'Khi video đang phát ở trang chi tiết hoặc toàn màn hình, về màn hình chính hay chuyển ứng dụng sẽ tự thu nhỏ thành ảnh trong ảnh. Không áp dụng khi tạm dừng, hoặc khi bật khóa ứng dụng hay chế độ riêng tư khi chạy nền';
 	@override String get signature => 'Chữ ký';
 	@override String get enableSignature => 'Bật chữ ký';
 	@override String get enableSignatureDesc => 'Cấu hình này quyết định ứng dụng có thêm chữ ký khi trả lời hay không';
@@ -5791,6 +5793,8 @@ extension on TranslationsVi {
 			'settings.autoEnterFullscreenKindSystemDesc' => 'Để trình quản lý cửa sổ đưa cửa sổ vào chế độ toàn màn hình',
 			'settings.autoEnterFullscreenKindApp' => 'Toàn màn hình ứng dụng',
 			'settings.autoEnterFullscreenKindAppDesc' => 'Giữ nguyên cửa sổ và biến toàn bộ ứng dụng thành trình phát',
+			'settings.autoEnterPipOnLeave' => 'Ảnh trong ảnh khi rời ứng dụng',
+			'settings.autoEnterPipOnLeaveDesc' => 'Khi video đang phát ở trang chi tiết hoặc toàn màn hình, về màn hình chính hay chuyển ứng dụng sẽ tự thu nhỏ thành ảnh trong ảnh. Không áp dụng khi tạm dừng, hoặc khi bật khóa ứng dụng hay chế độ riêng tư khi chạy nền',
 			'settings.signature' => 'Chữ ký',
 			'settings.enableSignature' => 'Bật chữ ký',
 			'settings.enableSignatureDesc' => 'Cấu hình này quyết định ứng dụng có thêm chữ ký khi trả lời hay không',
@@ -6107,10 +6111,10 @@ extension on TranslationsVi {
 			'settings.doubleTapPause' => 'Nhấn đúp để tạm dừng',
 			'settings.rightVerticalSwipeVolume' => 'Vuốt dọc bên phải để chỉnh âm lượng (có hiệu lực khi vào trang mới)',
 			'settings.leftVerticalSwipeBrightness' => 'Vuốt dọc bên trái để chỉnh độ sáng (có hiệu lực khi vào trang mới)',
-			'settings.longPressFastForward' => 'Nhấn giữ để tua nhanh',
-			'settings.enableMouseHoverShowToolbar' => 'Hiện thanh công cụ khi di chuột',
 			_ => null,
 		} ?? switch (path) {
+			'settings.longPressFastForward' => 'Nhấn giữ để tua nhanh',
+			'settings.enableMouseHoverShowToolbar' => 'Hiện thanh công cụ khi di chuột',
 			'settings.enableMouseHoverShowToolbarInfo' => 'Khi bật, thanh công cụ video sẽ hiện khi con trỏ chuột ở trên trình phát. Thanh này sẽ tự động ẩn sau 3 giây không thao tác.',
 			'settings.enableHorizontalDragSeek' => 'Vuốt ngang để tua',
 			'settings.enableVideoGestureZoom' => 'Chụm để thu phóng khung hình video',
@@ -6621,10 +6625,10 @@ extension on TranslationsVi {
 			'videoDetail.gestureGuide.quest.swipeTitle' => 'Kéo ngang để lật trang',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Hướng vào hình ảnh, giữ cò ngón trỏ và kéo sang trái. Thả ra sau tín hiệu lật trang để chuyển tiếp; kéo sang phải để lùi lại. Chụm và kéo cũng hoạt động.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Hình ảnh phải ở mức 1× để lật trang bằng cách kéo. Video trong thư viện cũng hỗ trợ. Sân khấu đứng yên cho đến khi bạn thả ra.',
-			'videoDetail.gestureGuide.quest.zoomTitle' => 'Thu phóng vào hình ảnh',
-			'videoDetail.gestureGuide.quest.zoomBody' => 'Hướng vào một chi tiết trong hình ảnh, giữ cò ngón trỏ, rồi đẩy cần gạt lên để phóng to hoặc xuống để thu nhỏ. Thu phóng neo tại điểm bạn nhấn.',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.zoomTitle' => 'Thu phóng vào hình ảnh',
+			'videoDetail.gestureGuide.quest.zoomBody' => 'Hướng vào một chi tiết trong hình ảnh, giữ cò ngón trỏ, rồi đẩy cần gạt lên để phóng to hoặc xuống để thu nhỏ. Thu phóng neo tại điểm bạn nhấn.',
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Thao tác này phóng to hình ảnh bên trong cửa sổ của nó. Nếu không giữ hình ảnh, lên/xuống sẽ điều chỉnh khoảng cách xem.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Di chuyển và khôi phục hình ảnh',
 			'videoDetail.gestureGuide.quest.panBody' => 'Sau khi đã thu phóng, giữ cò ngón trỏ và kéo để nhìn quanh. Nhấn đúp vào hình ảnh để thu phóng lên 2.5× hoặc khôi phục. Với bàn tay, chụm hai lần thật nhanh.',
@@ -7135,10 +7139,10 @@ extension on TranslationsVi {
 			'download.deleteByDate.noMatch' => 'Không có tác vụ nào khớp điều kiện đã chọn',
 			'download.deleteByDate.invalidRange' => 'Ngày bắt đầu phải trước hoặc bằng ngày kết thúc',
 			'download.deleteByDate.confirmTitle' => 'Xác nhận xóa',
-			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Xóa ${count} tác vụ tải xuống và tệp của chúng? Thao tác này không thể hoàn tác.',
-			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Đang xóa ${done}/${total}…',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Xóa ${count} tác vụ tải xuống và tệp của chúng? Thao tác này không thể hoàn tác.',
+			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Đang xóa ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Đã xóa ${count} tác vụ',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Đã xóa ${deleted} tác vụ; bỏ qua ${skipped} (đang được dùng)',
 			'download.relocation.moveFiles' => 'Move files',
@@ -7649,10 +7653,10 @@ extension on TranslationsVi {
 			'navigationOrderSettings.navigationItemSorting' => 'Sắp xếp mục điều hướng',
 			'navigationOrderSettings.done' => 'Xong',
 			'navigationOrderSettings.edit' => 'Chỉnh sửa',
-			'navigationOrderSettings.reset' => 'Đặt lại',
-			'navigationOrderSettings.previewEffect' => 'Xem trước hiệu ứng',
 			_ => null,
 		} ?? switch (path) {
+			'navigationOrderSettings.reset' => 'Đặt lại',
+			'navigationOrderSettings.previewEffect' => 'Xem trước hiệu ứng',
 			'navigationOrderSettings.bottomNavigationPreview' => 'Xem trước thanh điều hướng dưới:',
 			'navigationOrderSettings.sidebarPreview' => 'Xem trước thanh bên:',
 			'navigationOrderSettings.confirmResetNavigationOrder' => 'Xác nhận đặt lại thứ tự điều hướng',
@@ -8163,10 +8167,10 @@ extension on TranslationsVi {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + làm đậm đường nét, bổ sung hiệu ứng làm đậm đường nét cho Mode A nhanh, giúp đường nét nổi bật và cách điệu hơn.',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + làm mảnh đường nét, bổ sung hiệu ứng làm mảnh đường nét cho Mode A chất lượng cao, giúp hình ảnh tinh tế hơn.',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
-			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
-			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			_ => null,
 		} ?? switch (path) {
+			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
+			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
@@ -8677,10 +8681,10 @@ extension on TranslationsVi {
 			'ai.providers' => 'Nhà cung cấp',
 			'ai.providersHint' => 'Thêm một hoặc nhiều nhà cung cấp AI, sau đó chọn nhà cung cấp cho từng tính năng.',
 			'ai.addProvider' => 'Thêm nhà cung cấp',
-			'ai.noProviders' => 'Chưa có nhà cung cấp nào. Hãy thêm để bật tính năng dịch, tìm kiếm và chữ ký bằng AI.',
-			'ai.pickPreset' => 'Chọn nhà cung cấp',
 			_ => null,
 		} ?? switch (path) {
+			'ai.noProviders' => 'Chưa có nhà cung cấp nào. Hãy thêm để bật tính năng dịch, tìm kiếm và chữ ký bằng AI.',
+			'ai.pickPreset' => 'Chọn nhà cung cấp',
 			'ai.providerNameLabel' => 'Tên',
 			'ai.apiKey' => 'Khóa API',
 			'ai.baseUrl' => 'Điểm cuối',

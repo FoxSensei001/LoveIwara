@@ -896,6 +896,8 @@ class _TranslationsSettingsKo extends TranslationsSettingsEn {
 	@override String get autoEnterFullscreenKindSystemDesc => '창 관리자가 창을 전체 화면으로 전환합니다';
 	@override String get autoEnterFullscreenKindApp => '앱 전체 화면';
 	@override String get autoEnterFullscreenKindAppDesc => '창은 그대로 두고 앱 전체를 플레이어로 전환합니다';
+	@override String get autoEnterPipOnLeave => '나갈 때 PiP로 전환';
+	@override String get autoEnterPipOnLeaveDesc => '상세 페이지나 전체 화면에서 재생 중일 때 홈으로 나가거나 다른 앱으로 전환하면 자동으로 PiP가 됩니다. 일시정지 중에는 전환되지 않습니다. 앱 잠금이나 백그라운드 개인정보 보호 모드가 켜져 있을 때도 전환되지 않습니다';
 	@override String get signature => '서명';
 	@override String get enableSignature => '서명 사용';
 	@override String get enableSignatureDesc => '이 설정은 답글 작성 시 앱이 서명을 추가할지 여부를 결정합니다';
@@ -5791,6 +5793,8 @@ extension on TranslationsKo {
 			'settings.autoEnterFullscreenKindSystemDesc' => '창 관리자가 창을 전체 화면으로 전환합니다',
 			'settings.autoEnterFullscreenKindApp' => '앱 전체 화면',
 			'settings.autoEnterFullscreenKindAppDesc' => '창은 그대로 두고 앱 전체를 플레이어로 전환합니다',
+			'settings.autoEnterPipOnLeave' => '나갈 때 PiP로 전환',
+			'settings.autoEnterPipOnLeaveDesc' => '상세 페이지나 전체 화면에서 재생 중일 때 홈으로 나가거나 다른 앱으로 전환하면 자동으로 PiP가 됩니다. 일시정지 중에는 전환되지 않습니다. 앱 잠금이나 백그라운드 개인정보 보호 모드가 켜져 있을 때도 전환되지 않습니다',
 			'settings.signature' => '서명',
 			'settings.enableSignature' => '서명 사용',
 			'settings.enableSignatureDesc' => '이 설정은 답글 작성 시 앱이 서명을 추가할지 여부를 결정합니다',
@@ -6107,10 +6111,10 @@ extension on TranslationsKo {
 			'settings.doubleTapPause' => '두 번 탭하여 일시정지',
 			'settings.rightVerticalSwipeVolume' => '오른쪽 세로 스와이프 볼륨 (새 페이지 진입 시 적용)',
 			'settings.leftVerticalSwipeBrightness' => '왼쪽 세로 스와이프 밝기 (새 페이지 진입 시 적용)',
-			'settings.longPressFastForward' => '길게 눌러 빨리 감기',
-			'settings.enableMouseHoverShowToolbar' => '마우스 오버 시 도구 모음 표시',
 			_ => null,
 		} ?? switch (path) {
+			'settings.longPressFastForward' => '길게 눌러 빨리 감기',
+			'settings.enableMouseHoverShowToolbar' => '마우스 오버 시 도구 모음 표시',
 			'settings.enableMouseHoverShowToolbarInfo' => '활성화하면 플레이어 위로 마우스를 올리면 동영상 도구 모음이 표시됩니다. 3초 동안 활동이 없으면 자동으로 숨겨집니다.',
 			'settings.enableHorizontalDragSeek' => '가로로 밀어 탐색',
 			'settings.enableVideoGestureZoom' => '핀치로 동영상 화면 확대',
@@ -6621,10 +6625,10 @@ extension on TranslationsKo {
 			'videoDetail.gestureGuide.quest.swipeTitle' => '옆으로 끌어 페이지 넘기기',
 			'videoDetail.gestureGuide.quest.swipeBody' => '이미지에 광선을 맞추고 검지 트리거를 누른 채 왼쪽으로 끄세요. 페이지 넘김 신호 후 놓으면 넘어가고, 오른쪽으로 끌면 뒤로 갑니다. 집어서 끌어도 됩니다.',
 			'videoDetail.gestureGuide.quest.swipeHint' => '이미지를 끌어 페이지를 넘기려면 1배 상태여야 합니다. 갤러리 동영상도 지원합니다. 놓을 때까지 스테이지는 그대로 유지됩니다.',
-			'videoDetail.gestureGuide.quest.zoomTitle' => '이미지 확대',
-			'videoDetail.gestureGuide.quest.zoomBody' => '이미지의 세부 부분에 광선을 맞추고 검지 트리거를 누른 뒤 스틱을 위로 밀면 확대, 아래로 밀면 축소됩니다. 확대는 누른 지점을 기준으로 고정됩니다.',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.zoomTitle' => '이미지 확대',
+			'videoDetail.gestureGuide.quest.zoomBody' => '이미지의 세부 부분에 광선을 맞추고 검지 트리거를 누른 뒤 스틱을 위로 밀면 확대, 아래로 밀면 축소됩니다. 확대는 누른 지점을 기준으로 고정됩니다.',
 			'videoDetail.gestureGuide.quest.zoomHint' => '이미지 창 안의 이미지를 확대합니다. 이미지를 잡지 않은 상태에서는 위/아래가 시청 거리를 조정합니다.',
 			'videoDetail.gestureGuide.quest.panTitle' => '이미지 이동 및 복원',
 			'videoDetail.gestureGuide.quest.panBody' => '확대한 후 검지 트리거를 누른 채 끌면 주변을 둘러볼 수 있습니다. 이미지를 두 번 탭하면 2.5배로 확대하거나 원래대로 되돌립니다. 손을 사용할 때는 빠르게 두 번 집으세요.',
@@ -7135,10 +7139,10 @@ extension on TranslationsKo {
 			'download.deleteByDate.noMatch' => '선택한 조건에 맞는 작업이 없습니다',
 			'download.deleteByDate.invalidRange' => '시작일은 종료일과 같거나 그보다 앞서야 합니다',
 			'download.deleteByDate.confirmTitle' => '삭제 확인',
-			'download.deleteByDate.confirmContent' => ({required Object count}) => '${count}개의 다운로드 작업과 해당 파일을 삭제하시겠습니까? 되돌릴 수 없습니다.',
-			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '삭제 중 ${done}/${total}…',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.confirmContent' => ({required Object count}) => '${count}개의 다운로드 작업과 해당 파일을 삭제하시겠습니까? 되돌릴 수 없습니다.',
+			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '삭제 중 ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count}개 작업 삭제됨',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '${deleted}개 작업 삭제됨, ${skipped}개 건너뜀(사용 중)',
 			'download.relocation.moveFiles' => 'Move files',
@@ -7649,10 +7653,10 @@ extension on TranslationsKo {
 			'navigationOrderSettings.navigationItemSorting' => '내비게이션 항목 정렬',
 			'navigationOrderSettings.done' => '완료',
 			'navigationOrderSettings.edit' => '편집',
-			'navigationOrderSettings.reset' => '초기화',
-			'navigationOrderSettings.previewEffect' => '미리보기 효과',
 			_ => null,
 		} ?? switch (path) {
+			'navigationOrderSettings.reset' => '초기화',
+			'navigationOrderSettings.previewEffect' => '미리보기 효과',
 			'navigationOrderSettings.bottomNavigationPreview' => '하단 내비게이션 미리보기:',
 			'navigationOrderSettings.sidebarPreview' => '사이드바 미리보기:',
 			'navigationOrderSettings.confirmResetNavigationOrder' => '내비게이션 순서 초기화 확인',
@@ -8163,10 +8167,10 @@ extension on TranslationsKo {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + 선 어둡게 하기로, 고속 Mode A에 선을 더 진하게 만드는 효과를 추가해 선을 더 뚜렷하고 스타일리시하게 표현합니다.',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + 선 얇게 하기로, 고품질 Mode A에 선을 더 가늘게 만드는 효과를 추가해 더 정교하게 표현합니다.',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
-			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
-			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			_ => null,
 		} ?? switch (path) {
+			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
+			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
@@ -8677,10 +8681,10 @@ extension on TranslationsKo {
 			'ai.providers' => '제공자',
 			'ai.providersHint' => '하나 이상의 AI 제공자를 추가한 뒤, 각 기능에서 사용할 제공자를 지정하세요.',
 			'ai.addProvider' => '제공자 추가',
-			'ai.noProviders' => '등록된 제공자가 없습니다. 제공자를 추가하면 AI 번역, 검색, 서명 기능을 사용할 수 있습니다.',
-			'ai.pickPreset' => '제공자 선택',
 			_ => null,
 		} ?? switch (path) {
+			'ai.noProviders' => '등록된 제공자가 없습니다. 제공자를 추가하면 AI 번역, 검색, 서명 기능을 사용할 수 있습니다.',
+			'ai.pickPreset' => '제공자 선택',
 			'ai.providerNameLabel' => '이름',
 			'ai.apiKey' => 'API 키',
 			'ai.baseUrl' => '엔드포인트',

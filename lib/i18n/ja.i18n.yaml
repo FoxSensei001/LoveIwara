@@ -745,6 +745,8 @@ settings:
   autoEnterFullscreenKindSystemDesc: ウィンドウマネージャーにウィンドウを全画面にさせる
   autoEnterFullscreenKindApp: アプリ全画面
   autoEnterFullscreenKindAppDesc: ウィンドウの大きさは変えず、アプリ全体をプレイヤーにする
+  autoEnterPipOnLeave: "ホームに戻ると小窓にする"
+  autoEnterPipOnLeaveDesc: "詳細ページや全画面で再生中にホームへ戻る・別のアプリに切り替えると、自動で小窓になります。一時停止中はなりません。アプリロックやバックグラウンドのプライバシーモードがオンのときも同様です"
   signature: 小尾巴
   enableSignature: 小尾巴を有効にする
   enableSignatureDesc: この設定はアプリが回覆時に小尾巴を有効にするかどうかを決定します

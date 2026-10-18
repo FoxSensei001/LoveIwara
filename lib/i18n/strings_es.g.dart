@@ -896,6 +896,8 @@ class _TranslationsSettingsEs extends TranslationsSettingsEn {
 	@override String get autoEnterFullscreenKindSystemDesc => 'Dejar que el gestor de ventanas ponga la ventana en pantalla completa';
 	@override String get autoEnterFullscreenKindApp => 'Pantalla completa de la aplicación';
 	@override String get autoEnterFullscreenKindAppDesc => 'Mantener la ventana tal cual y convertir toda la aplicación en el reproductor';
+	@override String get autoEnterPipOnLeave => 'Imagen en imagen al salir';
+	@override String get autoEnterPipOnLeaveDesc => 'Si un vídeo se está reproduciendo en su página de detalles o en pantalla completa, al ir a la pantalla de inicio o cambiar de app pasa a imagen en imagen. No si está en pausa, ni con el bloqueo de la app o el modo de privacidad en segundo plano activados';
 	@override String get signature => 'Firma';
 	@override String get enableSignature => 'Activar firma';
 	@override String get enableSignatureDesc => 'Esta configuración determina si la aplicación añade la firma al responder';
@@ -5791,6 +5793,8 @@ extension on TranslationsEs {
 			'settings.autoEnterFullscreenKindSystemDesc' => 'Dejar que el gestor de ventanas ponga la ventana en pantalla completa',
 			'settings.autoEnterFullscreenKindApp' => 'Pantalla completa de la aplicación',
 			'settings.autoEnterFullscreenKindAppDesc' => 'Mantener la ventana tal cual y convertir toda la aplicación en el reproductor',
+			'settings.autoEnterPipOnLeave' => 'Imagen en imagen al salir',
+			'settings.autoEnterPipOnLeaveDesc' => 'Si un vídeo se está reproduciendo en su página de detalles o en pantalla completa, al ir a la pantalla de inicio o cambiar de app pasa a imagen en imagen. No si está en pausa, ni con el bloqueo de la app o el modo de privacidad en segundo plano activados',
 			'settings.signature' => 'Firma',
 			'settings.enableSignature' => 'Activar firma',
 			'settings.enableSignatureDesc' => 'Esta configuración determina si la aplicación añade la firma al responder',
@@ -6107,10 +6111,10 @@ extension on TranslationsEs {
 			'settings.doubleTapPause' => 'Pausa con doble toque',
 			'settings.rightVerticalSwipeVolume' => 'Volumen con deslizamiento vertical a la derecha (efectivo al entrar en una página nueva)',
 			'settings.leftVerticalSwipeBrightness' => 'Brillo con deslizamiento vertical a la izquierda (efectivo al entrar en una página nueva)',
-			'settings.longPressFastForward' => 'Avance rápido con pulsación larga',
-			'settings.enableMouseHoverShowToolbar' => 'Mostrar la barra de herramientas al pasar el ratón',
 			_ => null,
 		} ?? switch (path) {
+			'settings.longPressFastForward' => 'Avance rápido con pulsación larga',
+			'settings.enableMouseHoverShowToolbar' => 'Mostrar la barra de herramientas al pasar el ratón',
 			'settings.enableMouseHoverShowToolbarInfo' => 'Cuando está activado, la barra de herramientas del video se muestra al pasar el ratón sobre el reproductor. Se oculta automáticamente tras 3 segundos de inactividad.',
 			'settings.enableHorizontalDragSeek' => 'Deslizamiento horizontal para buscar',
 			'settings.enableVideoGestureZoom' => 'Pellizcar para ampliar el fotograma del video',
@@ -6621,10 +6625,10 @@ extension on TranslationsEs {
 			'videoDetail.gestureGuide.quest.swipeTitle' => 'Arrastrar a lo ancho para pasar de página',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Apunte a la imagen, mantenga el gatillo índice y arrastre a la izquierda. Suelte tras la señal de cambio de página para avanzar; arrastre a la derecha para retroceder. También funciona pellizcar y arrastrar.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Las imágenes deben estar a 1× para pasar páginas arrastrando. Los videos de galería también lo admiten. El escenario permanece inmóvil hasta que suelte.',
-			'videoDetail.gestureGuide.quest.zoomTitle' => 'Ampliar la imagen',
-			'videoDetail.gestureGuide.quest.zoomBody' => 'Apunte a un detalle de la imagen, mantenga el gatillo índice y luego empuje el joystick hacia arriba para ampliar o hacia abajo para reducir. El zoom se fija donde pulsó.',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.zoomTitle' => 'Ampliar la imagen',
+			'videoDetail.gestureGuide.quest.zoomBody' => 'Apunte a un detalle de la imagen, mantenga el gatillo índice y luego empuje el joystick hacia arriba para ampliar o hacia abajo para reducir. El zoom se fija donde pulsó.',
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Esto amplía la imagen dentro de su ventana. Sin mantener la imagen, arriba/abajo ajusta la distancia de visualización.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Desplazar y restaurar la imagen',
 			'videoDetail.gestureGuide.quest.panBody' => 'Una vez ampliada, mantenga el gatillo índice y arrastre para mirar alrededor. Toque dos veces la imagen para ampliarla a 2,5× o restaurarla. Con las manos, pellizque dos veces rápido.',
@@ -7135,10 +7139,10 @@ extension on TranslationsEs {
 			'download.deleteByDate.noMatch' => 'Ninguna tarea coincide con la condición seleccionada',
 			'download.deleteByDate.invalidRange' => 'La fecha de inicio debe ser anterior o igual a la fecha de fin',
 			'download.deleteByDate.confirmTitle' => 'Confirmar eliminación',
-			'download.deleteByDate.confirmContent' => ({required Object count}) => '¿Eliminar ${count} tareas de descarga y sus archivos? Esta acción no se puede deshacer.',
-			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Eliminando ${done}/${total}…',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.confirmContent' => ({required Object count}) => '¿Eliminar ${count} tareas de descarga y sus archivos? Esta acción no se puede deshacer.',
+			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Eliminando ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Se eliminaron ${count} tarea(s)',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Se eliminaron ${deleted} tarea(s); ${skipped} omitidas (en uso)',
 			'download.relocation.moveFiles' => 'Move files',
@@ -7649,10 +7653,10 @@ extension on TranslationsEs {
 			'navigationOrderSettings.navigationItemSorting' => 'Ordenación de los elementos de navegación',
 			'navigationOrderSettings.done' => 'Listo',
 			'navigationOrderSettings.edit' => 'Editar',
-			'navigationOrderSettings.reset' => 'Restablecer',
-			'navigationOrderSettings.previewEffect' => 'Efecto de vista previa',
 			_ => null,
 		} ?? switch (path) {
+			'navigationOrderSettings.reset' => 'Restablecer',
+			'navigationOrderSettings.previewEffect' => 'Efecto de vista previa',
 			'navigationOrderSettings.bottomNavigationPreview' => 'Vista previa de la navegación inferior:',
 			'navigationOrderSettings.sidebarPreview' => 'Vista previa de la barra lateral:',
 			'navigationOrderSettings.confirmResetNavigationOrder' => 'Confirmar el restablecimiento del orden de navegación',
@@ -8163,10 +8167,10 @@ extension on TranslationsEs {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Modo A (rápido) + oscurecimiento de líneas, que añade este efecto sobre el modo A rápido para lograr líneas más marcadas y estilizadas.',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Modo A (alta calidad) + adelgazamiento de líneas, que añade este efecto sobre el modo A de alta calidad para un aspecto más fino.',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
-			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
-			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			_ => null,
 		} ?? switch (path) {
+			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
+			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
@@ -8677,10 +8681,10 @@ extension on TranslationsEs {
 			'ai.providers' => 'Proveedores',
 			'ai.providersHint' => 'Añade uno o más proveedores de IA y elige cuál usará cada función.',
 			'ai.addProvider' => 'Añadir proveedor',
-			'ai.noProviders' => 'Aún no hay proveedores. Añade uno para habilitar la traducción, búsqueda y firma con IA.',
-			'ai.pickPreset' => 'Elegir proveedor',
 			_ => null,
 		} ?? switch (path) {
+			'ai.noProviders' => 'Aún no hay proveedores. Añade uno para habilitar la traducción, búsqueda y firma con IA.',
+			'ai.pickPreset' => 'Elegir proveedor',
 			'ai.providerNameLabel' => 'Nombre',
 			'ai.apiKey' => 'Clave API',
 			'ai.baseUrl' => 'Punto de conexión',

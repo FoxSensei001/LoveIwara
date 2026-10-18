@@ -744,6 +744,8 @@ settings:
   autoEnterFullscreenKindSystemDesc: Để trình quản lý cửa sổ đưa cửa sổ vào chế độ toàn màn hình
   autoEnterFullscreenKindApp: Toàn màn hình ứng dụng
   autoEnterFullscreenKindAppDesc: Giữ nguyên cửa sổ và biến toàn bộ ứng dụng thành trình phát
+  autoEnterPipOnLeave: "Ảnh trong ảnh khi rời ứng dụng"
+  autoEnterPipOnLeaveDesc: "Khi video đang phát ở trang chi tiết hoặc toàn màn hình, về màn hình chính hay chuyển ứng dụng sẽ tự thu nhỏ thành ảnh trong ảnh. Không áp dụng khi tạm dừng, hoặc khi bật khóa ứng dụng hay chế độ riêng tư khi chạy nền"
   signature: Chữ ký
   enableSignature: Bật chữ ký
   enableSignatureDesc: Cấu hình này quyết định ứng dụng có thêm chữ ký khi trả lời hay không

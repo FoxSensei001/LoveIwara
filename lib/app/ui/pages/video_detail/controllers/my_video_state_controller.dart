@@ -1136,9 +1136,23 @@ class MyVideoStateController extends GetxController
   /// 系统推来的进出画中画事件，见 [_handlePiPStatus]。
   StreamSubscription<bool>? _pipModeSubscription;
 
-  /// 谁设了「离开应用时自动进小窗」（[enterPiPMode] 的兜底分支）。系统里这个开关
-  /// 只有一份，所以和 [_pipOwnerKey] 一样是静态的。
+  /// 谁设了「离开应用时自动进小窗」。系统里这个开关只有一份，所以和 [_pipOwnerKey]
+  /// 一样是静态的。有两个来源：设置里的「回桌面自动进小窗」（[_syncPiPAutoEnter]，
+  /// 条件满足就一直设着），以及 [enterPiPMode] 当场失败时的一次性兜底。
   static String? _pipAutoEnterOwnerKey;
+
+  /// 设下去的那份宽高，和 [_pipAutoEnterOwnerKey] 是同一份系统状态。用来去重，
+  /// 以及换片后宽高变了时重设。
+  static (int, int)? _pipAutoEnterSize;
+
+  /// 本页设的自动进小窗是不是 [enterPiPMode] 的一次性兜底：兜底进过一次就撤、
+  /// 进来要补一次 play；设置开关设的两样都不做。
+  bool _pipAutoEnterIsFallback = false;
+
+  /// 「回桌面自动进小窗」开关、投屏状态、弹层数量的订阅，变了就 [_syncPiPAutoEnter]。
+  StreamSubscription<dynamic>? _pipAutoEnterSettingSubscription;
+  StreamSubscription<bool>? _pipAutoEnterCastingSubscription;
+  StreamSubscription<int>? _pipAutoEnterOverlaySubscription;
 
   // 在MyVideoStateController类成员变量区域添加
   final RxBool isSlidingBrightnessZone = false.obs; // 是否在滑动亮度区域
@@ -1787,6 +1801,7 @@ class MyVideoStateController extends GetxController
       if (GetPlatform.isAndroid) {
         _pipModeSubscription = AndroidPip.modeChanges.listen(_handlePiPStatus);
         // 新开一个详情页就撤掉上一页留下的自动进小窗，否则回桌面缩进小窗的是这一页。
+        // 设置开着的话，本页开播时会由 [_syncPiPAutoEnter] 重新设上。
         unawaited(_disarmPiPAutoEnter(onlyMine: false));
       }
 
@@ -1886,6 +1901,21 @@ class MyVideoStateController extends GetxController
             if (_isDisposed) return;
             await _applyRepeatMode();
           });
+
+      // 「回桌面自动进小窗」开关、投屏状态、弹层数量一变就重算（挂在 player 建好之后：
+      // 判据要读 player.state.playing）。
+      if (GetPlatform.isAndroid) {
+        _pipAutoEnterSettingSubscription = _configService
+            .settings[ConfigKey.AUTO_ENTER_PIP_ON_LEAVE_KEY]!
+            .listen((_) => _syncPiPAutoEnter());
+        _pipAutoEnterCastingSubscription = _dlnaCastService.isCasting.listen(
+          (_) => _syncPiPAutoEnter(),
+        );
+        _pipAutoEnterOverlaySubscription = OverlayTracker
+            .instance
+            .overlayCountChanges
+            .listen((_) => _syncPiPAutoEnter());
+      }
 
       // 添加滚动监听器
       scrollController.addListener(_scrollListener);
@@ -2884,15 +2914,18 @@ class MyVideoStateController extends GetxController
     if (_isDisposed) return;
 
     if (inPip) {
+      final autoEntered = _pipAutoEnterOwnerKey == _pipControllerKey;
       // 只允许 PiP 所有者更新 PiP UI 状态，避免后台详情页误入 PiP 并抢占播放。
+      // 离开应用时由系统自动进来的，所有者就是设了自动进小窗的那一页。
       if (_pipOwnerKey != _pipControllerKey) {
-        return;
+        if (!autoEntered) return;
+        _pipOwnerKey = _pipControllerKey;
       }
       if (!isPiPMode.value) {
         isPiPMode.value = true;
         // 走「离开时自动进入」兜底进来的：用户点过小窗，进了就该播（当场进入那条路
-        // 在 [enterPiPMode] 里自己 play）。
-        if (_pipAutoEnterOwnerKey == _pipControllerKey) {
+        // 在 [enterPiPMode] 里自己 play）。设置开关只在播放中才设，不必再补。
+        if (autoEntered && _pipAutoEnterIsFallback) {
           unawaited(player.play());
         }
       }
@@ -2901,19 +2934,88 @@ class MyVideoStateController extends GetxController
 
     if (isPiPMode.value) {
       isPiPMode.value = false;
+      // 从全屏缩进小窗的：全屏叠加层没有重建，不会再藏一次系统栏，展开后状态栏会露出来。
+      if (isFullscreen.value) appS.hideSystemUI();
     }
     if (_pipOwnerKey == _pipControllerKey) {
       _pipOwnerKey = null;
-      // 自动进小窗是一次性的兜底，用过就撤。
-      unawaited(_disarmPiPAutoEnter(onlyMine: false));
+      // 一次性兜底用过就撤；设置开关设的留着，下面按当前条件重算。
+      final keepSetting =
+          _pipAutoEnterOwnerKey == _pipControllerKey &&
+          !_pipAutoEnterIsFallback;
+      if (!keepSetting) unawaited(_disarmPiPAutoEnter(onlyMine: false));
     }
+    _syncPiPAutoEnter();
   }
 
   Future<void> _disarmPiPAutoEnter({bool onlyMine = true}) async {
     final owner = _pipAutoEnterOwnerKey;
     if (owner == null || (onlyMine && owner != _pipControllerKey)) return;
     _pipAutoEnterOwnerKey = null;
+    _pipAutoEnterSize = null;
     await AndroidPip.setAutoEnter();
+  }
+
+  /// 小窗的宽高比。宽高还没拿到时按 16:9；原生侧会把超出系统范围的比例夹到边界上。
+  (int, int) get _pipAspectSize {
+    final width = sourceVideoWidth.value;
+    final height = sourceVideoHeight.value;
+    return width > 0 && height > 0 ? (width, height) : (16, 9);
+  }
+
+  /// 设置里的「回桌面自动进小窗」此刻该不该生效：开关开着、本页在最上面（没被别的
+  /// 页面盖住）、正在播放、没在投屏。全屏在同一个路由里，不影响判断。
+  ///
+  /// 另有三种情况不设：
+  /// - 有弹层（评论框、播放器设置抽屉、菜单）浮着：小窗里会盖住画面；进小窗时把它
+  ///   收掉的话，写了一半的评论就没了。
+  /// - 开着应用锁或后台隐私模式：小窗期间 Activity 只是 paused，应用锁不开始计时，
+  ///   点开小窗就绕过了锁；旧系统上小窗里显示的还会是隐私遮罩。
+  /// - 头显：不支持画中画，设置项也不显示，但配置可能从备份还原成开着。
+  bool get _wantsPiPAutoEnter =>
+      !_isDisposed &&
+      !_isRouteCovered &&
+      _configService[ConfigKey.AUTO_ENTER_PIP_ON_LEAVE_KEY] == true &&
+      _configService[ConfigKey.APP_LOCK_ENABLED] != true &&
+      _configService[ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE] != true &&
+      !DeviceFormFactorUtils.isXrDevice &&
+      !OverlayTracker.instance.hasOverlay &&
+      player.state.playing &&
+      !_dlnaCastService.isCasting.value;
+
+  /// 按 [_wantsPiPAutoEnter] 设上或撤掉「离开应用时自动进小窗」，宽高变了就重设。
+  ///
+  /// 播放状态、宽高、开关、投屏、页面被盖住/露出、进出小窗时都会调。只发通道
+  /// 调用、不 await：同一条通道上的调用按发出顺序执行，先撤后设不会乱序。
+  void _syncPiPAutoEnter() {
+    if (!GetPlatform.isAndroid) return;
+    final mine = _pipAutoEnterOwnerKey == _pipControllerKey;
+    if (!_wantsPiPAutoEnter) {
+      // 一次性兜底不归这个开关管，留给它自己的撤销时机（见 [enterPiPMode]）。
+      if (mine && !_pipAutoEnterIsFallback) {
+        unawaited(_disarmPiPAutoEnter());
+      }
+      return;
+    }
+    final size = _pipAspectSize;
+    if (mine && _pipAutoEnterSize == size) return;
+    // 兜底设下的那份照旧是兜底（用户点过小窗，进来要补 play、进过一次就撤），
+    // 这里只更新宽高；撤掉之后再由开关按自己的规则重设。
+    if (!mine) _pipAutoEnterIsFallback = false;
+    _pipAutoEnterOwnerKey = _pipControllerKey;
+    _pipAutoEnterSize = size;
+    unawaited(_armPiPAutoEnter(size));
+  }
+
+  Future<void> _armPiPAutoEnter((int, int) size) async {
+    final ok = await AndroidPip.setAutoEnter(width: size.$1, height: size.$2);
+    if (ok) return;
+    // 没设上（设备不支持画中画等）：把账抹掉，别以为已经设好了。
+    if (_pipAutoEnterOwnerKey == _pipControllerKey &&
+        _pipAutoEnterSize == size) {
+      _pipAutoEnterOwnerKey = null;
+      _pipAutoEnterSize = null;
+    }
   }
 
   // 设置亮度
@@ -3248,6 +3350,9 @@ class MyVideoStateController extends GetxController
     LogUtils.i('MyVideoStateController onClose 被调用', 'MyVideoStateController');
     LocalMediaDerivationService.maybe?.resumeBackground();
     _isDisposed = true;
+    // 立刻撤，不等后面几个 await 之后的常规清理：这段时间里回桌面，系统会把一个
+    // 没人认领的页面缩进小窗。
+    unawaited(_disarmPiPAutoEnter());
     videoZoomInterruptSignal.value++;
     PageDepartureGuard.detach(this);
     if (Get.isRegistered<XrImmersiveService>()) {
@@ -3484,6 +3589,9 @@ class MyVideoStateController extends GetxController
     await Future.wait([
       repeatSettingSubscription?.cancel() ?? Future.value(),
       continueInQueueSettingSubscription?.cancel() ?? Future.value(),
+      _pipAutoEnterSettingSubscription?.cancel() ?? Future.value(),
+      _pipAutoEnterCastingSubscription?.cancel() ?? Future.value(),
+      _pipAutoEnterOverlaySubscription?.cancel() ?? Future.value(),
     ]);
   }
 
@@ -4290,6 +4398,7 @@ class MyVideoStateController extends GetxController
         pageLoadingState.value =
             VideoDetailPageLoadingState.successFecthVideoHeightInfo;
         _updateAspectRatio();
+        _syncPiPAutoEnter();
       }
     });
 
@@ -4302,6 +4411,7 @@ class MyVideoStateController extends GetxController
       if (playing) {
         _reconcileAutoFullscreen(AutoFullscreenTrigger.playbackStarted);
       }
+      _syncPiPAutoEnter();
     });
 
     // 播完了。这里**只负责报告事件**，"接下来播谁"由页面注入
@@ -4935,6 +5045,11 @@ class MyVideoStateController extends GetxController
     LogUtils.d('被别的页面盖住，暂停并复位', 'MyVideoStateController');
     // 否则回桌面时缩进小窗的是盖在上面的那一页。
     unawaited(_disarmPiPAutoEnter());
+    // 兜底失败后留下的所有权也一并交还：不然上面那页自动进小窗时，被盖住的这页
+    // 也会响应进入事件、切成小窗布局。
+    if (_pipOwnerKey == _pipControllerKey && !isPiPMode.value) {
+      _pipOwnerKey = null;
+    }
     suspendForCoveredRoute();
     pausePlayback();
     setDefaultBrightness();
@@ -5744,13 +5859,7 @@ class MyVideoStateController extends GetxController
   Future<void> enterPiPMode({VoidCallback? beforeEnter}) async {
     if (_isDisposed || _pipEnableInFlight) return;
 
-    // 宽高还没拿到时按 16:9 进；原生侧会把超出系统范围的比例夹到边界上。
-    int width = sourceVideoWidth.value;
-    int height = sourceVideoHeight.value;
-    if (width <= 0 || height <= 0) {
-      width = 16;
-      height = 9;
-    }
+    final (width, height) = _pipAspectSize;
 
     _pipEnableInFlight = true;
     try {
@@ -5787,6 +5896,8 @@ class MyVideoStateController extends GetxController
           return;
         }
         _pipAutoEnterOwnerKey = _pipControllerKey;
+        _pipAutoEnterSize = (width, height);
+        _pipAutoEnterIsFallback = true;
         _showPiPMessage(slang.t.videoDetail.pipEnterOnLeaveHint);
         return;
       }
@@ -5983,6 +6094,7 @@ class MyVideoStateController extends GetxController
     _startDisplayTimer();
     _startHealthSnapshotTimer();
     _setupVideoSourceExpirationTimer();
+    _syncPiPAutoEnter();
   }
 
   void _bindSystemVolumeListener() {

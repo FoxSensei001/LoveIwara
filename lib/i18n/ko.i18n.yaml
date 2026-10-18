@@ -744,6 +744,8 @@ settings:
   autoEnterFullscreenKindSystemDesc: 창 관리자가 창을 전체 화면으로 전환합니다
   autoEnterFullscreenKindApp: 앱 전체 화면
   autoEnterFullscreenKindAppDesc: 창은 그대로 두고 앱 전체를 플레이어로 전환합니다
+  autoEnterPipOnLeave: "나갈 때 PiP로 전환"
+  autoEnterPipOnLeaveDesc: "상세 페이지나 전체 화면에서 재생 중일 때 홈으로 나가거나 다른 앱으로 전환하면 자동으로 PiP가 됩니다. 일시정지 중에는 전환되지 않습니다. 앱 잠금이나 백그라운드 개인정보 보호 모드가 켜져 있을 때도 전환되지 않습니다"
   signature: 서명
   enableSignature: 서명 사용
   enableSignatureDesc: 이 설정은 답글 작성 시 앱이 서명을 추가할지 여부를 결정합니다

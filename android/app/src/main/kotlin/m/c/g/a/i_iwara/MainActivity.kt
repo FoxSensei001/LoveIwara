@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.IntentSender
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.database.ContentObserver
@@ -27,6 +28,7 @@ import android.util.Size
 import android.view.KeyEvent
 import android.view.WindowManager
 import android.webkit.MimeTypeMap
+import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import io.flutter.embedding.android.FlutterActivityLaunchConfigs
 import io.flutter.embedding.android.FlutterFragmentActivity
@@ -888,8 +890,31 @@ class MainActivity : FlutterFragmentActivity() {
             registerReceiver(screenLockReceiver, filter)
         }
         
+        // 权限申请走 Activity 内部那个隐藏的 startActivityForResult 重载，不经过下面的
+        // 重写；permission_handler 用的是 ActivityCompat.requestPermissions，会先问这个
+        // delegate。返回 false：只打个招呼，申请照常进行。
+        ActivityCompat.setPermissionCompatDelegate(permissionLaunchDelegate)
+
         // 处理启动时的 Intent（从文件管理器打开）
         handleIntent(intent)
+    }
+
+    private val permissionLaunchDelegate = object : ActivityCompat.PermissionCompatDelegate {
+        override fun requestPermissions(
+            activity: android.app.Activity,
+            permissions: Array<String>,
+            requestCode: Int,
+        ): Boolean {
+            if (activity === this@MainActivity) pipBridge?.beforeAppLaunch()
+            return false
+        }
+
+        override fun onActivityResult(
+            activity: android.app.Activity,
+            requestCode: Int,
+            resultCode: Int,
+            data: Intent?,
+        ): Boolean = false
     }
 
     override fun onDestroy() {
@@ -903,12 +928,46 @@ class MainActivity : FlutterFragmentActivity() {
         appLockChannel = null
         pipBridge?.dispose()
         pipBridge = null
+        ActivityCompat.setPermissionCompatDelegate(null)
         super.onDestroy()
     }
 
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
         pipBridge?.onUserLeaveHint()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        pipBridge?.onResume()
+    }
+
+    /**
+     * 应用自己拉起的界面不该触发「离开应用时自动进小窗」，见 [PipBridge.beforeAppLaunch]。
+     * Activity.startActivity 的各个重载、ActivityResult API、url_launcher / share_plus
+     * 最后都走到这里；权限申请另由 onCreate 里的 PermissionCompatDelegate 拦。
+     * 用 applicationContext 拉起的不经过这里，拦不到。
+     */
+    @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
+    override fun startActivityForResult(intent: Intent, requestCode: Int, options: Bundle?) {
+        pipBridge?.beforeAppLaunch()
+        super.startActivityForResult(intent, requestCode, options)
+    }
+
+    @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
+    override fun startIntentSenderForResult(
+        intent: IntentSender,
+        requestCode: Int,
+        fillInIntent: Intent?,
+        flagsMask: Int,
+        flagsValues: Int,
+        extraFlags: Int,
+        options: Bundle?,
+    ) {
+        pipBridge?.beforeAppLaunch()
+        super.startIntentSenderForResult(
+            intent, requestCode, fillInIntent, flagsMask, flagsValues, extraFlags, options
+        )
     }
 
     override fun onNewIntent(intent: Intent) {

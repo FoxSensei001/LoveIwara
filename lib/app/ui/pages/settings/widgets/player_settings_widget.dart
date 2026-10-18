@@ -21,6 +21,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
+import 'package:i_iwara/utils/device_form_factor_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 一个分区在哪种播放形态下才算数。
@@ -888,6 +889,20 @@ class PlayerSettingsWidget extends StatelessWidget {
                 },
               );
             }),
+          // 回桌面自动进小窗（仅安卓手机/平板，默认关）。头显上画中画不可用，
+          // 开着也什么都不会发生，所以连条目一起不显示。
+          if (GetPlatform.isAndroid && !DeviceFormFactorUtils.isXrDevice)
+            _switchTile(
+              context: context,
+              iconData: Icons.picture_in_picture_alt,
+              label: t.settings.autoEnterPipOnLeave,
+              description: t.settings.autoEnterPipOnLeaveDesc,
+              rxValue: _configService
+                  .settings[ConfigKey.AUTO_ENTER_PIP_ON_LEAVE_KEY]!,
+              onChanged: (value) {
+                _configService[ConfigKey.AUTO_ENTER_PIP_ON_LEAVE_KEY] = value;
+              },
+            ),
           // 工具栏隐藏时显示底部进度条
           _switchTile(
             context: context,

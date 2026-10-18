@@ -896,6 +896,8 @@ class _TranslationsSettingsId extends TranslationsSettingsEn {
 	@override String get autoEnterFullscreenKindSystemDesc => 'Biarkan pengelola jendela membuat jendela menjadi layar penuh';
 	@override String get autoEnterFullscreenKindApp => 'Layar Penuh Aplikasi';
 	@override String get autoEnterFullscreenKindAppDesc => 'Pertahankan jendela apa adanya dan ubah seluruh aplikasi menjadi pemutar';
+	@override String get autoEnterPipOnLeave => 'Gambar-dalam-gambar saat keluar';
+	@override String get autoEnterPipOnLeaveDesc => 'Saat video diputar di halaman detail atau layar penuh, kembali ke layar utama atau pindah aplikasi akan mengecilkannya ke gambar-dalam-gambar. Tidak saat dijeda, atau saat kunci aplikasi atau mode privasi latar belakang aktif';
 	@override String get signature => 'Tanda Tangan';
 	@override String get enableSignature => 'Aktifkan Tanda Tangan';
 	@override String get enableSignatureDesc => 'Konfigurasi ini menentukan apakah aplikasi akan menambahkan tanda tangan saat membalas';
@@ -5791,6 +5793,8 @@ extension on TranslationsId {
 			'settings.autoEnterFullscreenKindSystemDesc' => 'Biarkan pengelola jendela membuat jendela menjadi layar penuh',
 			'settings.autoEnterFullscreenKindApp' => 'Layar Penuh Aplikasi',
 			'settings.autoEnterFullscreenKindAppDesc' => 'Pertahankan jendela apa adanya dan ubah seluruh aplikasi menjadi pemutar',
+			'settings.autoEnterPipOnLeave' => 'Gambar-dalam-gambar saat keluar',
+			'settings.autoEnterPipOnLeaveDesc' => 'Saat video diputar di halaman detail atau layar penuh, kembali ke layar utama atau pindah aplikasi akan mengecilkannya ke gambar-dalam-gambar. Tidak saat dijeda, atau saat kunci aplikasi atau mode privasi latar belakang aktif',
 			'settings.signature' => 'Tanda Tangan',
 			'settings.enableSignature' => 'Aktifkan Tanda Tangan',
 			'settings.enableSignatureDesc' => 'Konfigurasi ini menentukan apakah aplikasi akan menambahkan tanda tangan saat membalas',
@@ -6107,10 +6111,10 @@ extension on TranslationsId {
 			'settings.doubleTapPause' => 'Jeda Ketuk Ganda',
 			'settings.rightVerticalSwipeVolume' => 'Geser Vertikal Kanan untuk Volume (Berlaku saat memasuki halaman baru)',
 			'settings.leftVerticalSwipeBrightness' => 'Geser Vertikal Kiri untuk Kecerahan (Berlaku saat memasuki halaman baru)',
-			'settings.longPressFastForward' => 'Tekan Lama untuk Maju Cepat',
-			'settings.enableMouseHoverShowToolbar' => 'Aktifkan Tampilkan Bilah Alat saat Kursor Melayang',
 			_ => null,
 		} ?? switch (path) {
+			'settings.longPressFastForward' => 'Tekan Lama untuk Maju Cepat',
+			'settings.enableMouseHoverShowToolbar' => 'Aktifkan Tampilkan Bilah Alat saat Kursor Melayang',
 			'settings.enableMouseHoverShowToolbarInfo' => 'Saat diaktifkan, bilah alat video akan ditampilkan saat kursor melayang di atas pemutar. Bilah akan disembunyikan secara otomatis setelah 3 detik tidak ada aktivitas.',
 			'settings.enableHorizontalDragSeek' => 'Geser Horizontal untuk Mencari',
 			'settings.enableVideoGestureZoom' => 'Cubit untuk Memperbesar Bingkai Video',
@@ -6621,10 +6625,10 @@ extension on TranslationsId {
 			'videoDetail.gestureGuide.quest.swipeTitle' => 'Seret melintasi untuk membalik halaman',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Arahkan ke gambar, tahan pemicu telunjuk dan seret ke kiri. Lepaskan setelah isyarat balik halaman untuk maju; seret ke kanan untuk kembali. Cubit-lalu-seret juga berfungsi.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Gambar harus pada 1× untuk membalik halaman dengan menyeret. Video galeri juga mendukungnya. Panggung tetap diam hingga Anda melepaskan.',
-			'videoDetail.gestureGuide.quest.zoomTitle' => 'Perbesar ke dalam gambar',
-			'videoDetail.gestureGuide.quest.zoomBody' => 'Arahkan ke detail pada gambar, tahan pemicu telunjuk, lalu dorong stik ke atas untuk memperbesar atau ke bawah untuk memperkecil. Zoom berjangkar di tempat Anda menekan.',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.zoomTitle' => 'Perbesar ke dalam gambar',
+			'videoDetail.gestureGuide.quest.zoomBody' => 'Arahkan ke detail pada gambar, tahan pemicu telunjuk, lalu dorong stik ke atas untuk memperbesar atau ke bawah untuk memperkecil. Zoom berjangkar di tempat Anda menekan.',
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Ini memperbesar gambar di dalam jendelanya. Tanpa menahan gambar, atas/bawah menyesuaikan jarak pandang.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Geser dan pulihkan gambar',
 			'videoDetail.gestureGuide.quest.panBody' => 'Setelah diperbesar, tahan pemicu telunjuk dan seret untuk melihat sekeliling. Ketuk dua kali gambar untuk memperbesar ke 2,5× atau memulihkannya. Dengan tangan, cubit dua kali dengan cepat.',
@@ -7135,10 +7139,10 @@ extension on TranslationsId {
 			'download.deleteByDate.noMatch' => 'Tidak ada tugas yang cocok dengan kondisi yang dipilih',
 			'download.deleteByDate.invalidRange' => 'Tanggal mulai harus sama dengan atau sebelum tanggal akhir',
 			'download.deleteByDate.confirmTitle' => 'Konfirmasi penghapusan',
-			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Hapus ${count} tugas unduhan dan berkasnya? Tindakan ini tidak dapat dibatalkan.',
-			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Menghapus ${done}/${total}…',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Hapus ${count} tugas unduhan dan berkasnya? Tindakan ini tidak dapat dibatalkan.',
+			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Menghapus ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Menghapus ${count} tugas',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Menghapus ${deleted} tugas; ${skipped} dilewati (sedang digunakan)',
 			'download.relocation.moveFiles' => 'Move files',
@@ -7649,10 +7653,10 @@ extension on TranslationsId {
 			'navigationOrderSettings.navigationItemSorting' => 'Pengurutan Item Navigasi',
 			'navigationOrderSettings.done' => 'Selesai',
 			'navigationOrderSettings.edit' => 'Ubah',
-			'navigationOrderSettings.reset' => 'Atur Ulang',
-			'navigationOrderSettings.previewEffect' => 'Pratinjau Efek',
 			_ => null,
 		} ?? switch (path) {
+			'navigationOrderSettings.reset' => 'Atur Ulang',
+			'navigationOrderSettings.previewEffect' => 'Pratinjau Efek',
 			'navigationOrderSettings.bottomNavigationPreview' => 'Pratinjau Navigasi Bawah:',
 			'navigationOrderSettings.sidebarPreview' => 'Pratinjau Bilah Samping:',
 			'navigationOrderSettings.confirmResetNavigationOrder' => 'Konfirmasi Atur Ulang Urutan Navigasi',
@@ -8163,10 +8167,10 @@ extension on TranslationsId {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Cepat) + Penggelapan garis, menambahkan efek penggelapan garis pada mode A cepat untuk garis yang lebih menonjol dan bergaya.',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + Penipisan garis, menambahkan efek penipisan garis pada mode A kualitas tinggi untuk tampilan yang lebih halus.',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
-			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
-			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			_ => null,
 		} ?? switch (path) {
+			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
+			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
@@ -8677,10 +8681,10 @@ extension on TranslationsId {
 			'ai.providers' => 'Penyedia',
 			'ai.providersHint' => 'Tambahkan satu atau beberapa penyedia AI, lalu pilih mana yang digunakan setiap fitur.',
 			'ai.addProvider' => 'Tambah penyedia',
-			'ai.noProviders' => 'Belum ada penyedia. Tambahkan satu untuk mengaktifkan terjemahan, pencarian, dan tanda tangan AI.',
-			'ai.pickPreset' => 'Pilih penyedia',
 			_ => null,
 		} ?? switch (path) {
+			'ai.noProviders' => 'Belum ada penyedia. Tambahkan satu untuk mengaktifkan terjemahan, pencarian, dan tanda tangan AI.',
+			'ai.pickPreset' => 'Pilih penyedia',
 			'ai.providerNameLabel' => 'Nama',
 			'ai.apiKey' => 'Kunci API',
 			'ai.baseUrl' => 'Alamat endpoint',

@@ -766,6 +766,8 @@ settings:
   autoEnterFullscreenKindSystemDesc: Let the window manager take the window fullscreen
   autoEnterFullscreenKindApp: App Fullscreen
   autoEnterFullscreenKindAppDesc: Keep the window as it is and turn the whole app into the player
+  autoEnterPipOnLeave: "Picture-in-picture when leaving"
+  autoEnterPipOnLeaveDesc: "While a video is playing on its detail page or in fullscreen, going home or switching apps shrinks it into picture-in-picture. Not when paused, or while app lock or background privacy mode is on"
   signature: Signature
   enableSignature: Enable Signature
   enableSignatureDesc: This configuration determines whether the app will add signature when replying

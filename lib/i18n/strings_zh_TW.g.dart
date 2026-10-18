@@ -918,6 +918,8 @@ class _TranslationsSettingsZhTw extends TranslationsSettingsEn {
 	@override String get autoEnterFullscreenKindSystemDesc => '讓視窗管理員把視窗變成全螢幕';
 	@override String get autoEnterFullscreenKindApp => '應用全螢幕';
 	@override String get autoEnterFullscreenKindAppDesc => '視窗大小不變，整個應用變成播放器';
+	@override String get autoEnterPipOnLeave => '回桌面自動進小窗';
+	@override String get autoEnterPipOnLeaveDesc => '在影片詳情頁或全螢幕播放時，回到桌面或切到別的應用會自動縮成小窗。暫停時不會；開著應用鎖或後台隱私模式時也不會';
 	@override String get signature => '小尾巴';
 	@override String get enableSignature => '小尾巴啟用';
 	@override String get enableSignatureDesc => '此配置決定回覆時是否自動添加小尾巴';
@@ -5835,6 +5837,8 @@ extension on TranslationsZhTw {
 			'settings.autoEnterFullscreenKindSystemDesc' => '讓視窗管理員把視窗變成全螢幕',
 			'settings.autoEnterFullscreenKindApp' => '應用全螢幕',
 			'settings.autoEnterFullscreenKindAppDesc' => '視窗大小不變，整個應用變成播放器',
+			'settings.autoEnterPipOnLeave' => '回桌面自動進小窗',
+			'settings.autoEnterPipOnLeaveDesc' => '在影片詳情頁或全螢幕播放時，回到桌面或切到別的應用會自動縮成小窗。暫停時不會；開著應用鎖或後台隱私模式時也不會',
 			'settings.signature' => '小尾巴',
 			'settings.enableSignature' => '小尾巴啟用',
 			'settings.enableSignatureDesc' => '此配置決定回覆時是否自動添加小尾巴',
@@ -6129,10 +6133,10 @@ extension on TranslationsZhTw {
 			'settings.keybinding.actionGalleryToggleMute' => '靜音切換',
 			'settings.keybinding.actionPlayPause' => '播放 / 暫停',
 			'settings.keybinding.actionSpeedUp' => '加快倍速',
-			'settings.keybinding.actionSpeedDown' => '減慢倍速',
-			'settings.keybinding.actionSeekForward' => '快進',
 			_ => null,
 		} ?? switch (path) {
+			'settings.keybinding.actionSpeedDown' => '減慢倍速',
+			'settings.keybinding.actionSeekForward' => '快進',
 			'settings.keybinding.actionSeekBackward' => '快退',
 			'settings.keybinding.actionVolumeUp' => '增大音量',
 			'settings.keybinding.actionVolumeDown' => '減小音量',
@@ -6643,10 +6647,10 @@ extension on TranslationsZhTw {
 			'videoDetail.gestureGuide.mDoubleTap' => '雙擊：左側後退 / 中央暫停 / 右側快進',
 			'videoDetail.gestureGuide.mHorizontalDrag' => '橫向滑動：調整進度',
 			'videoDetail.gestureGuide.mVerticalDrag' => '垂直滑動：左側亮度 / 右側音量',
-			'videoDetail.gestureGuide.mLongPress' => '長按：臨時倍速播放',
-			'videoDetail.gestureGuide.mPinch' => '雙指捏合：縮放畫面',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.mLongPress' => '長按：臨時倍速播放',
+			'videoDetail.gestureGuide.mPinch' => '雙指捏合：縮放畫面',
 			'videoDetail.gestureGuide.mRotate' => '雙指旋轉：旋轉畫面',
 			'videoDetail.gestureGuide.dTap' => '單擊：顯示 / 隱藏控制列',
 			'videoDetail.gestureGuide.dDoubleTap' => '雙擊：左側後退 / 中央暫停 / 右側快進',
@@ -7157,10 +7161,10 @@ extension on TranslationsZhTw {
 			'download.errorTypes.unknown' => '未知錯誤',
 			'download.errorDetailCopied' => '已複製錯誤詳情',
 			'download.errorDetailCopyHint' => '長按複製錯誤詳情',
-			'download.restoredPaused.banner' => ({required Object num}) => '上次離開時有 ${num} 個任務未完成，已暫停',
-			'download.restoredPaused.resume' => '全部繼續',
 			_ => null,
 		} ?? switch (path) {
+			'download.restoredPaused.banner' => ({required Object num}) => '上次離開時有 ${num} 個任務未完成，已暫停',
+			'download.restoredPaused.resume' => '全部繼續',
 			'download.restoredPaused.dismiss' => '忽略',
 			'download.actions.open' => '開啟',
 			'download.actions.play' => '播放',
@@ -7671,10 +7675,10 @@ extension on TranslationsZhTw {
 			'translation.streamingTranslationTimeout' => '流式翻譯超時，強制關閉資源',
 			'translation.translationRequestTimeout' => '翻譯請求超時',
 			'translation.streamingTranslationDataTimeout' => '流式翻譯接收資料超時',
-			'translation.dataReceptionTimeout' => '接收資料超時',
-			'translation.streamDataParseError' => '解析流資料時出錯',
 			_ => null,
 		} ?? switch (path) {
+			'translation.dataReceptionTimeout' => '接收資料超時',
+			'translation.streamDataParseError' => '解析流資料時出錯',
 			'translation.streamingTranslationFailed' => '流式翻譯失敗',
 			'translation.fallbackTranslationFailed' => '降級到普通翻譯也失敗',
 			'translation.translationSettings' => '翻譯設定',
@@ -8185,10 +8189,10 @@ extension on TranslationsZhTw {
 			'anime4k.presetGroups.highQuality' => '高品質',
 			'anime4k.presetGroups.fast' => '快速',
 			'anime4k.presetGroups.lite' => '輕量級',
-			'anime4k.presetGroups.moreLite' => '更多輕量級',
-			'anime4k.presetGroups.custom' => '自訂',
 			_ => null,
 		} ?? switch (path) {
+			'anime4k.presetGroups.moreLite' => '更多輕量級',
+			'anime4k.presetGroups.custom' => '自訂',
 			'anime4k.presetDescriptions.mode_a_hq' => '適用於大多數1080p動漫，特別是處理模糊、重採樣和壓縮瑕疵。提供最高的感知品質。',
 			'anime4k.presetDescriptions.mode_b_hq' => '適用於輕微模糊或因縮放產生的振鈴效應的動漫。可以有效減少振鈴和鋸齒。',
 			'anime4k.presetDescriptions.mode_c_hq' => '適用於幾乎沒有瑕疵的高品質片源（如原生1080p的動畫電影或桌布）。降噪並提供最高的PSNR。',
@@ -8699,10 +8703,10 @@ extension on TranslationsZhTw {
 			'localMedia.removeSourceTitle' => ({required Object name}) => '移除「${name}」？',
 			'localMedia.removeSourceBody' => '檔案本身一個不動，只是把它從本機媒體庫移出去。',
 			'localMedia.remove' => '移除',
-			'localMedia.removeFolder' => '移除來源',
-			'localMedia.removeFolderSelectTitle' => '選擇要移除的來源',
 			_ => null,
 		} ?? switch (path) {
+			'localMedia.removeFolder' => '移除來源',
+			'localMedia.removeFolderSelectTitle' => '選擇要移除的來源',
 			'localMedia.longPressToRemove' => '長按可移除這個資料夾',
 			'localMedia.clearProgress' => '清除本機觀看記錄',
 			'localMedia.clearProgressCount' => ({required Object count}) => '共 ${count} 筆',

@@ -2287,6 +2287,12 @@ class TranslationsSettingsEn {
 	/// en: 'Keep the window as it is and turn the whole app into the player'
 	String get autoEnterFullscreenKindAppDesc => 'Keep the window as it is and turn the whole app into the player';
 
+	/// en: 'Picture-in-picture when leaving'
+	String get autoEnterPipOnLeave => 'Picture-in-picture when leaving';
+
+	/// en: 'While a video is playing on its detail page or in fullscreen, going home or switching apps shrinks it into picture-in-picture. Not when paused, or while app lock or background privacy mode is on'
+	String get autoEnterPipOnLeaveDesc => 'While a video is playing on its detail page or in fullscreen, going home or switching apps shrinks it into picture-in-picture. Not when paused, or while app lock or background privacy mode is on';
+
 	/// en: 'Signature'
 	String get signature => 'Signature';
 
@@ -13439,6 +13445,8 @@ extension on Translations {
 			'settings.autoEnterFullscreenKindSystemDesc' => 'Let the window manager take the window fullscreen',
 			'settings.autoEnterFullscreenKindApp' => 'App Fullscreen',
 			'settings.autoEnterFullscreenKindAppDesc' => 'Keep the window as it is and turn the whole app into the player',
+			'settings.autoEnterPipOnLeave' => 'Picture-in-picture when leaving',
+			'settings.autoEnterPipOnLeaveDesc' => 'While a video is playing on its detail page or in fullscreen, going home or switching apps shrinks it into picture-in-picture. Not when paused, or while app lock or background privacy mode is on',
 			'settings.signature' => 'Signature',
 			'settings.enableSignature' => 'Enable Signature',
 			'settings.enableSignatureDesc' => 'This configuration determines whether the app will add signature when replying',
@@ -13733,10 +13741,10 @@ extension on Translations {
 			'settings.keybinding.actionGalleryToggleMute' => 'Toggle Mute',
 			'settings.keybinding.actionPlayPause' => 'Play / Pause',
 			'settings.keybinding.actionSpeedUp' => 'Increase Speed',
-			'settings.keybinding.actionSpeedDown' => 'Decrease Speed',
-			'settings.keybinding.actionSeekForward' => 'Seek Forward',
 			_ => null,
 		} ?? switch (path) {
+			'settings.keybinding.actionSpeedDown' => 'Decrease Speed',
+			'settings.keybinding.actionSeekForward' => 'Seek Forward',
 			'settings.keybinding.actionSeekBackward' => 'Seek Backward',
 			'settings.keybinding.actionVolumeUp' => 'Volume Up',
 			'settings.keybinding.actionVolumeDown' => 'Volume Down',
@@ -14247,10 +14255,10 @@ extension on Translations {
 			'videoDetail.gestureGuide.quest.handTracking' => 'Hand tracking',
 			'videoDetail.gestureGuide.quest.ready' => 'Ready',
 			'videoDetail.gestureGuide.quest.press' => 'Press',
-			'videoDetail.gestureGuide.quest.hold' => 'Hold',
-			'videoDetail.gestureGuide.quest.release' => 'Release',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.hold' => 'Hold',
+			'videoDetail.gestureGuide.quest.release' => 'Release',
 			'videoDetail.gestureGuide.quest.result' => 'See the result',
 			'videoDetail.gestureGuide.quest.pinch' => 'Pinch',
 			'videoDetail.gestureGuide.quest.selectTitle' => 'Point and select',
@@ -14761,10 +14769,10 @@ extension on Translations {
 			'download.actions.migrateToCurrent' => 'Move to current download folder…',
 			'download.actions.migrateNone' => 'Everything is already in the current download folder',
 			'download.notice.failed' => ({required Object count}) => '${count} downloads failed',
-			'download.notice.retryAll' => 'Retry all',
-			'download.notice.view' => 'View',
 			_ => null,
 		} ?? switch (path) {
+			'download.notice.retryAll' => 'Retry all',
+			'download.notice.view' => 'View',
 			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			'download.notice.handle' => 'Handle…',
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
@@ -15275,10 +15283,10 @@ extension on Translations {
 			'translation.presetNames.anthropic' => 'Anthropic Claude',
 			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude Reasoning (extended thinking)',
 			'translation.presetNames.gemini' => 'Google Gemini (native)',
-			'translation.presetNames.geminiReasoning' => 'Google Gemini Reasoning (thinking)',
-			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			_ => null,
 		} ?? switch (path) {
+			'translation.presetNames.geminiReasoning' => 'Google Gemini Reasoning (thinking)',
+			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek Reasoning (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
@@ -15789,10 +15797,10 @@ extension on Translations {
 			'anime4k.presetGroups.highQuality' => 'High Quality',
 			'anime4k.presetGroups.fast' => 'Fast',
 			'anime4k.presetGroups.lite' => 'Lite',
-			'anime4k.presetGroups.moreLite' => 'More Lite',
-			'anime4k.presetGroups.custom' => 'Custom',
 			_ => null,
 		} ?? switch (path) {
+			'anime4k.presetGroups.moreLite' => 'More Lite',
+			'anime4k.presetGroups.custom' => 'Custom',
 			'anime4k.presetDescriptions.mode_a_hq' => 'Suitable for most 1080p animations, especially those dealing with blur, resampling and compression artifacts. Provides the highest perceived quality.',
 			'anime4k.presetDescriptions.mode_b_hq' => 'Suitable for animations with slight blur or ringing effects caused by scaling. Can effectively reduce ringing and aliasing.',
 			'anime4k.presetDescriptions.mode_c_hq' => 'Suitable for high-quality sources (such as native 1080p animations or movies). Denoises and provides the highest PSNR.',
@@ -16303,10 +16311,10 @@ extension on Translations {
 			'localMedia.removeSourceTitle' => ({required Object name}) => 'Remove "${name}"?',
 			'localMedia.removeSourceBody' => 'The files themselves are not touched. Only this library entry is removed.',
 			'localMedia.remove' => 'Remove',
-			'localMedia.removeFolder' => 'Remove source',
-			'localMedia.removeFolderSelectTitle' => 'Select a source to remove',
 			_ => null,
 		} ?? switch (path) {
+			'localMedia.removeFolder' => 'Remove source',
+			'localMedia.removeFolderSelectTitle' => 'Select a source to remove',
 			'localMedia.longPressToRemove' => 'Long-press to remove this folder',
 			'localMedia.clearProgress' => 'Clear local watch history',
 			'localMedia.clearProgressCount' => ({required Object count}) => '${count} entries',

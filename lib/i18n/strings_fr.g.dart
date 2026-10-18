@@ -896,6 +896,8 @@ class _TranslationsSettingsFr extends TranslationsSettingsEn {
 	@override String get autoEnterFullscreenKindSystemDesc => 'Laisser le gestionnaire de fenêtres passer la fenêtre en plein écran';
 	@override String get autoEnterFullscreenKindApp => 'Plein écran de l\'app';
 	@override String get autoEnterFullscreenKindAppDesc => 'Conserver la fenêtre telle quelle et transformer toute l\'app en lecteur';
+	@override String get autoEnterPipOnLeave => 'Image dans l\'image en quittant';
+	@override String get autoEnterPipOnLeaveDesc => 'Si une vidéo est en lecture sur sa page de détails ou en plein écran, revenir à l\'accueil ou changer d\'app la réduit en image dans l\'image. Pas en pause, ni quand le verrouillage de l\'app ou le mode confidentialité en arrière-plan est activé';
 	@override String get signature => 'Signature';
 	@override String get enableSignature => 'Activer la signature';
 	@override String get enableSignatureDesc => 'Ce réglage détermine si l\'app ajoute la signature lors des réponses';
@@ -5791,6 +5793,8 @@ extension on TranslationsFr {
 			'settings.autoEnterFullscreenKindSystemDesc' => 'Laisser le gestionnaire de fenêtres passer la fenêtre en plein écran',
 			'settings.autoEnterFullscreenKindApp' => 'Plein écran de l\'app',
 			'settings.autoEnterFullscreenKindAppDesc' => 'Conserver la fenêtre telle quelle et transformer toute l\'app en lecteur',
+			'settings.autoEnterPipOnLeave' => 'Image dans l\'image en quittant',
+			'settings.autoEnterPipOnLeaveDesc' => 'Si une vidéo est en lecture sur sa page de détails ou en plein écran, revenir à l\'accueil ou changer d\'app la réduit en image dans l\'image. Pas en pause, ni quand le verrouillage de l\'app ou le mode confidentialité en arrière-plan est activé',
 			'settings.signature' => 'Signature',
 			'settings.enableSignature' => 'Activer la signature',
 			'settings.enableSignatureDesc' => 'Ce réglage détermine si l\'app ajoute la signature lors des réponses',
@@ -6107,10 +6111,10 @@ extension on TranslationsFr {
 			'settings.doubleTapPause' => 'Pause au double tap',
 			'settings.rightVerticalSwipeVolume' => 'Glissement vertical à droite : volume (effectif à l\'ouverture d\'une nouvelle page)',
 			'settings.leftVerticalSwipeBrightness' => 'Glissement vertical à gauche : luminosité (effectif à l\'ouverture d\'une nouvelle page)',
-			'settings.longPressFastForward' => 'Appui long : avance rapide',
-			'settings.enableMouseHoverShowToolbar' => 'Afficher la barre d\'outils au survol de la souris',
 			_ => null,
 		} ?? switch (path) {
+			'settings.longPressFastForward' => 'Appui long : avance rapide',
+			'settings.enableMouseHoverShowToolbar' => 'Afficher la barre d\'outils au survol de la souris',
 			'settings.enableMouseHoverShowToolbarInfo' => 'Une fois activé, la barre d\'outils vidéo s\'affiche lorsque la souris survole le lecteur. Elle se masque automatiquement après 3 secondes d\'inactivité.',
 			'settings.enableHorizontalDragSeek' => 'Balayage horizontal pour naviguer',
 			'settings.enableVideoGestureZoom' => 'Pincer pour zoomer l\'image vidéo',
@@ -6621,10 +6625,10 @@ extension on TranslationsFr {
 			'videoDetail.gestureGuide.quest.swipeTitle' => 'Glisser pour tourner une page',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Visez l\'image, maintenez la gâchette d\'index et faites glisser vers la gauche. Relâchez après l\'indice de changement de page pour avancer ; faites glisser vers la droite pour revenir. Un pincement-glissement fonctionne aussi.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Les images doivent être à 1× pour changer de page en glissant. Les vidéos de galerie le permettent aussi. La scène reste immobile jusqu\'au relâchement.',
-			'videoDetail.gestureGuide.quest.zoomTitle' => 'Zoomer sur l\'image',
-			'videoDetail.gestureGuide.quest.zoomBody' => 'Visez un détail de l\'image, maintenez la gâchette d\'index, puis poussez le stick vers le haut pour zoomer ou vers le bas pour dézoomer. Le zoom est ancré là où vous avez appuyé.',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.zoomTitle' => 'Zoomer sur l\'image',
+			'videoDetail.gestureGuide.quest.zoomBody' => 'Visez un détail de l\'image, maintenez la gâchette d\'index, puis poussez le stick vers le haut pour zoomer ou vers le bas pour dézoomer. Le zoom est ancré là où vous avez appuyé.',
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Cela agrandit l\'image dans sa fenêtre. Sans maintenir l\'image, le haut/bas ajuste la distance de visionnage.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Déplacer et restaurer l\'image',
 			'videoDetail.gestureGuide.quest.panBody' => 'Une fois zoomé, maintenez la gâchette d\'index et faites glisser pour regarder autour. Double-touchez l\'image pour zoomer à 2,5× ou la restaurer. Avec les mains, pincez deux fois rapidement.',
@@ -7135,10 +7139,10 @@ extension on TranslationsFr {
 			'download.deleteByDate.noMatch' => 'Aucune tâche ne correspond à la condition sélectionnée',
 			'download.deleteByDate.invalidRange' => 'La date de début doit être antérieure ou égale à la date de fin',
 			'download.deleteByDate.confirmTitle' => 'Confirmer la suppression',
-			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Supprimer ${count} tâche(s) de téléchargement et leurs fichiers ? Cette action est irréversible.',
-			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Suppression ${done}/${total}…',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Supprimer ${count} tâche(s) de téléchargement et leurs fichiers ? Cette action est irréversible.',
+			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Suppression ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count} tâche(s) supprimée(s)',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '${deleted} tâche(s) supprimée(s) ; ${skipped} ignorée(s) (en cours d\'utilisation)',
 			'download.relocation.moveFiles' => 'Move files',
@@ -7649,10 +7653,10 @@ extension on TranslationsFr {
 			'navigationOrderSettings.navigationItemSorting' => 'Tri des éléments de navigation',
 			'navigationOrderSettings.done' => 'Terminé',
 			'navigationOrderSettings.edit' => 'Modifier',
-			'navigationOrderSettings.reset' => 'Réinitialiser',
-			'navigationOrderSettings.previewEffect' => 'Aperçu du résultat',
 			_ => null,
 		} ?? switch (path) {
+			'navigationOrderSettings.reset' => 'Réinitialiser',
+			'navigationOrderSettings.previewEffect' => 'Aperçu du résultat',
 			'navigationOrderSettings.bottomNavigationPreview' => 'Aperçu de la navigation inférieure :',
 			'navigationOrderSettings.sidebarPreview' => 'Aperçu de la barre latérale :',
 			'navigationOrderSettings.confirmResetNavigationOrder' => 'Confirmer la réinitialisation de l\'ordre de navigation',
@@ -8163,10 +8167,10 @@ extension on TranslationsFr {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (rapide) + assombrissement des lignes, ajoutant un effet d\'assombrissement au mode A rapide pour des lignes plus marquées et stylisées.',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + affinage des lignes, ajoutant un effet d\'affinage au mode A haute qualité pour un rendu plus fin.',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
-			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
-			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			_ => null,
 		} ?? switch (path) {
+			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
+			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
@@ -8677,10 +8681,10 @@ extension on TranslationsFr {
 			'ai.providers' => 'Fournisseurs',
 			'ai.providersHint' => 'Ajoutez un ou plusieurs fournisseurs d\'IA, puis choisissez celui utilisé par chaque fonctionnalité.',
 			'ai.addProvider' => 'Ajouter un fournisseur',
-			'ai.noProviders' => 'Aucun fournisseur configuré. Ajoutez-en un pour activer la traduction, la recherche et la signature IA.',
-			'ai.pickPreset' => 'Choisir un fournisseur',
 			_ => null,
 		} ?? switch (path) {
+			'ai.noProviders' => 'Aucun fournisseur configuré. Ajoutez-en un pour activer la traduction, la recherche et la signature IA.',
+			'ai.pickPreset' => 'Choisir un fournisseur',
 			'ai.providerNameLabel' => 'Nom',
 			'ai.apiKey' => 'Clé API',
 			'ai.baseUrl' => 'Point de terminaison',

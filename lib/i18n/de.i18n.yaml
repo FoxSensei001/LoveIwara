@@ -744,6 +744,8 @@ settings:
   autoEnterFullscreenKindSystemDesc: Den Fenstermanager das Fenster in den Vollbildmodus versetzen lassen
   autoEnterFullscreenKindApp: App-Vollbild
   autoEnterFullscreenKindAppDesc: Das Fenster unverändert lassen und die gesamte App in den Player verwandeln
+  autoEnterPipOnLeave: "Bild-in-Bild beim Verlassen"
+  autoEnterPipOnLeaveDesc: "Läuft ein Video auf der Detailseite oder im Vollbild, wechselt es beim Gang zum Startbildschirm oder in eine andere App automatisch in Bild-in-Bild. Nicht, wenn pausiert und nicht bei aktivierter App-Sperre oder aktivem Hintergrund-Datenschutz"
   signature: Signatur
   enableSignature: Signatur aktivieren
   enableSignatureDesc: Diese Konfiguration legt fest, ob die App beim Antworten eine Signatur hinzufügt

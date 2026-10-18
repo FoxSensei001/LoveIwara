@@ -918,6 +918,8 @@ class _TranslationsSettingsZhCn extends TranslationsSettingsEn {
 	@override String get autoEnterFullscreenKindSystemDesc => '让窗口管理器把窗口变成全屏';
 	@override String get autoEnterFullscreenKindApp => '应用全屏';
 	@override String get autoEnterFullscreenKindAppDesc => '窗口大小不变，整只应用变成播放器';
+	@override String get autoEnterPipOnLeave => '回桌面自动进小窗';
+	@override String get autoEnterPipOnLeaveDesc => '在视频详情页或全屏播放时，回到桌面或切到别的应用会自动缩成小窗。暂停时不会；开着应用锁或后台隐私模式时也不会';
 	@override String get signature => '小尾巴';
 	@override String get enableSignature => '小尾巴启用';
 	@override String get enableSignatureDesc => '此配置决定回复时是否自动添加小尾巴';
@@ -5835,6 +5837,8 @@ extension on TranslationsZhCn {
 			'settings.autoEnterFullscreenKindSystemDesc' => '让窗口管理器把窗口变成全屏',
 			'settings.autoEnterFullscreenKindApp' => '应用全屏',
 			'settings.autoEnterFullscreenKindAppDesc' => '窗口大小不变，整只应用变成播放器',
+			'settings.autoEnterPipOnLeave' => '回桌面自动进小窗',
+			'settings.autoEnterPipOnLeaveDesc' => '在视频详情页或全屏播放时，回到桌面或切到别的应用会自动缩成小窗。暂停时不会；开着应用锁或后台隐私模式时也不会',
 			'settings.signature' => '小尾巴',
 			'settings.enableSignature' => '小尾巴启用',
 			'settings.enableSignatureDesc' => '此配置决定回复时是否自动添加小尾巴',
@@ -6129,10 +6133,10 @@ extension on TranslationsZhCn {
 			'settings.keybinding.actionGalleryToggleMute' => '静音切换',
 			'settings.keybinding.actionPlayPause' => '播放 / 暂停',
 			'settings.keybinding.actionSpeedUp' => '加快倍速',
-			'settings.keybinding.actionSpeedDown' => '减慢倍速',
-			'settings.keybinding.actionSeekForward' => '快进',
 			_ => null,
 		} ?? switch (path) {
+			'settings.keybinding.actionSpeedDown' => '减慢倍速',
+			'settings.keybinding.actionSeekForward' => '快进',
 			'settings.keybinding.actionSeekBackward' => '快退',
 			'settings.keybinding.actionVolumeUp' => '增大音量',
 			'settings.keybinding.actionVolumeDown' => '减小音量',
@@ -6643,10 +6647,10 @@ extension on TranslationsZhCn {
 			'videoDetail.gestureGuide.quest.handTracking' => '手势追踪',
 			'videoDetail.gestureGuide.quest.ready' => '准备',
 			'videoDetail.gestureGuide.quest.press' => '按下',
-			'videoDetail.gestureGuide.quest.hold' => '保持',
-			'videoDetail.gestureGuide.quest.release' => '松开',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.hold' => '保持',
+			'videoDetail.gestureGuide.quest.release' => '松开',
 			'videoDetail.gestureGuide.quest.result' => '查看效果',
 			'videoDetail.gestureGuide.quest.pinch' => '捏合',
 			'videoDetail.gestureGuide.quest.selectTitle' => '用射线点选',
@@ -7157,10 +7161,10 @@ extension on TranslationsZhCn {
 			'download.actions.migrateNone' => '所有已下载内容都在当前下载目录里',
 			'download.notice.failed' => ({required Object count}) => '${count} 个任务下载失败',
 			'download.notice.retryAll' => '全部重试',
-			'download.notice.view' => '查看',
-			'download.notice.missing' => ({required Object count}) => '${count} 项已下载内容的文件不见了',
 			_ => null,
 		} ?? switch (path) {
+			'download.notice.view' => '查看',
+			'download.notice.missing' => ({required Object count}) => '${count} 项已下载内容的文件不见了',
 			'download.notice.handle' => '处理…',
 			'download.notice.outside' => ({required Object count}) => '旧下载目录里还有 ${count} 项',
 			'download.notice.migrate' => '迁移',
@@ -7671,10 +7675,10 @@ extension on TranslationsZhCn {
 			'translation.presetNames.anthropic' => 'Anthropic Claude',
 			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude 推理 (extended thinking)',
 			'translation.presetNames.gemini' => 'Google Gemini (原生)',
-			'translation.presetNames.geminiReasoning' => 'Google Gemini 推理 (thinking)',
-			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			_ => null,
 		} ?? switch (path) {
+			'translation.presetNames.geminiReasoning' => 'Google Gemini 推理 (thinking)',
+			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek 推理 (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow 硅基流动',
 			'translation.presetNames.zhipu' => '智谱 GLM',
@@ -8185,10 +8189,10 @@ extension on TranslationsZhCn {
 			'anime4k.presetGroups.highQuality' => '高质量',
 			'anime4k.presetGroups.fast' => '快速',
 			'anime4k.presetGroups.lite' => '轻量级',
-			'anime4k.presetGroups.moreLite' => '更多轻量级',
-			'anime4k.presetGroups.custom' => '自定义',
 			_ => null,
 		} ?? switch (path) {
+			'anime4k.presetGroups.moreLite' => '更多轻量级',
+			'anime4k.presetGroups.custom' => '自定义',
 			'anime4k.presetDescriptions.mode_a_hq' => '适用于大多数1080p动漫，特别是处理模糊、重采样和压缩瑕疵。提供最高的感知质量。',
 			'anime4k.presetDescriptions.mode_b_hq' => '适用于轻微模糊或因缩放产生的振铃效应的动漫。可以有效减少振铃和锯齿。',
 			'anime4k.presetDescriptions.mode_c_hq' => '适用于几乎没有瑕疵的高质量片源（如原生1080p的动画电影或壁纸）。降噪并提供最高的PSNR。',
@@ -8699,10 +8703,10 @@ extension on TranslationsZhCn {
 			'localMedia.removeSourceTitle' => ({required Object name}) => '移除「${name}」？',
 			'localMedia.removeSourceBody' => '文件本身一个不动，只是把它从本地库里移出去。',
 			'localMedia.remove' => '移除',
-			'localMedia.removeFolder' => '移除来源',
-			'localMedia.removeFolderSelectTitle' => '选择要移除的来源',
 			_ => null,
 		} ?? switch (path) {
+			'localMedia.removeFolder' => '移除来源',
+			'localMedia.removeFolderSelectTitle' => '选择要移除的来源',
 			'localMedia.longPressToRemove' => '长按可移除这个文件夹',
 			'localMedia.clearProgress' => '清除本机观看记录',
 			'localMedia.clearProgressCount' => ({required Object count}) => '共 ${count} 条',

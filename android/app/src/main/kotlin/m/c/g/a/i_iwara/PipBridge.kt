@@ -6,6 +6,7 @@ import android.os.Build
 import android.util.Log
 import android.util.Rational
 import androidx.activity.ComponentActivity
+import androidx.annotation.RequiresApi
 import androidx.core.app.PictureInPictureModeChangedInfo
 import androidx.core.util.Consumer
 import io.flutter.plugin.common.BinaryMessenger
@@ -31,8 +32,17 @@ class PipBridge(private val activity: ComponentActivity, messenger: BinaryMessen
         channel.invokeMethod("onPipModeChanged", info.isInPictureInPictureMode)
     }
 
-    /** Android 11 及以下没有 setAutoEnterEnabled，离开应用时由 [onUserLeaveHint] 代办。 */
-    private var legacyAutoEnterRatio: Rational? = null
+    /**
+     * Dart 要求的「离开应用时自动进小窗」宽高比，null 表示没设。Android 12+ 交给系统的
+     * setAutoEnterEnabled；更早的版本没有它，离开应用时由 [onUserLeaveHint] 代办。
+     */
+    private var autoEnterRatio: Rational? = null
+
+    /** 应用自己拉起别的界面时临时撤掉了系统那份 autoEnter（Android 12+），[onResume] 再设回。 */
+    private var autoEnterSuspended = false
+
+    /** 下一次 onUserLeaveHint 是应用自己拉起界面引起的（Android 11 及以下），不算用户离开。 */
+    private var skipNextLeaveHint = false
 
     init {
         channel.setMethodCallHandler(::onMethodCall)
@@ -120,29 +130,78 @@ class PipBridge(private val activity: ComponentActivity, messenger: BinaryMessen
     }
 
     /**
-     * 离开应用（回桌面 / 切走）时自动进入小窗。传 null 撤销。
-     *
-     * Android 12+ 交给系统的 setAutoEnterEnabled，切走的动画就是缩成小窗；更早的版本在
-     * [onUserLeaveHint] 里手动进入。返回值表示这次设置是否生效。
+     * 离开应用（回桌面 / 切走）时自动进入小窗。传 null 撤销。返回值表示这次设置是否生效。
      */
     private fun setAutoEnter(ratio: Rational?): Boolean {
         if (!isSupported()) return false
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            autoEnterRatio = ratio
+            return true
+        }
+        // 临时撤着时只记下、不设回：此刻 Activity 正被应用自己拉起的界面盖着，12.x 在它
+        // 变得不可见时也会看 autoEnter（makeInvisible），设回去就会缩进小窗。
+        if (autoEnterSuspended && ratio != null) {
+            autoEnterRatio = ratio
+            return true
+        }
         return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                activity.setPictureInPictureParams(
-                    if (ratio == null) {
-                        PictureInPictureParams.Builder().setAutoEnterEnabled(false).build()
-                    } else {
-                        paramsOf(ratio, autoEnter = true)
-                    }
-                )
-            } else {
-                legacyAutoEnterRatio = ratio
-            }
+            applyAutoEnter(ratio)
+            autoEnterRatio = ratio
             true
         } catch (e: RuntimeException) {
             Log.w(TAG, "设置离开时自动画中画失败", e)
             false
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun applyAutoEnter(ratio: Rational?) {
+        activity.setPictureInPictureParams(
+            if (ratio == null) {
+                PictureInPictureParams.Builder().setAutoEnterEnabled(false).build()
+            } else {
+                paramsOf(ratio, autoEnter = true)
+            }
+        )
+    }
+
+    /**
+     * 应用自己要拉起别的界面了（分享面板、外部播放器、浏览器、文件选择器、权限申请），
+     * 由 MainActivity 在 startActivity 系列与权限申请之前调用。
+     *
+     * 系统判断「用户离开」对应用自己 startActivity 同样成立，不拦的话播放中点一下「分享」
+     * 视频就缩成小窗了。⛔ 不能靠给 Intent 加 FLAG_ACTIVITY_NO_USER_ACTION：12L 的
+     * TaskFragment.startPausing 判断 autoEnter 时不看 userLeaving，而这个标记让
+     * checkEnterPictureInPictureState 的 beforeStopping 变成 false、结果恒为真，
+     * 反而让应用自己拉起的每个界面都进小窗（2026-10-18 Opus 审查对照 AOSP 查出）。
+     * 所以 12+ 直接把系统那份 autoEnter 临时撤掉（setPictureInPictureParams 是同步
+     * binder 调用，先于随后的 startActivity 生效），回到前台再设回。
+     */
+    fun beforeAppLaunch() {
+        if (autoEnterRatio == null) return
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            skipNextLeaveHint = true
+            return
+        }
+        if (autoEnterSuspended) return
+        try {
+            applyAutoEnter(null)
+            autoEnterSuspended = true
+        } catch (e: RuntimeException) {
+            Log.w(TAG, "拉起界面前撤销自动画中画失败", e)
+        }
+    }
+
+    /** MainActivity.onResume 转进来：把 [beforeAppLaunch] 临时撤掉的设回去。 */
+    fun onResume() {
+        skipNextLeaveHint = false
+        if (!autoEnterSuspended) return
+        autoEnterSuspended = false
+        val ratio = autoEnterRatio ?: return
+        try {
+            applyAutoEnter(ratio)
+        } catch (e: RuntimeException) {
+            Log.w(TAG, "回到前台后恢复自动画中画失败", e)
         }
     }
 
@@ -154,7 +213,11 @@ class PipBridge(private val activity: ComponentActivity, messenger: BinaryMessen
      */
     fun onUserLeaveHint() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) return
-        val ratio = legacyAutoEnterRatio ?: return
+        if (skipNextLeaveHint) {
+            skipNextLeaveHint = false
+            return
+        }
+        val ratio = autoEnterRatio ?: return
         enter(ratio)
     }
 

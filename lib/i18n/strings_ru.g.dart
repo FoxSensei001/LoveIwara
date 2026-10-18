@@ -896,6 +896,8 @@ class _TranslationsSettingsRu extends TranslationsSettingsEn {
 	@override String get autoEnterFullscreenKindSystemDesc => 'Разворачивать окно на весь экран средствами системы';
 	@override String get autoEnterFullscreenKindApp => 'Внутри приложения';
 	@override String get autoEnterFullscreenKindAppDesc => 'Окно остается прежним, плеер занимает все окно приложения';
+	@override String get autoEnterPipOnLeave => '«Картинка в картинке» при выходе';
+	@override String get autoEnterPipOnLeaveDesc => 'Если видео воспроизводится на странице или в полноэкранном режиме, при выходе на главный экран или переключении приложения оно сворачивается в «картинку в картинке». На паузе — нет и при включённой блокировке приложения или фоновом режиме конфиденциальности';
 	@override String get signature => 'Подпись';
 	@override String get enableSignature => 'Включить подпись';
 	@override String get enableSignatureDesc => 'Добавлять ли подпись при публикации ответов';
@@ -5791,6 +5793,8 @@ extension on TranslationsRu {
 			'settings.autoEnterFullscreenKindSystemDesc' => 'Разворачивать окно на весь экран средствами системы',
 			'settings.autoEnterFullscreenKindApp' => 'Внутри приложения',
 			'settings.autoEnterFullscreenKindAppDesc' => 'Окно остается прежним, плеер занимает все окно приложения',
+			'settings.autoEnterPipOnLeave' => '«Картинка в картинке» при выходе',
+			'settings.autoEnterPipOnLeaveDesc' => 'Если видео воспроизводится на странице или в полноэкранном режиме, при выходе на главный экран или переключении приложения оно сворачивается в «картинку в картинке». На паузе — нет и при включённой блокировке приложения или фоновом режиме конфиденциальности',
 			'settings.signature' => 'Подпись',
 			'settings.enableSignature' => 'Включить подпись',
 			'settings.enableSignatureDesc' => 'Добавлять ли подпись при публикации ответов',
@@ -6107,10 +6111,10 @@ extension on TranslationsRu {
 			'settings.doubleTapPause' => 'Двойное нажатие: пауза',
 			'settings.rightVerticalSwipeVolume' => 'Смахивание справа по вертикали: громкость (при входе на новую страницу)',
 			'settings.leftVerticalSwipeBrightness' => 'Смахивание слева по вертикали: яркость (при входе на новую страницу)',
-			'settings.longPressFastForward' => 'Долгое нажатие: ускорение',
-			'settings.enableMouseHoverShowToolbar' => 'Показывать панель при наведении мыши',
 			_ => null,
 		} ?? switch (path) {
+			'settings.longPressFastForward' => 'Долгое нажатие: ускорение',
+			'settings.enableMouseHoverShowToolbar' => 'Показывать панель при наведении мыши',
 			'settings.enableMouseHoverShowToolbarInfo' => 'Панель управления видео появляется при наведении курсора и скрывается через 3 секунды бездействия.',
 			'settings.enableHorizontalDragSeek' => 'Горизонтальный жест: перемотка',
 			'settings.enableVideoGestureZoom' => 'Масштабирование кадра жестом',
@@ -6621,10 +6625,10 @@ extension on TranslationsRu {
 			'videoDetail.gestureGuide.quest.swipeTitle' => 'Перелистывание перетаскиванием',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Наведите на изображение, зажмите триггер и потяните влево. Отпустите после подсказки о смене страницы; потяните вправо для возврата. Щипок с перетаскиванием тоже работает.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Для перелистывания изображение должно быть в масштабе 1×. Поддерживаются и видео в галерее. Сцена остается на месте до отпускания.',
-			'videoDetail.gestureGuide.quest.zoomTitle' => 'Масштабирование изображения',
-			'videoDetail.gestureGuide.quest.zoomBody' => 'Наведите на деталь, зажмите триггер и отклоните стик вверх для приближения или вниз для отдаления. Центр зума фиксируется в точке нажатия.',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.zoomTitle' => 'Масштабирование изображения',
+			'videoDetail.gestureGuide.quest.zoomBody' => 'Наведите на деталь, зажмите триггер и отклоните стик вверх для приближения или вниз для отдаления. Центр зума фиксируется в точке нажатия.',
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Масштабирует изображение внутри его окна. Без зажатия изображения стик вверх/вниз меняет расстояние до экрана.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Панорамирование и сброс',
 			'videoDetail.gestureGuide.quest.panBody' => 'При приближении удерживайте триггер и двигайте руку для осмотра. Двойное нажатие по изображению увеличивает до 2.5× или сбрасывает масштаб. Руками: быстрый двойной щипок.',
@@ -7135,10 +7139,10 @@ extension on TranslationsRu {
 			'download.deleteByDate.noMatch' => 'Нет задач, соответствующих выбранному условию',
 			'download.deleteByDate.invalidRange' => 'Дата начала должна быть не позже даты окончания',
 			'download.deleteByDate.confirmTitle' => 'Подтвердите удаление',
-			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Удалить задач загрузки (${count}) и их файлы? Это действие нельзя отменить.',
-			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Удаление ${done}/${total}…',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Удалить задач загрузки (${count}) и их файлы? Это действие нельзя отменить.',
+			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Удаление ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Удалено задач: ${count}',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Удалено задач: ${deleted}; пропущено: ${skipped} (используются)',
 			'download.relocation.moveFiles' => 'Move files',
@@ -7649,10 +7653,10 @@ extension on TranslationsRu {
 			'navigationOrderSettings.navigationItemSorting' => 'Сортировка элементов навигации',
 			'navigationOrderSettings.done' => 'Готово',
 			'navigationOrderSettings.edit' => 'Изменить',
-			'navigationOrderSettings.reset' => 'Сбросить',
-			'navigationOrderSettings.previewEffect' => 'Предпросмотр',
 			_ => null,
 		} ?? switch (path) {
+			'navigationOrderSettings.reset' => 'Сбросить',
+			'navigationOrderSettings.previewEffect' => 'Предпросмотр',
 			'navigationOrderSettings.bottomNavigationPreview' => 'Предпросмотр нижней навигации:',
 			'navigationOrderSettings.sidebarPreview' => 'Предпросмотр бокового меню:',
 			'navigationOrderSettings.confirmResetNavigationOrder' => 'Подтвердите сброс порядка навигации',
@@ -8163,10 +8167,10 @@ extension on TranslationsRu {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Режим A (быстрый) + затемнение линий: добавляет эффект затемнения линий к быстрому режиму A для более выразительных, стилизованных линий.',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Режим A (HQ) + утончение линий: добавляет эффект утончения линий к высококачественному режиму A для более изящного вида.',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
-			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
-			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			_ => null,
 		} ?? switch (path) {
+			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
+			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
@@ -8677,10 +8681,10 @@ extension on TranslationsRu {
 			'ai.providers' => 'Провайдеры',
 			'ai.providersHint' => 'Добавьте одного или нескольких провайдеров ИИ и назначьте их для нужных функций.',
 			'ai.addProvider' => 'Добавить провайдера',
-			'ai.noProviders' => 'Провайдеры пока не добавлены. Добавьте хотя бы одного, чтобы включить перевод, поиск и подпись с помощью ИИ.',
-			'ai.pickPreset' => 'Выбрать провайдера',
 			_ => null,
 		} ?? switch (path) {
+			'ai.noProviders' => 'Провайдеры пока не добавлены. Добавьте хотя бы одного, чтобы включить перевод, поиск и подпись с помощью ИИ.',
+			'ai.pickPreset' => 'Выбрать провайдера',
 			'ai.providerNameLabel' => 'Название',
 			'ai.apiKey' => 'API-ключ',
 			'ai.baseUrl' => 'Конечная точка',

@@ -896,6 +896,8 @@ class _TranslationsSettingsJa extends TranslationsSettingsEn {
 	@override String get autoEnterFullscreenKindSystemDesc => 'ウィンドウマネージャーにウィンドウを全画面にさせる';
 	@override String get autoEnterFullscreenKindApp => 'アプリ全画面';
 	@override String get autoEnterFullscreenKindAppDesc => 'ウィンドウの大きさは変えず、アプリ全体をプレイヤーにする';
+	@override String get autoEnterPipOnLeave => 'ホームに戻ると小窓にする';
+	@override String get autoEnterPipOnLeaveDesc => '詳細ページや全画面で再生中にホームへ戻る・別のアプリに切り替えると、自動で小窓になります。一時停止中はなりません。アプリロックやバックグラウンドのプライバシーモードがオンのときも同様です';
 	@override String get signature => '小尾巴';
 	@override String get enableSignature => '小尾巴を有効にする';
 	@override String get enableSignatureDesc => 'この設定はアプリが回覆時に小尾巴を有効にするかどうかを決定します';
@@ -5791,6 +5793,8 @@ extension on TranslationsJa {
 			'settings.autoEnterFullscreenKindSystemDesc' => 'ウィンドウマネージャーにウィンドウを全画面にさせる',
 			'settings.autoEnterFullscreenKindApp' => 'アプリ全画面',
 			'settings.autoEnterFullscreenKindAppDesc' => 'ウィンドウの大きさは変えず、アプリ全体をプレイヤーにする',
+			'settings.autoEnterPipOnLeave' => 'ホームに戻ると小窓にする',
+			'settings.autoEnterPipOnLeaveDesc' => '詳細ページや全画面で再生中にホームへ戻る・別のアプリに切り替えると、自動で小窓になります。一時停止中はなりません。アプリロックやバックグラウンドのプライバシーモードがオンのときも同様です',
 			'settings.signature' => '小尾巴',
 			'settings.enableSignature' => '小尾巴を有効にする',
 			'settings.enableSignatureDesc' => 'この設定はアプリが回覆時に小尾巴を有効にするかどうかを決定します',
@@ -6107,10 +6111,10 @@ extension on TranslationsJa {
 			'settings.doubleTapPause' => 'ダブルタップポーズ',
 			'settings.rightVerticalSwipeVolume' => '右側垂直スワイプボリューム（新ページに入った時に有効）',
 			'settings.leftVerticalSwipeBrightness' => '左側垂直スワイプブライトネス（新ページに入った時に有効）',
-			'settings.longPressFastForward' => '長押しファストフォワード',
-			'settings.enableMouseHoverShowToolbar' => 'マウスホバー時にツールバーを表示',
 			_ => null,
 		} ?? switch (path) {
+			'settings.longPressFastForward' => '長押しファストフォワード',
+			'settings.enableMouseHoverShowToolbar' => 'マウスホバー時にツールバーを表示',
 			'settings.enableMouseHoverShowToolbarInfo' => '有効にすると、マウスがプレーヤー上にあるときにツールバーが表示されます。3秒間の非アクティブ時に自動的に非表示になります。',
 			'settings.enableHorizontalDragSeek' => '横スワイプでシーク',
 			'settings.enableVideoGestureZoom' => 'ピンチで映像を拡大',
@@ -6621,10 +6625,10 @@ extension on TranslationsJa {
 			'videoDetail.gestureGuide.quest.swipeTitle' => '横ドラッグでページを送る',
 			'videoDetail.gestureGuide.quest.swipeBody' => '画像にレイを合わせ、トリガーを押したまま左へドラッグします。ページ送りの表示が出たら離すと次へ、右へドラッグすると前へ戻ります。ピンチでも操作できます。',
 			'videoDetail.gestureGuide.quest.swipeHint' => '画像は 1× のときにページ送りできます。ギャラリー内の動画にも対応しています。ドラッグ中は画面が動かず、離してから切り替わります。',
-			'videoDetail.gestureGuide.quest.zoomTitle' => '画像の細部を拡大',
-			'videoDetail.gestureGuide.quest.zoomBody' => '見たい部分にレイを合わせてトリガーを押し続け、スティックを上に倒すと拡大、下に倒すと縮小します。押した位置が拡大の中心になります。',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.zoomTitle' => '画像の細部を拡大',
+			'videoDetail.gestureGuide.quest.zoomBody' => '見たい部分にレイを合わせてトリガーを押し続け、スティックを上に倒すと拡大、下に倒すと縮小します。押した位置が拡大の中心になります。',
 			'videoDetail.gestureGuide.quest.zoomHint' => 'ウィンドウの大きさは変わらず、中の画像だけが拡大します。画像を押していないときの上下操作は視聴距離を変えます。',
 			'videoDetail.gestureGuide.quest.panTitle' => '拡大画像の移動とリセット',
 			'videoDetail.gestureGuide.quest.panBody' => '拡大後はトリガーを押したままドラッグして、別の部分を見られます。画像をダブルクリックすると 2.5× 拡大とリセットを切り替えます。手の場合は素早く 2 回ピンチします。',
@@ -7135,10 +7139,10 @@ extension on TranslationsJa {
 			'download.deleteByDate.noMatch' => '条件に一致するタスクがありません',
 			'download.deleteByDate.invalidRange' => '開始日は終了日以前にしてください',
 			'download.deleteByDate.confirmTitle' => '削除の確認',
-			'download.deleteByDate.confirmContent' => ({required Object count}) => '${count}件のダウンロードタスクとそのファイルを削除しますか？この操作は取り消せません。',
-			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '削除中 ${done}/${total}…',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.confirmContent' => ({required Object count}) => '${count}件のダウンロードタスクとそのファイルを削除しますか？この操作は取り消せません。',
+			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '削除中 ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count}件のタスクを削除しました',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '${deleted}件を削除、${skipped}件をスキップ（使用中）',
 			'download.relocation.moveFiles' => 'ファイルを移動',
@@ -7649,10 +7653,10 @@ extension on TranslationsJa {
 			'mediaPlayer.format' => '形式',
 			'mediaPlayer.suggestion' => '提案',
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'AndroidデバイスはWEBM形式のサポートが限定的です。外部プレイヤーの使用またはWEBMをサポートするプレイヤーアプリのダウンロードをお勧めします',
-			'mediaPlayer.currentDeviceCodecNotSupported' => '現在のデバイスはこのビデオ形式のコーデックをサポートしていません',
-			'mediaPlayer.checkNetworkConnection' => 'ネットワーク接続を確認して再試行してください',
 			_ => null,
 		} ?? switch (path) {
+			'mediaPlayer.currentDeviceCodecNotSupported' => '現在のデバイスはこのビデオ形式のコーデックをサポートしていません',
+			'mediaPlayer.checkNetworkConnection' => 'ネットワーク接続を確認して再試行してください',
 			'mediaPlayer.appMayLackMediaPermission' => 'アプリに必要なメディア再生権限が不足している可能性があります',
 			'mediaPlayer.tryOtherVideoPlayer' => '他のビデオプレイヤーをお試しください',
 			'mediaPlayer.unrecognizedVideoFormat' => '認識できない動画ファイル',
@@ -8163,10 +8167,10 @@ extension on TranslationsJa {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + ライン暗化、高速モードAにライン暗化効果を追加し、ラインをより目立たせ、スタイライズ処理を行います。',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + ライン細化、高品質モードAにライン細化効果を追加し、より洗練された外観にします。',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
-			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
-			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			_ => null,
 		} ?? switch (path) {
+			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
+			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
@@ -8677,10 +8681,10 @@ extension on TranslationsJa {
 			'ai.providers' => 'プロバイダー',
 			'ai.providersHint' => '1つ以上のAIプロバイダーを追加し、各機能で使用するプロバイダーを指定します。',
 			'ai.addProvider' => 'プロバイダーを追加',
-			'ai.noProviders' => 'プロバイダーがまだありません。追加するとAI翻訳・検索・署名機能が利用可能になります。',
-			'ai.pickPreset' => 'プロバイダーを選択',
 			_ => null,
 		} ?? switch (path) {
+			'ai.noProviders' => 'プロバイダーがまだありません。追加するとAI翻訳・検索・署名機能が利用可能になります。',
+			'ai.pickPreset' => 'プロバイダーを選択',
 			'ai.providerNameLabel' => '名前',
 			'ai.apiKey' => 'APIキー',
 			'ai.baseUrl' => 'エンドポイント',

@@ -339,6 +339,7 @@ enum ConfigKey {
   SEEK_PREVIEW_SIZE_KEY, // 进度条预览窗口（Seek Preview）的尺寸档位
   AUTO_ENTER_FULLSCREEN_MODE_KEY, // 自动进入全屏的时机（见 AutoFullscreenMode，默认关）
   AUTO_ENTER_FULLSCREEN_KIND_KEY, // 自动进入哪种全屏（见 AutoFullscreenKind，仅桌面端有区别）
+  AUTO_ENTER_PIP_ON_LEAVE_KEY, // 安卓：在视频详情页（含全屏）播放时回桌面自动进小窗（默认关）
   FAST_FORWARD_SECONDS_KEY,
   REWIND_SECONDS_KEY,
   DEFAULT_QUALITY_KEY,
@@ -575,6 +576,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'auto_enter_fullscreen_mode';
       case ConfigKey.AUTO_ENTER_FULLSCREEN_KIND_KEY:
         return 'auto_enter_fullscreen_kind';
+      case ConfigKey.AUTO_ENTER_PIP_ON_LEAVE_KEY:
+        return 'auto_enter_pip_on_leave';
       case ConfigKey.FAST_FORWARD_SECONDS_KEY:
         return 'fast_forward_seconds';
       case ConfigKey.REWIND_SECONDS_KEY:
@@ -915,6 +918,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'off'; // 默认关闭：只是多一项能力，不改变任何现有用户的行为
       case ConfigKey.AUTO_ENTER_FULLSCREEN_KIND_KEY:
         return 'systemFullscreen'; // 与手动点全屏钮的默认行为一致
+      case ConfigKey.AUTO_ENTER_PIP_ON_LEAVE_KEY:
+        return false; // 默认关闭（用户定的）：回桌面不改变现有行为
       case ConfigKey.FAST_FORWARD_SECONDS_KEY:
         return 10;
       case ConfigKey.REWIND_SECONDS_KEY:

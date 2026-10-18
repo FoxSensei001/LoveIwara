@@ -896,6 +896,8 @@ class _TranslationsSettingsTh extends TranslationsSettingsEn {
 	@override String get autoEnterFullscreenKindSystemDesc => 'ให้ตัวจัดการหน้าต่างขยายหน้าต่างเป็นแบบเต็มหน้าจอ';
 	@override String get autoEnterFullscreenKindApp => 'เต็มหน้าจอแอป';
 	@override String get autoEnterFullscreenKindAppDesc => 'คงขนาดหน้าต่างไว้เหมือนเดิมและเปลี่ยนทั้งแอปให้กลายเป็นเครื่องเล่น';
+	@override String get autoEnterPipOnLeave => 'ภาพซ้อนภาพเมื่อออกจากแอป';
+	@override String get autoEnterPipOnLeaveDesc => 'เมื่อกำลังเล่นวิดีโอในหน้ารายละเอียดหรือแบบเต็มจอ การกลับไปหน้าจอหลักหรือสลับแอปจะย่อเป็นภาพซ้อนภาพอัตโนมัติ ไม่ทำงานเมื่อหยุดชั่วคราว และไม่ทำงานเมื่อเปิดล็อกแอปหรือโหมดความเป็นส่วนตัวเบื้องหลัง';
 	@override String get signature => 'ลายเซ็น';
 	@override String get enableSignature => 'เปิดใช้ลายเซ็น';
 	@override String get enableSignatureDesc => 'การกำหนดค่านี้กำหนดว่าแอปจะเพิ่มลายเซ็นเมื่อตอบกลับหรือไม่';
@@ -5791,6 +5793,8 @@ extension on TranslationsTh {
 			'settings.autoEnterFullscreenKindSystemDesc' => 'ให้ตัวจัดการหน้าต่างขยายหน้าต่างเป็นแบบเต็มหน้าจอ',
 			'settings.autoEnterFullscreenKindApp' => 'เต็มหน้าจอแอป',
 			'settings.autoEnterFullscreenKindAppDesc' => 'คงขนาดหน้าต่างไว้เหมือนเดิมและเปลี่ยนทั้งแอปให้กลายเป็นเครื่องเล่น',
+			'settings.autoEnterPipOnLeave' => 'ภาพซ้อนภาพเมื่อออกจากแอป',
+			'settings.autoEnterPipOnLeaveDesc' => 'เมื่อกำลังเล่นวิดีโอในหน้ารายละเอียดหรือแบบเต็มจอ การกลับไปหน้าจอหลักหรือสลับแอปจะย่อเป็นภาพซ้อนภาพอัตโนมัติ ไม่ทำงานเมื่อหยุดชั่วคราว และไม่ทำงานเมื่อเปิดล็อกแอปหรือโหมดความเป็นส่วนตัวเบื้องหลัง',
 			'settings.signature' => 'ลายเซ็น',
 			'settings.enableSignature' => 'เปิดใช้ลายเซ็น',
 			'settings.enableSignatureDesc' => 'การกำหนดค่านี้กำหนดว่าแอปจะเพิ่มลายเซ็นเมื่อตอบกลับหรือไม่',
@@ -6107,10 +6111,10 @@ extension on TranslationsTh {
 			'settings.doubleTapPause' => 'แตะสองครั้งเพื่อหยุดชั่วคราว',
 			'settings.rightVerticalSwipeVolume' => 'ปัดแนวตั้งด้านขวาเพื่อปรับระดับเสียง (มีผลเมื่อเข้าสู่หน้าใหม่)',
 			'settings.leftVerticalSwipeBrightness' => 'ปัดแนวตั้งด้านซ้ายเพื่อปรับความสว่าง (มีผลเมื่อเข้าสู่หน้าใหม่)',
-			'settings.longPressFastForward' => 'กดค้างเพื่อเดินหน้าอย่างเร็ว',
-			'settings.enableMouseHoverShowToolbar' => 'เปิดใช้การชี้เมาส์เพื่อแสดงแถบเครื่องมือ',
 			_ => null,
 		} ?? switch (path) {
+			'settings.longPressFastForward' => 'กดค้างเพื่อเดินหน้าอย่างเร็ว',
+			'settings.enableMouseHoverShowToolbar' => 'เปิดใช้การชี้เมาส์เพื่อแสดงแถบเครื่องมือ',
 			'settings.enableMouseHoverShowToolbarInfo' => 'เมื่อเปิดใช้งาน แถบเครื่องมือวิดีโอจะแสดงขึ้นเมื่อเลื่อนเมาส์ไปเหนือเครื่องเล่น และจะซ่อนโดยอัตโนมัติหลังจากไม่มีการใช้งานเป็นเวลา 3 วินาที',
 			'settings.enableHorizontalDragSeek' => 'ปัดในแนวนอนเพื่อเลื่อนหาตำแหน่ง',
 			'settings.enableVideoGestureZoom' => 'หนีบนิ้วเพื่อซูมเฟรมวิดีโอ',
@@ -6621,10 +6625,10 @@ extension on TranslationsTh {
 			'videoDetail.gestureGuide.quest.swipeTitle' => 'ลากเพื่อพลิกหน้า',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'เล็งไปที่รูปภาพ กดไกชี้ค้างไว้แล้วลากไปทางซ้าย ปล่อยหลังจากมีสัญญาณเปลี่ยนหน้าเพื่อไปข้างหน้า ลากไปทางขวาเพื่อย้อนกลับ การจีบนิ้วแล้วลากก็ใช้ได้เช่นกัน',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'รูปภาพต้องอยู่ที่ขนาด 1× จึงจะเปลี่ยนหน้าด้วยการลากได้ วิดีโอในแกลเลอรีก็รองรับเช่นกัน หน้าจอจะอยู่นิ่งจนกว่าคุณจะปล่อย',
-			'videoDetail.gestureGuide.quest.zoomTitle' => 'ซูมดูรายละเอียดรูปภาพ',
-			'videoDetail.gestureGuide.quest.zoomBody' => 'เล็งไปที่รายละเอียดในภาพ กดไกชี้ค้างไว้ แล้วดันก้านอนาล็อกขึ้นเพื่อซูมเข้า หรือลงเพื่อซูมออก การซูมจะยึดตำแหน่งที่คุณกดไว้',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.zoomTitle' => 'ซูมดูรายละเอียดรูปภาพ',
+			'videoDetail.gestureGuide.quest.zoomBody' => 'เล็งไปที่รายละเอียดในภาพ กดไกชี้ค้างไว้ แล้วดันก้านอนาล็อกขึ้นเพื่อซูมเข้า หรือลงเพื่อซูมออก การซูมจะยึดตำแหน่งที่คุณกดไว้',
 			'videoDetail.gestureGuide.quest.zoomHint' => 'การดำเนินการนี้จะขยายรูปภาพภายในหน้าต่าง หากไม่ได้จับรูปภาพไว้ การดันขึ้น/ลงจะเป็นการปรับระยะการมอง',
 			'videoDetail.gestureGuide.quest.panTitle' => 'เลื่อนและคืนค่ารูปภาพ',
 			'videoDetail.gestureGuide.quest.panBody' => 'เมื่อซูมเข้าแล้ว ให้กดไกชี้ค้างไว้แล้วลากเพื่อดูรอบๆ แตะสองครั้งที่รูปภาพเพื่อซูมเป็น 2.5× หรือคืนค่าเดิม สำหรับมือ ให้จีบนิ้วสองครั้งอย่างรวดเร็ว',
@@ -7135,10 +7139,10 @@ extension on TranslationsTh {
 			'download.deleteByDate.noMatch' => 'ไม่มีงานที่ตรงกับเงื่อนไขที่เลือก',
 			'download.deleteByDate.invalidRange' => 'วันที่เริ่มต้นต้องตรงกับหรือก่อนหน้าวันที่สิ้นสุด',
 			'download.deleteByDate.confirmTitle' => 'ยืนยันการลบ',
-			'download.deleteByDate.confirmContent' => ({required Object count}) => 'ลบ ${count} งานดาวน์โหลดและไฟล์ของงานเหล่านั้นหรือไม่? การดำเนินการนี้ไม่สามารถยกเลิกได้',
-			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'กำลังลบ ${done}/${total}…',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.confirmContent' => ({required Object count}) => 'ลบ ${count} งานดาวน์โหลดและไฟล์ของงานเหล่านั้นหรือไม่? การดำเนินการนี้ไม่สามารถยกเลิกได้',
+			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'กำลังลบ ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'ลบ ${count} งานแล้ว',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'ลบ ${deleted} งานแล้ว; ข้าม ${skipped} งาน (กำลังถูกใช้งาน)',
 			'download.relocation.moveFiles' => 'Move files',
@@ -7649,10 +7653,10 @@ extension on TranslationsTh {
 			'navigationOrderSettings.navigationItemSorting' => 'การเรียงลำดับรายการนำทาง',
 			'navigationOrderSettings.done' => 'เสร็จสิ้น',
 			'navigationOrderSettings.edit' => 'แก้ไข',
-			'navigationOrderSettings.reset' => 'รีเซ็ต',
-			'navigationOrderSettings.previewEffect' => 'ตัวอย่างผลลัพธ์',
 			_ => null,
 		} ?? switch (path) {
+			'navigationOrderSettings.reset' => 'รีเซ็ต',
+			'navigationOrderSettings.previewEffect' => 'ตัวอย่างผลลัพธ์',
 			'navigationOrderSettings.bottomNavigationPreview' => 'ตัวอย่างแถบนำทางด้านล่าง:',
 			'navigationOrderSettings.sidebarPreview' => 'ตัวอย่างแถบด้านข้าง:',
 			'navigationOrderSettings.confirmResetNavigationOrder' => 'ยืนยันการรีเซ็ตลำดับการนำทาง',
@@ -8163,10 +8167,10 @@ extension on TranslationsTh {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + การทำให้เส้นเข้มขึ้น เพิ่มเอฟเฟกต์ทำให้เส้นเข้มขึ้นบน Mode A แบบเร็ว เพื่อให้เส้นเด่นชัดและมีสไตล์ยิ่งขึ้น',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + การทำให้เส้นบางลง เพิ่มเอฟเฟกต์ทำให้เส้นบางลงบน Mode A คุณภาพสูง เพื่อให้ดูประณีตยิ่งขึ้น',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
-			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
-			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			_ => null,
 		} ?? switch (path) {
+			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
+			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
@@ -8677,10 +8681,10 @@ extension on TranslationsTh {
 			'ai.providers' => 'ผู้ให้บริการ',
 			'ai.providersHint' => 'เพิ่มผู้ให้บริการ AI อย่างน้อยหนึ่งราย แล้วเลือกผู้ให้บริการสำหรับแต่ละฟีเจอร์',
 			'ai.addProvider' => 'เพิ่มผู้ให้บริการ',
-			'ai.noProviders' => 'ยังไม่มีผู้ให้บริการ เพิ่มผู้ให้บริการเพื่อเปิดใช้งานการแปล การค้นหา และลายเซ็นด้วย AI',
-			'ai.pickPreset' => 'เลือกผู้ให้บริการ',
 			_ => null,
 		} ?? switch (path) {
+			'ai.noProviders' => 'ยังไม่มีผู้ให้บริการ เพิ่มผู้ให้บริการเพื่อเปิดใช้งานการแปล การค้นหา และลายเซ็นด้วย AI',
+			'ai.pickPreset' => 'เลือกผู้ให้บริการ',
 			'ai.providerNameLabel' => 'ชื่อ',
 			'ai.apiKey' => 'คีย์ API',
 			'ai.baseUrl' => 'ปลายทาง API',

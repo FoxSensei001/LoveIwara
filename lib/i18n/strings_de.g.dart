@@ -896,6 +896,8 @@ class _TranslationsSettingsDe extends TranslationsSettingsEn {
 	@override String get autoEnterFullscreenKindSystemDesc => 'Den Fenstermanager das Fenster in den Vollbildmodus versetzen lassen';
 	@override String get autoEnterFullscreenKindApp => 'App-Vollbild';
 	@override String get autoEnterFullscreenKindAppDesc => 'Das Fenster unverändert lassen und die gesamte App in den Player verwandeln';
+	@override String get autoEnterPipOnLeave => 'Bild-in-Bild beim Verlassen';
+	@override String get autoEnterPipOnLeaveDesc => 'Läuft ein Video auf der Detailseite oder im Vollbild, wechselt es beim Gang zum Startbildschirm oder in eine andere App automatisch in Bild-in-Bild. Nicht, wenn pausiert und nicht bei aktivierter App-Sperre oder aktivem Hintergrund-Datenschutz';
 	@override String get signature => 'Signatur';
 	@override String get enableSignature => 'Signatur aktivieren';
 	@override String get enableSignatureDesc => 'Diese Konfiguration legt fest, ob die App beim Antworten eine Signatur hinzufügt';
@@ -5791,6 +5793,8 @@ extension on TranslationsDe {
 			'settings.autoEnterFullscreenKindSystemDesc' => 'Den Fenstermanager das Fenster in den Vollbildmodus versetzen lassen',
 			'settings.autoEnterFullscreenKindApp' => 'App-Vollbild',
 			'settings.autoEnterFullscreenKindAppDesc' => 'Das Fenster unverändert lassen und die gesamte App in den Player verwandeln',
+			'settings.autoEnterPipOnLeave' => 'Bild-in-Bild beim Verlassen',
+			'settings.autoEnterPipOnLeaveDesc' => 'Läuft ein Video auf der Detailseite oder im Vollbild, wechselt es beim Gang zum Startbildschirm oder in eine andere App automatisch in Bild-in-Bild. Nicht, wenn pausiert und nicht bei aktivierter App-Sperre oder aktivem Hintergrund-Datenschutz',
 			'settings.signature' => 'Signatur',
 			'settings.enableSignature' => 'Signatur aktivieren',
 			'settings.enableSignatureDesc' => 'Diese Konfiguration legt fest, ob die App beim Antworten eine Signatur hinzufügt',
@@ -6107,10 +6111,10 @@ extension on TranslationsDe {
 			'settings.doubleTapPause' => 'Pause durch Doppeltippen',
 			'settings.rightVerticalSwipeVolume' => 'Lautstärke durch vertikales Wischen rechts (wirksam beim Öffnen einer neuen Seite)',
 			'settings.leftVerticalSwipeBrightness' => 'Helligkeit durch vertikales Wischen links (wirksam beim Öffnen einer neuen Seite)',
-			'settings.longPressFastForward' => 'Vorspulen bei Langdruck',
-			'settings.enableMouseHoverShowToolbar' => 'Symbolleiste bei Mauszeiger-Anzeige einblenden',
 			_ => null,
 		} ?? switch (path) {
+			'settings.longPressFastForward' => 'Vorspulen bei Langdruck',
+			'settings.enableMouseHoverShowToolbar' => 'Symbolleiste bei Mauszeiger-Anzeige einblenden',
 			'settings.enableMouseHoverShowToolbarInfo' => 'Wenn aktiviert, wird die Video-Symbolleiste angezeigt, wenn der Mauszeiger über dem Player schwebt. Nach 3 Sekunden Inaktivität wird sie automatisch ausgeblendet.',
 			'settings.enableHorizontalDragSeek' => 'Horizontales Wischen zum Spulen',
 			'settings.enableVideoGestureZoom' => 'Videobild durch Zusammenziehen vergrößern',
@@ -6621,10 +6625,10 @@ extension on TranslationsDe {
 			'videoDetail.gestureGuide.quest.swipeTitle' => 'Zum Umblättern quer ziehen',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Zielen Sie auf das Bild, halten Sie den Zeigefinger-Auslöser und ziehen Sie nach links. Lassen Sie nach dem Umblätter-Signal los, um weiterzublättern; ziehen Sie nach rechts, um zurückzugehen. Kneifen und Ziehen funktioniert ebenfalls.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Bilder müssen bei 1× sein, um durch Ziehen umzublättern. Galerie-Videos unterstützen dies ebenfalls. Die Bühne bleibt stehen, bis Sie loslassen.',
-			'videoDetail.gestureGuide.quest.zoomTitle' => 'In das Bild hineinzoomen',
-			'videoDetail.gestureGuide.quest.zoomBody' => 'Zielen Sie auf ein Detail im Bild, halten Sie den Zeigefinger-Auslöser und schieben Sie dann den Stick nach oben, um hineinzuzoomen, oder nach unten, um herauszuzoomen. Der Zoom ist dort verankert, wo Sie gedrückt haben.',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.zoomTitle' => 'In das Bild hineinzoomen',
+			'videoDetail.gestureGuide.quest.zoomBody' => 'Zielen Sie auf ein Detail im Bild, halten Sie den Zeigefinger-Auslöser und schieben Sie dann den Stick nach oben, um hineinzuzoomen, oder nach unten, um herauszuzoomen. Der Zoom ist dort verankert, wo Sie gedrückt haben.',
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Dadurch wird das Bild innerhalb seines Fensters vergrößert. Ohne Halten des Bildes passt Auf/Ab den Betrachtungsabstand an.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Das Bild verschieben und wiederherstellen',
 			'videoDetail.gestureGuide.quest.panBody' => 'Sobald Sie hineingezoomt haben, halten Sie den Zeigefinger-Auslöser und ziehen Sie, um sich umzusehen. Doppeltippen Sie auf das Bild, um auf 2,5× zu zoomen oder es wiederherzustellen. Mit Händen zweimal schnell kneifen.',
@@ -7135,10 +7139,10 @@ extension on TranslationsDe {
 			'download.deleteByDate.noMatch' => 'Keine Aufgaben entsprechen der gewählten Bedingung',
 			'download.deleteByDate.invalidRange' => 'Das Startdatum muss am oder vor dem Enddatum liegen',
 			'download.deleteByDate.confirmTitle' => 'Löschen bestätigen',
-			'download.deleteByDate.confirmContent' => ({required Object count}) => '${count} Download-Aufgabe(n) und ihre Dateien löschen? Dies kann nicht rückgängig gemacht werden.',
-			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Lösche ${done}/${total}…',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.confirmContent' => ({required Object count}) => '${count} Download-Aufgabe(n) und ihre Dateien löschen? Dies kann nicht rückgängig gemacht werden.',
+			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Lösche ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count} Aufgabe(n) gelöscht',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '${deleted} Aufgabe(n) gelöscht; ${skipped} übersprungen (in Verwendung)',
 			'download.relocation.moveFiles' => 'Move files',
@@ -7649,10 +7653,10 @@ extension on TranslationsDe {
 			'navigationOrderSettings.navigationItemSorting' => 'Sortierung der Navigationselemente',
 			'navigationOrderSettings.done' => 'Fertig',
 			'navigationOrderSettings.edit' => 'Bearbeiten',
-			'navigationOrderSettings.reset' => 'Zurücksetzen',
-			'navigationOrderSettings.previewEffect' => 'Vorschau der Wirkung',
 			_ => null,
 		} ?? switch (path) {
+			'navigationOrderSettings.reset' => 'Zurücksetzen',
+			'navigationOrderSettings.previewEffect' => 'Vorschau der Wirkung',
 			'navigationOrderSettings.bottomNavigationPreview' => 'Vorschau der unteren Navigation:',
 			'navigationOrderSettings.sidebarPreview' => 'Vorschau der Seitenleiste:',
 			'navigationOrderSettings.confirmResetNavigationOrder' => 'Zurücksetzen der Navigationsreihenfolge bestätigen',
@@ -8163,10 +8167,10 @@ extension on TranslationsDe {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Modus A (Schnell) + Linienabdunklung, fügt zusätzlich zur schnellen Variante A eine Linienabdunklung für kräftigere, stilisierte Linien hinzu.',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Modus A (HQ) + Linienverdünnung, fügt zusätzlich zur hochwertigen Variante A eine Linienverdünnung für ein feineres Erscheinungsbild hinzu.',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
-			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
-			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			_ => null,
 		} ?? switch (path) {
+			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
+			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
 			'anime4k.presetNames.mode_b_b_hq' => 'Mode B+B (HQ)',
 			'anime4k.presetNames.mode_c_a_hq' => 'Mode C+A (HQ)',
@@ -8677,10 +8681,10 @@ extension on TranslationsDe {
 			'ai.providers' => 'Anbieter',
 			'ai.providersHint' => 'Fügen Sie einen oder mehrere KI-Anbieter hinzu und weisen Sie diese den Funktionen zu.',
 			'ai.addProvider' => 'Anbieter hinzufügen',
-			'ai.noProviders' => 'Noch keine Anbieter vorhanden. Fügen Sie einen hinzu, um KI-Übersetzung, Suche und Signatur zu aktivieren.',
-			'ai.pickPreset' => 'Anbieter auswählen',
 			_ => null,
 		} ?? switch (path) {
+			'ai.noProviders' => 'Noch keine Anbieter vorhanden. Fügen Sie einen hinzu, um KI-Übersetzung, Suche und Signatur zu aktivieren.',
+			'ai.pickPreset' => 'Anbieter auswählen',
 			'ai.providerNameLabel' => 'Bezeichnung',
 			'ai.apiKey' => 'API-Schlüssel',
 			'ai.baseUrl' => 'Endpunkt',

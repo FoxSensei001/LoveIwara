@@ -744,6 +744,8 @@ settings:
   autoEnterFullscreenKindSystemDesc: Dejar que el gestor de ventanas ponga la ventana en pantalla completa
   autoEnterFullscreenKindApp: Pantalla completa de la aplicación
   autoEnterFullscreenKindAppDesc: Mantener la ventana tal cual y convertir toda la aplicación en el reproductor
+  autoEnterPipOnLeave: "Imagen en imagen al salir"
+  autoEnterPipOnLeaveDesc: "Si un vídeo se está reproduciendo en su página de detalles o en pantalla completa, al ir a la pantalla de inicio o cambiar de app pasa a imagen en imagen. No si está en pausa, ni con el bloqueo de la app o el modo de privacidad en segundo plano activados"
   signature: Firma
   enableSignature: Activar firma
   enableSignatureDesc: Esta configuración determina si la aplicación añade la firma al responder

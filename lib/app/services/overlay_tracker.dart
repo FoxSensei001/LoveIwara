@@ -25,6 +25,9 @@ class OverlayTracker extends NavigatorObserver {
   /// Reactive overlay count – can be used inside Obx.
   int get overlayCount => _overlayCount.value;
 
+  /// 弹层数量的变化（不在 Obx 里、要自己订阅的地方用）。
+  Stream<int> get overlayCountChanges => _overlayCount.stream;
+
   @override
   void didPush(Route route, Route? previousRoute) {
     if (route is PopupRoute) {

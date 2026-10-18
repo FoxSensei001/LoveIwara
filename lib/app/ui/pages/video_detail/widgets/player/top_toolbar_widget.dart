@@ -617,10 +617,7 @@ class _TopToolbarState extends State<TopToolbar> {
                                   if (isFullScreen) {
                                     AppService.tryPop();
                                   }
-                                  if (controller.isDesktopAppFullScreen.value) {
-                                    controller.isDesktopAppFullScreen.value =
-                                        false;
-                                  }
+                                  controller.exitDesktopAppFullscreen();
                                 },
                               );
                             },
