@@ -268,7 +268,9 @@ class GlassAdaptiveChrome extends StatelessWidget {
     // 完全不一致——不改这一条，「浅色主题 + 深色系统」的机器上 chrome 会以翻面
     // 状态起步，等第一次采样回来才跳回去。这里就地把种子换成**主题**的亮度。
     final MediaQueryData? mq = MediaQuery.maybeOf(context);
-    if (mq != null && mq.platformBrightness != ambient) {
+    // 无条件包：只在「两者不一致」时才包，用户钉死主题后切系统深浅色，这一层
+    // 时有时无，整棵子树重挂（正在输入的搜索框丢焦点）。
+    if (mq != null) {
       consumer = MediaQuery(
         data: mq.copyWith(platformBrightness: ambient),
         child: consumer,
@@ -281,27 +283,63 @@ class GlassAdaptiveChrome extends StatelessWidget {
   ///
   /// `darkAmount` 是包给的动画位置（0 = 浅、1 = 深），翻面时按 200ms 缓动过去。
   /// 我们要的是「离环境档有多远」：环境是浅色主题时它自己就是距离，环境是深色
-  /// 主题时取补。距离为 0（判决与主题一致）时**整只不包 Theme**，静止态零开销。
+  /// 主题时取补。距离为 0（判决与主题一致）时原样沿用外面的 ThemeData，不做任何
+  /// 插值。
+  ///
+  /// ⛔ 光换 `colorScheme` 不够（2026-10-18 作者页搜索框报障）：
+  /// `ThemeData.copyWith(colorScheme:)` **不会**重算构造时按亮度烤好的
+  /// `iconTheme`（浅色主题恒为 black87）和 `textTheme`。直接读 `colorScheme` 的
+  /// 件（`GlassIconButton`、搜索框输入文字）跟着翻了，裸 `Icon` / 只取
+  /// `textTheme` 不写颜色的 `Text` 却留在原档——深色封面上搜索胶囊里的放大镜
+  /// 还是黑的。这里三样一起换：图标主题、文字主题、DefaultTextStyle 的颜色。
+  ///
+  /// ⛔ 包装层数**不随判决变**：先前距离为 0 时直接 `return child`、翻面后才包
+  /// `Theme`，层级一变子树整只重挂——正在输入的搜索框会丢焦点、被判成「失焦收起」。
   Widget _themed(
     ThemeData theme, {
     required double darkAmount,
     required Brightness ambient,
   }) {
     final double t = ambient == Brightness.dark ? 1.0 - darkAmount : darkAmount;
-    if (t <= 0.001) return child;
-
-    final ColorScheme cs = theme.colorScheme;
-    final ColorScheme flipped = _flippedScheme(cs);
-    final ColorScheme effective = ColorScheme.lerp(cs, flipped, t);
-    return Theme(
-      data: theme.copyWith(
+    final ThemeData data;
+    if (t <= 0.001) {
+      data = theme;
+    } else {
+      final ColorScheme cs = theme.colorScheme;
+      final ColorScheme flipped = _flippedScheme(cs);
+      final ColorScheme effective = ColorScheme.lerp(cs, flipped, t);
+      final Color flippedIcon = flipped.brightness == Brightness.dark
+          ? kDefaultIconLightColor
+          : kDefaultIconDarkColor;
+      data = theme.copyWith(
         colorScheme: effective,
         // `GlassTokens` 里有几处是按 `cs.brightness` 取值的（玻璃底色、描边
         // 透明度），`ColorScheme.lerp` 会在中点把它翻过去；`ThemeData.brightness`
         // 也跟着走，免得子树里两套亮度对不上。
         brightness: effective.brightness,
+        iconTheme: theme.iconTheme.copyWith(
+          color: Color.lerp(theme.iconTheme.color, flippedIcon, t),
+        ),
+        textTheme: TextTheme.lerp(
+          theme.textTheme,
+          theme.textTheme.apply(
+            bodyColor: flipped.onSurface,
+            displayColor: flipped.onSurface,
+            decorationColor: flipped.onSurface,
+          ),
+          t,
+        ),
+      );
+    }
+    return Theme(
+      data: data,
+      child: DefaultTextStyle.merge(
+        // 距离为 0 时一个字段都不改：外面的默认文字色原样透下来。
+        style: identical(data, theme)
+            ? const TextStyle()
+            : TextStyle(color: data.colorScheme.onSurface),
+        child: child,
       ),
-      child: child,
     );
   }
 
