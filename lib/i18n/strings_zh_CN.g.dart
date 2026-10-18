@@ -100,6 +100,7 @@ class TranslationsZhCn extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsAiZhCn ai = _TranslationsAiZhCn._(_root);
 	@override late final _TranslationsFollowSearchZhCn followSearch = _TranslationsFollowSearchZhCn._(_root);
 	@override late final _TranslationsPagedSearchZhCn pagedSearch = _TranslationsPagedSearchZhCn._(_root);
+	@override late final _TranslationsPollZhCn poll = _TranslationsPollZhCn._(_root);
 }
 
 // Path: personalProfile
@@ -3204,6 +3205,28 @@ class _TranslationsPagedSearchZhCn extends TranslationsPagedSearchEn {
 	@override String seconds({required Object value}) => '${value} 秒';
 	@override String minutes({required Object value}) => '${value} 分钟';
 	@override String get continueSearch => '继续加载';
+}
+
+// Path: poll
+class _TranslationsPollZhCn extends TranslationsPollEn {
+	_TranslationsPollZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '投票';
+	@override String get chooseThenVote => '选一个选项，再点「投票」';
+	@override String get vote => '投票';
+	@override String get voteIrreversible => '投出后不能修改';
+	@override String get youVoted => '你已投票';
+	@override String totalVotes({required Object count}) => '共 ${count} 票';
+	@override String get loginToVote => '登录后投票';
+	@override String get notFound => '这个投票已被删除';
+	@override String get loadFailed => '投票加载失败';
+	@override String get alreadyVoted => '你已经投过这个投票了';
+	@override String get voteFailed => '投票没有提交成功';
+	@override String get copyLink => '复制投票链接';
+	@override String get translateFailed => '投票翻译失败';
 }
 
 // Path: common.pagination
@@ -8871,6 +8894,19 @@ extension on TranslationsZhCn {
 			'pagedSearch.seconds' => ({required Object value}) => '${value} 秒',
 			'pagedSearch.minutes' => ({required Object value}) => '${value} 分钟',
 			'pagedSearch.continueSearch' => '继续加载',
+			'poll.title' => '投票',
+			'poll.chooseThenVote' => '选一个选项，再点「投票」',
+			'poll.vote' => '投票',
+			'poll.voteIrreversible' => '投出后不能修改',
+			'poll.youVoted' => '你已投票',
+			'poll.totalVotes' => ({required Object count}) => '共 ${count} 票',
+			'poll.loginToVote' => '登录后投票',
+			'poll.notFound' => '这个投票已被删除',
+			'poll.loadFailed' => '投票加载失败',
+			'poll.alreadyVoted' => '你已经投过这个投票了',
+			'poll.voteFailed' => '投票没有提交成功',
+			'poll.copyLink' => '复制投票链接',
+			'poll.translateFailed' => '投票翻译失败',
 			_ => null,
 		};
 	}

@@ -100,6 +100,7 @@ class TranslationsRu extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsAiRu ai = _TranslationsAiRu._(_root);
 	@override late final _TranslationsFollowSearchRu followSearch = _TranslationsFollowSearchRu._(_root);
 	@override late final _TranslationsPagedSearchRu pagedSearch = _TranslationsPagedSearchRu._(_root);
+	@override late final _TranslationsPollRu poll = _TranslationsPollRu._(_root);
 }
 
 // Path: personalProfile
@@ -3182,6 +3183,28 @@ class _TranslationsPagedSearchRu extends TranslationsPagedSearchEn {
 	@override String seconds({required Object value}) => '${value} сек.';
 	@override String minutes({required Object value}) => '${value} мин.';
 	@override String get continueSearch => 'Продолжить загрузку';
+}
+
+// Path: poll
+class _TranslationsPollRu extends TranslationsPollEn {
+	_TranslationsPollRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Опрос';
+	@override String get chooseThenVote => 'Выберите вариант и нажмите «Голосовать»';
+	@override String get vote => 'Голосовать';
+	@override String get voteIrreversible => 'Изменить голос потом нельзя';
+	@override String get youVoted => 'Вы проголосовали';
+	@override String totalVotes({required Object count}) => 'Всего голосов: ${count}';
+	@override String get loginToVote => 'Войдите, чтобы проголосовать';
+	@override String get notFound => 'Этот опрос удалён';
+	@override String get loadFailed => 'Не удалось загрузить опрос';
+	@override String get alreadyVoted => 'Вы уже голосовали в этом опросе';
+	@override String get voteFailed => 'Не удалось отправить голос';
+	@override String get copyLink => 'Скопировать ссылку на опрос';
+	@override String get translateFailed => 'Не удалось перевести опрос';
 }
 
 // Path: common.pagination
@@ -8827,6 +8850,19 @@ extension on TranslationsRu {
 			'pagedSearch.seconds' => ({required Object value}) => '${value} сек.',
 			'pagedSearch.minutes' => ({required Object value}) => '${value} мин.',
 			'pagedSearch.continueSearch' => 'Продолжить загрузку',
+			'poll.title' => 'Опрос',
+			'poll.chooseThenVote' => 'Выберите вариант и нажмите «Голосовать»',
+			'poll.vote' => 'Голосовать',
+			'poll.voteIrreversible' => 'Изменить голос потом нельзя',
+			'poll.youVoted' => 'Вы проголосовали',
+			'poll.totalVotes' => ({required Object count}) => 'Всего голосов: ${count}',
+			'poll.loginToVote' => 'Войдите, чтобы проголосовать',
+			'poll.notFound' => 'Этот опрос удалён',
+			'poll.loadFailed' => 'Не удалось загрузить опрос',
+			'poll.alreadyVoted' => 'Вы уже голосовали в этом опросе',
+			'poll.voteFailed' => 'Не удалось отправить голос',
+			'poll.copyLink' => 'Скопировать ссылку на опрос',
+			'poll.translateFailed' => 'Не удалось перевести опрос',
 			_ => null,
 		};
 	}

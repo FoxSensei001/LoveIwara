@@ -156,6 +156,96 @@ class MarkdownFormatter {
     }
   }
 
+  /// 投票嵌入占位的协议：`![poll:<id>](iwara-poll://<id>)`。
+  ///
+  /// 借图片语法把一张投票卡片塞进正文，手法与 `![emo:icon-i](favicon)` 相同：
+  /// 不用改 markdown_widget 的语法树，`CustomMarkdownBody` 的图片 builder 认到
+  /// 这个协议就换成投票卡片。
+  static const String pollEmbedScheme = 'iwara-poll://';
+
+  /// 正文里的裸投票链接。
+  ///
+  /// 完整的 markdown 链接在 [_formatPollEmbedsInText] 里先被整段挑走，到不了这里；
+  /// 前面的排除只防残缺写法：`](`、HTML 属性（`"` `'` `=`）、`<url>` 自动链接。
+  /// 普通的 `(` 不排除——正文里「（见 网址）」这种括号写法照样嵌入。
+  ///
+  /// 投票不分站（带 AI 站的 x-site 请求主站投票照样 200），两个站的写法都认。
+  static final RegExp _barePollUrlPattern = RegExp(
+    // 结尾的 `?ref=…` / `#…` 一并吞掉，不然卡片后面会挂着一截残留文字。
+    r'''(?<![\w/"'=<])(?<!\]\()https?://(?:www\.)?iwara\.(?:tv|ai)/poll/([a-zA-Z0-9-]+)/?(?:[?#][^\s\[\]()<>"']*)?(?![\w\-/?#])''',
+    caseSensitive: false,
+  );
+
+  /// 只匹配「整条就是一个投票链接」的字符串，用于判断 `[url](url)`。
+  static final RegExp _pollUrlOnlyPattern = RegExp(
+    r'^https?://(?:www\.)?iwara\.(?:tv|ai)/poll/([a-zA-Z0-9-]+)/?(?:[?#]\S*)?$',
+    caseSensitive: false,
+  );
+
+  static String _pollEmbed(String id) => '![poll:$id]($pollEmbedScheme$id)';
+
+  /// 把正文里的投票链接改写成投票卡片占位（[pollEmbedScheme]）。
+  ///
+  /// 规则照网页端：只有「链接文字就是网址本身」的才嵌入，也就是裸 URL，或者
+  /// 写成 `[网址](网址)` 的；`[点这里](投票网址)` 这种带文字的链接保持为普通
+  /// 链接（点击进投票页）。行内代码里的不改写。
+  ///
+  /// 必须排在其它链接格式化**之前**：之后裸 URL 会被包成 `[url](url)` 并加上
+  /// 图标前缀。纯字符串处理、不发请求，卡片自己去拉数据。
+  String formatPollEmbeds(String data) {
+    if (!data.contains('/poll/')) return data;
+    // 不用 splitByCodeBlocks 的奇偶约定：正文以行内代码开头时，它的第 0 段
+    // 就是代码，奇偶会整体错位。这里直接按代码块的匹配位置切。
+    final buffer = StringBuffer();
+    int lastEnd = 0;
+    for (final code in _codeBlockPattern.allMatches(data)) {
+      if (code.start > lastEnd) {
+        buffer.write(
+          _formatPollEmbedsInText(data.substring(lastEnd, code.start)),
+        );
+      }
+      buffer.write(code.group(0));
+      lastEnd = code.end;
+    }
+    if (lastEnd < data.length) {
+      buffer.write(_formatPollEmbedsInText(data.substring(lastEnd)));
+    }
+    return buffer.toString();
+  }
+
+  String _formatPollEmbedsInText(String text) {
+    final buffer = StringBuffer();
+    int lastEnd = 0;
+    for (final match in _markdownLinkPattern.allMatches(text)) {
+      if (match.start > lastEnd) {
+        buffer.write(
+          _replaceBarePollUrls(text.substring(lastEnd, match.start)),
+        );
+      }
+      final label = (match.group(1) ?? '').trim();
+      final url = (match.group(2) ?? '').trim();
+      final isImage = match.start > 0 && text[match.start - 1] == '!';
+      final pollMatch = _pollUrlOnlyPattern.firstMatch(url);
+      if (!isImage && pollMatch != null && label == url) {
+        buffer.write(_pollEmbed(pollMatch.group(1)!));
+      } else {
+        buffer.write(text.substring(match.start, match.end));
+      }
+      lastEnd = match.end;
+    }
+    if (lastEnd < text.length) {
+      buffer.write(_replaceBarePollUrls(text.substring(lastEnd)));
+    }
+    return buffer.toString();
+  }
+
+  String _replaceBarePollUrls(String text) {
+    return text.replaceAllMapped(
+      _barePollUrlPattern,
+      (match) => _pollEmbed(match.group(1)!),
+    );
+  }
+
   /// 行内代码块匹配（`code`）。提为 static final，避免每次 splitByCodeBlocks 重新编译。
   static final RegExp _codeBlockPattern = RegExp(r'`[^`]+`');
 
@@ -269,7 +359,7 @@ class MarkdownFormatter {
     String preText = text.substring(0, index).trimRight();
 
     // 检查是否以已知 Emoji 结尾
-    final emojis = ['🎬', '📌', '🖼️', '👤', '🎵', '💬', '📜', '❓', '🔗'];
+    final emojis = ['🎬', '📌', '🖼️', '👤', '🎵', '💬', '📜', '📊', '❓', '🔗'];
     for (final emoji in emojis) {
       if (preText.endsWith(emoji)) {
         return true;
@@ -435,6 +525,7 @@ class MarkdownFormatter {
     String processed = rawText;
 
     // 进行各种格式化处理
+    processed = formatPollEmbeds(processed);
     processed = await formatLinks(processed);
     processed = formatMarkdownLinks(processed);
     processed = formatMentions(processed);

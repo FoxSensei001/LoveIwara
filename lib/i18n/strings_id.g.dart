@@ -100,6 +100,7 @@ class TranslationsId extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsAiId ai = _TranslationsAiId._(_root);
 	@override late final _TranslationsFollowSearchId followSearch = _TranslationsFollowSearchId._(_root);
 	@override late final _TranslationsPagedSearchId pagedSearch = _TranslationsPagedSearchId._(_root);
+	@override late final _TranslationsPollId poll = _TranslationsPollId._(_root);
 }
 
 // Path: personalProfile
@@ -3182,6 +3183,28 @@ class _TranslationsPagedSearchId extends TranslationsPagedSearchEn {
 	@override String seconds({required Object value}) => '${value} dtk';
 	@override String minutes({required Object value}) => '${value} mnt';
 	@override String get continueSearch => 'Lanjutkan memuat';
+}
+
+// Path: poll
+class _TranslationsPollId extends TranslationsPollEn {
+	_TranslationsPollId._(TranslationsId root) : this._root = root, super.internal(root);
+
+	final TranslationsId _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Polling';
+	@override String get chooseThenVote => 'Pilih satu opsi, lalu ketuk “Kirim suara”';
+	@override String get vote => 'Kirim suara';
+	@override String get voteIrreversible => 'Suara tidak bisa diubah setelah dikirim';
+	@override String get youVoted => 'Anda sudah memilih';
+	@override String totalVotes({required Object count}) => 'Total suara: ${count}';
+	@override String get loginToVote => 'Masuk untuk memberi suara';
+	@override String get notFound => 'Polling ini sudah dihapus';
+	@override String get loadFailed => 'Gagal memuat polling';
+	@override String get alreadyVoted => 'Anda sudah memberi suara di polling ini';
+	@override String get voteFailed => 'Gagal mengirim suara';
+	@override String get copyLink => 'Salin tautan polling';
+	@override String get translateFailed => 'Gagal menerjemahkan polling';
 }
 
 // Path: common.pagination
@@ -8827,6 +8850,19 @@ extension on TranslationsId {
 			'pagedSearch.seconds' => ({required Object value}) => '${value} dtk',
 			'pagedSearch.minutes' => ({required Object value}) => '${value} mnt',
 			'pagedSearch.continueSearch' => 'Lanjutkan memuat',
+			'poll.title' => 'Polling',
+			'poll.chooseThenVote' => 'Pilih satu opsi, lalu ketuk “Kirim suara”',
+			'poll.vote' => 'Kirim suara',
+			'poll.voteIrreversible' => 'Suara tidak bisa diubah setelah dikirim',
+			'poll.youVoted' => 'Anda sudah memilih',
+			'poll.totalVotes' => ({required Object count}) => 'Total suara: ${count}',
+			'poll.loginToVote' => 'Masuk untuk memberi suara',
+			'poll.notFound' => 'Polling ini sudah dihapus',
+			'poll.loadFailed' => 'Gagal memuat polling',
+			'poll.alreadyVoted' => 'Anda sudah memberi suara di polling ini',
+			'poll.voteFailed' => 'Gagal mengirim suara',
+			'poll.copyLink' => 'Salin tautan polling',
+			'poll.translateFailed' => 'Gagal menerjemahkan polling',
 			_ => null,
 		};
 	}

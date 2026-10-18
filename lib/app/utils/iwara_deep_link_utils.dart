@@ -35,6 +35,8 @@ class IwaraDeepLinkUtils {
             : null;
       case 'post':
         return pathSegments.length > 1 ? '/post/${pathSegments[1]}' : null;
+      case 'poll':
+        return pathSegments.length > 1 ? '/poll/${pathSegments[1]}' : null;
       case 'forum':
         if (pathSegments.length > 2) {
           return '/forum_threads/${pathSegments[1]}/${pathSegments[2]}';

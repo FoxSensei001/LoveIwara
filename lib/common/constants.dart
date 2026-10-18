@@ -401,6 +401,13 @@ class ApiConstants {
   // 用户发帖子冷却时间
   static String userPostCooldown() => '/user/post/cooldown';
 
+  // 投票详情（未登录可读；登录后多一个本人所投选项的 `vote`）
+  static String poll(String id) => '/poll/$id';
+
+  // 投票（成功 201、返回体为空）
+  static String pollVote(String pollId, int optionId) =>
+      '/poll/$pollId/vote/$optionId';
+
   // 论坛帖子冷却时间
   static String forumThreadCooldown() => '/user/forumThread/cooldown';
 

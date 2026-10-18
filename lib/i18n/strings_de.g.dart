@@ -100,6 +100,7 @@ class TranslationsDe extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsAiDe ai = _TranslationsAiDe._(_root);
 	@override late final _TranslationsFollowSearchDe followSearch = _TranslationsFollowSearchDe._(_root);
 	@override late final _TranslationsPagedSearchDe pagedSearch = _TranslationsPagedSearchDe._(_root);
+	@override late final _TranslationsPollDe poll = _TranslationsPollDe._(_root);
 }
 
 // Path: personalProfile
@@ -3182,6 +3183,28 @@ class _TranslationsPagedSearchDe extends TranslationsPagedSearchEn {
 	@override String seconds({required Object value}) => '${value} Sek.';
 	@override String minutes({required Object value}) => '${value} Min.';
 	@override String get continueSearch => 'Weiter laden';
+}
+
+// Path: poll
+class _TranslationsPollDe extends TranslationsPollEn {
+	_TranslationsPollDe._(TranslationsDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDe _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Umfrage';
+	@override String get chooseThenVote => 'Wähle eine Option und tippe dann auf „Abstimmen“';
+	@override String get vote => 'Abstimmen';
+	@override String get voteIrreversible => 'Die Stimme kann danach nicht geändert werden';
+	@override String get youVoted => 'Du hast abgestimmt';
+	@override String totalVotes({required Object count}) => 'Stimmen gesamt: ${count}';
+	@override String get loginToVote => 'Zum Abstimmen anmelden';
+	@override String get notFound => 'Diese Umfrage wurde gelöscht';
+	@override String get loadFailed => 'Umfrage konnte nicht geladen werden';
+	@override String get alreadyVoted => 'Du hast bei dieser Umfrage bereits abgestimmt';
+	@override String get voteFailed => 'Stimme konnte nicht abgegeben werden';
+	@override String get copyLink => 'Umfragelink kopieren';
+	@override String get translateFailed => 'Umfrage konnte nicht übersetzt werden';
 }
 
 // Path: common.pagination
@@ -8827,6 +8850,19 @@ extension on TranslationsDe {
 			'pagedSearch.seconds' => ({required Object value}) => '${value} Sek.',
 			'pagedSearch.minutes' => ({required Object value}) => '${value} Min.',
 			'pagedSearch.continueSearch' => 'Weiter laden',
+			'poll.title' => 'Umfrage',
+			'poll.chooseThenVote' => 'Wähle eine Option und tippe dann auf „Abstimmen“',
+			'poll.vote' => 'Abstimmen',
+			'poll.voteIrreversible' => 'Die Stimme kann danach nicht geändert werden',
+			'poll.youVoted' => 'Du hast abgestimmt',
+			'poll.totalVotes' => ({required Object count}) => 'Stimmen gesamt: ${count}',
+			'poll.loginToVote' => 'Zum Abstimmen anmelden',
+			'poll.notFound' => 'Diese Umfrage wurde gelöscht',
+			'poll.loadFailed' => 'Umfrage konnte nicht geladen werden',
+			'poll.alreadyVoted' => 'Du hast bei dieser Umfrage bereits abgestimmt',
+			'poll.voteFailed' => 'Stimme konnte nicht abgegeben werden',
+			'poll.copyLink' => 'Umfragelink kopieren',
+			'poll.translateFailed' => 'Umfrage konnte nicht übersetzt werden',
 			_ => null,
 		};
 	}

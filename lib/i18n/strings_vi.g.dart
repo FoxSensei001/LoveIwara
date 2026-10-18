@@ -100,6 +100,7 @@ class TranslationsVi extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsAiVi ai = _TranslationsAiVi._(_root);
 	@override late final _TranslationsFollowSearchVi followSearch = _TranslationsFollowSearchVi._(_root);
 	@override late final _TranslationsPagedSearchVi pagedSearch = _TranslationsPagedSearchVi._(_root);
+	@override late final _TranslationsPollVi poll = _TranslationsPollVi._(_root);
 }
 
 // Path: personalProfile
@@ -3182,6 +3183,28 @@ class _TranslationsPagedSearchVi extends TranslationsPagedSearchEn {
 	@override String seconds({required Object value}) => '${value} giây';
 	@override String minutes({required Object value}) => '${value} phút';
 	@override String get continueSearch => 'Tiếp tục tải';
+}
+
+// Path: poll
+class _TranslationsPollVi extends TranslationsPollEn {
+	_TranslationsPollVi._(TranslationsVi root) : this._root = root, super.internal(root);
+
+	final TranslationsVi _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Bình chọn';
+	@override String get chooseThenVote => 'Chọn một phương án rồi nhấn “Bình chọn”';
+	@override String get vote => 'Bình chọn';
+	@override String get voteIrreversible => 'Không thể thay đổi sau khi bình chọn';
+	@override String get youVoted => 'Bạn đã bình chọn';
+	@override String totalVotes({required Object count}) => 'Tổng số phiếu: ${count}';
+	@override String get loginToVote => 'Đăng nhập để bình chọn';
+	@override String get notFound => 'Cuộc bình chọn này đã bị xóa';
+	@override String get loadFailed => 'Không tải được cuộc bình chọn';
+	@override String get alreadyVoted => 'Bạn đã bình chọn trong cuộc bình chọn này';
+	@override String get voteFailed => 'Không gửi được phiếu bầu';
+	@override String get copyLink => 'Sao chép liên kết bình chọn';
+	@override String get translateFailed => 'Không dịch được cuộc bình chọn';
 }
 
 // Path: common.pagination
@@ -8827,6 +8850,19 @@ extension on TranslationsVi {
 			'pagedSearch.seconds' => ({required Object value}) => '${value} giây',
 			'pagedSearch.minutes' => ({required Object value}) => '${value} phút',
 			'pagedSearch.continueSearch' => 'Tiếp tục tải',
+			'poll.title' => 'Bình chọn',
+			'poll.chooseThenVote' => 'Chọn một phương án rồi nhấn “Bình chọn”',
+			'poll.vote' => 'Bình chọn',
+			'poll.voteIrreversible' => 'Không thể thay đổi sau khi bình chọn',
+			'poll.youVoted' => 'Bạn đã bình chọn',
+			'poll.totalVotes' => ({required Object count}) => 'Tổng số phiếu: ${count}',
+			'poll.loginToVote' => 'Đăng nhập để bình chọn',
+			'poll.notFound' => 'Cuộc bình chọn này đã bị xóa',
+			'poll.loadFailed' => 'Không tải được cuộc bình chọn',
+			'poll.alreadyVoted' => 'Bạn đã bình chọn trong cuộc bình chọn này',
+			'poll.voteFailed' => 'Không gửi được phiếu bầu',
+			'poll.copyLink' => 'Sao chép liên kết bình chọn',
+			'poll.translateFailed' => 'Không dịch được cuộc bình chọn',
 			_ => null,
 		};
 	}

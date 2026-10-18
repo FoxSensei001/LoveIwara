@@ -101,6 +101,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsAiEn ai = TranslationsAiEn.internal(_root);
 	late final TranslationsFollowSearchEn followSearch = TranslationsFollowSearchEn.internal(_root);
 	late final TranslationsPagedSearchEn pagedSearch = TranslationsPagedSearchEn.internal(_root);
+	late final TranslationsPollEn poll = TranslationsPollEn.internal(_root);
 }
 
 // Path: personalProfile
@@ -8184,6 +8185,54 @@ class TranslationsPagedSearchEn {
 
 	/// en: 'Continue loading'
 	String get continueSearch => 'Continue loading';
+}
+
+// Path: poll
+class TranslationsPollEn {
+	TranslationsPollEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Poll'
+	String get title => 'Poll';
+
+	/// en: 'Choose an option, then tap Vote'
+	String get chooseThenVote => 'Choose an option, then tap Vote';
+
+	/// en: 'Vote'
+	String get vote => 'Vote';
+
+	/// en: 'Votes can't be changed once cast'
+	String get voteIrreversible => 'Votes can\'t be changed once cast';
+
+	/// en: 'You voted'
+	String get youVoted => 'You voted';
+
+	/// en: 'Total votes: ${count}'
+	String totalVotes({required Object count}) => 'Total votes: ${count}';
+
+	/// en: 'Log in to vote'
+	String get loginToVote => 'Log in to vote';
+
+	/// en: 'This poll has been deleted'
+	String get notFound => 'This poll has been deleted';
+
+	/// en: 'Couldn't load this poll'
+	String get loadFailed => 'Couldn\'t load this poll';
+
+	/// en: 'You've already voted in this poll'
+	String get alreadyVoted => 'You\'ve already voted in this poll';
+
+	/// en: 'Couldn't submit your vote'
+	String get voteFailed => 'Couldn\'t submit your vote';
+
+	/// en: 'Copy poll link'
+	String get copyLink => 'Copy poll link';
+
+	/// en: 'Couldn't translate this poll'
+	String get translateFailed => 'Couldn\'t translate this poll';
 }
 
 // Path: common.pagination
@@ -16449,6 +16498,19 @@ extension on Translations {
 			'pagedSearch.seconds' => ({required Object value}) => '${value} sec',
 			'pagedSearch.minutes' => ({required Object value}) => '${value} min',
 			'pagedSearch.continueSearch' => 'Continue loading',
+			'poll.title' => 'Poll',
+			'poll.chooseThenVote' => 'Choose an option, then tap Vote',
+			'poll.vote' => 'Vote',
+			'poll.voteIrreversible' => 'Votes can\'t be changed once cast',
+			'poll.youVoted' => 'You voted',
+			'poll.totalVotes' => ({required Object count}) => 'Total votes: ${count}',
+			'poll.loginToVote' => 'Log in to vote',
+			'poll.notFound' => 'This poll has been deleted',
+			'poll.loadFailed' => 'Couldn\'t load this poll',
+			'poll.alreadyVoted' => 'You\'ve already voted in this poll',
+			'poll.voteFailed' => 'Couldn\'t submit your vote',
+			'poll.copyLink' => 'Copy poll link',
+			'poll.translateFailed' => 'Couldn\'t translate this poll',
 			_ => null,
 		};
 	}

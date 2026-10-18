@@ -100,6 +100,7 @@ class TranslationsEs extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsAiEs ai = _TranslationsAiEs._(_root);
 	@override late final _TranslationsFollowSearchEs followSearch = _TranslationsFollowSearchEs._(_root);
 	@override late final _TranslationsPagedSearchEs pagedSearch = _TranslationsPagedSearchEs._(_root);
+	@override late final _TranslationsPollEs poll = _TranslationsPollEs._(_root);
 }
 
 // Path: personalProfile
@@ -3182,6 +3183,28 @@ class _TranslationsPagedSearchEs extends TranslationsPagedSearchEn {
 	@override String seconds({required Object value}) => '${value} s';
 	@override String minutes({required Object value}) => '${value} min';
 	@override String get continueSearch => 'Continuar cargando';
+}
+
+// Path: poll
+class _TranslationsPollEs extends TranslationsPollEn {
+	_TranslationsPollEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Encuesta';
+	@override String get chooseThenVote => 'Elige una opción y luego toca «Votar»';
+	@override String get vote => 'Votar';
+	@override String get voteIrreversible => 'El voto no se puede cambiar después';
+	@override String get youVoted => 'Ya votaste';
+	@override String totalVotes({required Object count}) => 'Votos totales: ${count}';
+	@override String get loginToVote => 'Inicia sesión para votar';
+	@override String get notFound => 'Esta encuesta fue eliminada';
+	@override String get loadFailed => 'No se pudo cargar la encuesta';
+	@override String get alreadyVoted => 'Ya votaste en esta encuesta';
+	@override String get voteFailed => 'No se pudo enviar el voto';
+	@override String get copyLink => 'Copiar enlace de la encuesta';
+	@override String get translateFailed => 'No se pudo traducir la encuesta';
 }
 
 // Path: common.pagination
@@ -8827,6 +8850,19 @@ extension on TranslationsEs {
 			'pagedSearch.seconds' => ({required Object value}) => '${value} s',
 			'pagedSearch.minutes' => ({required Object value}) => '${value} min',
 			'pagedSearch.continueSearch' => 'Continuar cargando',
+			'poll.title' => 'Encuesta',
+			'poll.chooseThenVote' => 'Elige una opción y luego toca «Votar»',
+			'poll.vote' => 'Votar',
+			'poll.voteIrreversible' => 'El voto no se puede cambiar después',
+			'poll.youVoted' => 'Ya votaste',
+			'poll.totalVotes' => ({required Object count}) => 'Votos totales: ${count}',
+			'poll.loginToVote' => 'Inicia sesión para votar',
+			'poll.notFound' => 'Esta encuesta fue eliminada',
+			'poll.loadFailed' => 'No se pudo cargar la encuesta',
+			'poll.alreadyVoted' => 'Ya votaste en esta encuesta',
+			'poll.voteFailed' => 'No se pudo enviar el voto',
+			'poll.copyLink' => 'Copiar enlace de la encuesta',
+			'poll.translateFailed' => 'No se pudo traducir la encuesta',
 			_ => null,
 		};
 	}

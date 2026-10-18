@@ -682,6 +682,11 @@ class NaviService {
     );
   }
 
+  /// 跳转到投票页。投票不分站，不需要 navigateInSiteMode。
+  static void navigateToPollDetailPage(String id) {
+    appRouter.push('/poll/$id');
+  }
+
   /// 跳转到图片详情页
   static void navigateToPhotoViewWrapper({
     required List<ImageItem> imageItems,

@@ -50,6 +50,7 @@ import 'package:i_iwara/app/services/play_list_service.dart';
 import 'package:i_iwara/app/services/playback_history_service.dart';
 import 'package:i_iwara/app/services/vr_format_override_service.dart';
 import 'package:i_iwara/app/services/xr_immersive_service.dart';
+import 'package:i_iwara/app/services/poll_service.dart';
 import 'package:i_iwara/app/services/post_service.dart';
 import 'package:i_iwara/app/services/search_service.dart';
 import 'package:i_iwara/app/services/storage_service.dart';
@@ -390,6 +391,8 @@ class AppStartupCoordinator implements AppStartupRunner {
     _registerDeferredLazy<SearchService>(() => SearchService());
     _registerDeferredLazy<GalleryService>(() => GalleryService());
     _registerDeferredLazy<PostService>(() => PostService());
+    // 投票状态按 id 全应用共享（同一个投票可能同时嵌在正文和评论里）。
+    _registerDeferredLazy<PollService>(() => PollService());
     _registerDeferredLazy<TagService>(() => TagService());
     _registerDeferredLazy<LightService>(() => LightService());
     _registerDeferredLazy<PlayListService>(() => PlayListService());

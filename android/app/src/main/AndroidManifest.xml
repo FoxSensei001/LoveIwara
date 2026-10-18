@@ -96,6 +96,7 @@
                 <data android:pathPattern="/forum/.*/support/.*" />
                 <data android:pathPattern="/post/.*" />
                 <data android:pathPattern="/post/.*/.*" />
+                <data android:pathPattern="/poll/.*" />
             </intent-filter>
 
             <intent-filter android:autoVerify="true">

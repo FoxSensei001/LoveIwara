@@ -11,6 +11,7 @@ import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_li
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_translation_controller.dart';
+import 'package:i_iwara/app/ui/widgets/poll/poll_embed_card.dart';
 import 'package:i_iwara/app/ui/widgets/translation_language_selector.dart';
 import 'package:i_iwara/app/ui/widgets/translation_powered_by_widget.dart';
 import 'package:i_iwara/app/utils/url_utils.dart';
@@ -224,6 +225,16 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     final token = ++_markdownProcessToken;
     String processed = data;
     bool hasChanges = false;
+
+    // 投票链接 → 投票卡片占位。必须最先做：后面的链接格式化会把裸 URL 包成
+    // `[url](url)` 并加图标前缀。
+    try {
+      final newProcessed = _markdownFormatter.formatPollEmbeds(processed);
+      if (newProcessed != processed) hasChanges = true;
+      processed = newProcessed;
+    } catch (e) {
+      LogUtils.e('格式化投票链接时发生错误', error: e, tag: 'CustomMarkdownBody');
+    }
 
     try {
       final newProcessed = await _markdownFormatter.formatLinks(processed);
@@ -499,6 +510,11 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
             urlInfo.secondaryId!,
           ),
         );
+        return true;
+      case IwaraUrlType.poll:
+        // 投票不分站，不用 navigateInSiteMode 切站。
+        if (urlInfo.id == null) return false;
+        NaviService.navigateToPollDetailPage(urlInfo.id!);
         return true;
       case IwaraUrlType.rule:
       case IwaraUrlType.unknown:
@@ -1116,6 +1132,23 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     double normalImagePlaceholderHeight,
     List<_MarkdownNormalImageRecord> normalImageRecords,
   ) {
+    // 投票卡片借的是图片语法（见 MarkdownFormatter.pollEmbedScheme），在这里
+    // 截走：它不进大图浏览器的图片列表，也不走 URL 预处理。
+    final trimmedUrl = url.trim();
+    if (trimmedUrl.startsWith(MarkdownFormatter.pollEmbedScheme)) {
+      final pollId = trimmedUrl.substring(
+        MarkdownFormatter.pollEmbedScheme.length,
+      );
+      if (pollId.isNotEmpty) {
+        // 图片 builder 的产物是 WidgetSpan：Flutter 会把整只子树按字号缩放
+        // （_AutoScaleInlineWidget），里面的 Text 又会再按 MediaQuery 放大一次，
+        // 系统字号调大时字就成了平方倍。这里关掉内层那一次。
+        return MediaQuery.withNoTextScaling(
+          child: PollEmbedCard(pollId: pollId),
+        );
+      }
+    }
+
     try {
       final preprocessedUrl =
           widget.urlPreprocessor?.call(url.trim()) ?? url.trim();

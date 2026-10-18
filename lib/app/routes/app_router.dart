@@ -64,6 +64,7 @@ import 'package:i_iwara/app/ui/pages/download/gallery_download_task_detail_page.
 import 'package:i_iwara/app/ui/pages/notifications/notification_list_page.dart';
 import 'package:i_iwara/app/ui/pages/conversation/conversation_page.dart';
 import 'package:i_iwara/app/ui/pages/conversation/widgets/message_list_widget.dart';
+import 'package:i_iwara/app/ui/pages/poll_detail/poll_detail_page.dart';
 import 'package:i_iwara/app/ui/pages/post_detail/post_detail_page.dart';
 import 'package:i_iwara/app/ui/pages/forum/thread_list_page.dart';
 import 'package:i_iwara/app/ui/pages/forum/thread_detail_page.dart';
@@ -846,6 +847,16 @@ final GoRouter appRouter = GoRouter(
               PostDetailPage(postId: id, initialPost: initialPost),
             );
           },
+        ),
+
+        // 投票
+        GoRoute(
+          path: '/poll/:id',
+          name: 'poll_detail',
+          pageBuilder: (context, state) => buildDefaultPage(
+            state,
+            PollDetailPage(pollId: state.pathParameters['id']!),
+          ),
         ),
 
         // 论坛帖子列表

@@ -100,6 +100,7 @@ class TranslationsJa extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsAiJa ai = _TranslationsAiJa._(_root);
 	@override late final _TranslationsFollowSearchJa followSearch = _TranslationsFollowSearchJa._(_root);
 	@override late final _TranslationsPagedSearchJa pagedSearch = _TranslationsPagedSearchJa._(_root);
+	@override late final _TranslationsPollJa poll = _TranslationsPollJa._(_root);
 }
 
 // Path: personalProfile
@@ -3182,6 +3183,28 @@ class _TranslationsPagedSearchJa extends TranslationsPagedSearchEn {
 	@override String seconds({required Object value}) => '${value} 秒';
 	@override String minutes({required Object value}) => '${value} 分';
 	@override String get continueSearch => '読込を続ける';
+}
+
+// Path: poll
+class _TranslationsPollJa extends TranslationsPollEn {
+	_TranslationsPollJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '投票';
+	@override String get chooseThenVote => '選択肢を選んでから「投票」を押してください';
+	@override String get vote => '投票';
+	@override String get voteIrreversible => '投票後は変更できません';
+	@override String get youVoted => '投票済み';
+	@override String totalVotes({required Object count}) => '合計 ${count} 票';
+	@override String get loginToVote => 'ログインして投票';
+	@override String get notFound => 'この投票は削除されています';
+	@override String get loadFailed => '投票を読み込めませんでした';
+	@override String get alreadyVoted => 'この投票にはすでに投票しています';
+	@override String get voteFailed => '投票を送信できませんでした';
+	@override String get copyLink => '投票のリンクをコピー';
+	@override String get translateFailed => '投票を翻訳できませんでした';
 }
 
 // Path: common.pagination
@@ -8827,6 +8850,19 @@ extension on TranslationsJa {
 			'pagedSearch.seconds' => ({required Object value}) => '${value} 秒',
 			'pagedSearch.minutes' => ({required Object value}) => '${value} 分',
 			'pagedSearch.continueSearch' => '読込を続ける',
+			'poll.title' => '投票',
+			'poll.chooseThenVote' => '選択肢を選んでから「投票」を押してください',
+			'poll.vote' => '投票',
+			'poll.voteIrreversible' => '投票後は変更できません',
+			'poll.youVoted' => '投票済み',
+			'poll.totalVotes' => ({required Object count}) => '合計 ${count} 票',
+			'poll.loginToVote' => 'ログインして投票',
+			'poll.notFound' => 'この投票は削除されています',
+			'poll.loadFailed' => '投票を読み込めませんでした',
+			'poll.alreadyVoted' => 'この投票にはすでに投票しています',
+			'poll.voteFailed' => '投票を送信できませんでした',
+			'poll.copyLink' => '投票のリンクをコピー',
+			'poll.translateFailed' => '投票を翻訳できませんでした',
 			_ => null,
 		};
 	}

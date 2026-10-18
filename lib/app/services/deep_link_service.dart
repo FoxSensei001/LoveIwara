@@ -315,6 +315,13 @@ class DeepLinkService extends GetxService {
           );
         }
         break;
+
+      case 'poll':
+        // 投票不分站（带 AI 站的 x-site 请求主站投票照样 200），不切站。
+        if (pathSegments.length > 1) {
+          NaviService.navigateToPollDetailPage(pathSegments[1]);
+        }
+        break;
     }
   }
 

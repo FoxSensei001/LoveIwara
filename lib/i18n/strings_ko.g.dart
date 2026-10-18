@@ -100,6 +100,7 @@ class TranslationsKo extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsAiKo ai = _TranslationsAiKo._(_root);
 	@override late final _TranslationsFollowSearchKo followSearch = _TranslationsFollowSearchKo._(_root);
 	@override late final _TranslationsPagedSearchKo pagedSearch = _TranslationsPagedSearchKo._(_root);
+	@override late final _TranslationsPollKo poll = _TranslationsPollKo._(_root);
 }
 
 // Path: personalProfile
@@ -3182,6 +3183,28 @@ class _TranslationsPagedSearchKo extends TranslationsPagedSearchEn {
 	@override String seconds({required Object value}) => '${value}초';
 	@override String minutes({required Object value}) => '${value}분';
 	@override String get continueSearch => '계속 불러오기';
+}
+
+// Path: poll
+class _TranslationsPollKo extends TranslationsPollEn {
+	_TranslationsPollKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '투표';
+	@override String get chooseThenVote => '항목을 고른 뒤 ‘투표’를 누르세요';
+	@override String get vote => '투표';
+	@override String get voteIrreversible => '투표 후에는 변경할 수 없습니다';
+	@override String get youVoted => '투표 완료';
+	@override String totalVotes({required Object count}) => '총 ${count}표';
+	@override String get loginToVote => '로그인하고 투표하기';
+	@override String get notFound => '삭제된 투표입니다';
+	@override String get loadFailed => '투표를 불러오지 못했습니다';
+	@override String get alreadyVoted => '이미 이 투표에 참여했습니다';
+	@override String get voteFailed => '투표를 제출하지 못했습니다';
+	@override String get copyLink => '투표 링크 복사';
+	@override String get translateFailed => '투표를 번역하지 못했습니다';
 }
 
 // Path: common.pagination
@@ -8827,6 +8850,19 @@ extension on TranslationsKo {
 			'pagedSearch.seconds' => ({required Object value}) => '${value}초',
 			'pagedSearch.minutes' => ({required Object value}) => '${value}분',
 			'pagedSearch.continueSearch' => '계속 불러오기',
+			'poll.title' => '투표',
+			'poll.chooseThenVote' => '항목을 고른 뒤 ‘투표’를 누르세요',
+			'poll.vote' => '투표',
+			'poll.voteIrreversible' => '투표 후에는 변경할 수 없습니다',
+			'poll.youVoted' => '투표 완료',
+			'poll.totalVotes' => ({required Object count}) => '총 ${count}표',
+			'poll.loginToVote' => '로그인하고 투표하기',
+			'poll.notFound' => '삭제된 투표입니다',
+			'poll.loadFailed' => '투표를 불러오지 못했습니다',
+			'poll.alreadyVoted' => '이미 이 투표에 참여했습니다',
+			'poll.voteFailed' => '투표를 제출하지 못했습니다',
+			'poll.copyLink' => '투표 링크 복사',
+			'poll.translateFailed' => '투표를 번역하지 못했습니다',
 			_ => null,
 		};
 	}

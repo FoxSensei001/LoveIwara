@@ -11,6 +11,7 @@ enum IwaraUrlType {
   playlist,
   post,
   rule,
+  poll,
   unknown,
 }
 
@@ -224,6 +225,13 @@ class UrlUtils {
             originalUrl: normalizedUrl,
             site: site,
           );
+        case 'poll':
+          return IwaraUrlInfo(
+            type: IwaraUrlType.poll,
+            id: pathSegments.length > 1 ? pathSegments[1] : null,
+            originalUrl: normalizedUrl,
+            site: site,
+          );
         default:
           return IwaraUrlInfo(
             type: IwaraUrlType.unknown,
@@ -265,6 +273,8 @@ class UrlUtils {
         return '💬';
       case IwaraUrlType.rule:
         return '📜';
+      case IwaraUrlType.poll:
+        return '📊';
       case IwaraUrlType.unknown:
         return '❓';
     }

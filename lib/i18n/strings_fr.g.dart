@@ -100,6 +100,7 @@ class TranslationsFr extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsAiFr ai = _TranslationsAiFr._(_root);
 	@override late final _TranslationsFollowSearchFr followSearch = _TranslationsFollowSearchFr._(_root);
 	@override late final _TranslationsPagedSearchFr pagedSearch = _TranslationsPagedSearchFr._(_root);
+	@override late final _TranslationsPollFr poll = _TranslationsPollFr._(_root);
 }
 
 // Path: personalProfile
@@ -3182,6 +3183,28 @@ class _TranslationsPagedSearchFr extends TranslationsPagedSearchEn {
 	@override String seconds({required Object value}) => '${value} s';
 	@override String minutes({required Object value}) => '${value} min';
 	@override String get continueSearch => 'Continuer le chargement';
+}
+
+// Path: poll
+class _TranslationsPollFr extends TranslationsPollEn {
+	_TranslationsPollFr._(TranslationsFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Sondage';
+	@override String get chooseThenVote => 'Choisissez une option, puis touchez « Voter »';
+	@override String get vote => 'Voter';
+	@override String get voteIrreversible => 'Le vote ne peut plus être modifié ensuite';
+	@override String get youVoted => 'Vous avez voté';
+	@override String totalVotes({required Object count}) => 'Total des votes : ${count}';
+	@override String get loginToVote => 'Connectez-vous pour voter';
+	@override String get notFound => 'Ce sondage a été supprimé';
+	@override String get loadFailed => 'Impossible de charger le sondage';
+	@override String get alreadyVoted => 'Vous avez déjà voté à ce sondage';
+	@override String get voteFailed => 'Impossible d\'envoyer le vote';
+	@override String get copyLink => 'Copier le lien du sondage';
+	@override String get translateFailed => 'Impossible de traduire le sondage';
 }
 
 // Path: common.pagination
@@ -8827,6 +8850,19 @@ extension on TranslationsFr {
 			'pagedSearch.seconds' => ({required Object value}) => '${value} s',
 			'pagedSearch.minutes' => ({required Object value}) => '${value} min',
 			'pagedSearch.continueSearch' => 'Continuer le chargement',
+			'poll.title' => 'Sondage',
+			'poll.chooseThenVote' => 'Choisissez une option, puis touchez « Voter »',
+			'poll.vote' => 'Voter',
+			'poll.voteIrreversible' => 'Le vote ne peut plus être modifié ensuite',
+			'poll.youVoted' => 'Vous avez voté',
+			'poll.totalVotes' => ({required Object count}) => 'Total des votes : ${count}',
+			'poll.loginToVote' => 'Connectez-vous pour voter',
+			'poll.notFound' => 'Ce sondage a été supprimé',
+			'poll.loadFailed' => 'Impossible de charger le sondage',
+			'poll.alreadyVoted' => 'Vous avez déjà voté à ce sondage',
+			'poll.voteFailed' => 'Impossible d\'envoyer le vote',
+			'poll.copyLink' => 'Copier le lien du sondage',
+			'poll.translateFailed' => 'Impossible de traduire le sondage',
 			_ => null,
 		};
 	}

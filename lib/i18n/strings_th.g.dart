@@ -100,6 +100,7 @@ class TranslationsTh extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsAiTh ai = _TranslationsAiTh._(_root);
 	@override late final _TranslationsFollowSearchTh followSearch = _TranslationsFollowSearchTh._(_root);
 	@override late final _TranslationsPagedSearchTh pagedSearch = _TranslationsPagedSearchTh._(_root);
+	@override late final _TranslationsPollTh poll = _TranslationsPollTh._(_root);
 }
 
 // Path: personalProfile
@@ -3182,6 +3183,28 @@ class _TranslationsPagedSearchTh extends TranslationsPagedSearchEn {
 	@override String seconds({required Object value}) => '${value} วินาที';
 	@override String minutes({required Object value}) => '${value} นาที';
 	@override String get continueSearch => 'โหลดต่อ';
+}
+
+// Path: poll
+class _TranslationsPollTh extends TranslationsPollEn {
+	_TranslationsPollTh._(TranslationsTh root) : this._root = root, super.internal(root);
+
+	final TranslationsTh _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'โพล';
+	@override String get chooseThenVote => 'เลือกตัวเลือก แล้วแตะ “โหวต”';
+	@override String get vote => 'โหวต';
+	@override String get voteIrreversible => 'โหวตแล้วจะเปลี่ยนไม่ได้';
+	@override String get youVoted => 'คุณโหวตแล้ว';
+	@override String totalVotes({required Object count}) => 'รวม ${count} โหวต';
+	@override String get loginToVote => 'เข้าสู่ระบบเพื่อโหวต';
+	@override String get notFound => 'โพลนี้ถูกลบแล้ว';
+	@override String get loadFailed => 'โหลดโพลไม่สำเร็จ';
+	@override String get alreadyVoted => 'คุณโหวตในโพลนี้ไปแล้ว';
+	@override String get voteFailed => 'ส่งโหวตไม่สำเร็จ';
+	@override String get copyLink => 'คัดลอกลิงก์โพล';
+	@override String get translateFailed => 'แปลโพลไม่สำเร็จ';
 }
 
 // Path: common.pagination
@@ -8827,6 +8850,19 @@ extension on TranslationsTh {
 			'pagedSearch.seconds' => ({required Object value}) => '${value} วินาที',
 			'pagedSearch.minutes' => ({required Object value}) => '${value} นาที',
 			'pagedSearch.continueSearch' => 'โหลดต่อ',
+			'poll.title' => 'โพล',
+			'poll.chooseThenVote' => 'เลือกตัวเลือก แล้วแตะ “โหวต”',
+			'poll.vote' => 'โหวต',
+			'poll.voteIrreversible' => 'โหวตแล้วจะเปลี่ยนไม่ได้',
+			'poll.youVoted' => 'คุณโหวตแล้ว',
+			'poll.totalVotes' => ({required Object count}) => 'รวม ${count} โหวต',
+			'poll.loginToVote' => 'เข้าสู่ระบบเพื่อโหวต',
+			'poll.notFound' => 'โพลนี้ถูกลบแล้ว',
+			'poll.loadFailed' => 'โหลดโพลไม่สำเร็จ',
+			'poll.alreadyVoted' => 'คุณโหวตในโพลนี้ไปแล้ว',
+			'poll.voteFailed' => 'ส่งโหวตไม่สำเร็จ',
+			'poll.copyLink' => 'คัดลอกลิงก์โพล',
+			'poll.translateFailed' => 'แปลโพลไม่สำเร็จ',
 			_ => null,
 		};
 	}
