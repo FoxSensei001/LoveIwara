@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "rev": "4b582fef958963d0",
-  "builtAt": "2026-10-18T19:19:56.955202Z",
-  "count": 662,
+  "rev": "0c5ea7110286fdcf",
+  "builtAt": "2026-10-25T19:19:52.922043Z",
+  "count": 664,
   "upstream": {
     "source": "CherryHQ/cherry-studio @ packages/provider-registry (MIT)",
     "providers": "1b44511badb438e6",
-    "models": "371e196f7e841bbc"
+    "models": "496aef37f9a35b5d"
   },
   "providers": {
     "silicon": {
@@ -3563,14 +3563,15 @@
       "w": 1048576,
       "o": 524288
     },
-    "minimax-m3-1-flash-preview": {
-      "n": "MiniMax-M3.1-Flash-Preview",
+    "minimax-m3-1-flash": {
+      "n": "MiniMax-M3.1-Flash",
       "c": [
         "fc",
         "rs",
         "vi"
       ],
-      "w": 1000000
+      "w": 1000000,
+      "o": 524288
     },
     "codestral": {
       "n": "Codestral (latest)",
@@ -4148,6 +4149,28 @@
       ],
       "w": 1048576,
       "o": 131072
+    },
+    "kimi-k3-1-pro": {
+      "n": "Kimi K3.1 Pro",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 1048576
+    },
+    "kimi-k3-1-pro-highspeed": {
+      "n": "Kimi K3.1 Pro Highspeed",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 1048576
     },
     "kimi-k3-fast": {
       "n": "Kimi K3 Fast",
