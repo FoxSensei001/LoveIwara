@@ -1,6 +1,7 @@
-import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
+import 'package:cupertino_ui/cupertino_ui.dart'
+    show CupertinoPageTransitionsBuilder;
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i_iwara/app/my_app.dart' show buildThemeData;
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
@@ -60,7 +61,7 @@ void main() {
     }
   }
 
-  test('桌面端关快照，其余平台照抄框架默认', () {
+  test('会截图的转场一律关快照，其余平台照抄框架默认', () {
     final theme = buildThemeData(
       colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2196F3)),
     );
@@ -80,6 +81,14 @@ void main() {
     expect(
       builders[TargetPlatform.android],
       isA<PredictiveBackPageTransitionsBuilder>(),
+    );
+    // material_ui 版的 predictive back 默认截图（非手势 push/pop 走 FadeForwards）。
+    expect(
+      (builders[TargetPlatform.android]!
+              as PredictiveBackPageTransitionsBuilder)
+          .allowSnapshotting,
+      isFalse,
+      reason: 'android 的转场快照必须是关的',
     );
     expect(
       builders[TargetPlatform.iOS],

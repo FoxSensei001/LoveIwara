@@ -1,5 +1,5 @@
 import 'package:dlna_dart/dlna.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:get/get.dart';
 import '../../../../../i18n/strings.g.dart';
 import '../controllers/dlna_cast_service.dart';

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/models/ai_provider.model.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 

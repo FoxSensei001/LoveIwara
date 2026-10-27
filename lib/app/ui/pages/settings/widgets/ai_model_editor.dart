@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/models/ai_provider.model.dart';
 import 'package:i_iwara/app/services/ai_catalog_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';

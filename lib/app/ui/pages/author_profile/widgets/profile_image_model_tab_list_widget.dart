@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.dart';

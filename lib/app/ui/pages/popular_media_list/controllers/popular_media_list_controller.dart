@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart' show Curves, ScrollController;
+import 'package:material_ui/material_ui.dart' show Curves, ScrollController;
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';

@@ -5,7 +5,7 @@ import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_cover_image.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 

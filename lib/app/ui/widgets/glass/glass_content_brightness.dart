@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 // 带前缀：两个玻璃包的公开面与本仓库自己的组件大面积重名（见
 // `liquid_glass_material.dart` 顶部那段说明），不加前缀会一片 ambiguous_import。
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lgw;

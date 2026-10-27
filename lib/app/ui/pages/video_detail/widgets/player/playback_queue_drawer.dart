@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 import 'package:i_iwara/app/repositories/local_media_repository.dart';

@@ -6,7 +6,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_content_brightness.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';

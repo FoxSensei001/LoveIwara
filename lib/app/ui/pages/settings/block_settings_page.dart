@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/models/block_rule.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';

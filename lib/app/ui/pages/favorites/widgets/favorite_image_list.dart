@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/ui/pages/favorites/controllers/favorites_controller.dart';

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/ui/pages/follows/controllers/follow_search_controller.dart';
 import 'package:i_iwara/app/ui/widgets/paged_search/paged_search_view.dart';

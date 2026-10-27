@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart'
     show ExtendedNestedScrollViewState;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/local_media/dav_path.dart';

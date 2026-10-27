@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// 评论骨架屏：镜像 CommentItem 的扁平线程布局

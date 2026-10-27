@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/scheduler.dart'; // Import TickerProvider
 import 'package:flutter/services.dart'; // Import for keyboard events
 import 'package:get/get.dart';

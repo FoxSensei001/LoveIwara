@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/ui/pages/tag_videos/tag_media_list_page.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';

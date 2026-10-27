@@ -1,4 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
+// ExtendedTextField 仍用旧 material：传给它的 decoration 必须是旧版类型。
+import 'package:flutter/material.dart'
+    as legacy
+    show InputBorder, InputDecoration;
 import 'package:extended_text_field/extended_text_field.dart';
 import 'emoji_special_text.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
@@ -152,9 +156,9 @@ class EnhancedEmojiTextFieldState extends State<EnhancedEmojiTextField> {
                   required isFocused,
                   maxLength,
                 }) => null, // 完全禁用字符计数
-            decoration: InputDecoration(
+            decoration: legacy.InputDecoration(
               hintText: widget.decoration?.hintText,
-              border: InputBorder.none,
+              border: legacy.InputBorder.none,
               contentPadding: const EdgeInsets.all(12),
             ),
           ),

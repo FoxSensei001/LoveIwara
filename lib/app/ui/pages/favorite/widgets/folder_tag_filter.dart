@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/services/tag_localization_service.dart';

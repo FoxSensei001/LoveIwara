@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/models/local_media/local_media_folder.model.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_cover_image.dart';

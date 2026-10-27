@@ -1,5 +1,5 @@
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/utils/device_form_factor_utils.dart';

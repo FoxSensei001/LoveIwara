@@ -5,7 +5,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_appearance_scope.dart';
 import 'package:flutter/foundation.dart'
     show listEquals, defaultTargetPlatform, TargetPlatform;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 // 带前缀：两个包的公开面里 LiquidGlassScope / GlassSegmentedControl /

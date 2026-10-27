@@ -1,5 +1,5 @@
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/rules.model.dart';
 import 'package:i_iwara/app/services/comment_service.dart';

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';

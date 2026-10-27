@@ -1,5 +1,5 @@
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/utils/vr_geometry.dart';
 

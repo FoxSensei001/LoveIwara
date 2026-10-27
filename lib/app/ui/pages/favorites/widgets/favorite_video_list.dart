@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart' show ValueListenable;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/ui/pages/favorites/controllers/favorites_controller.dart';

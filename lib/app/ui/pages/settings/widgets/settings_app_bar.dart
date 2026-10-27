@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_section.dart';

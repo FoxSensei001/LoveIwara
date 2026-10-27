@@ -1,6 +1,6 @@
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:get/get.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import 'package:i_iwara/app/services/config_service.dart';

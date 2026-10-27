@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 /// 首次设置向导的版式：断点、度量与页面骨架。

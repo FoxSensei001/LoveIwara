@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';

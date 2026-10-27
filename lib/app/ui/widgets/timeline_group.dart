@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 按时间分组的列表（下载历史区、浏览历史）共用的组名：今天 / 昨天 / 本周 /

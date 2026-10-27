@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/ui/widgets/loading_content_transition.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';

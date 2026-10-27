@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/models/vr_format.model.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/vr/vr_format_menu.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/widgets/player_tip_metrics.dart';

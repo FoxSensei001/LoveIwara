@@ -6,7 +6,7 @@ import 'package:cloudflare_interceptor/cloudflare_interceptor.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart' as iaw;
 import 'package:get/get.dart' hide Response;
 import 'package:html/parser.dart' show parse;

@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 import 'package:i_iwara/app/ui/widgets/glass/glass_appearance_scope.dart';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/utils/glass_perf_knobs.dart';
 import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lgw;

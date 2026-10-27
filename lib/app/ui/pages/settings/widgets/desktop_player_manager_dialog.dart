@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:file_selector/file_selector.dart' as fs;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:path/path.dart' as p;
 
 import 'package:i_iwara/app/services/desktop_external_player.dart';

@@ -1,5 +1,5 @@
 // pages/login/login_page_wrapper.dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'login_page_v2.dart';
 
 /// 保持路由兼容性的包装页面

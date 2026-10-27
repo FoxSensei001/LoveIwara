@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 通用空状态：一个灰色图标 +（可选）提示文案 +（可选）刷新入口。

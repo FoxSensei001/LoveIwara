@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_row_widget.dart';

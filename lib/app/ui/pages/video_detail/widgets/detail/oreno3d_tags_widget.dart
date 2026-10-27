@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/services/oreno3d_localization_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/expandable_section_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart';

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/ui/widgets/media_action_menu.dart';

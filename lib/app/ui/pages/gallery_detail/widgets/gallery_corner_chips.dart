@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/gallery_chrome_theme.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';

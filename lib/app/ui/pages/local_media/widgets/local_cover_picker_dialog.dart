@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/services/local_media_derivation_service.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';

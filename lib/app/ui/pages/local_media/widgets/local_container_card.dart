@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:i_iwara/app/ui/widgets/media_card_meta.dart';
 import 'package:i_iwara/utils/common_utils.dart';

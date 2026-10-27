@@ -22,7 +22,7 @@ dependencies:
     sdk: flutter
 
   get: ^5.0.0-release-candidate-9.2.1
-  go_router: ^17.5.0
+  go_router: ^18.1.1
   window_manager: ^0.5.0
   # 恢复窗口前按各块屏幕的可见区校正位置（window_manager 自己就依赖它）
   screen_retriever: ^0.2.0
@@ -35,10 +35,10 @@ dependencies:
   logger: ^2.5.0
   flutter_secure_storage: ^10.0.0
   get_storage: ^2.1.1
-  cached_network_image: ^3.4.1
+  cached_network_image: ^4.0.4
   # 空间画廊：Dart 替原生下载图库文件到本机缓存（与 cached_network_image 同一只缓存），要直接用 DefaultCacheManager。
   flutter_cache_manager: ^3.4.2
-  shimmer: ^3.0.0
+  shimmer: ^4.0.0
   extended_nested_scroll_view: ^6.2.1
   markdown_widget: ^2.3.2+8
   url_launcher: ^6.3.1
@@ -60,7 +60,7 @@ dependencies:
   # 与仓库内已生成的 strings*.g.dart 及其手写引用不兼容，升级需同步迁移
   slang: 4.12.1
   slang_flutter: 4.12.1
-  dynamic_color: ^1.7.0
+  dynamic_color: ^2.1.0
   toastification: ^3.2.0
   app_links: ^7.0.0
   flutter_file_dialog: ^3.0.2
@@ -124,6 +124,8 @@ dependencies:
   liquid_glass_widgets: ^1.15.1
   local_auth: ^3.0.2
   local_auth_android: ^2.0.8
+  material_ui: ^1.8.0
+  cupertino_ui: ^1.1.4
 dev_dependencies:
   flutter_test:
     sdk: flutter

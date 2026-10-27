@@ -1,11 +1,11 @@
 // material.dart 不导出这一个（它住在 cupertino 那边），而 pageTransitionsTheme
 // 的 iOS / macOS 两档要照抄框架默认值，只能显式借过来。
-import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
+import 'package:cupertino_ui/cupertino_ui.dart'
+    show CupertinoPageTransitionsBuilder;
 import 'package:flutter/gestures.dart'
     show DeviceGestureSettings, PointerDeviceKind, kTouchSlop;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -39,17 +39,21 @@ import 'services/auth_service.dart';
 import 'services/iwara_network_service.dart';
 import 'services/pop_coordinator.dart';
 import 'services/user_service.dart';
+import 'ui/widgets/legacy_material_bridge.dart';
 import 'ui/widgets/media_query_insets_fix.dart';
 
 /// 创建默认 `ThemeData`。
 ///
 /// Android 不再显式指定 predictive back 页面转场，恢复 Flutter 默认行为。
+///
+/// ⛔ 这里每加一项自定义，都要同步到 `buildLegacyThemeData`
+/// （legacy_material_bridge.dart）：仍用旧 material 的三方包只看得到那一份。
 ThemeData buildThemeData({required ColorScheme colorScheme}) {
   return ThemeData(
     colorScheme: colorScheme,
     useMaterial3: true,
-    // 页面转场：**只把桌面端 Zoom 那两档的快照关掉**，其余平台照抄 Flutter 的
-    // 默认表（缺项会兜底成带快照的 Zoom，所以五个平台都得写全）。
+    // 页面转场：**把会截图的几档快照都关掉**，其余照抄 Flutter 的默认表（缺项会
+    // 兜底成带快照的 Zoom，所以五个平台都得写全）。
     //
     // ⛔ 为什么关快照：`ZoomPageTransitionsBuilder` 默认把进出场的页面
     // `toImageSync()` 成一张位图再动画。那次栅格化是在**父级 paint 期间**建场景
@@ -63,11 +67,16 @@ ThemeData buildThemeData({required ColorScheme colorScheme}) {
     // 顺带治的还有一条老毛病：快照是一张离屏位图，里头的 `BackdropFilter` 采不到
     // 身后的像素——转场那几百毫秒里玻璃本来就是错的。
     //
-    // Android 留给 predictive back（那一档由系统接管，且移动端没报过这条），
-    // iOS / macOS 是 Cupertino 转场，都不走快照这条路。
+    // Android 是 predictive back。旧版 flutter/material 的这一档不截图；迁到
+    // material_ui 1.8 后多了 `allowSnapshotting`（默认 true），非手势的 push/pop
+    // 走 FadeForwards 并截图：转场里的玻璃采不到背景，也有撞上面那条断言的风险
+    // （widget test 里没复现出来）。关掉就是迁移前的原样。
+    // iOS / macOS 是 Cupertino 转场，不走快照这条路。
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: <TargetPlatform, PageTransitionsBuilder>{
-        TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+        TargetPlatform.android: PredictiveBackPageTransitionsBuilder(
+          allowSnapshotting: false,
+        ),
         TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
         TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
         TargetPlatform.windows: ZoomPageTransitionsBuilder(
@@ -285,10 +294,12 @@ class _MyAppState extends State<MyApp> {
             darkTheme: appDarkTheme.value,
             themeMode: appThemeMode.value,
             // 添加本地化支持
+            // material_ui 自带的这一组已含 Widgets / Material / Cupertino 三份；
+            // 旧版 material 的 MaterialLocalizations 是另一个类型，两套并列挂在
+            // 同一个 Localizations 上，见 [legacyMaterialLocalizationsDelegates]。
             localizationsDelegates: const [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
+              ...GlobalMaterialLocalizations.delegates,
+              ...legacyMaterialLocalizationsDelegates,
             ],
             // 直接跟着 slang 的 AppLocale 走：新增一门语言只要往 lib/i18n/
             // 丢一份 yaml，这里不用再补一行 Locale(...)。
@@ -311,7 +322,9 @@ class _MyAppState extends State<MyApp> {
               // 而 builder 是套在 Router 外面的，包在这里它们才吃得到。
               final Widget app = withClampedTouchSlop(
                 context,
-                AppToastHost(child: MyAppLayout(child: child)),
+                LegacyMaterialBridge(
+                  child: AppToastHost(child: MyAppLayout(child: child)),
+                ),
               );
               // XR 头显：整个应用是空间里的一块面板，窗口透明（MainActivity.getBackgroundMode），
               // 这里把根部裁成圆角，面板四角透出后面的场景。半径与原生窗框的

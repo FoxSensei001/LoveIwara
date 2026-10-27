@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 统一处理滚动边缘效果的组件
 /// 可用于任何滚动视图，防止出现过度滚动时的光晕效果

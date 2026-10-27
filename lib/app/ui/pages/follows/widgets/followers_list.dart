@@ -1,6 +1,6 @@
 import 'follow_search_list.dart';
 import 'package:flutter/foundation.dart' show ValueListenable;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/ui/pages/follows/controllers/follows_controller.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';

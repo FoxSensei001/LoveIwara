@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/services/ai_catalog_service.dart';
 import 'package:i_iwara/app/ui/widgets/ai/ai_ui_parts.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_picker_dialog.dart';

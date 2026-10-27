@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/ui/widgets/loading_content_transition.dart';
 import 'package:i_iwara/app/ui/widgets/media_waterfall_grid.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;

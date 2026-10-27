@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 大图页上所有浮在画面之上的 chrome，一律按**深色**渲染。
 ///

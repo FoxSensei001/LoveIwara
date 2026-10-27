@@ -165,26 +165,26 @@ packages:
     dependency: "direct main"
     description:
       name: cached_network_image
-      sha256: "7c1183e361e5c8b0a0f21a28401eecdbde252441106a9816400dd4c2b2424916"
+      sha256: "64a6c35e63cfd22865238d11fe8608bb538306ece5b2eb951106280441fdbb0c"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.4.1"
+    version: "4.0.4"
   cached_network_image_platform_interface:
     dependency: transitive
     description:
       name: cached_network_image_platform_interface
-      sha256: "35814b016e37fbdc91f7ae18c8caf49ba5c88501813f73ce8a07027a395e2829"
+      sha256: "555e287d3882fbb36cde50d24214cb3f6a272d39c4386e8afe00cb188d35b285"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "4.1.1"
+    version: "5.0.3"
   cached_network_image_web:
     dependency: transitive
     description:
       name: cached_network_image_web
-      sha256: "980842f4e8e2535b8dbd3d5ca0b1f0ba66bf61d14cc3a17a9b4788a3685ba062"
+      sha256: "38762ec3bd2295f4d79545add118f525bd5a105a53692c06208c4875f2abde62"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.3.1"
+    version: "2.0.3"
   change_app_package_name:
     dependency: "direct dev"
     description:
@@ -321,6 +321,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "6.0.0"
+  cupertino_ui:
+    dependency: "direct main"
+    description:
+      name: cupertino_ui
+      sha256: a47c4e7c66fd7444a063a602597fceb238f705c3f6b1322bc0053d0a2638ee6e
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.1.4"
   dart_style:
     dependency: transitive
     description:
@@ -421,10 +429,10 @@ packages:
     dependency: "direct main"
     description:
       name: dynamic_color
-      sha256: "4aeb76de323e8eb660bab5557d826ad7ebbf1434a598f0c6aa8a11a9696a6757"
+      sha256: "869b3bce0100eb519768ecd71c0111f0b5ea679f5f62e1f59c49d80067e730c5"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.9.0"
+    version: "2.1.0"
   email_validator:
     dependency: transitive
     description:
@@ -873,10 +881,10 @@ packages:
     dependency: "direct main"
     description:
       name: go_router
-      sha256: d7a3576cb312649eaa51f2356450aed686085fb58fcdebda5b359aa951eef7ea
+      sha256: "07089be6dc124eb9596a51b5e359c657f30a59929287f11b126c2cd13eaaece0"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "17.5.0"
+    version: "18.1.1"
   googleai_dart:
     dependency: transitive
     description:
@@ -1189,6 +1197,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.13.0"
+  material_ui:
+    dependency: "direct main"
+    description:
+      name: material_ui
+      sha256: e4031746f96c8316864d9b92bce375f1320a36ed56e166307e1e1bda9d90b4ab
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.8.0"
   mcp_dart:
     dependency: transitive
     description:
@@ -1825,10 +1841,10 @@ packages:
     dependency: "direct main"
     description:
       name: shimmer
-      sha256: "5f88c883a22e9f9f299e5ba0e4f7e6054857224976a5d9f839d4ebdc94a14ac9"
+      sha256: "61ef3b8de6bdb9f16db1bb78d502cb991a12b5223fd2c0b9114d41e782227b55"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.0.0"
+    version: "4.0.0"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -2307,5 +2323,5 @@ packages:
     source: hosted
     version: "3.1.4"
 sdks:
-  dart: ">=3.12.0 <4.0.0"
+  dart: ">=3.13.0 <4.0.0"
   flutter: ">=3.47.0"

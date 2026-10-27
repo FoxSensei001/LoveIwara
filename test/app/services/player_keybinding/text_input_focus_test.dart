@@ -1,8 +1,9 @@
 import 'package:extended_text_field/extended_text_field.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i_iwara/app/services/player_keybinding/text_input_focus.dart';
+import 'package:i_iwara/app/ui/widgets/legacy_material_bridge.dart';
 
 /// 「打字时全局快捷键让位」这道闸门的回归测试。
 ///
@@ -22,9 +23,16 @@ void main() {
     // 评论/回复/论坛/私信用的是 ExtendedTextField，它内部是私有 fork 的
     // _EditableText，与官方 EditableText 无继承关系；按官方类型判定会恒为假。
     testWidgets('ExtendedTextField 聚焦时也为真', (tester) async {
+      // ExtendedTextField 仍用旧 material：要旧版 Material 祖先和旧版本地化，
+      // 与 my_app.dart 一样由桥和并列的 delegates 提供。
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(body: ExtendedTextField(autofocus: true)),
+        MaterialApp(
+          localizationsDelegates: const [
+            ...GlobalMaterialLocalizations.delegates,
+            ...legacyMaterialLocalizationsDelegates,
+          ],
+          builder: (context, child) => LegacyMaterialBridge(child: child!),
+          home: const Scaffold(body: ExtendedTextField(autofocus: true)),
         ),
       );
       await tester.pumpAndSettle();

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 行盒高度相对字号的倍数。1.25 是「容得下所有中文字形、又不至于把 44 的胶囊
 /// 撑满」的一档；改它会同时动输入文字与提示文字，两者必须一致。

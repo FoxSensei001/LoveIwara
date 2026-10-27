@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'package:i_iwara/app/models/local_media/dav_path.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';

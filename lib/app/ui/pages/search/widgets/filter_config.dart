@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/ui/pages/search/iwara_search_syntax.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';

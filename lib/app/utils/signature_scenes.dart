@@ -23,7 +23,7 @@
 /// 最省事的办法——这条规则写十行字也说不明白。`none` 那一档演的就是消失。
 library;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/models/history_record.dart';
 import 'package:i_iwara/app/models/video.model.dart';

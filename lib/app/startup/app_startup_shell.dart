@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/my_app.dart';
 import 'package:i_iwara/app/services/theme_service.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -148,11 +147,7 @@ class _StartupShellMaterialApp extends StatelessWidget {
       themeMode: brightness == Brightness.dark
           ? ThemeMode.dark
           : ThemeMode.light,
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       // 与 [MyApp] 一样跟着 slang 的 AppLocale 走，避免两处各维护一份清单。
       supportedLocales: AppLocaleUtils.supportedLocales,
       locale: LocaleSettings.currentLocale.flutterLocale,

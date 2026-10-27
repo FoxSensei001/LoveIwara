@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/batch_select_controller.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/batch_download_dialog.dart';

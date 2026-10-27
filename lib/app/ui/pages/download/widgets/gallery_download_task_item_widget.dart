@@ -1,5 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/media_file.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Dissolves a finished placeholder without keeping two live content trees.
 /// Cached content, refreshes with visible data and load-more do not animate.

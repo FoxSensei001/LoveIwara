@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../../../../../i18n/strings.g.dart' as slang;
 import 'quest_gesture_guide_content.dart';

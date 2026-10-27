@@ -2,7 +2,7 @@ import 'dart:async' show Completer;
 
 import 'package:dio/dio.dart' show CancelToken;
 import 'package:flutter/foundation.dart' show ValueListenable;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/ui/widgets/loading_content_transition.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/utils/rx_ever.dart';

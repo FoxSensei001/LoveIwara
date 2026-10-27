@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/gestures.dart' show kTouchSlop;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/utils/glass_perf_knobs.dart';
 // 带前缀：两个玻璃包的公开面与本仓库自己的组件大面积重名（见
 // `liquid_glass_material.dart` 顶部那段说明），不加前缀会一片 ambiguous_import。

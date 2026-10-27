@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// AI 族界面（AI 搜索、AI 设置、供应商详情、接入向导、模型选择、翻译设置、
 /// 小尾巴 AI 一言）共用的几块小积木。

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 给「活在路由树**外面**」的整屏图层配一只自己的 Navigator（因而也有 Overlay）。
 ///

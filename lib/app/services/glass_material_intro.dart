@@ -11,7 +11,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 一次性提醒该拿它怎么办。
 enum GlassIntroAction {

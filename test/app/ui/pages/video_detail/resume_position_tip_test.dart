@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/bottom_toolbar_widget.dart';

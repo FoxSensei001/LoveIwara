@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;

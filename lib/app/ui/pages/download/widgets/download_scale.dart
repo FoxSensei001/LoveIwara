@@ -9,7 +9,7 @@
 //    并统一缩放子树内的文字（textScaler）与 IconButton。
 // 2. 列表项内对写死的尺寸（缩略图 / padding / 头像等）乘以
 //    `DownloadUiScale.of(context)` 得到的系数即可。
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 
 /// 计算下载页的缩放系数。

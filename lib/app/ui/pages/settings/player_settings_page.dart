@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/player_settings_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/video_gesture_guide.dart';

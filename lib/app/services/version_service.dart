@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/update_info.model.dart';

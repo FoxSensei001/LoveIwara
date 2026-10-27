@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Player symbols, drawn on a 24 pt grid with rounded terminals and solid
 /// transport controls. Keep these independent of platform fonts so the same

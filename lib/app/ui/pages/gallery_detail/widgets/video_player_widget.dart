@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/external_player_service.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/gallery_video_controller.dart';

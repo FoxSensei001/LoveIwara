@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// 左右导航控制组件（仅负责显示左右渐变与箭头，不再拦截手势）
 class NavigationControls extends StatelessWidget {

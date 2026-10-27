@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 bool shouldShowWideNavigationRail(double maxWidth, {required bool enabled}) {
   return maxWidth > 600 && enabled;

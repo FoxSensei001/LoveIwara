@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/pages/search/repositories/search_repository.dart';
 import 'package:get/get.dart';

@@ -4,7 +4,7 @@ import 'dart:io';
 // 遮蔽 dart:io 的，判断磁盘 / 权限 / 占用类错误时必须用带前缀的那个。
 import 'dart:io' as io;
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/layouts.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/step_container.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';

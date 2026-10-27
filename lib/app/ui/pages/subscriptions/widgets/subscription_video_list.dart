@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/media_list_query.dart';
 import 'package:i_iwara/app/services/app_service.dart';

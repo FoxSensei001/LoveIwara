@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';

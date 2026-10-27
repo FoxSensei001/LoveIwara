@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/emoji_library_service.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';

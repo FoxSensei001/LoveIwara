@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:dlna_dart/dlna.dart';
 import 'package:dlna_dart/xmlParser.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/dlna_cast_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/dlna_cast_sheet.dart';
