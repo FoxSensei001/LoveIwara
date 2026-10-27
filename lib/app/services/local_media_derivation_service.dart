@@ -29,6 +29,7 @@ import 'package:i_iwara/app/services/deep_link_service.dart';
 import 'package:i_iwara/app/utils/local_vr_filename_detector.dart';
 import 'package:i_iwara/app/utils/mp4_stereo_box_reader.dart';
 import 'package:i_iwara/app/utils/vr_format_detector.dart';
+import 'package:i_iwara/utils/live_players.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 /// Derives metadata and on-demand thumbnails for local video files.
@@ -857,7 +858,7 @@ class LocalMediaDerivationService extends GetxService {
     final stuckWait = _stuckPlayerUntil.difference(now);
     if (stuckWait > cooldown) cooldown = stuckWait;
     if (cooldown > Duration.zero) await Future<void>.delayed(cooldown);
-    final player = Player(
+    final player = LivePlayers.create(
       configuration: const PlayerConfiguration(
         bufferSize: _derivationBufferBytes,
       ),
@@ -1104,7 +1105,7 @@ class LocalMediaDerivationService extends GetxService {
     final stuckWait = _stuckPlayerUntil.difference(now);
     if (stuckWait > cooldown) cooldown = stuckWait;
     if (cooldown > Duration.zero) await Future<void>.delayed(cooldown);
-    final player = Player(
+    final player = LivePlayers.create(
       configuration: const PlayerConfiguration(
         bufferSize: _derivationBufferBytes,
       ),
@@ -2068,7 +2069,7 @@ class LocalMediaDerivationService extends GetxService {
   static Future<LocalCoverPickerSession?> openCoverPicker(
     String playablePath,
   ) async {
-    final player = Player();
+    final player = LivePlayers.create();
     try {
       // 同 [_derive] 里那段长注释：无头播放器默认 `vid=no`，不打开就一帧都抓不到。
       await _configureHeadlessPlayer(

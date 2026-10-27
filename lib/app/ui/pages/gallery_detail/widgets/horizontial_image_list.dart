@@ -19,6 +19,7 @@ import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontal_image_lis
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
+import 'package:i_iwara/utils/live_players.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:media_kit/media_kit.dart';
@@ -917,7 +918,7 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
     LocalMediaDerivationService.maybe?.pauseBackground();
     _pausedBackground = true;
     try {
-      final player = Player();
+      final player = LivePlayers.create();
       _player = player;
       _videoController = VideoController(player);
 

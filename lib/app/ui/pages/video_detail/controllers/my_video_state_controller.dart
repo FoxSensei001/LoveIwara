@@ -53,6 +53,7 @@ import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/utils/android_pip.dart';
 import 'package:i_iwara/utils/desktop_native_fullscreen.dart';
 import 'package:i_iwara/app/services/page_departure_guard.dart';
+import 'package:i_iwara/utils/live_players.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/rx_ever.dart';
 import 'package:i_iwara/utils/mpv_tuning.dart';
@@ -1845,7 +1846,7 @@ class MyVideoStateController extends GetxController
       }
 
       // 初始化 VideoController
-      player = Player(
+      player = LivePlayers.create(
         configuration: PlayerConfiguration(
           bufferSize: _getBufferSize(), // 根据配置设置缓冲区大小
           title: 'i_iwara Video Player',
@@ -6296,7 +6297,7 @@ class MyVideoStateController extends GetxController
       LogUtils.d('开始初始化预览播放器: $previewUrl', 'MyVideoStateController');
 
       // 创建预览播放器
-      previewPlayer = Player(
+      previewPlayer = LivePlayers.create(
         configuration: PlayerConfiguration(
           bufferSize: 20 * 1024 * 1024, // 20MB 与主播放器默认一致
           title: 'i_iwara Preview Player',

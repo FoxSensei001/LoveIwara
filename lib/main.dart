@@ -19,6 +19,7 @@ import 'package:i_iwara/db/database_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'app/ui/widgets/restart_app_widget.dart';
 import 'package:i_iwara/utils/desktop_native_fullscreen.dart';
+import 'package:i_iwara/utils/live_players.dart';
 import 'package:i_iwara/utils/desktop_window_geometry.dart';
 import 'package:i_iwara/utils/device_form_factor_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -291,8 +292,15 @@ class DesktopWindowListener extends WindowListener {
     //    后续清理无论超时还是被强杀，下次启动都不会误报崩溃。
     LogUtils.markCleanExitSync();
     // 2. 隐藏窗口，让用户立刻感知到「已关闭」，避免清理期间窗口卡住数秒。
+    //    先把 hide 消息发出去再停声：停声是同步 FFI，某个 mpv 核心卡住时会把
+    //    UI 线程一起卡住，而 hide 由平台线程处理，不受影响。
+    final Future<void> hiding = windowManager.hide();
+    // 2.5 同步让所有播放器停声。此后直到进程真正结束，mpv 的音频线程一直
+    //     活着（清理 + 原生析构可达数秒）；不先停声，用户看到的就是「窗口
+    //     没了，声音还在卡着放」。
+    LivePlayers.silenceAllSync();
     try {
-      await windowManager.hide();
+      await hiding;
     } catch (_) {}
     // 3. 后台限时清理（flush / 停 watchdog / 关库）：正常很快，但日志 flush
     //    偶发偏慢。给 1.5s 上限，超时直接退出，不让用户干等——此时标记已删，
@@ -302,17 +310,20 @@ class DesktopWindowListener extends WindowListener {
       onTimeout: () {},
     );
     // 4. 通过 window_manager.destroy() 让原生窗口有序销毁并退出，而不是用
-    //    dart:io 的 exit(0) 强杀进程。setPreventClose(true) 拦截的是 WM_CLOSE，
-    //    destroy() 走 WM_DESTROY，不会被拦截，也不会二次触发本回调。
+    //    dart:io 的 exit(0) 强杀进程。Windows 上 destroy() 原生侧只是
+    //    PostQuitMessage(0)，不经 WM_CLOSE，不会被 setPreventClose 拦截，
+    //    也不会二次触发本回调。
     //
     //    为什么不能用 exit(0)：exit(0) 会立即触发 C 运行时退出与 DLL 卸载，
     //    而此时 media_kit(libmpv) 的播放线程、Flutter 引擎的 GPU/ANGLE 渲染
     //    线程可能仍存活（关窗时 GetX 控制器并不会被销毁，播放器 mpv 实例仍在
     //    运行）。这些原生线程在 DLL 被卸载后访问失效内存，会让 Windows 弹出
     //    内核级的 "Unknown Hard Error" 对话框（见 issue #107）。
-    //    destroy() → WM_DESTROY → PostQuitMessage(0) → 原生消息循环退出 →
-    //    FlutterWindow::OnDestroy 释放引擎 → CoUninitialize → 进程正常结束，
-    //    是一条让原生侧有序收尾的干净退出路径。
+    //    destroy() → PostQuitMessage(0) → 原生消息循环退出 → CoUninitialize →
+    //    window 析构、FlutterWindow::OnDestroy 释放引擎与插件 → 进程正常结束，
+    //    是一条让原生侧有序收尾的干净退出路径。这段原生收尾没有上限（插件
+    //    析构可能等好几秒甚至卡住），windows/runner/main.cpp 给它兜了 3 秒，
+    //    超时用 TerminateProcess 结束（不走 DLL 卸载，不会重现 #107）。
     try {
       await windowManager.destroy();
     } catch (e) {

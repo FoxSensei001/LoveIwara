@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:i_iwara/utils/live_players.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/mpv_playback_error_classifier.dart';
 import 'package:media_kit/media_kit.dart';
@@ -119,7 +120,7 @@ class GalleryVideoController extends ChangeNotifier {
   final String videoUrl;
   final Map<String, String>? headers;
 
-  late final Player _player = Player();
+  late final Player _player = LivePlayers.create();
   late final VideoController videoController = VideoController(_player);
 
   final List<StreamSubscription<dynamic>> _subscriptions = [];

@@ -115,6 +115,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
     ::DispatchMessage(&msg);
   }
 
+  // Message loop has ended (Dart side already ran its cleanup and called
+  // windowManager.destroy(), i.e. PostQuitMessage). What follows - engine and
+  // plugin teardown when |window| goes out of scope - has no time limit:
+  // media_kit_video waits for the raster thread and its render thread pool, and
+  // can even block forever. Put an upper bound on it. TerminateProcess skips
+  // DLL_PROCESS_DETACH, so it does not bring back the "Unknown Hard Error" that
+  // exit(0) caused (issue #107).
+  std::thread([]() {
+    ::Sleep(3000);
+    OutputDebugStringW(L"Native teardown exceeded 3s, terminating process\n");
+    ::TerminateProcess(::GetCurrentProcess(), EXIT_SUCCESS);
+  }).detach();
+
   ::CoUninitialize();
   return EXIT_SUCCESS;
 }
