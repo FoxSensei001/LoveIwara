@@ -11,8 +11,8 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 ///    `ignoring` 有任何一帧为 false，它就会变成一层看不见的点击拦截层，挡住
 ///    播放器的手势与播放条。这里的提示条从不接收输入，所以直接钉死为 true。
 /// 2. 内部不允许出现 GestureDetector / InkWell / 任何可聚焦节点。MyVideoScreen
-///    外层是 `FocusScope(autofocus: true)` + `Focus(onKeyEvent:)`，可聚焦的子节点
-///    会抢走方向键，导致键盘快进失效。
+///    靠自己那只 `Focus` 的失焦来收尾长按倍速（快捷键已改从应用根部派发、不依赖
+///    焦点），可聚焦的子节点会把焦点从它那里拿走，让失焦收尾提前或错乱触发。
 /// 3. 自己持有 AnimationController，不复用工具栏那个。工具栏 3 秒后自动隐藏，
 ///    而“本视频没有声音”这类提示必须活得比它久。
 ///

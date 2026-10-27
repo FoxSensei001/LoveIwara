@@ -1,3 +1,4 @@
+import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,6 +14,18 @@ void main() {
     testWidgets('输入框聚焦时为真', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(home: Scaffold(body: TextField(autofocus: true))),
+      );
+      await tester.pumpAndSettle();
+      expect(isTextInputFocused(), isTrue);
+    });
+
+    // 评论/回复/论坛/私信用的是 ExtendedTextField，它内部是私有 fork 的
+    // _EditableText，与官方 EditableText 无继承关系；按官方类型判定会恒为假。
+    testWidgets('ExtendedTextField 聚焦时也为真', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: ExtendedTextField(autofocus: true)),
+        ),
       );
       await tester.pumpAndSettle();
       expect(isTextInputFocused(), isTrue);

@@ -8,6 +8,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/services/player_keybinding/text_input_focus.dart';
 
 /// # 批量选择态的统一表达
 ///
@@ -435,18 +436,6 @@ class SelectableItem extends StatelessWidget {
       ),
     );
   }
-}
-
-/// 键盘焦点是否在某个输入框里。
-///
-/// 页面级键盘快捷键（挂在 [HardwareKeyboard] 上的那种）必须先问这一句：返回
-/// true 会把按键从输入法那里截走，搜索框里打空格就成了「暂停」、按退格就成了
-/// 「删除」。
-bool isTextInputFocused() {
-  final focused = FocusManager.instance.primaryFocus?.context;
-  if (focused == null) return false;
-  return focused.widget is EditableText ||
-      focused.findAncestorWidgetOfExactType<EditableText>() != null;
 }
 
 /// header 中间胶囊在选择态下的内容：「已选 N 项」+ 全选 / 取消全选。

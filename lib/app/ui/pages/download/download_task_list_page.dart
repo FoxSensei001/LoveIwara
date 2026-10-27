@@ -18,6 +18,7 @@ import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.d
     show openDownloadCategoryManagePage;
 import 'package:i_iwara/app/services/download_file_health.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
+import 'package:i_iwara/app/services/player_keybinding/text_input_focus.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_notice_banner.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_relocation_flow.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_task_actions.dart';

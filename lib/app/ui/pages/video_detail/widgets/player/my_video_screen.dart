@@ -17,6 +17,7 @@ import 'package:i_iwara/app/services/player_keybinding/shortcut_action.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_target_registry.dart';
+import 'package:i_iwara/app/services/player_keybinding/text_input_focus.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/blurred_thumbnail_background.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/rapple_painter.dart';
@@ -242,6 +243,10 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusReclaimScheduled = false;
       if (!mounted) return;
+      // 本帧里路由 setFirstFocus、旧焦点节点 detach 造成的焦点变化，FocusManager
+      // 只排了一个 microtask，要等整帧跑完才生效；不先落实，这里看到的还是
+      // 上一页的焦点（或 null），首次进入详情页、宽窄屏切换后就永远拿不回焦点。
+      FocusManager.instance.applyFocusChangesIfNeeded();
       _reclaimFocusIfStillOwned();
     });
   }
@@ -251,21 +256,13 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     if (_focusNode.hasFocus) return;
     // 任何文本输入正在编辑（不论它在弹层还是在本路由内）都不抢，
     // 否则等于替用户关掉输入法。
-    if (_isTextInputFocused()) return;
+    // 只在帧末调用（见 [_scheduleFocusReclaim]），此时 mounted 才足以区分
+    // “已随子树销毁”的元素，祖先查找是安全的。
+    if (isTextInputFocused()) return;
     // createDependency: false —— 只读当前 scope，不给这棵重子树再加一条
     // 会随焦点变化重建的依赖。
     if (!FocusScope.of(context, createDependency: false).hasFocus) return;
     _focusNode.requestFocus();
-  }
-
-  /// 当前主焦点是否落在某个 [EditableText] 上（TextField / TextFormField 等）。
-  bool _isTextInputFocused() {
-    final BuildContext? focusedContext =
-        FocusManager.instance.primaryFocus?.context;
-    // 只在帧末调用（见 [_scheduleFocusReclaim]），此时 mounted 才足以区分
-    // “已随子树销毁”的元素，祖先查找是安全的。
-    if (focusedContext == null || !focusedContext.mounted) return false;
-    return focusedContext.findAncestorWidgetOfExactType<EditableText>() != null;
   }
 
   void _initializeAnimationControllers() {
@@ -943,8 +940,12 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               final double bufferingSize = playPauseIconSize * 0.8;
               final double maxRadius = (screenSize.height - paddingTop) * 2 / 3;
 
+              // ⛔ 不要加 autofocus：子树每次重建（首帧就绪换壳、宽窄屏切换、
+              // 进出全屏）它都会对外层路由 scope 生效一次，而那条判定不看主焦点
+              // 此刻在哪——会把焦点从 root navigator 上的评论弹层直接拽回播放器，
+              // 输入框中途失焦、Windows 上输入法组字被中止（只剩英文字母）。
+              // 首次拿焦点和重建后拿回焦点都只走 [_reclaimFocusIfStillOwned]。
               return FocusScope(
-                autofocus: true,
                 canRequestFocus: true,
                 child: MouseRegion(
                   onEnter: (_) {
