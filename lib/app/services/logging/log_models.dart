@@ -312,6 +312,9 @@ class CrashRecoveryResult {
   final String? previousSessionId;
   final DateTime? previousStartTime;
   final String? previousVersion;
+
+  /// 上一会话进程的 pid，用来与系统退出记录精确匹配；旧版标记里没有。
+  final int? previousPid;
   final FatalErrorSnapshot? fatalError;
   final HangEventSnapshot? lastHangEvent;
 
@@ -320,6 +323,7 @@ class CrashRecoveryResult {
     this.previousSessionId,
     this.previousStartTime,
     this.previousVersion,
+    this.previousPid,
     this.fatalError,
     this.lastHangEvent,
   });

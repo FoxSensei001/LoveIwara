@@ -10,6 +10,7 @@ import 'log_paths.dart';
 import 'log_file_sink.dart';
 import 'crash_detection_service.dart';
 import 'log_models.dart';
+import 'native_exit_info.dart';
 
 class LogExportService {
   final LogPaths _paths;
@@ -102,9 +103,33 @@ class LogExportService {
       );
       encoder.addFileSync(healthMeta, 'meta/health.json');
 
+      // 系统退出记录无条件随包导出：不依赖本次启动的异常退出标记。闪退
+      // 常常无法按需复现，系统账本里几天前的死亡记录（跨版本升级不清空）
+      // 可能就是仅存的一手死因。
+      try {
+        final exitRecords = await _crash.loadNativeExitRecords();
+        if (exitRecords != null && exitRecords.isNotEmpty) {
+          final exitRecordsMeta = await _writeTempFile(
+            tempDir: tempDir,
+            fileName: 'exit_records.json',
+            content: jsonEncode(exitRecords.map((r) => r.toJson()).toList()),
+          );
+          encoder.addFileSync(exitRecordsMeta, 'crash/exit_records.json');
+        }
+      } catch (e) {
+        debugPrint('[LogExport] 导出系统退出记录失败: $e');
+      }
+
       // Add crash info if available
       final crashResult = _crash.lastResult;
       if (crashResult != null && crashResult.hadUncleanExit) {
+        // 启动时的异步富化可能没跑完或失败，导出前兜底再拉一次（幂等）。
+        NativeExitRecord? matchedExit;
+        try {
+          matchedExit = await _crash.enrichWithNativeExitInfo();
+        } catch (e) {
+          debugPrint('[LogExport] 拉取系统退出记录失败: $e');
+        }
         final fatalFileExists = await File(_paths.fatalSnapshotFile).exists();
         final hangFileExists = await File(_paths.hangEventsFile).exists();
         final crashMap = <String, dynamic>{
@@ -114,10 +139,18 @@ class LogExportService {
           'previousVersion': crashResult.previousVersion,
           'fatalError': crashResult.fatalError?.toJson(),
           'lastHangEvent': crashResult.lastHangEvent?.toJson(),
+          'nativeExitInfo': {
+            // trace 全量在 crash/exit_records.json；这里只留摘要防重复膨胀。
+            'matched': matchedExit?.toJson(includeTrace: false),
+            'recent': _crash.nativeExitRecords
+                ?.map((r) => r.toJson(includeTrace: false))
+                .toList(),
+          },
           'analysis': _buildCrashAnalysis(
             crashResult: crashResult,
             fatalFileExists: fatalFileExists,
             hangFileExists: hangFileExists,
+            matchedExit: matchedExit,
           ),
         };
         final crashMeta = await _writeTempFile(
@@ -261,9 +294,9 @@ class LogExportService {
         info['osVersion'] = linux.version;
       }
 
-      info['memoryMB'] = (ProcessInfo.currentRss / 1024 / 1024).toStringAsFixed(
-        2,
-      );
+      // 曾命名为 memoryMB，实际是当前进程 RSS 而非设备内存，改名消歧。
+      info['processRssMB'] = (ProcessInfo.currentRss / 1024 / 1024)
+          .toStringAsFixed(2);
     } catch (e) {
       debugPrint('[LogExport] Failed to get device info: $e');
       info['error'] = 'Failed to collect device info';
@@ -296,6 +329,7 @@ class LogExportService {
     required CrashRecoveryResult crashResult,
     required bool fatalFileExists,
     required bool hangFileExists,
+    NativeExitRecord? matchedExit,
   }) {
     if (crashResult.fatalError != null) {
       return {
@@ -309,6 +343,47 @@ class LogExportService {
       return {
         'type': 'ui_hang_or_stall',
         'summary': '检测到上一会话的卡顿事件快照',
+        'fatalSnapshotFileExists': fatalFileExists,
+        'hangEventsFileExists': hangFileExists,
+      };
+    }
+    // Dart 侧无快照时，系统记录的退出原因是唯一一手结论，按它细分。
+    if (matchedExit != null) {
+      final (type, summary) = switch (matchedExit.reasonCode) {
+        NativeExitRecord.reasonLowMemory => (
+          'system_low_memory_kill',
+          '系统低内存杀进程（LMK/OOM），死亡时 RSS ${(matchedExit.rssKb / 1024).toStringAsFixed(1)}MB',
+        ),
+        NativeExitRecord.reasonCrashNative => (
+          'native_crash',
+          '原生层崩溃，tombstone 见 crash/exit_records.json 中 pid=${matchedExit.pid} 的 trace',
+        ),
+        NativeExitRecord.reasonAnr => (
+          'anr_kill',
+          'ANR 被系统终止，线程栈见 crash/exit_records.json 中 pid=${matchedExit.pid} 的 trace',
+        ),
+        NativeExitRecord.reasonSignaled => (
+          'signaled_kill',
+          '进程被信号终止（signal=${matchedExit.status}；9=SIGKILL，部分厂商 ROM 的清理也走此路径）',
+        ),
+        NativeExitRecord.reasonUserRequested ||
+        NativeExitRecord.reasonUserStopped => (
+          'user_or_system_manager_kill',
+          '用户或系统管理器主动结束（上滑清理/一键加速等）',
+        ),
+        NativeExitRecord.reasonExcessiveResourceUsage => (
+          'excessive_resource_kill',
+          '系统因资源占用过高终止进程',
+        ),
+        _ => (
+          'unclean_exit_native_reason_${matchedExit.reason.toLowerCase()}',
+          '系统记录的退出原因: ${matchedExit.reason}',
+        ),
+      };
+      return {
+        'type': type,
+        'summary': summary,
+        'nativeReason': matchedExit.reason,
         'fatalSnapshotFileExists': fatalFileExists,
         'hangEventsFileExists': hangFileExists,
       };

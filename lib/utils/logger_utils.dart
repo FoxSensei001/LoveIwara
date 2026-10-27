@@ -64,6 +64,16 @@ class LogUtils {
     return null;
   }
 
+  /// 当前进程 RSS（MB，保留一位小数），供内存相关日志附带数值。
+  /// 排查 OOM 类闪退时，没有数字的「内存压力」日志毫无诊断价值。
+  static String currentRssMb() {
+    try {
+      return (ProcessInfo.currentRss / 1024 / 1024).toStringAsFixed(1);
+    } catch (_) {
+      return '?';
+    }
+  }
+
   // 初始化日志系统
   static Future<void> init({
     bool isProduction = false,

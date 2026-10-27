@@ -1788,7 +1788,7 @@ class MyVideoStateController extends GetxController
       isNetworkSource: () => _isCurrentMediaNetworkSource,
     );
     LogUtils.i(
-      '初始化 MyVideoStateController，videoId: $videoId',
+      '初始化 MyVideoStateController，videoId: $videoId (RSS: ${LogUtils.currentRssMb()}MB)',
       'MyVideoStateController',
     );
     _initVrFormatTracking();
@@ -3500,6 +3500,10 @@ class MyVideoStateController extends GetxController
     await _runCleanupStep('停止加载速率监听', _unobservePlayerLoadingSpeed);
     await _runCleanupStep('释放预览播放器', _disposePreviewPlayer);
     await _runCleanupStep('释放主播放器', player.dispose);
+    LogUtils.i(
+      '主播放器已释放 (RSS: ${LogUtils.currentRssMb()}MB)',
+      'MyVideoStateController',
+    );
 
     if (videoId == null ||
         duration <= Duration.zero ||

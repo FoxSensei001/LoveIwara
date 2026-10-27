@@ -91,6 +91,8 @@ class LogService extends GetxService {
         '检测到上次异常退出 (session: ${recovery.previousSessionId}, version: ${recovery.previousVersion})',
         'CrashRecovery',
       );
+      // 异步补充系统侧死因（LMK/原生崩溃/ANR/用户清理），不阻塞启动。
+      unawaited(_logNativeExitInfo());
     }
 
     _export = LogExportService(
@@ -526,6 +528,32 @@ class LogService extends GetxService {
       if (hadFailure) {
         _flushFailureCount++;
       }
+    }
+  }
+
+  /// 把系统记录的上一进程死因落进 app.log。Dart 抓不到的退出（系统杀进程、
+  /// 原生崩溃、ANR）全靠这条日志把「无快照的异常退出」变成有据可查。
+  Future<void> _logNativeExitInfo() async {
+    try {
+      final matched = await _crash.enrichWithNativeExitInfo();
+      if (matched != null) {
+        _logInternal(
+          LogLevel.warning,
+          '上次进程终止原因(系统记录): ${matched.toSummaryLine()}',
+          'CrashRecovery',
+        );
+        return;
+      }
+      final records = _crash.nativeExitRecords;
+      if (records != null && records.isNotEmpty) {
+        _logInternal(
+          LogLevel.warning,
+          '未匹配到上一会话的系统退出记录，最近一条: ${records.first.toSummaryLine()}',
+          'CrashRecovery',
+        );
+      }
+    } catch (e) {
+      debugPrint('[LogService] 记录系统退出原因失败: $e');
     }
   }
 
