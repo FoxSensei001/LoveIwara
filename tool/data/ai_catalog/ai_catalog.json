@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "rev": "39b2c34c5ef81ada",
-  "builtAt": "2026-10-11T19:23:31.074083Z",
-  "count": 659,
+  "rev": "0c5ea7110286fdcf",
+  "builtAt": "2026-10-25T19:19:52.922043Z",
+  "count": 664,
   "upstream": {
     "source": "CherryHQ/cherry-studio @ packages/provider-registry (MIT)",
-    "providers": "3416349586ffa541",
-    "models": "1820f779a1cc60bd"
+    "providers": "1b44511badb438e6",
+    "models": "496aef37f9a35b5d"
   },
   "providers": {
     "silicon": {
@@ -2999,6 +2999,18 @@
       "w": 1048576,
       "o": 65536
     },
+    "gemini-4-argon": {
+      "n": "Gemini 4 Argon",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 1048576
+    },
     "gemini-flash-latest": {
       "n": "Gemini Flash Latest",
       "c": [
@@ -3411,6 +3423,26 @@
       "w": 1048576,
       "o": 1048576
     },
+    "muse-spark-open-816b-a42b": {
+      "n": "Muse Spark Open 816B A42B",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 1048576
+    },
+    "muse-spark-open-816b-a42b-nvfp4": {
+      "n": "Muse Spark Open 816B A42B NVFP4",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 1048576
+    },
     "phi-4": {
       "n": "Microsoft: Phi 4",
       "c": [
@@ -3531,14 +3563,15 @@
       "w": 1048576,
       "o": 524288
     },
-    "minimax-m3-1-flash-preview": {
-      "n": "MiniMax-M3.1-Flash-Preview",
+    "minimax-m3-1-flash": {
+      "n": "MiniMax-M3.1-Flash",
       "c": [
         "fc",
         "rs",
         "vi"
       ],
-      "w": 1000000
+      "w": 1000000,
+      "o": 524288
     },
     "codestral": {
       "n": "Codestral (latest)",
@@ -4116,6 +4149,28 @@
       ],
       "w": 1048576,
       "o": 131072
+    },
+    "kimi-k3-1-pro": {
+      "n": "Kimi K3.1 Pro",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 1048576
+    },
+    "kimi-k3-1-pro-highspeed": {
+      "n": "Kimi K3.1 Pro Highspeed",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 1048576
     },
     "kimi-k3-fast": {
       "n": "Kimi K3 Fast",
