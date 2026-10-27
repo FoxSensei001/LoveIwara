@@ -362,6 +362,11 @@ class LogExportService {
           'anr_kill',
           'ANR 被系统终止，线程栈见 crash/exit_records.json 中 pid=${matchedExit.pid} 的 trace',
         ),
+        NativeExitRecord.reasonSignaled when matchedExit.isNativeCrash => (
+          'native_crash',
+          '原生层崩溃（${matchedExit.crashSignalName}，系统按信号终止记账）'
+              '${matchedExit.trace != null ? '，tombstone 见 crash/exit_records.json 中 pid=${matchedExit.pid} 的 trace' : '，系统未提供 tombstone'}',
+        ),
         NativeExitRecord.reasonSignaled => (
           'signaled_kill',
           '进程被信号终止（signal=${matchedExit.status}；9=SIGKILL，部分厂商 ROM 的清理也走此路径）',

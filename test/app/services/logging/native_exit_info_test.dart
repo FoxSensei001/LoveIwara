@@ -55,6 +55,27 @@ void main() {
       expect(withTrace.toJson(includeTrace: false)['traceFormat'], 'text');
     });
 
+    test('SIGNALED with a crash signal counts as a native crash', () {
+      final segv = NativeExitRecord.fromMap(<Object?, Object?>{
+        ...rawLowMemory,
+        'reasonCode': 2,
+        'reason': 'SIGNALED',
+        'status': 11,
+      })!;
+      expect(segv.isNativeCrash, true);
+      expect(segv.crashSignalName, 'SIGSEGV');
+      expect(segv.toSummaryLine(), contains('status=11(SIGSEGV)'));
+
+      final killed = NativeExitRecord.fromMap(<Object?, Object?>{
+        ...rawLowMemory,
+        'reasonCode': 2,
+        'reason': 'SIGNALED',
+        'status': 9,
+      })!;
+      expect(killed.isNativeCrash, false);
+      expect(killed.crashSignalName, isNull);
+    });
+
     test('proto tombstone keeps its format and truncation flag', () {
       final record = NativeExitRecord.fromMap(<Object?, Object?>{
         ...rawLowMemory,

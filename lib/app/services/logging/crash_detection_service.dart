@@ -11,7 +11,16 @@ class CrashDetectionService {
   List<NativeExitRecord>? _nativeExitRecords;
   NativeExitRecord? _matchedNativeExit;
 
-  CrashDetectionService(this._paths);
+  /// [exitRecordFetcher] 仅供测试注入；生产走 [NativeExitInfoService.fetch]。
+  CrashDetectionService(
+    this._paths, {
+    Future<List<NativeExitRecord>?> Function(int maxCount)? exitRecordFetcher,
+  }) : _fetchExitRecords =
+           exitRecordFetcher ??
+           ((maxCount) => NativeExitInfoService.fetch(maxCount: maxCount));
+
+  final Future<List<NativeExitRecord>?> Function(int maxCount)
+  _fetchExitRecords;
 
   CrashRecoveryResult? get lastResult => _lastResult;
 
@@ -29,9 +38,7 @@ class CrashDetectionService {
   /// 拉取系统侧退出记录（不要求存在异常退出标记）。幂等缓存；必须在
   /// Flutter 引擎附着后调用（MethodChannel 依赖），失败静默返回 null。
   Future<List<NativeExitRecord>?> loadNativeExitRecords() async {
-    _nativeExitRecords ??= await NativeExitInfoService.fetch(
-      maxCount: _nativeExitFetchCount,
-    );
+    _nativeExitRecords ??= await _fetchExitRecords(_nativeExitFetchCount);
     return _nativeExitRecords;
   }
 
@@ -48,29 +55,48 @@ class CrashDetectionService {
     // 优先按 pid 精确匹配：上一会话之后本包可能还有别的进程（被广播或
     // FileProvider 拉起、没跑 Dart）死过，时间窗会认错人。pid 会被复用，
     // 所以仍要求死亡时间晚于启动标记。
-    final previousPid = result.previousPid;
     final startMs = result.previousStartTime?.millisecondsSinceEpoch;
-    if (previousPid != null) {
-      for (final record in records) {
-        if (record.pid == previousPid &&
-            (startMs == null || record.timestampMs >= startMs)) {
-          _matchedNativeExit = record;
-          return record;
-        }
-      }
-    }
+    bool afterStart(NativeExitRecord r) =>
+        startMs == null || r.timestampMs >= startMs;
 
-    // 旧版标记没有 pid 时按时间兜底。记录按时间倒序；上一进程只死一次且必然
-    // 晚于其启动标记（同一墙钟），所以取启动之后**最早**的那条。
-    if (previousPid == null && startMs != null) {
+    // 旧版标记没有 pid 时按时间兜底：记录按时间倒序，上一进程必然晚于其启动标记
+    // 死去（同一墙钟），取启动之后**最早**那条的 pid。
+    var pid = result.previousPid;
+    if (pid == null && startMs != null) {
       for (final record in records.reversed) {
         if (record.timestampMs >= startMs) {
-          _matchedNativeExit = record;
+          pid = record.pid;
           break;
         }
       }
     }
+    if (pid == null) return null;
+
+    // 同一进程可能有多条：真机上一次原生崩溃会先记 CRASH_NATIVE（带 tombstone），
+    // 再记一条 SIGNALED(11)。取信息量最大的那条，而不是最新的。
+    final candidates = records
+        .where((r) => r.pid == pid && afterStart(r))
+        .toList();
+    if (candidates.isEmpty) return null;
+    candidates.sort((a, b) => _informativeness(b) - _informativeness(a));
+    _matchedNativeExit = candidates.first;
     return _matchedNativeExit;
+  }
+
+  /// 同一进程多条退出记录时的取舍：带 trace > 有明确死因 > 其他。
+  static int _informativeness(NativeExitRecord r) {
+    if (r.trace != null) return 3;
+    switch (r.reasonCode) {
+      case NativeExitRecord.reasonCrashNative:
+      case NativeExitRecord.reasonAnr:
+      case NativeExitRecord.reasonLowMemory:
+      case NativeExitRecord.reasonCrash:
+        return 2;
+      case NativeExitRecord.reasonSignaled:
+        return 0;
+      default:
+        return 1;
+    }
   }
 
   Future<void> markAppStart({

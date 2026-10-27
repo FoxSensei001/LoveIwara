@@ -55,6 +55,27 @@ class NativeExitRecord {
   static const int reasonUserRequested = 10;
   static const int reasonUserStopped = 11;
 
+  static const Map<int, String> _crashSignalNames = {
+    4: 'SIGILL',
+    5: 'SIGTRAP',
+    6: 'SIGABRT',
+    7: 'SIGBUS',
+    8: 'SIGFPE',
+    11: 'SIGSEGV',
+  };
+
+  /// 被崩溃类信号终止时的信号名（SIGSEGV 等），否则 null。
+  ///
+  /// 真机实测（Android 14）：一次原生崩溃系统会记两条——先 CRASH_NATIVE（带
+  /// tombstone），几百毫秒后再记一条同 pid 的 SIGNALED(status=11)。CRASH_NATIVE 那条
+  /// 被裁掉或没匹配上时，SIGNALED 不能一概当成「被杀」。
+  String? get crashSignalName =>
+      reasonCode == reasonSignaled ? _crashSignalNames[status] : null;
+
+  /// 原生层崩溃：系统记为 CRASH_NATIVE，或以崩溃类信号终止。
+  bool get isNativeCrash =>
+      reasonCode == reasonCrashNative || crashSignalName != null;
+
   static NativeExitRecord? fromMap(dynamic raw) {
     if (raw is! Map) return null;
     int asInt(dynamic v) => v is int ? v : (v is num ? v.toInt() : 0);
@@ -88,7 +109,9 @@ class NativeExitRecord {
     final desc = (description == null || description!.isEmpty)
         ? ''
         : ', desc=$description';
-    return 'reason=$reason($reasonCode), status=$status, '
+    final signal = crashSignalName;
+    return 'reason=$reason($reasonCode), '
+        'status=$status${signal != null ? '($signal)' : ''}, '
         'importance=$importance($importanceCode), rss=${rssMb}MB, pss=${pssMb}MB, '
         'time=${timestamp.toUtc().toIso8601String()}'
         '${trace != null ? ', trace=已捕获(${traceFormat ?? 'text'})' : ''}$desc';
