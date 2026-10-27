@@ -78,7 +78,9 @@ dependencies:
   flutter_colorpicker: ^1.1.0
   archive: ^4.0.9
   ffi: ^2.2.0
-  volume_controller: ^3.4.1
+  # 3.7.0 起插件自己的 buildscript 改成 AGP 9.1.0 / KGP 2.4.0，本项目刻意留在
+  # AGP 8.x（见 android/build.gradle）；停在 3.6.x，等 AGP 9 迁移时一起解锁。
+  volume_controller: ">=3.6.1 <3.7.0"
   battery_plus: ^7.0.0
   uuid: ^4.5.3
   # 17.0.0 起适配 Flutter 3.44+：16.x 内嵌的 editable_text 副本引用了已移除的
@@ -105,7 +107,7 @@ dependencies:
   cloudflare_interceptor: ^0.0.3
 #  native_dio_adapter: ^1.4.0
   html: ^0.15.6
-  desktop_drop: ^0.7.0
+  desktop_drop: ^0.8.4
 
   device_info_plus: ^11.5.0
   dartantic_ai: ^3.4.1
@@ -116,8 +118,10 @@ dependencies:
   local_notifier: ^0.1.6
   # 5.0.0 改为平铺样式与折射率参数；封装已迁移。继续精确锁定，升级渲染器后
   # 仍需验证 Windows release 首屏（4.3.1 曾白屏，4.3.3 修正了 ANGLE 编译）。
-  liquid_glass_easy: 5.0.0
-  liquid_glass_widgets: ^1.13.0
+  # 5.1.0：描边改吃色调的完整 alpha、Android/iOS Impeller 上加形状缓存；本项目
+  # 没用 LiquidGlassBatch / LiquidGlassMorph，那两处默认值变更不影响。
+  liquid_glass_easy: 5.1.0
+  liquid_glass_widgets: ^1.15.1
   local_auth: ^3.0.2
   local_auth_android: ^2.0.8
 dev_dependencies:

@@ -1,7 +1,7 @@
 name: Flutter Build
 
 env:
-  FLUTTER_VERSION: '3.47.2'
+  FLUTTER_VERSION: '3.47.8'
   # pubspec.lock 里 290 条依赖记的全是这个镜像地址。CI 不设这一项就会退回 pub.dev，
   # 来源对不上 → 整份 lock 作废 → 按 ^ 约束重解到最新版，打出来的包根本不是本机测过
   # 的那套依赖。liquid_glass_easy 就这么从 4.1.1 被解到 4.3.1，Windows/Impeller 上
