@@ -2938,6 +2938,8 @@ class _TranslationsLocalMediaId extends TranslationsLocalMediaEn {
 	@override late final _TranslationsLocalMediaWebdavId webdav = _TranslationsLocalMediaWebdavId._(_root);
 	@override String get mediaStoreUnavailable => 'Indeks media perangkat hanya tersedia di Android';
 	@override String get mediaStorePermissionDenied => 'Akses video tidak diberikan';
+	@override String get mediaStorePermissionNeeded => 'Perlu izin untuk membaca video perangkat';
+	@override String get mediaStoreGrantAction => 'Beri izin';
 	@override String get rescan => 'Pindai ulang';
 	@override String scanning({required Object count}) => 'Memindai… ${count} ditemukan';
 	@override String scanFailed({required Object reason}) => 'Pemindaian gagal: ${reason}';
@@ -8641,6 +8643,8 @@ extension on TranslationsId {
 			'localMedia.webdav.bannerCredUnreadable' => 'Couldn\'t read the saved password. Sign in again.',
 			'localMedia.mediaStoreUnavailable' => 'Indeks media perangkat hanya tersedia di Android',
 			'localMedia.mediaStorePermissionDenied' => 'Akses video tidak diberikan',
+			'localMedia.mediaStorePermissionNeeded' => 'Perlu izin untuk membaca video perangkat',
+			'localMedia.mediaStoreGrantAction' => 'Beri izin',
 			'localMedia.rescan' => 'Pindai ulang',
 			'localMedia.scanning' => ({required Object count}) => 'Memindai… ${count} ditemukan',
 			'localMedia.scanFailed' => ({required Object reason}) => 'Pemindaian gagal: ${reason}',
@@ -8679,10 +8683,10 @@ extension on TranslationsId {
 			'historyPage.rangeByLastViewed' => 'Difilter menurut waktu terakhir dilihat',
 			'ai.title' => 'AI',
 			'ai.providers' => 'Penyedia',
-			'ai.providersHint' => 'Tambahkan satu atau beberapa penyedia AI, lalu pilih mana yang digunakan setiap fitur.',
-			'ai.addProvider' => 'Tambah penyedia',
 			_ => null,
 		} ?? switch (path) {
+			'ai.providersHint' => 'Tambahkan satu atau beberapa penyedia AI, lalu pilih mana yang digunakan setiap fitur.',
+			'ai.addProvider' => 'Tambah penyedia',
 			'ai.noProviders' => 'Belum ada penyedia. Tambahkan satu untuk mengaktifkan terjemahan, pencarian, dan tanda tangan AI.',
 			'ai.pickPreset' => 'Pilih penyedia',
 			'ai.providerNameLabel' => 'Nama',

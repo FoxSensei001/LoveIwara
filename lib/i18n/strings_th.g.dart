@@ -2938,6 +2938,8 @@ class _TranslationsLocalMediaTh extends TranslationsLocalMediaEn {
 	@override late final _TranslationsLocalMediaWebdavTh webdav = _TranslationsLocalMediaWebdavTh._(_root);
 	@override String get mediaStoreUnavailable => 'ดัชนีสื่อของอุปกรณ์ใช้ได้เฉพาะบน Android';
 	@override String get mediaStorePermissionDenied => 'ไม่ได้รับอนุญาตให้เข้าถึงวิดีโอ';
+	@override String get mediaStorePermissionNeeded => 'ต้องได้รับอนุญาตเพื่ออ่านวิดีโอในอุปกรณ์';
+	@override String get mediaStoreGrantAction => 'อนุญาต';
 	@override String get rescan => 'สแกนใหม่';
 	@override String scanning({required Object count}) => 'กำลังสแกน… พบ ${count} รายการ';
 	@override String scanFailed({required Object reason}) => 'สแกนไม่สำเร็จ: ${reason}';
@@ -8641,6 +8643,8 @@ extension on TranslationsTh {
 			'localMedia.webdav.bannerCredUnreadable' => 'Couldn\'t read the saved password. Sign in again.',
 			'localMedia.mediaStoreUnavailable' => 'ดัชนีสื่อของอุปกรณ์ใช้ได้เฉพาะบน Android',
 			'localMedia.mediaStorePermissionDenied' => 'ไม่ได้รับอนุญาตให้เข้าถึงวิดีโอ',
+			'localMedia.mediaStorePermissionNeeded' => 'ต้องได้รับอนุญาตเพื่ออ่านวิดีโอในอุปกรณ์',
+			'localMedia.mediaStoreGrantAction' => 'อนุญาต',
 			'localMedia.rescan' => 'สแกนใหม่',
 			'localMedia.scanning' => ({required Object count}) => 'กำลังสแกน… พบ ${count} รายการ',
 			'localMedia.scanFailed' => ({required Object reason}) => 'สแกนไม่สำเร็จ: ${reason}',
@@ -8679,10 +8683,10 @@ extension on TranslationsTh {
 			'historyPage.rangeByLastViewed' => 'กรองตามเวลาที่ดูล่าสุด',
 			'ai.title' => 'AI',
 			'ai.providers' => 'ผู้ให้บริการ',
-			'ai.providersHint' => 'เพิ่มผู้ให้บริการ AI อย่างน้อยหนึ่งราย แล้วเลือกผู้ให้บริการสำหรับแต่ละฟีเจอร์',
-			'ai.addProvider' => 'เพิ่มผู้ให้บริการ',
 			_ => null,
 		} ?? switch (path) {
+			'ai.providersHint' => 'เพิ่มผู้ให้บริการ AI อย่างน้อยหนึ่งราย แล้วเลือกผู้ให้บริการสำหรับแต่ละฟีเจอร์',
+			'ai.addProvider' => 'เพิ่มผู้ให้บริการ',
 			'ai.noProviders' => 'ยังไม่มีผู้ให้บริการ เพิ่มผู้ให้บริการเพื่อเปิดใช้งานการแปล การค้นหา และลายเซ็นด้วย AI',
 			'ai.pickPreset' => 'เลือกผู้ให้บริการ',
 			'ai.providerNameLabel' => 'ชื่อ',

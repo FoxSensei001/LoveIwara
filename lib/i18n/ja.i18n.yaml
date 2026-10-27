@@ -3790,6 +3790,8 @@ localMedia:
     bannerCredUnreadable: "保存したパスワードを読み取れませんでした。再ログインしてください"
   mediaStoreUnavailable: 端末のメディアインデックスは Android でのみ利用できます
   mediaStorePermissionDenied: 動画へのアクセスが許可されていません
+  mediaStorePermissionNeeded: 端末の動画を読み込むには許可が必要です
+  mediaStoreGrantAction: 許可する
   rescan: 再スキャン
   scanning: "スキャン中… ${count} 件見つかりました"
   scanFailed: "スキャンに失敗しました：${reason}"

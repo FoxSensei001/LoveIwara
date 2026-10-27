@@ -3789,6 +3789,8 @@ localMedia:
     bannerCredUnreadable: "Couldn't read the saved password. Sign in again."
   mediaStoreUnavailable: Der Gerätemedienindex ist nur unter Android verfügbar
   mediaStorePermissionDenied: Der Videozugriff wurde nicht erteilt
+  mediaStorePermissionNeeded: Zum Lesen der Gerätevideos ist eine Berechtigung nötig
+  mediaStoreGrantAction: Zugriff erlauben
   rescan: Erneut scannen
   scanning: "Wird gescannt… ${count} gefunden"
   scanFailed: "Scan fehlgeschlagen: ${reason}"

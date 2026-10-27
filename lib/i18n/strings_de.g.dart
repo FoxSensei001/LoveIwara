@@ -2938,6 +2938,8 @@ class _TranslationsLocalMediaDe extends TranslationsLocalMediaEn {
 	@override late final _TranslationsLocalMediaWebdavDe webdav = _TranslationsLocalMediaWebdavDe._(_root);
 	@override String get mediaStoreUnavailable => 'Der Gerätemedienindex ist nur unter Android verfügbar';
 	@override String get mediaStorePermissionDenied => 'Der Videozugriff wurde nicht erteilt';
+	@override String get mediaStorePermissionNeeded => 'Zum Lesen der Gerätevideos ist eine Berechtigung nötig';
+	@override String get mediaStoreGrantAction => 'Zugriff erlauben';
 	@override String get rescan => 'Erneut scannen';
 	@override String scanning({required Object count}) => 'Wird gescannt… ${count} gefunden';
 	@override String scanFailed({required Object reason}) => 'Scan fehlgeschlagen: ${reason}';
@@ -8641,6 +8643,8 @@ extension on TranslationsDe {
 			'localMedia.webdav.bannerCredUnreadable' => 'Couldn\'t read the saved password. Sign in again.',
 			'localMedia.mediaStoreUnavailable' => 'Der Gerätemedienindex ist nur unter Android verfügbar',
 			'localMedia.mediaStorePermissionDenied' => 'Der Videozugriff wurde nicht erteilt',
+			'localMedia.mediaStorePermissionNeeded' => 'Zum Lesen der Gerätevideos ist eine Berechtigung nötig',
+			'localMedia.mediaStoreGrantAction' => 'Zugriff erlauben',
 			'localMedia.rescan' => 'Erneut scannen',
 			'localMedia.scanning' => ({required Object count}) => 'Wird gescannt… ${count} gefunden',
 			'localMedia.scanFailed' => ({required Object reason}) => 'Scan fehlgeschlagen: ${reason}',
@@ -8679,10 +8683,10 @@ extension on TranslationsDe {
 			'historyPage.rangeByLastViewed' => 'Nach zuletzt angesehen gefiltert',
 			'ai.title' => 'KI',
 			'ai.providers' => 'Anbieter',
-			'ai.providersHint' => 'Fügen Sie einen oder mehrere KI-Anbieter hinzu und weisen Sie diese den Funktionen zu.',
-			'ai.addProvider' => 'Anbieter hinzufügen',
 			_ => null,
 		} ?? switch (path) {
+			'ai.providersHint' => 'Fügen Sie einen oder mehrere KI-Anbieter hinzu und weisen Sie diese den Funktionen zu.',
+			'ai.addProvider' => 'Anbieter hinzufügen',
 			'ai.noProviders' => 'Noch keine Anbieter vorhanden. Fügen Sie einen hinzu, um KI-Übersetzung, Suche und Signatur zu aktivieren.',
 			'ai.pickPreset' => 'Anbieter auswählen',
 			'ai.providerNameLabel' => 'Bezeichnung',

@@ -85,7 +85,10 @@ class LocalSourceCardWidget extends StatelessWidget {
     final t = slang.t.localMedia;
     if (source.isBuiltIn) return t.builtInSourceHint;
     if (source.kind == LocalMediaSourceKind.mediastore) {
-      return t.mediaStoreSourceName;
+      // 离线＝上一轮读不到系统媒体库（权限没了），见 `_scanMediaStoreSource`。
+      return source.offline
+          ? t.mediaStorePermissionNeeded
+          : t.mediaStoreSourceName;
     }
     if (source.isInert) return t.unknownSourceHint;
     if (source.isRemote) {

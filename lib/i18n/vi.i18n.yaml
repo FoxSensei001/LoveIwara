@@ -3789,6 +3789,8 @@ localMedia:
     bannerCredUnreadable: "Couldn't read the saved password. Sign in again."
   mediaStoreUnavailable: Chỉ mục media của thiết bị chỉ khả dụng trên Android
   mediaStorePermissionDenied: Quyền truy cập video chưa được cấp
+  mediaStorePermissionNeeded: Cần cấp quyền để đọc video trên thiết bị
+  mediaStoreGrantAction: Cấp quyền
   rescan: Quét lại
   scanning: "Đang quét… đã tìm thấy ${count}"
   scanFailed: "Quét thất bại: ${reason}"

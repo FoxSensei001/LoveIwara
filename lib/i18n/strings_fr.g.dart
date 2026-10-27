@@ -2938,6 +2938,8 @@ class _TranslationsLocalMediaFr extends TranslationsLocalMediaEn {
 	@override late final _TranslationsLocalMediaWebdavFr webdav = _TranslationsLocalMediaWebdavFr._(_root);
 	@override String get mediaStoreUnavailable => 'L\'index multimédia de l\'appareil n\'est disponible que sur Android';
 	@override String get mediaStorePermissionDenied => 'L\'accès aux vidéos n\'a pas été accordé';
+	@override String get mediaStorePermissionNeeded => 'Autorisation requise pour lire les vidéos de l\'appareil';
+	@override String get mediaStoreGrantAction => 'Autoriser l\'accès';
 	@override String get rescan => 'Réanalyser';
 	@override String scanning({required Object count}) => 'Analyse… ${count} trouvés';
 	@override String scanFailed({required Object reason}) => 'Échec de l\'analyse : ${reason}';
@@ -8641,6 +8643,8 @@ extension on TranslationsFr {
 			'localMedia.webdav.bannerCredUnreadable' => 'Couldn\'t read the saved password. Sign in again.',
 			'localMedia.mediaStoreUnavailable' => 'L\'index multimédia de l\'appareil n\'est disponible que sur Android',
 			'localMedia.mediaStorePermissionDenied' => 'L\'accès aux vidéos n\'a pas été accordé',
+			'localMedia.mediaStorePermissionNeeded' => 'Autorisation requise pour lire les vidéos de l\'appareil',
+			'localMedia.mediaStoreGrantAction' => 'Autoriser l\'accès',
 			'localMedia.rescan' => 'Réanalyser',
 			'localMedia.scanning' => ({required Object count}) => 'Analyse… ${count} trouvés',
 			'localMedia.scanFailed' => ({required Object reason}) => 'Échec de l\'analyse : ${reason}',
@@ -8679,10 +8683,10 @@ extension on TranslationsFr {
 			'historyPage.rangeByLastViewed' => 'Filtré par dernière consultation',
 			'ai.title' => 'IA',
 			'ai.providers' => 'Fournisseurs',
-			'ai.providersHint' => 'Ajoutez un ou plusieurs fournisseurs d\'IA, puis choisissez celui utilisé par chaque fonctionnalité.',
-			'ai.addProvider' => 'Ajouter un fournisseur',
 			_ => null,
 		} ?? switch (path) {
+			'ai.providersHint' => 'Ajoutez un ou plusieurs fournisseurs d\'IA, puis choisissez celui utilisé par chaque fonctionnalité.',
+			'ai.addProvider' => 'Ajouter un fournisseur',
 			'ai.noProviders' => 'Aucun fournisseur configuré. Ajoutez-en un pour activer la traduction, la recherche et la signature IA.',
 			'ai.pickPreset' => 'Choisir un fournisseur',
 			'ai.providerNameLabel' => 'Nom',

@@ -3789,6 +3789,8 @@ localMedia:
     bannerCredUnreadable: "Couldn't read the saved password. Sign in again."
   mediaStoreUnavailable: 기기 미디어 색인은 Android에서만 사용할 수 있습니다
   mediaStorePermissionDenied: 동영상 접근 권한이 부여되지 않았습니다
+  mediaStorePermissionNeeded: 기기 동영상을 읽으려면 권한이 필요합니다
+  mediaStoreGrantAction: 권한 허용
   rescan: 다시 검사
   scanning: "검사 중… ${count}개 발견"
   scanFailed: "검사 실패: ${reason}"

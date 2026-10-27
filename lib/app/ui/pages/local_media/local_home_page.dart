@@ -313,6 +313,50 @@ class _LocalHomePageState extends State<LocalHomePage>
       _reloadPinnedFolders();
     }, time: const Duration(milliseconds: 400));
     unawaited(_syncDownloads());
+    unawaited(_prepareDeviceVideos());
+  }
+
+  /// 系统媒体库现在读不读得到（只查不弹）。头显上「扫描设备视频」入口靠它决定露不露。
+  bool _mediaStoreReadable = false;
+
+  /// 进页面 / 回前台时：补一轮「设备视频」刷新；头显上第一次进来时替用户接入它。
+  ///
+  /// # 为什么头显上要自动接入
+  ///
+  /// 「所有视频」只汇总**已经添加的来源**。头显用户加了 `Download` 之后，`Movies/`
+  /// 下的 Telegram 视频、系统录屏都不在任何来源里，而同机的 4XVR 全都列得出来
+  /// （2026-10-27 用户报，Quest 3 实测：库里 22 条，MediaStore 另有 6 条不在库里）。
+  /// 头显上没有相机胶卷那类私人视频，系统媒体库里就是用户放进来的片子；读它用的
+  /// 是已经授予的「所有文件访问」，不弹任何系统页。只接一次，见
+  /// [ConfigKey.LOCAL_MEDIA_DEVICE_VIDEOS_AUTO_ADDED_KEY]。
+  ///
+  /// 手机/平板不自动接：那里的系统媒体库里是相机拍的、聊天软件存的私人视频，
+  /// 要不要放进这个应用得由用户自己点。
+  Future<void> _prepareDeviceVideos() async {
+    if (!GetPlatform.isAndroid ||
+        !Get.isRegistered<PermissionService>() ||
+        !Get.isRegistered<LocalMediaScanService>()) {
+      return;
+    }
+    final readable = await PermissionService.to.canReadMediaStore();
+    if (!mounted) return;
+    if (readable != _mediaStoreReadable) {
+      setState(() => _mediaStoreReadable = readable);
+    }
+    final config = _config;
+    if (DeviceFormFactorUtils.isXrDevice &&
+        readable &&
+        !_addingSource &&
+        config != null &&
+        config[ConfigKey.LOCAL_MEDIA_DEVICE_VIDEOS_AUTO_ADDED_KEY] != true) {
+      config[ConfigKey.LOCAL_MEDIA_DEVICE_VIDEOS_AUTO_ADDED_KEY] = true;
+      if (_repository.getSource(kAndroidMediaStoreSourceId) == null) {
+        LogUtils.i('头显上首次自动接入「设备视频」', _tag);
+        unawaited(_addMediaStoreSource());
+        return;
+      }
+    }
+    LocalMediaScanService.to.refreshMediaStoreSources();
   }
 
   @override
@@ -341,6 +385,8 @@ class _LocalHomePageState extends State<LocalHomePage>
     if (_addingSource && mounted) {
       setState(() => _addingSource = false);
     }
+    // 系统设置里刚给了（或撤了）媒体权限、或者离开期间多了新视频。
+    unawaited(_prepareDeviceVideos());
     // 从「去设置开启」回来：权限给了就把横幅收掉，不必等用户再点一次添加。
     if (_permissionDenied && Get.isRegistered<PermissionService>()) {
       unawaited(
@@ -639,7 +685,9 @@ class _LocalHomePageState extends State<LocalHomePage>
     if (!progress.finished) return;
     _reloadSources();
     _reloadPinnedFolders();
-    if (progress.error != null) {
+    if (progress.error == LocalMediaScanService.mediaPermissionMissingError) {
+      // 来源卡副标题已经写着「需要授权」，见该常量的注释。
+    } else if (progress.error != null) {
       showAppToast(
         slang.t.localMedia.scanFailed(reason: progress.error!),
         type: AppToastType.error,
@@ -866,9 +914,8 @@ class _LocalHomePageState extends State<LocalHomePage>
 
     setState(() => _addingSource = true);
     try {
-      final permission = Get.find<PermissionService>();
-      if (!await permission.hasMediaStorePermission() &&
-          !await permission.requestMediaStorePermission()) {
+      // 头显上走「所有文件访问」，手机上走媒体权限，见 `requestMediaStoreAccess`。
+      if (!await Get.find<PermissionService>().requestMediaStoreAccess()) {
         showAppToast(t.mediaStorePermissionDenied, type: AppToastType.error);
         return;
       }
@@ -994,10 +1041,15 @@ class _LocalHomePageState extends State<LocalHomePage>
   /// 「需要权限，目前无法在您的 Android 13 上访问此内容。您可以尝试在手机上访问。」
   /// 用户点确定之后面板才回来（2026-09-10 真机，见 [[quest-immersive-launch-procedure]]）。
   ///
-  /// 而且就算权限拿得到也没用：头显上没有手机那种"相机胶卷"，MediaStore 的视频索引
-  /// 里除了系统录屏没有别的。所以这条入口在 XR 上**没有任何价值，只有代价**。
+  /// ⭐ 但**读**系统媒体库并不非得要那张页：「所有文件访问」同样读得了整个
+  /// MediaStore，而它在头显上能正常授予。所以 XR 上的判据是「现在已经读得到」
+  /// （[_mediaStoreReadable]），授权走 `PermissionService.requestMediaStoreAccess`。
+  ///
+  /// ~~头显上 MediaStore 里除了系统录屏没有别的~~——2026-10-27 Quest 3 实测推翻：
+  /// 里面有 19 条，Download、Movies/Telegram、应用自己下载的片子都在。
   bool get _canScanDeviceVideos =>
-      GetPlatform.isAndroid && !DeviceFormFactorUtils.isXrDevice;
+      GetPlatform.isAndroid &&
+      (!DeviceFormFactorUtils.isXrDevice || _mediaStoreReadable);
 
   /// 三种来源的添加入口。「添加」卡片的菜单与右上角 ⋮ 共用这一份，
   /// 免得哪天加了新来源只挂到其中一处（「连接 NAS」就曾只在卡片菜单里）。

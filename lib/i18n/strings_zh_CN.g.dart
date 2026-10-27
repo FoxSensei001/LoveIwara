@@ -2960,6 +2960,8 @@ class _TranslationsLocalMediaZhCn extends TranslationsLocalMediaEn {
 	@override late final _TranslationsLocalMediaWebdavZhCn webdav = _TranslationsLocalMediaWebdavZhCn._(_root);
 	@override String get mediaStoreUnavailable => '设备媒体索引仅在 Android 上可用';
 	@override String get mediaStorePermissionDenied => '未授予视频访问权限';
+	@override String get mediaStorePermissionNeeded => '需要授权才能读取设备视频';
+	@override String get mediaStoreGrantAction => '授权';
 	@override String get rescan => '重新扫描';
 	@override String scanning({required Object count}) => '扫描中… 已发现 ${count} 个';
 	@override String scanFailed({required Object reason}) => '扫描失败：${reason}';
@@ -8685,6 +8687,8 @@ extension on TranslationsZhCn {
 			'localMedia.webdav.bannerCredUnreadable' => '读取保存的密码失败，重新登录一次即可',
 			'localMedia.mediaStoreUnavailable' => '设备媒体索引仅在 Android 上可用',
 			'localMedia.mediaStorePermissionDenied' => '未授予视频访问权限',
+			'localMedia.mediaStorePermissionNeeded' => '需要授权才能读取设备视频',
+			'localMedia.mediaStoreGrantAction' => '授权',
 			'localMedia.rescan' => '重新扫描',
 			'localMedia.scanning' => ({required Object count}) => '扫描中… 已发现 ${count} 个',
 			'localMedia.scanFailed' => ({required Object reason}) => '扫描失败：${reason}',
@@ -8701,10 +8705,10 @@ extension on TranslationsZhCn {
 			'localMedia.emptyTitle' => '添加文件夹或连接 NAS，看你已有的视频',
 			'localMedia.emptyPrivacyNote' => '只在本机读取，不上传任何东西。',
 			'localMedia.removeSourceTitle' => ({required Object name}) => '移除「${name}」？',
-			'localMedia.removeSourceBody' => '文件本身一个不动，只是把它从本地库里移出去。',
-			'localMedia.remove' => '移除',
 			_ => null,
 		} ?? switch (path) {
+			'localMedia.removeSourceBody' => '文件本身一个不动，只是把它从本地库里移出去。',
+			'localMedia.remove' => '移除',
 			'localMedia.removeFolder' => '移除来源',
 			'localMedia.removeFolderSelectTitle' => '选择要移除的来源',
 			'localMedia.longPressToRemove' => '长按可移除这个文件夹',

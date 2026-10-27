@@ -2938,6 +2938,8 @@ class _TranslationsLocalMediaRu extends TranslationsLocalMediaEn {
 	@override late final _TranslationsLocalMediaWebdavRu webdav = _TranslationsLocalMediaWebdavRu._(_root);
 	@override String get mediaStoreUnavailable => 'Индекс медиафайлов устройства доступен только на Android';
 	@override String get mediaStorePermissionDenied => 'Доступ к видео не предоставлен';
+	@override String get mediaStorePermissionNeeded => 'Нужно разрешение, чтобы читать видео на устройстве';
+	@override String get mediaStoreGrantAction => 'Разрешить';
 	@override String get rescan => 'Пересканировать';
 	@override String scanning({required Object count}) => 'Сканирование… найдено ${count}';
 	@override String scanFailed({required Object reason}) => 'Ошибка сканирования: ${reason}';
@@ -8641,6 +8643,8 @@ extension on TranslationsRu {
 			'localMedia.webdav.bannerCredUnreadable' => 'Couldn\'t read the saved password. Sign in again.',
 			'localMedia.mediaStoreUnavailable' => 'Индекс медиафайлов устройства доступен только на Android',
 			'localMedia.mediaStorePermissionDenied' => 'Доступ к видео не предоставлен',
+			'localMedia.mediaStorePermissionNeeded' => 'Нужно разрешение, чтобы читать видео на устройстве',
+			'localMedia.mediaStoreGrantAction' => 'Разрешить',
 			'localMedia.rescan' => 'Пересканировать',
 			'localMedia.scanning' => ({required Object count}) => 'Сканирование… найдено ${count}',
 			'localMedia.scanFailed' => ({required Object reason}) => 'Ошибка сканирования: ${reason}',
@@ -8679,10 +8683,10 @@ extension on TranslationsRu {
 			'historyPage.rangeByLastViewed' => 'По времени последнего просмотра',
 			'ai.title' => 'ИИ',
 			'ai.providers' => 'Провайдеры',
-			'ai.providersHint' => 'Добавьте одного или нескольких провайдеров ИИ и назначьте их для нужных функций.',
-			'ai.addProvider' => 'Добавить провайдера',
 			_ => null,
 		} ?? switch (path) {
+			'ai.providersHint' => 'Добавьте одного или нескольких провайдеров ИИ и назначьте их для нужных функций.',
+			'ai.addProvider' => 'Добавить провайдера',
 			'ai.noProviders' => 'Провайдеры пока не добавлены. Добавьте хотя бы одного, чтобы включить перевод, поиск и подпись с помощью ИИ.',
 			'ai.pickPreset' => 'Выбрать провайдера',
 			'ai.providerNameLabel' => 'Название',

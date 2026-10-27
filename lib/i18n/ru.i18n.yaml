@@ -3789,6 +3789,8 @@ localMedia:
     bannerCredUnreadable: "Couldn't read the saved password. Sign in again."
   mediaStoreUnavailable: Индекс медиафайлов устройства доступен только на Android
   mediaStorePermissionDenied: Доступ к видео не предоставлен
+  mediaStorePermissionNeeded: Нужно разрешение, чтобы читать видео на устройстве
+  mediaStoreGrantAction: Разрешить
   rescan: Пересканировать
   scanning: "Сканирование… найдено ${count}"
   scanFailed: "Ошибка сканирования: ${reason}"

@@ -3815,6 +3815,8 @@ localMedia:
     bannerCredUnreadable: "讀取儲存的密碼失敗，重新登入一次即可"
   mediaStoreUnavailable: 裝置媒體索引僅在 Android 上可用
   mediaStorePermissionDenied: 未授予影片存取權限
+  mediaStorePermissionNeeded: 需要授權才能讀取裝置影片
+  mediaStoreGrantAction: 授權
   rescan: 重新掃描
   scanning: "掃描中… 已找到 ${count} 個"
   scanFailed: "掃描失敗：${reason}"

@@ -3813,6 +3813,8 @@ localMedia:
     bannerCredUnreadable: "Couldn't read the saved password. Sign in again."
   mediaStoreUnavailable: The device media index is only available on Android
   mediaStorePermissionDenied: Video access was not granted
+  mediaStorePermissionNeeded: Permission needed to read device videos
+  mediaStoreGrantAction: Grant access
   rescan: Rescan
   scanning: "Scanning… ${count} found"
   scanFailed: "Scan failed: ${reason}"

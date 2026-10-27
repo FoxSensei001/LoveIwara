@@ -3789,6 +3789,8 @@ localMedia:
     bannerCredUnreadable: "Couldn't read the saved password. Sign in again."
   mediaStoreUnavailable: Indeks media perangkat hanya tersedia di Android
   mediaStorePermissionDenied: Akses video tidak diberikan
+  mediaStorePermissionNeeded: Perlu izin untuk membaca video perangkat
+  mediaStoreGrantAction: Beri izin
   rescan: Pindai ulang
   scanning: "Memindai… ${count} ditemukan"
   scanFailed: "Pemindaian gagal: ${reason}"

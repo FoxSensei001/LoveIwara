@@ -3813,6 +3813,8 @@ localMedia:
     bannerCredUnreadable: "读取保存的密码失败，重新登录一次即可"
   mediaStoreUnavailable: 设备媒体索引仅在 Android 上可用
   mediaStorePermissionDenied: 未授予视频访问权限
+  mediaStorePermissionNeeded: 需要授权才能读取设备视频
+  mediaStoreGrantAction: 授权
   rescan: 重新扫描
   scanning: "扫描中… 已发现 ${count} 个"
   scanFailed: "扫描失败：${reason}"

@@ -14,6 +14,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/local_media_scan_service.dart';
+import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/services/webdav/webdav_service.dart';
 import 'package:i_iwara/app/ui/pages/local_media/local_folder_route.dart';
@@ -353,9 +354,14 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage>
   Future<void> _scanThisFolder() async {
     final source = _source;
     if (source == null) return;
-    // 「已下载」和「设备视频」没有目录树可走：前者从下载任务同步，后者是系统
-    // 媒体索引。对它们叫目录扫描是空转。
-    if (source.kind != LocalMediaSourceKind.directory &&
+    // 「已下载」没有目录树可走（从下载任务同步），对它叫目录扫描是空转。
+    // 「设备视频」同样没有目录树，但它有自己的刷新：重查一遍系统媒体索引。
+    // ⛔ 以前它也在这里直接 return——这个源除了变更观察器（只在进程活着时收得到）
+    // 之外**没有任何刷新通道**，库里那份一旦被冲空（见 `_scanMediaStoreSource`
+    // 的权限闸门），点进来就永远是空的。
+    final isMediaStore = source.kind == LocalMediaSourceKind.mediastore;
+    if (!isMediaStore &&
+        source.kind != LocalMediaSourceKind.directory &&
         source.kind != LocalMediaSourceKind.bookmark &&
         source.kind != LocalMediaSourceKind.webdav) {
       return;
@@ -375,10 +381,14 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage>
       });
     }
     try {
-      await LocalMediaScanService.to.scanFolder(
-        source: source,
-        relPath: relPath,
-      );
+      if (isMediaStore) {
+        await LocalMediaScanService.to.scanSource(source);
+      } else {
+        await LocalMediaScanService.to.scanFolder(
+          source: source,
+          relPath: relPath,
+        );
+      }
     } catch (e) {
       LogUtils.w('目录级扫描失败: $e', 'LocalFolderBrowsePage');
     } finally {
@@ -1207,10 +1217,61 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage>
         kind == LocalMediaSourceKind.bookmark;
   }
 
+  /// 「设备视频」上一轮读不到系统媒体库（权限被撤销 / 换机恢复）。库里的条目还在，
+  /// 但这时候它们多半是旧的——给一个就地授权的入口，别让用户去猜要回首页重新「添加」。
+  bool get _needsMediaStoreAccess =>
+      _source?.kind == LocalMediaSourceKind.mediastore &&
+      (_source?.offline ?? false);
+
+  bool _requestingAccess = false;
+
+  Future<void> _grantMediaStoreAccess() async {
+    final source = _source;
+    if (source == null || _requestingAccess) return;
+    setState(() => _requestingAccess = true);
+    try {
+      final granted = await PermissionService.to.requestMediaStoreAccess();
+      if (!mounted) return;
+      if (!granted) {
+        showAppToast(
+          slang.t.localMedia.mediaStorePermissionDenied,
+          type: AppToastType.error,
+        );
+        return;
+      }
+      await _scanThisFolder();
+    } finally {
+      if (mounted) setState(() => _requestingAccess = false);
+    }
+  }
+
+  Widget _buildMediaStoreAccessHint(BuildContext context) => _buildNotice(
+    context,
+    text: slang.t.localMedia.mediaStorePermissionNeeded,
+    actionLabel: slang.t.localMedia.mediaStoreGrantAction,
+    onAction: _requestingAccess
+        ? null
+        : () => unawaited(_grantMediaStoreAccess()),
+  );
+
   Widget _buildRescanHint(BuildContext context) {
-    final theme = Theme.of(context);
     final canRescan =
         _source != null && Get.isRegistered<LocalMediaScanService>();
+    return _buildNotice(
+      context,
+      text: slang.t.localMedia.browse.notScannedYet,
+      actionLabel: canRescan ? slang.t.localMedia.rescan : null,
+      onAction: () => unawaited(LocalMediaScanService.to.scanSource(_source!)),
+    );
+  }
+
+  Widget _buildNotice(
+    BuildContext context, {
+    required String text,
+    String? actionLabel,
+    VoidCallback? onAction,
+  }) {
+    final theme = Theme.of(context);
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
@@ -1232,22 +1293,20 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage>
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    slang.t.localMedia.browse.notScannedYet,
+                    text,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),
-                if (canRescan) ...[
+                if (actionLabel != null) ...[
                   const SizedBox(width: 8),
                   GlassButtonGroup(
                     children: [
                       GlassTextActionButton(
-                        label: slang.t.localMedia.rescan,
+                        label: actionLabel,
                         emphasized: true,
-                        onPressed: () => unawaited(
-                          LocalMediaScanService.to.scanSource(_source!),
-                        ),
+                        onPressed: onAction,
                       ),
                     ],
                   ),
@@ -1264,11 +1323,18 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage>
       ? slang.t.localMedia.browse.scanning
       : _query.isNotEmpty
       ? slang.t.localMedia.browse.searchNoResult(query: _query)
-      : _folder == null
+      : _needsMediaStoreAccess
+      ? slang.t.localMedia.mediaStorePermissionNeeded
+      // 没有目录树的源（设备视频 / 已下载）查不到目录行是常态，不是「还没扫描过」。
+      : _folder == null && !_sourceHasNoTree
       ? (LocalRemoteStateBanner.shouldShow(_source)
             ? WebDavService.describeState(_source!.remoteState!)
             : slang.t.localMedia.browse.notScannedYet)
       : slang.t.localMedia.browse.emptyFolder;
+
+  bool get _sourceHasNoTree =>
+      _source?.kind == LocalMediaSourceKind.mediastore ||
+      _source?.kind == LocalMediaSourceKind.downloads;
 
   /// 当前这一档视图里一样东西都没有。
   ///
@@ -1786,6 +1852,7 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage>
                   ),
                 ),
               if (_needsRescanForTree) _buildRescanHint(context),
+              if (_needsMediaStoreAccess) _buildMediaStoreAccessHint(context),
               if (galleryShown > 0) ...[
                 if (showHeaders) _buildSectionHeader(t.galleriesSection),
                 SliverPadding(

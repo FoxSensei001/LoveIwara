@@ -7523,6 +7523,12 @@ class TranslationsLocalMediaEn {
 	/// en: 'Video access was not granted'
 	String get mediaStorePermissionDenied => 'Video access was not granted';
 
+	/// en: 'Permission needed to read device videos'
+	String get mediaStorePermissionNeeded => 'Permission needed to read device videos';
+
+	/// en: 'Grant access'
+	String get mediaStoreGrantAction => 'Grant access';
+
 	/// en: 'Rescan'
 	String get rescan => 'Rescan';
 
@@ -16293,6 +16299,8 @@ extension on Translations {
 			'localMedia.webdav.bannerCredUnreadable' => 'Couldn\'t read the saved password. Sign in again.',
 			'localMedia.mediaStoreUnavailable' => 'The device media index is only available on Android',
 			'localMedia.mediaStorePermissionDenied' => 'Video access was not granted',
+			'localMedia.mediaStorePermissionNeeded' => 'Permission needed to read device videos',
+			'localMedia.mediaStoreGrantAction' => 'Grant access',
 			'localMedia.rescan' => 'Rescan',
 			'localMedia.scanning' => ({required Object count}) => 'Scanning… ${count} found',
 			'localMedia.scanFailed' => ({required Object reason}) => 'Scan failed: ${reason}',
@@ -16309,10 +16317,10 @@ extension on Translations {
 			'localMedia.emptyTitle' => 'Add a folder or connect a NAS to watch the videos you already have',
 			'localMedia.emptyPrivacyNote' => 'Files are read on this device only. Nothing is uploaded.',
 			'localMedia.removeSourceTitle' => ({required Object name}) => 'Remove "${name}"?',
-			'localMedia.removeSourceBody' => 'The files themselves are not touched. Only this library entry is removed.',
-			'localMedia.remove' => 'Remove',
 			_ => null,
 		} ?? switch (path) {
+			'localMedia.removeSourceBody' => 'The files themselves are not touched. Only this library entry is removed.',
+			'localMedia.remove' => 'Remove',
 			'localMedia.removeFolder' => 'Remove source',
 			'localMedia.removeFolderSelectTitle' => 'Select a source to remove',
 			'localMedia.longPressToRemove' => 'Long-press to remove this folder',

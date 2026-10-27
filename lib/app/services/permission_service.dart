@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/utils/device_form_factor_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 /// 往某个目录里写文件，要先拿到哪一档存储权限（只有 Android 有这回事）。
@@ -119,6 +121,58 @@ class PermissionService extends GetxService {
     } catch (e) {
       LogUtils.e('检查 MediaStore 权限失败', tag: 'PermissionService', error: e);
       return false;
+    }
+  }
+
+  /// 现在读不读得到系统媒体库（**只查不弹**）。
+  ///
+  /// 「所有文件访问」同样能读整个 MediaStore，不需要另外的媒体权限——Quest 上
+  /// 正是这条：媒体权限那张系统页在头显上会把面板变成一片品红，但「所有文件访问」
+  /// 能正常授予（见 local_home_page 的 `_canScanDeviceVideos`）。
+  Future<bool> canReadMediaStore() async {
+    if (!GetPlatform.isAndroid) return false;
+    if (await hasMediaStorePermission()) return true;
+    try {
+      return await _getAndroidVersion() >= 30 &&
+          await Permission.manageExternalStorage.isGranted;
+    } catch (e) {
+      LogUtils.e('检查所有文件访问失败', tag: 'PermissionService', error: e);
+      return false;
+    }
+  }
+
+  /// 为读系统媒体库要权限，按设备挑那张**走得通**的系统页。
+  ///
+  /// ⛔ XR 头显上绝不能弹媒体权限：那张页在 Horizon OS 上没实现，整块面板会变成
+  /// 一片品红（见 local_home_page 的 `_canScanDeviceVideos`）。头显上改要「所有
+  /// 文件访问」，它同样能读整个 MediaStore（见 [canReadMediaStore]）。
+  Future<bool> requestMediaStoreAccess() async {
+    if (!GetPlatform.isAndroid) return false;
+    if (await canReadMediaStore()) return true;
+    if (DeviceFormFactorUtils.isXrDevice) return _requestStorageUntilResumed();
+    return requestMediaStorePermission();
+  }
+
+  /// [requestStoragePermission]，但用户回到应用就算结束，以那一刻的权限状态为准。
+  ///
+  /// ⛔ 头显上「所有文件访问」那张系统页的结果可能回不到发起方（开在另一个虚拟
+  /// 显示上），`request()` 会一直挂着，调用方的「请求中」旗子永远落不下来、按钮
+  /// 一直是灰的。同一个坑首页的 `_requestStoragePermissionResilient` 也防过。
+  Future<bool> _requestStorageUntilResumed() async {
+    final resumed = Completer<void>();
+    final listener = AppLifecycleListener(
+      onResume: () {
+        if (!resumed.isCompleted) resumed.complete();
+      },
+    );
+    try {
+      final result = await Future.any<bool?>(<Future<bool?>>[
+        requestStoragePermission(),
+        resumed.future.then<bool?>((_) => null),
+      ]);
+      return result ?? await hasStoragePermission();
+    } finally {
+      listener.dispose();
     }
   }
 

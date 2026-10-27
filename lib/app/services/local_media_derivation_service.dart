@@ -532,8 +532,11 @@ class LocalMediaDerivationService extends GetxService {
         current.modifiedAt == null ||
         current.sizeBytes != initialStat.size ||
         (!contentUri &&
-            current.modifiedAt !=
-                initialStat.modified.millisecondsSinceEpoch)) {
+            !_fingerprintMatches(
+              sizeBytes: current.sizeBytes,
+              modifiedAt: current.modifiedAt,
+              stat: initialStat,
+            ))) {
       return;
     }
 
@@ -1068,8 +1071,11 @@ class LocalMediaDerivationService extends GetxService {
         current.modifiedAt == null ||
         current.sizeBytes != initialStat.size ||
         (!contentUri &&
-            current.modifiedAt !=
-                initialStat.modified.millisecondsSinceEpoch)) {
+            !_fingerprintMatches(
+              sizeBytes: current.sizeBytes,
+              modifiedAt: current.modifiedAt,
+              stat: initialStat,
+            ))) {
       return;
     }
 
@@ -1761,6 +1767,29 @@ class LocalMediaDerivationService extends GetxService {
 
   static bool _isContentUri(String path) => path.startsWith('content://');
 
+  /// 库里记的指纹（大小 + 修改时间）是不是说的磁盘上 [stat] 这个文件。
+  ///
+  /// # ⛔ 修改时间不能逐毫秒比
+  ///
+  /// 「设备视频」的行来自 MediaStore，`modified_at` 是 `DATE_MODIFIED`——**整秒**
+  /// （`modifiedAtSeconds * 1000`），而 `File.stat()` 给的是毫秒。逐毫秒比的话这类行
+  /// 一条都对不上：自动封面在指纹闸门前静默 return、挑好的封面保存时报「封面保存失败」
+  /// （2026-10-27 用户报：设备视频 194 条全没有封面、手动设也设不上）。
+  ///
+  /// 规则：毫秒相等，或者库里那个值本身就是整秒、且与磁盘落在同一秒。目录扫描写的
+  /// 是毫秒值，碰巧整秒时也只是放宽到同一秒，不会把换过的文件认成同一个（大小还要相等）。
+  static bool _fingerprintMatches({
+    required int? sizeBytes,
+    required int? modifiedAt,
+    required FileStat stat,
+  }) {
+    if (sizeBytes == null || modifiedAt == null) return false;
+    if (sizeBytes != stat.size) return false;
+    final diskMs = stat.modified.millisecondsSinceEpoch;
+    if (modifiedAt == diskMs) return true;
+    return modifiedAt % 1000 == 0 && modifiedAt ~/ 1000 == diskMs ~/ 1000;
+  }
+
   static Future<String?> _materializePath(String path) async {
     if (!_isContentUri(path)) return path;
     try {
@@ -1829,10 +1858,27 @@ class LocalMediaDerivationService extends GetxService {
   }) async {
     if (bytes.isEmpty) return null;
     try {
-      final stat = File(item.path).statSync();
-      if (stat.type != FileSystemEntityType.file) return null;
-      final sizeBytes = stat.size;
-      final modifiedAt = stat.modified.millisecondsSinceEpoch;
+      // ⛔ 写库时的「期望指纹」必须用**库里那一行**的，不能拿刚 stat 出来的值：
+      // `updateDerivedFields` 是拿它去和库里比的，MediaStore 的行存的是整秒，毫秒
+      // 的 stat 值永远对不上（见 [_fingerprintMatches]）。磁盘那边只用来确认文件
+      // 还是库里说的那个。content:// 条目没有路径可 stat，库里的指纹就是全部依据。
+      final current = _repository.getItem(item.id);
+      if (current == null) return null;
+      final sizeBytes = current.sizeBytes;
+      final modifiedAt = current.modifiedAt;
+      if (sizeBytes == null || modifiedAt == null) return null;
+      if (!_isContentUri(current.path) && !DavPath.isDav(current.path)) {
+        final stat = await _statFile(current.path);
+        if (stat == null ||
+            !_fingerprintMatches(
+              sizeBytes: sizeBytes,
+              modifiedAt: modifiedAt,
+              stat: stat,
+            )) {
+          LogUtils.w('保存自定义封面：文件已变化或读不到 ${current.path}', _tag);
+          return null;
+        }
+      }
 
       final scaled = await _scaleThumbnail(
         bytes,
@@ -1852,7 +1898,7 @@ class LocalMediaDerivationService extends GetxService {
       await file.writeAsBytes(scaled.bytes, flush: true);
 
       // 上一张封面的路径要在写库**之前**记下来：写完 thumb_path 就再也问不出它了。
-      final previousThumbPath = _repository.getItem(item.id)?.thumbPath;
+      final previousThumbPath = current.thumbPath;
 
       final ok = _repository.updateDerivedFields(
         itemId: item.id,

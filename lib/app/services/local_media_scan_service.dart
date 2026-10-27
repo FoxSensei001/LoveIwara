@@ -17,6 +17,7 @@ import 'package:i_iwara/app/services/android_media_store_service.dart';
 import 'package:i_iwara/app/services/ios_folder_picker_service.dart';
 import 'package:i_iwara/app/services/local_media_derivation_service.dart';
 import 'package:i_iwara/app/services/local_media_directory_policy.dart';
+import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/utils/natural_sort_key.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
@@ -132,6 +133,12 @@ class LocalMediaScanService extends GetxService {
 
   static const String _tag = 'LocalMediaScan';
 
+  /// 「设备视频」读不到系统媒体库时 [_finish] 带出去的 error。
+  ///
+  /// ⛔ 这不是扫描失败，界面不能拿它弹「扫描失败」：进页面、回前台都会补一轮刷新，
+  /// 权限一天不回来就一天弹个不停。来源卡与浏览页已经各自给了授权入口。
+  static const String mediaPermissionMissingError = 'media-permission-missing';
+
   final Rxn<LocalMediaScanProgress> progress = Rxn<LocalMediaScanProgress>();
 
   Isolate? _isolate;
@@ -184,6 +191,20 @@ class LocalMediaScanService extends GetxService {
         _scheduleMediaStoreRescan();
       });
     }
+  }
+
+  /// 补一轮「设备视频」刷新（走同一道去抖）。
+  ///
+  /// 变更观察器只在进程活着时收得到通知；应用没在跑的那段时间里系统媒体库的增删，
+  /// 要靠进「本机」页时补这一下才进得了库。逐页按指纹跳过没变的行，代价有界。
+  void refreshMediaStoreSources() {
+    if (!_repository.getSources().any(
+      (source) => source.kind == LocalMediaSourceKind.mediastore,
+    )) {
+      return;
+    }
+    _mediaStoreChangePending = true;
+    _scheduleMediaStoreRescan();
   }
 
   /// 所有"该重扫 MediaStore 了"的路口都走这里，别在调用点直接 `_drain…`：
@@ -1049,6 +1070,28 @@ class LocalMediaScanService extends GetxService {
 
     // ⛔ 占闸之后的同步写读库都要落在 try 里，抛出去就是闸门永远不还，见 [_scanTree]。
     try {
+      // ⛔ 先确认读得到，再查。没有权限时 MediaStore **不报错**，只是安静地只返回
+      // 本应用自己写的那几条——照常往下走，收敛会把库里整个「设备视频」标成
+      // missing：卡片还在，点进去一片空（2026-10-27 用户报：一进应用就看到「设备
+      // 视频」，点进去什么都没有；再点一次「添加设备视频」重新授权才刷出来）。
+      // 权限被系统「长期未使用自动撤销」、或者换机恢复备份（库跟着回来、运行时
+      // 权限没回来）都会撞上。处置：库里的条目一条不动，源标离线，页面据此给授权入口。
+      if (!await _canReadMediaStore()) {
+        LogUtils.w('读不到系统媒体库（没有权限），「设备视频」保留库内条目并标为离线', _tag);
+        _finish(
+          source,
+          const <String>{},
+          0,
+          false,
+          mediaPermissionMissingError,
+          running,
+          offline: true,
+          generation: generation,
+          allowMissing: false,
+        );
+        // [_finish] 已经把 running 收尾了。
+        return;
+      }
       _repository.upsertSource(
         (_repository.getSource(source.id) ?? source).copyWith(
           scanState: LocalMediaScanState.scanning,
@@ -1191,6 +1234,11 @@ class LocalMediaScanService extends GetxService {
     }
 
     return running.future;
+  }
+
+  static Future<bool> _canReadMediaStore() async {
+    if (!Get.isRegistered<PermissionService>()) return true;
+    return PermissionService.to.canReadMediaStore();
   }
 
   static String? _extensionOf(String name, String? mimeType) {

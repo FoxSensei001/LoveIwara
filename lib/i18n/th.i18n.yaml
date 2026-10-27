@@ -3789,6 +3789,8 @@ localMedia:
     bannerCredUnreadable: "Couldn't read the saved password. Sign in again."
   mediaStoreUnavailable: ดัชนีสื่อของอุปกรณ์ใช้ได้เฉพาะบน Android
   mediaStorePermissionDenied: ไม่ได้รับอนุญาตให้เข้าถึงวิดีโอ
+  mediaStorePermissionNeeded: ต้องได้รับอนุญาตเพื่ออ่านวิดีโอในอุปกรณ์
+  mediaStoreGrantAction: อนุญาต
   rescan: สแกนใหม่
   scanning: "กำลังสแกน… พบ ${count} รายการ"
   scanFailed: "สแกนไม่สำเร็จ: ${reason}"

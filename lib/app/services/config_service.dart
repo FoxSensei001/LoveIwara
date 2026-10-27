@@ -378,6 +378,10 @@ enum ConfigKey {
 
   /// 「文件目录」顶上那条「建议添加的文件夹」被用户关掉了。
   LOCAL_MEDIA_SUGGESTIONS_DISMISSED_KEY,
+
+  /// 头显上已经替用户自动接入过一次「设备视频」。只接一次：用户之后移除了它，
+  /// 就是不想要，不能每次进页面又塞回来。
+  LOCAL_MEDIA_DEVICE_VIDEOS_AUTO_ADDED_KEY,
   VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO,
   BRIGHTNESS_KEY,
   KEEP_LAST_BRIGHTNESS_KEY,
@@ -602,6 +606,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'local_media_show_hidden_folders';
       case ConfigKey.LOCAL_MEDIA_SUGGESTIONS_DISMISSED_KEY:
         return 'local_media_suggestions_dismissed';
+      case ConfigKey.LOCAL_MEDIA_DEVICE_VIDEOS_AUTO_ADDED_KEY:
+        return 'local_media_device_videos_auto_added';
       case ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO:
         return 'video_left_and_right_control_area_ratio';
       case ConfigKey.BRIGHTNESS_KEY:
@@ -949,6 +955,8 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.LOCAL_MEDIA_SHOW_HIDDEN_FOLDERS_KEY:
         return false;
       case ConfigKey.LOCAL_MEDIA_SUGGESTIONS_DISMISSED_KEY:
+        return false;
+      case ConfigKey.LOCAL_MEDIA_DEVICE_VIDEOS_AUTO_ADDED_KEY:
         return false;
       case ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO:
         return 0.2;

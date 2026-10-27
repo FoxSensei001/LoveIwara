@@ -2938,6 +2938,8 @@ class _TranslationsLocalMediaKo extends TranslationsLocalMediaEn {
 	@override late final _TranslationsLocalMediaWebdavKo webdav = _TranslationsLocalMediaWebdavKo._(_root);
 	@override String get mediaStoreUnavailable => '기기 미디어 색인은 Android에서만 사용할 수 있습니다';
 	@override String get mediaStorePermissionDenied => '동영상 접근 권한이 부여되지 않았습니다';
+	@override String get mediaStorePermissionNeeded => '기기 동영상을 읽으려면 권한이 필요합니다';
+	@override String get mediaStoreGrantAction => '권한 허용';
 	@override String get rescan => '다시 검사';
 	@override String scanning({required Object count}) => '검사 중… ${count}개 발견';
 	@override String scanFailed({required Object reason}) => '검사 실패: ${reason}';
@@ -8641,6 +8643,8 @@ extension on TranslationsKo {
 			'localMedia.webdav.bannerCredUnreadable' => 'Couldn\'t read the saved password. Sign in again.',
 			'localMedia.mediaStoreUnavailable' => '기기 미디어 색인은 Android에서만 사용할 수 있습니다',
 			'localMedia.mediaStorePermissionDenied' => '동영상 접근 권한이 부여되지 않았습니다',
+			'localMedia.mediaStorePermissionNeeded' => '기기 동영상을 읽으려면 권한이 필요합니다',
+			'localMedia.mediaStoreGrantAction' => '권한 허용',
 			'localMedia.rescan' => '다시 검사',
 			'localMedia.scanning' => ({required Object count}) => '검사 중… ${count}개 발견',
 			'localMedia.scanFailed' => ({required Object reason}) => '검사 실패: ${reason}',
@@ -8679,10 +8683,10 @@ extension on TranslationsKo {
 			'historyPage.rangeByLastViewed' => '마지막으로 본 시간 기준',
 			'ai.title' => 'AI',
 			'ai.providers' => '제공자',
-			'ai.providersHint' => '하나 이상의 AI 제공자를 추가한 뒤, 각 기능에서 사용할 제공자를 지정하세요.',
-			'ai.addProvider' => '제공자 추가',
 			_ => null,
 		} ?? switch (path) {
+			'ai.providersHint' => '하나 이상의 AI 제공자를 추가한 뒤, 각 기능에서 사용할 제공자를 지정하세요.',
+			'ai.addProvider' => '제공자 추가',
 			'ai.noProviders' => '등록된 제공자가 없습니다. 제공자를 추가하면 AI 번역, 검색, 서명 기능을 사용할 수 있습니다.',
 			'ai.pickPreset' => '제공자 선택',
 			'ai.providerNameLabel' => '이름',

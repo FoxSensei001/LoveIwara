@@ -2938,6 +2938,8 @@ class _TranslationsLocalMediaVi extends TranslationsLocalMediaEn {
 	@override late final _TranslationsLocalMediaWebdavVi webdav = _TranslationsLocalMediaWebdavVi._(_root);
 	@override String get mediaStoreUnavailable => 'Chỉ mục media của thiết bị chỉ khả dụng trên Android';
 	@override String get mediaStorePermissionDenied => 'Quyền truy cập video chưa được cấp';
+	@override String get mediaStorePermissionNeeded => 'Cần cấp quyền để đọc video trên thiết bị';
+	@override String get mediaStoreGrantAction => 'Cấp quyền';
 	@override String get rescan => 'Quét lại';
 	@override String scanning({required Object count}) => 'Đang quét… đã tìm thấy ${count}';
 	@override String scanFailed({required Object reason}) => 'Quét thất bại: ${reason}';
@@ -8641,6 +8643,8 @@ extension on TranslationsVi {
 			'localMedia.webdav.bannerCredUnreadable' => 'Couldn\'t read the saved password. Sign in again.',
 			'localMedia.mediaStoreUnavailable' => 'Chỉ mục media của thiết bị chỉ khả dụng trên Android',
 			'localMedia.mediaStorePermissionDenied' => 'Quyền truy cập video chưa được cấp',
+			'localMedia.mediaStorePermissionNeeded' => 'Cần cấp quyền để đọc video trên thiết bị',
+			'localMedia.mediaStoreGrantAction' => 'Cấp quyền',
 			'localMedia.rescan' => 'Quét lại',
 			'localMedia.scanning' => ({required Object count}) => 'Đang quét… đã tìm thấy ${count}',
 			'localMedia.scanFailed' => ({required Object reason}) => 'Quét thất bại: ${reason}',
@@ -8679,10 +8683,10 @@ extension on TranslationsVi {
 			'historyPage.rangeByLastViewed' => 'Lọc theo thời gian xem gần nhất',
 			'ai.title' => 'AI',
 			'ai.providers' => 'Nhà cung cấp',
-			'ai.providersHint' => 'Thêm một hoặc nhiều nhà cung cấp AI, sau đó chọn nhà cung cấp cho từng tính năng.',
-			'ai.addProvider' => 'Thêm nhà cung cấp',
 			_ => null,
 		} ?? switch (path) {
+			'ai.providersHint' => 'Thêm một hoặc nhiều nhà cung cấp AI, sau đó chọn nhà cung cấp cho từng tính năng.',
+			'ai.addProvider' => 'Thêm nhà cung cấp',
 			'ai.noProviders' => 'Chưa có nhà cung cấp nào. Hãy thêm để bật tính năng dịch, tìm kiếm và chữ ký bằng AI.',
 			'ai.pickPreset' => 'Chọn nhà cung cấp',
 			'ai.providerNameLabel' => 'Tên',

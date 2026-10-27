@@ -2960,6 +2960,8 @@ class _TranslationsLocalMediaZhTw extends TranslationsLocalMediaEn {
 	@override late final _TranslationsLocalMediaWebdavZhTw webdav = _TranslationsLocalMediaWebdavZhTw._(_root);
 	@override String get mediaStoreUnavailable => '裝置媒體索引僅在 Android 上可用';
 	@override String get mediaStorePermissionDenied => '未授予影片存取權限';
+	@override String get mediaStorePermissionNeeded => '需要授權才能讀取裝置影片';
+	@override String get mediaStoreGrantAction => '授權';
 	@override String get rescan => '重新掃描';
 	@override String scanning({required Object count}) => '掃描中… 已找到 ${count} 個';
 	@override String scanFailed({required Object reason}) => '掃描失敗：${reason}';
@@ -8685,6 +8687,8 @@ extension on TranslationsZhTw {
 			'localMedia.webdav.bannerCredUnreadable' => '讀取儲存的密碼失敗，重新登入一次即可',
 			'localMedia.mediaStoreUnavailable' => '裝置媒體索引僅在 Android 上可用',
 			'localMedia.mediaStorePermissionDenied' => '未授予影片存取權限',
+			'localMedia.mediaStorePermissionNeeded' => '需要授權才能讀取裝置影片',
+			'localMedia.mediaStoreGrantAction' => '授權',
 			'localMedia.rescan' => '重新掃描',
 			'localMedia.scanning' => ({required Object count}) => '掃描中… 已找到 ${count} 個',
 			'localMedia.scanFailed' => ({required Object reason}) => '掃描失敗：${reason}',
@@ -8701,10 +8705,10 @@ extension on TranslationsZhTw {
 			'localMedia.emptyTitle' => '新增資料夾或連接 NAS，看你已有的影片',
 			'localMedia.emptyPrivacyNote' => '只在本機讀取，不上傳任何東西。',
 			'localMedia.removeSourceTitle' => ({required Object name}) => '移除「${name}」？',
-			'localMedia.removeSourceBody' => '檔案本身一個不動，只是把它從本機媒體庫移出去。',
-			'localMedia.remove' => '移除',
 			_ => null,
 		} ?? switch (path) {
+			'localMedia.removeSourceBody' => '檔案本身一個不動，只是把它從本機媒體庫移出去。',
+			'localMedia.remove' => '移除',
 			'localMedia.removeFolder' => '移除來源',
 			'localMedia.removeFolderSelectTitle' => '選擇要移除的來源',
 			'localMedia.longPressToRemove' => '長按可移除這個資料夾',

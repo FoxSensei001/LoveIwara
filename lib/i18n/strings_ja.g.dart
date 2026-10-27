@@ -2938,6 +2938,8 @@ class _TranslationsLocalMediaJa extends TranslationsLocalMediaEn {
 	@override late final _TranslationsLocalMediaWebdavJa webdav = _TranslationsLocalMediaWebdavJa._(_root);
 	@override String get mediaStoreUnavailable => '端末のメディアインデックスは Android でのみ利用できます';
 	@override String get mediaStorePermissionDenied => '動画へのアクセスが許可されていません';
+	@override String get mediaStorePermissionNeeded => '端末の動画を読み込むには許可が必要です';
+	@override String get mediaStoreGrantAction => '許可する';
 	@override String get rescan => '再スキャン';
 	@override String scanning({required Object count}) => 'スキャン中… ${count} 件見つかりました';
 	@override String scanFailed({required Object reason}) => 'スキャンに失敗しました：${reason}';
@@ -8641,6 +8643,8 @@ extension on TranslationsJa {
 			'localMedia.webdav.bannerCredUnreadable' => '保存したパスワードを読み取れませんでした。再ログインしてください',
 			'localMedia.mediaStoreUnavailable' => '端末のメディアインデックスは Android でのみ利用できます',
 			'localMedia.mediaStorePermissionDenied' => '動画へのアクセスが許可されていません',
+			'localMedia.mediaStorePermissionNeeded' => '端末の動画を読み込むには許可が必要です',
+			'localMedia.mediaStoreGrantAction' => '許可する',
 			'localMedia.rescan' => '再スキャン',
 			'localMedia.scanning' => ({required Object count}) => 'スキャン中… ${count} 件見つかりました',
 			'localMedia.scanFailed' => ({required Object reason}) => 'スキャンに失敗しました：${reason}',
@@ -8679,10 +8683,10 @@ extension on TranslationsJa {
 			'historyPage.rangeByLastViewed' => '最終閲覧日時で絞り込み',
 			'ai.title' => 'AI',
 			'ai.providers' => 'プロバイダー',
-			'ai.providersHint' => '1つ以上のAIプロバイダーを追加し、各機能で使用するプロバイダーを指定します。',
-			'ai.addProvider' => 'プロバイダーを追加',
 			_ => null,
 		} ?? switch (path) {
+			'ai.providersHint' => '1つ以上のAIプロバイダーを追加し、各機能で使用するプロバイダーを指定します。',
+			'ai.addProvider' => 'プロバイダーを追加',
 			'ai.noProviders' => 'プロバイダーがまだありません。追加するとAI翻訳・検索・署名機能が利用可能になります。',
 			'ai.pickPreset' => 'プロバイダーを選択',
 			'ai.providerNameLabel' => '名前',
