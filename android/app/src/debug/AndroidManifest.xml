@@ -1,7 +1,10 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- The INTERNET permission is required for development. Specifically,
          the Flutter tool needs it to communicate with the running application
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- 与正式版并排装着时名字也要分得开（图标底色见 res/values/colors.xml）。 -->
+    <application android:label="Love Iwara Debug" tools:replace="android:label" />
 </manifest>

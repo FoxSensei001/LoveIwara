@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- profile 包换底色，与正式版（橙色）并排装着时一眼分得清。见 FEEDBACK_LOG 2026-10-27。 -->
+<resources>
+    <color name="ic_launcher_background">#3D7BF5</color>
+</resources>
