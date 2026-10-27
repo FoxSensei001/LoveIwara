@@ -18,6 +18,7 @@
 //     uSrcRect  2,3,4,5
 //     uView     6,7,8
 //     uSpan     9,10
+//     uFlipY    11
 //
 // # 为什么要 GLES 的 y 翻转
 //
@@ -25,6 +26,10 @@
 // 着色器必须自己翻 y 轴，否则整幅上下颠倒」。翻转只加在**最终的贴图采样坐标**
 // 上（等价于官方样例里那句 `uv.y = 1.0 - uv.y`），不能加在输出方向的推导上——
 // 加错地方会得到一幅上下颠倒的全景，而不是修正。
+//
+// 但 Windows 例外：那里的 Impeller 同样编成 GLES 目标（底下是 ANGLE→D3D11），
+// 会进这条分支，而用户 2026-10-27 报 Windows 上画面上下颠倒。编译期宏分不出
+// 「安卓 GLES」和「Windows ANGLE」，所以翻不翻由 Dart 侧按平台下发 uFlipY。
 
 #include <flutter/runtime_effect.glsl>
 
@@ -49,6 +54,10 @@ uniform vec3 uView;
 /// 360° 单目的整帧本身就是 2:1（360°×180°）。两者整帧宽高比撞在一起无法分辨，
 /// 这也正是文档里「220:3，无信号时默认 180」那条实证的由来。
 uniform vec2 uSpan;
+
+/// GLES 目标下是否翻转 y：1 = 翻（安卓等），0 = 不翻（Windows/ANGLE）。
+/// 非 GLES 目标根本不读它。
+uniform float uFlipY;
 
 /// 滤镜输入：整只视频子树渲染出来的那张贴图。
 uniform sampler2D uTexture;
@@ -94,7 +103,9 @@ void main() {
     vec2 frameUv = uSrcRect.xy + sph * uSrcRect.zw;
 
 #ifdef IMPELLER_TARGET_OPENGLES
-    frameUv.y = 1.0 - frameUv.y;
+    if (uFlipY > 0.5) {
+        frameUv.y = 1.0 - frameUv.y;
+    }
 #endif
 
     fragColor = texture(uTexture, frameUv);

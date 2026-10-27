@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/vr_format.model.dart';
@@ -187,6 +188,9 @@ class _VrPanoramaVideoState extends State<_VrPanoramaVideo> {
     super.dispose();
   }
 
+  static double get _flipYOnGles =>
+      defaultTargetPlatform == TargetPlatform.windows ? 0.0 : 1.0;
+
   ui.FragmentShader _takeShader() {
     _shaderIndex = (_shaderIndex + 1) % _shaders.length;
     return _shaders[_shaderIndex];
@@ -235,7 +239,10 @@ class _VrPanoramaVideoState extends State<_VrPanoramaVideo> {
             ..setFloat(7, controller.vrPitch.value)
             ..setFloat(8, controller.vrFovY.value)
             ..setFloat(9, span.horizontal)
-            ..setFloat(10, span.vertical);
+            ..setFloat(10, span.vertical)
+            // Windows 的 Impeller 也编成 GLES（ANGLE），但不需要那次 y 翻转，
+            // 翻了反而上下颠倒（用户 2026-10-27 报）。原因见 .frag 顶部注释。
+            ..setFloat(11, _flipYOnGles);
 
           return ImageFiltered(
             imageFilter: ui.ImageFilter.shader(shader),
