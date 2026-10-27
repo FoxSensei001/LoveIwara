@@ -303,6 +303,28 @@ class MainActivity : FlutterFragmentActivity() {
             when (call.method) {
                 "queryVideos" -> queryMediaStoreVideos(call, result)
                 "loadThumbnail" -> loadMediaStoreThumbnail(call, result)
+                "retrieveVideoFrame" -> {
+                    val source = call.argument<String>("source")
+                    if (source.isNullOrEmpty()) {
+                        result.error("INVALID_ARGUMENT", "source is required", null)
+                    } else {
+                        val positionMs = call.argument<Number>("positionMs")?.toLong()
+                        val maxSize = call.argument<Number>("maxSize")?.toInt()?.takeIf { it > 0 } ?: 640
+                        val wantMetadata = call.argument<Boolean>("metadata") ?: false
+                        mainScope.launch {
+                            try {
+                                val data = withContext(Dispatchers.IO) {
+                                    LocalVideoProbe.retrieve(
+                                            applicationContext, source, positionMs, maxSize, wantMetadata
+                                    )
+                                }
+                                result.success(data)
+                            } catch (e: Exception) {
+                                result.error("RETRIEVE_FAILED", e.message, null)
+                            }
+                        }
+                    }
+                }
                 "startObserver" -> {
                     registerMediaStoreObserver()
                     result.success(null)

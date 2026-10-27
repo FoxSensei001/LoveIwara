@@ -125,7 +125,8 @@ class LocalMediaDerivationService extends GetxService {
   bool _drainingImages = false;
 
   /// 派生作业失败的负缓存。
-  /// Key 为 `itemId:size:mtime:job`，job 取 'meta'、'thumb'、'fps' 或 'imgmeta'。
+  /// Key 为 `itemId:size:mtime:job`，job 取 'meta'、'thumb'、'fps'、'imgmeta' 或
+  /// 'native'（安卓系统解码器办不成，见 [_deriveWithPlatformRetriever]）。
   /// 一个文件解不出元数据、或抓不出封面帧时记在这里；只要大小与修改时间没变，
   /// 就不再为它开 Player 白等原生解码超时（一次要等 [_metadataTimeout]）。
   ///
@@ -136,7 +137,7 @@ class LocalMediaDerivationService extends GetxService {
   /// ⛔ 加新 job 种类时这个数要跟着涨：上限是按 **key 条数**算的，而一个条目最多
   /// 能占 job 种类那么多条 key。种类从 2（meta/thumb）涨到 4（+fps/imgmeta）时
   /// 这里忘了动，等于装得下的条目数当场减半、淘汰压力翻倍。
-  static const int _maxFailedJobKeys = 4096;
+  static const int _maxFailedJobKeys = 5120;
   final Set<String> _failedJobKeys = <String>{};
 
   static String _jobKey(
@@ -1079,6 +1080,22 @@ class LocalMediaDerivationService extends GetxService {
       return;
     }
 
+    // ⭐ 安卓先走系统解码器，办不成才开 libmpv，见 [_deriveWithPlatformRetriever]。
+    if (GetPlatform.isAndroid &&
+        await _deriveWithPlatformRetriever(
+          request,
+          current,
+          playablePath: playablePath,
+          initialStat: initialStat,
+          needDuration: needDuration,
+          needWidth: needWidth,
+          needHeight: needHeight,
+          needFps: needFps,
+          coverAlreadyThere: sidecarAvailable || thumbAvailable,
+        )) {
+      return;
+    }
+
     final now = DateTime.now();
     final sinceLastPlayer = now.difference(_lastPlayerReleasedAt);
     var cooldown = sinceLastPlayer < _playerCooldown
@@ -1276,6 +1293,238 @@ class LocalMediaDerivationService extends GetxService {
         _stuckPlayerUntil = DateTime.now().add(_stuckPlayerCooldown);
         LogUtils.w('无头 Player dispose 超时，延后下一次开 Player: $e', _tag);
       }
+    }
+  }
+
+  /// 安卓上用系统的 `MediaMetadataRetriever`（原生侧 `LocalVideoProbe`）补元数据、取封面帧。
+  /// 返回 true ＝这一轮该干的都干完了，不必再开 libmpv。
+  ///
+  /// # 为什么不再一律开 mpv
+  ///
+  /// 无头 libmpv 一条要「建播放器 → open → seek 等落地 → 截屏 → Dart 里软件编码 JPEG →
+  /// dispose → 冷却」，一两秒起步；两百条的目录排好几分钟，期间还和用户正在用的播放器
+  /// 抢软解线程（2026-10-27 用户报「自动设置封面非常慢、性能问题」）。系统解码器走硬件，
+  /// 取一帧一般一两百毫秒。
+  ///
+  /// # 什么时候退回 mpv
+  ///
+  /// 系统打不开这个文件（冷门容器 / 编码），或者要封面却一帧都取不出来——都返回 false，
+  /// 由 [_derive] 照老路开 mpv。⛔ 「取帧失败」进负缓存（`native` 作业），同一个文件版本
+  /// 下次直接走 mpv，别每次滚进视野都先白撞一次系统解码器。
+  ///
+  /// 封面帧位置、黑场换帧的规则与 mpv 那条路一致（[coverCandidatesFor] / [_isNearlyBlackFrame]），
+  /// 同一个文件不论走哪条路都是同一帧附近。
+  Future<bool> _deriveWithPlatformRetriever(
+    _DerivationRequest request,
+    LocalMediaItem current, {
+    required String playablePath,
+    required FileStat initialStat,
+    required bool needDuration,
+    required bool needWidth,
+    required bool needHeight,
+    required bool needFps,
+    required bool coverAlreadyThere,
+  }) async {
+    final nativeKey = _jobKey(
+      current.id,
+      current.sizeBytes,
+      current.modifiedAt,
+      'native',
+    );
+    if (_failedJobKeys.contains(nativeKey)) return false;
+
+    var durationMs = current.durationMs;
+    int? width;
+    int? height;
+    double? fps;
+    final needMeta = needDuration || needWidth || needHeight;
+    // ⛔ 抓帧决定在这一刻做，读的是 request 上**此刻**的意图（同 mpv 那条路的理由：
+    // 卡片可能在这一轮排队期间才把 generateThumbnail 升上来）。
+    final wantThumbnail =
+        request.generateThumbnail &&
+        !coverAlreadyThere &&
+        !_failedJobKeys.contains(
+          _jobKey(current.id, current.sizeBytes, current.modifiedAt, 'thumb'),
+        );
+    if (request.generateThumbnail) request.thumbnailHandled = true;
+    if (!needMeta && !needFps && !wantThumbnail) return true;
+
+    if (needMeta || needFps || (wantThumbnail && durationMs == null)) {
+      final probe = await _retrieveVideo(playablePath, metadata: true);
+      if (probe == null) {
+        _markJobFailed(
+          current.id,
+          current.sizeBytes,
+          current.modifiedAt,
+          'native',
+        );
+        return false;
+      }
+      durationMs ??= _positiveInt(probe['durationMs']);
+      width = needWidth ? _positiveInt(probe['width']) : null;
+      height = needHeight ? _positiveInt(probe['height']) : null;
+      final rawFps = probe['fps'];
+      fps = needFps && rawFps is num && rawFps > 0 ? rawFps.toDouble() : null;
+      // 系统连宽高都说不出来（没有视频轨 / 解析不了）：交给 mpv 再试一次。
+      if (needMeta &&
+          width == null &&
+          height == null &&
+          current.width == null) {
+        _markJobFailed(
+          current.id,
+          current.sizeBytes,
+          current.modifiedAt,
+          'native',
+        );
+        return false;
+      }
+    }
+
+    // 系统读不出、mpv 却可能读得出的项：API < 28 根本不给帧数，mkv/webm 也常缺；
+    // 冷门容器会缺时长。⛔ 这时不能写「探测过」（`fps_probed_at` / `meta_probed_at`），
+    // 写了 mpv 就永远不再补读。记 `native` 负缓存把元数据交给 mpv：不要封面就当场
+    // 退回；要封面就先把封面落了，缺的那几项下一轮走 mpv（封面已在，不会重抓）。
+    final metaGap =
+        (needFps && fps == null) || (needDuration && durationMs == null);
+    if (metaGap) {
+      _markJobFailed(
+        current.id,
+        current.sizeBytes,
+        current.modifiedAt,
+        'native',
+      );
+      if (!wantThumbnail) return false;
+    }
+
+    Uint8List? thumbnailBytes;
+    if (wantThumbnail) {
+      final known = durationMs != null && durationMs > 0
+          ? Duration(milliseconds: durationMs)
+          : null;
+      final candidates = coverCandidatesFor(current.id, known);
+      final positions = candidates.isNotEmpty
+          ? candidates
+          // 短片（≤3 秒）或时长未知：取中间那一帧，没有时长就取开头。
+          : <Duration>[Duration(milliseconds: (durationMs ?? 0) ~/ 2)];
+      Uint8List? firstFrame;
+      for (final at in positions) {
+        final frame = await _retrieveVideo(playablePath, position: at);
+        final bytes = frame?['frame'];
+        if (bytes is! Uint8List || bytes.isEmpty) continue;
+        if (!await _isNearlyBlackFrame(bytes)) {
+          thumbnailBytes = bytes;
+          break;
+        }
+        firstFrame ??= bytes;
+      }
+      thumbnailBytes ??= firstFrame;
+      if (thumbnailBytes == null) {
+        _markJobFailed(
+          current.id,
+          current.sizeBytes,
+          current.modifiedAt,
+          'native',
+        );
+        return false;
+      }
+    }
+
+    String? vrFormatJson;
+    if (current.vrFormatJson == null) {
+      try {
+        vrFormatJson = (await _deriveVrHints(
+          current.name,
+          playablePath,
+        )).toJson();
+      } catch (error) {
+        LogUtils.w('本地媒体推断 VR 线索失败：${current.name}: $error', _tag);
+      }
+    }
+
+    // 这一轮期间文件被换掉了：结果安不上去（同 mpv 那条路）。
+    final finalStat = await _statFile(playablePath);
+    if (finalStat == null ||
+        finalStat.size != initialStat.size ||
+        finalStat.modified != initialStat.modified) {
+      return true;
+    }
+
+    String? thumbPath;
+    if (thumbnailBytes != null) {
+      // 原生侧已经缩到长边 640 并编成 JPEG，直接落盘；再过一遍 [_scaleThumbnail]
+      // 只会多解一次码、换成大好几倍的 PNG。
+      thumbPath = await _writeThumbnail(
+        current,
+        sizeBytes: finalStat.size,
+        modifiedAt: finalStat.modified.millisecondsSinceEpoch,
+        bytes: thumbnailBytes,
+        extension: 'jpg',
+      );
+    }
+
+    final updated = _repository.updateDerivedFields(
+      itemId: current.id,
+      expectedSizeBytes: current.sizeBytes,
+      expectedModifiedAt: current.modifiedAt,
+      durationMs: needDuration ? durationMs : null,
+      width: width,
+      height: height,
+      fps: fps,
+      fpsProbed: needFps && fps != null,
+      thumbPath: thumbPath,
+      vrFormatJson: vrFormatJson,
+    );
+    if (thumbPath != null && updated) _backfillFolderCover(current);
+
+    if (needMeta && !metaGap) {
+      final complete =
+          (current.durationMs != null || durationMs != null) &&
+          (current.width != null || width != null) &&
+          (current.height != null || height != null);
+      if (!complete) {
+        _markJobFailed(
+          current.id,
+          current.sizeBytes,
+          current.modifiedAt,
+          'meta',
+        );
+        _markMetaProbedSafely(current.id);
+      }
+    }
+    LogUtils.d(
+      '派生完成(系统解码器) ${current.name}：duration=$durationMs '
+      '${width}x$height fps=$fps thumb=${thumbPath != null} '
+      'vr=${vrFormatJson != null}',
+      _tag,
+    );
+    return true;
+  }
+
+  static int? _positiveInt(Object? value) =>
+      value is num && value > 0 ? value.toInt() : null;
+
+  /// 原生 `retrieveVideoFrame`。[position] 为 null 时只读元数据。失败返回 null。
+  static Future<Map<Object?, Object?>?> _retrieveVideo(
+    String source, {
+    Duration? position,
+    bool metadata = false,
+  }) async {
+    try {
+      final result = await _mediaStoreChannel
+          .invokeMethod<Map<Object?, Object?>>(
+            'retrieveVideoFrame',
+            <String, Object?>{
+              'source': source,
+              'positionMs': position?.inMilliseconds,
+              'maxSize': _thumbnailFilterMaxDimension,
+              'metadata': metadata,
+            },
+          )
+          .timeout(_nativeCallTimeout);
+      return result;
+    } catch (e) {
+      LogUtils.d('系统解码器读取失败：$source: $e', _tag);
+      return null;
     }
   }
 
