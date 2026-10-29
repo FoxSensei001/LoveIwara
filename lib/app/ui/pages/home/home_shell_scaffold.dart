@@ -78,7 +78,15 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
   /// 这里再清一遍无收益，仅保留日志作为闪退排查的时间锚点。
   @override
   void didHaveMemoryPressure() {
-    LogUtils.d('收到系统 trim memory 信号（多为切后台）', 'HomeShellScaffold');
+    // 安卓上由 LogService 记原生转来的 onTrimMemory（带级别和系统余量），这里
+    // 再记一条就重复了。其它平台（iOS 内存警告等）只有这一个入口；以前用 d，
+    // 正式包里直接被丢掉，排查低内存闪退时一条都看不到。
+    if (!GetPlatform.isAndroid) {
+      LogUtils.w(
+        '收到系统内存压力信号，RSS ${LogUtils.currentRssMb()}MB',
+        'HomeShellScaffold',
+      );
+    }
     super.didHaveMemoryPressure();
   }
 

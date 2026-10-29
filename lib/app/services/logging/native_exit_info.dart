@@ -28,6 +28,11 @@ class NativeExitRecord {
   final String? traceFormat;
   final bool traceTruncated;
 
+  /// 系统记过 trace，但这个对象里没带：原生侧因为已存过档而跳过读取（见
+  /// [NativeExitInfoService.fetch] 的 skipTraceKeys），或者存档只放摘要、
+  /// trace 在单独的文件里（也可能已超出保留份数被删）。
+  final bool traceSkipped;
+
   NativeExitRecord({
     required this.timestampMs,
     required this.pid,
@@ -43,7 +48,53 @@ class NativeExitRecord {
     required this.trace,
     this.traceFormat,
     this.traceTruncated = false,
+    this.traceSkipped = false,
   });
+
+  /// 存档去重键。pid 会被复用，所以要和死亡时间一起才唯一。
+  String get archiveKey => '$pid:$timestampMs';
+
+  /// 系统记过 trace（不管这个对象里带没带）。
+  bool get hasTrace => trace != null || traceSkipped;
+
+  /// 接上存档里的 trace 信息（原生侧跳过了读取时用）。
+  NativeExitRecord withTraceInfoFrom(NativeExitRecord archived) =>
+      NativeExitRecord(
+        timestampMs: timestampMs,
+        pid: pid,
+        processName: processName,
+        reasonCode: reasonCode,
+        reason: reason,
+        status: status,
+        importanceCode: importanceCode,
+        importance: importance,
+        pssKb: pssKb,
+        rssKb: rssKb,
+        description: description,
+        trace: archived.trace,
+        traceFormat: archived.traceFormat,
+        traceTruncated: archived.traceTruncated,
+        traceSkipped: archived.trace == null && archived.traceSkipped,
+      );
+
+  /// 去掉 trace，只留摘要（存档里的形态；trace 另存文件）。
+  NativeExitRecord withoutTrace() => NativeExitRecord(
+    timestampMs: timestampMs,
+    pid: pid,
+    processName: processName,
+    reasonCode: reasonCode,
+    reason: reason,
+    status: status,
+    importanceCode: importanceCode,
+    importance: importance,
+    pssKb: pssKb,
+    rssKb: rssKb,
+    description: description,
+    trace: null,
+    traceFormat: traceFormat,
+    traceTruncated: traceTruncated,
+    traceSkipped: trace != null || traceSkipped,
+  );
 
   // ApplicationExitInfo.REASON_* 常量值，与 Android SDK 对齐。
   static const int reasonSignaled = 2;
@@ -96,7 +147,16 @@ class NativeExitRecord {
       trace: raw['trace'] as String?,
       traceFormat: raw['traceFormat'] as String?,
       traceTruncated: raw['traceTruncated'] == true,
+      traceSkipped: raw['traceSkipped'] == true,
     );
+  }
+
+  /// 读回 [toJson] 写出的存档条目（时间是 ISO 字符串，不是毫秒）。
+  static NativeExitRecord? fromJson(dynamic raw) {
+    if (raw is! Map) return null;
+    final time = DateTime.tryParse(raw['timestamp'] as String? ?? '');
+    if (time == null) return null;
+    return fromMap({...raw, 'timestampMs': time.millisecondsSinceEpoch});
   }
 
   DateTime get timestamp =>
@@ -114,7 +174,7 @@ class NativeExitRecord {
         'status=$status${signal != null ? '($signal)' : ''}, '
         'importance=$importance($importanceCode), rss=${rssMb}MB, pss=${pssMb}MB, '
         'time=${timestamp.toUtc().toIso8601String()}'
-        '${trace != null ? ', trace=已捕获(${traceFormat ?? 'text'})' : ''}$desc';
+        '${hasTrace ? ', trace=已捕获(${traceFormat ?? 'text'})' : ''}$desc';
   }
 
   Map<String, dynamic> toJson({bool includeTrace = true}) {
@@ -130,35 +190,130 @@ class NativeExitRecord {
       'pssKb': pssKb,
       'rssKb': rssKb,
       'description': description,
-      if (trace != null) 'traceFormat': traceFormat ?? 'text',
-      if (trace != null) 'traceTruncated': traceTruncated,
+      // 跳过读取的记录可能不知道格式，不能想当然标成 text（proto 会被误读）。
+      if (trace != null)
+        'traceFormat': traceFormat ?? 'text'
+      else if (traceFormat != null)
+        'traceFormat': traceFormat,
+      if (hasTrace) 'traceTruncated': traceTruncated,
+      if (traceSkipped && trace == null) 'traceSkipped': true,
       if (includeTrace && trace != null) 'trace': trace,
     };
   }
 }
 
+/// 一次读取系统退出记录的结果。
+///
+/// 存在的理由：导出包里「没有退出记录」必须能区分是哪一种——旧版本根本没这套代码、
+/// 读取报错、系统确实没有记录、平台不支持——否则排障时只能猜（2026-10-29 一份闪退
+/// 日志就因为分不清而误判了用户装的是哪个包）。
+class NativeExitFetchResult {
+  /// `ok` / `empty` / `unsupported` / `error`
+  final String status;
+  final List<NativeExitRecord> records;
+  final String? error;
+
+  const NativeExitFetchResult._(this.status, this.records, this.error);
+
+  factory NativeExitFetchResult.ok(List<NativeExitRecord> records) =>
+      records.isEmpty
+      ? const NativeExitFetchResult._('empty', [], null)
+      : NativeExitFetchResult._('ok', records, null);
+
+  /// 非 Android，或 Android API < 30（没有 ApplicationExitInfo）。
+  factory NativeExitFetchResult.unsupported(String why) =>
+      NativeExitFetchResult._('unsupported', const [], why);
+
+  factory NativeExitFetchResult.error(String error) =>
+      NativeExitFetchResult._('error', const [], error);
+}
+
 /// 通过 MethodChannel 读取 Android 系统记录的历史进程退出原因。
-/// 非 Android 平台或 API < 30 返回 null；任何失败都吞掉并返回 null，
-/// 诊断通道绝不能反过来影响启动。
+/// 任何失败都吞掉并体现在 [NativeExitFetchResult.status] 里，诊断通道绝不能
+/// 反过来影响启动。
 class NativeExitInfoService {
   static const MethodChannel _channel = MethodChannel('i_iwara/exit_info');
 
-  static Future<List<NativeExitRecord>?> fetch({int maxCount = 5}) async {
-    if (!GetPlatform.isAndroid) return null;
+  /// [skipTraceKeys]：已经存过档的记录（[NativeExitRecord.archiveKey]），原生侧
+  /// 不再读它们的 tombstone。每次启动都要同步存档，而一份 proto tombstone 能有
+  /// 上 MB，重复读既费 IO 又白白占内存。
+  static Future<NativeExitFetchResult> fetch({
+    int maxCount = 5,
+    Iterable<String> skipTraceKeys = const [],
+  }) async {
+    if (!GetPlatform.isAndroid) {
+      return NativeExitFetchResult.unsupported('not_android');
+    }
     try {
       final raw = await _channel.invokeMethod<List<dynamic>>(
         'getHistoricalExitReasons',
-        {'maxCount': maxCount},
+        {'maxCount': maxCount, 'skipTraceKeys': skipTraceKeys.toList()},
       );
-      if (raw == null) return null;
-      final records = raw
-          .map(NativeExitRecord.fromMap)
-          .whereType<NativeExitRecord>()
-          .toList();
-      return records.isEmpty ? null : records;
+      // 原生侧只在 API < 30 时回 null（见 MainActivity 的 EXIT_INFO_CHANNEL）。
+      if (raw == null) return NativeExitFetchResult.unsupported('api_below_30');
+      return NativeExitFetchResult.ok(
+        raw
+            .map(NativeExitRecord.fromMap)
+            .whereType<NativeExitRecord>()
+            .toList(),
+      );
     } catch (e) {
       debugPrint('[NativeExitInfo] 读取历史退出原因失败: $e');
+      return NativeExitFetchResult.error(e.toString());
+    }
+  }
+}
+
+/// 系统内存信息（Android），与退出记录共用 `i_iwara/exit_info` 通道。
+///
+/// 存在的理由：判断一次「无快照的异常退出」是不是低内存被杀，需要死前的内存
+/// 走势；进程 RSS 只说明自己吃了多少，系统还剩多少只有原生侧知道。
+abstract final class NativeMemoryInfo {
+  static const MethodChannel _channel = NativeExitInfoService._channel;
+
+  /// 例：`可用 812/3712MB（阈值 216MB）`，低水位时追加 `，系统低内存`。
+  /// 非 Android 或读取失败返回 null。
+  static Future<String?> describe() async {
+    if (!GetPlatform.isAndroid) return null;
+    try {
+      final raw = await _channel.invokeMethod<Map<dynamic, dynamic>>(
+        'getMemoryInfo',
+      );
+      return raw == null ? null : _format(raw);
+    } catch (e) {
+      debugPrint('[NativeMemoryInfo] 读取系统内存失败: $e');
       return null;
     }
+  }
+
+  /// 监听原生侧转来的 onTrimMemory。[onTrim] 拿到回收级别和格式化好的内存描述。
+  static void listenTrimMemory(void Function(int level, String memory) onTrim) {
+    if (!GetPlatform.isAndroid) return;
+    _channel.setMethodCallHandler((call) async {
+      if (call.method != 'onTrimMemory') return null;
+      final raw = call.arguments;
+      if (raw is! Map) return null;
+      final level = raw['level'];
+      onTrim(level is int ? level : -1, _format(raw));
+      return null;
+    });
+  }
+
+  /// ComponentCallbacks2.TRIM_MEMORY_* 的名字。
+  static String trimLevelName(int level) => switch (level) {
+    5 => 'RUNNING_MODERATE',
+    10 => 'RUNNING_LOW',
+    15 => 'RUNNING_CRITICAL',
+    20 => 'UI_HIDDEN',
+    40 => 'BACKGROUND',
+    60 => 'MODERATE',
+    80 => 'COMPLETE',
+    _ => 'UNKNOWN',
+  };
+
+  static String _format(Map<dynamic, dynamic> raw) {
+    final low = raw['lowMemory'] == true ? '，系统低内存' : '';
+    return '可用 ${raw['availMemMb']}/${raw['totalMemMb']}MB'
+        '（阈值 ${raw['thresholdMb']}MB）$low';
   }
 }

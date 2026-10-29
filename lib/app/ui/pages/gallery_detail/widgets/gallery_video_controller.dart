@@ -120,7 +120,7 @@ class GalleryVideoController extends ChangeNotifier {
   final String videoUrl;
   final Map<String, String>? headers;
 
-  late final Player _player = LivePlayers.create();
+  late final Player _player = LivePlayers.create(label: '图库视频');
   late final VideoController videoController = VideoController(_player);
 
   final List<StreamSubscription<dynamic>> _subscriptions = [];

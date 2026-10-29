@@ -859,6 +859,8 @@ class LocalMediaDerivationService extends GetxService {
     if (stuckWait > cooldown) cooldown = stuckWait;
     if (cooldown > Duration.zero) await Future<void>.delayed(cooldown);
     final player = LivePlayers.create(
+      label: 'NAS 派生',
+      mpvWarnings: false,
       configuration: const PlayerConfiguration(
         bufferSize: _derivationBufferBytes,
       ),
@@ -1106,6 +1108,8 @@ class LocalMediaDerivationService extends GetxService {
     if (stuckWait > cooldown) cooldown = stuckWait;
     if (cooldown > Duration.zero) await Future<void>.delayed(cooldown);
     final player = LivePlayers.create(
+      label: '本机派生',
+      mpvWarnings: false,
       configuration: const PlayerConfiguration(
         bufferSize: _derivationBufferBytes,
       ),
@@ -2069,7 +2073,7 @@ class LocalMediaDerivationService extends GetxService {
   static Future<LocalCoverPickerSession?> openCoverPicker(
     String playablePath,
   ) async {
-    final player = LivePlayers.create();
+    final player = LivePlayers.create(label: '本机封面选择', mpvWarnings: false);
     try {
       // 同 [_derive] 里那段长注释：无头播放器默认 `vid=no`，不打开就一帧都抓不到。
       await _configureHeadlessPlayer(

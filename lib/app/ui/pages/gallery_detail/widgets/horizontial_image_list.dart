@@ -918,7 +918,7 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
     LocalMediaDerivationService.maybe?.pauseBackground();
     _pausedBackground = true;
     try {
-      final player = LivePlayers.create();
+      final player = LivePlayers.create(label: '图库横向列表视频');
       _player = player;
       _videoController = VideoController(player);
 

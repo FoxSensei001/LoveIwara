@@ -1847,6 +1847,7 @@ class MyVideoStateController extends GetxController
 
       // 初始化 VideoController
       player = LivePlayers.create(
+        label: '详情主播放器',
         configuration: PlayerConfiguration(
           bufferSize: _getBufferSize(), // 根据配置设置缓冲区大小
           title: 'i_iwara Video Player',
@@ -6298,6 +6299,7 @@ class MyVideoStateController extends GetxController
 
       // 创建预览播放器
       previewPlayer = LivePlayers.create(
+        label: '进度条预览',
         configuration: PlayerConfiguration(
           bufferSize: 20 * 1024 * 1024, // 20MB 与主播放器默认一致
           title: 'i_iwara Preview Player',

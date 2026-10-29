@@ -65,6 +65,7 @@ class MainActivity : FlutterFragmentActivity() {
     private var mediaStoreChannel: MethodChannel? = null
     private var mediaStoreObserver: ContentObserver? = null
     private var appLockChannel: MethodChannel? = null
+    private var exitInfoChannel: MethodChannel? = null
     private var pipBridge: PipBridge? = null
     private val screenLockReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -234,18 +235,26 @@ class MainActivity : FlutterFragmentActivity() {
         // 上一进程死因查询：Dart 层崩溃检测只能覆盖 Dart 异常，系统杀进程（LMK/OOM）、
         // 原生崩溃、ANR 对 Flutter 完全不可见。ApplicationExitInfo (API 30+) 是唯一能在
         // 下次启动时拿到确切死因（reason/importance/死亡时 RSS/tombstone）的通道。
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, EXIT_INFO_CHANNEL)
+        // 同一条诊断通道还负责内存信息：getMemoryInfo（Dart 定时采样）与
+        // onTrimMemory（原生 → Dart 推送），排查「是不是被低内存杀掉」用。
+        exitInfoChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, EXIT_INFO_CHANNEL)
+        exitInfoChannel!!
                 .setMethodCallHandler { call, result ->
                     when (call.method) {
+                        "getMemoryInfo" -> result.success(systemMemorySnapshot())
                         "getHistoricalExitReasons" -> {
                             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
                                 result.success(null)
                             } else {
                                 val maxCount = call.argument<Int>("maxCount") ?: 5
+                                // Dart 侧已存过档的记录（"pid:timestamp"），不再读 tombstone。
+                                val skipTraceKeys =
+                                        call.argument<List<String>>("skipTraceKeys")?.toHashSet()
+                                                ?: emptySet<String>()
                                 mainScope.launch {
                                     try {
                                         val payload = withContext(Dispatchers.IO) {
-                                            collectExitReasons(maxCount)
+                                            collectExitReasons(maxCount, skipTraceKeys)
                                         }
                                         result.success(payload)
                                     } catch (e: Exception) {
@@ -639,12 +648,47 @@ class MainActivity : FlutterFragmentActivity() {
         }
     }
 
+    /** 系统可用内存快照（MB）。lowMemory 为 true 表示系统已处在会杀后台进程的水位。 */
+    private fun systemMemorySnapshot(): Map<String, Any> {
+        val am = getSystemService(ACTIVITY_SERVICE) as ActivityManager
+        val info = ActivityManager.MemoryInfo()
+        am.getMemoryInfo(info)
+        val mb = 1024L * 1024L
+        return mapOf(
+                "availMemMb" to info.availMem / mb,
+                "totalMemMb" to info.totalMem / mb,
+                "thresholdMb" to info.threshold / mb,
+                "lowMemory" to info.lowMemory
+        )
+    }
+
+    // 系统内存回收信号转给 Dart 落日志。Android 14 起前台只会收到 UI_HIDDEN /
+    // BACKGROUND 这两档，RUNNING_* 已不再下发，所以 Dart 侧另有定时采样兜底。
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        try {
+            exitInfoChannel?.invokeMethod(
+                    "onTrimMemory",
+                    systemMemorySnapshot() + mapOf("level" to level)
+            )
+        } catch (e: Exception) {
+            Log.w("MainActivity", "转发 onTrimMemory 失败: ${e.message}")
+        }
+    }
+
     /** 收集本包最近 [maxCount] 条进程退出记录，按时间倒序（最新在前）。IO 线程调用。 */
     @RequiresApi(Build.VERSION_CODES.R)
-    private fun collectExitReasons(maxCount: Int): List<Map<String, Any?>> {
+    private fun collectExitReasons(
+            maxCount: Int,
+            skipTraceKeys: Set<String>
+    ): List<Map<String, Any?>> {
         val am = getSystemService(ACTIVITY_SERVICE) as ActivityManager
         return am.getHistoricalProcessExitReasons(packageName, 0, maxCount).map { info ->
-            val trace = readExitTrace(info)
+            // 只有 CRASH_NATIVE / ANR 才有 trace，其余死因谈不上「跳过」。
+            val hasTrace = info.reason == ApplicationExitInfo.REASON_CRASH_NATIVE ||
+                    info.reason == ApplicationExitInfo.REASON_ANR
+            val skipTrace = hasTrace && "${info.pid}:${info.timestamp}" in skipTraceKeys
+            val trace = if (skipTrace) null else readExitTrace(info)
             mapOf(
                     "timestampMs" to info.timestamp,
                     "pid" to info.pid,
@@ -659,7 +703,8 @@ class MainActivity : FlutterFragmentActivity() {
                     "description" to info.description,
                     "trace" to trace?.text,
                     "traceFormat" to trace?.format,
-                    "traceTruncated" to trace?.truncated
+                    "traceTruncated" to trace?.truncated,
+                    "traceSkipped" to skipTrace
             )
         }
     }

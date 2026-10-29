@@ -107,7 +107,7 @@ void main() {
       );
       final service = CrashDetectionService(
         paths,
-        exitRecordFetcher: (_) async => records,
+        exitRecordFetcher: (_, _) async => NativeExitFetchResult.ok(records),
       );
       await service.markAppStart(
         sessionId: 's',

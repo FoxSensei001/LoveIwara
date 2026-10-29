@@ -61,11 +61,7 @@ class LogFileSink {
       final bytes = utf8.encode('${lines.join('\n')}\n');
 
       final known = await _ensureCurrentBytes();
-      await file.writeAsBytes(
-        bytes,
-        mode: FileMode.append,
-        flush: forceFlush,
-      );
+      await file.writeAsBytes(bytes, mode: FileMode.append, flush: forceFlush);
       // known < 0 表示这轮没能拿到真实大小：写入照常，但轮转判定跳过，
       // 并保持「未知」让下次 append 重新 stat，绝不拿假值往上累加。
       //
@@ -95,12 +91,17 @@ class LogFileSink {
     }
   }
 
-  bool appendEmergencySync(String line) {
+  bool appendEmergencySync(String line) => appendLinesSync([line]);
+
+  /// 同步追加若干行。[fsync] 为 false 时只保证进了内核页缓存——进程被打死不丢，
+  /// 断电会丢；面包屑用这一档（见 LogService.breadcrumbSync）。
+  bool appendLinesSync(List<String> lines, {bool fsync = true}) {
+    if (lines.isEmpty) return true;
     try {
       final file = File(_paths.currentLogFile);
-      final bytes = utf8.encode('$line\n');
+      final bytes = utf8.encode('${lines.join('\n')}\n');
       final known = _ensureCurrentBytesSync();
-      file.writeAsBytesSync(bytes, mode: FileMode.append, flush: true);
+      file.writeAsBytesSync(bytes, mode: FileMode.append, flush: fsync);
       // 全同步，没有 await 间隙，但仍用 `+=` 与 [appendBatch] 保持同一套记账口径。
       if (known >= 0) {
         _currentBytes += bytes.length;

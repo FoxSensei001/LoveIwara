@@ -436,11 +436,15 @@ abstract class LogConstants {
   /// fatal 不走这条路径，仍由 appendEmergencySync 同步落盘。
   static const Duration errorFlushDebounce = Duration(milliseconds: 50);
 
+  /// 启动后多久同步一次系统退出记录存档（无异常退出时；有异常退出时立即读）。
+  static const Duration exitArchiveSyncDelay = Duration(seconds: 8);
+
   /// 单次 immediate flush 最多连续写几批，避免一口气做几十次 fsync。
   /// 剩余部分由周期 flush 接手。
   static const int maxImmediateFlushBatches = 8;
   static const String fatalSnapshotFileName = 'last_fatal.json';
   static const String hangEventsFileName = 'hang_events.jsonl';
+  static const String exitArchiveFileName = 'exit_records_archive.json';
   static const int defaultHangEventsMaxFileBytes = 2 * 1024 * 1024;
   static const int defaultHangEventsMaxRotatedFiles = 2;
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:path/path.dart' as p;
 import 'log_models.dart';
 import 'log_paths.dart';
 import 'native_exit_info.dart';
@@ -9,17 +10,30 @@ class CrashDetectionService {
   final LogPaths _paths;
   CrashRecoveryResult? _lastResult;
   List<NativeExitRecord>? _nativeExitRecords;
+  List<NativeExitRecord> _archivedOnlyRecords = const [];
+  NativeExitFetchResult? _lastFetch;
+  Future<List<NativeExitRecord>?>? _loading;
   NativeExitRecord? _matchedNativeExit;
 
   /// [exitRecordFetcher] 仅供测试注入；生产走 [NativeExitInfoService.fetch]。
   CrashDetectionService(
     this._paths, {
-    Future<List<NativeExitRecord>?> Function(int maxCount)? exitRecordFetcher,
+    Future<NativeExitFetchResult> Function(
+      int maxCount,
+      Iterable<String> skipTraceKeys,
+    )?
+    exitRecordFetcher,
   }) : _fetchExitRecords =
            exitRecordFetcher ??
-           ((maxCount) => NativeExitInfoService.fetch(maxCount: maxCount));
+           ((maxCount, skipTraceKeys) => NativeExitInfoService.fetch(
+             maxCount: maxCount,
+             skipTraceKeys: skipTraceKeys,
+           ));
 
-  final Future<List<NativeExitRecord>?> Function(int maxCount)
+  final Future<NativeExitFetchResult> Function(
+    int maxCount,
+    Iterable<String> skipTraceKeys,
+  )
   _fetchExitRecords;
 
   CrashRecoveryResult? get lastResult => _lastResult;
@@ -35,11 +49,174 @@ class CrashDetectionService {
   // 几天前的死亡记录可能就是仅存的一手证据。
   static const int _nativeExitFetchCount = 16;
 
-  /// 拉取系统侧退出记录（不要求存在异常退出标记）。幂等缓存；必须在
-  /// Flutter 引擎附着后调用（MethodChannel 依赖），失败静默返回 null。
-  Future<List<NativeExitRecord>?> loadNativeExitRecords() async {
-    _nativeExitRecords ??= await _fetchExitRecords(_nativeExitFetchCount);
+  // 本地存档上限。系统账本只有约 16 条，一次原生崩溃就占两条（CRASH_NATIVE +
+  // SIGNALED），用户划掉后台、覆盖安装也各占一条——反复重现几次，真正那次崩溃
+  // 就被挤出系统账本了。存档按 [NativeExitRecord.archiveKey] 去重累积。
+  static const int _archiveMaxRecords = 64;
+
+  // 一份 proto tombstone 能到 2MB（base64 后更大），只给最近几条留 trace 文件，
+  // 更早的只留死因摘要。trace 单独成文件、存档本身只放摘要：存档每次启动都要
+  // 读，要是把几份 tombstone 塞进去，就成了每次启动读写十几 MB——疑似低内存的
+  // 用户最受不了这个。
+  static const int _archiveMaxTraces = 4;
+
+  /// 拉取系统侧退出记录（不要求存在异常退出标记），并与本地存档合并。
+  /// 并发调用共用同一次拉取；读取报错时不缓存，下次调用（例如导出）会重试。
+  /// 必须在 Flutter 引擎附着后调用（MethodChannel 依赖）。失败不抛，原因记在
+  /// [exitRecordsExportJson] 的 status / archiveError 里。
+  Future<List<NativeExitRecord>?> loadNativeExitRecords() =>
+      _loading ??= _loadAndArchive();
+
+  Future<List<NativeExitRecord>?> _loadAndArchive() async {
+    final archived = await _readArchive();
+    final archivedByKey = {for (final r in archived) r.archiveKey: r};
+    NativeExitFetchResult fetch;
+    try {
+      fetch = await _fetchExitRecords(_nativeExitFetchCount, [
+        // 只跳过存档里确实记过 trace 的；上次没读到 tombstone 的下次再读。
+        for (final r in archived)
+          if (r.traceSkipped) r.archiveKey,
+      ]);
+    } catch (e) {
+      fetch = NativeExitFetchResult.error(e.toString());
+    }
+    _lastFetch = fetch;
+    if (fetch.status == 'error') _loading = null;
+
+    // 原生侧没读 tombstone 的（已存过档），把存档里的 trace 信息接回来。
+    final system = [
+      for (final r in fetch.records)
+        if (r.traceSkipped && archivedByKey[r.archiveKey] != null)
+          r.withTraceInfoFrom(archivedByKey[r.archiveKey]!)
+        else
+          r,
+    ];
+    // 先赋值再写存档：写存档失败（磁盘满）不能连带丢掉本次读到的死因。
+    _nativeExitRecords = system.isEmpty ? null : system;
+    final systemKeys = {for (final r in system) r.archiveKey};
+    _archivedOnlyRecords = [
+      for (final r in archived)
+        if (!systemKeys.contains(r.archiveKey)) r,
+    ];
+
+    // 没有新记录、也没有新读到的 tombstone 就不写，免得每次启动都重写存档。
+    final needsWrite = system.any((r) {
+      final old = archivedByKey[r.archiveKey];
+      return old == null || (r.trace != null && !old.traceSkipped);
+    });
+    if (needsWrite) {
+      try {
+        await _writeArchive(system, archived);
+        _archiveError = null;
+      } catch (e) {
+        debugPrint('[CrashDetection] 写退出记录存档失败: $e');
+        _archiveError = e.toString();
+      }
+    }
     return _nativeExitRecords;
+  }
+
+  String? _archiveError;
+
+  /// 导出包里的 `crash/exit_records.json`。**总是**写出，靠 status 区分
+  /// ok / empty / unsupported / error / not_loaded——文件缺失只说明导出它的是
+  /// 没有这套代码的旧版本。
+  ///
+  /// trace 字段：本次读到的直接带上；存过档的从 trace 文件读回；`traceSkipped`
+  /// 为 true 而没有 trace，表示系统记过 tombstone，但它已超出本地保留份数。
+  Future<Map<String, dynamic>> exitRecordsExportJson() async {
+    Future<Map<String, dynamic>> withTrace(NativeExitRecord r) async {
+      final json = r.toJson();
+      if (r.trace == null && r.traceSkipped) {
+        try {
+          final file = File(_traceFilePath(r));
+          if (await file.exists()) json['trace'] = await file.readAsString();
+        } catch (e) {
+          debugPrint('[CrashDetection] 读取 trace 文件失败: $e');
+        }
+      }
+      return json;
+    }
+
+    final fetch = _lastFetch;
+    return {
+      'schema': 2,
+      'status': fetch?.status ?? 'not_loaded',
+      if (fetch?.error != null) 'error': fetch!.error,
+      if (_archiveError != null) 'archiveError': _archiveError,
+      // 本次从系统账本读到的（最新在前）。
+      'systemRecords': [
+        for (final r in _nativeExitRecords ?? const <NativeExitRecord>[])
+          await withTrace(r),
+      ],
+      // 已经被挤出系统账本、只剩本地存档的更早记录。
+      'archivedRecords': [
+        for (final r in _archivedOnlyRecords) await withTrace(r),
+      ],
+    };
+  }
+
+  String _traceFilePath(NativeExitRecord r) =>
+      p.join(_paths.exitTraceDir, '${r.pid}_${r.timestampMs}');
+
+  Future<List<NativeExitRecord>> _readArchive() async {
+    try {
+      final file = File(_paths.exitArchiveFile);
+      if (!await file.exists()) return const [];
+      final decoded = jsonDecode(await file.readAsString());
+      if (decoded is! List) return const [];
+      return decoded
+          .map(NativeExitRecord.fromJson)
+          .whereType<NativeExitRecord>()
+          .toList();
+    } catch (e) {
+      // 存档坏了就当没有：下次写回时会整份重建。
+      debugPrint('[CrashDetection] 读取退出记录存档失败: $e');
+      return const [];
+    }
+  }
+
+  Future<void> _writeArchive(
+    List<NativeExitRecord> system,
+    List<NativeExitRecord> archived,
+  ) async {
+    final traceDir = Directory(_paths.exitTraceDir);
+    await traceDir.create(recursive: true);
+    for (final r in system) {
+      if (r.trace == null) continue;
+      final file = File(_traceFilePath(r));
+      if (!await file.exists()) await file.writeAsString(r.trace!);
+    }
+
+    final unique = <String, NativeExitRecord>{};
+    for (final r in [...system, ...archived]) {
+      unique.putIfAbsent(r.archiveKey, r.withoutTrace);
+    }
+    final kept = unique.values.toList()
+      ..sort((a, b) => b.timestampMs.compareTo(a.timestampMs));
+    if (kept.length > _archiveMaxRecords) {
+      kept.removeRange(_archiveMaxRecords, kept.length);
+    }
+
+    // 只留最近几份 trace 文件；更早的删掉，摘要里的 traceSkipped 仍记着
+    // 「系统当时有 tombstone」。
+    final keepTraceFiles = {
+      for (final r in kept.where((r) => r.traceSkipped).take(_archiveMaxTraces))
+        '${r.pid}_${r.timestampMs}',
+    };
+    await for (final entity in traceDir.list()) {
+      if (entity is File && !keepTraceFiles.contains(p.basename(entity.path))) {
+        await entity.delete();
+      }
+    }
+
+    // 先写临时文件再改名：写到一半被杀也不会留下半截存档。
+    final tmp = File('${_paths.exitArchiveFile}.tmp');
+    await tmp.writeAsString(
+      jsonEncode([for (final r in kept) r.toJson()]),
+      flush: true,
+    );
+    await tmp.rename(_paths.exitArchiveFile);
   }
 
   /// 拉取系统侧退出记录并与上一会话匹配。幂等：成功拿到记录后重复调用直接
@@ -85,7 +262,7 @@ class CrashDetectionService {
 
   /// 同一进程多条退出记录时的取舍：带 trace > 有明确死因 > 其他。
   static int _informativeness(NativeExitRecord r) {
-    if (r.trace != null) return 3;
+    if (r.hasTrace) return 3;
     switch (r.reasonCode) {
       case NativeExitRecord.reasonCrashNative:
       case NativeExitRecord.reasonAnr:

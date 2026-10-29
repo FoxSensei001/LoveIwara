@@ -10,6 +10,12 @@ class LogPaths {
   final String crashMarkerFile;
   final String fatalSnapshotFile;
   final String hangEventsFile;
+
+  /// 系统退出记录的本地存档（见 CrashDetectionService 的存档说明）。
+  final String exitArchiveFile;
+
+  /// 存档里各条记录的 tombstone / ANR 线程栈，一条一个文件，只留最近几份。
+  final String exitTraceDir;
   final String exportDir;
 
   LogPaths._({
@@ -18,6 +24,8 @@ class LogPaths {
     required this.crashMarkerFile,
     required this.fatalSnapshotFile,
     required this.hangEventsFile,
+    required this.exitArchiveFile,
+    required this.exitTraceDir,
     required this.exportDir,
   });
 
@@ -41,6 +49,8 @@ class LogPaths {
       crashMarkerFile: p.join(logDir, LogConstants.crashMarkerFileName),
       fatalSnapshotFile: p.join(logDir, LogConstants.fatalSnapshotFileName),
       hangEventsFile: p.join(logDir, LogConstants.hangEventsFileName),
+      exitArchiveFile: p.join(logDir, LogConstants.exitArchiveFileName),
+      exitTraceDir: p.join(logDir, 'exit_traces'),
       exportDir: exportDir,
     );
   }
@@ -57,6 +67,8 @@ class LogPaths {
       crashMarkerFile: p.join(logDir, LogConstants.crashMarkerFileName),
       fatalSnapshotFile: p.join(logDir, LogConstants.fatalSnapshotFileName),
       hangEventsFile: p.join(logDir, LogConstants.hangEventsFileName),
+      exitArchiveFile: p.join(logDir, LogConstants.exitArchiveFileName),
+      exitTraceDir: p.join(logDir, 'exit_traces'),
       exportDir: exportDir,
     );
   }

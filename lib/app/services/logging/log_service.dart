@@ -10,6 +10,7 @@ import 'log_buffer.dart';
 import 'log_file_sink.dart';
 import 'log_export_service.dart';
 import 'crash_detection_service.dart';
+import 'native_exit_info.dart';
 import 'app_hang_watchdog_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -27,6 +28,7 @@ class LogService extends GetxService {
 
   Timer? _flushTimer;
   Timer? _errorFlushTimer;
+  Timer? _archiveSyncTimer;
   bool _initialized = false;
 
   /// 在途的那次落盘。用 future 而不是 bool：并发调用要能**等**到它结束，
@@ -80,19 +82,31 @@ class LogService extends GetxService {
     _crash = CrashDetectionService(_paths);
     _hangWatchdog = AppHangWatchdogService();
 
-    var recovery = CrashRecoveryResult.clean();
-    if (_policy.persistenceEnabled) {
-      recovery = await _crash.checkAndRecover();
-    }
+    // ⛔ 崩溃检测不受日志开关控制：先读上一会话的标记，再写本会话的。
+    //
+    // 日志总开关出厂默认关闭。早先标记的读写挂在「持久化开」上，而开关是启动中途
+    // 才从配置里读出来的（app_startup 的 applyPolicy），一关就把本会话刚写的标记
+    // 删掉——默认设置的用户闪退之后，下次启动永远是「上次正常退出」，什么痕迹都
+    // 不留（2026-10-29 排查一位用户的闪退时发现）。开关只管 app.log 写不写；
+    // 标记、fatal 快照、系统退出记录存档都是本地小文件，照常维护。
+    final recovery = await _crash.checkAndRecover();
+    await _markAppStart();
 
     if (recovery.hadUncleanExit) {
       _logInternal(
         LogLevel.warning,
-        '检测到上次异常退出 (session: ${recovery.previousSessionId}, version: ${recovery.previousVersion})',
+        '检测到上次异常退出 (session: ${recovery.previousSessionId}, '
+            'pid: ${recovery.previousPid}, version: ${recovery.previousVersion})',
         'CrashRecovery',
       );
       // 异步补充系统侧死因（LMK/原生崩溃/ANR/用户清理），不阻塞启动。
       unawaited(_logNativeExitInfo());
+    } else {
+      // 没有异常退出也要同步一次系统退出记录存档：系统账本只有约 16 条，等到
+      // 下次真出事再读，之前那些记录可能已经被挤掉了。延后几秒，不和启动抢 IO。
+      _archiveSyncTimer = Timer(LogConstants.exitArchiveSyncDelay, () {
+        unawaited(_crash.loadNativeExitRecords());
+      });
     }
 
     _export = LogExportService(
@@ -110,6 +124,22 @@ class LogService extends GetxService {
     });
 
     _initialized = true;
+
+    // 安卓的内存回收信号由原生侧带着系统可用内存转来（比 Flutter 的
+    // didHaveMemoryPressure 多出级别和余量），用来判断闪退是不是低内存被杀。
+    NativeMemoryInfo.listenTrimMemory((trimLevel, memory) {
+      log(
+        // UI_HIDDEN(20) 和紧随其后的 BACKGROUND(40) 每次切后台都会来，只是
+        // 背景信息；其余级别才是真的在回收内存。
+        level: trimLevel == 20 || trimLevel == 40
+            ? LogLevel.info
+            : LogLevel.warning,
+        message:
+            '系统内存回收信号 ${NativeMemoryInfo.trimLevelName(trimLevel)}'
+            '($trimLevel)，RSS ${(ProcessInfo.currentRss / 1024 / 1024).toStringAsFixed(1)}MB，$memory',
+        tag: 'MemoryPressure',
+      );
+    });
     return this;
   }
 
@@ -292,6 +322,7 @@ class LogService extends GetxService {
     if (!_initialized) return;
     _flushTimer?.cancel();
     _errorFlushTimer?.cancel();
+    _archiveSyncTimer?.cancel();
     // 注意：正常退出路径已在 close() 之前通过 markCleanExitSync() 同步删除了
     // 崩溃标记，因此这里 _stopPersistenceSubsystems 里的 markCleanExit 多为
     // 幂等的二次删除。close() 自身仍保持「先 flush 再停子系统」的顺序，作为
@@ -310,6 +341,7 @@ class LogService extends GetxService {
       _buffer.clearWriteQueue();
     }
     await _stopPersistenceSubsystems();
+    await _crash.markCleanExit();
     _initialized = false;
   }
 
@@ -397,15 +429,15 @@ class LogService extends GetxService {
       _consoleFallback(LogLevel.fatal, message, tag, error, stackTrace);
       return;
     }
-    if (!_policy.enabled) {
+    final logged =
+        _policy.enabled && LogLevel.fatal.value >= _policy.minLevel.value;
+    if (!logged) {
       _droppedCount++;
-      _droppedByDisabled++;
-      return;
-    }
-    if (LogLevel.fatal.value < _policy.minLevel.value) {
-      _droppedCount++;
-      _droppedByMinLevel++;
-      return;
+      if (_policy.enabled) {
+        _droppedByMinLevel++;
+      } else {
+        _droppedByDisabled++;
+      }
     }
 
     final event = LogEvent(
@@ -421,17 +453,49 @@ class LogService extends GetxService {
     // fatal 即使被去重返回 null，也必须脱敏后再落盘，不能回退到原始事件。
     final processed =
         _processor.process(event) ?? _processor.sanitizeEvent(event);
-    _buffer.pushToRingOnly(processed);
-    if (_policy.persistenceEnabled) {
+    if (logged) _buffer.pushToRingOnly(processed);
+    if (logged && _policy.persistenceEnabled) {
       _sink.appendEmergencySync(processed.toJsonLine());
-      _crash.recordFatalErrorSync(
-        sessionId: _sessionId,
-        source: source,
-        message: processed.message,
-        error: processed.error,
-        stackTrace: processed.stackTrace,
-      );
     }
+    // fatal 快照与崩溃标记一样不受日志开关控制（见 [init] 里的说明）：它是
+    // 下次启动判断「上次死于 Dart 异常」的唯一依据，只留最近一份。
+    _crash.recordFatalErrorSync(
+      sessionId: _sessionId,
+      source: source,
+      message: processed.message,
+      error: processed.error,
+      stackTrace: processed.stackTrace,
+    );
+  }
+
+  /// 同步落一条「面包屑」：返回时这一行已经交给内核（页缓存），之后进程即使被
+  /// 原生崩溃或 SIGKILL 当场打死也不会丢。普通日志要等 300ms 的周期 flush，
+  /// 而 Dart 抓不到的死法（libmpv 崩溃、LMK）恰恰没有这 300ms。
+  ///
+  /// 不做 fsync：fsync 只防断电，flash 上一次要几到几十毫秒。只给高风险原生
+  /// 调用前后用（播放器创建、释放），别拿来打普通日志。
+  void breadcrumbSync(String message, String tag) {
+    if (!_initialized || !_policy.enabled || !_policy.persistenceEnabled) {
+      return;
+    }
+    final event = _processor.sanitizeEvent(
+      LogEvent(
+        timestamp: DateTime.now(),
+        level: LogLevel.info,
+        tag: tag,
+        message: message,
+        sessionId: _sessionId,
+      ),
+    );
+    _buffer.pushToRingOnly(event);
+    // 把还排在队列里的普通日志一起同步写掉，文件里的先后顺序才对得上。
+    // （已经被在途 flush 取走的那一批仍会晚到，时间戳为准。）
+    final pending = _buffer.drain();
+    final ok = _sink.appendLinesSync([
+      for (final p in pending) p.line,
+      event.toJsonLine(),
+    ], fsync: false);
+    if (!ok) _buffer.requeueFront(pending);
   }
 
   /// [maxBatches] 为 null 表示不封顶（退出/导出路径用），
@@ -598,7 +662,6 @@ class LogService extends GetxService {
 
   Future<void> _startPersistenceSubsystems() async {
     try {
-      await _markAppStart();
       if (!_hangWatchdog.isRunning) {
         await _hangWatchdog.start(
           sessionId: _sessionId,
@@ -612,12 +675,13 @@ class LogService extends GetxService {
     }
   }
 
+  /// 只停 hang watchdog。⛔ 不删崩溃标记：关日志开关不等于正常退出，删了就
+  /// 抓不到之后的闪退（见 [init]）。删标记只在真正的退出路径上做。
   Future<void> _stopPersistenceSubsystems() async {
     try {
       if (_hangWatchdog.isRunning) {
         await _hangWatchdog.stop();
       }
-      await _crash.markCleanExit();
     } catch (e) {
       debugPrint('[LogService] Failed to stop persistence subsystems: $e');
     }
@@ -640,7 +704,9 @@ class LogService extends GetxService {
   void onClose() {
     _flushTimer?.cancel();
     _errorFlushTimer?.cancel();
+    _archiveSyncTimer?.cancel();
     if (_initialized) {
+      _crash.markCleanExitSync();
       unawaited(_stopPersistenceSubsystems());
     }
     super.onClose();

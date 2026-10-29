@@ -272,8 +272,8 @@ class LogUtils {
   /// **刻意不受日志总开关约束**：这条路径一次崩溃只走一次，谈不上性能开销，
   /// 而挡掉它会让崩溃在 logcat 里也彻底消失、失去任何可诊断性。总开关要挡的是
   /// 「稳态下持续产生的日志量」，不是「出事时的那一条」。
-  /// 落盘那一侧仍受开关约束——[LogService.captureUnhandledError] 在
-  /// `!enabled` 时会自行返回。
+  /// 落盘那一侧：写 app.log 仍受开关约束，fatal 快照不受（见
+  /// [LogService.captureUnhandledError]）。
   static void captureUnhandledException({
     required String source,
     required Object error,
@@ -307,6 +307,15 @@ class LogUtils {
         tag: tag,
       );
     }
+  }
+
+  /// 同步写一条面包屑：返回时已落到内核，进程随即被原生崩溃或 SIGKILL 打死也
+  /// 不丢。只给高风险原生调用前后用，见 [LogService.breadcrumbSync]。
+  static void breadcrumb(String message, [String tag = _TAG]) {
+    if (!_isProduction) {
+      _logger?.i("[${_getTimeString()}][$tag] $message");
+    }
+    _logService?.breadcrumbSync(message, tag);
   }
 
   /// 同步标记本次为正常退出（删除崩溃标记）。退出路径应在任何慢清理之前

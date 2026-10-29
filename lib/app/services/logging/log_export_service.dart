@@ -109,17 +109,17 @@ class LogExportService {
 
       // 系统退出记录无条件随包导出：不依赖本次启动的异常退出标记。闪退
       // 常常无法按需复现，系统账本里几天前的死亡记录（跨版本升级不清空）
-      // 可能就是仅存的一手死因。
+      // 可能就是仅存的一手死因。⛔ 这个文件**总是**写出，读取失败、系统没
+      // 记录、平台不支持都靠里面的 status 区分；导出包里没有它，只说明导出
+      // 的是没有这套代码的旧版本。
       try {
-        final exitRecords = await _crash.loadNativeExitRecords();
-        if (exitRecords != null && exitRecords.isNotEmpty) {
-          final exitRecordsMeta = await _writeTempFile(
-            tempDir: tempDir,
-            fileName: 'exit_records.json',
-            content: jsonEncode(exitRecords.map((r) => r.toJson()).toList()),
-          );
-          encoder.addFileSync(exitRecordsMeta, 'crash/exit_records.json');
-        }
+        await _crash.loadNativeExitRecords();
+        final exitRecordsMeta = await _writeTempFile(
+          tempDir: tempDir,
+          fileName: 'exit_records.json',
+          content: jsonEncode(await _crash.exitRecordsExportJson()),
+        );
+        encoder.addFileSync(exitRecordsMeta, 'crash/exit_records.json');
       } catch (e) {
         debugPrint('[LogExport] 导出系统退出记录失败: $e');
       }
@@ -141,6 +141,8 @@ class LogExportService {
           'previousSessionId': crashResult.previousSessionId,
           'previousStartTime': crashResult.previousStartTime?.toIso8601String(),
           'previousVersion': crashResult.previousVersion,
+          // 用来去 exit_records.json 里按 pid 对上一会话的系统死因。
+          'previousPid': crashResult.previousPid,
           'fatalError': crashResult.fatalError?.toJson(),
           'lastHangEvent': crashResult.lastHangEvent?.toJson(),
           'nativeExitInfo': {
@@ -369,7 +371,7 @@ class LogExportService {
         NativeExitRecord.reasonSignaled when matchedExit.isNativeCrash => (
           'native_crash',
           '原生层崩溃（${matchedExit.crashSignalName}，系统按信号终止记账）'
-              '${matchedExit.trace != null ? '，tombstone 见 crash/exit_records.json 中 pid=${matchedExit.pid} 的 trace' : '，系统未提供 tombstone'}',
+              '${matchedExit.hasTrace ? '，tombstone 见 crash/exit_records.json 中 pid=${matchedExit.pid} 的 trace' : '，系统未提供 tombstone'}',
         ),
         NativeExitRecord.reasonSignaled => (
           'signaled_kill',
