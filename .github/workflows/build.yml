@@ -7,6 +7,10 @@ env:
   # 的那套依赖。liquid_glass_easy 就这么从 4.1.1 被解到 4.3.1，Windows/Impeller 上
   # 首帧出不来、整窗白屏。改动这里前先看一眼 pubspec.lock 里的 url 是什么。
   PUB_HOSTED_URL: 'https://pub.flutter-io.cn'
+  # 每个包都带上「哪次提交、哪次 run」打的：同一个 semver 会有很多次 CI 包，
+  # 报障日志里只有版本号时分不清用户装的是哪一个（2026-10-29 就栽在这上面）。
+  # 读取方在 lib/common/constants.dart 的 BUILD_COMMIT / BUILD_RUN_ID。
+  BUILD_DEFINES: '--dart-define=BUILD_COMMIT=${{ github.sha }} --dart-define=BUILD_RUN_ID=${{ github.run_id }}'
 
 on:
   workflow_dispatch:
@@ -132,7 +136,7 @@ jobs:
       # （standard / quest）之后，AGP 就不再有「不带 flavor」的变体，裸的
       # `flutter build apk --release` 会直接失败。quest 产物不进常规产线。
       - name: Build APK
-        run: flutter build apk --release --flavor standard
+        run: flutter build apk --release --flavor standard ${{ env.BUILD_DEFINES }}
 
       - name: Rename APKs with version
         id: apks
@@ -233,7 +237,7 @@ jobs:
       # 只出 arm64：quest flavor 的 abiFilters + androidComponents 已经把 v7a / x86_64
       # 关掉了（那些包里没有 Spatial 的 .so，装上即崩），这里再显式限定一次。
       - name: Build Quest APK
-        run: flutter build apk --release --flavor quest --target-platform android-arm64
+        run: flutter build apk --release --flavor quest --target-platform android-arm64 ${{ env.BUILD_DEFINES }}
 
       - name: Rename Quest APK with version
         id: quest
@@ -332,7 +336,7 @@ jobs:
         run: flutter config --enable-macos-desktop
 
       - name: Build macOS
-        run: flutter build macos --release
+        run: flutter build macos --release ${{ env.BUILD_DEFINES }}
 
       - name: Install appdmg
         run: npm install -g appdmg
@@ -433,7 +437,7 @@ jobs:
         run: flutter pub get --enforce-lockfile
 
       - name: Build iOS
-        run: flutter build ios --release --no-codesign
+        run: flutter build ios --release --no-codesign ${{ env.BUILD_DEFINES }}
 
       - name: Create IPA with version
         id: pkg
@@ -499,7 +503,7 @@ jobs:
         run: flutter config --enable-linux-desktop
 
       - name: Build Linux
-        run: flutter build linux --release
+        run: flutter build linux --release ${{ env.BUILD_DEFINES }}
 
       - name: Create TAR archive
         id: pkg

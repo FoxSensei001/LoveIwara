@@ -128,7 +128,10 @@ def main():
     try:
         # 1. Run Flutter build
         print("\nStep 1/5: Building Flutter app...")
-        run_command("flutter build windows --release", "Flutter build")
+        # CI 在 BUILD_DEFINES 里注入提交号与 run id（见 build.yml 顶部 env）；本地为空。
+        build_defines = os.environ.get('BUILD_DEFINES', '').strip()
+        run_command(f"flutter build windows --release {build_defines}".rstrip(),
+                    "Flutter build")
         validate_release_bundle()
 
         # 2. Get version

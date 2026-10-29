@@ -10,6 +10,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/app/services/logging/log_models.dart';
 import 'package:i_iwara/app/services/logging/log_service.dart';
 import 'package:i_iwara/app/startup/app_startup.dart';
@@ -52,8 +53,12 @@ void main() {
       final lifecycleObserver = _AppLifecycleObserver(logService);
       WidgetsBinding.instance.addObserver(lifecycleObserver);
 
-      // 记录应用启动信息
-      LogUtils.i('应用启动', '启动初始化');
+      // 记录应用启动信息。带上构建标识：日志文件跨多次升级累积，每个会话
+      // 都要能看出当时跑的是哪个包。
+      LogUtils.i(
+        '应用启动 ${CommonConstants.FULL_VERSION} (${CommonConstants.buildTag})',
+        '启动初始化',
+      );
 
       SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle(

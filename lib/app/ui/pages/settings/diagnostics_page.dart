@@ -242,7 +242,8 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
                           t.diagnostics.appVersionLabel,
                           // 带 build 号：报障时「同一个 semver 的哪一次打包」
                           // 常常正是要分辨的那一件事。
-                          CommonConstants.FULL_VERSION,
+                          '${CommonConstants.FULL_VERSION} '
+                          '(${CommonConstants.buildTag})',
                         ),
                         const SizedBox(height: 4),
                         if (_deviceInfo.isNotEmpty)

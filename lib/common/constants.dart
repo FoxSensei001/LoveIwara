@@ -25,6 +25,23 @@ class CommonConstants {
   /// 完整版本号 `x.y.z+N`，只用于版本比较；展示给用户的仍然是 [VERSION]。
   static const String FULL_VERSION = '$VERSION+$BUILD_NUMBER';
 
+  /// 打这个包的提交（完整 SHA）与 CI run id，由 CI 用 `--dart-define` 注入
+  /// （.github/workflows/build.yml 的 BUILD_DEFINES）；本地构建为空串。
+  ///
+  /// 存在的理由：同一个 [FULL_VERSION] 会有很多次 CI 包，报障日志里只有版本号时
+  /// 分不清用户装的是哪一个——2026-10-29 一份闪退日志就因此误判了用户的构建。
+  static const String BUILD_COMMIT = String.fromEnvironment('BUILD_COMMIT');
+  static const String BUILD_RUN_ID = String.fromEnvironment('BUILD_RUN_ID');
+
+  /// 一眼可读的构建标识，如 `456b9564 · run 40538694493`；本地构建为 `local`。
+  static String get buildTag {
+    if (BUILD_COMMIT.isEmpty) return 'local';
+    final commit = BUILD_COMMIT.length > 8
+        ? BUILD_COMMIT.substring(0, 8)
+        : BUILD_COMMIT;
+    return BUILD_RUN_ID.isEmpty ? commit : '$commit · run $BUILD_RUN_ID';
+  }
+
   // 应用名称
   static String? applicationName = 'i_iwara';
 

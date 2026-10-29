@@ -79,6 +79,10 @@ class LogExportService {
         fileName: 'app.json',
         content: jsonEncode({
           'version': CommonConstants.VERSION,
+          'fullVersion': CommonConstants.FULL_VERSION,
+          // 本地构建为空串；CI 包能据此精确定位到提交与 run。
+          'buildCommit': CommonConstants.BUILD_COMMIT,
+          'buildRunId': CommonConstants.BUILD_RUN_ID,
           'appName': CommonConstants.applicationName,
           'sessionId': _sessionId,
         }),
