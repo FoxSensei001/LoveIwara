@@ -28,6 +28,7 @@ import 'package:i_iwara/utils/device_form_factor_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/process_uptime.dart';
 import 'package:i_iwara/utils/refresh_rate_helper.dart';
+import 'package:screen_brightness/screen_brightness.dart';
 import 'package:i_iwara/utils/startup_trace.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -360,11 +361,47 @@ Future<void> _writeGeometryMirrorFromCurrentWindow() async {
   }
 }
 
+/// 关掉 `screen_brightness` 的「随应用前后台自动复位」。
+///
+/// # 这个 App 在桌面端根本不调亮度
+///
+/// 亮度手势只给移动端（`gesture_area_widget.dart` 里 `!isWindows && !isMacOS
+/// && !isLinux`），`setDefaultBrightness` 也只在 Android / iOS 跑。桌面端一次
+/// 都不会调用 `setApplicationScreenBrightness`。
+///
+/// # 但插件光是注册进来就会动你的显示器
+///
+/// `screen_brightness_windows` 的构造函数（插件注册时，也就是 App 一启动）会
+/// 读一次显示器亮度存起来，并挂上一个顶层窗口过程钩子；`is_auto_reset_` 默认
+/// 为 true，于是每次收到 `WM_ACTIVATEAPP`（失去激活，也就是**用户点了别的
+/// 窗口**）就走 `OnApplicationPause()` → `SetMonitorBrightness()`，通过
+/// **DDC/CI 往显示器写一次物理背光**。
+///
+/// 用户反馈的「开着显示器 HDR，进软件后随便打开别的窗口，屏幕就暗一大截」对得上
+/// 这条路径：HDR 模式下面板亮度由系统的 SDR 内容亮度管，外部 DDC/CI 写入会把
+/// 面板踢出当前亮度状态。非 HDR 的机器上症状轻，但那次写入一样是多余的——
+/// 用户在 App 开着的时候自己调了显示器亮度，一切窗口就被弹回旧值。
+///
+/// 包虽然把 `setAutoReset` 的文档写成「iOS only」，但 Windows 的 C++ 侧确实
+/// 实现了（`HandleSetAutoResetMethodCall`）。
+Future<void> _disableScreenBrightnessAutoReset() async {
+  try {
+    await ScreenBrightness().setAutoReset(false);
+    LogUtils.d('已关闭屏幕亮度的自动复位', '桌面初始化');
+  } catch (e) {
+    // Linux 没有这个平台实现，调用会抛 MissingPluginException；其余失败也不该
+    // 影响启动——最坏情况是维持现状。
+    LogUtils.d('关闭屏幕亮度自动复位失败（该平台可能没有实现）: $e', '桌面初始化');
+  }
+}
+
 /// 初始化桌面端设置
 Future<void> _initializeDesktop() async {
   await windowManager.ensureInitialized();
   await windowManager.waitUntilReadyToShow();
   StartupTrace.mark('desktop.ready');
+
+  await _disableScreenBrightnessAutoReset();
 
   final configService = Get.find<ConfigService>();
   double? storedWidth = configService.settings[ConfigKey.WINDOW_WIDTH]?.value;
