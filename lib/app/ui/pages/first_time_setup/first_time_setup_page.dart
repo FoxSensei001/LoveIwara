@@ -152,7 +152,6 @@ class _FirstTimeSetupPageState extends State<FirstTimeSetupPage> {
                     final canProceed = _controller.canProceed();
                     return GlassButtonGroup(
                       // easy 档要靠它知道「胶囊宽度会随这个状态变」。
-                      touchFlexSignature: 'prev:$isFirst',
                       children: [
                         GlassGroupSlot(
                           visible: !isFirst,

@@ -279,7 +279,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
       // 宽窄屏（搜索键）、批量态（退出键）、当前 tab 支不支持筛选（两枚筛选
       // 键），以及特别关注选中项（触发位的文案宽度会变）。
       touchFlex: true,
-      touchFlexSignature: '$isWide|$isMultiSelect|$filterVisible|$selectedId',
       children: [
         GlassGroupSlot(
           visible: isWide,

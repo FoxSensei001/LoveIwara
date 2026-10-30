@@ -1069,14 +1069,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "6.1.0"
-  liquid_glass_easy:
-    dependency: "direct main"
-    description:
-      name: liquid_glass_easy
-      sha256: c2a476d4813d572661f2f8817d32183f4b4bc73db95bc491c6cea29b90e479d8
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "5.1.0"
   liquid_glass_widgets:
     dependency: "direct main"
     description:

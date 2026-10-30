@@ -891,7 +891,6 @@ class GlassComposerBar extends StatelessWidget {
         if (actions.isNotEmpty) ...[
           if (pendingRules) const SizedBox(width: 8),
           GlassButtonGroup(
-            touchFlexSignature: 'composer|${actions.length}',
             children: actions,
           ),
         ],

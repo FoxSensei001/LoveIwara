@@ -456,7 +456,6 @@ class _WatchLaterPageState extends State<WatchLaterPage>
       // 两个位共处一坨玻璃。
       actions: GlassButtonGroup(
         // 选择态会把前两个位收走，宽度跟着变——签名要带上它。
-        touchFlexSignature: 'watch-later|$_selecting|$compact',
         children: [
           // 筛选与排序合并成**一枚**键：这页的筛选只有「全部 /
           // 未看完」两档、排序只有「最近 / 最早」两档，各占一个位是把

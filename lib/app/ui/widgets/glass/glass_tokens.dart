@@ -3,7 +3,6 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_appearance_scope.dart';
 
 import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/utils/glass_perf_knobs.dart';
-import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lgw;
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart'
     show GlassMaterialMode, glassMaterialMode;
@@ -375,11 +374,10 @@ abstract final class GlassTokens {
   /// 边缘渐变蒙层的基色。
   static Color scrimBase(ColorScheme cs) => cs.surface;
 
-  // ---- 真·液态玻璃（liquid_glass_easy 后端）----
+  // ---- 玻璃色调（liquid_glass_widgets 后端）----
   //
-  // 这一段只在 `GlassBackend.easyLens` 的子树里生效。调参前先读
-  // docs/liquid_glass_easy.md——尤其是「一块 lens = 一次 backdrop 采样」和
-  // 「lens 不要放进滚动容器」两条。
+  // 这几个 `widgets*` 色调原先被放在已删的「liquid_glass_easy 后端」段标题
+  // 底下，名字和归属却是 widgets 的。删那个后端时顺手归位。
 
   /// chrome（按钮 / 按钮组 / 浮动底栏）那一档的玻璃色调。
   ///
@@ -427,73 +425,6 @@ abstract final class GlassTokens {
   static Color widgetsPressedTintOnPanel(ColorScheme cs) => Color.alphaBlend(
     cs.onSurface.withValues(alpha: 0.08),
     widgetsTintOnPanel(cs),
-  );
-
-  /// 浮出面板底色：浅色加白、深色压暗；浓度由菜单面板参数单独控制。
-  static Color liquidTint(ColorScheme cs) {
-    final isDark = cs.brightness == Brightness.dark;
-    return isDark
-        ? Colors.black.withValues(alpha: glassAppearance.value.panelOpacity)
-        : Colors.white.withValues(alpha: glassAppearance.value.panelOpacity);
-  }
-
-  /// 按下时的玻璃色调：与 [pressedFill] 同一口径（压深 8%）。
-  static Color liquidPressedTint(ColorScheme cs) =>
-      Color.alphaBlend(cs.onSurface.withValues(alpha: 0.08), liquidTint(cs));
-
-  /// 玻璃底下的背景模糊。传统档没有这一项（当初刻意不用 BackdropFilter）；
-  /// 液态档靠它把身后的高频细节化开，折射才不会糊成噪点。
-  static double get liquidBlur => glassAppearance.value.panelBlur;
-
-  /// 保持自然饱和度：避免提饱和导致灰色背景偏色发浑。
-  static const double liquidSaturation = 1.0;
-
-  /// 描边宽度。比传统档的 [strokeWidth]（0.6）粗——液态档的描边不是一条线，
-  /// 而是 shader 画的边缘光带，太细就看不出「厚度」。
-  static const double liquidBorderWidth = 1.2;
-
-  /// 折射参数。easy 5.0 用折射率描述弯曲强度；旧 distortion 0.12 对应约
-  /// 1.02–1.025，取 1.023。小胶囊上折射带保持 18px，避免整只胶囊都畸变。
-  static const double liquidRefractionIndex = 1.023;
-  static const double liquidRefractionWidth = 18;
-
-  /// 色散的单位改为逻辑像素；5.0 迁移指南给出的换算系数为 660。
-  static const double liquidDispersion = 0.004 * 660;
-
-  /// easy 5.0 把旧 optical border 拆成高光与柔光两盏灯。
-  /// borderWidth 1.2 按官方迁移比例换成各自的实际带深；旧 borderSolidity
-  /// 为 0、lightSpread 为 0.5，ambientIntensity 为 1.2。5.0 已无仅作用于边缘的
-  /// borderSaturation，因此填充饱和度仍独立保持在 1.0。
-  static const LiquidGlassLight liquidSpecular = LiquidGlassLight.specular(
-    thickness: liquidBorderWidth * 5.4,
-    sharpness: 0,
-    angle: 39,
-    spread: 0.5,
-  );
-  static const LiquidGlassLight liquidGlow = LiquidGlassLight.glow(
-    thickness: liquidBorderWidth * 29.4,
-    angle: 129,
-    intensity: 1.2,
-  );
-
-  /// 接触阴影。与传统档的 [shadow] 表达同一件事（玻璃浮在内容之上），
-  /// 但它长在 lens 的形变盒里，按下时会跟着一起胀/回弹。
-  /// [alphaScale] 供材质淡入用（见 [GlassSurface.materialize]）。
-  ///
-  /// 2026-08-24 收窄：blur 16 是包自己默认值（3.5）的 4 倍多，且这是全 App
-  /// **唯一**一处投影（[LiquidGlassBox] 不再叠外层 [shadow] 了，见调用点
-  /// 注释），不用再兼顾「反正外面还有一层」。
-  static LiquidGlassShadow liquidShadow(
-    ColorScheme cs, {
-    double alphaScale = 1,
-  }) => LiquidGlassShadow(
-    blur: 7,
-    opacity:
-        (glassAppearance.value.shadows
-            ? (cs.brightness == Brightness.dark ? 0.28 : 0.16)
-            : 0) *
-        alphaScale,
-    offset: const Offset(0, 2),
   );
 
   // ---- 真·液态玻璃（liquid_glass_widgets 后端）----
@@ -641,14 +572,6 @@ abstract final class GlassTokens {
   /// 只覆盖厚度——那份基线是照 iOS 26 逐项对过的，我们没有比它更好的依据。
   static lgw.LiquidGlassSettings get widgetsIndicator =>
       lgw.AnimatedGlassIndicator.baseIndicatorSettings;
-
-  /// 跟手形变（`LiquidGlassLens.touch`）。用 `.subtle()`——按钮组胶囊/菜单面板
-  /// 都是「工具条 / 大面板」而不是单枚按钮，官方文档明确建议这一档给这类容器用，
-  /// 默认档的拉伸量对它们来说太夸张。只在显式传 [LiquidGlassBox.touchFlex]
-  /// 为真的容器上生效——不是每块玻璃都该动，见调用点注释。
-  static const LiquidGlassTouch liquidFlex = LiquidGlassTouch(
-    flex: LiquidGlassFlex.subtle(),
-  );
 }
 
 /// 浮动底栏当前遮挡掉的屏幕底部高度（含系统安全区）；底栏不可见时为 0。

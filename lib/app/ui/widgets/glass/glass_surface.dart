@@ -245,10 +245,7 @@ class GlassSurface extends StatelessWidget {
     // （2026-09-04 用户拍板一并去掉）。按在这个收口点上而不是指望 100+ 个
     // 调用点各自守一条。
     final bool effectiveLiquidTouch =
-        liquidTouch &&
-        backend != GlassBackend.material &&
-        (backend != GlassBackend.easyLens ||
-            (height != null && (circle || width != null)));
+        liquidTouch && backend != GlassBackend.material;
 
     // ⛔ liquidWidgets 档的跟手形变是**借** `GlassButton` 实现的，而它自带一层
     // `onTap` 必填的 `GestureDetector`——在命中路径上比下面那层 [GlassPressable]
@@ -325,18 +322,6 @@ class GlassSurface extends StatelessWidget {
       // ClipOval/ClipRRect（多一层裁剪只会多一个 saveLayer，形状还未必对得上
       // shader 的角）。
       switch (backend) {
-        case GlassBackend.easyLens:
-          return LiquidGlassBox(
-            height: height,
-            width: width,
-            circle: circle,
-            cornerRadius: radius.topLeft.x,
-            pressed: pressed,
-            elevated: elevated,
-            touchFlex: effectiveLiquidTouch,
-            materialize: m,
-            child: content,
-          );
         case GlassBackend.liquidWidgets:
           return LiquidWidgetsGlassBox(
             height: height,
@@ -714,7 +699,6 @@ class GlassButtonGroup extends StatelessWidget {
     this.height = GlassTokens.pillHeight,
     this.spacing = 0,
     this.touchFlex = true,
-    this.touchFlexSignature,
     this.materialize = 1.0,
   });
 
@@ -736,20 +720,12 @@ class GlassButtonGroup extends StatelessWidget {
 
   /// 是否给整只胶囊接入交互形变。**默认开**，理由同 [GlassSurface.liquidTouch]。
   ///
-  /// 走哪条路由取决于档位（见 [GlassSurface.liquidTouch]）：
-  ///   - [GlassBackend.liquidWidgets] / [GlassBackend.plain]：直接开，没有尺寸
-  ///     要求（两档借的是同一层形变）。
-  ///   - [GlassBackend.easyLens]：lens 的 `touch` 要求尺寸钉死，而胶囊宽度是
-  ///     「抱内容」算出来的、还会随按钮增删动画过渡——只能走
-  ///     [LiquidGlassSettledTouch]：过渡中退回不开 touch 的自然布局，
-  ///     等尺寸真的不动了才量一次并锁上。这条路要 [touchFlexSignature]，
-  ///     没给就**不开**（默认开之后不能拿 assert 去炸调用点）。
+  /// ⛔ 这里曾经还有一枚 `touchFlexSignature`：已删的 easy 档要求跟手形变的
+  /// 尺寸事先钉死，而胶囊宽度是「抱内容」算出来、还会随按钮增删过渡的，只能
+  /// 靠一个「外部状态摘要」判断何时尺寸落定、再量一次锁上。现存两档
+  /// （[GlassBackend.liquidWidgets] / [GlassBackend.plain]）借的是同一层形变，
+  /// 没有这条约束，直接开就行。
   final bool touchFlex;
-
-  /// 影响胶囊里哪些子项可见（因而影响胶囊宽度）的外部状态摘要，例如
-  /// `'$isWide|$isMultiSelect'`。只有 [GlassBackend.easyLens] 档需要，
-  /// 见 [LiquidGlassSettledTouch.signature]。
-  final Object? touchFlexSignature;
 
   @override
   Widget build(BuildContext context) {
@@ -781,24 +757,10 @@ class GlassButtonGroup extends StatelessWidget {
     }
 
     if (!touchFlex) return buildSurface();
-
-    // 只有 easy 的 lens 要求把尺寸钉死。widgets 档的交互态没有这条约束，
-    // 直接开就行——顺带整只绕开了「量一次再锁死」那条路：那条路一旦锁在
-    // 过渡途中就再也回不来（见 [LiquidGlassSettledTouch] 上那段实测记录）。
-    if (LiquidGlassScope.of(context) != GlassBackend.easyLens) {
-      return buildSurface(liquidTouch: true);
-    }
-
-    // 没给签名就不开——[touchFlex] 默认开之后，缺签名是「这个调用点没考虑过
-    // easy 档」而不是写错了，不该把页面炸掉。
-    if (touchFlexSignature == null) return buildSurface();
-    return LiquidGlassSettledTouch(
-      signature: touchFlexSignature ?? row.length,
-      builder: (context, lockedSize) => buildSurface(
-        width: lockedSize?.width,
-        liquidTouch: lockedSize != null,
-      ),
-    );
+    // 现存两档都没有「尺寸必须先钉死」的要求，直接开。easy 档删掉之后，
+    // 那条「等尺寸落定再量一次锁上」的路连同 `LiquidGlassSettledTouch` 一起
+    // 没了——它一旦锁在过渡途中就再也回不来，少一个坑。
+    return buildSurface(liquidTouch: true);
   }
 }
 

@@ -502,7 +502,6 @@ class PopularMediaListPageBaseState<
         // 过渡，签名变化时 LiquidGlassSettledTouch 会先退回自然布局、
         // 等过渡跑完再重新量出精确宽度并开 touch（见该类说明）。
         touchFlex: true,
-        touchFlexSignature: '$isWide|$isMultiSelect',
         children: [
           GlassGroupSlot(
             visible: isWide,

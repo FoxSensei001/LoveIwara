@@ -116,11 +116,21 @@ dependencies:
   http: ^1.6.0
   flutter_local_notifications: ^22.0.1
   local_notifier: ^0.1.6
-  # 5.0.0 改为平铺样式与折射率参数；封装已迁移。继续精确锁定，升级渲染器后
-  # 仍需验证 Windows release 首屏（4.3.1 曾白屏，4.3.3 修正了 ANGLE 编译）。
-  # 5.1.0：描边改吃色调的完整 alpha、Android/iOS Impeller 上加形状缓存；本项目
-  # 没用 LiquidGlassBatch / LiquidGlassMorph，那两处默认值变更不影响。
-  liquid_glass_easy: 5.1.0
+  # ⛔ 这里曾经还有 `liquid_glass_easy`（面板与菜单的折射透镜）。2026-10-31 删掉，
+  # 别加回来：它的两条 lens 着色器在 Windows 上要经 ANGLE 翻成 HLSL 再由 D3D
+  # 编译，实测把光栅线程堵死约 18 秒——窗口已经显示，却一帧都画不出来，整个
+  # 应用停在全白。那条「4.3.1 曾白屏」的旧注释说的是同一个病根，只是当时以为
+  # 升版本修好了。
+  #
+  # 实测（Windows release，冷着色器缓存，首帧光栅耗时）：
+  #   两个包都在       21284 / 19230 ms
+  #   只去掉 easy       2433 /  2470 ms
+  #   只去掉 widgets   17516 / 17685 ms
+  #   两个都去掉        1973 /  2002 ms
+  #
+  # 面板与菜单已改走 liquid_glass_widgets（见 `panelGlassBackend`）。
+  # ⚠️ 也别换一个「做真折射的新包」顶上：那 18 秒来自 Windows 的
+  # ANGLE→HLSL→D3D 这条链，是平台属性，换个没测过的包很可能原样再踩一遍。
   liquid_glass_widgets: ^1.15.1
   local_auth: ^3.0.2
   local_auth_android: ^2.0.8

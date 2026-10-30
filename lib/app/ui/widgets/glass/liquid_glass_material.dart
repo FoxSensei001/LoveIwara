@@ -7,13 +7,13 @@ import 'package:flutter/foundation.dart'
 
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
-import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 // 带前缀：两个包的公开面里 LiquidGlassScope / GlassSegmentedControl /
 // GlassButtonGroup / GlassIconButton / GlassToast 等一大批名字与本仓库自己的
 // 组件重名，不加前缀会一片 ambiguous_import。
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lgw;
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/utils/glass_perf_knobs.dart';
+import 'package:i_iwara/utils/startup_trace.dart';
 
 // 真·液态玻璃后端的接线层：两个第三方包 + 传统档，共三档材质。
 //
@@ -100,15 +100,28 @@ enum GlassBackend {
   /// 都是这一档，见 [GlassMaterialMode.material]。取值见 [GlassTokens.materialFill]。
   material,
 
-  /// `liquid_glass_easy` 的折射透镜（[LiquidGlassBox]）。
-  ///
-  /// 玻璃菜单（`showGlassMenu`）钉死在这一档：那套「卷开」出入场和面板质感
-  /// 是照它调的，chrome 换档不该把菜单一起带走（见 `glass_menu.dart`）。
-  easyLens,
+  // ⛔ 这里曾经有第四档 `easyLens`——`liquid_glass_easy` 的折射透镜，面板与
+  // 菜单钉死在它上面。2026-10-31 整只删掉，连同那个包：它的两条 lens 着色器
+  // （`liquid_glass.frag` / `liquid_glass_border.frag`）在 Windows 上要经
+  // ANGLE 翻成 HLSL 再由 D3D 编译，实测把**光栅线程堵死约 18 秒**，期间一帧
+  // 都出不来——窗口已经显示，却是全白的。那 18 秒不是「玻璃晚点成形」，是整个
+  // 应用一帧都画不出来。
+  //
+  // 关键实测（Windows release，冷着色器缓存，首帧光栅耗时）：
+  //   两个包都加载       21284 / 19230 ms
+  //   只去掉 easy         2433 /  2470 ms   ← 就是它
+  //   只去掉 widgets     17516 / 17685 ms
+  //   两个都去掉          1973 /  2002 ms
+  //
+  // 面板与菜单改走 [liquidWidgets]。它自带 Skia/lightweight 回退链，同一条
+  // 实测里只值约 460ms，是唯一一个有数据证明不会重蹈覆辙的替代品。
+  //
+  // ⚠️ 别再引入「做真折射的新包」来补这一档：18 秒的代价来自 Windows 的
+  // ANGLE→HLSL→D3D 这条链，是平台属性，不是某个包写得烂。换一个没测过的包，
+  // 很可能原样再踩一遍。
 
   /// `liquid_glass_widgets` 的 `AdaptiveGlass`（[LiquidWidgetsGlassBox]）。
   ///
-  /// 与 [easyLens] 的取值刻意对齐同一套观感（见 [GlassTokens.widgetsGlass]），
   /// 差别在**手感**：按压高光、交互折射，以及分段控件那条果冻指示器
   /// （[GlassSegmentedControl] 在这一档下换用 `AnimatedGlassIndicator`）。
   /// 还有一条实在差别——它自带 Skia/Web 回退链（`AdaptiveGlass` 会退到
@@ -170,10 +183,9 @@ class GlassMaterialScope
 
 /// 页面级 chrome（header 胶囊、浮动底栏、浮钮、动作坞）该用哪一档玻璃。
 ///
-/// 真玻璃档下是 [GlassBackend.liquidWidgets]：2026-08-23 从
-/// [GlassBackend.easyLens] 换过来的——两边并排比过，**按钮组胶囊与分段控件的
-/// 手感在 widgets 这一档明显更好**；菜单面板则相反，钉死在 easy
-/// （见 `glass_menu.dart` 的 `_menuBackend`）。
+/// 真玻璃档下是 [GlassBackend.liquidWidgets]：2026-08-23 从已删的 easy 档换
+/// 过来的——两边并排比过，**按钮组胶囊与分段控件的手感在 widgets 这一档明显
+/// 更好**。面板当时留在了 easy，2026-10-31 连同那个包一起删了，现在两边同档。
 ///
 /// Material 档下恒为 [GlassBackend.material]。
 ///
@@ -310,11 +322,19 @@ void applyGlassMaterialFromConfig(bool enableLiquidGlass) {
       : GlassMaterialMode.material;
 }
 
-/// **浮出面板**（菜单、下拉板）该用的档位：真玻璃档下恒为 [GlassBackend.easyLens]。
+/// **浮出面板**（菜单、下拉板）该用的档位：真玻璃档下恒为
+/// [GlassBackend.liquidWidgets]。
 ///
-/// 为什么钉死在 easy：面板的出入场与质感（尤其 `showGlassMenu` 那套「卷开」）
-/// 是照 easy 的 lens 逐帧标定出来的，换 shader 等于全部重来；而用户是分别
-/// 评价的——chrome 换 `liquid_glass_widgets` 更好，面板现状就很好。
+/// # 这里原先钉死的是 `easyLens`（2026-10-31 改）
+///
+/// 面板的出入场与质感（尤其 `showGlassMenu` 那套「卷开」）当初是照
+/// `liquid_glass_easy` 的 lens 逐帧标定出来的，所以一直单独钉在那一档。改掉
+/// 不是因为观感，是因为那个包的两条 lens 着色器在 Windows 上要现编译约 18 秒、
+/// 期间整个应用一帧都光栅不出来（实测数据见 [GlassBackend] 的注释）。
+///
+/// 换档之后面板的质感会和 chrome 对齐（两边本来就刻意调成同一套观感，见
+/// [GlassTokens.widgetsGlass]），但「卷开」那套动效的手感标定是照旧 lens 的，
+/// 换 shader 之后值得再看一眼。
 ///
 /// # ⛔ 为什么不再跟触发件的档位走（2026-08-24）
 ///
@@ -339,7 +359,7 @@ void applyGlassMaterialFromConfig(bool enableLiquidGlass) {
 GlassBackend panelGlassBackend(BuildContext anchorContext) =>
     debugPanelGlassBackendOverride ??
     (GlassMaterialScope.isLiquid(anchorContext)
-        ? GlassBackend.easyLens
+        ? GlassBackend.liquidWidgets
         : GlassBackend.material);
 
 /// 测试专用：把 [panelGlassBackend] 的返回值钉在某一档，用完记得置回 null。
@@ -742,137 +762,10 @@ class _GlassBlendScope extends InheritedWidget {
       joinable != oldWidget.joinable;
 }
 
-/// 折射透镜版的玻璃体：[GlassSurface] 在液态档下画的就是这个。
-///
-/// 尺寸语义与传统档的 `AnimatedContainer` 完全一致（[height] 紧约束、[width]
-/// 为 null 时按内容收缩、[circle] 取正方），所以两档之间切换不会动布局。
-///
-/// 有三件事是 lens 自己做掉的、这里不再重复：
-///   - **裁切**：lens 会按自身形状裁 child，传统档的 `clipContent` 在这里恒成立。
-///   - **描边**：shader 画的边缘光带，不再有 `Border.all` 那 0.6px 的内缩。
-///   - **投影**：走 `LiquidGlassStyle.shadow`，它长在形变盒内，按下会跟着一起动。
-class LiquidGlassBox extends StatelessWidget {
-  const LiquidGlassBox({
-    super.key,
-    required this.child,
-    this.height = GlassTokens.pillHeight,
-    this.width,
-    this.circle = false,
-    this.cornerRadius,
-    this.pressed = false,
-    this.elevated = true,
-    this.touchFlex = false,
-    this.materialize = 1.0,
-  });
-
-  final Widget child;
-
-  /// 为 null 表示按内容自适应高度（见 [GlassSurface.height]）。
-  final double? height;
-
-  final double? width;
-  final bool circle;
-
-  /// 圆角半径；为 null 时取 [height] / 2（即胶囊）。[circle] 为真时忽略。
-  final double? cornerRadius;
-
-  final bool pressed;
-  final bool elevated;
-
-  /// 是否接入 [GlassTokens.liquidFlex]——按住并拖动时玻璃跟手拉伸/回弹
-  /// （liquid_glass_easy 的 `LiquidGlassTouch`），而不只是 [GlassPressable]
-  /// 那层 0.96 缩放。默认 false：`touch` 传 null 时 lens 完全零成本
-  /// （不建 `Listener`、不建 ticker），不该让每块玻璃都白白挂上手势监听。
-  ///
-  /// ⚠️ 只能用在**尺寸已经钉死**的调用点（[height] / [width] 都非 null，
-  /// 或 [circle] 给了 [height]）。一旦 `touch` 非 null，lens 会拿收到的
-  /// `constraints.biggest` 当形变的 rest size 并自己 `SizedBox.fromSize`——
-  /// "抱内容"的玻璃（[height] 或 [width] 为 null，靠父级松/无界约束撑开）
-  /// 直接开这个要么被撑满可用空间、要么在无界约束里静默不生效
-  /// （见 docs/liquid_glass_easy.md 第 8 节）。
-  final bool touchFlex;
-
-  /// 材质的「在场程度」，见 [GlassSurface.materialize]。
-  ///
-  /// 压的是**色调与投影的透明度**，blur / 描边 / 折射一概不动：那几项一旦被
-  /// 压到 0，lens 内部会切换图层结构（blur 层的建与拆），过渡中反而会闪一下。
-  /// 所以 0 这一端不是「什么都没有」，而是「一块没有色调、只剩折射与边缘光的
-  /// 清玻璃」——用来做几十到一两百毫秒的材质淡入足够，不要拿它当显隐开关。
-  final double materialize;
-
-  @override
-  Widget build(BuildContext context) {
-    GlassAppearanceScope.of(context);
-    final cs = Theme.of(context).colorScheme;
-    final double m = materialize.clamp(0.0, 1.0);
-    final double radius = circle
-        ? height! / 2
-        : (cornerRadius ?? (height ?? GlassTokens.pillHeight) / 2);
-
-    // 正圆用 roundedRectangle（圆弧角，半径=半高时就是正圆，也最省）；
-    // 胶囊 / 圆角矩形用 continuousRoundedRectangle——半径拉满时它退化成
-    // Apple 那种「肩部平滑过渡」的胶囊，比纯圆弧角更贴 iOS 观感。
-    final LiquidGlassCornerStyle cornerStyle = circle
-        ? LiquidGlassCornerStyle.roundedRectangle
-        : LiquidGlassCornerStyle.continuousRoundedRectangle;
-
-    // 按下的底色变化要和传统档同一段过渡（pressDuration / easeOut）。
-    // lens 没有 AnimatedContainer 那样的隐式插值，这里自己插。
-    return TweenAnimationBuilder<Color?>(
-      tween: ColorTween(
-        end: pressed
-            ? GlassTokens.liquidPressedTint(cs)
-            : GlassTokens.liquidTint(cs),
-      ),
-      duration: GlassTokens.pressDuration,
-      curve: Curves.easeOut,
-      child: child,
-      builder: (context, tint, child) {
-        // materialize 在 tween **之后**再压一次 alpha：直接把它算进 tween 的
-        // end 会让 TweenAnimationBuilder 每帧都被当成「目标变了」而重启，
-        // 120ms 的按压过渡反过来把材质淡入拖成一条追不上的尾巴。
-        final Color base = tint ?? GlassTokens.liquidTint(cs);
-        final Color color = m >= 1 ? base : base.withValues(alpha: base.a * m);
-        Widget lens = SizedBox(
-          height: height,
-          width: circle ? height : width,
-          child: LiquidGlassLens(
-            style: LiquidGlassStyle(
-              shape: LiquidGlassShape(
-                cornerStyle: cornerStyle,
-                cornerRadius: radius,
-              ),
-              specular: GlassTokens.liquidSpecular,
-              glow: GlassTokens.liquidGlow,
-              color: color,
-              blur: GlassTokens.liquidBlur,
-              saturation: GlassTokens.liquidSaturation,
-              shadow: elevated
-                  ? GlassTokens.liquidShadow(cs, alphaScale: m)
-                  : null,
-              refractionIndex: GlassTokens.liquidRefractionIndex,
-              refractionWidth: GlassTokens.liquidRefractionWidth,
-              dispersion: GlassTokens.liquidDispersion,
-            ),
-            touch: touchFlex ? GlassTokens.liquidFlex : null,
-            child: child,
-          ),
-        );
-        // ⛔ 不再叠外层 DecoratedBox 投影：`LiquidGlassStyle.shadow`
-        // 上面已经喂了 [GlassTokens.liquidShadow]，那是包自带的接触阴影环
-        // （随形变一起胀缩），[elevated] 已经在那一路生效。这里再套一层
-        // `boxShadow: 传统档那条已删的 shadow token` 曾经是货真价实的双重投影——
-        // 两条阴影同时画在同一圈轮廓上，读起来自然「特别大」。
-        return lens;
-      },
-    );
-  }
-}
-
 /// `liquid_glass_widgets` 版的玻璃体：[GlassSurface] 在
 /// [GlassBackend.liquidWidgets] 档下画的就是这个。
 ///
-/// 与 [LiquidGlassBox] **构造参数一一对应**，尺寸语义也完全一致（[height]
+/// 尺寸语义与传统档的 `AnimatedContainer` 完全一致（[height]
 /// 紧约束、[width] 为 null 时按内容收缩、[circle] 取正方），所以三档之间切换
 /// 不会动布局——这是「换材质不换尺寸」这条规矩的落点。
 ///
@@ -920,7 +813,7 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
   final bool elevated;
 
   /// 跟手形变：**按住并拖动时整只玻璃跟着手指走、松手弹回**，另带一下按压
-  /// 膨胀与指尖处的方向性高光。与 [LiquidGlassBox.touchFlex] 是同一个效果，
+  /// 膨胀与指尖处的方向性高光。
   /// 只是换了一套实现。
   ///
   /// 实现上借的是 `GlassButton.custom(style: transparent)`：包里真正干活的
@@ -944,7 +837,7 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 登记为外观参数的依赖：主题设置里拖滑块时，已经画出来的玻璃要跟着变
-    // （此前只有 easy 档的 [LiquidGlassBox] 登记了）。
+    // （此前只有已删的 easy 档登记了）。
     GlassAppearanceScope.of(context);
     final cs = Theme.of(context).colorScheme;
     final double m = materialize.clamp(0.0, 1.0);
@@ -1446,146 +1339,6 @@ class _LiquidStretchShellState extends State<_LiquidStretchShell> {
   }
 }
 
-/// 给「抱内容、宽度会随外部状态过渡」的液态玻璃接入跟手形变，同时避开
-/// [LiquidGlassBox.touchFlex] 的钉死尺寸要求。
-///
-/// touch 需要一个已经量出来的精确尺寸；但像 [GlassButtonGroup] 这样的胶囊，
-/// 宽度会在按钮增删时经历一轮自己的过渡动画（[GlassGroupSlot] 的收放 +
-/// 外壳的 `AnimatedSize`，两套时序还刻意错开半拍，见 `glass_morph.dart`），
-/// 没法用一个公式实时算出"此刻正确的宽度"去跟手。
-///
-/// 这里换一个策略：**只在静止态开 touch**。[signature] 变化的瞬间立刻退回
-/// [builder] 的自然布局（`lockedSize: null`，与不套这层包装时完全一致，
-/// 过渡过程不会有任何尺寸错位）；等尺寸真的**不再变**了，才量一次、钉死
-/// 喂给 [builder]。
-///
-/// ## ⛔ 「静止」必须按帧判，不能拿墙上时钟等
-///
-/// 本类最初是 `Future.delayed(420ms)` 之后量一次就锁死。那是错的，而且不是
-/// 偶发——2026-08-23 在 OnePlus Pad 上稳定复现：
-///
-/// > 进编辑模式时按钮组多冒出一枚键，胶囊被**永久**钉在过渡途中的宽度上，
-/// > 里头的 `Row` 从此溢出，末尾那枚「更多」整只被裁掉，debug 下还常驻一条
-/// > 黄黑 OVERFLOWED 条；退出编辑模式则反过来钉得太宽，
-/// > `AnimatedSize(alignment: centerRight)` 把富余留在左边——**最左侧凭空多出
-/// > 一个按钮大小的空位**。两个症状同一个根因。
-///
-/// 420ms 压根不够：槽位（`GlassGroupSlot`）自己要 300ms 展开，外壳的
-/// `AnimatedSize` 还刻意「慢半拍」再追 340ms，合起来 600ms 打底，掉帧或
-/// `timeDilation` 下更长。而一旦锁在半路，`GlassSurface` 就给 `Row` 发了一个
-/// 比它自然宽度还小的紧约束——那是**不可恢复**的：约束紧了之后再也量不回
-/// 真实宽度，只能一直溢出。
-///
-/// 所以现在改成**逐帧探尺寸**：连续 [_settleStableFrames] 帧宽高都不再变
-/// （容差 [_settleEpsilon]）才认定静止并锁死；探到 [_settleMaxFrames] 帧还没
-/// 稳下来就**放弃上锁**（停在自然布局、不开 touch），宁可少一点跟手质感，
-/// 也不要一个钉错了就再也回不来的尺寸。
-///
-/// 注意 `addPostFrameCallback` 自己**不会催帧**：动画停下来之后没人再画，
-/// 回调就再也不来了，所以每轮探测都要显式 `scheduleFrame()`。
-class LiquidGlassSettledTouch extends StatefulWidget {
-  const LiquidGlassSettledTouch({
-    super.key,
-    required this.signature,
-    required this.builder,
-  });
-
-  /// 影响内容宽高的外部状态摘要（例如 `'$isWide|$isMultiSelect'`）；
-  /// 与上一次不 `==` 就视为「要重新经历一轮过渡」。
-  final Object signature;
-
-  /// `lockedSize` 为 null 表示还没到静止态（或刚开始一轮新过渡）；
-  /// 非 null 时是量出来的精确尺寸，这时 [builder] 才应该开 touch。
-  final Widget Function(BuildContext context, Size? lockedSize) builder;
-
-  @override
-  State<LiquidGlassSettledTouch> createState() =>
-      _LiquidGlassSettledTouchState();
-}
-
-/// 连续这么多帧尺寸不变才算静止。3 帧足以滤掉 `AnimatedSize` 收尾那几个
-/// 亚像素抖动，又不至于让上锁拖得太久。
-const int _settleStableFrames = 3;
-
-/// 探到这么多帧还没稳下来就放弃上锁（约 4 秒 @60fps）。兜底用，正常路径
-/// 一次过渡几十帧就到了。
-const int _settleMaxFrames = 240;
-
-/// 尺寸「没变」的容差：亚像素级的抖动不该重置计数。
-const double _settleEpsilon = 0.1;
-
-class _LiquidGlassSettledTouchState extends State<LiquidGlassSettledTouch> {
-  final GlobalKey _contentKey = GlobalKey();
-  Size? _lockedSize;
-  int _settleToken = 0;
-
-  /// 上一帧探到的尺寸与已经连续稳定的帧数。
-  Size? _probed;
-  int _stableFrames = 0;
-  int _probedFrames = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _scheduleSettle();
-  }
-
-  @override
-  void didUpdateWidget(covariant LiquidGlassSettledTouch oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.signature != widget.signature) {
-      setState(() => _lockedSize = null);
-      _scheduleSettle();
-    }
-  }
-
-  void _scheduleSettle() {
-    _probed = null;
-    _stableFrames = 0;
-    _probedFrames = 0;
-    _probeNextFrame(++_settleToken);
-  }
-
-  void _probeNextFrame(int token) {
-    final WidgetsBinding binding = WidgetsBinding.instance;
-    binding.addPostFrameCallback((_) => _probe(token));
-    // 关键：addPostFrameCallback 不催帧。过渡跑完之后就没有下一帧了，
-    // 不显式要一帧的话探测会静默停在最后一次动画帧上。
-    binding.scheduleFrame();
-  }
-
-  void _probe(int token) {
-    if (!mounted || token != _settleToken) return;
-    if (++_probedFrames > _settleMaxFrames) return; // 放弃上锁，停在自然布局
-    final RenderObject? box = _contentKey.currentContext?.findRenderObject();
-    if (box is! RenderBox || !box.hasSize) {
-      _probeNextFrame(token);
-      return;
-    }
-    final Size size = box.size;
-    final Size? previous = _probed;
-    _probed = size;
-    final bool same =
-        previous != null &&
-        (size.width - previous.width).abs() < _settleEpsilon &&
-        (size.height - previous.height).abs() < _settleEpsilon;
-    _stableFrames = same ? _stableFrames + 1 : 0;
-    if (_stableFrames >= _settleStableFrames) {
-      setState(() => _lockedSize = size);
-      return;
-    }
-    _probeNextFrame(token);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return KeyedSubtree(
-      key: _contentKey,
-      child: widget.builder(context, _lockedSize),
-    );
-  }
-}
-
 /// 预热 shader。
 ///
 /// lens 的 shader 是**异步加载**的：没加载完之前，全 App 第一块玻璃会先渲染成
@@ -1593,11 +1346,10 @@ class _LiquidGlassSettledTouchState extends State<LiquidGlassSettledTouch> {
 /// 用户在冷启动首屏就能看见这一下材质跳变。放在启动流程里 fire-and-forget 即可，
 /// 失败了也只是退回磨砂，不该阻塞启动。
 Future<void> warmUpLiquidGlassShaders() async {
-  try {
-    await LiquidGlassShaders.ensureLoaded();
-  } catch (_) {
-    // shader 不可用（构建损坏 / 不支持的环境）：玻璃停在磨砂档，功能不受影响。
-  }
+  // ⛔ 这里曾经还有一行 `LiquidGlassShaders.ensureLoaded()`（`liquid_glass_easy`
+  // 的两条 lens 着色器）。**别加回来**：它在 Windows 上要让 ANGLE 把 GLSL 翻成
+  // HLSL 再交给 D3D 编译，实测把光栅线程堵死约 18 秒，期间整个应用一帧都画不
+  // 出来——窗口已经显示，却是全白的。连包一起删了，见 [GlassBackend] 的注释。
   try {
     await lgw.LiquidGlassWidgets.initialize(
       // 他们的性能监视器在 debug/profile 下盯着光栅耗时，超预算就抛一条
@@ -1605,6 +1357,7 @@ Future<void> warmUpLiquidGlassShaders() async {
       // 必然是误报——关掉，别把真正的报错淹了。release 下它本来就不启用。
       enablePerformanceMonitor: false,
     );
+    StartupTrace.mark('warmup.widgets');
   } catch (_) {
     // 同上：预热失败只是第一块玻璃会晚一点成形，不该影响启动。
   }

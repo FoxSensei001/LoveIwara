@@ -54,7 +54,7 @@ void main() {
         ),
       ),
     );
-    expect(sampled, GlassBackend.easyLens);
+    expect(sampled, GlassBackend.liquidWidgets);
   });
 
   _segmentedTests();
@@ -75,7 +75,7 @@ void main() {
         ),
       ),
     );
-    expect(sampled, GlassBackend.easyLens);
+    expect(sampled, GlassBackend.liquidWidgets);
   });
 }
 
@@ -123,8 +123,8 @@ void _segmentedTests() {
     expect(find.text('最受欢迎'), findsOneWidget);
   });
 
-  testWidgets('传统/easy 档不引入果冻指示器', (tester) async {
-    for (final backend in [GlassBackend.plain, GlassBackend.easyLens]) {
+  testWidgets('传统/Material 档不引入果冻指示器', (tester) async {
+    for (final backend in [GlassBackend.plain, GlassBackend.material]) {
       await pumpSegmented(tester, backend);
       expect(find.byType(AnimatedGlassIndicator), findsNothing);
     }
@@ -179,7 +179,6 @@ void _stretchTests() {
               backend: backend,
               child: GlassButtonGroup(
                 touchFlex: touchFlex,
-                touchFlexSignature: 'x',
                 children: [
                   GlassIconButton(
                     key: const ValueKey('inner'),
@@ -224,9 +223,10 @@ void _stretchTests() {
     expect(tester.takeException(), isNull);
   });
 
-  // easy 档有自己的一套（lens 的 `touch`），不借 GlassButton。
-  testWidgets('easy 档不走这条路', (tester) async {
-    await pumpGroup(tester, GlassBackend.easyLens, touchFlex: true);
+  // 这里原本还有一条「easy 档不走这条路」：那一档有自己的跟手形变（lens 的
+  // `touch`），不借 GlassButton。随 liquid_glass_easy 一起删了。
+  testWidgets('Material 档不借 GlassButton 的形变壳', (tester) async {
+    await pumpGroup(tester, GlassBackend.material, touchFlex: true);
     expect(stretchShell(), findsNothing);
   });
 
@@ -274,7 +274,6 @@ void _stretchTests() {
               backend: GlassBackend.liquidWidgets,
               child: GlassButtonGroup(
                 touchFlex: true,
-                touchFlexSignature: 'x',
                 children: [
                   GlassIconButton(
                     key: const ValueKey('inner'),

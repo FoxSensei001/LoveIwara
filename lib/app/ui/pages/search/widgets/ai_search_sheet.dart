@@ -425,7 +425,6 @@ class _AiSearchSheetState extends State<_AiSearchSheet> {
       children: [
         GlassButtonGroup(
           // 出结果前后这组钮从 1 枚变 2 枚，宽度形变要认得出是同一坨玻璃。
-          touchFlexSignature: 'ai-search|$_hasResult|$_running',
           children: [
             if (!_hasResult)
               GlassTextActionButton(

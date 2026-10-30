@@ -1013,11 +1013,7 @@ class _SignatureProviderWizardState extends State<SignatureProviderWizard> {
         if (showDots) _StepDots(current: _dotIndex, total: _dotTotal),
         const Spacer(),
         if (actions.isNotEmpty)
-          GlassButtonGroup(
-            touchFlexSignature:
-                'sig-wizard|${_stage.name}|${_fetchError != null}',
-            children: actions,
-          ),
+          GlassButtonGroup(children: actions),
       ],
     );
   }

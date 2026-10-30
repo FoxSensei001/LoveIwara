@@ -348,7 +348,6 @@ class _AiProviderWizardSheetState extends State<_AiProviderWizardSheet> {
     return Row(
       children: [
         GlassButtonGroup(
-          touchFlexSignature: 'ai-wizard|$_step',
           children: [
             GlassTextActionButton(
               label: t.common.back,

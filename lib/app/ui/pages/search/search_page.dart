@@ -563,7 +563,6 @@ class _SearchPageState extends State<SearchPage> {
             GlassButtonGroup(
               // 组里按钮会随板块增减（oreno3d 没有筛选），宽度形变要认得出
               // 这是「同一坨玻璃换了内容」而不是换了一只。
-              touchFlexSignature: 'search-options|$showSort|${seg.name}',
               children: [
                 if (showSort)
                   Builder(

@@ -39,7 +39,7 @@ void main() {
   }
 
   testWidgets('传统档 / easy 档：纯透传，一层玻璃都不多建', (tester) async {
-    for (final backend in [GlassBackend.plain, GlassBackend.easyLens]) {
+    for (final backend in [GlassBackend.plain, GlassBackend.material]) {
       bool? joinable;
       await pump(
         tester,

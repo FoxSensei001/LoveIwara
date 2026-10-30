@@ -68,8 +68,9 @@ void main() {
     expect(actual.saturation, 1.1);
     expect(actual.chromaticAberration, 0.02);
     expect(actual.shadow, isEmpty);
-    expect(GlassTokens.liquidTint(cs).a, closeTo(0.6, 0.001));
-    expect(GlassTokens.liquidBlur, 7);
+    // ⛔ 这里还断言过 `GlassTokens.liquidTint` / `liquidBlur`（已删的
+    // liquid_glass_easy 档的面板底色与模糊）。面板现在和 chrome 同走
+    // widgets 档，上面那组 `actual.*` 已经把面板参数覆盖到了。
   });
 
   testWidgets('切换固定画质和参数保留 Navigator 与当前路由', (tester) async {

@@ -41,7 +41,7 @@ void main() {
     return sampled;
   }
 
-  testWidgets('真玻璃档：chrome 走 liquidWidgets，面板走 easyLens', (tester) async {
+  testWidgets('真玻璃档：chrome 与面板同走 liquidWidgets', (tester) async {
     expect(
       await sampleChrome(tester, GlassMaterialMode.liquid),
       GlassBackend.liquidWidgets,
@@ -60,7 +60,7 @@ void main() {
         ),
       ),
     );
-    expect(panel, GlassBackend.easyLens);
+    expect(panel, GlassBackend.liquidWidgets);
   });
 
   testWidgets('Material 档：chrome 与面板一起落到 material', (tester) async {

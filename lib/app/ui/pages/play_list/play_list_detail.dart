@@ -278,7 +278,6 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
     final t = slang.Translations.of(context);
     return Obx(
       () => GlassButtonGroup(
-        touchFlexSignature: 'playlist-detail|$compact',
         children: [
           GlassGroupSlot(
             visible: widget.isMine,
