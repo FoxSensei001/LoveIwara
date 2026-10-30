@@ -445,6 +445,10 @@ abstract class LogConstants {
   static const String fatalSnapshotFileName = 'last_fatal.json';
   static const String hangEventsFileName = 'hang_events.jsonl';
   static const String exitArchiveFileName = 'exit_records_archive.json';
+
+  /// 冷启动分段计时的落点（见 `StartupTrace`）。与崩溃标记同级：本地小文件，
+  /// 不受日志总开关控制。
+  static const String startupTraceFileName = 'startup_trace.txt';
   static const int defaultHangEventsMaxFileBytes = 2 * 1024 * 1024;
   static const int defaultHangEventsMaxRotatedFiles = 2;
 }

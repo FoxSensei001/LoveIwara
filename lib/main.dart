@@ -6,6 +6,7 @@ import 'dart:io';
 import 'dart:ui' show Canvas, PaintingStyle, Picture, PictureRecorder, Rect;
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/scheduler.dart' show FrameTiming, TimingsCallback;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -22,21 +23,36 @@ import 'app/ui/widgets/restart_app_widget.dart';
 import 'package:i_iwara/utils/desktop_native_fullscreen.dart';
 import 'package:i_iwara/utils/live_players.dart';
 import 'package:i_iwara/utils/desktop_window_geometry.dart';
+import 'package:i_iwara/utils/desktop_window_geometry_mirror.dart';
 import 'package:i_iwara/utils/device_form_factor_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/utils/process_uptime.dart';
 import 'package:i_iwara/utils/refresh_rate_helper.dart';
+import 'package:i_iwara/utils/startup_trace.dart';
 import 'package:window_manager/window_manager.dart';
 
-void main() {
+/// [args] 是 Dart 入口参数，不是进程命令行：Windows 的 runner 往里塞了一条
+/// `--startup-entry-ms`，把 Dart 看不见的加载器耗时递进来（见
+/// `windows/runner/main.cpp`）。深链和「用视频文件打开」走的是真命令行，
+/// 由原生侧自己解析，不经过这里。
+void main(List<String> args) {
   // 确保Flutter初始化
   runZonedGuarded(
     () async {
+      // 第一件事：问一下进程已经活了多久。这一段（加载 DLL、起 Dart VM、注册
+      // 插件）在 Dart 侧看不见，却是 Windows 白屏最容易藏身的地方。越早问越准。
+      StartupTrace.preMain = currentProcessUptime();
+      StartupTrace.adoptNativeTimings(args);
+      DesktopWindowGeometryMirror.adoptRunnerGeometry(args);
+
       // 确保Flutter初始化
       WidgetsFlutterBinding.ensureInitialized();
+      StartupTrace.mark('binding');
 
       // 日志初始化 - 仅初始化基本功能，不依赖数据库
       bool isProduction = !kDebugMode;
       await LogUtils.init(isProduction: isProduction);
+      StartupTrace.mark('log.utils');
 
       // 初始化日志持久化服务。
       // 显式传 policy：LogService 自己的默认值按 kReleaseMode 判定，而 LogUtils
@@ -48,6 +64,9 @@ void main() {
       Get.put(logService, permanent: true);
       // 挂上引用，让 LogUtils 的热路径不必每条日志都查一次 GetX 容器。
       LogUtils.attachLogService(logService);
+      // init() 里会读上一会话的崩溃标记、写本会话的，还要 resolve 日志目录——
+      // 都是同步磁盘 IO，单独记一段。
+      StartupTrace.mark('log.service');
 
       // 注册生命周期监听，确保移动端正常退出时清理崩溃标记
       final lifecycleObserver = _AppLifecycleObserver(logService);
@@ -101,6 +120,7 @@ void main() {
         isProduction: isProduction,
       );
       await DeviceFormFactorUtils.applyMobileOrientationPolicy();
+      StartupTrace.mark('orientation');
 
       // 液态玻璃的 shader 异步加载：不预热的话，冷启动首屏第一块玻璃会先渲染
       // 成磨砂、加载完再切成折射，肉眼能看见这一下材质跳变。不 await——加载失败
@@ -116,6 +136,14 @@ void main() {
       }
 
       FramePerfProbe.start();
+      // 这一刻之前，屏幕上什么都没有：Windows 的窗口要等第一帧光栅完才 Show
+      // （见 windows/runner/flutter_window.cpp 的 SetNextFrameCallback）。
+      // 「白屏多久」的分母就是从进程启动到下面那条 first.raster。
+      StartupTrace.mark('pre-runApp');
+      // 玻璃档位到这里才是最终值（initializeCore 里从配置表灌好的），抬头要在
+      // 它之后生成。
+      StartupTrace.header = _startupTraceHeader();
+      _watchFirstFrame();
 
       runApp(
         wrapLiquidGlassApplication(
@@ -173,6 +201,87 @@ void main() {
   );
 }
 
+/// 本次冷启动的身份抬头，写进计时文件的每一块。
+///
+/// `glass=` 这一项是**排查的主角**：液态玻璃出厂默认关闭，Material 档下全 App
+/// 一块折射 shader 都不画。拿到用户的文件时，第一眼要能确认他当时跑的是哪一档，
+/// 否则「是不是玻璃拖慢了启动」永远只能靠猜。
+String _startupTraceHeader() {
+  final mode = glassMaterialMode.value == GlassMaterialMode.liquid
+      ? 'liquid'
+      : 'material';
+  return '${DateTime.now().toIso8601String()} · '
+      '${CommonConstants.FULL_VERSION} (${CommonConstants.buildTag}) · '
+      '${Platform.operatingSystem} · glass=$mode';
+}
+
+/// 第一帧 build / layout 跑完的时刻。
+///
+/// # ⛔ 别用 `addTimingsCallback` 量「首帧光栅」
+///
+/// 最早这里挂的是帧耗时回调，想单独量出光栅那一段（Windows 上 Impeller(ANGLE)
+/// 要靠驱动在运行时编 GLSL，这一段曾经单独值十几秒，见 `chromeGlassQuality` 的
+/// 实测记录）。实跑的读数是 **20 秒**，看着像实锤，其实是假的：
+/// `onReportTimings` 是**攒批**送的，界面闲下来之后引擎可能很久才把批次吐出来，
+/// 拿到的 `timings.first` 也已经不是首帧了（读数里 build / raster 双双为 0 就是
+/// 破绽）。同一次启动，外部量到窗口 2.7 秒就可见。
+///
+/// 桌面端真正该量的是 `windowManager.show()` ——窗口从那一刻起才在屏幕上，
+/// 「白屏多久」的终点就是它，见 `_initializeDesktop`。
+void _watchFirstFrame() {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    StartupTrace.mark('first.build');
+  });
+
+  // 前几帧各自什么时候**构建**、什么时候**光栅**，分开记。
+  //
+  // 为什么要这两条：窗口已经在屏幕上却一片空白，有两种完全不同的解释——
+  // 「Dart 在出帧，但画出来的内容本来就是白的」和「根本没有帧送到屏幕上」。
+  // 只看窗口可见时间区分不了，截屏也问不出来（ANGLE 的窗口 PrintWindow 抓到
+  // 的是空白）。所以让 App 自己报。
+  //
+  // 只记前几帧：之后每帧都记就成了性能问题本身。
+  var built = 0;
+  WidgetsBinding.instance.addPersistentFrameCallback((_) {
+    built++;
+    if (built <= 6) {
+      StartupTrace.mark('frame.build#$built');
+    }
+  });
+
+  var batches = 0;
+  late final TimingsCallback onTimings;
+  onTimings = (List<FrameTiming> timings) {
+    batches++;
+    if (batches > 6) {
+      WidgetsBinding.instance.removeTimingsCallback(onTimings);
+      return;
+    }
+    final first = timings.first;
+    // ⚠️ 这是**批次送达**的时刻，不是光栅完成的时刻：onReportTimings 是攒批送的，
+    // 界面闲下来后引擎可能很久才吐。所以读它要看 n=（这一批几帧）和帧内耗时，
+    // 别把送达时间当成首帧时间——之前就在这上面栽过一次，读出过 20 秒的假数。
+    StartupTrace.mark(
+      'frame.raster#$batches'
+      '(n=${timings.length},b${first.buildDuration.inMilliseconds}'
+      ',r${first.rasterDuration.inMilliseconds})',
+    );
+  };
+  WidgetsBinding.instance.addTimingsCallback(onTimings);
+
+  // 白屏期间的快照：就算后面卡死，这一份也已经在盘上了。
+  for (final seconds in [6, 20]) {
+    Timer(Duration(seconds: seconds), () {
+      StartupTrace.mark('watch.${seconds}s(frames=$built,batches=$batches)');
+      if (Get.isRegistered<LogService>()) {
+        unawaited(
+          StartupTrace.flush(Get.find<LogService>().paths.startupTraceFile),
+        );
+      }
+    });
+  }
+}
+
 /// 初始化桌面端设置
 Future<void> _initializeDesktopSafely() async {
   try {
@@ -199,10 +308,63 @@ Future<void> _initializeDesktopSafely() async {
   }
 }
 
+/// runner 建窗口时用的几何和本次要摆的几何，差到要不要补一刀的程度。
+///
+/// # 容差为什么是 2 逻辑像素
+///
+/// 这组数走了一圈有损的来回：Dart 存的是逻辑 double（1638.4），runner 取整后
+/// 按显示器 DPI 放大成物理像素交给 `CreateWindow`，下次再读回来又除一次。
+/// 在非整数倍的显示缩放下，实测一圈会掉不到一个像素，镜像值就在相邻两个值
+/// 之间来回跳。
+///
+/// 卡太紧的后果不是「不准」，而是**每次启动都判定不匹配、白付两百多毫秒的表面
+/// 重建**——那正是这套机制要省掉的东西。而放宽到 2px 的代价是窗口可能比上次
+/// 窄两个逻辑像素，没人看得出来。
+const double _geometryTolerance = 2.0;
+
+bool _matchesRunnerSize(Size target) {
+  final applied = DesktopWindowGeometryMirror.appliedByRunner;
+  if (applied == null) return false;
+  return (applied.width - target.width).abs() <= _geometryTolerance &&
+      (applied.height - target.height).abs() <= _geometryTolerance;
+}
+
+bool _matchesRunnerPosition(Offset target) {
+  final applied = DesktopWindowGeometryMirror.appliedByRunner;
+  if (applied == null) return false;
+  return (applied.left - target.dx).abs() <= _geometryTolerance &&
+      (applied.top - target.dy).abs() <= _geometryTolerance;
+}
+
+/// 给时间线用的一行说明：runner 给的是什么、本次要的是什么。
+String _sizeDebug(Size target) {
+  final applied = DesktopWindowGeometryMirror.appliedByRunner;
+  String fmt(double v) => v.toStringAsFixed(1);
+  if (applied == null) {
+    return 'runner=none target=${fmt(target.width)}x${fmt(target.height)}';
+  }
+  return 'runner=${fmt(applied.width)}x${fmt(applied.height)} '
+      'target=${fmt(target.width)}x${fmt(target.height)}';
+}
+
+/// 问一次窗口当下的几何并写进镜像。
+Future<void> _writeGeometryMirrorFromCurrentWindow() async {
+  try {
+    final size = await windowManager.getSize();
+    final position = await windowManager.getPosition();
+    await DesktopWindowGeometryMirror.write(
+      Rect.fromLTWH(position.dx, position.dy, size.width, size.height),
+    );
+  } catch (_) {
+    // 镜像只是启动快路，写不成下次多付一次 setSize 而已。
+  }
+}
+
 /// 初始化桌面端设置
 Future<void> _initializeDesktop() async {
   await windowManager.ensureInitialized();
   await windowManager.waitUntilReadyToShow();
+  StartupTrace.mark('desktop.ready');
 
   final configService = Get.find<ConfigService>();
   double? storedWidth = configService.settings[ConfigKey.WINDOW_WIDTH]?.value;
@@ -232,32 +394,58 @@ Future<void> _initializeDesktop() async {
       Rect.fromLTWH(storedX, storedY, storedWidth, storedHeight),
     );
   }
+  // 以下每一步都挡在 show 之前，也就是全都顶在白屏上，所以逐个打点。
+  StartupTrace.mark('desktop.fitRect');
 
-  // 先设置窗口大小（不需要补偿，因为此时标题栏还未隐藏）
-  if (restored != null) {
-    await windowManager.setSize(restored.size);
-    LogUtils.d('已从配置恢复窗口大小: ${restored.size}', '桌面初始化');
-  } else if (hasSize) {
-    await windowManager.setSize(Size(storedWidth, storedHeight));
-    LogUtils.d('已从配置恢复窗口大小: ${storedWidth}x$storedHeight', '桌面初始化');
+  // 这次要摆成的尺寸。三种来源：校正过的、配置里原样的、出厂默认。
+  final Size targetSize =
+      restored?.size ??
+      (hasSize
+          ? Size(storedWidth, storedHeight)
+          : const Size(defaultWidth, defaultHeight));
+
+  // ⚠️ 这一只调用实测 220ms 上下，而同一只紧接着再来一次只要 38ms，只读的
+  // getSize 只要 0.5ms——贵的不是平台通道，是**改窗口尺寸会让引擎把渲染表面
+  // 拆了重建**，而这会儿 Flutter 视图已经建好了。
+  //
+  // 所以常见情况下根本不该走到这里：runner 在建窗口时就按镜像文件把尺寸给对了
+  // （见 `windows/runner/window_geometry.cpp`），那时还没有表面，这笔钱是零。
+  // 它回执的矩形和上面算出来的目标一致，就跳过——只有屏幕变了、分辨率改了、
+  // 镜像还没写过（首次启动）这些情况才真的需要补一刀。
+  final bool sizeAlreadyApplied = _matchesRunnerSize(targetSize);
+  if (sizeAlreadyApplied) {
+    LogUtils.d('窗口大小已由 runner 建窗口时应用: $targetSize', '桌面初始化');
   } else {
-    // 如果没有存储的尺寸或尺寸无效，则使用默认尺寸
-    await windowManager.setSize(const Size(defaultWidth, defaultHeight));
-    LogUtils.d('使用默认窗口大小: ${defaultWidth}x$defaultHeight', '桌面初始化');
+    await windowManager.setSize(targetSize);
+    LogUtils.d('设置窗口大小: $targetSize', '桌面初始化');
   }
+  // 跳没跳、没跳是因为差多少，都写进时间线：这一步值两百多毫秒，光看耗时
+  // 看不出是「本来就不用做」还是「判定没匹配上白做了一次」。
+  StartupTrace.mark(
+    sizeAlreadyApplied
+        ? 'desktop.setSize(skip)'
+        : 'desktop.setSize(${_sizeDebug(targetSize)})',
+  );
 
   // 先设置标题栏样式为隐藏
   await windowManager.setTitleBarStyle(
     TitleBarStyle.hidden,
     windowButtonVisibility: GetPlatform.isMacOS,
   );
+  StartupTrace.mark('desktop.titleBar');
   // if (GetPlatform.isLinux) {
   //   await windowManager.setBackgroundColor(Colors.transparent);
   // }
 
   // 在隐藏标题栏之后再恢复窗口位置
   if (restored != null) {
-    await windowManager.setPosition(restored.topLeft);
+    // 同上：runner 已经把窗口建在这个位置了就不必再挪。移动比缩放便宜得多
+    // （实测 1.7ms，不触发表面重建），但白送的还是要。
+    if (_matchesRunnerPosition(restored.topLeft)) {
+      LogUtils.d('窗口位置已由 runner 建窗口时应用: ${restored.topLeft}', '桌面初始化');
+    } else {
+      await windowManager.setPosition(restored.topLeft);
+    }
     // 校正过就把新值写回去：监听器要到 show 之后才挂上，用户一次都不拖的话，
     // 配置里会一直躺着那组坏值，每次启动都得重新校正一遍。
     if (restored !=
@@ -278,8 +466,21 @@ Future<void> _initializeDesktop() async {
     );
   }
 
+  StartupTrace.mark('desktop.setPosition');
+
+  // 第一次启动（或镜像被删了）时把当下的几何写进镜像，下次启动 runner 就能直接
+  // 用。之后由 DesktopWindowListener 在窗口停稳时维护。
+  unawaited(_writeGeometryMirrorFromCurrentWindow());
+
   await windowManager.show();
   await windowManager.focus();
+  // ⭐ 白屏的终点就在这一行：在此之前屏幕上没有这个 App 的任何东西。
+  StartupTrace.mark('desktop.show');
+  if (Get.isRegistered<LogService>()) {
+    final paths = Get.find<LogService>().paths;
+    LogUtils.i('冷启动分段（至窗口可见）\n${StartupTrace.summary()}', '启动初始化');
+    unawaited(StartupTrace.flush(paths.startupTraceFile));
+  }
 
   // --- 修改：添加窗口大小变化监听器 ---
   windowManager.addListener(DesktopWindowListener());
@@ -351,9 +552,14 @@ class DesktopWindowListener extends WindowListener {
 
   void _scheduleGeometrySave() {
     _geometryTimer?.cancel();
-    _geometryTimer = Timer(const Duration(milliseconds: 400), () {
-      _saveWindowSize();
-      _saveWindowPosition();
+    _geometryTimer = Timer(const Duration(milliseconds: 400), () async {
+      await _saveWindowSize();
+      await _saveWindowPosition();
+      // 原生 runner 下次启动要读的那份镜像。和配置库里那两组值同源，只是换了
+      // 个 Flutter 引擎起来之前也读得到的格式——见
+      // `DesktopWindowGeometryMirror`。
+      if (await _skipGeometryPersist('几何镜像')) return;
+      await _writeGeometryMirrorFromCurrentWindow();
     });
   }
 

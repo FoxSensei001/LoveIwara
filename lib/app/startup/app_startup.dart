@@ -72,6 +72,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/glsl_shader_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/proxy/proxy_util.dart';
+import 'package:i_iwara/utils/startup_trace.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:media_kit/media_kit.dart';
 
@@ -158,11 +159,22 @@ class AppStartupCoordinator implements AppStartupRunner {
       return running;
     }
 
-    final future = _runDeferredInitialization(onProgress: onProgress);
+    // 延迟初始化这一段屏幕上已经有开屏和进度条了，但它一样能吃掉好几秒。
+    // 每条 onProgress 都带着下一阶段的名字，拿它当分段边界：收到新名字时，
+    // 结算的是**上一个**阶段。
+    String? runningStage;
+    void tracedProgress(AppStartupProgress progress) {
+      if (runningStage != null) StartupTrace.mark('deferred.$runningStage');
+      runningStage = progress.detail;
+      onProgress(progress);
+    }
+
+    final future = _runDeferredInitialization(onProgress: tracedProgress);
     _runningDeferredInitialization = future;
 
     try {
       await future;
+      if (runningStage != null) StartupTrace.mark('deferred.$runningStage');
       _deferredInitialized = true;
       onProgress(
         const AppStartupProgress(
@@ -171,6 +183,7 @@ class AppStartupCoordinator implements AppStartupRunner {
           detail: 'MyApp',
         ),
       );
+      _flushStartupTrace();
     } catch (_) {
       await _cleanupDeferredServices();
       rethrow;
@@ -179,19 +192,40 @@ class AppStartupCoordinator implements AppStartupRunner {
     }
   }
 
+  /// 把完整的启动时间线落盘。首帧那次已经写过一块（见 `_watchFirstFrame`），
+  /// 这一块是它的超集——首帧之后到「可用」之间的几秒也在里头。
+  ///
+  /// 故意不覆盖前一块：启动若卡死在延迟初始化里，这次根本走不到，而首帧那块
+  /// 已经在盘上了，那就是现场。
+  void _flushStartupTrace() {
+    if (!Get.isRegistered<LogService>()) return;
+    unawaited(
+      StartupTrace.flush(Get.find<LogService>().paths.startupTraceFile),
+    );
+  }
+
+  /// ⚠️ 这一串全在 `runApp` **之前**，期间屏幕上一帧都没有（Windows 的窗口要等
+  /// 第一帧光栅完才 Show）。任何一段慢下来，用户看到的都是同一块白屏，所以每段
+  /// 都要单独打点——出事时文件里直接指得出是哪一段，见 [StartupTrace]。
   Future<void> _initializeBaseServices() async {
     final deepLinkService = DeepLinkService();
     await deepLinkService.init();
     _putIfAbsent<DeepLinkService>(deepLinkService);
+    StartupTrace.mark('core.deeplink');
 
     await GetStorage.init();
+    StartupTrace.mark('core.getstorage');
     await StorageService().init();
+    StartupTrace.mark('core.storage');
 
     final dbService = DatabaseService();
     await dbService.init();
     _putIfAbsent<DatabaseService>(dbService);
+    // 建连 + 跑迁移 + _ensureCriticalSchema 的存在性检查都在这一段里。
+    StartupTrace.mark('core.db');
 
     await dbService.cleanupLogDatabase();
+    StartupTrace.mark('core.logdb');
 
     _putIfAbsent<MessageService>(MessageService());
   }
@@ -204,11 +238,13 @@ class AppStartupCoordinator implements AppStartupRunner {
 
     final configService = await ConfigService().init();
     _putIfAbsent<ConfigService>(configService);
+    StartupTrace.mark('core.config');
 
     // 配置有可能是从备份 / 换机搬过来的（Android 自动备份会把整个配置库带走）。
     // 那种情况下首次引导和玻璃质感提醒的"已问过"标记也一起回来了，要在任何人
     // 读到它们之前先复位——路由守卫和 GlassMaterialIntro 都晚于这里。
     await RestoredInstallGuard.reconcile(configService);
+    StartupTrace.mark('core.restoredguard');
 
     // 玻璃材质开关要在**任何一块玻璃 build 之前**灌好：shader 预热和第一帧
     // chrome 都读它，晚一步就会先渲染成真玻璃再跳回假玻璃。
@@ -226,13 +262,17 @@ class AppStartupCoordinator implements AppStartupRunner {
     await logService.applyPolicy(
       LogService.policyFromConfig(configService, isProduction: isProduction),
     );
+    StartupTrace.mark('core.logpolicy');
 
     // 应用锁要在路由/UI 起来之前就位：init() 里读安全存储凭据，
     // 决定这次冷启动是否直接进锁屏。
     final appLockService = await AppLockService().init();
     _putIfAbsent<AppLockService>(appLockService);
+    // 读 flutter_secure_storage，Windows 上落到 DPAPI，首次调用不便宜。
+    StartupTrace.mark('core.applock');
 
     await Get.find<AppService>().syncSiteModeFromConfig(configService);
+    StartupTrace.mark('core.sitemode');
 
     // 冷启动恒为主站。如果这次是被一条 AI 站链接拉起来的，趁应用树还没 build
     // 直接以那个站点起步，省掉"开了页面才发现站点不对 → 切站 → 重启整棵树"。
@@ -244,10 +284,12 @@ class AppStartupCoordinator implements AppStartupRunner {
     }
 
     await _applyLocale(configService);
+    StartupTrace.mark('core.locale');
 
     // 小尾巴求值器。必须晚于 _applyLocale：它启动时按当前语言预载日期符号，
     // `{weekday}` 要拿那份数据才能出中文的「星期六」。
     _putIfAbsent<SignatureService>(await SignatureService().init());
+    StartupTrace.mark('core.signature');
   }
 
   Future<void> _runDeferredInitialization({

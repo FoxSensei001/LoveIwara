@@ -66,6 +66,17 @@ FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
   case WM_FONTCHANGE:
     flutter_controller_->engine()->ReloadSystemFonts();
     break;
+  case WM_SHOWWINDOW:
+    // Only the first time, and only for "becoming visible": the window is
+    // shown and hidden again over its life (tray, minimise), and the splash is
+    // long gone by then.
+    if (wparam == TRUE && !window_shown_) {
+      window_shown_ = true;
+      if (on_window_shown_) {
+        on_window_shown_();
+      }
+    }
+    break;
   }
 
   return Win32Window::MessageHandler(hwnd, message, wparam, lparam);

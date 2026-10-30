@@ -7,6 +7,7 @@ import 'package:i_iwara/app/services/theme_service.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/utils/startup_trace.dart';
 
 import 'app_startup.dart';
 
@@ -61,6 +62,7 @@ class _AppStartupShellState extends State<AppStartupShell> {
       if (!mounted) {
         return;
       }
+      StartupTrace.mark('shell.ready');
       setState(() {
         _showApp = true;
         _isRunning = false;

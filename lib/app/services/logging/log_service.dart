@@ -57,6 +57,11 @@ class LogService extends GetxService {
   String get sessionId => _sessionId;
   LogPolicy get policy => _policy;
 
+  /// 日志目录下那几个固定落点。对外暴露是给**不受日志开关管**的那些本地小文件
+  /// 用的（崩溃标记、退出存档、冷启动计时）——它们和 app.log 同住一个目录，
+  /// 但写不写与持久化开关无关，不该各自再解析一遍路径。
+  LogPaths get paths => _paths;
+
   /// [paths] / [sink] 仅供测试注入；生产一律走 [LogPaths.resolve]（依赖
   /// path_provider 插件）和自建的 [LogFileSink]。
   ///

@@ -29,6 +29,11 @@ class LogPaths {
     required this.exportDir,
   });
 
+  /// 冷启动分段计时的落点。用 getter 而不是构造参数：它只是 [logDir] 下的一个
+  /// 固定名字，两个构造器都不必各抄一遍。
+  String get startupTraceFile =>
+      p.join(logDir, LogConstants.startupTraceFileName);
+
   String rotatedFile(int index) =>
       p.join(logDir, '${LogConstants.logFileName}.$index');
 
