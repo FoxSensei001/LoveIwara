@@ -3556,6 +3556,12 @@ vrFormat:
   resetToAutoDesc: Die manuelle Auswahl für dieses Video verwerfen und die Erkennung erneut entscheiden lassen
   manualBadge: Manuell festgelegt
   panoramaHint: Ziehen Sie das Bild, um sich umzusehen; ziehen Sie zusammen, um das Sichtfeld zu ändern
+  gyroControl: "Bewegungssteuerung"
+  gyroControlDesc: "Im VR-Panoramamodus das Handy drehen, um sich umzusehen; Ziehen verfeinert den Blick weiterhin"
+  gyroPromptTitle: "Bewegungssteuerung einschalten?"
+  gyroPromptBody: "Bewegungssensor für ein besseres VR-Erlebnis einschalten? Du kannst das in den Einstellungen wieder ausschalten."
+  gyroPromptEnable: "Einschalten"
+  gyroPromptDecline: "Nicht jetzt"
   panoramaGestureNotice: Beim Umsehen dreht Ziehen die Ansicht — verwenden Sie den Fortschrittsbalken zum Spulen
   shaderUnsupported: Dieses Gerät kann Live-Panorama nicht rendern; es wird stattdessen ein einzelnes Auge angezeigt
   handoffTooltip: Anders abspielen

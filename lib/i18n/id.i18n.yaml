@@ -3556,6 +3556,12 @@ vrFormat:
   resetToAutoDesc: Lupakan pilihan manual untuk video ini dan biarkan deteksi memutuskan lagi
   manualBadge: Diatur secara manual
   panoramaHint: Seret gambar untuk melihat sekeliling, cubit untuk mengubah bidang pandang
+  gyroControl: "Kontrol gerak"
+  gyroControlDesc: "Dalam mode panorama VR, putar ponsel untuk melihat sekeliling; geser layar tetap bisa menyesuaikan tampilan"
+  gyroPromptTitle: "Aktifkan kontrol gerak?"
+  gyroPromptBody: "Aktifkan sensor gerak untuk pengalaman VR yang lebih baik? Fitur ini bisa dimatikan di Pengaturan."
+  gyroPromptEnable: "Aktifkan"
+  gyroPromptDecline: "Nanti saja"
   panoramaGestureNotice: Saat melihat sekeliling, menyeret akan memutar tampilan — gunakan bilah kemajuan untuk mencari
   shaderUnsupported: Perangkat ini tidak dapat menampilkan panorama langsung; menampilkan satu mata sebagai gantinya
   handoffTooltip: Putar dengan cara lain

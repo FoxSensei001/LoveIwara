@@ -2856,6 +2856,12 @@ class _TranslationsVrFormatVi extends TranslationsVrFormatEn {
 	@override String get resetToAutoDesc => 'Quên lựa chọn thủ công cho video này và để tính năng phát hiện quyết định lại';
 	@override String get manualBadge => 'Đặt thủ công';
 	@override String get panoramaHint => 'Kéo hình để nhìn quanh, chụm để thay đổi trường nhìn';
+	@override String get gyroControl => 'Điều khiển bằng cảm biến';
+	@override String get gyroControlDesc => 'Ở chế độ toàn cảnh VR, xoay điện thoại để nhìn xung quanh; kéo màn hình vẫn tinh chỉnh được góc nhìn';
+	@override String get gyroPromptTitle => 'Bật điều khiển bằng cảm biến?';
+	@override String get gyroPromptBody => 'Bật cảm biến chuyển động để có trải nghiệm VR tốt hơn? Bạn có thể tắt tính năng này trong Cài đặt.';
+	@override String get gyroPromptEnable => 'Bật';
+	@override String get gyroPromptDecline => 'Để sau';
 	@override String get panoramaGestureNotice => 'Trong khi nhìn quanh, kéo sẽ xoay tầm nhìn — hãy dùng thanh tiến trình để tua';
 	@override String get shaderUnsupported => 'Thiết bị này không thể hiển thị toàn cảnh trực tiếp; thay vào đó hiển thị một mắt';
 	@override String get handoffTooltip => 'Phát theo cách khác';
@@ -8416,6 +8422,12 @@ extension on TranslationsVi {
 			'vrFormat.resetToAutoDesc' => 'Quên lựa chọn thủ công cho video này và để tính năng phát hiện quyết định lại',
 			'vrFormat.manualBadge' => 'Đặt thủ công',
 			'vrFormat.panoramaHint' => 'Kéo hình để nhìn quanh, chụm để thay đổi trường nhìn',
+			'vrFormat.gyroControl' => 'Điều khiển bằng cảm biến',
+			'vrFormat.gyroControlDesc' => 'Ở chế độ toàn cảnh VR, xoay điện thoại để nhìn xung quanh; kéo màn hình vẫn tinh chỉnh được góc nhìn',
+			'vrFormat.gyroPromptTitle' => 'Bật điều khiển bằng cảm biến?',
+			'vrFormat.gyroPromptBody' => 'Bật cảm biến chuyển động để có trải nghiệm VR tốt hơn? Bạn có thể tắt tính năng này trong Cài đặt.',
+			'vrFormat.gyroPromptEnable' => 'Bật',
+			'vrFormat.gyroPromptDecline' => 'Để sau',
 			'vrFormat.panoramaGestureNotice' => 'Trong khi nhìn quanh, kéo sẽ xoay tầm nhìn — hãy dùng thanh tiến trình để tua',
 			'vrFormat.shaderUnsupported' => 'Thiết bị này không thể hiển thị toàn cảnh trực tiếp; thay vào đó hiển thị một mắt',
 			'vrFormat.handoffTooltip' => 'Phát theo cách khác',
@@ -8677,14 +8689,14 @@ extension on TranslationsVi {
 			'historyPage.removeFromHistory' => 'Xóa khỏi lịch sử',
 			'historyPage.removed' => 'Đã xóa khỏi lịch sử',
 			'historyPage.watchedTo' => ({required Object time}) => 'Đã xem đến ${time}',
+			_ => null,
+		} ?? switch (path) {
 			'historyPage.finished' => 'Đã xem xong',
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'Xóa "${tab}"',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Toàn bộ lịch sử trong "${tab}" sẽ bị xóa, kèm tiến độ xem của các video đó. Không thể hoàn tác.',
 			'historyPage.rangeByLastViewed' => 'Lọc theo thời gian xem gần nhất',
 			'ai.title' => 'AI',
 			'ai.providers' => 'Nhà cung cấp',
-			_ => null,
-		} ?? switch (path) {
 			'ai.providersHint' => 'Thêm một hoặc nhiều nhà cung cấp AI, sau đó chọn nhà cung cấp cho từng tính năng.',
 			'ai.addProvider' => 'Thêm nhà cung cấp',
 			'ai.noProviders' => 'Chưa có nhà cung cấp nào. Hãy thêm để bật tính năng dịch, tìm kiếm và chữ ký bằng AI.',

@@ -7301,6 +7301,24 @@ class TranslationsVrFormatEn {
 	/// en: 'Drag the picture to look around, pinch to change the field of view'
 	String get panoramaHint => 'Drag the picture to look around, pinch to change the field of view';
 
+	/// en: 'Motion control'
+	String get gyroControl => 'Motion control';
+
+	/// en: 'In VR panorama mode, turn your phone to look around; dragging still fine-tunes the view'
+	String get gyroControlDesc => 'In VR panorama mode, turn your phone to look around; dragging still fine-tunes the view';
+
+	/// en: 'Turn on motion control?'
+	String get gyroPromptTitle => 'Turn on motion control?';
+
+	/// en: 'Turn on motion sensing for a better VR experience? You can turn this off in Settings.'
+	String get gyroPromptBody => 'Turn on motion sensing for a better VR experience? You can turn this off in Settings.';
+
+	/// en: 'Turn on'
+	String get gyroPromptEnable => 'Turn on';
+
+	/// en: 'Not now'
+	String get gyroPromptDecline => 'Not now';
+
 	/// en: 'While looking around, dragging turns the view — use the progress bar to seek'
 	String get panoramaGestureNotice => 'While looking around, dragging turns the view — use the progress bar to seek';
 
@@ -16072,6 +16090,12 @@ extension on Translations {
 			'vrFormat.resetToAutoDesc' => 'Forget the manual choice for this video and let detection decide again',
 			'vrFormat.manualBadge' => 'Set manually',
 			'vrFormat.panoramaHint' => 'Drag the picture to look around, pinch to change the field of view',
+			'vrFormat.gyroControl' => 'Motion control',
+			'vrFormat.gyroControlDesc' => 'In VR panorama mode, turn your phone to look around; dragging still fine-tunes the view',
+			'vrFormat.gyroPromptTitle' => 'Turn on motion control?',
+			'vrFormat.gyroPromptBody' => 'Turn on motion sensing for a better VR experience? You can turn this off in Settings.',
+			'vrFormat.gyroPromptEnable' => 'Turn on',
+			'vrFormat.gyroPromptDecline' => 'Not now',
 			'vrFormat.panoramaGestureNotice' => 'While looking around, dragging turns the view — use the progress bar to seek',
 			'vrFormat.shaderUnsupported' => 'This device cannot render live panorama; showing a single eye instead',
 			'vrFormat.handoffTooltip' => 'Play another way',
@@ -16311,14 +16335,14 @@ extension on Translations {
 			'localMedia.sourceAlreadyAdded' => ({required Object name}) => '"${name}" has already been added',
 			'localMedia.sourceContainsExisting' => ({required Object name}) => 'It already contains the added folder "${name}"; adding its parent folder isn\'t supported yet',
 			'localMedia.addSourceFailed' => 'Could not add that folder',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.fileMissing' => 'That file is no longer on disk',
 			'localMedia.permissionDenied' => 'File access not granted. Allow it before adding a folder.',
 			'localMedia.noVideosFound' => 'No videos in this folder',
 			'localMedia.emptyTitle' => 'Add a folder or connect a NAS to watch the videos you already have',
 			'localMedia.emptyPrivacyNote' => 'Files are read on this device only. Nothing is uploaded.',
 			'localMedia.removeSourceTitle' => ({required Object name}) => 'Remove "${name}"?',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.removeSourceBody' => 'The files themselves are not touched. Only this library entry is removed.',
 			'localMedia.remove' => 'Remove',
 			'localMedia.removeFolder' => 'Remove source',

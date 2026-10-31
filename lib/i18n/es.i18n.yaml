@@ -3556,6 +3556,12 @@ vrFormat:
   resetToAutoDesc: Olvidar la elección manual para este video y dejar que la detección decida de nuevo
   manualBadge: Establecido manualmente
   panoramaHint: Arrastre la imagen para mirar alrededor; pellizque para cambiar el campo de visión
+  gyroControl: "Control por movimiento"
+  gyroControlDesc: "En modo panorámico VR, gira el móvil para mirar alrededor; arrastrar sigue ajustando la vista"
+  gyroPromptTitle: "¿Activar el control por movimiento?"
+  gyroPromptBody: "¿Activar el sensor de movimiento para una mejor experiencia VR? Puedes desactivarlo en Ajustes."
+  gyroPromptEnable: "Activar"
+  gyroPromptDecline: "Ahora no"
   panoramaGestureNotice: Mientras mira alrededor, arrastrar gira la vista; use la barra de progreso para buscar
   shaderUnsupported: Este dispositivo no puede renderizar el panorama en vivo; se muestra un solo ojo en su lugar
   handoffTooltip: Reproducir de otra forma

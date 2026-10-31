@@ -84,6 +84,7 @@ import '../../../../services/x_version_salt_service.dart';
 import '../../../../models/download/download_task.model.dart';
 import '../../../../models/download/download_task_ext_data.model.dart';
 import '../widgets/player/custom_slider_bar_shape_widget.dart';
+import '../widgets/player/vr/vr_gyro_tracker.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import '../widgets/private_or_deleted_video_widget.dart';
 import '../services/video_cache_manager.dart';
@@ -426,6 +427,16 @@ class MyVideoStateController extends GetxController
   final RxDouble vrYaw = 0.0.obs;
   final RxDouble vrPitch = 0.0.obs;
   final RxDouble vrFovY = VrGeometry.defaultFovY.obs;
+
+  /// 陀螺仪转视角：把手机的转动当成拖动一样加到 [vrYaw] / [vrPitch] 上。
+  ///
+  /// 挂在控制器上而不是画面 widget 上：内嵌和全屏两块画面共用这一份视角，
+  /// 各订一份传感器的话每次转动会被加两遍。什么时候真正订阅传感器由环视画面
+  /// 报上来（见 [VrGyroTracker.setViewerActive]），非 VR 视频永远不会碰到它。
+  late final VrGyroTracker vrGyroTracker = VrGyroTracker(
+    onDelta: (deltaYaw, deltaPitch) =>
+        nudgeVrView(deltaYaw: deltaYaw, deltaPitch: deltaPitch),
+  );
 
   /// 阶段A（文本怀疑）的结果，留着给阶段B 复用。
   VrSuspicion _vrSuspicion = VrSuspicion.none;
@@ -3498,6 +3509,7 @@ class MyVideoStateController extends GetxController
     await _runCleanupStep('取消 VR 格式监听', () async {
       _vrFormatWorker?.dispose();
       _vrFormatWorker = null;
+      vrGyroTracker.dispose();
     });
     await _runCleanupStep('停止加载速率监听', _unobservePlayerLoadingSpeed);
     await _runCleanupStep('释放预览播放器', _disposePreviewPlayer);

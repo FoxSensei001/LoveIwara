@@ -3580,6 +3580,12 @@ vrFormat:
   resetToAutoDesc: Forget the manual choice for this video and let detection decide again
   manualBadge: Set manually
   panoramaHint: Drag the picture to look around, pinch to change the field of view
+  gyroControl: "Motion control"
+  gyroControlDesc: "In VR panorama mode, turn your phone to look around; dragging still fine-tunes the view"
+  gyroPromptTitle: "Turn on motion control?"
+  gyroPromptBody: "Turn on motion sensing for a better VR experience? You can turn this off in Settings."
+  gyroPromptEnable: "Turn on"
+  gyroPromptDecline: "Not now"
   panoramaGestureNotice: While looking around, dragging turns the view — use the progress bar to seek
   shaderUnsupported: This device cannot render live panorama; showing a single eye instead
   handoffTooltip: Play another way

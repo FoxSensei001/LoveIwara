@@ -2878,6 +2878,12 @@ class _TranslationsVrFormatZhTw extends TranslationsVrFormatEn {
 	@override String get resetToAutoDesc => '忘掉這部影片的手動選擇，交回給自動判斷';
 	@override String get manualBadge => '已手動指定';
 	@override String get panoramaHint => '拖曳畫面即可環視，捏合改變視野';
+	@override String get gyroControl => '重力感應控制視角';
+	@override String get gyroControlDesc => 'VR 全景播放時轉動手機即可環視，拖動畫面仍可微調';
+	@override String get gyroPromptTitle => '開啟重力感應？';
+	@override String get gyroPromptBody => '是否開啟重力感應，獲得更好的 VR 模擬體驗？此功能可以在設定中關閉。';
+	@override String get gyroPromptEnable => '開啟';
+	@override String get gyroPromptDecline => '不用了';
 	@override String get panoramaGestureNotice => '環視時畫面區的拖曳用於轉頭，快轉請用進度條';
 	@override String get shaderUnsupported => '本機不支援即時環視，已退回單眼顯示';
 	@override String get handoffTooltip => '換個方式播放';
@@ -8460,6 +8466,12 @@ extension on TranslationsZhTw {
 			'vrFormat.resetToAutoDesc' => '忘掉這部影片的手動選擇，交回給自動判斷',
 			'vrFormat.manualBadge' => '已手動指定',
 			'vrFormat.panoramaHint' => '拖曳畫面即可環視，捏合改變視野',
+			'vrFormat.gyroControl' => '重力感應控制視角',
+			'vrFormat.gyroControlDesc' => 'VR 全景播放時轉動手機即可環視，拖動畫面仍可微調',
+			'vrFormat.gyroPromptTitle' => '開啟重力感應？',
+			'vrFormat.gyroPromptBody' => '是否開啟重力感應，獲得更好的 VR 模擬體驗？此功能可以在設定中關閉。',
+			'vrFormat.gyroPromptEnable' => '開啟',
+			'vrFormat.gyroPromptDecline' => '不用了',
 			'vrFormat.panoramaGestureNotice' => '環視時畫面區的拖曳用於轉頭，快轉請用進度條',
 			'vrFormat.shaderUnsupported' => '本機不支援即時環視，已退回單眼顯示',
 			'vrFormat.handoffTooltip' => '換個方式播放',
@@ -8699,14 +8711,14 @@ extension on TranslationsZhTw {
 			'localMedia.sourceAlreadyAdded' => ({required Object name}) => '已經新增過「${name}」',
 			'localMedia.sourceContainsExisting' => ({required Object name}) => '裡面已經有新增過的資料夾「${name}」，暫時不能再新增它的上層資料夾',
 			'localMedia.addSourceFailed' => '新增資料夾失敗',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.fileMissing' => '這個檔案已經不在磁碟上了',
 			'localMedia.permissionDenied' => '未授予檔案存取權限，新增資料夾前需要先開啟',
 			'localMedia.noVideosFound' => '這個資料夾裡沒有影片',
 			'localMedia.emptyTitle' => '新增資料夾或連接 NAS，看你已有的影片',
 			'localMedia.emptyPrivacyNote' => '只在本機讀取，不上傳任何東西。',
 			'localMedia.removeSourceTitle' => ({required Object name}) => '移除「${name}」？',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.removeSourceBody' => '檔案本身一個不動，只是把它從本機媒體庫移出去。',
 			'localMedia.remove' => '移除',
 			'localMedia.removeFolder' => '移除來源',

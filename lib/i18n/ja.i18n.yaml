@@ -3557,6 +3557,12 @@ vrFormat:
   resetToAutoDesc: この動画の手動設定を忘れ、自動判定に任せます
   manualBadge: 手動で指定済み
   panoramaHint: 画面をドラッグで見回し、ピンチで視野角を変更
+  gyroControl: "ジャイロで視点操作"
+  gyroControlDesc: "VR パノラマ再生中は端末を動かすと見回せます。ドラッグで微調整もできます"
+  gyroPromptTitle: "ジャイロ操作をオンにしますか？"
+  gyroPromptBody: "ジャイロセンサーをオンにして、よりリアルな VR 体験にしますか？この機能は設定でオフにできます。"
+  gyroPromptEnable: "オンにする"
+  gyroPromptDecline: "今はしない"
   panoramaGestureNotice: 見回し中は画面のドラッグが視点操作になります。シークはシークバーをお使いください
   shaderUnsupported: この端末ではリアルタイムの見回しに対応していないため、片目表示に切り替えました
   handoffTooltip: 別の方法で再生

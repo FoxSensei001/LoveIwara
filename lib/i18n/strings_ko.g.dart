@@ -2856,6 +2856,12 @@ class _TranslationsVrFormatKo extends TranslationsVrFormatEn {
 	@override String get resetToAutoDesc => '이 동영상의 수동 선택을 지우고 다시 감지하도록 합니다';
 	@override String get manualBadge => '수동 설정됨';
 	@override String get panoramaHint => '화면을 끌어 주변을 둘러보고, 핀치하여 시야각을 변경하세요';
+	@override String get gyroControl => '자이로로 시점 조작';
+	@override String get gyroControlDesc => 'VR 파노라마 재생 중 휴대폰을 움직여 둘러볼 수 있고, 드래그로 미세 조정도 됩니다';
+	@override String get gyroPromptTitle => '자이로 조작을 켤까요?';
+	@override String get gyroPromptBody => '동작 감지를 켜서 더 나은 VR 체험을 하시겠어요? 이 기능은 설정에서 끌 수 있습니다.';
+	@override String get gyroPromptEnable => '켜기';
+	@override String get gyroPromptDecline => '나중에';
 	@override String get panoramaGestureNotice => '둘러보는 동안 끌면 시야가 돌아갑니다. 탐색은 진행 표시줄을 사용하세요';
 	@override String get shaderUnsupported => '이 기기는 실시간 파노라마를 렌더링할 수 없어 단일 시점으로 표시합니다';
 	@override String get handoffTooltip => '다른 방식으로 재생';
@@ -8416,6 +8422,12 @@ extension on TranslationsKo {
 			'vrFormat.resetToAutoDesc' => '이 동영상의 수동 선택을 지우고 다시 감지하도록 합니다',
 			'vrFormat.manualBadge' => '수동 설정됨',
 			'vrFormat.panoramaHint' => '화면을 끌어 주변을 둘러보고, 핀치하여 시야각을 변경하세요',
+			'vrFormat.gyroControl' => '자이로로 시점 조작',
+			'vrFormat.gyroControlDesc' => 'VR 파노라마 재생 중 휴대폰을 움직여 둘러볼 수 있고, 드래그로 미세 조정도 됩니다',
+			'vrFormat.gyroPromptTitle' => '자이로 조작을 켤까요?',
+			'vrFormat.gyroPromptBody' => '동작 감지를 켜서 더 나은 VR 체험을 하시겠어요? 이 기능은 설정에서 끌 수 있습니다.',
+			'vrFormat.gyroPromptEnable' => '켜기',
+			'vrFormat.gyroPromptDecline' => '나중에',
 			'vrFormat.panoramaGestureNotice' => '둘러보는 동안 끌면 시야가 돌아갑니다. 탐색은 진행 표시줄을 사용하세요',
 			'vrFormat.shaderUnsupported' => '이 기기는 실시간 파노라마를 렌더링할 수 없어 단일 시점으로 표시합니다',
 			'vrFormat.handoffTooltip' => '다른 방식으로 재생',
@@ -8677,14 +8689,14 @@ extension on TranslationsKo {
 			'historyPage.removeFromHistory' => '기록에서 삭제',
 			'historyPage.removed' => '기록에서 삭제했습니다',
 			'historyPage.watchedTo' => ({required Object time}) => '${time}까지 시청',
+			_ => null,
+		} ?? switch (path) {
 			'historyPage.finished' => '시청 완료',
 			'historyPage.clearTabTitle' => ({required Object tab}) => '"${tab}" 지우기',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => '"${tab}"의 모든 기록과 해당 동영상의 시청 위치가 삭제됩니다. 이 작업은 되돌릴 수 없습니다.',
 			'historyPage.rangeByLastViewed' => '마지막으로 본 시간 기준',
 			'ai.title' => 'AI',
 			'ai.providers' => '제공자',
-			_ => null,
-		} ?? switch (path) {
 			'ai.providersHint' => '하나 이상의 AI 제공자를 추가한 뒤, 각 기능에서 사용할 제공자를 지정하세요.',
 			'ai.addProvider' => '제공자 추가',
 			'ai.noProviders' => '등록된 제공자가 없습니다. 제공자를 추가하면 AI 번역, 검색, 서명 기능을 사용할 수 있습니다.',

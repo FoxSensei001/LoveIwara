@@ -2856,6 +2856,12 @@ class _TranslationsVrFormatRu extends TranslationsVrFormatEn {
 	@override String get resetToAutoDesc => 'Забыть ручной выбор для этого видео и снова доверить решение автоопределению';
 	@override String get manualBadge => 'Задано вручную';
 	@override String get panoramaHint => 'Перетаскивайте изображение, чтобы осмотреться, сведите пальцы, чтобы изменить угол обзора';
+	@override String get gyroControl => 'Управление наклоном';
+	@override String get gyroControlDesc => 'В режиме VR-панорамы поворачивайте телефон, чтобы осмотреться; перетаскивание по-прежнему подстраивает вид';
+	@override String get gyroPromptTitle => 'Включить управление наклоном?';
+	@override String get gyroPromptBody => 'Включить датчик движения для более реалистичного VR? Эту функцию можно отключить в настройках.';
+	@override String get gyroPromptEnable => 'Включить';
+	@override String get gyroPromptDecline => 'Не сейчас';
 	@override String get panoramaGestureNotice => 'При осмотре перетаскивание поворачивает вид — для перемотки используйте полосу прогресса';
 	@override String get shaderUnsupported => 'Это устройство не может отображать живую панораму; вместо этого показывается один глаз';
 	@override String get handoffTooltip => 'Другой способ воспроизведения';
@@ -8416,6 +8422,12 @@ extension on TranslationsRu {
 			'vrFormat.resetToAutoDesc' => 'Забыть ручной выбор для этого видео и снова доверить решение автоопределению',
 			'vrFormat.manualBadge' => 'Задано вручную',
 			'vrFormat.panoramaHint' => 'Перетаскивайте изображение, чтобы осмотреться, сведите пальцы, чтобы изменить угол обзора',
+			'vrFormat.gyroControl' => 'Управление наклоном',
+			'vrFormat.gyroControlDesc' => 'В режиме VR-панорамы поворачивайте телефон, чтобы осмотреться; перетаскивание по-прежнему подстраивает вид',
+			'vrFormat.gyroPromptTitle' => 'Включить управление наклоном?',
+			'vrFormat.gyroPromptBody' => 'Включить датчик движения для более реалистичного VR? Эту функцию можно отключить в настройках.',
+			'vrFormat.gyroPromptEnable' => 'Включить',
+			'vrFormat.gyroPromptDecline' => 'Не сейчас',
 			'vrFormat.panoramaGestureNotice' => 'При осмотре перетаскивание поворачивает вид — для перемотки используйте полосу прогресса',
 			'vrFormat.shaderUnsupported' => 'Это устройство не может отображать живую панораму; вместо этого показывается один глаз',
 			'vrFormat.handoffTooltip' => 'Другой способ воспроизведения',
@@ -8677,14 +8689,14 @@ extension on TranslationsRu {
 			'historyPage.removeFromHistory' => 'Удалить из истории',
 			'historyPage.removed' => 'Удалено из истории',
 			'historyPage.watchedTo' => ({required Object time}) => 'Просмотрено до ${time}',
+			_ => null,
+		} ?? switch (path) {
 			'historyPage.finished' => 'Просмотрено',
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'Очистить «${tab}»',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Вся история в «${tab}» будет удалена вместе с прогрессом просмотра этих видео. Действие необратимо.',
 			'historyPage.rangeByLastViewed' => 'По времени последнего просмотра',
 			'ai.title' => 'ИИ',
 			'ai.providers' => 'Провайдеры',
-			_ => null,
-		} ?? switch (path) {
 			'ai.providersHint' => 'Добавьте одного или нескольких провайдеров ИИ и назначьте их для нужных функций.',
 			'ai.addProvider' => 'Добавить провайдера',
 			'ai.noProviders' => 'Провайдеры пока не добавлены. Добавьте хотя бы одного, чтобы включить перевод, поиск и подпись с помощью ИИ.',

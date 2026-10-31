@@ -3556,6 +3556,12 @@ vrFormat:
   resetToAutoDesc: Quên lựa chọn thủ công cho video này và để tính năng phát hiện quyết định lại
   manualBadge: Đặt thủ công
   panoramaHint: Kéo hình để nhìn quanh, chụm để thay đổi trường nhìn
+  gyroControl: "Điều khiển bằng cảm biến"
+  gyroControlDesc: "Ở chế độ toàn cảnh VR, xoay điện thoại để nhìn xung quanh; kéo màn hình vẫn tinh chỉnh được góc nhìn"
+  gyroPromptTitle: "Bật điều khiển bằng cảm biến?"
+  gyroPromptBody: "Bật cảm biến chuyển động để có trải nghiệm VR tốt hơn? Bạn có thể tắt tính năng này trong Cài đặt."
+  gyroPromptEnable: "Bật"
+  gyroPromptDecline: "Để sau"
   panoramaGestureNotice: Trong khi nhìn quanh, kéo sẽ xoay tầm nhìn — hãy dùng thanh tiến trình để tua
   shaderUnsupported: Thiết bị này không thể hiển thị toàn cảnh trực tiếp; thay vào đó hiển thị một mắt
   handoffTooltip: Phát theo cách khác

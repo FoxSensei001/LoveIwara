@@ -3582,6 +3582,12 @@ vrFormat:
   resetToAutoDesc: 忘掉這部影片的手動選擇，交回給自動判斷
   manualBadge: 已手動指定
   panoramaHint: 拖曳畫面即可環視，捏合改變視野
+  gyroControl: "重力感應控制視角"
+  gyroControlDesc: "VR 全景播放時轉動手機即可環視，拖動畫面仍可微調"
+  gyroPromptTitle: "開啟重力感應？"
+  gyroPromptBody: "是否開啟重力感應，獲得更好的 VR 模擬體驗？此功能可以在設定中關閉。"
+  gyroPromptEnable: "開啟"
+  gyroPromptDecline: "不用了"
   panoramaGestureNotice: 環視時畫面區的拖曳用於轉頭，快轉請用進度條
   shaderUnsupported: 本機不支援即時環視，已退回單眼顯示
   handoffTooltip: 換個方式播放

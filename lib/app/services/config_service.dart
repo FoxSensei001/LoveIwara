@@ -330,6 +330,8 @@ enum ConfigKey {
   REMEMBER_PLAYBACK_SPEED_KEY, // 是否记住在播放器中调整的倍速作为默认倍速
   DEFAULT_SCREEN_FIT_MODE_KEY, // 新播放器默认使用的画面尺寸模式
   REMEMBER_SCREEN_FIT_MODE_KEY, // 是否让新播放器沿用当前画面尺寸模式
+  VR_GYRO_CONTROL_KEY, // VR 全景环视时用陀螺仪转视角（仅有陀螺仪的手机/平板）
+  VR_GYRO_PROMPT_SHOWN_KEY, // 第一次进 VR 全景时是否已问过要不要开陀螺仪
   // ⛔ 这里曾经有一枚 XR_AUTO_ENTER_IMMERSIVE_KEY（「打开视频自动交给空间播放器」）。
   // 它是半残的：Quest 上详情页的播放器区域被整只换成封面（video_detail_page_v2 的
   // `_immersiveAvailable` 判据里没有它），关掉它并不会退回 2D 播放器，只会让片源开了
@@ -572,6 +574,10 @@ extension ConfigKeyExtension on ConfigKey {
         return 'default_screen_fit_mode';
       case ConfigKey.REMEMBER_SCREEN_FIT_MODE_KEY:
         return 'remember_screen_fit_mode';
+      case ConfigKey.VR_GYRO_CONTROL_KEY:
+        return 'vr_gyro_control';
+      case ConfigKey.VR_GYRO_PROMPT_SHOWN_KEY:
+        return 'vr_gyro_prompt_shown';
       case ConfigKey.XR_GALLERY_AUTO_ENTER_KEY:
         return 'xr_gallery_auto_enter';
       case ConfigKey.SEEK_PREVIEW_SIZE_KEY:
@@ -915,6 +921,10 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.DEFAULT_SCREEN_FIT_MODE_KEY:
         return 'fit';
       case ConfigKey.REMEMBER_SCREEN_FIT_MODE_KEY:
+        return false;
+      case ConfigKey.VR_GYRO_CONTROL_KEY:
+        return false; // 默认关：第一次进 VR 全景时问一次
+      case ConfigKey.VR_GYRO_PROMPT_SHOWN_KEY:
         return false;
       case ConfigKey.XR_GALLERY_AUTO_ENTER_KEY:
         return true;

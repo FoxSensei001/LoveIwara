@@ -2856,6 +2856,12 @@ class _TranslationsVrFormatTh extends TranslationsVrFormatEn {
 	@override String get resetToAutoDesc => 'ลืมการเลือกเองสำหรับวิดีโอนี้ แล้วให้การตรวจจับตัดสินใจใหม่';
 	@override String get manualBadge => 'ตั้งค่าเอง';
 	@override String get panoramaHint => 'ลากภาพเพื่อมองไปรอบๆ บีบนิ้วเพื่อเปลี่ยนมุมมอง';
+	@override String get gyroControl => 'ควบคุมมุมมองด้วยไจโร';
+	@override String get gyroControlDesc => 'ในโหมดพาโนรามา VR หมุนโทรศัพท์เพื่อมองไปรอบๆ และยังลากเพื่อปรับมุมได้';
+	@override String get gyroPromptTitle => 'เปิดการควบคุมด้วยไจโรไหม?';
+	@override String get gyroPromptBody => 'เปิดเซ็นเซอร์การเคลื่อนไหวเพื่อประสบการณ์ VR ที่ดีขึ้นไหม? ปิดฟีเจอร์นี้ได้ในการตั้งค่า';
+	@override String get gyroPromptEnable => 'เปิด';
+	@override String get gyroPromptDecline => 'ไม่ใช่ตอนนี้';
 	@override String get panoramaGestureNotice => 'ขณะมองไปรอบๆ การลากจะหมุนมุมมอง — ใช้แถบความคืบหน้าเพื่อเลื่อนไปยังตำแหน่ง';
 	@override String get shaderUnsupported => 'อุปกรณ์นี้ไม่สามารถเรนเดอร์พาโนรามาแบบสดได้ จึงแสดงเพียงตาเดียว';
 	@override String get handoffTooltip => 'เล่นด้วยวิธีอื่น';
@@ -8416,6 +8422,12 @@ extension on TranslationsTh {
 			'vrFormat.resetToAutoDesc' => 'ลืมการเลือกเองสำหรับวิดีโอนี้ แล้วให้การตรวจจับตัดสินใจใหม่',
 			'vrFormat.manualBadge' => 'ตั้งค่าเอง',
 			'vrFormat.panoramaHint' => 'ลากภาพเพื่อมองไปรอบๆ บีบนิ้วเพื่อเปลี่ยนมุมมอง',
+			'vrFormat.gyroControl' => 'ควบคุมมุมมองด้วยไจโร',
+			'vrFormat.gyroControlDesc' => 'ในโหมดพาโนรามา VR หมุนโทรศัพท์เพื่อมองไปรอบๆ และยังลากเพื่อปรับมุมได้',
+			'vrFormat.gyroPromptTitle' => 'เปิดการควบคุมด้วยไจโรไหม?',
+			'vrFormat.gyroPromptBody' => 'เปิดเซ็นเซอร์การเคลื่อนไหวเพื่อประสบการณ์ VR ที่ดีขึ้นไหม? ปิดฟีเจอร์นี้ได้ในการตั้งค่า',
+			'vrFormat.gyroPromptEnable' => 'เปิด',
+			'vrFormat.gyroPromptDecline' => 'ไม่ใช่ตอนนี้',
 			'vrFormat.panoramaGestureNotice' => 'ขณะมองไปรอบๆ การลากจะหมุนมุมมอง — ใช้แถบความคืบหน้าเพื่อเลื่อนไปยังตำแหน่ง',
 			'vrFormat.shaderUnsupported' => 'อุปกรณ์นี้ไม่สามารถเรนเดอร์พาโนรามาแบบสดได้ จึงแสดงเพียงตาเดียว',
 			'vrFormat.handoffTooltip' => 'เล่นด้วยวิธีอื่น',
@@ -8677,14 +8689,14 @@ extension on TranslationsTh {
 			'historyPage.removeFromHistory' => 'ลบออกจากประวัติ',
 			'historyPage.removed' => 'ลบออกจากประวัติแล้ว',
 			'historyPage.watchedTo' => ({required Object time}) => 'ดูถึง ${time}',
+			_ => null,
+		} ?? switch (path) {
 			'historyPage.finished' => 'ดูจบแล้ว',
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'ล้าง "${tab}"',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'ประวัติทั้งหมดใน "${tab}" จะถูกลบ รวมถึงตำแหน่งการรับชมของวิดีโอเหล่านั้น ไม่สามารถย้อนกลับได้',
 			'historyPage.rangeByLastViewed' => 'กรองตามเวลาที่ดูล่าสุด',
 			'ai.title' => 'AI',
 			'ai.providers' => 'ผู้ให้บริการ',
-			_ => null,
-		} ?? switch (path) {
 			'ai.providersHint' => 'เพิ่มผู้ให้บริการ AI อย่างน้อยหนึ่งราย แล้วเลือกผู้ให้บริการสำหรับแต่ละฟีเจอร์',
 			'ai.addProvider' => 'เพิ่มผู้ให้บริการ',
 			'ai.noProviders' => 'ยังไม่มีผู้ให้บริการ เพิ่มผู้ให้บริการเพื่อเปิดใช้งานการแปล การค้นหา และลายเซ็นด้วย AI',

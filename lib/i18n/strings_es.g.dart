@@ -2856,6 +2856,12 @@ class _TranslationsVrFormatEs extends TranslationsVrFormatEn {
 	@override String get resetToAutoDesc => 'Olvidar la elección manual para este video y dejar que la detección decida de nuevo';
 	@override String get manualBadge => 'Establecido manualmente';
 	@override String get panoramaHint => 'Arrastre la imagen para mirar alrededor; pellizque para cambiar el campo de visión';
+	@override String get gyroControl => 'Control por movimiento';
+	@override String get gyroControlDesc => 'En modo panorámico VR, gira el móvil para mirar alrededor; arrastrar sigue ajustando la vista';
+	@override String get gyroPromptTitle => '¿Activar el control por movimiento?';
+	@override String get gyroPromptBody => '¿Activar el sensor de movimiento para una mejor experiencia VR? Puedes desactivarlo en Ajustes.';
+	@override String get gyroPromptEnable => 'Activar';
+	@override String get gyroPromptDecline => 'Ahora no';
 	@override String get panoramaGestureNotice => 'Mientras mira alrededor, arrastrar gira la vista; use la barra de progreso para buscar';
 	@override String get shaderUnsupported => 'Este dispositivo no puede renderizar el panorama en vivo; se muestra un solo ojo en su lugar';
 	@override String get handoffTooltip => 'Reproducir de otra forma';
@@ -8416,6 +8422,12 @@ extension on TranslationsEs {
 			'vrFormat.resetToAutoDesc' => 'Olvidar la elección manual para este video y dejar que la detección decida de nuevo',
 			'vrFormat.manualBadge' => 'Establecido manualmente',
 			'vrFormat.panoramaHint' => 'Arrastre la imagen para mirar alrededor; pellizque para cambiar el campo de visión',
+			'vrFormat.gyroControl' => 'Control por movimiento',
+			'vrFormat.gyroControlDesc' => 'En modo panorámico VR, gira el móvil para mirar alrededor; arrastrar sigue ajustando la vista',
+			'vrFormat.gyroPromptTitle' => '¿Activar el control por movimiento?',
+			'vrFormat.gyroPromptBody' => '¿Activar el sensor de movimiento para una mejor experiencia VR? Puedes desactivarlo en Ajustes.',
+			'vrFormat.gyroPromptEnable' => 'Activar',
+			'vrFormat.gyroPromptDecline' => 'Ahora no',
 			'vrFormat.panoramaGestureNotice' => 'Mientras mira alrededor, arrastrar gira la vista; use la barra de progreso para buscar',
 			'vrFormat.shaderUnsupported' => 'Este dispositivo no puede renderizar el panorama en vivo; se muestra un solo ojo en su lugar',
 			'vrFormat.handoffTooltip' => 'Reproducir de otra forma',
@@ -8677,14 +8689,14 @@ extension on TranslationsEs {
 			'historyPage.removeFromHistory' => 'Quitar del historial',
 			'historyPage.removed' => 'Quitado del historial',
 			'historyPage.watchedTo' => ({required Object time}) => 'Visto hasta ${time}',
+			_ => null,
+		} ?? switch (path) {
 			'historyPage.finished' => 'Visto',
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'Borrar «${tab}»',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Se eliminará todo el historial de «${tab}», junto con el progreso de reproducción de esos vídeos. No se puede deshacer.',
 			'historyPage.rangeByLastViewed' => 'Filtrado por última visualización',
 			'ai.title' => 'IA',
 			'ai.providers' => 'Proveedores',
-			_ => null,
-		} ?? switch (path) {
 			'ai.providersHint' => 'Añade uno o más proveedores de IA y elige cuál usará cada función.',
 			'ai.addProvider' => 'Añadir proveedor',
 			'ai.noProviders' => 'Aún no hay proveedores. Añade uno para habilitar la traducción, búsqueda y firma con IA.',

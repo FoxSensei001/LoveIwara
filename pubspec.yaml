@@ -136,6 +136,7 @@ dependencies:
   local_auth_android: ^2.0.8
   material_ui: ^1.8.0
   cupertino_ui: ^1.1.4
+  sensors_plus: ^7.1.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

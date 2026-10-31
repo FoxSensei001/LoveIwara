@@ -2856,6 +2856,12 @@ class _TranslationsVrFormatId extends TranslationsVrFormatEn {
 	@override String get resetToAutoDesc => 'Lupakan pilihan manual untuk video ini dan biarkan deteksi memutuskan lagi';
 	@override String get manualBadge => 'Diatur secara manual';
 	@override String get panoramaHint => 'Seret gambar untuk melihat sekeliling, cubit untuk mengubah bidang pandang';
+	@override String get gyroControl => 'Kontrol gerak';
+	@override String get gyroControlDesc => 'Dalam mode panorama VR, putar ponsel untuk melihat sekeliling; geser layar tetap bisa menyesuaikan tampilan';
+	@override String get gyroPromptTitle => 'Aktifkan kontrol gerak?';
+	@override String get gyroPromptBody => 'Aktifkan sensor gerak untuk pengalaman VR yang lebih baik? Fitur ini bisa dimatikan di Pengaturan.';
+	@override String get gyroPromptEnable => 'Aktifkan';
+	@override String get gyroPromptDecline => 'Nanti saja';
 	@override String get panoramaGestureNotice => 'Saat melihat sekeliling, menyeret akan memutar tampilan — gunakan bilah kemajuan untuk mencari';
 	@override String get shaderUnsupported => 'Perangkat ini tidak dapat menampilkan panorama langsung; menampilkan satu mata sebagai gantinya';
 	@override String get handoffTooltip => 'Putar dengan cara lain';
@@ -8416,6 +8422,12 @@ extension on TranslationsId {
 			'vrFormat.resetToAutoDesc' => 'Lupakan pilihan manual untuk video ini dan biarkan deteksi memutuskan lagi',
 			'vrFormat.manualBadge' => 'Diatur secara manual',
 			'vrFormat.panoramaHint' => 'Seret gambar untuk melihat sekeliling, cubit untuk mengubah bidang pandang',
+			'vrFormat.gyroControl' => 'Kontrol gerak',
+			'vrFormat.gyroControlDesc' => 'Dalam mode panorama VR, putar ponsel untuk melihat sekeliling; geser layar tetap bisa menyesuaikan tampilan',
+			'vrFormat.gyroPromptTitle' => 'Aktifkan kontrol gerak?',
+			'vrFormat.gyroPromptBody' => 'Aktifkan sensor gerak untuk pengalaman VR yang lebih baik? Fitur ini bisa dimatikan di Pengaturan.',
+			'vrFormat.gyroPromptEnable' => 'Aktifkan',
+			'vrFormat.gyroPromptDecline' => 'Nanti saja',
 			'vrFormat.panoramaGestureNotice' => 'Saat melihat sekeliling, menyeret akan memutar tampilan — gunakan bilah kemajuan untuk mencari',
 			'vrFormat.shaderUnsupported' => 'Perangkat ini tidak dapat menampilkan panorama langsung; menampilkan satu mata sebagai gantinya',
 			'vrFormat.handoffTooltip' => 'Putar dengan cara lain',
@@ -8677,14 +8689,14 @@ extension on TranslationsId {
 			'historyPage.removeFromHistory' => 'Hapus dari riwayat',
 			'historyPage.removed' => 'Dihapus dari riwayat',
 			'historyPage.watchedTo' => ({required Object time}) => 'Ditonton sampai ${time}',
+			_ => null,
+		} ?? switch (path) {
 			'historyPage.finished' => 'Sudah ditonton',
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'Bersihkan "${tab}"',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Semua riwayat di "${tab}" akan dihapus, beserta progres tontonan video tersebut. Tindakan ini tidak dapat dibatalkan.',
 			'historyPage.rangeByLastViewed' => 'Difilter menurut waktu terakhir dilihat',
 			'ai.title' => 'AI',
 			'ai.providers' => 'Penyedia',
-			_ => null,
-		} ?? switch (path) {
 			'ai.providersHint' => 'Tambahkan satu atau beberapa penyedia AI, lalu pilih mana yang digunakan setiap fitur.',
 			'ai.addProvider' => 'Tambah penyedia',
 			'ai.noProviders' => 'Belum ada penyedia. Tambahkan satu untuk mengaktifkan terjemahan, pencarian, dan tanda tangan AI.',

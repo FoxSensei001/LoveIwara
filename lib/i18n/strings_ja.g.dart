@@ -2856,6 +2856,12 @@ class _TranslationsVrFormatJa extends TranslationsVrFormatEn {
 	@override String get resetToAutoDesc => 'この動画の手動設定を忘れ、自動判定に任せます';
 	@override String get manualBadge => '手動で指定済み';
 	@override String get panoramaHint => '画面をドラッグで見回し、ピンチで視野角を変更';
+	@override String get gyroControl => 'ジャイロで視点操作';
+	@override String get gyroControlDesc => 'VR パノラマ再生中は端末を動かすと見回せます。ドラッグで微調整もできます';
+	@override String get gyroPromptTitle => 'ジャイロ操作をオンにしますか？';
+	@override String get gyroPromptBody => 'ジャイロセンサーをオンにして、よりリアルな VR 体験にしますか？この機能は設定でオフにできます。';
+	@override String get gyroPromptEnable => 'オンにする';
+	@override String get gyroPromptDecline => '今はしない';
 	@override String get panoramaGestureNotice => '見回し中は画面のドラッグが視点操作になります。シークはシークバーをお使いください';
 	@override String get shaderUnsupported => 'この端末ではリアルタイムの見回しに対応していないため、片目表示に切り替えました';
 	@override String get handoffTooltip => '別の方法で再生';
@@ -8416,6 +8422,12 @@ extension on TranslationsJa {
 			'vrFormat.resetToAutoDesc' => 'この動画の手動設定を忘れ、自動判定に任せます',
 			'vrFormat.manualBadge' => '手動で指定済み',
 			'vrFormat.panoramaHint' => '画面をドラッグで見回し、ピンチで視野角を変更',
+			'vrFormat.gyroControl' => 'ジャイロで視点操作',
+			'vrFormat.gyroControlDesc' => 'VR パノラマ再生中は端末を動かすと見回せます。ドラッグで微調整もできます',
+			'vrFormat.gyroPromptTitle' => 'ジャイロ操作をオンにしますか？',
+			'vrFormat.gyroPromptBody' => 'ジャイロセンサーをオンにして、よりリアルな VR 体験にしますか？この機能は設定でオフにできます。',
+			'vrFormat.gyroPromptEnable' => 'オンにする',
+			'vrFormat.gyroPromptDecline' => '今はしない',
 			'vrFormat.panoramaGestureNotice' => '見回し中は画面のドラッグが視点操作になります。シークはシークバーをお使いください',
 			'vrFormat.shaderUnsupported' => 'この端末ではリアルタイムの見回しに対応していないため、片目表示に切り替えました',
 			'vrFormat.handoffTooltip' => '別の方法で再生',
@@ -8677,14 +8689,14 @@ extension on TranslationsJa {
 			'historyPage.removeFromHistory' => '履歴から削除',
 			'historyPage.removed' => '履歴から削除しました',
 			'historyPage.watchedTo' => ({required Object time}) => '${time} まで視聴',
+			_ => null,
+		} ?? switch (path) {
 			'historyPage.finished' => '視聴済み',
 			'historyPage.clearTabTitle' => ({required Object tab}) => '「${tab}」を消去',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => '「${tab}」の履歴をすべて削除し、該当する動画の視聴位置も消去します。この操作は元に戻せません。',
 			'historyPage.rangeByLastViewed' => '最終閲覧日時で絞り込み',
 			'ai.title' => 'AI',
 			'ai.providers' => 'プロバイダー',
-			_ => null,
-		} ?? switch (path) {
 			'ai.providersHint' => '1つ以上のAIプロバイダーを追加し、各機能で使用するプロバイダーを指定します。',
 			'ai.addProvider' => 'プロバイダーを追加',
 			'ai.noProviders' => 'プロバイダーがまだありません。追加するとAI翻訳・検索・署名機能が利用可能になります。',

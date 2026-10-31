@@ -13,6 +13,7 @@ import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_con
 import 'package:i_iwara/app/models/vr_format.model.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/seek_preview.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/vr/vr_format_menu.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/vr/vr_gyro_tracker.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/video_gesture_guide.dart';
 import 'package:i_iwara/app/ui/widgets/anime4k_settings_widget.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_settings_widget.dart';
@@ -413,6 +414,36 @@ class PlayerSettingsWidget extends StatelessWidget {
   // 分区
   // ---------------------------------------------------------------------------
 
+  /// 「重力感应控制视角」开关：VR 全景环视时按手机转动转视角。
+  ///
+  /// 探测还没回来时照常显示；探出这台机器没有陀螺仪时收起（只会在第一次打开、
+  /// 探测恰好在眼前回来时发生，之后 [buildSections] 直接不放它）。
+  Widget _vrGyroTile(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOutCubic,
+      alignment: Alignment.topCenter,
+      child: Obx(() {
+        if (VrGyroSupport.available.value == false) {
+          return const SizedBox(width: double.infinity);
+        }
+        return _switchTile(
+          context: context,
+          iconData: Icons.screen_rotation_alt,
+          label: t.vrFormat.gyroControl,
+          description: t.vrFormat.gyroControlDesc,
+          rxValue: _configService.settings[ConfigKey.VR_GYRO_CONTROL_KEY]!,
+          onChanged: (value) {
+            _configService[ConfigKey.VR_GYRO_CONTROL_KEY] = value;
+            // 用户已经自己找到开关了，首次进环视那句提示不必再问。
+            _configService[ConfigKey.VR_GYRO_PROMPT_SHOWN_KEY] = true;
+          },
+        );
+      }),
+    );
+  }
+
   /// 播放器设置的全部分区，自上而下。
   ///
   /// ⛔ **分区是数据，不是 build 里拼好的一段 Column**：设置页把它们摞成一列，
@@ -425,6 +456,12 @@ class PlayerSettingsWidget extends StatelessWidget {
     // 空间形态：视频交给原生空间播放器，2D 播放器那一大半设置整块不算数。
     // 非响应式读取即可（见 xrImmersiveAvailableNow 的注释：场景没了面板也没了）。
     final spatial = xrImmersiveAvailableNow;
+    // 陀螺仪转视角只给有陀螺仪的手机 / 平板。传感器要真订阅一下才问得出来，
+    // 这里顺手发起探测；已经探出「没有」就整项不露。
+    final gyroOffered =
+        VrGyroSupport.platformEligible &&
+        VrGyroSupport.available.value != false;
+    if (gyroOffered) unawaited(VrGyroSupport.ensureProbed());
 
     return <PlayerSettingsSection>[
       // -------- 空间播放（只在头显上露出，排最前） --------
@@ -475,7 +512,10 @@ class PlayerSettingsWidget extends StatelessWidget {
         ]),
       ),
 
-      // -------- 播放模式：VR / 立体（仅从播放器呼出时显示） --------
+      // -------- 播放模式：VR / 立体 --------
+      //
+      // 视频几何那几项只在从播放器呼出时显示（它们是这条视频的会话级状态）；
+      // 设置页里没有当前播放器，这一区只剩「重力感应控制视角」这枚全局开关。
       //
       // 排在画面尺寸前面是刻意的：画面尺寸回答「画面占多大地方」，播放模式回答
       // 「这段画面到底是什么几何」——后者错了，前者怎么调都是错的。
@@ -483,6 +523,13 @@ class PlayerSettingsWidget extends StatelessWidget {
       // 顶栏那枚「换个方式放」聚合钮现在所有尺寸都露出（见 PlaybackHandoffButton），
       // 这里不再是窄屏的唯一入口；留着是因为「几何」与「画面尺寸」本来就该并排，
       // 用户在设置里调完尺寸发现还是不对时，答案得在他手边。
+      if (playerController == null && gyroOffered)
+        PlayerSettingsSection(
+          id: 'vrFormat',
+          icon: Icons.threesixty,
+          title: t.vrFormat.title,
+          content: _groupCard([_vrGyroTile(context)]),
+        ),
       if (playerController != null)
         PlayerSettingsSection(
           id: 'vrFormat',
@@ -533,6 +580,7 @@ class PlayerSettingsWidget extends StatelessWidget {
                 onTap: playerController!.resetVrView,
               ),
             ),
+            if (gyroOffered) _vrGyroTile(context),
             // 只有真的覆盖过才点得动：没覆盖过时「恢复自动」无事可做，
             // 让它可点只会让人以为自己做了什么。
             Obx(
