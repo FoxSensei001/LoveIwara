@@ -337,6 +337,27 @@ class LogExportService {
     required bool hangFileExists,
     NativeExitRecord? matchedExit,
   }) {
+    // 卡死后再没恢复、且在最后一条 fatal 之后：进程是卡死期间被结束的（用户强关、
+    // 系统结束未响应程序）。fatal 快照只记「最后一次」被全局处理器接住的错误，
+    // 那可能是一条每次都报、应用照常跑的错误——2026-10-31 一份 Windows 报告就把
+    // 每开一次视频页都报的 NetworkManager::StartListen 当成了死因，真凶是点「下载」
+    // 时系统保存对话框卡死了整个线程。
+    final hang = crashResult.lastHangEvent;
+    final fatal = crashResult.fatalError;
+    if (hang != null &&
+        !hang.recovered &&
+        (fatal == null || hang.detectedAt.isAfter(fatal.timestamp))) {
+      final lastBeat = hang.lastHeartbeatAt?.toUtc().toIso8601String() ?? '未知';
+      return {
+        'type': 'ui_hang_unrecovered',
+        'summary':
+            '主 isolate 卡死后再未恢复（最后心跳 $lastBeat），进程随后结束，'
+            '多半是用户强关或系统结束了未响应的程序'
+            '${fatal != null ? '；更早的那条 fatal 不是死因' : ''}',
+        'fatalSnapshotFileExists': fatalFileExists,
+        'hangEventsFileExists': hangFileExists,
+      };
+    }
     if (crashResult.fatalError != null) {
       return {
         'type': 'fatal_exception',

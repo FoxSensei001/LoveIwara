@@ -6,6 +6,7 @@ import 'package:file_selector/file_selector.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/author_folder_cache_service.dart';
 import 'package:i_iwara/app/services/download_location.dart';
+import 'package:i_iwara/app/utils/desktop_save_dialog.dart';
 import 'package:i_iwara/app/services/filename_template_service.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
@@ -257,7 +258,8 @@ class DownloadPathService extends GetxService {
         // 桌面平台且未启用自定义路径：让用户选择保存位置。
         // 只把模板末段（文件名）作为系统对话框的建议名——「每次询问」模式下
         // 没有固定基目录可挂子文件夹，用户在对话框里的选择优先（07 边界表）。
-        final result = await getSaveLocation(
+        final result = await showDesktopSaveDialog(
+          purpose: '下载视频',
           suggestedName: segments.last,
           acceptedTypeGroups: [
             const XTypeGroup(label: 'MP4 Video', extensions: ['mp4']),
@@ -344,7 +346,8 @@ class DownloadPathService extends GetxService {
 
       if (GetPlatform.isDesktop && !isCustomPathEnabled && !forBatch) {
         // 桌面平台且未启用自定义路径（单册下载）：让用户选择保存位置
-        final result = await getSaveLocation(
+        final result = await showDesktopSaveDialog(
+          purpose: '下载图库',
           suggestedName: segments.last,
           acceptedTypeGroups: [
             const XTypeGroup(label: 'folders', extensions: ['']),

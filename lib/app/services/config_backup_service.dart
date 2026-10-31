@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:file_selector/file_selector.dart' as fs;
+import 'package:i_iwara/app/utils/desktop_save_dialog.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -185,7 +186,8 @@ class ConfigBackupService extends GetxService {
         }
       } else {
         // 桌面平台：弹出保存文件对话框
-        final fileSaveLocation = await fs.getSaveLocation(
+        final fileSaveLocation = await showDesktopSaveDialog(
+          purpose: '导出配置备份',
           acceptedTypeGroups: [
             const fs.XTypeGroup(label: 'JSON', extensions: ['json']),
           ],

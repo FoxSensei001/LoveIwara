@@ -96,8 +96,11 @@ void main(List<String> args) {
       FlutterError.onError = (FlutterErrorDetails details) {
         LogUtils.captureUnhandledException(
           source: 'FlutterError.onError',
+          // ⛔ 用 toDescription()，不能直接插 details.context：DiagnosticsNode 的
+          // toString 只在 assert 里拼正文，release 包里只剩 "Instance of
+          // 'ErrorDescription'"，日志看不出是哪个组件、哪条通道报的错。
           message:
-              'Flutter框架错误${details.context != null ? ' (${details.context})' : ''}',
+              'Flutter框架错误${details.context != null ? ' (${details.context!.toDescription()})' : ''}',
           error: details.exception,
           stackTrace: details.stack ?? StackTrace.current,
         );
