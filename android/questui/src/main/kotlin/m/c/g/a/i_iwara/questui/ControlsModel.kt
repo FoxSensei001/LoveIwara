@@ -296,6 +296,15 @@ class VideoControlsState {
     // ---- 路由 ----
     var route by mutableStateOf(ControlsRoute.PLAYER)
 
+    /**
+     * 换页不做淡入淡出：面板收起停在脚下、以及刚唤出的头几帧。面板现在常驻复用（不再每次新建），
+     * 收起时重置的路由、唤出前先换的页都会被 Crossfade 当成一次换页，一出现就闪一眼上一页。
+     */
+    var snapRoute by mutableStateOf(true)
+
+    /** 面板第几次唤出。页内 `remember` 的临时开合（倍速 / 清晰度菜单）以它为键，面板复用后每次唤出都从收起开始。 */
+    var shownCount by mutableStateOf(0)
+
     // ---- 顶行：视频信息 + 系统信息 ----
     var title by mutableStateOf("")
 

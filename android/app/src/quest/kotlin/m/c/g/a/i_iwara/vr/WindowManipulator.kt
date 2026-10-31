@@ -673,7 +673,8 @@ class WindowManipulator(
         val dir = pose.forward()
         if (dir.length() < 1e-4f) return null
         val poseSource = if (sourcePose != null) source else null
-        if (device != rayFilterDevice[hand] || poseSource !== rayFilterSource[hand]) {
+        // ⛔ `!=`, not `!==`: ISDK hands out a fresh Entity wrapper per event; identity reset the filter every frame.
+        if (device != rayFilterDevice[hand] || poseSource != rayFilterSource[hand]) {
             resetRayFilter(hand)
             rayFilterDevice[hand] = device
             rayFilterSource[hand] = poseSource
@@ -903,7 +904,7 @@ class WindowManipulator(
             else -> DEVICES_CONTROLLER
         }
         for (device in devices) {
-            if (slots[device] === ev.source) continue
+            if (slots[device] == ev.source) continue // Entity equals by id; wrappers differ per event.
             if (raySourceLogs < RAY_SOURCE_LOGS) {
                 raySourceLogs++
                 Log.i(TAG, "IMMERSIVE ray source hand=$index device=$device type=$type")

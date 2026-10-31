@@ -2,6 +2,7 @@ package m.c.g.a.i_iwara.questui
 
 import android.content.Context
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -45,7 +46,11 @@ fun VideoControlsPanel(state: VideoControlsState, cb: VideoControlsCallbacks) {
         Box(modifier = Modifier.fillMaxSize().reportPanelTouches(cb)) {
             PanelSurface {
                 // 换页淡入淡出，不硬切（本项目「有出有入」的纪律在空间面板上同样适用）。
-                Crossfade(targetState = state.route, animationSpec = tween(180), label = "route") { route ->
+                Crossfade(
+                    targetState = state.route,
+                    animationSpec = if (state.snapRoute) snap() else tween(180),
+                    label = "route",
+                ) { route ->
                     when (route) {
                         // 幕布上放的是一本图库时，主页是图集页；子页（场景 / 屏幕类型 / 设置）两者共用。
                         ControlsRoute.PLAYER -> {

@@ -77,8 +77,8 @@ import com.meta.spatial.uiset.theme.icons.regular.VolumeOn
  */
 @Composable
 fun PlayerPage(state: VideoControlsState, cb: VideoControlsCallbacks) {
-    var speedMenuOpen by remember { mutableStateOf(false) }
-    var qualityMenuOpen by remember { mutableStateOf(false) }
+    var speedMenuOpen by remember(state.shownCount) { mutableStateOf(false) }
+    var qualityMenuOpen by remember(state.shownCount) { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {

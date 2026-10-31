@@ -144,8 +144,9 @@ import kotlin.math.tan
  *
  * # ⛔ 三条铁律
  *
- * 1. 控制面板**隐藏 = 真销毁**（0-alpha 照样付钱）；但先隐身、隔两帧再销毁，让 ISDK 清掉悬停态
- *    （否则光标会被一块不存在的面板挡住 —— 真机反馈）。
+ * 1. 控制面板**预建常驻、收起 = 隐身 + 停到脚下**，不销毁（2026-10-31 用户决定，推翻原先的「隐藏 = 真销毁」）：
+ *    每次新建都在主线程上建虚拟显示屏 + 首次组合 Compose，卡 200–330ms，场景 tick 停住，手和射线冻住再跳
+ *    （真机看门狗实测，即「长按拖拽时手抽搐」）。停走而不是只隐身：`Visible(false)` 不影响 ISDK 命中。
  * 2. 换形状**播放器不死**：能 `reshape()` 的连实体都不重建；过渡逐帧插值。
  * 3. 清理放 `onSpatialShutdown()`，**永远不 `finish()`** 挂着面板的 Activity。
  *
@@ -250,9 +251,12 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private var scrubBaseMs = 0L
     private var scrubTargetMs = 0L
 
-    /** 已隐身、等着销毁的控制面板实体（见 [hideControls]）。 */
-    private var controlsDoomed: Entity? = null
-    private var controlsDoomedTicks = 0
+    /** 收起后停在脚下待命的控制面板（见 [hideControls]）；唤出时直接挪回来，不再新建。 */
+    private var controlsParked: Entity? = null
+    private var controlsParkedPanel: PanelSceneObject? = null
+
+    /** 唤出后再过几帧才恢复换页动画（[VideoControlsState.snapRoute]）：唤出前那一下换页要等首帧画完。 */
+    private var controlsSnapTicks = 0
 
     // ---------------------------------------------------------------- 片源
 
@@ -581,6 +585,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         LaunchDiagnostics.onImmersiveEvent(this, "onSceneReady")
         logMemory("onSceneReady")
         manipulator.onSceneReady()
+        prewarmControls()
         rebuildScreen()
         ImmersiveBridge.attachScene(bridgeListener)
     }
@@ -674,8 +679,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         controlsEntity?.destroy()
         controlsEntity = null
         controlsPanel = null
-        controlsDoomed?.destroy()
-        controlsDoomed = null
+        controlsParked?.destroy()
+        controlsParked = null
+        controlsParkedPanel = null
         bufferingEntity?.destroy()
         bufferingEntity = null
         playback.release()
@@ -1908,36 +1914,73 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         val pose = if (restore) {
             trackedHeadPose()?.let { SpatialPlacement.facingSurface(saved!!, it) } ?: saved!!
         } else controlsPoseInFront()
-        val entity = Entity.create(
-            Panel(R.id.vr_controls_panel),
-            Transform(pose),
-            Visible(true),
-            // 用户上次拉角拉到的大小：整块等比缩放（与 ISDK 的 Simple 模式同一机制，只是把手换成我们自己的窗框）。
-            Scale(Vector3(controlsScale, controlsScale, 1f)),
-        )
+        // 用户上次拉角拉到的大小：整块等比缩放（与 ISDK 的 Simple 模式同一机制，只是把手换成我们自己的窗框）。
+        val scale = Vector3(controlsScale, controlsScale, 1f)
+        val parked = controlsParked
+        val entity: Entity
+        if (parked != null) {
+            entity = parked
+            controlsParked = null
+            controlsPanel = controlsParkedPanel
+            controlsParkedPanel = null
+            entity.setComponents(listOf(Transform(pose), Scale(scale), Visible(true)))
+            // ECS Transform 晚一帧生效：场景对象同帧直接写，免得在脚下闪一帧。
+            controlsPanel?.let {
+                it.setPosition(pose.t)
+                it.setRotationQuat(pose.q)
+                it.setScale(scale)
+            }
+        } else {
+            entity = createControlsEntity(pose, scale, visible = true) { controlsEntity = it }
+        }
         controlsEntity = entity
         controlsBasePose = pose
         controlsHovered = false
+        controls.snapRoute = true
+        controls.shownCount++
+        controlsSnapTicks = CONTROLS_SNAP_TICKS
+        manipulator.attach(controlsHost)
+        Log.i(TAG, "IMMERSIVE controls panel shown summoned=$summoned restored=$restore reused=${parked != null}")
+    }
+
+    /** 进场景就建好一块停在脚下的控制面板，第一次唤出也只是挪过来。 */
+    private fun prewarmControls() {
+        if (controlsEntity != null || controlsParked != null) return
+        createControlsEntity(PARKED_POSE, Vector3(controlsScale, controlsScale, 1f), visible = false) { controlsParked = it }
+        Log.i(TAG, "IMMERSIVE controls panel prewarmed (parked)")
+    }
+
+    /** [own] stores the entity in its field before the scene-object callback, which routes the panel by that field. */
+    private fun createControlsEntity(pose: Pose, scale: Vector3, visible: Boolean, own: (Entity) -> Unit): Entity {
+        val entity = Entity.create(
+            Panel(R.id.vr_controls_panel),
+            Transform(pose),
+            Visible(visible),
+            Scale(scale),
+        )
+        own(entity)
         systemManager.findSystem<SceneObjectSystem>().getSceneObject(entity)?.thenAccept { so ->
-            if (controlsEntity != entity) return@thenAccept
-            so.addInputListener(hoverListener)
             val panel = so as? PanelSceneObject
-            controlsPanel = panel
+            when (entity) {
+                controlsEntity -> controlsPanel = panel
+                controlsParked -> controlsParkedPanel = panel
+                else -> return@thenAccept
+            }
+            so.addInputListener(hoverListener)
             runCatching { panel?.layer?.setZIndex(Z_CONTROLS) }
             entity.tryGetComponent<Transform>()?.transform?.let { current ->
                 panel?.setPosition(current.t)
                 panel?.setRotationQuat(current.q)
             }
         }
-        manipulator.attach(controlsHost)
-        Log.i(TAG, "IMMERSIVE controls panel created summoned=$summoned restored=$restore")
+        return entity
     }
 
     /**
-     * 收起控制面板：先隐身、隔 [DOOMED_TICKS] 帧再真销毁。
+     * 收起控制面板：隐身并停到脚下 100m，留着下次唤出直接用（见类注释铁律 1）。
      *
-     * 直接销毁时 ISDK 来不及清掉这块面板的悬停/命中态，光标会继续被一块已不存在的面板挡住
-     * （真机反馈：自动收起后光标仍被面板遮挡）。隐身一两帧让它先从命中里退出。
+     * 停走而不是只隐身：`Visible(false)` 不影响 ISDK 命中，原地隐身的面板会继续挡光标
+     * （真机反馈：自动收起后光标仍被面板遮挡）。挪走后它自然从命中里退出。
      */
     private fun hideControls() {
         viewDistanceDirection = 0
@@ -1947,22 +1990,17 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         (controlsBasePose ?: entity.tryGetComponent<Transform>()?.transform)?.let { lastControlsPose = it }
         controlsBasePose = null
         manipulator.detach(WindowKind.CONTROLS)
-        entity.setComponent(Visible(false))
-        controlsDoomed?.destroy()
-        controlsDoomed = entity
-        controlsDoomedTicks = DOOMED_TICKS
+        entity.setComponents(listOf(Transform(PARKED_POSE), Visible(false)))
+        controlsPanel?.setPosition(PARKED_POSE.t)
+        controlsParked?.destroy() // Defensive: there is only ever one controls panel.
+        controlsParked = entity
+        controlsParkedPanel = controlsPanel
         controlsEntity = null
         controlsPanel = null
         controlsHovered = false
+        controls.snapRoute = true
         controls.volumePopupOpen = false
         controls.route = ControlsRoute.PLAYER
-    }
-
-    private fun reapDoomedControls() {
-        val doomed = controlsDoomed ?: return
-        if (--controlsDoomedTicks > 0) return
-        doomed.destroy()
-        controlsDoomed = null
     }
 
     // ================================================================ 三块窗（抓 / 挪 / 缩放的宿主）
@@ -2154,7 +2192,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
         tickGallery(now)
         syncControlsDepth()
-        reapDoomedControls()
+        if (controlsSnapTicks > 0 && --controlsSnapTicks == 0 && controlsEntity != null) controls.snapRoute = false
         updateAutoHide(now)
         // 缓冲指示：延迟露面 / 退场后销毁，都按帧走；平幕上还要跟着幕布挪。
         syncBufferingIndicator()
@@ -2296,7 +2334,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
         // ⛔ 射线悬在面板上时 A 键是给面板的（ISDK 把它当点击送进去），这里再切一次播放/暂停就穿透了
         // （用户 2026-09-05：「用 A 键点操作栏，画面跟着暂停」）。扳机那条路早就这么判了（onSelectDown）。
-        if (e.primaryTap && controls.controllerTapPlayPause && !controlsHovered) controlsCallbacks.onPlayPause()
+        if (e.primaryTap && controls.controllerTapPlayPause && !controlsUnderPointer()) controlsCallbacks.onPlayPause()
         // Only the stick belonging to the hand pointing at the panel scrolls that panel.
         // A resting second pointer must not swallow the active controller's seek/distance input.
         val stick = e.stickForHands(controlsPointerHands().inv())
@@ -2407,6 +2445,13 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
         return hands
     }
+
+    /**
+     * 有射线落在控制面板上：ISDK 的悬停标志，或本帧自己算的射线 × 面板。
+     * ⛔ 面板现在常驻复用：ISDK 的悬停「只进不出」，收起时没报 stop 的话，再唤出就不会再报 start，
+     * 只看 [controlsHovered] 会一直是 false（A 键穿透成播放 / 暂停、指着面板也被自动收起）。
+     */
+    private fun controlsUnderPointer(): Boolean = controlsHovered || controlsPointerHands() != 0
 
     private fun pointerOnControls(hand: Int? = null): Boolean =
         controlsPointerHands() and (hand?.let { 1 shl it } ?: 0b11) != 0
@@ -2677,7 +2722,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         // 空间画廊：幻灯片在放才算「在放」；停着看一张图时面板留着（翻页钮就在上面）。
         val playing = controls.isPlaying || gallery?.slideshow == true
         if (!playing || controls.buffering ||
-            controls.route != ControlsRoute.PLAYER || controls.volumePopupOpen || controlsHovered
+            controls.route != ControlsRoute.PLAYER || controls.volumePopupOpen || controlsUnderPointer()
         ) {
             lastInteractionAt = now
             return
@@ -3728,7 +3773,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             return
         }
         val grips = input.gripHeld[0] && input.gripHeld[1]
-        val selects = input.selectHeld[0] && input.selectHeld[1] && !controlsHovered && !manipulator.isBusy(0) && !manipulator.isBusy(1)
+        val selects = input.selectHeld[0] && input.selectHeld[1] && !controlsUnderPointer() && !manipulator.isBusy(0) && !manipulator.isBusy(1)
         val p0 = input.handPositions[0]
         val p1 = input.handPositions[1]
         if (!twoHandScaling) {
@@ -4265,8 +4310,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         private const val Z_CONTROLS = 20
         private const val Z_BUFFERING = 30
 
-        /** 面板隐身后再等这么多帧才销毁。 */
-        private const val DOOMED_TICKS = 3
+        /** 唤出后这么多帧内换页不做动画（[VideoControlsState.snapRoute]）。 */
+        private const val CONTROLS_SNAP_TICKS = 3
 
         /** 「点一下」的判据：捏合不超过这么久、手不超过这么远。 */
         private const val TAP_MAX_MS = 400L
