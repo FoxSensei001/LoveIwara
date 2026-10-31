@@ -11,6 +11,7 @@ import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/db/database_service.dart';
+import 'package:i_iwara/db/migrations/migration_v47_history_switch_own_key.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
@@ -338,6 +339,12 @@ class ConfigBackupService extends GetxService {
             stmt.execute(values);
           }
           stmt.close();
+        }
+        // 备份是 v47 之前导出的：app_config 刚被整表写回旧值，补跑一次 v47 的换算。
+        final backupDbVersion = importData["db_version"];
+        if (tablesData.containsKey('app_config') &&
+            (backupDbVersion is! int || backupDbVersion < 47)) {
+          MigrationV47HistorySwitchOwnKey.reconcile(db);
         }
         db.execute('COMMIT;');
       } catch (e) {

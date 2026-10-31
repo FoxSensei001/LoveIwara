@@ -47,7 +47,7 @@ class _BasicSettingsStepWidgetState extends State<BasicSettingsStepWidget> {
 
   void _loadSettings() {
     enableVibration = configService[ConfigKey.ENABLE_VIBRATION];
-    enableHistory = configService[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS];
+    enableHistory = configService[ConfigKey.AUTO_RECORD_HISTORY_KEY];
     disableForumReplyQuote =
         configService[ConfigKey.DISABLE_FORUM_REPLY_QUOTE_KEY];
     enableSignature = configService[ConfigKey.ENABLE_SIGNATURE_KEY];
@@ -61,10 +61,7 @@ class _BasicSettingsStepWidgetState extends State<BasicSettingsStepWidget> {
 
   Future<void> _updateHistory(bool value) async {
     setState(() => enableHistory = value);
-    await configService.setSetting(
-      ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS,
-      value,
-    );
+    await configService.setSetting(ConfigKey.AUTO_RECORD_HISTORY_KEY, value);
   }
 
   Future<void> _updateDisableForumReplyQuote(bool value) async {

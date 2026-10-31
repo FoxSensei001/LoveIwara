@@ -125,8 +125,10 @@ class ConfigService extends GetxService {
         settings[ConfigKey.CURRENT_PRESET_INDEX_KEY]!.value;
     CommonConstants.currentCustomHex =
         settings[ConfigKey.CURRENT_CUSTOM_HEX_KEY]!.value;
+    // ⛔ 是 AUTO_RECORD_HISTORY_KEY，不是 RECORD_AND_RESTORE_VIDEO_PROGRESS：
+    // 读错键时关掉「播放进度」会连带让浏览历史停记（见迁移 v47）。
     CommonConstants.enableHistory =
-        settings[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]!.value;
+        settings[ConfigKey.AUTO_RECORD_HISTORY_KEY]!.value;
     CommonConstants.enableVibration =
         settings[ConfigKey.ENABLE_VIBRATION]!.value;
     CommonConstants.isPaginated =
@@ -253,6 +255,11 @@ class ConfigService extends GetxService {
     bool save = true,
   }) async {
     settings[key]!.value = value;
+    // 镜像只在这一处同步，所有写入口（设置页、首启引导）都不必各自记着改它。
+    // 放在落库之前：落库抛异常时开关显示的值与实际行为仍一致。
+    if (key == ConfigKey.AUTO_RECORD_HISTORY_KEY) {
+      CommonConstants.enableHistory = value as bool;
+    }
     if (save) {
       await saveSetting(key, value);
     }
