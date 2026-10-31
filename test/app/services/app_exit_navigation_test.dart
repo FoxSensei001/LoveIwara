@@ -10,9 +10,11 @@ import 'package:i_iwara/utils/logger_utils.dart';
 
 void main() {
   const immersive = MethodChannel('i_iwara/immersive');
+  const windowManagerChannel = MethodChannel('window_manager');
   final binding = TestWidgetsFlutterBinding.ensureInitialized();
   final immersiveCalls = <String>[];
   final platformCalls = <String>[];
+  final windowCalls = <String>[];
 
   setUpAll(() async {
     await LogUtils.init(isProduction: true, enablePersistence: false);
@@ -21,6 +23,7 @@ void main() {
   setUp(() {
     immersiveCalls.clear();
     platformCalls.clear();
+    windowCalls.clear();
     binding.defaultBinaryMessenger.setMockMethodCallHandler(immersive, (
       call,
     ) async {
@@ -31,6 +34,13 @@ void main() {
       SystemChannels.platform,
       (call) async {
         platformCalls.add(call.method);
+        return null;
+      },
+    );
+    binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      windowManagerChannel,
+      (call) async {
+        windowCalls.add(call.method);
         return null;
       },
     );
@@ -52,6 +62,10 @@ void main() {
     binding.defaultBinaryMessenger.setMockMethodCallHandler(immersive, null);
     binding.defaultBinaryMessenger.setMockMethodCallHandler(
       SystemChannels.platform,
+      null,
+    );
+    binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      windowManagerChannel,
       null,
     );
   });
@@ -116,8 +130,38 @@ void main() {
       platformCalls.where((call) => call == 'SystemNavigator.pop'),
       hasLength(1),
     );
+    expect(windowCalls, isEmpty, reason: '移动端不该去动窗口管理器');
     await drainToasts(tester);
-  });
+    // ⛔ 必须钉死移动端：测试跑在桌面宿主上（Windows CI 同理），
+    // `defaultTargetPlatform` 默认就是 windows，不覆盖的话这条测的是桌面分支。
+  }, variant: const TargetPlatformVariant({TargetPlatform.android}));
+
+  testWidgets(
+    'desktop exit closes the window instead of popping the navigator',
+    (tester) async {
+      // ⛔ 桌面端 SystemNavigator.pop() 是空实现：真按这条路退，用户看到的就是
+      // 「弹了退出提示，然后什么也没发生」（用户 2026-10-31，PC 实测）。退出必须
+      // 落到 windowManager.close()，也就是标题栏关闭按钮那条有序收尾路径。
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(immersive, (
+        call,
+      ) async {
+        immersiveCalls.add(call.method);
+        return false;
+      });
+      final context = await pumpHome(tester);
+      // 同上：双击确认，第一下只弹提示。
+      AppService.tryPop(context: context);
+      await tester.pump();
+      expect(windowCalls, isEmpty, reason: '第一下只该弹提示，不该关窗');
+      AppService.tryPop(context: context);
+      await tester.pump();
+
+      expect(windowCalls, contains('close'));
+      expect(platformCalls, isNot(contains('SystemNavigator.pop')));
+      await drainToasts(tester);
+    },
+    variant: const TargetPlatformVariant({TargetPlatform.windows}),
+  );
 
   testWidgets('a fresh back press immediately after a page pop reaches home', (
     tester,
