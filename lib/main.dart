@@ -384,6 +384,11 @@ Future<void> _writeGeometryMirrorFromCurrentWindow() async {
 ///
 /// 包虽然把 `setAutoReset` 的文档写成「iOS only」，但 Windows 的 C++ 侧确实
 /// 实现了（`HandleSetAutoResetMethodCall`）。
+///
+/// ⛔ Windows 现在已经整个换成纯 Dart 空实现（`packages/screen_brightness_windows`，
+/// 经 pubspec 的 `dependency_overrides` 接入）：关窗、启动窗口期这两条写亮度的路
+/// 这里关不掉，只能不注册那个 C++ 插件。这次调用在 Windows 上已是空操作，留着
+/// 是给其它桌面平台的实现兜底。
 Future<void> _disableScreenBrightnessAutoReset() async {
   try {
     await ScreenBrightness().setAutoReset(false);

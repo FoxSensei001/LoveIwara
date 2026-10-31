@@ -193,5 +193,10 @@ dependency_overrides:
   # in the code_assets version it depends on — breaks native asset builds on
   # every platform. Pin to the last known-good release until upstream fixes it.
   objective_c: 9.6.0
+  # screen_brightness 的 Windows 实现换成纯 Dart 空实现：上游 C++ 插件在关窗、
+  # 启动窗口期会经 DDC/CI 把缓存亮度写回显示器（锁亮度模式下可能是 0，整屏变黑）。
+  # 桌面端本来不调亮度。原因详见包内注释。
+  screen_brightness_windows:
+    path: packages/screen_brightness_windows
 
 license: MIT

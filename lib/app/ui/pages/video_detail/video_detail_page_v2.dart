@@ -612,8 +612,13 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       'didPopNext: keep current playback state on route return',
       'MyVideoDetailPage',
     );
-    // 返回到视频详情页，重置屏幕亮度
-    ScreenBrightness().resetApplicationScreenBrightness();
+    // 返回到视频详情页，重置屏幕亮度。
+    // ⛔ 只在移动端：Windows 的实现会经 DDC/CI 把启动时缓存的亮度写回显示器，
+    // 那个值在 sRGB / HDR 等锁亮度模式下可能读成 0 —— 用户报「屏幕亮度瞬间降到 0」。
+    // 桌面端本来就不调亮度（亮度手势与 setDefaultBrightness 都只给移动端）。
+    if (GetPlatform.isAndroid || GetPlatform.isIOS) {
+      ScreenBrightness().resetApplicationScreenBrightness();
+    }
     controller.resumeFromCoveredRoute();
     if (controller.isFullscreen.value) {
       appService.hideSystemUI();
