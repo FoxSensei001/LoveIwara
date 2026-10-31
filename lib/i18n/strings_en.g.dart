@@ -4121,6 +4121,9 @@ class TranslationsDownloadEn {
 	/// en: 'Suggested file name: ${name} (editable in the system dialog)'
 	String saveToPreviewSuggested({required Object name}) => 'Suggested file name: ${name} (editable in the system dialog)';
 
+	/// en: 'Change…'
+	String get saveToPreviewChange => 'Change…';
+
 	/// en: 'Last used'
 	String get lastUsedBadge => 'Last used';
 
@@ -11020,6 +11023,9 @@ class TranslationsDownloadLocationEn {
 	/// en: 'Choose where to save for each download. Batch downloads go to ${location}'
 	String askEveryTimeDesc({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}';
 
+	/// en: 'Download started. Files are saved to "${location}". You can change this in download settings'
+	String firstDownloadNotice({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings';
+
 	/// en: '${size} free'
 	String freeSpace({required Object size}) => '${size} free';
 
@@ -14682,6 +14688,7 @@ extension on Translations {
 			'download.categorySectionLabel' => 'Category',
 			'download.saveToPreviewLabel' => 'Will save to',
 			'download.saveToPreviewSuggested' => ({required Object name}) => 'Suggested file name: ${name} (editable in the system dialog)',
+			'download.saveToPreviewChange' => 'Change…',
 			'download.lastUsedBadge' => 'Last used',
 			'download.pickedBadge' => 'Selected',
 			'download.startDownloading' => 'Start Downloading',
@@ -14792,9 +14799,9 @@ extension on Translations {
 			'download.actions.checkIntegrity' => 'Check file integrity…',
 			'download.actions.migrateToCurrent' => 'Move to current download folder…',
 			'download.actions.migrateNone' => 'Everything is already in the current download folder',
-			'download.notice.failed' => ({required Object count}) => '${count} downloads failed',
 			_ => null,
 		} ?? switch (path) {
+			'download.notice.failed' => ({required Object count}) => '${count} downloads failed',
 			'download.notice.retryAll' => 'Retry all',
 			'download.notice.view' => 'View',
 			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
@@ -14990,6 +14997,7 @@ extension on Translations {
 			'download.location.downloadsFolder' => 'Downloads',
 			'download.location.askEveryTime' => 'Ask every time',
 			'download.location.askEveryTimeDesc' => ({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}',
+			'download.location.firstDownloadNotice' => ({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings',
 			'download.location.freeSpace' => ({required Object size}) => '${size} free',
 			'download.location.statusWritable' => 'Writable',
 			'download.location.statusNeedsPermission' => 'Needs permission',
@@ -15305,10 +15313,10 @@ extension on Translations {
 			'translation.presetNames.openai' => 'OpenAI (GPT-4o / GPT-4.1)',
 			'translation.presetNames.openaiReasoning' => 'OpenAI Reasoning (o1 / o3 / o4)',
 			'translation.presetNames.anthropic' => 'Anthropic Claude',
-			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude Reasoning (extended thinking)',
-			'translation.presetNames.gemini' => 'Google Gemini (native)',
 			_ => null,
 		} ?? switch (path) {
+			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude Reasoning (extended thinking)',
+			'translation.presetNames.gemini' => 'Google Gemini (native)',
 			'translation.presetNames.geminiReasoning' => 'Google Gemini Reasoning (thinking)',
 			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek Reasoning (deepseek-reasoner / R1)',
@@ -15819,10 +15827,10 @@ extension on Translations {
 			'anime4k.moreLitePresets' => 'More Lightweight Presets',
 			'anime4k.customPresets' => 'Custom Presets',
 			'anime4k.presetGroups.highQuality' => 'High Quality',
-			'anime4k.presetGroups.fast' => 'Fast',
-			'anime4k.presetGroups.lite' => 'Lite',
 			_ => null,
 		} ?? switch (path) {
+			'anime4k.presetGroups.fast' => 'Fast',
+			'anime4k.presetGroups.lite' => 'Lite',
 			'anime4k.presetGroups.moreLite' => 'More Lite',
 			'anime4k.presetGroups.custom' => 'Custom',
 			'anime4k.presetDescriptions.mode_a_hq' => 'Suitable for most 1080p animations, especially those dealing with blur, resampling and compression artifacts. Provides the highest perceived quality.',
@@ -16333,10 +16341,10 @@ extension on Translations {
 			'localMedia.addedAsPinnedFolder' => ({required Object name, required Object source}) => '"${name}" is inside "${source}", so it was added to pinned folders',
 			'localMedia.alreadyPinnedFolder' => ({required Object name}) => '"${name}" is already in pinned folders',
 			'localMedia.sourceAlreadyAdded' => ({required Object name}) => '"${name}" has already been added',
-			'localMedia.sourceContainsExisting' => ({required Object name}) => 'It already contains the added folder "${name}"; adding its parent folder isn\'t supported yet',
-			'localMedia.addSourceFailed' => 'Could not add that folder',
 			_ => null,
 		} ?? switch (path) {
+			'localMedia.sourceContainsExisting' => ({required Object name}) => 'It already contains the added folder "${name}"; adding its parent folder isn\'t supported yet',
+			'localMedia.addSourceFailed' => 'Could not add that folder',
 			'localMedia.fileMissing' => 'That file is no longer on disk',
 			'localMedia.permissionDenied' => 'File access not granted. Allow it before adding a folder.',
 			'localMedia.noVideosFound' => 'No videos in this folder',

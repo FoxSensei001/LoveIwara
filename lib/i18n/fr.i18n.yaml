@@ -2022,6 +2022,7 @@ download:
   categorySectionLabel: 'Catégorie'
   saveToPreviewLabel: 'Sera enregistré dans'
   saveToPreviewSuggested: 'Nom de fichier suggéré : ${name} (modifiable dans la boîte de dialogue système)'
+  saveToPreviewChange: Change…
   lastUsedBadge: Dernier utilisé
   pickedBadge: Sélectionné
   startDownloading: Démarrer le téléchargement
@@ -2337,6 +2338,7 @@ download:
     downloadsFolder: Downloads
     askEveryTime: Ask every time
     askEveryTimeDesc: 'Choose where to save for each download. Batch downloads go to ${location}'
+    firstDownloadNotice: 'Download started. Files are saved to "${location}". You can change this in download settings'
     freeSpace: '${size} free'
     statusWritable: Writable
     statusNeedsPermission: Needs permission

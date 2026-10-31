@@ -149,8 +149,26 @@ class DownloadPathService extends GetxService {
       await _refreshResolvedPackageName();
       await _refreshPermissionStatus();
       _defaultDownloadPath.value = await getDefaultDownloadPath();
+      _quietOutsideBannerForFormerAskUsers();
       await refreshPathStatus();
     });
+  }
+
+  /// 桌面端从「每次询问」切到默认目录的老安装（迁移 v48 写的一次性标记）：
+  /// 以前每个文件都是在对话框里自己挑的位置，不存在什么「旧下载目录」。替他对
+  /// 默认目录记一句「不搬」，下载列表就不会冒出「旧目录里还有 N 项」去催；
+  /// 设置页那张卡片和列表菜单里的「迁移」照常可用。
+  ///
+  /// ⛔ 只认迁移标记，处理一次就清掉：用「首次提示没出过」之类的状态当判据会
+  /// 误伤新装用户，以及升级后点了「恢复默认」、真有旧目录要搬的人。
+  void _quietOutsideBannerForFormerAskUsers() {
+    if (!(_configService[ConfigKey.DOWNLOAD_OUTSIDE_QUIET_PENDING] as bool)) {
+      return;
+    }
+    _configService[ConfigKey.DOWNLOAD_OUTSIDE_QUIET_PENDING] = false;
+    if (!GetPlatform.isDesktop || !hasFixedDownloadDirectory) return;
+    if (_configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool) return;
+    dismissOutsideFor(_defaultDownloadPath.value);
   }
 
   static String _comparisonPath(String rawPath) {
@@ -250,12 +268,13 @@ class DownloadPathService extends GetxService {
       final customPath =
           _configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] as String;
       LogUtils.d(
-        '自定义路径启用状态: $isCustomPathEnabled, 自定义路径: $customPath',
+        '自定义路径启用状态: $isCustomPathEnabled, 自定义路径: $customPath, '
+            '每次询问: $asksEveryTime',
         'DownloadPathService',
       );
 
-      if (GetPlatform.isDesktop && !isCustomPathEnabled) {
-        // 桌面平台且未启用自定义路径：让用户选择保存位置。
+      if (asksEveryTime) {
+        // 桌面端「每次询问」：让用户选择保存位置。
         // 只把模板末段（文件名）作为系统对话框的建议名——「每次询问」模式下
         // 没有固定基目录可挂子文件夹，用户在对话框里的选择优先（07 边界表）。
         final result = await showDesktopSaveDialog(
@@ -267,7 +286,7 @@ class DownloadPathService extends GetxService {
         );
         return result?.path;
       } else {
-        // 移动平台或桌面端启用自定义路径：使用配置的路径
+        // 移动平台或桌面端固定目录（默认 下载/LoveIwara 或自定义路径）
         final basePath = await _getBasePath('');
         return safeJoinUnderBase(basePath, segments);
       }
@@ -341,11 +360,8 @@ class DownloadPathService extends GetxService {
         'DownloadPathService',
       );
 
-      final isCustomPathEnabled =
-          _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
-
-      if (GetPlatform.isDesktop && !isCustomPathEnabled && !forBatch) {
-        // 桌面平台且未启用自定义路径（单册下载）：让用户选择保存位置
+      if (asksEveryTime && !forBatch) {
+        // 桌面端「每次询问」（单册下载）：让用户选择保存位置
         final result = await showDesktopSaveDialog(
           purpose: '下载图库',
           suggestedName: segments.last,
@@ -355,7 +371,7 @@ class DownloadPathService extends GetxService {
         );
         return result?.path;
       } else {
-        // 移动平台、桌面端启用自定义路径，或批量下载：使用配置的路径
+        // 移动平台、桌面端固定目录（默认 下载/LoveIwara 或自定义路径），或批量下载
         final basePath = await _getBasePath('');
         return safeJoinUnderBase(basePath, segments);
       }
@@ -522,15 +538,21 @@ class DownloadPathService extends GetxService {
     }
   }
 
+  /// 新下载有没有一个固定的落脚目录。桌面端选了「每次询问」时每次都弹
+  /// 「另存为」，没有「当前下载目录」可言——「把已下载内容移到当前目录」在那里
+  /// 无从谈起。
+  bool get hasFixedDownloadDirectory => !asksEveryTime;
 
-  /// 新下载有没有一个固定的落脚目录。桌面端没开自定义路径时每次都弹「另存为」，
-  /// 没有「当前下载目录」可言——「把已下载内容移到当前目录」在那里无从谈起。
-  bool get hasFixedDownloadDirectory =>
-      !GetPlatform.isDesktop ||
-      (_configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool);
-
-  /// 桌面端「每次询问保存位置」（= 没开自定义路径）。
-  bool get asksEveryTime => !hasFixedDownloadDirectory;
+  /// 桌面端「每次询问保存位置」：桌面、没开自定义路径、且用户主动选了它。
+  ///
+  /// ⛔ 以前「没开自定义路径」本身就等于每次询问，而那是出厂默认——每个桌面
+  /// 用户每次下载都弹系统「另存为」。Flutter 3.47 的 Windows 上那个对话框
+  /// 跑在 Dart 所在的线程上，卡住就整个应用「未响应」（2026-10-31 报障）。
+  /// 现在默认落到 [getDefaultDownloadPath]（下载/LoveIwara），询问要主动选。
+  bool get asksEveryTime =>
+      GetPlatform.isDesktop &&
+      !(_configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool) &&
+      (_configService[ConfigKey.DOWNLOAD_ASK_EVERY_TIME] as bool);
 
   /// 新下载实际会落到的目录（已按权限 / 可写性回落过，目录保证存在）。
   Future<String> currentDownloadDirectory() => _getBasePath('');
@@ -577,9 +599,8 @@ class DownloadPathService extends GetxService {
   /// 用户（或默认规则）**想要**的下载目录——还没按权限 / 可写性回落。
   ///
   /// 开了自定义路径且非空 → 那条路径；否则 → [getDefaultDownloadPath]。
-  /// 与 [_getBasePath]、[refreshPathStatus]、[hasFixedDownloadDirectory] 用的是
-  /// 同一个判据：桌面端没开自定义路径时，单个下载弹「另存为」，批量下载与单图
-  /// 落到这里。
+  /// 与 [_getBasePath]、[refreshPathStatus] 用的是同一个判据。桌面端选了
+  /// 「每次询问」时，单个下载弹「另存为」，批量下载与单图仍落到这里。
   Future<String> targetDownloadDirectory() async {
     final enabled =
         _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
@@ -1267,8 +1288,8 @@ class DownloadPathService extends GetxService {
   ///     权限、卸载不删、系统文件管理器与相册都看得到；
   ///   - Android 10 及以下：仍是 App 专属空间（公共目录要先要存储权限，默认值
   ///     不该一装上就弹权限）；
-  ///   - 桌面：系统「下载」文件夹下的 LoveIwara（批量下载 / 单图用；单个下载
-  ///     在没开自定义路径时照旧每次弹「另存为」）；
+  ///   - 桌面：系统「下载」文件夹下的 LoveIwara（2026-10-31 起单个下载也落
+  ///     这里；只有主动选了「每次询问」才弹「另存为」，见 [asksEveryTime]）；
   ///   - iOS：App 专属空间（本阶段不变）。
   ///
   /// 取不到对应目录时一律退回 App 专属空间。
@@ -1397,6 +1418,7 @@ class DownloadPathService extends GetxService {
       false,
     );
     await _configService.setSetting(ConfigKey.CUSTOM_DOWNLOAD_PATH, '');
+    await _configService.setSetting(ConfigKey.DOWNLOAD_ASK_EVERY_TIME, false);
     // 出厂默认 = 「按作者」预设（与 ConfigKey.defaultValue 保持一致；
     // 首跑冻结机制保证这只影响显式点了重置/新装的用户，存量值不动）。
     await _configService.setSetting(
@@ -1538,28 +1560,32 @@ class DownloadPathService extends GetxService {
       ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH,
       true,
     );
+    await _configService.setSetting(ConfigKey.DOWNLOAD_ASK_EVERY_TIME, false);
     _runtimeFallback = null;
     await refreshPathStatus();
   }
 
-  /// 桌面端「每次询问保存位置」（沿用 ENABLE_CUSTOM_DOWNLOAD_PATH=false 的老含义，
-  /// 不新增配置；自定义路径原样留着，下次切回来还在）。
+  /// 桌面端「每次询问保存位置」。关掉自定义路径（批量下载落到默认目录，与以前
+  /// 一致），再打开询问开关；自定义路径原样留着，下次切回来还在。
   Future<void> setAskEveryTime() async {
     await _configService.setSetting(
       ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH,
       false,
     );
+    await _configService.setSetting(ConfigKey.DOWNLOAD_ASK_EVERY_TIME, true);
     _runtimeFallback = null;
     await refreshPathStatus();
   }
 
-  /// 恢复默认下载位置（关自定义路径并清空；桌面端即回到「每次询问」）。
+  /// 恢复默认下载位置（关自定义路径并清空、关「每次询问」；桌面端即回到
+  /// 下载/LoveIwara）。
   Future<void> restoreDefaultLocation() async {
     await _configService.setSetting(
       ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH,
       false,
     );
     await _configService.setSetting(ConfigKey.CUSTOM_DOWNLOAD_PATH, '');
+    await _configService.setSetting(ConfigKey.DOWNLOAD_ASK_EVERY_TIME, false);
     _runtimeFallback = null;
     await refreshPathStatus();
   }

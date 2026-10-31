@@ -488,6 +488,11 @@ enum ConfigKey {
   // 下载设置
   CUSTOM_DOWNLOAD_PATH, // 自定义下载路径
   ENABLE_CUSTOM_DOWNLOAD_PATH, // 启用自定义下载路径
+  // 桌面端「每次询问保存位置」（默认关 = 存进 下载/LoveIwara）。只在桌面且没开
+  // 自定义路径时生效，见 DownloadPathService.asksEveryTime。
+  DOWNLOAD_ASK_EVERY_TIME,
+  DOWNLOAD_LOCATION_NOTICE_SHOWN, // 桌面端首次下载时「文件存到了哪」的一次性提示是否已出过
+  DOWNLOAD_OUTSIDE_QUIET_PENDING, // 迁移 v48 写的一次性标记：从「每次询问」切过来的老安装，待对默认目录记「不搬」
   DOWNLOADS_OUTSIDE_DISMISSED_DIR, // 「旧目录里还有 N 项」对哪个目标目录已选过不搬
   DOWNLOAD_STRUCTURE_NOTICE_DISMISSED, // 「可按作者自动归档」一次性提示卡是否已消失（选中任意预设即消失）
   VIDEO_FILENAME_TEMPLATE, // 视频保存结构与命名模板（允许 / 分隔的 1~4 段）
@@ -803,6 +808,12 @@ extension ConfigKeyExtension on ConfigKey {
         return 'custom_download_path';
       case ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH:
         return 'enable_custom_download_path';
+      case ConfigKey.DOWNLOAD_ASK_EVERY_TIME:
+        return 'download_ask_every_time';
+      case ConfigKey.DOWNLOAD_LOCATION_NOTICE_SHOWN:
+        return 'download_location_notice_shown';
+      case ConfigKey.DOWNLOAD_OUTSIDE_QUIET_PENDING:
+        return 'download_outside_quiet_pending';
       case ConfigKey.DOWNLOADS_OUTSIDE_DISMISSED_DIR:
         return 'downloads_outside_dismissed_dir';
       case ConfigKey.DOWNLOAD_STRUCTURE_NOTICE_DISMISSED:
@@ -1182,6 +1193,14 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.DOWNLOAD_STRUCTURE_NOTICE_DISMISSED:
         return false;
       case ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH:
+        return false;
+      // 默认不弹系统「另存为」：Flutter 3.47 的 Windows 上那个对话框跑在 Dart
+      // 所在的线程上，一卡整个应用就「未响应」（见迁移 v48）。
+      case ConfigKey.DOWNLOAD_ASK_EVERY_TIME:
+        return false;
+      case ConfigKey.DOWNLOAD_LOCATION_NOTICE_SHOWN:
+        return false;
+      case ConfigKey.DOWNLOAD_OUTSIDE_QUIET_PENDING:
         return false;
       // 出厂默认 = 「按作者」预设（issue #126）：新装用户零配置即按作者归档。
       // ⚠️ 只对全新安装生效——_loadSettings 首跑就把默认值写进库了，存量用户

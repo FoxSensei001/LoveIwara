@@ -866,6 +866,12 @@ class NaviService {
     appRouter.push(SettingsSection.chat.path);
   }
 
+  // 跳转到下载设置页（保存位置 / 命名）。桌面首次下载那条「存到了哪」的
+  // toast 上的「更改位置」走这条。
+  static void navigateToDownloadSettingsPage() {
+    appRouter.push(SettingsSection.download.path);
+  }
+
   // 跳转到内容屏蔽设置页
   static void navigateToBlockSettingsPage() {
     appRouter.push(SettingsSection.block.path);

@@ -2045,6 +2045,7 @@ download:
   categorySectionLabel: Category
   saveToPreviewLabel: Will save to
   saveToPreviewSuggested: 'Suggested file name: ${name} (editable in the system dialog)'
+  saveToPreviewChange: Change…
   lastUsedBadge: Last used
   pickedBadge: Selected
   startDownloading: Start Downloading
@@ -2360,6 +2361,7 @@ download:
     downloadsFolder: Downloads
     askEveryTime: Ask every time
     askEveryTimeDesc: 'Choose where to save for each download. Batch downloads go to ${location}'
+    firstDownloadNotice: 'Download started. Files are saved to "${location}". You can change this in download settings'
     freeSpace: '${size} free'
     statusWritable: Writable
     statusNeedsPermission: Needs permission

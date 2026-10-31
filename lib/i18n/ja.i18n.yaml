@@ -2025,6 +2025,7 @@ download:
   categorySectionLabel: '分類'
   saveToPreviewLabel: '保存先'
   saveToPreviewSuggested: '推奨ファイル名：${name}（システムダイアログで変更可）'
+  saveToPreviewChange: 変更…
   lastUsedBadge: 前回選択
   pickedBadge: 選択中
   forceDeleteTask: 強制削除タスク
@@ -2340,6 +2341,7 @@ download:
     downloadsFolder: ダウンロード
     askEveryTime: 毎回確認する
     askEveryTimeDesc: 'ダウンロードのたびに保存先を選びます。一括ダウンロードは ${location} に保存されます'
+    firstDownloadNotice: 'ダウンロードを開始しました。保存先は「${location}」です（ダウンロード設定で変更できます）'
     freeSpace: '空き ${size}'
     statusWritable: 書き込み可
     statusNeedsPermission: 許可が必要

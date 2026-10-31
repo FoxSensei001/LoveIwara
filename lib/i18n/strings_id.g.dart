@@ -1595,6 +1595,7 @@ class _TranslationsDownloadId extends TranslationsDownloadEn {
 	@override String get categorySectionLabel => 'Kategori';
 	@override String get saveToPreviewLabel => 'Akan disimpan ke';
 	@override String saveToPreviewSuggested({required Object name}) => 'Nama file saran: ${name} (bisa diubah di dialog sistem)';
+	@override String get saveToPreviewChange => 'Change…';
 	@override String get lastUsedBadge => 'Terakhir digunakan';
 	@override String get pickedBadge => 'Dipilih';
 	@override String get startDownloading => 'Mulai Mengunduh';
@@ -4357,6 +4358,7 @@ class _TranslationsDownloadLocationId extends TranslationsDownloadLocationEn {
 	@override String get downloadsFolder => 'Downloads';
 	@override String get askEveryTime => 'Ask every time';
 	@override String askEveryTimeDesc({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}';
+	@override String firstDownloadNotice({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings';
 	@override String freeSpace({required Object size}) => '${size} free';
 	@override String get statusWritable => 'Writable';
 	@override String get statusNeedsPermission => 'Needs permission';
@@ -7014,6 +7016,7 @@ extension on TranslationsId {
 			'download.categorySectionLabel' => 'Kategori',
 			'download.saveToPreviewLabel' => 'Akan disimpan ke',
 			'download.saveToPreviewSuggested' => ({required Object name}) => 'Nama file saran: ${name} (bisa diubah di dialog sistem)',
+			'download.saveToPreviewChange' => 'Change…',
 			'download.lastUsedBadge' => 'Terakhir digunakan',
 			'download.pickedBadge' => 'Dipilih',
 			'download.startDownloading' => 'Mulai Mengunduh',
@@ -7146,9 +7149,9 @@ extension on TranslationsId {
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => 'Hapus tugas yang dibuat lebih dari ${days} hari lalu',
 			'download.deleteByDate.noMatch' => 'Tidak ada tugas yang cocok dengan kondisi yang dipilih',
 			'download.deleteByDate.invalidRange' => 'Tanggal mulai harus sama dengan atau sebelum tanggal akhir',
-			'download.deleteByDate.confirmTitle' => 'Konfirmasi penghapusan',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.confirmTitle' => 'Konfirmasi penghapusan',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Hapus ${count} tugas unduhan dan berkasnya? Tindakan ini tidak dapat dibatalkan.',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Menghapus ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Menghapus ${count} tugas',
@@ -7322,6 +7325,7 @@ extension on TranslationsId {
 			'download.location.downloadsFolder' => 'Downloads',
 			'download.location.askEveryTime' => 'Ask every time',
 			'download.location.askEveryTimeDesc' => ({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}',
+			'download.location.firstDownloadNotice' => ({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings',
 			'download.location.freeSpace' => ({required Object size}) => '${size} free',
 			'download.location.statusWritable' => 'Writable',
 			'download.location.statusNeedsPermission' => 'Needs permission',
@@ -7659,10 +7663,10 @@ extension on TranslationsId {
 			'navigationOrderSettings.customNavigationOrderDesc' => 'Seret untuk menyesuaikan urutan tampilan halaman pada bilah navigasi bawah dan bilah samping',
 			'navigationOrderSettings.restartRequired' => 'Perlu memulai ulang aplikasi',
 			'navigationOrderSettings.navigationItemSorting' => 'Pengurutan Item Navigasi',
-			'navigationOrderSettings.done' => 'Selesai',
-			'navigationOrderSettings.edit' => 'Ubah',
 			_ => null,
 		} ?? switch (path) {
+			'navigationOrderSettings.done' => 'Selesai',
+			'navigationOrderSettings.edit' => 'Ubah',
 			'navigationOrderSettings.reset' => 'Atur Ulang',
 			'navigationOrderSettings.previewEffect' => 'Pratinjau Efek',
 			'navigationOrderSettings.bottomNavigationPreview' => 'Pratinjau Navigasi Bawah:',
@@ -8173,10 +8177,10 @@ extension on TranslationsId {
 			'anime4k.presetDescriptions.denoise_bilateral_fast' => 'Penghilangan noise cepat menggunakan filter bilateral tradisional, sangat cepat, cocok untuk menangani noise ringan.',
 			'anime4k.presetDescriptions.upscale_non_cnn' => 'Peningkatan resolusi cepat menggunakan algoritma tradisional, beban performa sangat rendah, lebih baik daripada bawaan pemutar.',
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Cepat) + Penggelapan garis, menambahkan efek penggelapan garis pada mode A cepat untuk garis yang lebih menonjol dan bergaya.',
-			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + Penipisan garis, menambahkan efek penipisan garis pada mode A kualitas tinggi untuk tampilan yang lebih halus.',
-			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
 			_ => null,
 		} ?? switch (path) {
+			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + Penipisan garis, menambahkan efek penipisan garis pada mode A kualitas tinggi untuk tampilan yang lebih halus.',
+			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8687,10 +8691,10 @@ extension on TranslationsId {
 			'localMedia.clearAction' => 'Bersihkan',
 			'localMedia.iosManualRescanNotice' => 'iOS tidak mendeteksi berkas baru secara otomatis. Anda perlu memindai ulang secara manual setelah menambah atau menghapus berkas.',
 			'historyPage.removeFromHistory' => 'Hapus dari riwayat',
-			'historyPage.removed' => 'Dihapus dari riwayat',
-			'historyPage.watchedTo' => ({required Object time}) => 'Ditonton sampai ${time}',
 			_ => null,
 		} ?? switch (path) {
+			'historyPage.removed' => 'Dihapus dari riwayat',
+			'historyPage.watchedTo' => ({required Object time}) => 'Ditonton sampai ${time}',
 			'historyPage.finished' => 'Sudah ditonton',
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'Bersihkan "${tab}"',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Semua riwayat di "${tab}" akan dihapus, beserta progres tontonan video tersebut. Tindakan ini tidak dapat dibatalkan.',

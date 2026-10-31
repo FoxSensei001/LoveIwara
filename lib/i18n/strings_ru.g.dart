@@ -1595,6 +1595,7 @@ class _TranslationsDownloadRu extends TranslationsDownloadEn {
 	@override String get categorySectionLabel => 'Категория';
 	@override String get saveToPreviewLabel => 'Будет сохранено в';
 	@override String saveToPreviewSuggested({required Object name}) => 'Предлагаемое имя файла: ${name} (можно изменить в системном диалоге)';
+	@override String get saveToPreviewChange => 'Change…';
 	@override String get lastUsedBadge => 'Недавно использованное';
 	@override String get pickedBadge => 'Выбрано';
 	@override String get startDownloading => 'Начать загрузку';
@@ -4357,6 +4358,7 @@ class _TranslationsDownloadLocationRu extends TranslationsDownloadLocationEn {
 	@override String get downloadsFolder => 'Downloads';
 	@override String get askEveryTime => 'Ask every time';
 	@override String askEveryTimeDesc({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}';
+	@override String firstDownloadNotice({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings';
 	@override String freeSpace({required Object size}) => '${size} free';
 	@override String get statusWritable => 'Writable';
 	@override String get statusNeedsPermission => 'Needs permission';
@@ -7014,6 +7016,7 @@ extension on TranslationsRu {
 			'download.categorySectionLabel' => 'Категория',
 			'download.saveToPreviewLabel' => 'Будет сохранено в',
 			'download.saveToPreviewSuggested' => ({required Object name}) => 'Предлагаемое имя файла: ${name} (можно изменить в системном диалоге)',
+			'download.saveToPreviewChange' => 'Change…',
 			'download.lastUsedBadge' => 'Недавно использованное',
 			'download.pickedBadge' => 'Выбрано',
 			'download.startDownloading' => 'Начать загрузку',
@@ -7146,9 +7149,9 @@ extension on TranslationsRu {
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => 'Удалить задачи, созданные более ${days} дн. назад',
 			'download.deleteByDate.noMatch' => 'Нет задач, соответствующих выбранному условию',
 			'download.deleteByDate.invalidRange' => 'Дата начала должна быть не позже даты окончания',
-			'download.deleteByDate.confirmTitle' => 'Подтвердите удаление',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.confirmTitle' => 'Подтвердите удаление',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Удалить задач загрузки (${count}) и их файлы? Это действие нельзя отменить.',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Удаление ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Удалено задач: ${count}',
@@ -7322,6 +7325,7 @@ extension on TranslationsRu {
 			'download.location.downloadsFolder' => 'Downloads',
 			'download.location.askEveryTime' => 'Ask every time',
 			'download.location.askEveryTimeDesc' => ({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}',
+			'download.location.firstDownloadNotice' => ({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings',
 			'download.location.freeSpace' => ({required Object size}) => '${size} free',
 			'download.location.statusWritable' => 'Writable',
 			'download.location.statusNeedsPermission' => 'Needs permission',
@@ -7659,10 +7663,10 @@ extension on TranslationsRu {
 			'navigationOrderSettings.customNavigationOrderDesc' => 'Перетащите, чтобы изменить порядок отображения страниц на нижней панели навигации и в боковом меню',
 			'navigationOrderSettings.restartRequired' => 'Требуется перезапуск приложения',
 			'navigationOrderSettings.navigationItemSorting' => 'Сортировка элементов навигации',
-			'navigationOrderSettings.done' => 'Готово',
-			'navigationOrderSettings.edit' => 'Изменить',
 			_ => null,
 		} ?? switch (path) {
+			'navigationOrderSettings.done' => 'Готово',
+			'navigationOrderSettings.edit' => 'Изменить',
 			'navigationOrderSettings.reset' => 'Сбросить',
 			'navigationOrderSettings.previewEffect' => 'Предпросмотр',
 			'navigationOrderSettings.bottomNavigationPreview' => 'Предпросмотр нижней навигации:',
@@ -8173,10 +8177,10 @@ extension on TranslationsRu {
 			'anime4k.presetDescriptions.denoise_bilateral_fast' => 'Быстрое шумоподавление с помощью традиционной двусторонней фильтрации: очень быстро, подходит для обработки слабого шума.',
 			'anime4k.presetDescriptions.upscale_non_cnn' => 'Быстрое масштабирование традиционными алгоритмами: очень низкие затраты ресурсов, лучше стандартных настроек плеера.',
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Режим A (быстрый) + затемнение линий: добавляет эффект затемнения линий к быстрому режиму A для более выразительных, стилизованных линий.',
-			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Режим A (HQ) + утончение линий: добавляет эффект утончения линий к высококачественному режиму A для более изящного вида.',
-			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
 			_ => null,
 		} ?? switch (path) {
+			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Режим A (HQ) + утончение линий: добавляет эффект утончения линий к высококачественному режиму A для более изящного вида.',
+			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8687,10 +8691,10 @@ extension on TranslationsRu {
 			'localMedia.clearAction' => 'Очистить',
 			'localMedia.iosManualRescanNotice' => 'iOS не обнаруживает новые файлы автоматически. После добавления или удаления файлов потребуется вручную запустить повторное сканирование.',
 			'historyPage.removeFromHistory' => 'Удалить из истории',
-			'historyPage.removed' => 'Удалено из истории',
-			'historyPage.watchedTo' => ({required Object time}) => 'Просмотрено до ${time}',
 			_ => null,
 		} ?? switch (path) {
+			'historyPage.removed' => 'Удалено из истории',
+			'historyPage.watchedTo' => ({required Object time}) => 'Просмотрено до ${time}',
 			'historyPage.finished' => 'Просмотрено',
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'Очистить «${tab}»',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Вся история в «${tab}» будет удалена вместе с прогрессом просмотра этих видео. Действие необратимо.',

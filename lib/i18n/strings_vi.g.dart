@@ -1595,6 +1595,7 @@ class _TranslationsDownloadVi extends TranslationsDownloadEn {
 	@override String get categorySectionLabel => 'Phân loại';
 	@override String get saveToPreviewLabel => 'Sẽ lưu vào';
 	@override String saveToPreviewSuggested({required Object name}) => 'Tên tệp gợi ý: ${name} (có thể sửa trong hộp thoại hệ thống)';
+	@override String get saveToPreviewChange => 'Change…';
 	@override String get lastUsedBadge => 'Dùng gần nhất';
 	@override String get pickedBadge => 'Đã chọn';
 	@override String get startDownloading => 'Bắt đầu tải xuống';
@@ -4357,6 +4358,7 @@ class _TranslationsDownloadLocationVi extends TranslationsDownloadLocationEn {
 	@override String get downloadsFolder => 'Downloads';
 	@override String get askEveryTime => 'Ask every time';
 	@override String askEveryTimeDesc({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}';
+	@override String firstDownloadNotice({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings';
 	@override String freeSpace({required Object size}) => '${size} free';
 	@override String get statusWritable => 'Writable';
 	@override String get statusNeedsPermission => 'Needs permission';
@@ -7014,6 +7016,7 @@ extension on TranslationsVi {
 			'download.categorySectionLabel' => 'Phân loại',
 			'download.saveToPreviewLabel' => 'Sẽ lưu vào',
 			'download.saveToPreviewSuggested' => ({required Object name}) => 'Tên tệp gợi ý: ${name} (có thể sửa trong hộp thoại hệ thống)',
+			'download.saveToPreviewChange' => 'Change…',
 			'download.lastUsedBadge' => 'Dùng gần nhất',
 			'download.pickedBadge' => 'Đã chọn',
 			'download.startDownloading' => 'Bắt đầu tải xuống',
@@ -7146,9 +7149,9 @@ extension on TranslationsVi {
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => 'Xóa các tác vụ được tạo cách đây hơn ${days} ngày',
 			'download.deleteByDate.noMatch' => 'Không có tác vụ nào khớp điều kiện đã chọn',
 			'download.deleteByDate.invalidRange' => 'Ngày bắt đầu phải trước hoặc bằng ngày kết thúc',
-			'download.deleteByDate.confirmTitle' => 'Xác nhận xóa',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.confirmTitle' => 'Xác nhận xóa',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Xóa ${count} tác vụ tải xuống và tệp của chúng? Thao tác này không thể hoàn tác.',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Đang xóa ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Đã xóa ${count} tác vụ',
@@ -7322,6 +7325,7 @@ extension on TranslationsVi {
 			'download.location.downloadsFolder' => 'Downloads',
 			'download.location.askEveryTime' => 'Ask every time',
 			'download.location.askEveryTimeDesc' => ({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}',
+			'download.location.firstDownloadNotice' => ({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings',
 			'download.location.freeSpace' => ({required Object size}) => '${size} free',
 			'download.location.statusWritable' => 'Writable',
 			'download.location.statusNeedsPermission' => 'Needs permission',
@@ -7659,10 +7663,10 @@ extension on TranslationsVi {
 			'navigationOrderSettings.customNavigationOrderDesc' => 'Kéo để điều chỉnh thứ tự hiển thị của các trang trong thanh điều hướng dưới và thanh bên',
 			'navigationOrderSettings.restartRequired' => 'Cần khởi động lại ứng dụng',
 			'navigationOrderSettings.navigationItemSorting' => 'Sắp xếp mục điều hướng',
-			'navigationOrderSettings.done' => 'Xong',
-			'navigationOrderSettings.edit' => 'Chỉnh sửa',
 			_ => null,
 		} ?? switch (path) {
+			'navigationOrderSettings.done' => 'Xong',
+			'navigationOrderSettings.edit' => 'Chỉnh sửa',
 			'navigationOrderSettings.reset' => 'Đặt lại',
 			'navigationOrderSettings.previewEffect' => 'Xem trước hiệu ứng',
 			'navigationOrderSettings.bottomNavigationPreview' => 'Xem trước thanh điều hướng dưới:',
@@ -8173,10 +8177,10 @@ extension on TranslationsVi {
 			'anime4k.presetDescriptions.denoise_bilateral_fast' => 'Khử nhiễu nhanh bằng lọc song phương truyền thống, cực nhanh, phù hợp xử lý nhiễu nhẹ.',
 			'anime4k.presetDescriptions.upscale_non_cnn' => 'Nâng tỉ lệ nhanh bằng thuật toán truyền thống, chi phí hiệu năng rất thấp, tốt hơn mặc định của trình phát.',
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + làm đậm đường nét, bổ sung hiệu ứng làm đậm đường nét cho Mode A nhanh, giúp đường nét nổi bật và cách điệu hơn.',
-			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + làm mảnh đường nét, bổ sung hiệu ứng làm mảnh đường nét cho Mode A chất lượng cao, giúp hình ảnh tinh tế hơn.',
-			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
 			_ => null,
 		} ?? switch (path) {
+			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + làm mảnh đường nét, bổ sung hiệu ứng làm mảnh đường nét cho Mode A chất lượng cao, giúp hình ảnh tinh tế hơn.',
+			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8687,10 +8691,10 @@ extension on TranslationsVi {
 			'localMedia.clearAction' => 'Xóa',
 			'localMedia.iosManualRescanNotice' => 'iOS không tự động phát hiện tệp mới. Cần quét lại thủ công sau khi thêm hoặc xóa tệp.',
 			'historyPage.removeFromHistory' => 'Xóa khỏi lịch sử',
-			'historyPage.removed' => 'Đã xóa khỏi lịch sử',
-			'historyPage.watchedTo' => ({required Object time}) => 'Đã xem đến ${time}',
 			_ => null,
 		} ?? switch (path) {
+			'historyPage.removed' => 'Đã xóa khỏi lịch sử',
+			'historyPage.watchedTo' => ({required Object time}) => 'Đã xem đến ${time}',
 			'historyPage.finished' => 'Đã xem xong',
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'Xóa "${tab}"',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Toàn bộ lịch sử trong "${tab}" sẽ bị xóa, kèm tiến độ xem của các video đó. Không thể hoàn tác.',

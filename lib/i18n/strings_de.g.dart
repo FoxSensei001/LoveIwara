@@ -1595,6 +1595,7 @@ class _TranslationsDownloadDe extends TranslationsDownloadEn {
 	@override String get categorySectionLabel => 'Kategorie';
 	@override String get saveToPreviewLabel => 'Wird gespeichert unter';
 	@override String saveToPreviewSuggested({required Object name}) => 'Vorgeschlagener Dateiname: ${name} (im Systemdialog änderbar)';
+	@override String get saveToPreviewChange => 'Change…';
 	@override String get lastUsedBadge => 'Zuletzt verwendet';
 	@override String get pickedBadge => 'Ausgewählt';
 	@override String get startDownloading => 'Download starten';
@@ -4357,6 +4358,7 @@ class _TranslationsDownloadLocationDe extends TranslationsDownloadLocationEn {
 	@override String get downloadsFolder => 'Downloads';
 	@override String get askEveryTime => 'Ask every time';
 	@override String askEveryTimeDesc({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}';
+	@override String firstDownloadNotice({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings';
 	@override String freeSpace({required Object size}) => '${size} free';
 	@override String get statusWritable => 'Writable';
 	@override String get statusNeedsPermission => 'Needs permission';
@@ -7014,6 +7016,7 @@ extension on TranslationsDe {
 			'download.categorySectionLabel' => 'Kategorie',
 			'download.saveToPreviewLabel' => 'Wird gespeichert unter',
 			'download.saveToPreviewSuggested' => ({required Object name}) => 'Vorgeschlagener Dateiname: ${name} (im Systemdialog änderbar)',
+			'download.saveToPreviewChange' => 'Change…',
 			'download.lastUsedBadge' => 'Zuletzt verwendet',
 			'download.pickedBadge' => 'Ausgewählt',
 			'download.startDownloading' => 'Download starten',
@@ -7146,9 +7149,9 @@ extension on TranslationsDe {
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => 'Aufgaben löschen, die vor mehr als ${days} Tag(en) erstellt wurden',
 			'download.deleteByDate.noMatch' => 'Keine Aufgaben entsprechen der gewählten Bedingung',
 			'download.deleteByDate.invalidRange' => 'Das Startdatum muss am oder vor dem Enddatum liegen',
-			'download.deleteByDate.confirmTitle' => 'Löschen bestätigen',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.confirmTitle' => 'Löschen bestätigen',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => '${count} Download-Aufgabe(n) und ihre Dateien löschen? Dies kann nicht rückgängig gemacht werden.',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Lösche ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count} Aufgabe(n) gelöscht',
@@ -7322,6 +7325,7 @@ extension on TranslationsDe {
 			'download.location.downloadsFolder' => 'Downloads',
 			'download.location.askEveryTime' => 'Ask every time',
 			'download.location.askEveryTimeDesc' => ({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}',
+			'download.location.firstDownloadNotice' => ({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings',
 			'download.location.freeSpace' => ({required Object size}) => '${size} free',
 			'download.location.statusWritable' => 'Writable',
 			'download.location.statusNeedsPermission' => 'Needs permission',
@@ -7659,10 +7663,10 @@ extension on TranslationsDe {
 			'navigationOrderSettings.customNavigationOrderDesc' => 'Ziehen Sie, um die Anzeigereihenfolge der Seiten in der unteren Navigationsleiste und der Seitenleiste anzupassen',
 			'navigationOrderSettings.restartRequired' => 'Neustart der App erforderlich',
 			'navigationOrderSettings.navigationItemSorting' => 'Sortierung der Navigationselemente',
-			'navigationOrderSettings.done' => 'Fertig',
-			'navigationOrderSettings.edit' => 'Bearbeiten',
 			_ => null,
 		} ?? switch (path) {
+			'navigationOrderSettings.done' => 'Fertig',
+			'navigationOrderSettings.edit' => 'Bearbeiten',
 			'navigationOrderSettings.reset' => 'Zurücksetzen',
 			'navigationOrderSettings.previewEffect' => 'Vorschau der Wirkung',
 			'navigationOrderSettings.bottomNavigationPreview' => 'Vorschau der unteren Navigation:',
@@ -8173,10 +8177,10 @@ extension on TranslationsDe {
 			'anime4k.presetDescriptions.denoise_bilateral_fast' => 'Schnelle Rauschunterdrückung mit herkömmlicher bilateraler Filterung, extrem schnell, geeignet für leichtes Rauschen.',
 			'anime4k.presetDescriptions.upscale_non_cnn' => 'Schnelles Upscaling mit herkömmlichen Algorithmen, sehr geringer Leistungsaufwand, besser als die Player-Standardeinstellungen.',
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Modus A (Schnell) + Linienabdunklung, fügt zusätzlich zur schnellen Variante A eine Linienabdunklung für kräftigere, stilisierte Linien hinzu.',
-			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Modus A (HQ) + Linienverdünnung, fügt zusätzlich zur hochwertigen Variante A eine Linienverdünnung für ein feineres Erscheinungsbild hinzu.',
-			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
 			_ => null,
 		} ?? switch (path) {
+			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Modus A (HQ) + Linienverdünnung, fügt zusätzlich zur hochwertigen Variante A eine Linienverdünnung für ein feineres Erscheinungsbild hinzu.',
+			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8687,10 +8691,10 @@ extension on TranslationsDe {
 			'localMedia.clearAction' => 'Leeren',
 			'localMedia.iosManualRescanNotice' => 'iOS erkennt neue Dateien nicht automatisch. Nach dem Hinzufügen oder Löschen von Dateien müssen Sie manuell erneut scannen.',
 			'historyPage.removeFromHistory' => 'Aus Verlauf entfernen',
-			'historyPage.removed' => 'Aus dem Verlauf entfernt',
-			'historyPage.watchedTo' => ({required Object time}) => 'Gesehen bis ${time}',
 			_ => null,
 		} ?? switch (path) {
+			'historyPage.removed' => 'Aus dem Verlauf entfernt',
+			'historyPage.watchedTo' => ({required Object time}) => 'Gesehen bis ${time}',
 			'historyPage.finished' => 'Angesehen',
 			'historyPage.clearTabTitle' => ({required Object tab}) => '„${tab}“ leeren',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Der gesamte Verlauf in „${tab}“ wird gelöscht, einschließlich des Wiedergabefortschritts dieser Videos. Dies kann nicht rückgängig gemacht werden.',

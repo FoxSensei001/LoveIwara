@@ -1646,6 +1646,7 @@ class _TranslationsDownloadZhTw extends TranslationsDownloadEn {
 	@override String get categorySectionLabel => '分類';
 	@override String get saveToPreviewLabel => '將儲存到';
 	@override String saveToPreviewSuggested({required Object name}) => '建議檔名：${name}（可在系統對話框修改）';
+	@override String get saveToPreviewChange => '更改…';
 	@override String get lastUsedBadge => '上次選擇';
 	@override String get pickedBadge => '已選擇';
 	@override String get forceDeleteTask => '強制刪除任務';
@@ -4482,6 +4483,7 @@ class _TranslationsDownloadLocationZhTw extends TranslationsDownloadLocationEn {
 	@override String get downloadsFolder => '下載';
 	@override String get askEveryTime => '每次詢問';
 	@override String askEveryTimeDesc({required Object location}) => '每次下載時選擇儲存位置；批次下載存到 ${location}';
+	@override String firstDownloadNotice({required Object location}) => '已開始下載，檔案存到「${location}」，可在下載設定中更改';
 	@override String freeSpace({required Object size}) => '剩餘 ${size}';
 	@override String get statusWritable => '可寫入';
 	@override String get statusNeedsPermission => '需要授權';
@@ -7092,6 +7094,7 @@ extension on TranslationsZhTw {
 			'download.categorySectionLabel' => '分類',
 			'download.saveToPreviewLabel' => '將儲存到',
 			'download.saveToPreviewSuggested' => ({required Object name}) => '建議檔名：${name}（可在系統對話框修改）',
+			'download.saveToPreviewChange' => '更改…',
 			'download.lastUsedBadge' => '上次選擇',
 			'download.pickedBadge' => '已選擇',
 			'download.forceDeleteTask' => '強制刪除任務',
@@ -7168,9 +7171,9 @@ extension on TranslationsZhTw {
 			'download.errorTypes.cancelled' => '已取消',
 			'download.errorTypes.unknown' => '未知錯誤',
 			'download.errorDetailCopied' => '已複製錯誤詳情',
-			'download.errorDetailCopyHint' => '長按複製錯誤詳情',
 			_ => null,
 		} ?? switch (path) {
+			'download.errorDetailCopyHint' => '長按複製錯誤詳情',
 			'download.restoredPaused.banner' => ({required Object num}) => '上次離開時有 ${num} 個任務未完成，已暫停',
 			'download.restoredPaused.resume' => '全部繼續',
 			'download.restoredPaused.dismiss' => '忽略',
@@ -7400,6 +7403,7 @@ extension on TranslationsZhTw {
 			'download.location.downloadsFolder' => '下載',
 			'download.location.askEveryTime' => '每次詢問',
 			'download.location.askEveryTimeDesc' => ({required Object location}) => '每次下載時選擇儲存位置；批次下載存到 ${location}',
+			'download.location.firstDownloadNotice' => ({required Object location}) => '已開始下載，檔案存到「${location}」，可在下載設定中更改',
 			'download.location.freeSpace' => ({required Object size}) => '剩餘 ${size}',
 			'download.location.statusWritable' => '可寫入',
 			'download.location.statusNeedsPermission' => '需要授權',
@@ -7681,10 +7685,10 @@ extension on TranslationsZhTw {
 			'translation.aiTranslationTestFailed' => 'AI翻譯測試失敗',
 			'translation.deeplxTranslationTestFailed' => 'DeepLX翻譯測試失敗',
 			'translation.streamingTranslationTimeout' => '流式翻譯超時，強制關閉資源',
-			'translation.translationRequestTimeout' => '翻譯請求超時',
-			'translation.streamingTranslationDataTimeout' => '流式翻譯接收資料超時',
 			_ => null,
 		} ?? switch (path) {
+			'translation.translationRequestTimeout' => '翻譯請求超時',
+			'translation.streamingTranslationDataTimeout' => '流式翻譯接收資料超時',
 			'translation.dataReceptionTimeout' => '接收資料超時',
 			'translation.streamDataParseError' => '解析流資料時出錯',
 			'translation.streamingTranslationFailed' => '流式翻譯失敗',
@@ -8195,10 +8199,10 @@ extension on TranslationsZhTw {
 			'anime4k.moreLitePresets' => '更多輕量級預設',
 			'anime4k.customPresets' => '自訂預設',
 			'anime4k.presetGroups.highQuality' => '高品質',
-			'anime4k.presetGroups.fast' => '快速',
-			'anime4k.presetGroups.lite' => '輕量級',
 			_ => null,
 		} ?? switch (path) {
+			'anime4k.presetGroups.fast' => '快速',
+			'anime4k.presetGroups.lite' => '輕量級',
 			'anime4k.presetGroups.moreLite' => '更多輕量級',
 			'anime4k.presetGroups.custom' => '自訂',
 			'anime4k.presetDescriptions.mode_a_hq' => '適用於大多數1080p動漫，特別是處理模糊、重採樣和壓縮瑕疵。提供最高的感知品質。',
@@ -8709,10 +8713,10 @@ extension on TranslationsZhTw {
 			'localMedia.addedAsPinnedFolder' => ({required Object name, required Object source}) => '「${name}」在「${source}」裡面，已加到常用資料夾',
 			'localMedia.alreadyPinnedFolder' => ({required Object name}) => '「${name}」已經在常用資料夾裡了',
 			'localMedia.sourceAlreadyAdded' => ({required Object name}) => '已經新增過「${name}」',
-			'localMedia.sourceContainsExisting' => ({required Object name}) => '裡面已經有新增過的資料夾「${name}」，暫時不能再新增它的上層資料夾',
-			'localMedia.addSourceFailed' => '新增資料夾失敗',
 			_ => null,
 		} ?? switch (path) {
+			'localMedia.sourceContainsExisting' => ({required Object name}) => '裡面已經有新增過的資料夾「${name}」，暫時不能再新增它的上層資料夾',
+			'localMedia.addSourceFailed' => '新增資料夾失敗',
 			'localMedia.fileMissing' => '這個檔案已經不在磁碟上了',
 			'localMedia.permissionDenied' => '未授予檔案存取權限，新增資料夾前需要先開啟',
 			'localMedia.noVideosFound' => '這個資料夾裡沒有影片',

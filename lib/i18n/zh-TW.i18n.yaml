@@ -2094,6 +2094,7 @@ download:
   categorySectionLabel: '分類'
   saveToPreviewLabel: '將儲存到'
   saveToPreviewSuggested: '建議檔名：${name}（可在系統對話框修改）'
+  saveToPreviewChange: 更改…
   lastUsedBadge: 上次選擇
   pickedBadge: 已選擇
   forceDeleteTask: 強制刪除任務
@@ -2409,6 +2410,7 @@ download:
     downloadsFolder: 下載
     askEveryTime: 每次詢問
     askEveryTimeDesc: '每次下載時選擇儲存位置；批次下載存到 ${location}'
+    firstDownloadNotice: '已開始下載，檔案存到「${location}」，可在下載設定中更改'
     freeSpace: '剩餘 ${size}'
     statusWritable: 可寫入
     statusNeedsPermission: 需要授權

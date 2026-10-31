@@ -1595,6 +1595,7 @@ class _TranslationsDownloadJa extends TranslationsDownloadEn {
 	@override String get categorySectionLabel => '分類';
 	@override String get saveToPreviewLabel => '保存先';
 	@override String saveToPreviewSuggested({required Object name}) => '推奨ファイル名：${name}（システムダイアログで変更可）';
+	@override String get saveToPreviewChange => '変更…';
 	@override String get lastUsedBadge => '前回選択';
 	@override String get pickedBadge => '選択中';
 	@override String get forceDeleteTask => '強制削除タスク';
@@ -4357,6 +4358,7 @@ class _TranslationsDownloadLocationJa extends TranslationsDownloadLocationEn {
 	@override String get downloadsFolder => 'ダウンロード';
 	@override String get askEveryTime => '毎回確認する';
 	@override String askEveryTimeDesc({required Object location}) => 'ダウンロードのたびに保存先を選びます。一括ダウンロードは ${location} に保存されます';
+	@override String firstDownloadNotice({required Object location}) => 'ダウンロードを開始しました。保存先は「${location}」です（ダウンロード設定で変更できます）';
 	@override String freeSpace({required Object size}) => '空き ${size}';
 	@override String get statusWritable => '書き込み可';
 	@override String get statusNeedsPermission => '許可が必要';
@@ -7014,6 +7016,7 @@ extension on TranslationsJa {
 			'download.categorySectionLabel' => '分類',
 			'download.saveToPreviewLabel' => '保存先',
 			'download.saveToPreviewSuggested' => ({required Object name}) => '推奨ファイル名：${name}（システムダイアログで変更可）',
+			'download.saveToPreviewChange' => '変更…',
 			'download.lastUsedBadge' => '前回選択',
 			'download.pickedBadge' => '選択中',
 			'download.forceDeleteTask' => '強制削除タスク',
@@ -7146,9 +7149,9 @@ extension on TranslationsJa {
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => '${days}日前より古いタスクを削除',
 			'download.deleteByDate.noMatch' => '条件に一致するタスクがありません',
 			'download.deleteByDate.invalidRange' => '開始日は終了日以前にしてください',
-			'download.deleteByDate.confirmTitle' => '削除の確認',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.confirmTitle' => '削除の確認',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => '${count}件のダウンロードタスクとそのファイルを削除しますか？この操作は取り消せません。',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '削除中 ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count}件のタスクを削除しました',
@@ -7322,6 +7325,7 @@ extension on TranslationsJa {
 			'download.location.downloadsFolder' => 'ダウンロード',
 			'download.location.askEveryTime' => '毎回確認する',
 			'download.location.askEveryTimeDesc' => ({required Object location}) => 'ダウンロードのたびに保存先を選びます。一括ダウンロードは ${location} に保存されます',
+			'download.location.firstDownloadNotice' => ({required Object location}) => 'ダウンロードを開始しました。保存先は「${location}」です（ダウンロード設定で変更できます）',
 			'download.location.freeSpace' => ({required Object size}) => '空き ${size}',
 			'download.location.statusWritable' => '書き込み可',
 			'download.location.statusNeedsPermission' => '許可が必要',
@@ -7659,10 +7663,10 @@ extension on TranslationsJa {
 			'mediaPlayer.externalPlayer' => '外部プレイヤー',
 			'mediaPlayer.detailedErrorInfo' => '詳細エラー情報',
 			'mediaPlayer.format' => '形式',
-			'mediaPlayer.suggestion' => '提案',
-			'mediaPlayer.androidWebmCompatibilityIssue' => 'AndroidデバイスはWEBM形式のサポートが限定的です。外部プレイヤーの使用またはWEBMをサポートするプレイヤーアプリのダウンロードをお勧めします',
 			_ => null,
 		} ?? switch (path) {
+			'mediaPlayer.suggestion' => '提案',
+			'mediaPlayer.androidWebmCompatibilityIssue' => 'AndroidデバイスはWEBM形式のサポートが限定的です。外部プレイヤーの使用またはWEBMをサポートするプレイヤーアプリのダウンロードをお勧めします',
 			'mediaPlayer.currentDeviceCodecNotSupported' => '現在のデバイスはこのビデオ形式のコーデックをサポートしていません',
 			'mediaPlayer.checkNetworkConnection' => 'ネットワーク接続を確認して再試行してください',
 			'mediaPlayer.appMayLackMediaPermission' => 'アプリに必要なメディア再生権限が不足している可能性があります',
@@ -8173,10 +8177,10 @@ extension on TranslationsJa {
 			'anime4k.presetDescriptions.denoise_bilateral_fast' => '従来のバイラテラルフィルタリングを使用して高速ノイズ除去を行い、非常に高速で軽度のノイズ処理に適しています。',
 			'anime4k.presetDescriptions.upscale_non_cnn' => '従来の高速アルゴリズムを使用してアップスケーリングを行い、最小限のパフォーマンスオーバーヘッドでプレーヤーのデフォルトよりも優れた効果。',
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + ライン暗化、高速モードAにライン暗化効果を追加し、ラインをより目立たせ、スタイライズ処理を行います。',
-			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + ライン細化、高品質モードAにライン細化効果を追加し、より洗練された外観にします。',
-			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
 			_ => null,
 		} ?? switch (path) {
+			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + ライン細化、高品質モードAにライン細化効果を追加し、より洗練された外観にします。',
+			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8687,10 +8691,10 @@ extension on TranslationsJa {
 			'localMedia.clearAction' => '消去',
 			'localMedia.iosManualRescanNotice' => 'iOSでは新しいファイルは自動検出されません。ファイルを追加または削除した後は、手動で再スキャンする必要があります。',
 			'historyPage.removeFromHistory' => '履歴から削除',
-			'historyPage.removed' => '履歴から削除しました',
-			'historyPage.watchedTo' => ({required Object time}) => '${time} まで視聴',
 			_ => null,
 		} ?? switch (path) {
+			'historyPage.removed' => '履歴から削除しました',
+			'historyPage.watchedTo' => ({required Object time}) => '${time} まで視聴',
 			'historyPage.finished' => '視聴済み',
 			'historyPage.clearTabTitle' => ({required Object tab}) => '「${tab}」を消去',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => '「${tab}」の履歴をすべて削除し、該当する動画の視聴位置も消去します。この操作は元に戻せません。',

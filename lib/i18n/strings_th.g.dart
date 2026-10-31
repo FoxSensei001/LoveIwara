@@ -1595,6 +1595,7 @@ class _TranslationsDownloadTh extends TranslationsDownloadEn {
 	@override String get categorySectionLabel => 'หมวดหมู่';
 	@override String get saveToPreviewLabel => 'จะบันทึกไปที่';
 	@override String saveToPreviewSuggested({required Object name}) => 'ชื่อไฟล์ที่แนะนำ: ${name} (แก้ไขได้ในกล่องโต้ตอบระบบ)';
+	@override String get saveToPreviewChange => 'Change…';
 	@override String get lastUsedBadge => 'ใช้ล่าสุด';
 	@override String get pickedBadge => 'เลือกแล้ว';
 	@override String get startDownloading => 'เริ่มการดาวน์โหลด';
@@ -4357,6 +4358,7 @@ class _TranslationsDownloadLocationTh extends TranslationsDownloadLocationEn {
 	@override String get downloadsFolder => 'Downloads';
 	@override String get askEveryTime => 'Ask every time';
 	@override String askEveryTimeDesc({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}';
+	@override String firstDownloadNotice({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings';
 	@override String freeSpace({required Object size}) => '${size} free';
 	@override String get statusWritable => 'Writable';
 	@override String get statusNeedsPermission => 'Needs permission';
@@ -7014,6 +7016,7 @@ extension on TranslationsTh {
 			'download.categorySectionLabel' => 'หมวดหมู่',
 			'download.saveToPreviewLabel' => 'จะบันทึกไปที่',
 			'download.saveToPreviewSuggested' => ({required Object name}) => 'ชื่อไฟล์ที่แนะนำ: ${name} (แก้ไขได้ในกล่องโต้ตอบระบบ)',
+			'download.saveToPreviewChange' => 'Change…',
 			'download.lastUsedBadge' => 'ใช้ล่าสุด',
 			'download.pickedBadge' => 'เลือกแล้ว',
 			'download.startDownloading' => 'เริ่มการดาวน์โหลด',
@@ -7146,9 +7149,9 @@ extension on TranslationsTh {
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => 'ลบงานที่สร้างมากกว่า ${days} วันที่แล้ว',
 			'download.deleteByDate.noMatch' => 'ไม่มีงานที่ตรงกับเงื่อนไขที่เลือก',
 			'download.deleteByDate.invalidRange' => 'วันที่เริ่มต้นต้องตรงกับหรือก่อนหน้าวันที่สิ้นสุด',
-			'download.deleteByDate.confirmTitle' => 'ยืนยันการลบ',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.confirmTitle' => 'ยืนยันการลบ',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => 'ลบ ${count} งานดาวน์โหลดและไฟล์ของงานเหล่านั้นหรือไม่? การดำเนินการนี้ไม่สามารถยกเลิกได้',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'กำลังลบ ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'ลบ ${count} งานแล้ว',
@@ -7322,6 +7325,7 @@ extension on TranslationsTh {
 			'download.location.downloadsFolder' => 'Downloads',
 			'download.location.askEveryTime' => 'Ask every time',
 			'download.location.askEveryTimeDesc' => ({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}',
+			'download.location.firstDownloadNotice' => ({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings',
 			'download.location.freeSpace' => ({required Object size}) => '${size} free',
 			'download.location.statusWritable' => 'Writable',
 			'download.location.statusNeedsPermission' => 'Needs permission',
@@ -7659,10 +7663,10 @@ extension on TranslationsTh {
 			'navigationOrderSettings.customNavigationOrderDesc' => 'ลากเพื่อปรับลำดับการแสดงผลของหน้าต่างๆ ในแถบนำทางด้านล่างและแถบด้านข้าง',
 			'navigationOrderSettings.restartRequired' => 'จำเป็นต้องรีสตาร์ทแอป',
 			'navigationOrderSettings.navigationItemSorting' => 'การเรียงลำดับรายการนำทาง',
-			'navigationOrderSettings.done' => 'เสร็จสิ้น',
-			'navigationOrderSettings.edit' => 'แก้ไข',
 			_ => null,
 		} ?? switch (path) {
+			'navigationOrderSettings.done' => 'เสร็จสิ้น',
+			'navigationOrderSettings.edit' => 'แก้ไข',
 			'navigationOrderSettings.reset' => 'รีเซ็ต',
 			'navigationOrderSettings.previewEffect' => 'ตัวอย่างผลลัพธ์',
 			'navigationOrderSettings.bottomNavigationPreview' => 'ตัวอย่างแถบนำทางด้านล่าง:',
@@ -8173,10 +8177,10 @@ extension on TranslationsTh {
 			'anime4k.presetDescriptions.denoise_bilateral_fast' => 'การลดสัญญาณรบกวนแบบเร็วด้วยตัวกรอง bilateral แบบดั้งเดิม เร็วมาก เหมาะกับการจัดการสัญญาณรบกวนเล็กน้อย',
 			'anime4k.presetDescriptions.upscale_non_cnn' => 'การขยายภาพแบบเร็วด้วยอัลกอริทึมดั้งเดิม ภาระต่ำมาก ดีกว่าค่าเริ่มต้นของโปรแกรมเล่น',
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + การทำให้เส้นเข้มขึ้น เพิ่มเอฟเฟกต์ทำให้เส้นเข้มขึ้นบน Mode A แบบเร็ว เพื่อให้เส้นเด่นชัดและมีสไตล์ยิ่งขึ้น',
-			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + การทำให้เส้นบางลง เพิ่มเอฟเฟกต์ทำให้เส้นบางลงบน Mode A คุณภาพสูง เพื่อให้ดูประณีตยิ่งขึ้น',
-			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
 			_ => null,
 		} ?? switch (path) {
+			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + การทำให้เส้นบางลง เพิ่มเอฟเฟกต์ทำให้เส้นบางลงบน Mode A คุณภาพสูง เพื่อให้ดูประณีตยิ่งขึ้น',
+			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8687,10 +8691,10 @@ extension on TranslationsTh {
 			'localMedia.clearAction' => 'ล้าง',
 			'localMedia.iosManualRescanNotice' => 'iOS ไม่ตรวจจับไฟล์ใหม่โดยอัตโนมัติ คุณจะต้องสแกนใหม่ด้วยตนเองหลังเพิ่มหรือลบไฟล์',
 			'historyPage.removeFromHistory' => 'ลบออกจากประวัติ',
-			'historyPage.removed' => 'ลบออกจากประวัติแล้ว',
-			'historyPage.watchedTo' => ({required Object time}) => 'ดูถึง ${time}',
 			_ => null,
 		} ?? switch (path) {
+			'historyPage.removed' => 'ลบออกจากประวัติแล้ว',
+			'historyPage.watchedTo' => ({required Object time}) => 'ดูถึง ${time}',
 			'historyPage.finished' => 'ดูจบแล้ว',
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'ล้าง "${tab}"',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'ประวัติทั้งหมดใน "${tab}" จะถูกลบ รวมถึงตำแหน่งการรับชมของวิดีโอเหล่านั้น ไม่สามารถย้อนกลับได้',

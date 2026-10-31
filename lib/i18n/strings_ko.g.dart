@@ -1595,6 +1595,7 @@ class _TranslationsDownloadKo extends TranslationsDownloadEn {
 	@override String get categorySectionLabel => '분류';
 	@override String get saveToPreviewLabel => '저장될 위치';
 	@override String saveToPreviewSuggested({required Object name}) => '추천 파일 이름: ${name}(시스템 대화상자에서 변경 가능)';
+	@override String get saveToPreviewChange => 'Change…';
 	@override String get lastUsedBadge => '최근 사용';
 	@override String get pickedBadge => '선택됨';
 	@override String get startDownloading => '다운로드 시작';
@@ -4357,6 +4358,7 @@ class _TranslationsDownloadLocationKo extends TranslationsDownloadLocationEn {
 	@override String get downloadsFolder => 'Downloads';
 	@override String get askEveryTime => 'Ask every time';
 	@override String askEveryTimeDesc({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}';
+	@override String firstDownloadNotice({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings';
 	@override String freeSpace({required Object size}) => '${size} free';
 	@override String get statusWritable => 'Writable';
 	@override String get statusNeedsPermission => 'Needs permission';
@@ -7014,6 +7016,7 @@ extension on TranslationsKo {
 			'download.categorySectionLabel' => '분류',
 			'download.saveToPreviewLabel' => '저장될 위치',
 			'download.saveToPreviewSuggested' => ({required Object name}) => '추천 파일 이름: ${name}(시스템 대화상자에서 변경 가능)',
+			'download.saveToPreviewChange' => 'Change…',
 			'download.lastUsedBadge' => '최근 사용',
 			'download.pickedBadge' => '선택됨',
 			'download.startDownloading' => '다운로드 시작',
@@ -7146,9 +7149,9 @@ extension on TranslationsKo {
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => '${days}일보다 오래 전에 생성된 작업 삭제',
 			'download.deleteByDate.noMatch' => '선택한 조건에 맞는 작업이 없습니다',
 			'download.deleteByDate.invalidRange' => '시작일은 종료일과 같거나 그보다 앞서야 합니다',
-			'download.deleteByDate.confirmTitle' => '삭제 확인',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.confirmTitle' => '삭제 확인',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => '${count}개의 다운로드 작업과 해당 파일을 삭제하시겠습니까? 되돌릴 수 없습니다.',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '삭제 중 ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count}개 작업 삭제됨',
@@ -7322,6 +7325,7 @@ extension on TranslationsKo {
 			'download.location.downloadsFolder' => 'Downloads',
 			'download.location.askEveryTime' => 'Ask every time',
 			'download.location.askEveryTimeDesc' => ({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}',
+			'download.location.firstDownloadNotice' => ({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings',
 			'download.location.freeSpace' => ({required Object size}) => '${size} free',
 			'download.location.statusWritable' => 'Writable',
 			'download.location.statusNeedsPermission' => 'Needs permission',
@@ -7659,10 +7663,10 @@ extension on TranslationsKo {
 			'navigationOrderSettings.customNavigationOrderDesc' => '하단 내비게이션 바와 사이드바에서 페이지 표시 순서를 조정하려면 드래그하세요',
 			'navigationOrderSettings.restartRequired' => '앱 재시작 필요',
 			'navigationOrderSettings.navigationItemSorting' => '내비게이션 항목 정렬',
-			'navigationOrderSettings.done' => '완료',
-			'navigationOrderSettings.edit' => '편집',
 			_ => null,
 		} ?? switch (path) {
+			'navigationOrderSettings.done' => '완료',
+			'navigationOrderSettings.edit' => '편집',
 			'navigationOrderSettings.reset' => '초기화',
 			'navigationOrderSettings.previewEffect' => '미리보기 효과',
 			'navigationOrderSettings.bottomNavigationPreview' => '하단 내비게이션 미리보기:',
@@ -8173,10 +8177,10 @@ extension on TranslationsKo {
 			'anime4k.presetDescriptions.denoise_bilateral_fast' => '기존 양방향 필터를 사용한 고속 노이즈 제거로, 매우 빠르며 가벼운 노이즈 처리에 적합합니다.',
 			'anime4k.presetDescriptions.upscale_non_cnn' => '기존 알고리즘을 사용한 고속 업스케일링으로, 부하가 매우 낮고 플레이어 기본값보다 우수합니다.',
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + 선 어둡게 하기로, 고속 Mode A에 선을 더 진하게 만드는 효과를 추가해 선을 더 뚜렷하고 스타일리시하게 표현합니다.',
-			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + 선 얇게 하기로, 고품질 Mode A에 선을 더 가늘게 만드는 효과를 추가해 더 정교하게 표현합니다.',
-			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
 			_ => null,
 		} ?? switch (path) {
+			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + 선 얇게 하기로, 고품질 Mode A에 선을 더 가늘게 만드는 효과를 추가해 더 정교하게 표현합니다.',
+			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8687,10 +8691,10 @@ extension on TranslationsKo {
 			'localMedia.clearAction' => '지우기',
 			'localMedia.iosManualRescanNotice' => 'iOS는 새 파일을 자동으로 감지하지 않습니다. 파일을 추가하거나 삭제한 후 수동으로 다시 검사해야 합니다.',
 			'historyPage.removeFromHistory' => '기록에서 삭제',
-			'historyPage.removed' => '기록에서 삭제했습니다',
-			'historyPage.watchedTo' => ({required Object time}) => '${time}까지 시청',
 			_ => null,
 		} ?? switch (path) {
+			'historyPage.removed' => '기록에서 삭제했습니다',
+			'historyPage.watchedTo' => ({required Object time}) => '${time}까지 시청',
 			'historyPage.finished' => '시청 완료',
 			'historyPage.clearTabTitle' => ({required Object tab}) => '"${tab}" 지우기',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => '"${tab}"의 모든 기록과 해당 동영상의 시청 위치가 삭제됩니다. 이 작업은 되돌릴 수 없습니다.',

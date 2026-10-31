@@ -1595,6 +1595,7 @@ class _TranslationsDownloadEs extends TranslationsDownloadEn {
 	@override String get categorySectionLabel => 'Categoría';
 	@override String get saveToPreviewLabel => 'Se guardará en';
 	@override String saveToPreviewSuggested({required Object name}) => 'Nombre sugerido: ${name} (editable en el diálogo del sistema)';
+	@override String get saveToPreviewChange => 'Change…';
 	@override String get lastUsedBadge => 'Último uso';
 	@override String get pickedBadge => 'Seleccionado';
 	@override String get startDownloading => 'Iniciar descarga';
@@ -4357,6 +4358,7 @@ class _TranslationsDownloadLocationEs extends TranslationsDownloadLocationEn {
 	@override String get downloadsFolder => 'Downloads';
 	@override String get askEveryTime => 'Ask every time';
 	@override String askEveryTimeDesc({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}';
+	@override String firstDownloadNotice({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings';
 	@override String freeSpace({required Object size}) => '${size} free';
 	@override String get statusWritable => 'Writable';
 	@override String get statusNeedsPermission => 'Needs permission';
@@ -7014,6 +7016,7 @@ extension on TranslationsEs {
 			'download.categorySectionLabel' => 'Categoría',
 			'download.saveToPreviewLabel' => 'Se guardará en',
 			'download.saveToPreviewSuggested' => ({required Object name}) => 'Nombre sugerido: ${name} (editable en el diálogo del sistema)',
+			'download.saveToPreviewChange' => 'Change…',
 			'download.lastUsedBadge' => 'Último uso',
 			'download.pickedBadge' => 'Seleccionado',
 			'download.startDownloading' => 'Iniciar descarga',
@@ -7146,9 +7149,9 @@ extension on TranslationsEs {
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => 'Eliminar las tareas creadas hace más de ${days} día(s)',
 			'download.deleteByDate.noMatch' => 'Ninguna tarea coincide con la condición seleccionada',
 			'download.deleteByDate.invalidRange' => 'La fecha de inicio debe ser anterior o igual a la fecha de fin',
-			'download.deleteByDate.confirmTitle' => 'Confirmar eliminación',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.confirmTitle' => 'Confirmar eliminación',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => '¿Eliminar ${count} tareas de descarga y sus archivos? Esta acción no se puede deshacer.',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Eliminando ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Se eliminaron ${count} tarea(s)',
@@ -7322,6 +7325,7 @@ extension on TranslationsEs {
 			'download.location.downloadsFolder' => 'Downloads',
 			'download.location.askEveryTime' => 'Ask every time',
 			'download.location.askEveryTimeDesc' => ({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}',
+			'download.location.firstDownloadNotice' => ({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings',
 			'download.location.freeSpace' => ({required Object size}) => '${size} free',
 			'download.location.statusWritable' => 'Writable',
 			'download.location.statusNeedsPermission' => 'Needs permission',
@@ -7659,10 +7663,10 @@ extension on TranslationsEs {
 			'navigationOrderSettings.customNavigationOrderDesc' => 'Arrastre para ajustar el orden de visualización de las páginas en la barra de navegación inferior y la barra lateral',
 			'navigationOrderSettings.restartRequired' => 'Es necesario reiniciar la aplicación',
 			'navigationOrderSettings.navigationItemSorting' => 'Ordenación de los elementos de navegación',
-			'navigationOrderSettings.done' => 'Listo',
-			'navigationOrderSettings.edit' => 'Editar',
 			_ => null,
 		} ?? switch (path) {
+			'navigationOrderSettings.done' => 'Listo',
+			'navigationOrderSettings.edit' => 'Editar',
 			'navigationOrderSettings.reset' => 'Restablecer',
 			'navigationOrderSettings.previewEffect' => 'Efecto de vista previa',
 			'navigationOrderSettings.bottomNavigationPreview' => 'Vista previa de la navegación inferior:',
@@ -8173,10 +8177,10 @@ extension on TranslationsEs {
 			'anime4k.presetDescriptions.denoise_bilateral_fast' => 'Eliminación de ruido rápida mediante filtrado bilateral tradicional; muy veloz y adecuada para tratar ruido leve.',
 			'anime4k.presetDescriptions.upscale_non_cnn' => 'Escalado rápido con algoritmos tradicionales, con un consumo muy bajo y mejor que los ajustes predeterminados del reproductor.',
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Modo A (rápido) + oscurecimiento de líneas, que añade este efecto sobre el modo A rápido para lograr líneas más marcadas y estilizadas.',
-			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Modo A (alta calidad) + adelgazamiento de líneas, que añade este efecto sobre el modo A de alta calidad para un aspecto más fino.',
-			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
 			_ => null,
 		} ?? switch (path) {
+			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Modo A (alta calidad) + adelgazamiento de líneas, que añade este efecto sobre el modo A de alta calidad para un aspecto más fino.',
+			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8687,10 +8691,10 @@ extension on TranslationsEs {
 			'localMedia.clearAction' => 'Borrar',
 			'localMedia.iosManualRescanNotice' => 'iOS no detecta automáticamente los archivos nuevos. Deberá volver a escanear manualmente después de añadir o eliminar archivos.',
 			'historyPage.removeFromHistory' => 'Quitar del historial',
-			'historyPage.removed' => 'Quitado del historial',
-			'historyPage.watchedTo' => ({required Object time}) => 'Visto hasta ${time}',
 			_ => null,
 		} ?? switch (path) {
+			'historyPage.removed' => 'Quitado del historial',
+			'historyPage.watchedTo' => ({required Object time}) => 'Visto hasta ${time}',
 			'historyPage.finished' => 'Visto',
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'Borrar «${tab}»',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Se eliminará todo el historial de «${tab}», junto con el progreso de reproducción de esos vídeos. No se puede deshacer.',

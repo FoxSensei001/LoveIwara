@@ -7,19 +7,29 @@ import 'package:i_iwara/app/models/video_source.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/utils/desktop_save_dialog.dart';
+import 'package:file_selector/file_selector.dart' show XTypeGroup;
 import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.dart'
     show openDownloadCategoryManagePage;
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 
 /// [showDownloadPickerSheet] 确认下载后的返回结果：选中的清晰度与分类。
 class DownloadPickerResult {
   final VideoSource source;
   final String? categoryId;
 
-  const DownloadPickerResult({required this.source, this.categoryId});
+  /// 桌面端在弹层里点「更改…」挑过的**本次**落盘路径；null = 按下载位置配置走。
+  final String? savePath;
+
+  const DownloadPickerResult({
+    required this.source,
+    this.categoryId,
+    this.savePath,
+  });
 }
 
 /// 弹窗打开时清晰度网格里预选中的那一档，标签文案要说明这个预选是哪来的。
@@ -89,6 +99,10 @@ class _DownloadPickerSheetState extends State<_DownloadPickerSheet> {
   DownloadPickerPreselectSource? _preselectSource;
   String? _selectedCategoryId;
 
+  /// 「更改…」挑出的本次保存路径（完整文件路径）。只影响这一次，不改配置。
+  String? _oneOffSavePath;
+  bool _pickingSavePath = false;
+
   @override
   void initState() {
     super.initState();
@@ -116,6 +130,9 @@ class _DownloadPickerSheetState extends State<_DownloadPickerSheet> {
 
   void _selectQuality(VideoSource source) {
     setState(() {
+      // 另存的文件名是按挑的那一刻的清晰度起的（xxx_1080.mp4），换了清晰度就
+      // 不再对得上——作废，回到按配置算的路径。（先比较、再赋值。）
+      if (!identical(source, _selectedSource)) _oneOffSavePath = null;
       _selectedSource = source;
       _preselectSource = null;
     });
@@ -130,8 +147,44 @@ class _DownloadPickerSheetState extends State<_DownloadPickerSheet> {
       DownloadPickerResult(
         source: _selectedSource,
         categoryId: _validCategoryIdIn(DownloadService.to.categories),
+        savePath: _oneOffSavePath,
       ),
     );
+  }
+
+  /// 「更改…」：这一次另存到别处，弹系统「另存为」。
+  ///
+  /// 只在用户主动点的时候才弹——默认路径不碰系统对话框（见
+  /// [DownloadPathService.asksEveryTime] 上的说明）。
+  Future<void> _pickOneOffSavePath() async {
+    if (_pickingSavePath) return;
+    setState(() => _pickingSavePath = true);
+    try {
+      final segments = DownloadPathService.to.previewVideoRelativePath(
+        video: widget.video,
+        quality: _selectedSource.name ?? '',
+      );
+      final result = await showDesktopSaveDialog(
+        purpose: '下载视频（本次另存）',
+        suggestedName: segments.isEmpty ? null : segments.last,
+        acceptedTypeGroups: [
+          const XTypeGroup(label: 'MP4 Video', extensions: ['mp4']),
+        ],
+      );
+      if (!mounted || result == null) return;
+      setState(() => _oneOffSavePath = result.path);
+    } catch (_) {
+      // showDesktopSaveDialog 已记过错误日志。别让它冒出 onTap 变成未捕获异常：
+      // 那会被全局处理器写成 fatal 快照，下次崩溃导出又要误判死因。
+      if (mounted) {
+        showAppToast(
+          slang.t.download.errors.downloadFailed,
+          type: AppToastType.error,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _pickingSavePath = false);
+    }
   }
 
   @override
@@ -220,8 +273,8 @@ class _DownloadPickerSheetState extends State<_DownloadPickerSheet> {
                   _buildCategoryChips(context, t),
                   const SizedBox(height: UIConstants.sectionSpacing),
                   // 「将保存到」：按当前清晰度联动重算的落盘路径预览（issue #126）。
-                  // 只读不点——所见即所得；桌面「每次询问」模式下没有固定基目录，
-                  // 只能给出系统对话框的建议文件名。
+                  // 所见即所得；桌面「每次询问」模式下没有固定基目录，只能给出系统
+                  // 对话框的建议文件名。桌面固定目录模式下带「更改…」，本次另存。
                   _buildSaveToPreview(context, colorScheme, t),
                 ],
               ),
@@ -306,7 +359,8 @@ class _DownloadPickerSheetState extends State<_DownloadPickerSheet> {
   /// 「将保存到」预览行。
   ///
   /// 与真实落盘共用同一条模板渲染 + 清洗规则（preview 不写作者首见名缓存），
-  /// 用户看到的和落盘的永远一致；桌面「每次询问」模式下退化为建议文件名。
+  /// 用户看到的和落盘的永远一致；桌面「每次询问」模式下退化为建议文件名；
+  /// 点过「更改…」时显示挑出来的那条完整路径。
   Widget _buildSaveToPreview(
     BuildContext context,
     ColorScheme colorScheme,
@@ -318,9 +372,25 @@ class _DownloadPickerSheetState extends State<_DownloadPickerSheet> {
       quality: _selectedSource.name ?? '',
     );
     final askEveryTime = pathService.asksEveryTime;
+    // 「更改…」只给桌面的固定目录模式：「每次询问」本来就会弹框，移动端没有
+    // 「另存为」可弹。
+    final canChange = GetPlatform.isDesktop && !askEveryTime;
+    final oneOff = _oneOffSavePath;
 
     final Widget valueWidget;
-    if (askEveryTime) {
+    if (oneOff != null) {
+      valueWidget = Text(
+        oneOff,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontFamily: 'monospace',
+          fontSize: 11.5,
+          fontWeight: FontWeight.w600,
+          color: colorScheme.onSurface,
+        ),
+      );
+    } else if (askEveryTime) {
       valueWidget = Text(
         t.download.saveToPreviewSuggested(
           name: segments.isEmpty ? '' : segments.last,
@@ -373,9 +443,7 @@ class _DownloadPickerSheetState extends State<_DownloadPickerSheet> {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: colorScheme.primary.withValues(alpha: 0.18),
-        ),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.18)),
       ),
       child: Row(
         children: [
@@ -399,6 +467,26 @@ class _DownloadPickerSheetState extends State<_DownloadPickerSheet> {
               ],
             ),
           ),
+          if (canChange) ...[
+            const SizedBox(width: 8),
+            InkWell(
+              onTap: _pickingSavePath ? null : _pickOneOffSavePath,
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: Text(
+                  t.download.saveToPreviewChange,
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                    color: _pickingSavePath
+                        ? colorScheme.onSurfaceVariant
+                        : colorScheme.primary,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
