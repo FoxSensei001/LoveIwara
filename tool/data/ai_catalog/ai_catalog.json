@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "rev": "0c5ea7110286fdcf",
-  "builtAt": "2026-10-25T19:19:52.922043Z",
-  "count": 664,
+  "rev": "c10ad171af98a605",
+  "builtAt": "2026-11-01T19:17:47.335990Z",
+  "count": 666,
   "upstream": {
     "source": "CherryHQ/cherry-studio @ packages/provider-registry (MIT)",
-    "providers": "1b44511badb438e6",
-    "models": "496aef37f9a35b5d"
+    "providers": "e1952ef3858002a8",
+    "models": "14baeedb14bc2134"
   },
   "providers": {
     "silicon": {
@@ -379,11 +379,21 @@
     "dashscope": {
       "n": "阿里云百炼 DashScope",
       "k": "openai",
-      "u": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+      "u": "https://maas.qianwenaiapi.com/compatible-mode/v1",
       "w": {
-        "k": "https://bailian.console.aliyun.com/?tab=model#/api-key",
-        "d": "https://help.aliyun.com/zh/model-studio/getting-started/",
-        "h": "https://www.aliyun.com/product/bailian"
+        "k": "https://platform.qianwenai.com/home/api-keys",
+        "d": "https://platform.qianwenai.com/docs/developer-guides/getting-started/first-api-call",
+        "h": "https://www.qianwenai.com/"
+      }
+    },
+    "qwencloud": {
+      "n": "QwenCloud",
+      "k": "openai",
+      "u": "https://ap-southeast-1.maas.qwencloudapi.com/compatible-mode/v1",
+      "w": {
+        "k": "https://home.qwencloud.com/api-keys",
+        "d": "https://docs.qwencloud.com/developer-guides/getting-started/introduction",
+        "h": "https://www.qwencloud.com/"
       }
     },
     "stepfun": {
@@ -5035,6 +5045,17 @@
       "w": 1050000,
       "o": 128000
     },
+    "gpt-6-1-terra": {
+      "n": "GPT-6.1 Terra",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1050000,
+      "o": 128000
+    },
     "gpt-6-astra": {
       "n": "GPT-6 Astra",
       "c": [
@@ -5945,10 +5966,9 @@
       "o": 131072
     },
     "mimo-v2-5-pro": {
-      "n": "MiMo-V2.5-Pro",
+      "n": "MiMo V2.5 Pro",
       "c": [
         "fc",
-        "fi",
         "rs",
         "so"
       ],
