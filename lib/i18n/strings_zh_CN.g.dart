@@ -1187,8 +1187,6 @@ class _TranslationsSettingsZhCn extends TranslationsSettingsEn {
 	@override String get hardwareDecodingModeSubtitle => '硬件解码设置';
 	@override String get enableHardwareAcceleration => '启用硬件加速';
 	@override String get enableHardwareAccelerationInfo => '开启硬件加速可以提高解码性能，但某些设备可能不兼容';
-	@override String get useOpenSLESAudioOutput => '使用OpenSLES音频输出';
-	@override String get useOpenSLESAudioOutputInfo => '使用低延迟音频输出，可能提高音频性能';
 	@override String get videoSyncAudio => '音频同步';
 	@override String get videoSyncDisplayResample => '显示重采样';
 	@override String get videoSyncDisplayResampleVdrop => '显示重采样(丢帧)';
@@ -6184,8 +6182,6 @@ extension on TranslationsZhCn {
 			'settings.hardwareDecodingModeSubtitle' => '硬件解码设置',
 			'settings.enableHardwareAcceleration' => '启用硬件加速',
 			'settings.enableHardwareAccelerationInfo' => '开启硬件加速可以提高解码性能，但某些设备可能不兼容',
-			'settings.useOpenSLESAudioOutput' => '使用OpenSLES音频输出',
-			'settings.useOpenSLESAudioOutputInfo' => '使用低延迟音频输出，可能提高音频性能',
 			'settings.videoSyncAudio' => '音频同步',
 			'settings.videoSyncDisplayResample' => '显示重采样',
 			'settings.videoSyncDisplayResampleVdrop' => '显示重采样(丢帧)',
@@ -6657,10 +6653,10 @@ extension on TranslationsZhCn {
 			'videoDetail.gestureGuide.quest.handTracking' => '手势追踪',
 			'videoDetail.gestureGuide.quest.ready' => '准备',
 			'videoDetail.gestureGuide.quest.press' => '按下',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.hold' => '保持',
 			'videoDetail.gestureGuide.quest.release' => '松开',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.result' => '查看效果',
 			'videoDetail.gestureGuide.quest.pinch' => '捏合',
 			'videoDetail.gestureGuide.quest.selectTitle' => '用射线点选',
@@ -7171,10 +7167,10 @@ extension on TranslationsZhCn {
 			'download.actions.migrateToCurrent' => '迁移到当前下载目录…',
 			'download.actions.migrateNone' => '所有已下载内容都在当前下载目录里',
 			'download.notice.failed' => ({required Object count}) => '${count} 个任务下载失败',
-			_ => null,
-		} ?? switch (path) {
 			'download.notice.retryAll' => '全部重试',
 			'download.notice.view' => '查看',
+			_ => null,
+		} ?? switch (path) {
 			'download.notice.missing' => ({required Object count}) => '${count} 项已下载内容的文件不见了',
 			'download.notice.handle' => '处理…',
 			'download.notice.outside' => ({required Object count}) => '旧下载目录里还有 ${count} 项',
@@ -7685,10 +7681,10 @@ extension on TranslationsZhCn {
 			'translation.presetNames.openai' => 'OpenAI (GPT-4o / GPT-4.1)',
 			'translation.presetNames.openaiReasoning' => 'OpenAI 推理 (o1 / o3 / o4)',
 			'translation.presetNames.anthropic' => 'Anthropic Claude',
-			_ => null,
-		} ?? switch (path) {
 			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude 推理 (extended thinking)',
 			'translation.presetNames.gemini' => 'Google Gemini (原生)',
+			_ => null,
+		} ?? switch (path) {
 			'translation.presetNames.geminiReasoning' => 'Google Gemini 推理 (thinking)',
 			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek 推理 (deepseek-reasoner / R1)',
@@ -8199,10 +8195,10 @@ extension on TranslationsZhCn {
 			'anime4k.moreLitePresets' => '更多轻量级预设',
 			'anime4k.customPresets' => '自定义预设',
 			'anime4k.presetGroups.highQuality' => '高质量',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetGroups.fast' => '快速',
 			'anime4k.presetGroups.lite' => '轻量级',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetGroups.moreLite' => '更多轻量级',
 			'anime4k.presetGroups.custom' => '自定义',
 			'anime4k.presetDescriptions.mode_a_hq' => '适用于大多数1080p动漫，特别是处理模糊、重采样和压缩瑕疵。提供最高的感知质量。',
@@ -8713,10 +8709,10 @@ extension on TranslationsZhCn {
 			'localMedia.addedAsPinnedFolder' => ({required Object name, required Object source}) => '「${name}」在「${source}」里面，已加到常用目录',
 			'localMedia.alreadyPinnedFolder' => ({required Object name}) => '「${name}」已经在常用目录里了',
 			'localMedia.sourceAlreadyAdded' => ({required Object name}) => '已经添加过「${name}」',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.sourceContainsExisting' => ({required Object name}) => '里面已经有添加过的文件夹「${name}」，暂时不能再添加它的上层文件夹',
 			'localMedia.addSourceFailed' => '添加文件夹失败',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.fileMissing' => '这个文件已经不在磁盘上了',
 			'localMedia.permissionDenied' => '未授予文件访问权限，添加文件夹前需要先开启',
 			'localMedia.noVideosFound' => '这个文件夹里没有视频',

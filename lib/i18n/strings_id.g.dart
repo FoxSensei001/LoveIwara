@@ -1165,8 +1165,6 @@ class _TranslationsSettingsId extends TranslationsSettingsEn {
 	@override String get hardwareDecodingModeSubtitle => 'Pengaturan dekode perangkat keras';
 	@override String get enableHardwareAcceleration => 'Aktifkan Akselerasi Perangkat Keras';
 	@override String get enableHardwareAccelerationInfo => 'Mengaktifkan akselerasi perangkat keras dapat meningkatkan kinerja dekode, tetapi beberapa perangkat mungkin tidak kompatibel';
-	@override String get useOpenSLESAudioOutput => 'Gunakan Output Audio OpenSLES';
-	@override String get useOpenSLESAudioOutputInfo => 'Gunakan output audio latensi rendah, dapat meningkatkan kinerja audio';
 	@override String get videoSyncAudio => 'Sinkron Audio';
 	@override String get videoSyncDisplayResample => 'Tampilkan Resample';
 	@override String get videoSyncDisplayResampleVdrop => 'Tampilkan Resample (Jatuhkan Bingkai)';
@@ -6140,8 +6138,6 @@ extension on TranslationsId {
 			'settings.hardwareDecodingModeSubtitle' => 'Pengaturan dekode perangkat keras',
 			'settings.enableHardwareAcceleration' => 'Aktifkan Akselerasi Perangkat Keras',
 			'settings.enableHardwareAccelerationInfo' => 'Mengaktifkan akselerasi perangkat keras dapat meningkatkan kinerja dekode, tetapi beberapa perangkat mungkin tidak kompatibel',
-			'settings.useOpenSLESAudioOutput' => 'Gunakan Output Audio OpenSLES',
-			'settings.useOpenSLESAudioOutputInfo' => 'Gunakan output audio latensi rendah, dapat meningkatkan kinerja audio',
 			'settings.videoSyncAudio' => 'Sinkron Audio',
 			'settings.videoSyncDisplayResample' => 'Tampilkan Resample',
 			'settings.videoSyncDisplayResampleVdrop' => 'Tampilkan Resample (Jatuhkan Bingkai)',
@@ -6635,10 +6631,10 @@ extension on TranslationsId {
 			'videoDetail.gestureGuide.quest.swipeTitle' => 'Seret melintasi untuk membalik halaman',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Arahkan ke gambar, tahan pemicu telunjuk dan seret ke kiri. Lepaskan setelah isyarat balik halaman untuk maju; seret ke kanan untuk kembali. Cubit-lalu-seret juga berfungsi.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Gambar harus pada 1× untuk membalik halaman dengan menyeret. Video galeri juga mendukungnya. Panggung tetap diam hingga Anda melepaskan.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'Perbesar ke dalam gambar',
 			'videoDetail.gestureGuide.quest.zoomBody' => 'Arahkan ke detail pada gambar, tahan pemicu telunjuk, lalu dorong stik ke atas untuk memperbesar atau ke bawah untuk memperkecil. Zoom berjangkar di tempat Anda menekan.',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Ini memperbesar gambar di dalam jendelanya. Tanpa menahan gambar, atas/bawah menyesuaikan jarak pandang.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Geser dan pulihkan gambar',
 			'videoDetail.gestureGuide.quest.panBody' => 'Setelah diperbesar, tahan pemicu telunjuk dan seret untuk melihat sekeliling. Ketuk dua kali gambar untuk memperbesar ke 2,5× atau memulihkannya. Dengan tangan, cubit dua kali dengan cepat.',
@@ -7149,10 +7145,10 @@ extension on TranslationsId {
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => 'Hapus tugas yang dibuat lebih dari ${days} hari lalu',
 			'download.deleteByDate.noMatch' => 'Tidak ada tugas yang cocok dengan kondisi yang dipilih',
 			'download.deleteByDate.invalidRange' => 'Tanggal mulai harus sama dengan atau sebelum tanggal akhir',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.confirmTitle' => 'Konfirmasi penghapusan',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Hapus ${count} tugas unduhan dan berkasnya? Tindakan ini tidak dapat dibatalkan.',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Menghapus ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Menghapus ${count} tugas',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Menghapus ${deleted} tugas; ${skipped} dilewati (sedang digunakan)',
@@ -7663,10 +7659,10 @@ extension on TranslationsId {
 			'navigationOrderSettings.customNavigationOrderDesc' => 'Seret untuk menyesuaikan urutan tampilan halaman pada bilah navigasi bawah dan bilah samping',
 			'navigationOrderSettings.restartRequired' => 'Perlu memulai ulang aplikasi',
 			'navigationOrderSettings.navigationItemSorting' => 'Pengurutan Item Navigasi',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.done' => 'Selesai',
 			'navigationOrderSettings.edit' => 'Ubah',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.reset' => 'Atur Ulang',
 			'navigationOrderSettings.previewEffect' => 'Pratinjau Efek',
 			'navigationOrderSettings.bottomNavigationPreview' => 'Pratinjau Navigasi Bawah:',
@@ -8177,10 +8173,10 @@ extension on TranslationsId {
 			'anime4k.presetDescriptions.denoise_bilateral_fast' => 'Penghilangan noise cepat menggunakan filter bilateral tradisional, sangat cepat, cocok untuk menangani noise ringan.',
 			'anime4k.presetDescriptions.upscale_non_cnn' => 'Peningkatan resolusi cepat menggunakan algoritma tradisional, beban performa sangat rendah, lebih baik daripada bawaan pemutar.',
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Cepat) + Penggelapan garis, menambahkan efek penggelapan garis pada mode A cepat untuk garis yang lebih menonjol dan bergaya.',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + Penipisan garis, menambahkan efek penipisan garis pada mode A kualitas tinggi untuk tampilan yang lebih halus.',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8691,10 +8687,10 @@ extension on TranslationsId {
 			'localMedia.clearAction' => 'Bersihkan',
 			'localMedia.iosManualRescanNotice' => 'iOS tidak mendeteksi berkas baru secara otomatis. Anda perlu memindai ulang secara manual setelah menambah atau menghapus berkas.',
 			'historyPage.removeFromHistory' => 'Hapus dari riwayat',
-			_ => null,
-		} ?? switch (path) {
 			'historyPage.removed' => 'Dihapus dari riwayat',
 			'historyPage.watchedTo' => ({required Object time}) => 'Ditonton sampai ${time}',
+			_ => null,
+		} ?? switch (path) {
 			'historyPage.finished' => 'Sudah ditonton',
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'Bersihkan "${tab}"',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Semua riwayat di "${tab}" akan dihapus, beserta progres tontonan video tersebut. Tindakan ini tidak dapat dibatalkan.',

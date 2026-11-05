@@ -3093,12 +3093,6 @@ class TranslationsSettingsEn {
 	/// en: 'Enabling hardware acceleration can improve decoding performance, but some devices may not be compatible'
 	String get enableHardwareAccelerationInfo => 'Enabling hardware acceleration can improve decoding performance, but some devices may not be compatible';
 
-	/// en: 'Use OpenSLES Audio Output'
-	String get useOpenSLESAudioOutput => 'Use OpenSLES Audio Output';
-
-	/// en: 'Use low-latency audio output, may improve audio performance'
-	String get useOpenSLESAudioOutputInfo => 'Use low-latency audio output, may improve audio performance';
-
 	/// en: 'Audio Sync'
 	String get videoSyncAudio => 'Audio Sync';
 
@@ -13812,8 +13806,6 @@ extension on Translations {
 			'settings.hardwareDecodingModeSubtitle' => 'Hardware decoding settings',
 			'settings.enableHardwareAcceleration' => 'Enable Hardware Acceleration',
 			'settings.enableHardwareAccelerationInfo' => 'Enabling hardware acceleration can improve decoding performance, but some devices may not be compatible',
-			'settings.useOpenSLESAudioOutput' => 'Use OpenSLES Audio Output',
-			'settings.useOpenSLESAudioOutputInfo' => 'Use low-latency audio output, may improve audio performance',
 			'settings.videoSyncAudio' => 'Audio Sync',
 			'settings.videoSyncDisplayResample' => 'Display Resample',
 			'settings.videoSyncDisplayResampleVdrop' => 'Display Resample (Drop Frames)',
@@ -14285,10 +14277,10 @@ extension on Translations {
 			'videoDetail.gestureGuide.quest.handTracking' => 'Hand tracking',
 			'videoDetail.gestureGuide.quest.ready' => 'Ready',
 			'videoDetail.gestureGuide.quest.press' => 'Press',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.hold' => 'Hold',
 			'videoDetail.gestureGuide.quest.release' => 'Release',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.result' => 'See the result',
 			'videoDetail.gestureGuide.quest.pinch' => 'Pinch',
 			'videoDetail.gestureGuide.quest.selectTitle' => 'Point and select',
@@ -14799,10 +14791,10 @@ extension on Translations {
 			'download.actions.checkIntegrity' => 'Check file integrity…',
 			'download.actions.migrateToCurrent' => 'Move to current download folder…',
 			'download.actions.migrateNone' => 'Everything is already in the current download folder',
-			_ => null,
-		} ?? switch (path) {
 			'download.notice.failed' => ({required Object count}) => '${count} downloads failed',
 			'download.notice.retryAll' => 'Retry all',
+			_ => null,
+		} ?? switch (path) {
 			'download.notice.view' => 'View',
 			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			'download.notice.handle' => 'Handle…',
@@ -15313,10 +15305,10 @@ extension on Translations {
 			'translation.presetNames.openai' => 'OpenAI (GPT-4o / GPT-4.1)',
 			'translation.presetNames.openaiReasoning' => 'OpenAI Reasoning (o1 / o3 / o4)',
 			'translation.presetNames.anthropic' => 'Anthropic Claude',
-			_ => null,
-		} ?? switch (path) {
 			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude Reasoning (extended thinking)',
 			'translation.presetNames.gemini' => 'Google Gemini (native)',
+			_ => null,
+		} ?? switch (path) {
 			'translation.presetNames.geminiReasoning' => 'Google Gemini Reasoning (thinking)',
 			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek Reasoning (deepseek-reasoner / R1)',
@@ -15827,10 +15819,10 @@ extension on Translations {
 			'anime4k.moreLitePresets' => 'More Lightweight Presets',
 			'anime4k.customPresets' => 'Custom Presets',
 			'anime4k.presetGroups.highQuality' => 'High Quality',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetGroups.fast' => 'Fast',
 			'anime4k.presetGroups.lite' => 'Lite',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetGroups.moreLite' => 'More Lite',
 			'anime4k.presetGroups.custom' => 'Custom',
 			'anime4k.presetDescriptions.mode_a_hq' => 'Suitable for most 1080p animations, especially those dealing with blur, resampling and compression artifacts. Provides the highest perceived quality.',
@@ -16341,10 +16333,10 @@ extension on Translations {
 			'localMedia.addedAsPinnedFolder' => ({required Object name, required Object source}) => '"${name}" is inside "${source}", so it was added to pinned folders',
 			'localMedia.alreadyPinnedFolder' => ({required Object name}) => '"${name}" is already in pinned folders',
 			'localMedia.sourceAlreadyAdded' => ({required Object name}) => '"${name}" has already been added',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.sourceContainsExisting' => ({required Object name}) => 'It already contains the added folder "${name}"; adding its parent folder isn\'t supported yet',
 			'localMedia.addSourceFailed' => 'Could not add that folder',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.fileMissing' => 'That file is no longer on disk',
 			'localMedia.permissionDenied' => 'File access not granted. Allow it before adding a folder.',
 			'localMedia.noVideosFound' => 'No videos in this folder',

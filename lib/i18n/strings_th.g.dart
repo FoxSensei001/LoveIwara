@@ -1165,8 +1165,6 @@ class _TranslationsSettingsTh extends TranslationsSettingsEn {
 	@override String get hardwareDecodingModeSubtitle => 'การตั้งค่าการถอดรหัสฮาร์ดแวร์';
 	@override String get enableHardwareAcceleration => 'เปิดใช้การเร่งความเร็วด้วยฮาร์ดแวร์';
 	@override String get enableHardwareAccelerationInfo => 'การเปิดใช้การเร่งความเร็วด้วยฮาร์ดแวร์สามารถปรับปรุงประสิทธิภาพการถอดรหัสได้ แต่อุปกรณ์บางรุ่นอาจไม่รองรับ';
-	@override String get useOpenSLESAudioOutput => 'ใช้เอาต์พุตเสียง OpenSLES';
-	@override String get useOpenSLESAudioOutputInfo => 'ใช้เอาต์พุตเสียงที่มีความหน่วงต่ำ อาจช่วยปรับปรุงประสิทธิภาพของเสียงได้';
 	@override String get videoSyncAudio => 'การซิงค์เสียง';
 	@override String get videoSyncDisplayResample => 'การสุ่มตัวอย่างใหม่ในการแสดงผล';
 	@override String get videoSyncDisplayResampleVdrop => 'การสุ่มตัวอย่างใหม่ในการแสดงผล (ดรอปเฟรม)';
@@ -6140,8 +6138,6 @@ extension on TranslationsTh {
 			'settings.hardwareDecodingModeSubtitle' => 'การตั้งค่าการถอดรหัสฮาร์ดแวร์',
 			'settings.enableHardwareAcceleration' => 'เปิดใช้การเร่งความเร็วด้วยฮาร์ดแวร์',
 			'settings.enableHardwareAccelerationInfo' => 'การเปิดใช้การเร่งความเร็วด้วยฮาร์ดแวร์สามารถปรับปรุงประสิทธิภาพการถอดรหัสได้ แต่อุปกรณ์บางรุ่นอาจไม่รองรับ',
-			'settings.useOpenSLESAudioOutput' => 'ใช้เอาต์พุตเสียง OpenSLES',
-			'settings.useOpenSLESAudioOutputInfo' => 'ใช้เอาต์พุตเสียงที่มีความหน่วงต่ำ อาจช่วยปรับปรุงประสิทธิภาพของเสียงได้',
 			'settings.videoSyncAudio' => 'การซิงค์เสียง',
 			'settings.videoSyncDisplayResample' => 'การสุ่มตัวอย่างใหม่ในการแสดงผล',
 			'settings.videoSyncDisplayResampleVdrop' => 'การสุ่มตัวอย่างใหม่ในการแสดงผล (ดรอปเฟรม)',
@@ -6635,10 +6631,10 @@ extension on TranslationsTh {
 			'videoDetail.gestureGuide.quest.swipeTitle' => 'ลากเพื่อพลิกหน้า',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'เล็งไปที่รูปภาพ กดไกชี้ค้างไว้แล้วลากไปทางซ้าย ปล่อยหลังจากมีสัญญาณเปลี่ยนหน้าเพื่อไปข้างหน้า ลากไปทางขวาเพื่อย้อนกลับ การจีบนิ้วแล้วลากก็ใช้ได้เช่นกัน',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'รูปภาพต้องอยู่ที่ขนาด 1× จึงจะเปลี่ยนหน้าด้วยการลากได้ วิดีโอในแกลเลอรีก็รองรับเช่นกัน หน้าจอจะอยู่นิ่งจนกว่าคุณจะปล่อย',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'ซูมดูรายละเอียดรูปภาพ',
 			'videoDetail.gestureGuide.quest.zoomBody' => 'เล็งไปที่รายละเอียดในภาพ กดไกชี้ค้างไว้ แล้วดันก้านอนาล็อกขึ้นเพื่อซูมเข้า หรือลงเพื่อซูมออก การซูมจะยึดตำแหน่งที่คุณกดไว้',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'การดำเนินการนี้จะขยายรูปภาพภายในหน้าต่าง หากไม่ได้จับรูปภาพไว้ การดันขึ้น/ลงจะเป็นการปรับระยะการมอง',
 			'videoDetail.gestureGuide.quest.panTitle' => 'เลื่อนและคืนค่ารูปภาพ',
 			'videoDetail.gestureGuide.quest.panBody' => 'เมื่อซูมเข้าแล้ว ให้กดไกชี้ค้างไว้แล้วลากเพื่อดูรอบๆ แตะสองครั้งที่รูปภาพเพื่อซูมเป็น 2.5× หรือคืนค่าเดิม สำหรับมือ ให้จีบนิ้วสองครั้งอย่างรวดเร็ว',
@@ -7149,10 +7145,10 @@ extension on TranslationsTh {
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => 'ลบงานที่สร้างมากกว่า ${days} วันที่แล้ว',
 			'download.deleteByDate.noMatch' => 'ไม่มีงานที่ตรงกับเงื่อนไขที่เลือก',
 			'download.deleteByDate.invalidRange' => 'วันที่เริ่มต้นต้องตรงกับหรือก่อนหน้าวันที่สิ้นสุด',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.confirmTitle' => 'ยืนยันการลบ',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => 'ลบ ${count} งานดาวน์โหลดและไฟล์ของงานเหล่านั้นหรือไม่? การดำเนินการนี้ไม่สามารถยกเลิกได้',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'กำลังลบ ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'ลบ ${count} งานแล้ว',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'ลบ ${deleted} งานแล้ว; ข้าม ${skipped} งาน (กำลังถูกใช้งาน)',
@@ -7663,10 +7659,10 @@ extension on TranslationsTh {
 			'navigationOrderSettings.customNavigationOrderDesc' => 'ลากเพื่อปรับลำดับการแสดงผลของหน้าต่างๆ ในแถบนำทางด้านล่างและแถบด้านข้าง',
 			'navigationOrderSettings.restartRequired' => 'จำเป็นต้องรีสตาร์ทแอป',
 			'navigationOrderSettings.navigationItemSorting' => 'การเรียงลำดับรายการนำทาง',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.done' => 'เสร็จสิ้น',
 			'navigationOrderSettings.edit' => 'แก้ไข',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.reset' => 'รีเซ็ต',
 			'navigationOrderSettings.previewEffect' => 'ตัวอย่างผลลัพธ์',
 			'navigationOrderSettings.bottomNavigationPreview' => 'ตัวอย่างแถบนำทางด้านล่าง:',
@@ -8177,10 +8173,10 @@ extension on TranslationsTh {
 			'anime4k.presetDescriptions.denoise_bilateral_fast' => 'การลดสัญญาณรบกวนแบบเร็วด้วยตัวกรอง bilateral แบบดั้งเดิม เร็วมาก เหมาะกับการจัดการสัญญาณรบกวนเล็กน้อย',
 			'anime4k.presetDescriptions.upscale_non_cnn' => 'การขยายภาพแบบเร็วด้วยอัลกอริทึมดั้งเดิม ภาระต่ำมาก ดีกว่าค่าเริ่มต้นของโปรแกรมเล่น',
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + การทำให้เส้นเข้มขึ้น เพิ่มเอฟเฟกต์ทำให้เส้นเข้มขึ้นบน Mode A แบบเร็ว เพื่อให้เส้นเด่นชัดและมีสไตล์ยิ่งขึ้น',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + การทำให้เส้นบางลง เพิ่มเอฟเฟกต์ทำให้เส้นบางลงบน Mode A คุณภาพสูง เพื่อให้ดูประณีตยิ่งขึ้น',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8691,10 +8687,10 @@ extension on TranslationsTh {
 			'localMedia.clearAction' => 'ล้าง',
 			'localMedia.iosManualRescanNotice' => 'iOS ไม่ตรวจจับไฟล์ใหม่โดยอัตโนมัติ คุณจะต้องสแกนใหม่ด้วยตนเองหลังเพิ่มหรือลบไฟล์',
 			'historyPage.removeFromHistory' => 'ลบออกจากประวัติ',
-			_ => null,
-		} ?? switch (path) {
 			'historyPage.removed' => 'ลบออกจากประวัติแล้ว',
 			'historyPage.watchedTo' => ({required Object time}) => 'ดูถึง ${time}',
+			_ => null,
+		} ?? switch (path) {
 			'historyPage.finished' => 'ดูจบแล้ว',
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'ล้าง "${tab}"',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'ประวัติทั้งหมดใน "${tab}" จะถูกลบ รวมถึงตำแหน่งการรับชมของวิดีโอเหล่านั้น ไม่สามารถย้อนกลับได้',

@@ -1103,8 +1103,6 @@ settings:
   hardwareDecodingModeSubtitle: Hardware decoding settings
   enableHardwareAcceleration: Enable Hardware Acceleration
   enableHardwareAccelerationInfo: Enabling hardware acceleration can improve decoding performance, but some devices may not be compatible
-  useOpenSLESAudioOutput: Use OpenSLES Audio Output
-  useOpenSLESAudioOutputInfo: Use low-latency audio output, may improve audio performance
   # Video sync options
   videoSyncAudio: Audio Sync
   videoSyncDisplayResample: Display Resample

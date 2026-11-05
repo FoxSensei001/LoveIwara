@@ -1081,8 +1081,6 @@ settings:
   hardwareDecodingModeSubtitle: Pengaturan dekode perangkat keras
   enableHardwareAcceleration: Aktifkan Akselerasi Perangkat Keras
   enableHardwareAccelerationInfo: Mengaktifkan akselerasi perangkat keras dapat meningkatkan kinerja dekode, tetapi beberapa perangkat mungkin tidak kompatibel
-  useOpenSLESAudioOutput: Gunakan Output Audio OpenSLES
-  useOpenSLESAudioOutputInfo: Gunakan output audio latensi rendah, dapat meningkatkan kinerja audio
   # Video sync options
   videoSyncAudio: Sinkron Audio
   videoSyncDisplayResample: Tampilkan Resample

@@ -1165,8 +1165,6 @@ class _TranslationsSettingsKo extends TranslationsSettingsEn {
 	@override String get hardwareDecodingModeSubtitle => '하드웨어 디코딩 설정';
 	@override String get enableHardwareAcceleration => '하드웨어 가속 사용';
 	@override String get enableHardwareAccelerationInfo => '하드웨어 가속을 사용하면 디코딩 성능이 향상될 수 있지만 일부 기기는 호환되지 않을 수 있습니다';
-	@override String get useOpenSLESAudioOutput => 'OpenSLES 오디오 출력 사용';
-	@override String get useOpenSLESAudioOutputInfo => '저지연 오디오 출력을 사용하여 오디오 성능을 개선할 수 있습니다';
 	@override String get videoSyncAudio => '오디오 동기화';
 	@override String get videoSyncDisplayResample => '리샘플 표시';
 	@override String get videoSyncDisplayResampleVdrop => '리샘플 표시 (프레임 드롭)';
@@ -6140,8 +6138,6 @@ extension on TranslationsKo {
 			'settings.hardwareDecodingModeSubtitle' => '하드웨어 디코딩 설정',
 			'settings.enableHardwareAcceleration' => '하드웨어 가속 사용',
 			'settings.enableHardwareAccelerationInfo' => '하드웨어 가속을 사용하면 디코딩 성능이 향상될 수 있지만 일부 기기는 호환되지 않을 수 있습니다',
-			'settings.useOpenSLESAudioOutput' => 'OpenSLES 오디오 출력 사용',
-			'settings.useOpenSLESAudioOutputInfo' => '저지연 오디오 출력을 사용하여 오디오 성능을 개선할 수 있습니다',
 			'settings.videoSyncAudio' => '오디오 동기화',
 			'settings.videoSyncDisplayResample' => '리샘플 표시',
 			'settings.videoSyncDisplayResampleVdrop' => '리샘플 표시 (프레임 드롭)',
@@ -6635,10 +6631,10 @@ extension on TranslationsKo {
 			'videoDetail.gestureGuide.quest.swipeTitle' => '옆으로 끌어 페이지 넘기기',
 			'videoDetail.gestureGuide.quest.swipeBody' => '이미지에 광선을 맞추고 검지 트리거를 누른 채 왼쪽으로 끄세요. 페이지 넘김 신호 후 놓으면 넘어가고, 오른쪽으로 끌면 뒤로 갑니다. 집어서 끌어도 됩니다.',
 			'videoDetail.gestureGuide.quest.swipeHint' => '이미지를 끌어 페이지를 넘기려면 1배 상태여야 합니다. 갤러리 동영상도 지원합니다. 놓을 때까지 스테이지는 그대로 유지됩니다.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomTitle' => '이미지 확대',
 			'videoDetail.gestureGuide.quest.zoomBody' => '이미지의 세부 부분에 광선을 맞추고 검지 트리거를 누른 뒤 스틱을 위로 밀면 확대, 아래로 밀면 축소됩니다. 확대는 누른 지점을 기준으로 고정됩니다.',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomHint' => '이미지 창 안의 이미지를 확대합니다. 이미지를 잡지 않은 상태에서는 위/아래가 시청 거리를 조정합니다.',
 			'videoDetail.gestureGuide.quest.panTitle' => '이미지 이동 및 복원',
 			'videoDetail.gestureGuide.quest.panBody' => '확대한 후 검지 트리거를 누른 채 끌면 주변을 둘러볼 수 있습니다. 이미지를 두 번 탭하면 2.5배로 확대하거나 원래대로 되돌립니다. 손을 사용할 때는 빠르게 두 번 집으세요.',
@@ -7149,10 +7145,10 @@ extension on TranslationsKo {
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => '${days}일보다 오래 전에 생성된 작업 삭제',
 			'download.deleteByDate.noMatch' => '선택한 조건에 맞는 작업이 없습니다',
 			'download.deleteByDate.invalidRange' => '시작일은 종료일과 같거나 그보다 앞서야 합니다',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.confirmTitle' => '삭제 확인',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => '${count}개의 다운로드 작업과 해당 파일을 삭제하시겠습니까? 되돌릴 수 없습니다.',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '삭제 중 ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count}개 작업 삭제됨',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '${deleted}개 작업 삭제됨, ${skipped}개 건너뜀(사용 중)',
@@ -7663,10 +7659,10 @@ extension on TranslationsKo {
 			'navigationOrderSettings.customNavigationOrderDesc' => '하단 내비게이션 바와 사이드바에서 페이지 표시 순서를 조정하려면 드래그하세요',
 			'navigationOrderSettings.restartRequired' => '앱 재시작 필요',
 			'navigationOrderSettings.navigationItemSorting' => '내비게이션 항목 정렬',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.done' => '완료',
 			'navigationOrderSettings.edit' => '편집',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.reset' => '초기화',
 			'navigationOrderSettings.previewEffect' => '미리보기 효과',
 			'navigationOrderSettings.bottomNavigationPreview' => '하단 내비게이션 미리보기:',
@@ -8177,10 +8173,10 @@ extension on TranslationsKo {
 			'anime4k.presetDescriptions.denoise_bilateral_fast' => '기존 양방향 필터를 사용한 고속 노이즈 제거로, 매우 빠르며 가벼운 노이즈 처리에 적합합니다.',
 			'anime4k.presetDescriptions.upscale_non_cnn' => '기존 알고리즘을 사용한 고속 업스케일링으로, 부하가 매우 낮고 플레이어 기본값보다 우수합니다.',
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + 선 어둡게 하기로, 고속 Mode A에 선을 더 진하게 만드는 효과를 추가해 선을 더 뚜렷하고 스타일리시하게 표현합니다.',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + 선 얇게 하기로, 고품질 Mode A에 선을 더 가늘게 만드는 효과를 추가해 더 정교하게 표현합니다.',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8691,10 +8687,10 @@ extension on TranslationsKo {
 			'localMedia.clearAction' => '지우기',
 			'localMedia.iosManualRescanNotice' => 'iOS는 새 파일을 자동으로 감지하지 않습니다. 파일을 추가하거나 삭제한 후 수동으로 다시 검사해야 합니다.',
 			'historyPage.removeFromHistory' => '기록에서 삭제',
-			_ => null,
-		} ?? switch (path) {
 			'historyPage.removed' => '기록에서 삭제했습니다',
 			'historyPage.watchedTo' => ({required Object time}) => '${time}까지 시청',
+			_ => null,
+		} ?? switch (path) {
 			'historyPage.finished' => '시청 완료',
 			'historyPage.clearTabTitle' => ({required Object tab}) => '"${tab}" 지우기',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => '"${tab}"의 모든 기록과 해당 동영상의 시청 위치가 삭제됩니다. 이 작업은 되돌릴 수 없습니다.',

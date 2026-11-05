@@ -1165,8 +1165,6 @@ class _TranslationsSettingsFr extends TranslationsSettingsEn {
 	@override String get hardwareDecodingModeSubtitle => 'Paramètres de décodage matériel';
 	@override String get enableHardwareAcceleration => 'Activer l\'accélération matérielle';
 	@override String get enableHardwareAccelerationInfo => 'Activer l\'accélération matérielle peut améliorer les performances de décodage, mais certains appareils peuvent être incompatibles';
-	@override String get useOpenSLESAudioOutput => 'Utiliser la sortie audio OpenSLES';
-	@override String get useOpenSLESAudioOutputInfo => 'Utiliser une sortie audio à faible latence, peut améliorer les performances audio';
 	@override String get videoSyncAudio => 'Synchro audio';
 	@override String get videoSyncDisplayResample => 'Afficher le rééchantillonnage';
 	@override String get videoSyncDisplayResampleVdrop => 'Afficher rééchantillonnage (perte de trames)';
@@ -6140,8 +6138,6 @@ extension on TranslationsFr {
 			'settings.hardwareDecodingModeSubtitle' => 'Paramètres de décodage matériel',
 			'settings.enableHardwareAcceleration' => 'Activer l\'accélération matérielle',
 			'settings.enableHardwareAccelerationInfo' => 'Activer l\'accélération matérielle peut améliorer les performances de décodage, mais certains appareils peuvent être incompatibles',
-			'settings.useOpenSLESAudioOutput' => 'Utiliser la sortie audio OpenSLES',
-			'settings.useOpenSLESAudioOutputInfo' => 'Utiliser une sortie audio à faible latence, peut améliorer les performances audio',
 			'settings.videoSyncAudio' => 'Synchro audio',
 			'settings.videoSyncDisplayResample' => 'Afficher le rééchantillonnage',
 			'settings.videoSyncDisplayResampleVdrop' => 'Afficher rééchantillonnage (perte de trames)',
@@ -6635,10 +6631,10 @@ extension on TranslationsFr {
 			'videoDetail.gestureGuide.quest.swipeTitle' => 'Glisser pour tourner une page',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Visez l\'image, maintenez la gâchette d\'index et faites glisser vers la gauche. Relâchez après l\'indice de changement de page pour avancer ; faites glisser vers la droite pour revenir. Un pincement-glissement fonctionne aussi.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Les images doivent être à 1× pour changer de page en glissant. Les vidéos de galerie le permettent aussi. La scène reste immobile jusqu\'au relâchement.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'Zoomer sur l\'image',
 			'videoDetail.gestureGuide.quest.zoomBody' => 'Visez un détail de l\'image, maintenez la gâchette d\'index, puis poussez le stick vers le haut pour zoomer ou vers le bas pour dézoomer. Le zoom est ancré là où vous avez appuyé.',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Cela agrandit l\'image dans sa fenêtre. Sans maintenir l\'image, le haut/bas ajuste la distance de visionnage.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Déplacer et restaurer l\'image',
 			'videoDetail.gestureGuide.quest.panBody' => 'Une fois zoomé, maintenez la gâchette d\'index et faites glisser pour regarder autour. Double-touchez l\'image pour zoomer à 2,5× ou la restaurer. Avec les mains, pincez deux fois rapidement.',
@@ -7149,10 +7145,10 @@ extension on TranslationsFr {
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => 'Supprimer les tâches créées il y a plus de ${days} jour(s)',
 			'download.deleteByDate.noMatch' => 'Aucune tâche ne correspond à la condition sélectionnée',
 			'download.deleteByDate.invalidRange' => 'La date de début doit être antérieure ou égale à la date de fin',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.confirmTitle' => 'Confirmer la suppression',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Supprimer ${count} tâche(s) de téléchargement et leurs fichiers ? Cette action est irréversible.',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Suppression ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count} tâche(s) supprimée(s)',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '${deleted} tâche(s) supprimée(s) ; ${skipped} ignorée(s) (en cours d\'utilisation)',
@@ -7663,10 +7659,10 @@ extension on TranslationsFr {
 			'navigationOrderSettings.customNavigationOrderDesc' => 'Faites glisser pour ajuster l\'ordre d\'affichage des pages dans la barre de navigation inférieure et la barre latérale',
 			'navigationOrderSettings.restartRequired' => 'Redémarrage de l\'application requis',
 			'navigationOrderSettings.navigationItemSorting' => 'Tri des éléments de navigation',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.done' => 'Terminé',
 			'navigationOrderSettings.edit' => 'Modifier',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.reset' => 'Réinitialiser',
 			'navigationOrderSettings.previewEffect' => 'Aperçu du résultat',
 			'navigationOrderSettings.bottomNavigationPreview' => 'Aperçu de la navigation inférieure :',
@@ -8177,10 +8173,10 @@ extension on TranslationsFr {
 			'anime4k.presetDescriptions.denoise_bilateral_fast' => 'Débruitage rapide par filtrage bilatéral classique, très rapide, adapté au bruit léger.',
 			'anime4k.presetDescriptions.upscale_non_cnn' => 'Mise à l\'échelle rapide via des algorithmes classiques, coût très faible, meilleure que les réglages par défaut du lecteur.',
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (rapide) + assombrissement des lignes, ajoutant un effet d\'assombrissement au mode A rapide pour des lignes plus marquées et stylisées.',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + affinage des lignes, ajoutant un effet d\'affinage au mode A haute qualité pour un rendu plus fin.',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8691,10 +8687,10 @@ extension on TranslationsFr {
 			'localMedia.clearAction' => 'Effacer',
 			'localMedia.iosManualRescanNotice' => 'iOS ne détecte pas automatiquement les nouveaux fichiers. Vous devrez relancer une analyse manuellement après avoir ajouté ou supprimé des fichiers.',
 			'historyPage.removeFromHistory' => 'Retirer de l\'historique',
-			_ => null,
-		} ?? switch (path) {
 			'historyPage.removed' => 'Retiré de l\'historique',
 			'historyPage.watchedTo' => ({required Object time}) => 'Vu jusqu’à ${time}',
+			_ => null,
+		} ?? switch (path) {
 			'historyPage.finished' => 'Vu',
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'Effacer « ${tab} »',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Tout l’historique de « ${tab} » sera supprimé, ainsi que la progression de lecture de ces vidéos. Action irréversible.',

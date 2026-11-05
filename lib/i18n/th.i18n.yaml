@@ -1081,8 +1081,6 @@ settings:
   hardwareDecodingModeSubtitle: การตั้งค่าการถอดรหัสฮาร์ดแวร์
   enableHardwareAcceleration: เปิดใช้การเร่งความเร็วด้วยฮาร์ดแวร์
   enableHardwareAccelerationInfo: การเปิดใช้การเร่งความเร็วด้วยฮาร์ดแวร์สามารถปรับปรุงประสิทธิภาพการถอดรหัสได้ แต่อุปกรณ์บางรุ่นอาจไม่รองรับ
-  useOpenSLESAudioOutput: ใช้เอาต์พุตเสียง OpenSLES
-  useOpenSLESAudioOutputInfo: ใช้เอาต์พุตเสียงที่มีความหน่วงต่ำ อาจช่วยปรับปรุงประสิทธิภาพของเสียงได้
   # Video sync options
   videoSyncAudio: การซิงค์เสียง
   videoSyncDisplayResample: การสุ่มตัวอย่างใหม่ในการแสดงผล

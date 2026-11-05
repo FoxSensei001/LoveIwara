@@ -1081,8 +1081,6 @@ settings:
   hardwareDecodingModeSubtitle: Cài đặt giải mã phần cứng
   enableHardwareAcceleration: Bật tăng tốc phần cứng
   enableHardwareAccelerationInfo: Bật tăng tốc phần cứng có thể cải thiện hiệu năng giải mã, nhưng một số thiết bị có thể không tương thích
-  useOpenSLESAudioOutput: Dùng đầu ra âm thanh OpenSLES
-  useOpenSLESAudioOutputInfo: Dùng đầu ra âm thanh độ trễ thấp, có thể cải thiện hiệu năng âm thanh
   # Video sync options
   videoSyncAudio: Đồng bộ âm thanh
   videoSyncDisplayResample: Lấy mẫu lại

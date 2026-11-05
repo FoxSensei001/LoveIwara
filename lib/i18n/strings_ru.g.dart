@@ -1165,8 +1165,6 @@ class _TranslationsSettingsRu extends TranslationsSettingsEn {
 	@override String get hardwareDecodingModeSubtitle => 'Настройки аппаратного декодирования';
 	@override String get enableHardwareAcceleration => 'Аппаратное ускорение';
 	@override String get enableHardwareAccelerationInfo => 'Включение аппаратного ускорения может улучшить декодирование, но поддерживается не всеми устройствами';
-	@override String get useOpenSLESAudioOutput => 'Использовать вывод OpenSLES';
-	@override String get useOpenSLESAudioOutputInfo => 'Низкая задержка звука, может улучшить воспроизведение аудио';
 	@override String get videoSyncAudio => 'По звуку';
 	@override String get videoSyncDisplayResample => 'Передискретизация дисплея';
 	@override String get videoSyncDisplayResampleVdrop => 'Передискретизация (пропуск видеокадров)';
@@ -6140,8 +6138,6 @@ extension on TranslationsRu {
 			'settings.hardwareDecodingModeSubtitle' => 'Настройки аппаратного декодирования',
 			'settings.enableHardwareAcceleration' => 'Аппаратное ускорение',
 			'settings.enableHardwareAccelerationInfo' => 'Включение аппаратного ускорения может улучшить декодирование, но поддерживается не всеми устройствами',
-			'settings.useOpenSLESAudioOutput' => 'Использовать вывод OpenSLES',
-			'settings.useOpenSLESAudioOutputInfo' => 'Низкая задержка звука, может улучшить воспроизведение аудио',
 			'settings.videoSyncAudio' => 'По звуку',
 			'settings.videoSyncDisplayResample' => 'Передискретизация дисплея',
 			'settings.videoSyncDisplayResampleVdrop' => 'Передискретизация (пропуск видеокадров)',
@@ -6635,10 +6631,10 @@ extension on TranslationsRu {
 			'videoDetail.gestureGuide.quest.swipeTitle' => 'Перелистывание перетаскиванием',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Наведите на изображение, зажмите триггер и потяните влево. Отпустите после подсказки о смене страницы; потяните вправо для возврата. Щипок с перетаскиванием тоже работает.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Для перелистывания изображение должно быть в масштабе 1×. Поддерживаются и видео в галерее. Сцена остается на месте до отпускания.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'Масштабирование изображения',
 			'videoDetail.gestureGuide.quest.zoomBody' => 'Наведите на деталь, зажмите триггер и отклоните стик вверх для приближения или вниз для отдаления. Центр зума фиксируется в точке нажатия.',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Масштабирует изображение внутри его окна. Без зажатия изображения стик вверх/вниз меняет расстояние до экрана.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Панорамирование и сброс',
 			'videoDetail.gestureGuide.quest.panBody' => 'При приближении удерживайте триггер и двигайте руку для осмотра. Двойное нажатие по изображению увеличивает до 2.5× или сбрасывает масштаб. Руками: быстрый двойной щипок.',
@@ -7149,10 +7145,10 @@ extension on TranslationsRu {
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => 'Удалить задачи, созданные более ${days} дн. назад',
 			'download.deleteByDate.noMatch' => 'Нет задач, соответствующих выбранному условию',
 			'download.deleteByDate.invalidRange' => 'Дата начала должна быть не позже даты окончания',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.confirmTitle' => 'Подтвердите удаление',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Удалить задач загрузки (${count}) и их файлы? Это действие нельзя отменить.',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Удаление ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Удалено задач: ${count}',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Удалено задач: ${deleted}; пропущено: ${skipped} (используются)',
@@ -7663,10 +7659,10 @@ extension on TranslationsRu {
 			'navigationOrderSettings.customNavigationOrderDesc' => 'Перетащите, чтобы изменить порядок отображения страниц на нижней панели навигации и в боковом меню',
 			'navigationOrderSettings.restartRequired' => 'Требуется перезапуск приложения',
 			'navigationOrderSettings.navigationItemSorting' => 'Сортировка элементов навигации',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.done' => 'Готово',
 			'navigationOrderSettings.edit' => 'Изменить',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.reset' => 'Сбросить',
 			'navigationOrderSettings.previewEffect' => 'Предпросмотр',
 			'navigationOrderSettings.bottomNavigationPreview' => 'Предпросмотр нижней навигации:',
@@ -8177,10 +8173,10 @@ extension on TranslationsRu {
 			'anime4k.presetDescriptions.denoise_bilateral_fast' => 'Быстрое шумоподавление с помощью традиционной двусторонней фильтрации: очень быстро, подходит для обработки слабого шума.',
 			'anime4k.presetDescriptions.upscale_non_cnn' => 'Быстрое масштабирование традиционными алгоритмами: очень низкие затраты ресурсов, лучше стандартных настроек плеера.',
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Режим A (быстрый) + затемнение линий: добавляет эффект затемнения линий к быстрому режиму A для более выразительных, стилизованных линий.',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Режим A (HQ) + утончение линий: добавляет эффект утончения линий к высококачественному режиму A для более изящного вида.',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8691,10 +8687,10 @@ extension on TranslationsRu {
 			'localMedia.clearAction' => 'Очистить',
 			'localMedia.iosManualRescanNotice' => 'iOS не обнаруживает новые файлы автоматически. После добавления или удаления файлов потребуется вручную запустить повторное сканирование.',
 			'historyPage.removeFromHistory' => 'Удалить из истории',
-			_ => null,
-		} ?? switch (path) {
 			'historyPage.removed' => 'Удалено из истории',
 			'historyPage.watchedTo' => ({required Object time}) => 'Просмотрено до ${time}',
+			_ => null,
+		} ?? switch (path) {
 			'historyPage.finished' => 'Просмотрено',
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'Очистить «${tab}»',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Вся история в «${tab}» будет удалена вместе с прогрессом просмотра этих видео. Действие необратимо.',

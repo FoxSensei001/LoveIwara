@@ -1082,8 +1082,6 @@ settings:
   hardwareDecodingModeSubtitle: ハードウェアデコード設定
   enableHardwareAcceleration: ハードウェアアクセラレーションを有効にする
   enableHardwareAccelerationInfo: ハードウェアアクセラレーションを有効にすると、デコード性能が向上しますが、一部のデバイスでは互換性がない場合があります
-  useOpenSLESAudioOutput: OpenSLESオーディオ出力を使用
-  useOpenSLESAudioOutputInfo: 低遅延オーディオ出力を使用し、オーディオ性能が向上する可能性があります
   # ビデオ同期オプション
   videoSyncAudio: オーディオ同期
   videoSyncDisplayResample: ディスプレイリサンプル

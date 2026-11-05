@@ -1081,8 +1081,6 @@ settings:
   hardwareDecodingModeSubtitle: Paramètres de décodage matériel
   enableHardwareAcceleration: Activer l'accélération matérielle
   enableHardwareAccelerationInfo: Activer l'accélération matérielle peut améliorer les performances de décodage, mais certains appareils peuvent être incompatibles
-  useOpenSLESAudioOutput: Utiliser la sortie audio OpenSLES
-  useOpenSLESAudioOutputInfo: Utiliser une sortie audio à faible latence, peut améliorer les performances audio
   # Video sync options
   videoSyncAudio: Synchro audio
   videoSyncDisplayResample: Afficher le rééchantillonnage

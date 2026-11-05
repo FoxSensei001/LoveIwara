@@ -1081,8 +1081,6 @@ settings:
   hardwareDecodingModeSubtitle: Настройки аппаратного декодирования
   enableHardwareAcceleration: Аппаратное ускорение
   enableHardwareAccelerationInfo: Включение аппаратного ускорения может улучшить декодирование, но поддерживается не всеми устройствами
-  useOpenSLESAudioOutput: Использовать вывод OpenSLES
-  useOpenSLESAudioOutputInfo: Низкая задержка звука, может улучшить воспроизведение аудио
   # Video sync options
   videoSyncAudio: По звуку
   videoSyncDisplayResample: Передискретизация дисплея

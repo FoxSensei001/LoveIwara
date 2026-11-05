@@ -1105,8 +1105,6 @@ settings:
   hardwareDecodingModeSubtitle: 硬件解码设置
   enableHardwareAcceleration: 启用硬件加速
   enableHardwareAccelerationInfo: 开启硬件加速可以提高解码性能，但某些设备可能不兼容
-  useOpenSLESAudioOutput: 使用OpenSLES音频输出
-  useOpenSLESAudioOutputInfo: 使用低延迟音频输出，可能提高音频性能
   # 视频同步选项
   videoSyncAudio: 音频同步
   videoSyncDisplayResample: 显示重采样

@@ -1165,8 +1165,6 @@ class _TranslationsSettingsVi extends TranslationsSettingsEn {
 	@override String get hardwareDecodingModeSubtitle => 'Cài đặt giải mã phần cứng';
 	@override String get enableHardwareAcceleration => 'Bật tăng tốc phần cứng';
 	@override String get enableHardwareAccelerationInfo => 'Bật tăng tốc phần cứng có thể cải thiện hiệu năng giải mã, nhưng một số thiết bị có thể không tương thích';
-	@override String get useOpenSLESAudioOutput => 'Dùng đầu ra âm thanh OpenSLES';
-	@override String get useOpenSLESAudioOutputInfo => 'Dùng đầu ra âm thanh độ trễ thấp, có thể cải thiện hiệu năng âm thanh';
 	@override String get videoSyncAudio => 'Đồng bộ âm thanh';
 	@override String get videoSyncDisplayResample => 'Lấy mẫu lại';
 	@override String get videoSyncDisplayResampleVdrop => 'Lấy mẫu lại (bỏ khung hình)';
@@ -6140,8 +6138,6 @@ extension on TranslationsVi {
 			'settings.hardwareDecodingModeSubtitle' => 'Cài đặt giải mã phần cứng',
 			'settings.enableHardwareAcceleration' => 'Bật tăng tốc phần cứng',
 			'settings.enableHardwareAccelerationInfo' => 'Bật tăng tốc phần cứng có thể cải thiện hiệu năng giải mã, nhưng một số thiết bị có thể không tương thích',
-			'settings.useOpenSLESAudioOutput' => 'Dùng đầu ra âm thanh OpenSLES',
-			'settings.useOpenSLESAudioOutputInfo' => 'Dùng đầu ra âm thanh độ trễ thấp, có thể cải thiện hiệu năng âm thanh',
 			'settings.videoSyncAudio' => 'Đồng bộ âm thanh',
 			'settings.videoSyncDisplayResample' => 'Lấy mẫu lại',
 			'settings.videoSyncDisplayResampleVdrop' => 'Lấy mẫu lại (bỏ khung hình)',
@@ -6635,10 +6631,10 @@ extension on TranslationsVi {
 			'videoDetail.gestureGuide.quest.swipeTitle' => 'Kéo ngang để lật trang',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Hướng vào hình ảnh, giữ cò ngón trỏ và kéo sang trái. Thả ra sau tín hiệu lật trang để chuyển tiếp; kéo sang phải để lùi lại. Chụm và kéo cũng hoạt động.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Hình ảnh phải ở mức 1× để lật trang bằng cách kéo. Video trong thư viện cũng hỗ trợ. Sân khấu đứng yên cho đến khi bạn thả ra.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'Thu phóng vào hình ảnh',
 			'videoDetail.gestureGuide.quest.zoomBody' => 'Hướng vào một chi tiết trong hình ảnh, giữ cò ngón trỏ, rồi đẩy cần gạt lên để phóng to hoặc xuống để thu nhỏ. Thu phóng neo tại điểm bạn nhấn.',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Thao tác này phóng to hình ảnh bên trong cửa sổ của nó. Nếu không giữ hình ảnh, lên/xuống sẽ điều chỉnh khoảng cách xem.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Di chuyển và khôi phục hình ảnh',
 			'videoDetail.gestureGuide.quest.panBody' => 'Sau khi đã thu phóng, giữ cò ngón trỏ và kéo để nhìn quanh. Nhấn đúp vào hình ảnh để thu phóng lên 2.5× hoặc khôi phục. Với bàn tay, chụm hai lần thật nhanh.',
@@ -7149,10 +7145,10 @@ extension on TranslationsVi {
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => 'Xóa các tác vụ được tạo cách đây hơn ${days} ngày',
 			'download.deleteByDate.noMatch' => 'Không có tác vụ nào khớp điều kiện đã chọn',
 			'download.deleteByDate.invalidRange' => 'Ngày bắt đầu phải trước hoặc bằng ngày kết thúc',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.confirmTitle' => 'Xác nhận xóa',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Xóa ${count} tác vụ tải xuống và tệp của chúng? Thao tác này không thể hoàn tác.',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Đang xóa ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Đã xóa ${count} tác vụ',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Đã xóa ${deleted} tác vụ; bỏ qua ${skipped} (đang được dùng)',
@@ -7663,10 +7659,10 @@ extension on TranslationsVi {
 			'navigationOrderSettings.customNavigationOrderDesc' => 'Kéo để điều chỉnh thứ tự hiển thị của các trang trong thanh điều hướng dưới và thanh bên',
 			'navigationOrderSettings.restartRequired' => 'Cần khởi động lại ứng dụng',
 			'navigationOrderSettings.navigationItemSorting' => 'Sắp xếp mục điều hướng',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.done' => 'Xong',
 			'navigationOrderSettings.edit' => 'Chỉnh sửa',
+			_ => null,
+		} ?? switch (path) {
 			'navigationOrderSettings.reset' => 'Đặt lại',
 			'navigationOrderSettings.previewEffect' => 'Xem trước hiệu ứng',
 			'navigationOrderSettings.bottomNavigationPreview' => 'Xem trước thanh điều hướng dưới:',
@@ -8177,10 +8173,10 @@ extension on TranslationsVi {
 			'anime4k.presetDescriptions.denoise_bilateral_fast' => 'Khử nhiễu nhanh bằng lọc song phương truyền thống, cực nhanh, phù hợp xử lý nhiễu nhẹ.',
 			'anime4k.presetDescriptions.upscale_non_cnn' => 'Nâng tỉ lệ nhanh bằng thuật toán truyền thống, chi phí hiệu năng rất thấp, tốt hơn mặc định của trình phát.',
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + làm đậm đường nét, bổ sung hiệu ứng làm đậm đường nét cho Mode A nhanh, giúp đường nét nổi bật và cách điệu hơn.',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + làm mảnh đường nét, bổ sung hiệu ứng làm mảnh đường nét cho Mode A chất lượng cao, giúp hình ảnh tinh tế hơn.',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8691,10 +8687,10 @@ extension on TranslationsVi {
 			'localMedia.clearAction' => 'Xóa',
 			'localMedia.iosManualRescanNotice' => 'iOS không tự động phát hiện tệp mới. Cần quét lại thủ công sau khi thêm hoặc xóa tệp.',
 			'historyPage.removeFromHistory' => 'Xóa khỏi lịch sử',
-			_ => null,
-		} ?? switch (path) {
 			'historyPage.removed' => 'Đã xóa khỏi lịch sử',
 			'historyPage.watchedTo' => ({required Object time}) => 'Đã xem đến ${time}',
+			_ => null,
+		} ?? switch (path) {
 			'historyPage.finished' => 'Đã xem xong',
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'Xóa "${tab}"',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Toàn bộ lịch sử trong "${tab}" sẽ bị xóa, kèm tiến độ xem của các video đó. Không thể hoàn tác.',

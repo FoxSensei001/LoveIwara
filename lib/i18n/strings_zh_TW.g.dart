@@ -1187,8 +1187,6 @@ class _TranslationsSettingsZhTw extends TranslationsSettingsEn {
 	@override String get hardwareDecodingModeSubtitle => '硬體解碼設定';
 	@override String get enableHardwareAcceleration => '啟用硬體加速';
 	@override String get enableHardwareAccelerationInfo => '開啟硬體加速可以提高解碼效能，但某些裝置可能不相容';
-	@override String get useOpenSLESAudioOutput => '使用OpenSLES音訊輸出';
-	@override String get useOpenSLESAudioOutputInfo => '使用低延遲音訊輸出，可能提高音頻效能';
 	@override String get videoSyncAudio => '音訊同步';
 	@override String get videoSyncDisplayResample => '顯示重採樣';
 	@override String get videoSyncDisplayResampleVdrop => '顯示重採樣(丟幀)';
@@ -6184,8 +6182,6 @@ extension on TranslationsZhTw {
 			'settings.hardwareDecodingModeSubtitle' => '硬體解碼設定',
 			'settings.enableHardwareAcceleration' => '啟用硬體加速',
 			'settings.enableHardwareAccelerationInfo' => '開啟硬體加速可以提高解碼效能，但某些裝置可能不相容',
-			'settings.useOpenSLESAudioOutput' => '使用OpenSLES音訊輸出',
-			'settings.useOpenSLESAudioOutputInfo' => '使用低延遲音訊輸出，可能提高音頻效能',
 			'settings.videoSyncAudio' => '音訊同步',
 			'settings.videoSyncDisplayResample' => '顯示重採樣',
 			'settings.videoSyncDisplayResampleVdrop' => '顯示重採樣(丟幀)',
@@ -6657,10 +6653,10 @@ extension on TranslationsZhTw {
 			'videoDetail.gestureGuide.mDoubleTap' => '雙擊：左側後退 / 中央暫停 / 右側快進',
 			'videoDetail.gestureGuide.mHorizontalDrag' => '橫向滑動：調整進度',
 			'videoDetail.gestureGuide.mVerticalDrag' => '垂直滑動：左側亮度 / 右側音量',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.mLongPress' => '長按：臨時倍速播放',
 			'videoDetail.gestureGuide.mPinch' => '雙指捏合：縮放畫面',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.mRotate' => '雙指旋轉：旋轉畫面',
 			'videoDetail.gestureGuide.dTap' => '單擊：顯示 / 隱藏控制列',
 			'videoDetail.gestureGuide.dDoubleTap' => '雙擊：左側後退 / 中央暫停 / 右側快進',
@@ -7171,10 +7167,10 @@ extension on TranslationsZhTw {
 			'download.errorTypes.cancelled' => '已取消',
 			'download.errorTypes.unknown' => '未知錯誤',
 			'download.errorDetailCopied' => '已複製錯誤詳情',
-			_ => null,
-		} ?? switch (path) {
 			'download.errorDetailCopyHint' => '長按複製錯誤詳情',
 			'download.restoredPaused.banner' => ({required Object num}) => '上次離開時有 ${num} 個任務未完成，已暫停',
+			_ => null,
+		} ?? switch (path) {
 			'download.restoredPaused.resume' => '全部繼續',
 			'download.restoredPaused.dismiss' => '忽略',
 			'download.actions.open' => '開啟',
@@ -7685,10 +7681,10 @@ extension on TranslationsZhTw {
 			'translation.aiTranslationTestFailed' => 'AI翻譯測試失敗',
 			'translation.deeplxTranslationTestFailed' => 'DeepLX翻譯測試失敗',
 			'translation.streamingTranslationTimeout' => '流式翻譯超時，強制關閉資源',
-			_ => null,
-		} ?? switch (path) {
 			'translation.translationRequestTimeout' => '翻譯請求超時',
 			'translation.streamingTranslationDataTimeout' => '流式翻譯接收資料超時',
+			_ => null,
+		} ?? switch (path) {
 			'translation.dataReceptionTimeout' => '接收資料超時',
 			'translation.streamDataParseError' => '解析流資料時出錯',
 			'translation.streamingTranslationFailed' => '流式翻譯失敗',
@@ -8199,10 +8195,10 @@ extension on TranslationsZhTw {
 			'anime4k.moreLitePresets' => '更多輕量級預設',
 			'anime4k.customPresets' => '自訂預設',
 			'anime4k.presetGroups.highQuality' => '高品質',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetGroups.fast' => '快速',
 			'anime4k.presetGroups.lite' => '輕量級',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetGroups.moreLite' => '更多輕量級',
 			'anime4k.presetGroups.custom' => '自訂',
 			'anime4k.presetDescriptions.mode_a_hq' => '適用於大多數1080p動漫，特別是處理模糊、重採樣和壓縮瑕疵。提供最高的感知品質。',
@@ -8713,10 +8709,10 @@ extension on TranslationsZhTw {
 			'localMedia.addedAsPinnedFolder' => ({required Object name, required Object source}) => '「${name}」在「${source}」裡面，已加到常用資料夾',
 			'localMedia.alreadyPinnedFolder' => ({required Object name}) => '「${name}」已經在常用資料夾裡了',
 			'localMedia.sourceAlreadyAdded' => ({required Object name}) => '已經新增過「${name}」',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.sourceContainsExisting' => ({required Object name}) => '裡面已經有新增過的資料夾「${name}」，暫時不能再新增它的上層資料夾',
 			'localMedia.addSourceFailed' => '新增資料夾失敗',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.fileMissing' => '這個檔案已經不在磁碟上了',
 			'localMedia.permissionDenied' => '未授予檔案存取權限，新增資料夾前需要先開啟',
 			'localMedia.noVideosFound' => '這個資料夾裡沒有影片',

@@ -1165,8 +1165,6 @@ class _TranslationsSettingsJa extends TranslationsSettingsEn {
 	@override String get hardwareDecodingModeSubtitle => 'ハードウェアデコード設定';
 	@override String get enableHardwareAcceleration => 'ハードウェアアクセラレーションを有効にする';
 	@override String get enableHardwareAccelerationInfo => 'ハードウェアアクセラレーションを有効にすると、デコード性能が向上しますが、一部のデバイスでは互換性がない場合があります';
-	@override String get useOpenSLESAudioOutput => 'OpenSLESオーディオ出力を使用';
-	@override String get useOpenSLESAudioOutputInfo => '低遅延オーディオ出力を使用し、オーディオ性能が向上する可能性があります';
 	@override String get videoSyncAudio => 'オーディオ同期';
 	@override String get videoSyncDisplayResample => 'ディスプレイリサンプル';
 	@override String get videoSyncDisplayResampleVdrop => 'ディスプレイリサンプル（フレームドロップ）';
@@ -6140,8 +6138,6 @@ extension on TranslationsJa {
 			'settings.hardwareDecodingModeSubtitle' => 'ハードウェアデコード設定',
 			'settings.enableHardwareAcceleration' => 'ハードウェアアクセラレーションを有効にする',
 			'settings.enableHardwareAccelerationInfo' => 'ハードウェアアクセラレーションを有効にすると、デコード性能が向上しますが、一部のデバイスでは互換性がない場合があります',
-			'settings.useOpenSLESAudioOutput' => 'OpenSLESオーディオ出力を使用',
-			'settings.useOpenSLESAudioOutputInfo' => '低遅延オーディオ出力を使用し、オーディオ性能が向上する可能性があります',
 			'settings.videoSyncAudio' => 'オーディオ同期',
 			'settings.videoSyncDisplayResample' => 'ディスプレイリサンプル',
 			'settings.videoSyncDisplayResampleVdrop' => 'ディスプレイリサンプル（フレームドロップ）',
@@ -6635,10 +6631,10 @@ extension on TranslationsJa {
 			'videoDetail.gestureGuide.quest.swipeTitle' => '横ドラッグでページを送る',
 			'videoDetail.gestureGuide.quest.swipeBody' => '画像にレイを合わせ、トリガーを押したまま左へドラッグします。ページ送りの表示が出たら離すと次へ、右へドラッグすると前へ戻ります。ピンチでも操作できます。',
 			'videoDetail.gestureGuide.quest.swipeHint' => '画像は 1× のときにページ送りできます。ギャラリー内の動画にも対応しています。ドラッグ中は画面が動かず、離してから切り替わります。',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomTitle' => '画像の細部を拡大',
 			'videoDetail.gestureGuide.quest.zoomBody' => '見たい部分にレイを合わせてトリガーを押し続け、スティックを上に倒すと拡大、下に倒すと縮小します。押した位置が拡大の中心になります。',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'ウィンドウの大きさは変わらず、中の画像だけが拡大します。画像を押していないときの上下操作は視聴距離を変えます。',
 			'videoDetail.gestureGuide.quest.panTitle' => '拡大画像の移動とリセット',
 			'videoDetail.gestureGuide.quest.panBody' => '拡大後はトリガーを押したままドラッグして、別の部分を見られます。画像をダブルクリックすると 2.5× 拡大とリセットを切り替えます。手の場合は素早く 2 回ピンチします。',
@@ -7149,10 +7145,10 @@ extension on TranslationsJa {
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => '${days}日前より古いタスクを削除',
 			'download.deleteByDate.noMatch' => '条件に一致するタスクがありません',
 			'download.deleteByDate.invalidRange' => '開始日は終了日以前にしてください',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.confirmTitle' => '削除の確認',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => '${count}件のダウンロードタスクとそのファイルを削除しますか？この操作は取り消せません。',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '削除中 ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count}件のタスクを削除しました',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '${deleted}件を削除、${skipped}件をスキップ（使用中）',
@@ -7663,10 +7659,10 @@ extension on TranslationsJa {
 			'mediaPlayer.externalPlayer' => '外部プレイヤー',
 			'mediaPlayer.detailedErrorInfo' => '詳細エラー情報',
 			'mediaPlayer.format' => '形式',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.suggestion' => '提案',
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'AndroidデバイスはWEBM形式のサポートが限定的です。外部プレイヤーの使用またはWEBMをサポートするプレイヤーアプリのダウンロードをお勧めします',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.currentDeviceCodecNotSupported' => '現在のデバイスはこのビデオ形式のコーデックをサポートしていません',
 			'mediaPlayer.checkNetworkConnection' => 'ネットワーク接続を確認して再試行してください',
 			'mediaPlayer.appMayLackMediaPermission' => 'アプリに必要なメディア再生権限が不足している可能性があります',
@@ -8177,10 +8173,10 @@ extension on TranslationsJa {
 			'anime4k.presetDescriptions.denoise_bilateral_fast' => '従来のバイラテラルフィルタリングを使用して高速ノイズ除去を行い、非常に高速で軽度のノイズ処理に適しています。',
 			'anime4k.presetDescriptions.upscale_non_cnn' => '従来の高速アルゴリズムを使用してアップスケーリングを行い、最小限のパフォーマンスオーバーヘッドでプレーヤーのデフォルトよりも優れた効果。',
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + ライン暗化、高速モードAにライン暗化効果を追加し、ラインをより目立たせ、スタイライズ処理を行います。',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + ライン細化、高品質モードAにライン細化効果を追加し、より洗練された外観にします。',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8691,10 +8687,10 @@ extension on TranslationsJa {
 			'localMedia.clearAction' => '消去',
 			'localMedia.iosManualRescanNotice' => 'iOSでは新しいファイルは自動検出されません。ファイルを追加または削除した後は、手動で再スキャンする必要があります。',
 			'historyPage.removeFromHistory' => '履歴から削除',
-			_ => null,
-		} ?? switch (path) {
 			'historyPage.removed' => '履歴から削除しました',
 			'historyPage.watchedTo' => ({required Object time}) => '${time} まで視聴',
+			_ => null,
+		} ?? switch (path) {
 			'historyPage.finished' => '視聴済み',
 			'historyPage.clearTabTitle' => ({required Object tab}) => '「${tab}」を消去',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => '「${tab}」の履歴をすべて削除し、該当する動画の視聴位置も消去します。この操作は元に戻せません。',

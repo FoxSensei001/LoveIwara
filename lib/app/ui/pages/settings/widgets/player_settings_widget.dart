@@ -1283,8 +1283,8 @@ class PlayerSettingsWidget extends StatelessWidget {
       ),
 
       // -------- 音视频配置 --------
-      // 整区都是 libmpv 的命令行参数（--demuxer-max-bytes / --video-sync / --hwdec /
-      // --ao=opensles）。空间播放器不跑 mpv，一项都不读。
+      // 整区都是 libmpv 的命令行参数（--demuxer-max-bytes / --video-sync /
+      // --hwdec）。空间播放器不跑 mpv，一项都不读。
       PlayerSettingsSection(
         id: 'audioVideo',
         icon: Icons.tune,
@@ -1372,18 +1372,9 @@ class PlayerSettingsWidget extends StatelessWidget {
               _configService[ConfigKey.ENABLE_HARDWARE_ACCELERATION] = value;
             },
           ),
-          // OpenSLES 音频输出（仅 Android）
-          if (GetPlatform.isAndroid)
-            _switchTile(
-              context: context,
-              iconData: Icons.audiotrack,
-              label: t.settings.useOpenSLESAudioOutput,
-              description: t.settings.useOpenSLESAudioOutputInfo,
-              rxValue: _configService.settings[ConfigKey.USE_OPENSLES]!,
-              onChanged: (value) {
-                _configService[ConfigKey.USE_OPENSLES] = value;
-              },
-            ),
+          // 原来这里有「OpenSLES 音频输出」开关（仅 Android），关掉就走
+          // audiotrack，叠两个详情页再返回必闪退（issue #138），已移除；
+          // 安卓一律用 media_kit 默认的 `ao=opensles`。
         ]),
       ),
 

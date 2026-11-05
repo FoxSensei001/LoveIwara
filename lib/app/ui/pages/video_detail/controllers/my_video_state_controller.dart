@@ -3335,13 +3335,12 @@ class MyVideoStateController extends GetxController
       await platform.setProperty("load-unsafe-playlists", "yes");
       LogUtils.d('允许加载潜在不安全的播放列表/URL', 'MyVideoStateController');
 
-      // 设置音频输出（仅Android）
-      if (Platform.isAndroid) {
-        bool useOpenSLES = _configService[ConfigKey.USE_OPENSLES];
-        String ao = useOpenSLES ? "opensles,audiotrack" : "audiotrack,opensles";
-        await platform.setProperty("ao", ao);
-        LogUtils.d('设置音频输出: $ao', 'MyVideoStateController');
-      }
+      // ⛔ 安卓音频输出（ao）不许在这里改：media_kit 创建播放器时已给安卓所有
+      // 播放器设了 `ao=opensles`（real.dart `_create`）。这里以前按设置开关改成
+      // `audiotrack,opensles`，那就是 issue #138 的根因——我们打包的 libmpv
+      // （mpv 78d43740，2023-09）里 ao_audiotrack 的 jmethodID 是进程级全局表，
+      // 一个实例释放就清空它，另一个 audiotrack 实例的线程随即 `mid == null`
+      // abort（叠两个详情页再返回必现）。上游 mpv 46fe3cded0 才加了引用计数。
 
       // 设置硬件解码
       bool enableHA = _configService[ConfigKey.ENABLE_HARDWARE_ACCELERATION];
