@@ -21,6 +21,7 @@ import 'package:i_iwara/app/services/local_media_scan_service.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/services/webdav/webdav_service.dart';
+import 'package:i_iwara/app/services/xr_immersive_service.dart';
 import 'package:i_iwara/app/ui/pages/home_page.dart';
 import 'package:i_iwara/app/ui/pages/local_media/local_folder_route.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/downloaded_gallery_wall.dart';
@@ -314,6 +315,15 @@ class _LocalHomePageState extends State<LocalHomePage>
     }, time: const Duration(milliseconds: 400));
     unawaited(_syncDownloads());
     unawaited(_prepareDeviceVideos());
+    _refreshFolderSources();
+  }
+
+  /// 进页面 / 回到前台时补扫文件夹源：别的软件在应用外往这些目录里存的新视频
+  /// 只有这一个入口进库（文件夹源没有变更通知，见
+  /// [LocalMediaScanService.refreshFolderSources]）。
+  void _refreshFolderSources() {
+    if (!Get.isRegistered<LocalMediaScanService>()) return;
+    LocalMediaScanService.to.refreshFolderSources();
   }
 
   /// 系统媒体库现在读不读得到（只查不弹）。头显上「扫描设备视频」入口靠它决定露不露。
@@ -371,6 +381,10 @@ class _LocalHomePageState extends State<LocalHomePage>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state != AppLifecycleState.resumed) return;
+    // Quest 上空间播放结束、面板恢复出帧借的也是 resumed，不是真的回到前台
+    // （见 [XrImmersiveService.panelSuspended]，my_app 同一道闸）。不拦的话每看完
+    // 一条、在空间里每换一次片，都会把所有文件夹源整树再扫一遍。
+    if (XrImmersiveService.panelSuspended) return;
 
     _resumeSignal?.complete();
     _resumeSignal = null;
@@ -387,6 +401,7 @@ class _LocalHomePageState extends State<LocalHomePage>
     }
     // 系统设置里刚给了（或撤了）媒体权限、或者离开期间多了新视频。
     unawaited(_prepareDeviceVideos());
+    _refreshFolderSources();
     // 从「去设置开启」回来：权限给了就把横幅收掉，不必等用户再点一次添加。
     if (_permissionDenied && Get.isRegistered<PermissionService>()) {
       unawaited(

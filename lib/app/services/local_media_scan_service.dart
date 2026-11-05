@@ -207,6 +207,48 @@ class LocalMediaScanService extends GetxService {
     _scheduleMediaStoreRescan();
   }
 
+  /// 上一次自动补扫文件夹源的时刻，配合 [_folderAutoRescanInterval] 限流。
+  DateTime? _lastFolderAutoRescanAt;
+
+  /// 自动补扫的最小间隔。桌面上窗口每拿回一次焦点都算一次「回到前台」，来回
+  /// 切窗口不该每次都把整棵目录树走一遍。
+  static const Duration _folderAutoRescanInterval = Duration(seconds: 60);
+
+  /// 补扫一轮本机文件夹源（用户添加的目录 / iOS 书签）。
+  ///
+  /// 文件夹源没有变更通知——不用 `FileSystemEntity.watch`，理由见工作线文档
+  /// §8.5——别的软件往里存了新视频，只能靠「进本机页 / 回到前台」时补扫一遍才
+  /// 进得了库，「所有视频」等墙再经 [LocalMediaRepository.changeRevision] 自己
+  /// 重读。整源扫描本身是增量的（指纹没变的行不重算），走同一道排队闸门，
+  /// 重复请求合流到同一次（见 [_enqueue]）。
+  ///
+  /// 「已下载」「设备视频」「NAS」不在这里：前两个各有即时通道
+  /// （`DownloadsLibrarySyncService` / [refreshMediaStoreSources]），NAS 走网络、
+  /// 不该在每次切回前台时偷偷列一遍远端目录。
+  void refreshFolderSources() {
+    // 扫描正在跑或还有排着的：这一轮补扫顶多重复走一遍，还会让用户这时点进的目录
+    // 懒扫描排到整树扫描后面（队列是 FIFO）。
+    if (isScanning || _pendingFolderScans.isNotEmpty) return;
+    final now = DateTime.now();
+    final last = _lastFolderAutoRescanAt;
+    if (last != null && now.difference(last) < _folderAutoRescanInterval) {
+      return;
+    }
+    _lastFolderAutoRescanAt = now;
+    for (final source in _repository.getSources()) {
+      if (!source.usesLocalFileSystem) continue;
+      if (source.kind == LocalMediaSourceKind.downloads ||
+          source.kind == LocalMediaSourceKind.mediastore) {
+        continue;
+      }
+      unawaited(
+        scanSource(source).catchError((Object e) {
+          LogUtils.e('自动补扫文件夹源失败', tag: _tag, error: e);
+        }),
+      );
+    }
+  }
+
   /// 所有"该重扫 MediaStore 了"的路口都走这里，别在调用点直接 `_drain…`：
   /// 去抖只有收口成一处才拦得住（见 [_mediaStoreDebounce]）。
   void _scheduleMediaStoreRescan() {
