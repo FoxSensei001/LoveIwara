@@ -58,6 +58,7 @@ class PlaybackQueueNavigator {
     List<PlaybackQueue> companionQueues = const [],
     bool presentInSpace = false,
     bool presentImageViewer = false,
+    bool replaceCurrent = true,
   }) async {
     final id = item.id.trim();
     if (id.isEmpty) return;
@@ -97,6 +98,7 @@ class PlaybackQueueNavigator {
         ref: ref,
         presentInSpace: presentInSpace,
         presentImageViewer: presentImageViewer,
+        replaceCurrent: replaceCurrent,
       );
       return;
     }
@@ -196,6 +198,7 @@ class PlaybackQueueNavigator {
     required PlaybackQueueRef ref,
     bool presentInSpace = false,
     bool presentImageViewer = false,
+    bool replaceCurrent = true,
   }) {
     final extra = GalleryDetailExtra(
       coverUrl: item.thumbnailUrl.isEmpty ? null : item.thumbnailUrl,
@@ -208,10 +211,16 @@ class PlaybackQueueNavigator {
       openImageViewer: presentImageViewer,
     );
     try {
-      appRouter.pushReplacement(
-        '/gallery_detail/${ref.currentItemId}',
-        extra: extra,
-      );
+      // [replaceCurrent] 为 false：栈顶不是一张详情页（Quest 上从列表直接交给空间的
+      // 视频，背后就是那张列表），换掉它等于把列表弄丢，只能叠上去。
+      if (replaceCurrent) {
+        appRouter.pushReplacement(
+          '/gallery_detail/${ref.currentItemId}',
+          extra: extra,
+        );
+      } else {
+        appRouter.push('/gallery_detail/${ref.currentItemId}', extra: extra);
+      }
     } catch (e) {
       LogUtils.e('切换到池内下一个图库失败', tag: 'PlaybackQueueNavigator', error: e);
       // 兜底：至少别把用户卡在原地

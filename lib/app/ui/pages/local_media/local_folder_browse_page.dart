@@ -908,7 +908,7 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage>
       LogUtils.e('本机目录建播放池失败', tag: 'LocalFolderBrowsePage', error: e);
     }
 
-    NaviService.navigateToLocalVideoPlayerPage(
+    await NaviService.openLocalVideo(
       localPath: item.resolvePlaybackTarget(),
       localLibraryItemId: item.id,
       playbackQueueRef: queueRef,

@@ -1,6 +1,12 @@
 import 'dart:io';
 
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/download/download_task.model.dart';
+import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
+import 'package:i_iwara/app/models/local_media/local_vr_hints.dart';
+import 'package:i_iwara/app/services/playback_history_service.dart';
+import 'package:i_iwara/app/utils/local_vr_filename_detector.dart';
+import 'package:path/path.dart' as p;
 import 'package:i_iwara/app/services/webdav/webdav_service.dart';
 import 'package:i_iwara/app/models/local_media/dav_path.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
@@ -195,6 +201,7 @@ class XrPlaylistSource {
 
       return XrPlayableVideo(
         id: video.id,
+        videoId: video.id,
         title: video.title?.trim() ?? '',
         author: video.user?.name ?? '',
         url: url,
@@ -203,6 +210,9 @@ class XrPlaylistSource {
         format: await _formatOf(video.id, video),
         width: video.file?.width ?? 0,
         height: video.file?.height ?? 0,
+        // 续播与退出时回写成对（`_saveHistory`）：不续播的话，看过半小时的片子从 0 起，
+        // 5 秒内退出还会把原记录删掉（`recordPosition` 的开头几秒当没看）。
+        positionMs: (await _localResumePosition(null, video.id)).inMilliseconds,
       );
     } catch (e) {
       LogUtils.e('沉浸态换片解析失败 videoId=$videoId', tag: _tag, error: e);
@@ -212,63 +222,208 @@ class XrPlaylistSource {
 
   /// 本机文件那一条：库里查得到就直接给磁盘地址，查不到返回 null 让调用方走
   /// Iwara 那条路（在线 id 长得完全不一样，不会误命中）。
-  ///
-  /// ⛔ 片源格式一律 [VrSourceFormat.flatMono]，除非用户自己指定过。本地文件的
-  /// 自动识别是 P2 的事，而**沉浸态里猜错的代价是不对称的**：平面片当 SBS 是
-  /// 双眼各看半边的重影加头晕。真 VR 被当平面则只是"不沉浸"，一眼就知道该点一下；
-  /// 用户在空间面板上点过的那一档会被记住（`formatPicked`），下次 `present` 时由
-  /// `XrImmersiveService.present` 按条目 id 读回来。
   static Future<XrPlayableVideo?> _resolveLocalLibrary(String itemId) async {
+    final LocalMediaItem? item;
     try {
-      final item = LocalMediaRepository().getItem(itemId);
-      if (item == null) return null;
+      item = LocalMediaRepository().getItem(itemId);
+    } catch (e) {
+      LogUtils.w('沉浸态换片：读本机条目失败 $itemId: $e', _tag);
+      return null;
+    }
+    if (item == null) return null;
+    return resolveLocalTarget(
+      LocalPlaybackTarget(
+        localPath: item.resolvePlaybackTarget(),
+        localLibraryItemId: itemId,
+      ),
+    );
+  }
+
+  /// 把「这一条用本地文件播」（本机文件墙 / 目录页 / 下载列表 / 两个本地池）解析成
+  /// 能直接交给沉浸场景的请求。解析不出来（文件没了、不是视频、没有任何身份）返回 null。
+  ///
+  /// Quest 上从列表点视频**不进本地播放页**（用户 2026-11-05），所以本地播放页在交给
+  /// 空间之前替用户做的几件事都收在这里，口径逐条照 `MyVideoStateController`：
+  ///
+  /// - **身份**：本机库条目 id 优先（进度记在 `local_media_progress`），其次在线 id
+  ///   （下载任务带的，与 `MyVideoStateController.immersiveMediaId` 同一口径）。两样都没有就不接——匿名文件没有
+  ///   进度可续、没有池可认，让调用方照旧开页面。
+  /// - **清晰度**：下载任务把同一视频已完成、文件还在的各档都列上（同本地播放页
+  ///   `_buildLocalVideoResolutions`），按偏好挑哪一档由 `XrImmersiveService` 做。
+  /// - **续播**：本机库条目读 `local_media_progress`（看完的从头、回退 4 秒）；只有下载任务
+  ///   的读在线观看历史——退出空间时服务正是把进度写回这两处。
+  /// - **视频类型**：用户覆盖由 `XrImmersiveService.present` 按钥匙读，这里只给推断：
+  ///   派生阶段存下的 VR 线索 > 标题推断，宽高取库里派生出的那份。头显里没有「不选」，
+  ///   推断不出来才是平面（理由见 `MyVideoStateController.vrFormatForImmersive`）。
+  static Future<XrPlayableVideo?> resolveLocalTarget(
+    LocalPlaybackTarget target,
+  ) async {
+    try {
+      final libraryId = target.localLibraryItemId?.trim();
+      final itemId = libraryId != null && libraryId.isNotEmpty
+          ? libraryId
+          : null;
+      final repo = LocalMediaRepository();
+      final item = itemId == null ? null : repo.getItem(itemId);
       // ⛔ 图片不是能播的东西。本机文件池现在也装得下图片（图库那侧，见
       // `LocalLibraryPlaybackQueue.itemKind`），而沉浸态在"池找不到 / 池被 LRU
-      // 淘汰"时会退回这条按 id 解析的兜底路——不拦的话，一张 jpg 的路径会被当
-      // 视频交给原生播放器。这道闸钉在解析入口上而不是靠调用方自觉（同
-      // `LocalMediaRepository.setItemFavorited` 把 kind 写进 SQL 那条）。
-      if (item.kind != LocalMediaItemKind.video) {
-        LogUtils.w('沉浸态换片：$itemId 不是视频（${item.kind.name}），不解析', _tag);
+      // 淘汰"时会退回按 id 解析的兜底路——不拦的话，一张 jpg 的路径会被当
+      // 视频交给原生播放器。这道闸钉在解析入口上而不是靠调用方自觉。
+      if (item != null && item.kind != LocalMediaItemKind.video) {
+        LogUtils.w('沉浸态：$itemId 不是视频（${item.kind.name}），不解析', _tag);
         return null;
       }
-      final path = item.resolvePlaybackTarget().trim();
+
+      final task = target.task;
+      final ext = _videoExtOf(task);
+      final onlineId = ext?.id?.trim();
+      final videoId = onlineId != null && onlineId.isNotEmpty ? onlineId : null;
+      final mediaId = itemId ?? videoId;
+      if (mediaId == null) return null;
+
+      final path = target.localPath.trim();
       final isContentUri = path.startsWith('content://');
       // NAS 条目：原生播放器只连本机网关，地址此刻现算（端口/token 进程级）。
       String? remoteUrl;
       if (DavPath.isDav(path)) {
+        if (itemId == null) return null;
         try {
           remoteUrl = await WebDavService.instance.gatewayUrlForItem(itemId);
         } catch (e) {
-          LogUtils.w('沉浸态换片：NAS 条目 $itemId 取不到网关地址: $e', _tag);
+          LogUtils.w('沉浸态：NAS 条目 $itemId 取不到网关地址: $e', _tag);
           return null;
         }
       }
       if (path.isEmpty ||
           (remoteUrl == null && !isContentUri && !await File(path).exists())) {
-        LogUtils.w('沉浸态换片：本机文件 $itemId 在磁盘上已不存在', _tag);
+        LogUtils.w('沉浸态：本地文件 $mediaId 在磁盘上已不存在', _tag);
         return null;
       }
-      VrSourceFormat format = VrSourceFormat.flatMono;
-      if (Get.isRegistered<VrFormatOverrideService>()) {
-        format =
-            await Get.find<VrFormatOverrideService>().get(itemId) ?? format;
+      final url =
+          remoteUrl ?? (isContentUri ? path : Uri.file(path).toString());
+
+      final clickedLabel = ext?.quality?.trim().isNotEmpty == true
+          ? ext!.quality!.trim()
+          : slang.t.mediaPlayer.local;
+      final byLabel = <String, ({String label, String url})>{};
+      for (final other in target.allQualityTasks) {
+        if (other.status != DownloadStatus.completed) continue;
+        final quality = _videoExtOf(other)?.quality?.trim();
+        if (quality == null || quality.isEmpty) continue;
+        final otherPath = other.savePath;
+        if (otherPath.isEmpty || !await File(otherPath).exists()) continue;
+        byLabel[quality] = (label: quality, url: Uri.file(otherPath).toString());
       }
+      // 点的那一档必在：清单查不到它（任务表与磁盘对不上）也照样能播。
+      byLabel[clickedLabel] = (label: clickedLabel, url: url);
+      // 从高到低排（[pickPreferredSource] 的「向下降级」按位置找）；同档保持插入顺序。
+      final sorted = byLabel.values.indexed.toList()
+        ..sort((a, b) {
+          final byRank = CommonUtils.qualityRank(
+            a.$2.label,
+          ).compareTo(CommonUtils.qualityRank(b.$2.label));
+          return byRank != 0 ? byRank : a.$1.compareTo(b.$1);
+        });
+
+      final title = ext?.title?.trim().isNotEmpty == true
+          ? ext!.title!.trim()
+          : item?.name ??
+                (task != null && task.fileName.isNotEmpty
+                    ? task.fileName
+                    : (DavPath.isDav(path)
+                          ? DavPath.basename(path)
+                          : p.basename(path)));
+
       return XrPlayableVideo(
-        id: itemId,
-        title: item.name,
-        // 本机文件没有作者——这是它和"已下载"最大的区别，别编一个。
-        author: '',
-        url: remoteUrl ?? (isContentUri ? path : Uri.file(path).toString()),
+        id: mediaId,
+        videoId: videoId,
+        title: title,
+        // 只有下载任务记着作者；本机文件没有作者——别编一个。
+        author: ext?.authorName?.trim() ?? '',
+        url: url,
+        sources: [for (final e in sorted) e.$2],
+        sourceLabel: clickedLabel,
+        localSources: remoteUrl == null,
         localLibraryItemId: itemId,
         localPath: path,
-        format: format,
-        width: item.width ?? 0,
-        height: item.height ?? 0,
+        localTask: task,
+        localAllQualityTasks: target.allQualityTasks,
+        format: _inferLocalFormat(item, title),
+        width: item?.width ?? 0,
+        height: item?.height ?? 0,
+        positionMs: (await _localResumePosition(itemId, videoId)).inMilliseconds,
       );
     } catch (e) {
-      LogUtils.w('沉浸态换片：解析本机文件失败 $itemId: $e', _tag);
+      LogUtils.w('沉浸态：解析本地文件失败: $e', _tag);
       return null;
     }
+  }
+
+  static VideoDownloadExtData? _videoExtOf(DownloadTask? task) {
+    final ext = task?.extData;
+    if (ext == null || ext.type != DownloadTaskExtDataType.video) return null;
+    try {
+      return VideoDownloadExtData.fromJson(ext.data);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// 本地片源的推断格式（不含用户覆盖，那一层在 `XrImmersiveService.present`）。
+  ///
+  /// 口径照本地播放页：库里有派生阶段的 VR 线索就只用线索（`_seedVrSuspicionFromLocalLibrary`
+  /// 之后不再按标题重算），没有才按标题推断；宽高都取库里那份。
+  static VrSourceFormat _inferLocalFormat(LocalMediaItem? item, String title) {
+    final hints = LocalVrHints.fromJson(item?.vrFormatJson);
+    final suspicion = hints != null && hints.strength != LocalVrSignalStrength.none
+        ? VrSuspicion(
+            suspected: true,
+            negated: false,
+            projectionHint: hints.projection,
+            stereoHint: hints.stereo,
+            width: item?.width,
+            height: item?.height,
+          )
+        : VrFormatDetector.suspectFromMetadata(
+            title: title,
+            width: item?.width,
+            height: item?.height,
+          );
+    return VrFormatDetector.decideWithDimensions(suspicion)?.format ??
+        VrSourceFormat.flatMono;
+  }
+
+  /// 续播起点，与退出空间时的回写成对：本机库条目读 `local_media_progress`，
+  /// 只有在线 id（下载任务）的读观看历史。关了「记录并恢复播放进度」就从头。
+  static Future<Duration> _localResumePosition(
+    String? itemId,
+    String? videoId,
+  ) async {
+    if (!Get.isRegistered<ConfigService>() ||
+        Get.find<ConfigService>()[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS] !=
+            true) {
+      return Duration.zero;
+    }
+    try {
+      if (itemId != null) {
+        final row = LocalMediaRepository().getProgress(itemId);
+        if (row == null || row.completed) return Duration.zero;
+        final total = row.durationMs;
+        final target = row.positionMs - 4000;
+        if (target <= 0) return Duration.zero;
+        return Duration(
+          milliseconds: total != null && total > 0
+              ? target.clamp(0, total)
+              : target,
+        );
+      }
+      if (videoId != null && Get.isRegistered<PlaybackHistoryService>()) {
+        return await PlaybackHistoryService.to.resumePosition(videoId);
+      }
+    } catch (e) {
+      LogUtils.w('沉浸态：读续播位置失败: $e', _tag);
+    }
+    return Duration.zero;
   }
 
   /// 片源格式：**用户覆盖优先**，没有才用推断。
@@ -462,8 +617,13 @@ class XrPlayableVideo {
     required this.height,
     this.sources = const [],
     this.sourceLabel = '',
+    this.localSources = false,
+    this.videoId,
     this.localLibraryItemId,
     this.localPath,
+    this.localTask,
+    this.localAllQualityTasks = const [],
+    this.positionMs = 0,
   });
 
   final String id;
@@ -477,8 +637,21 @@ class XrPlayableVideo {
   final int height;
   final List<({String label, String url})> sources;
   final String sourceLabel;
+
+  /// [sources] 全是本机文件（不会过期，刷新清单时要留着）。
+  final bool localSources;
+
+  /// 在线视频 id：退出空间时进度回写观看历史用。本机自己拷进来的文件为 null。
+  final String? videoId;
   final String? localLibraryItemId;
   final String? localPath;
+
+  /// 下载任务那一路的材料；退出空间后要回到本地播放页时原样带上。
+  final DownloadTask? localTask;
+  final List<DownloadTask> localAllQualityTasks;
+
+  /// 续播起点。
+  final int positionMs;
 }
 
 /// 沉浸面板「接着看」的一个分区 = 一个池。

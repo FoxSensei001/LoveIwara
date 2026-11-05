@@ -365,7 +365,7 @@ class _LocalMediaWallState extends State<LocalMediaWall>
         LogUtils.e('本机文件墙建播放池失败', tag: 'LocalMediaWall', error: e);
       }
 
-      NaviService.navigateToLocalVideoPlayerPage(
+      await NaviService.openLocalVideo(
         localPath: item.resolvePlaybackTarget(),
         localLibraryItemId: item.id,
         playbackQueueRef: queueRef,

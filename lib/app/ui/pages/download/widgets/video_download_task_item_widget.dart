@@ -126,7 +126,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
             .toList();
       }
 
-      // 导航到本地视频播放页面。**把下载池一起交出去**：这样播放器里的
+      // 打开本地视频（Quest 上直接交给空间，见 openLocalVideo）。**把下载池一起交出去**：这样播放器里的
       // 「接着看」一开就落在「已下载」上，而且下一条同样用本地文件播
       // （见 DownloadsPlaybackQueue）。
       //
@@ -134,7 +134,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
       // 点开时进度记在 `local_media_progress` 里，从这儿点开却记在别处、还读
       // 不回来——详见 [LocalMediaRepository.getItemByDownloadTaskId] 的注释。
       // 查不到（同步还没跑到）就还是 null，行为与从前一字不差。
-      NaviService.navigateToLocalVideoPlayerPage(
+      await NaviService.openLocalVideo(
         localPath: filePath,
         task: task,
         allQualityTasks: allQualityTasks,

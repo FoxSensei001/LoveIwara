@@ -14,6 +14,7 @@ import 'package:i_iwara/app/services/app_lock_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/local_media_derivation_service.dart';
 import 'package:i_iwara/app/services/playback_history_service.dart';
 import 'package:i_iwara/app/services/playback_queue_navigator.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
@@ -66,6 +67,7 @@ class XrImmersiveService extends GetxService {
 
   void _setPlaying(_XrVideoPresentation? presentation) {
     if (identical(_playing, presentation)) return;
+    _syncDerivationPause(presentation?.pageless == true);
     for (final queue in _playing?.queues.toSet() ?? <PlaybackQueue>{}) {
       queue.removeListener(_schedulePushQueues);
     }
@@ -77,6 +79,29 @@ class XrImmersiveService extends GetxService {
       if (!queue.isDisposed) queue.addListener(_schedulePushQueues);
     }
   }
+
+  /// 本服务替无页面的空间播放压着本机派生队列（见 [_syncDerivationPause]）。
+  bool _derivationPausedForPageless = false;
+
+  /// 无页面的空间播放期间暂停本机后台派生，与本地播放页 onInit / onClose 那一对同口径：
+  /// 派生开的是无头 libmpv，和空间播放器抢解码与 IO。页面撑着的播放由页面自己管。
+  void _syncDerivationPause(bool pageless) {
+    if (pageless == _derivationPausedForPageless) return;
+    _derivationPausedForPageless = pageless;
+    final derivation = LocalMediaDerivationService.maybe;
+    if (pageless) {
+      derivation?.pauseBackground();
+    } else {
+      derivation?.resumeBackground();
+    }
+  }
+
+  /// 最近一次提交给原生的是不是无页面的那一种；退出空间才清。
+  ///
+  /// ⛔ 换片判「要不要走页面导航」靠它，不能只看 [_playing]：原生先报旧片 ended、新片
+  /// 回执还没到，或预加载失败放回老片时，[_playing] 会短暂是 null，这时落到页面
+  /// 导航那一支就会 `pushReplacement` 掉栈顶的列表。
+  bool _pagelessSession = false;
 
   /// 供 UI 直接 Obx 的可用性。⚠️ 它是**缓存值**，进入播放器时刷一次即可 ——
   /// 沉浸场景的生死只会随「进/出沉浸空间」变化，不会在页面停留期间反复抖动。
@@ -477,6 +502,10 @@ class XrImmersiveService extends GetxService {
         _latestRequestId != latestRequest) {
       return;
     }
+    // 列表上直接交过来的：用户本来就没进过页面，退出空间就该回到那个列表
+    // （用户 2026-11-05）。进度上面已经回写过了。
+    _pagelessSession = false;
+    if (presentation.pageless) return;
     final handler = onImmersiveEnded;
     if (handler != null && onImmersiveEndedMediaId == mediaId) {
       handler(mediaId, positionMs, durationMs);
@@ -683,7 +712,10 @@ class XrImmersiveService extends GetxService {
   Future<void> pushQueues() async {
     if (_closed) return;
     try {
-      final snapshot = queueProvider?.call();
+      // 无页面的空间播放：底下压着的页面（比如从详情页进的下载列表）的池与它无关。
+      final snapshot = _playing?.pageless == true
+          ? null
+          : queueProvider?.call();
       final sections = <XrPlaylistSection>[];
       XrCatalogNode? catalog;
       String? activeQueueId;
@@ -895,6 +927,38 @@ class XrImmersiveService extends GetxService {
           'companions=${snapshot?.queues.map((q) => q.queueId).toList()}',
       'XrImmersive',
     );
+    // 正在放的是从列表直接交过来的（背后没有页面）：换片也不能走页面导航——
+    // [PlaybackQueueNavigator] 用的是 `pushReplacement`，这时栈顶是那张列表，
+    // 换掉的就是列表本身。改成原地解析、原地交付，池跟着这一条走。
+    if (_pagelessSession || _playing?.pageless == true) {
+      _setBrowse(null);
+      if (queue != null && item != null && queue.mediaType.isGallery) {
+        await PlaybackQueueNavigator.playItem(
+          queue: queue,
+          item: item,
+          skipWatched: false,
+          presentInSpace: true,
+          replaceCurrent: false,
+        );
+        return true;
+      }
+      if (queue != null && item != null) {
+        final local = await queue.localTargetFor(videoId);
+        if (local != null) {
+          return await presentLocalTarget(
+                local,
+                queue: queue,
+                queueItemId: videoId,
+              ) ==
+              XrLocalPresentResult.presented;
+        }
+        if (queue.kind == PlaybackQueueKind.downloads) {
+          // 页面那条路会弹 toast；这里面板停着帧，toast 看不见，只记日志。
+          LogUtils.w('已下载池里的 $videoId 落不到本地文件，退回在线播放', 'XrImmersive');
+        }
+      }
+      return playFromPlaylist(videoId, queue: queue, pageless: true);
+    }
     if (queue != null && item != null) {
       if (snapshot != null && !identical(snapshot.active, queue)) {
         snapshot.adopt(queue);
@@ -919,7 +983,11 @@ class XrImmersiveService extends GetxService {
   ///
   /// ⛔ **不走导航**：看视频时 Flutter 面板被显式暂停出帧，`pushReplacement`
   /// 建不出页面来。见 [XrPlaylistSource] 的类注释。
-  Future<bool> playFromPlaylist(String videoId) async {
+  Future<bool> playFromPlaylist(
+    String videoId, {
+    PlaybackQueue? queue,
+    bool pageless = false,
+  }) async {
     final request = _latestRequestId = ++_nextRequestId;
     final epoch = _presentationEpoch;
     final playable = await _resolveVideo(videoId);
@@ -930,22 +998,110 @@ class XrImmersiveService extends GetxService {
       LogUtils.w('沉浸态换片失败：解析不出可播地址 videoId=$videoId', 'XrImmersive');
       return false;
     }
+    return _presentPlayable(playable, queue: queue, pageless: pageless);
+  }
+
+  /// 本机文件 / 下载列表上点了一条视频：Quest 上**不进本地播放页**，直接交给空间
+  /// 播放器（用户 2026-11-05：「直接进入虚拟化空间，而不用进入这个本地的视频页面」）。
+  ///
+  /// 页面原本替用户做的事（续播、各档清晰度、视频类型推断）收在
+  /// [XrPlaylistSource.resolveLocalTarget]；退出空间回到列表（[_XrVideoPresentation.pageless]）。
+  ///
+  /// 解析那一段（查库、stat 文件）也算在交付窗口里：[handoffDepth] 从点下去那一刻
+  /// 就加上，全局罩子马上转圈、挡住连点（见 `XrHandoffOverlay`）。
+  ///
+  /// 返回 [XrLocalPresentResult.failed] 时调用方应退回本地播放页（页面会把原因摆出来）；
+  /// [XrLocalPresentResult.superseded] 是用户又点了别的，什么都别做。
+  ///
+  /// [queueItemId] 是这一条在 [queue] 里的 id。⛔ 下载池按**在线 id** 认条目，而解析出的
+  /// 身份是本机库 id 优先：不按池里的 id 交，原生在池里找不到当前条，上一条 / 下一条 /
+  /// 播完接着放全部失效。进度照旧按本机库 id 写，不受影响。
+  Future<XrLocalPresentResult> presentLocalTarget(
+    LocalPlaybackTarget target, {
+    PlaybackQueue? queue,
+    String? queueItemId,
+  }) async {
+    handoffDepth.value++;
+    try {
+      if (_closed) return XrLocalPresentResult.failed;
+      final request = _latestRequestId = ++_nextRequestId;
+      final epoch = _presentationEpoch;
+      final playable = await XrPlaylistSource.resolveLocalTarget(target);
+      if (_closed) return XrLocalPresentResult.failed;
+      if (request != _latestRequestId || epoch != _presentationEpoch) {
+        return XrLocalPresentResult.superseded;
+      }
+      if (playable == null) {
+        LogUtils.w('本地视频交给空间失败：解析不出可播地址', 'XrImmersive');
+        return XrLocalPresentResult.failed;
+      }
+      // present 在第一个 await 之前同步领号，所以它这一次的请求号就是 [before] + 1。
+      final before = _nextRequestId;
+      final ok = await _presentPlayable(
+        playable,
+        queue: queue,
+        pageless: true,
+        mediaId: queueItemId,
+      );
+      if (!ok &&
+          !_closed &&
+          (_latestRequestId != before + 1 || epoch != _presentationEpoch)) {
+        return XrLocalPresentResult.superseded;
+      }
+      LogUtils.i(
+        '本地视频直接交给空间 committed=$ok mediaId=${playable.id} '
+            'queue=${queue?.queueId}',
+        'XrImmersive',
+      );
+      return ok ? XrLocalPresentResult.presented : XrLocalPresentResult.failed;
+    } finally {
+      handoffDepth.value--;
+    }
+  }
+
+  Future<bool> _presentPlayable(
+    XrPlayableVideo playable, {
+    PlaybackQueue? queue,
+    bool pageless = false,
+    String? mediaId,
+  }) {
+    final sources = [
+      for (final source in playable.sources)
+        XrMediaSource(
+          label: source.label,
+          url: source.url,
+          local: playable.localSources,
+        ),
+    ];
+    // 清晰度按用户偏好匹配（同详情页 `_presentToImmersive`）：精确 → 向下最接近 → 最低档；
+    // 没有偏好就用解析时定的那一档。
+    final preferred = Get.isRegistered<ConfigService>()
+        ? (Get.find<ConfigService>()[ConfigKey.DEFAULT_QUALITY_KEY] as String?)
+              ?.trim()
+        : null;
+    final chosen = preferred == null || preferred.isEmpty
+        ? sources.firstWhereOrNull((s) => s.label == playable.sourceLabel)
+        : pickPreferredSource(sources, preferred);
     return present(
-      url: playable.url,
+      url: chosen?.url ?? playable.url,
       format: playable.format,
       title: playable.title,
       author: playable.author,
-      videoId: playable.localLibraryItemId == null ? playable.id : null,
-      mediaId: playable.id,
+      videoId: playable.videoId,
+      mediaId: mediaId?.trim().isNotEmpty == true ? mediaId : playable.id,
       localLibraryItemId: playable.localLibraryItemId,
       localPath: playable.localPath,
-      sources: [
-        for (final source in playable.sources)
-          XrMediaSource(label: source.label, url: source.url),
-      ],
-      sourceLabel: playable.sourceLabel,
+      localTask: playable.localTask,
+      localAllQualityTasks: playable.localAllQualityTasks,
+      // 视频类型的钥匙与页面同口径（`vrOverrideKey`）：在线 id 优先，其次本机条目 id。
+      formatKey: playable.videoId ?? playable.localLibraryItemId,
+      sources: sources,
+      sourceLabel: chosen?.label ?? playable.sourceLabel,
       width: playable.width,
       height: playable.height,
+      positionMs: playable.positionMs,
+      queue: queue,
+      pageless: pageless,
     );
   }
 
@@ -1038,6 +1194,8 @@ class XrImmersiveService extends GetxService {
     bool fullFrame = false,
     List<XrMediaSource> sources = const <XrMediaSource>[],
     String sourceLabel = '',
+    PlaybackQueue? queue,
+    bool pageless = false,
   }) async {
     handoffDepth.value++;
     try {
@@ -1053,14 +1211,19 @@ class XrImmersiveService extends GetxService {
       final id = mediaId?.trim().isNotEmpty == true
           ? mediaId!.trim()
           : localId ?? onlineId ?? 'local:$requestId';
-      final snapshot = queueProvider?.call();
+      final snapshot = pageless ? null : queueProvider?.call();
       // 任意文件入口可能没有池游标，但页面仍提供本机目录兜底池。
       final ownsSnapshot =
           snapshot != null &&
           snapshot.mediaType == PlaybackMediaType.video &&
           (snapshot.currentItemId == id ||
               (snapshot.currentItemId.isEmpty && localPath != null));
-      final queue = ownsSnapshot
+      // 调用方点名的池优先：无页面的那条路（[presentLocalTarget]）手上的池不在任何
+      // 页面快照里。
+      final queueOf = queue;
+      final activeQueue = queueOf != null && !queueOf.isDisposed
+          ? queueOf
+          : ownsSnapshot
           ? _snapshotActive(snapshot)
           : _browse?.contains(id) == true
           ? _browse
@@ -1076,10 +1239,11 @@ class XrImmersiveService extends GetxService {
         localTask: localTask,
         localAllQualityTasks: List.unmodifiable(localAllQualityTasks),
         sources: List.unmodifiable(sources),
-        queue: queue,
+        queue: activeQueue,
+        pageless: pageless,
         queues:
             {
-                  ?queue,
+                  ?activeQueue,
                   ...(ownsSnapshot
                       ? snapshot.queues
                       : _playbackQueues(snapshot)),
@@ -1146,6 +1310,9 @@ class XrImmersiveService extends GetxService {
           return false;
         }
         _lastCommittedRequestId = requestId;
+        _pagelessSession = pageless;
+        // 无页面没有人会在页面关掉时清「正在浏览的池」：上一次会话浏览过的池别带进来。
+        if (pageless) _setBrowse(null);
         _setPlaying(presentation);
         // 幕布一亮就把「接着看」推过去：面板里的播放列表页要能立刻用，
         // 而不是等用户点开那一页时才现拉（那时 Flutter 已经停止出帧了）。
@@ -1389,6 +1556,7 @@ class _XrVideoPresentation {
     required this.queue,
     required this.queues,
     required this.author,
+    this.pageless = false,
   });
 
   final int requestId;
@@ -1402,6 +1570,10 @@ class _XrVideoPresentation {
   final PlaybackQueue? queue;
   final List<PlaybackQueue> queues;
   final User? author;
+
+  /// 从列表直接交过来的，背后没有本地播放页（见 [XrImmersiveService.presentLocalTarget]）。
+  /// 退出空间时回到列表，不替它开页面；在空间里换片也一直保持无页面。
+  final bool pageless;
   bool get anonymous => videoId == null && localLibraryItemId == null;
 
   PlaybackQueueRef? get queueRef => queue == null
@@ -1533,4 +1705,16 @@ class XrGalleryItem {
   /// [quality] 是 `galleryImageQualityStandard` / `galleryImageQualityOriginal`。
   String urlFor(String quality) =>
       quality == galleryImageQualityOriginal ? originalUrl : largeUrl;
+}
+
+/// [XrImmersiveService.presentLocalTarget] 的结果。
+enum XrLocalPresentResult {
+  /// 原生已提交播放。
+  presented,
+
+  /// 交不出去（场景没活着、文件解析不出来、原生拒了）：调用方退回本地播放页。
+  failed,
+
+  /// 解析期间用户又点了别的，这一次作废：什么都别做。
+  superseded,
 }

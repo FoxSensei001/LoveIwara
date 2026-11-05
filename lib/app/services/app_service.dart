@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
+import 'package:i_iwara/app/services/playback_queue_service.dart';
+import 'package:i_iwara/app/services/xr_immersive_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:i_iwara/app/models/message_and_conversation.model.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
@@ -890,6 +892,52 @@ class NaviService {
   // 跳转到导航排序设置页
   static void navigateToNavigationOrderSettingsPage() {
     appRouter.push(SettingsSubRoutes.displayNavigationOrder);
+  }
+
+  /// 列表上点开一条本地视频（本机文件墙、本机目录页、下载列表）。
+  ///
+  /// Quest 上沉浸场景活着时**不进本地播放页**，直接交给空间播放器（用户 2026-11-05）；
+  /// 交付期间全局罩子转圈（`XrHandoffOverlay`），退出空间回到这张列表。交不出去才退回
+  /// [navigateToLocalVideoPlayerPage]，页面会把原因摆出来。其余设备行为与它一字不差。
+  ///
+  /// ⛔ 只给「用户在列表上点」用。沉浸结束后的回页（`XrImmersiveService._navigateToPlayback`）
+  /// 必须直接开页面，走这里会又交回空间，退不出来。
+  static Future<void> openLocalVideo({
+    required String localPath,
+    DownloadTask? task,
+    List<DownloadTask>? allQualityTasks,
+    String? localLibraryItemId,
+    PlaybackQueueRef? playbackQueueRef,
+  }) async {
+    if (Get.isRegistered<XrImmersiveService>()) {
+      final xr = Get.find<XrImmersiveService>();
+      if (xr.available.value) {
+        PlaybackQueue? queue;
+        if (playbackQueueRef != null &&
+            Get.isRegistered<PlaybackQueueService>()) {
+          queue = PlaybackQueueService.to.byId(playbackQueueRef.queueId);
+        }
+        final result = await xr.presentLocalTarget(
+          LocalPlaybackTarget(
+            localPath: localPath,
+            task: task,
+            localLibraryItemId: localLibraryItemId,
+            allQualityTasks: allQualityTasks ?? const <DownloadTask>[],
+          ),
+          queue: queue,
+          queueItemId: playbackQueueRef?.currentItemId,
+        );
+        if (result != XrLocalPresentResult.failed) return;
+        LogUtils.w('本地视频直接交给空间失败，退回本地播放页', 'NaviService');
+      }
+    }
+    navigateToLocalVideoPlayerPage(
+      localPath: localPath,
+      task: task,
+      allQualityTasks: allQualityTasks,
+      localLibraryItemId: localLibraryItemId,
+      playbackQueueRef: playbackQueueRef,
+    );
   }
 
   /// 跳转到本地视频播放页面（从下载任务 / 本地库进入）
