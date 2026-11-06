@@ -46,6 +46,37 @@ class UserService extends GetxService {
 
   // 认证状态监听
   StreamSubscription<bool>? _authStateSubscription;
+  StreamSubscription<AuthSessionState>? _sessionStateSubscription;
+
+  // 本次会话里 /user 是否拉成功过。断网启动时只显示了缓存（或什么都没有），
+  // 网络恢复、会话收敛回 authenticated 时据此补拉一次。
+  bool _profileFreshThisSession = false;
+  bool _profileRefreshInFlight = false;
+  DateTime? _lastReachableProfileRetryAt;
+
+  // 「网络通了」信号每个响应都会来一次；/user 自己失败的回包也算，
+  // 不限流就会一个失败响应接一个重拉。
+  static const Duration _reachableProfileRetryCooldown = Duration(seconds: 30);
+
+  /// AuthService 转来的「收到了 HTTP 响应」信号：资料本次会话还没拉成就补拉。
+  void onNetworkReachable() {
+    // isLogining：fetchUserProfile 正在拉，这个信号多半就是它自己的响应。
+    if (_profileFreshThisSession ||
+        _profileRefreshInFlight ||
+        isLogining.value ||
+        !_isReady) {
+      return;
+    }
+    if (!_authService.isAuthenticated || !_authService.hasRefreshToken) return;
+    final last = _lastReachableProfileRetryAt;
+    final now = DateTime.now();
+    if (last != null && now.difference(last) < _reachableProfileRetryCooldown) {
+      return;
+    }
+    _lastReachableProfileRetryAt = now;
+    LogUtils.d('$_tag 网络已恢复，补拉本次会话还没拉成的用户资料');
+    _refreshUserDataInBackground();
+  }
 
   // 缓存相关
   User? _cachedUser;
@@ -154,6 +185,7 @@ class UserService extends GetxService {
   void onClose() {
     stopNotificationTimer();
     _authStateSubscription?.cancel();
+    _sessionStateSubscription?.cancel();
     super.onClose();
   }
 
@@ -162,6 +194,17 @@ class UserService extends GetxService {
 
     // 监听认证状态变化
     _setupAuthStateListener();
+
+    // bool 流在 degradedOffline → authenticated 时不变（都是 true），上面的
+    // 监听收不到「网络恢复、token 补刷成功」，得看会话状态本身。
+    _sessionStateSubscription = _authService.sessionState.listen((state) {
+      if (state == AuthSessionState.authenticated &&
+          !_profileFreshThisSession &&
+          _authService.hasRefreshToken) {
+        LogUtils.d('$_tag 会话恢复为已认证，补拉本次会话还没拉成的用户资料');
+        _refreshUserDataInBackground();
+      }
+    });
 
     // 如果当前已经认证，初始化用户数据
     if (_authService.isAuthenticated) {
@@ -223,6 +266,8 @@ class UserService extends GetxService {
 
   // 清理用户数据
   void _clearUserData() {
+    _profileFreshThisSession = false;
+    _lastReachableProfileRetryAt = null;
     currentUser.value = null;
     _cachedUser = null;
     _lastUserDataUpdate = null;
@@ -236,6 +281,8 @@ class UserService extends GetxService {
   /// 等待调用方随后 fetchUserProfile 加载新账号(A5)。
   /// 不动持久缓存（其已按 token subject 绑定，会在加载时自动校验丢弃）。
   void beginReauth() {
+    _profileFreshThisSession = false;
+    _lastReachableProfileRetryAt = null;
     currentUser.value = null;
     _cachedUser = null;
     _lastUserDataUpdate = null;
@@ -279,6 +326,7 @@ class UserService extends GetxService {
         }
 
         currentUser.value = user;
+        _profileFreshThisSession = true;
 
         // 保存到缓存
         await _saveCachedUserData(user);
@@ -889,19 +937,26 @@ class UserService extends GetxService {
       return;
     }
 
+    // 启动那次和「会话恢复补拉」可能前后脚触发，在途时不再叠一次。
+    // 标记必须同步打上：两路触发常在同一轮事件里先后到达。
+    if (_profileRefreshInFlight || !_authService.hasRefreshToken) return;
+    _profileRefreshInFlight = true;
+
+    // 以 refresh token 为准：access token 可能仍在重建，
+    // /user 请求会在 ApiService 层等待刷新完成(#4)。
     Future.microtask(() async {
-      // 以 refresh token 为准：access token 可能仍在重建，
-      // /user 请求会在 ApiService 层等待刷新完成(#4)。
-      if (_authService.hasRefreshToken) {
-        try {
-          LogUtils.d('$_tag 开始后台刷新用户数据');
-          // 启动阶段短暂延后，确保网络栈（Cloudflare context）已绑定
-          await Future.delayed(const Duration(milliseconds: 800));
-          await _fetchUserProfileSilently();
-        } catch (e) {
-          LogUtils.w('$_tag 后台刷新用户数据失败: $e');
-          // 网络错误时不清理现有的用户数据和token
-        }
+      try {
+        LogUtils.d('$_tag 开始后台刷新用户数据');
+        // 启动阶段短暂延后，确保网络栈（Cloudflare context）已绑定
+        await Future.delayed(const Duration(milliseconds: 800));
+        // 等的这 800ms 里 fetchUserProfile（登录页）可能已经拉成了。
+        if (_profileFreshThisSession) return;
+        await _fetchUserProfileSilently();
+      } catch (e) {
+        LogUtils.w('$_tag 后台刷新用户数据失败: $e');
+        // 网络错误时不清理现有的用户数据和token
+      } finally {
+        _profileRefreshInFlight = false;
       }
     });
   }
@@ -941,6 +996,7 @@ class UserService extends GetxService {
         }
 
         currentUser.value = user;
+        _profileFreshThisSession = true;
 
         // 保存到缓存
         await _saveCachedUserData(user);

@@ -119,6 +119,56 @@ Dio _dioWith(HttpClientAdapter adapter) {
   return dio;
 }
 
+/// 每次返回固定 status + body 的适配器（刷新端点异常分类测试）。
+class _FixedAdapter implements HttpClientAdapter {
+  final int status;
+  final String body;
+  _FixedAdapter(this.status, this.body);
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    return ResponseBody.fromString(body, status, headers: {
+      Headers.contentTypeHeader: ['application/json'],
+    });
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
+class _Resp {
+  final int status;
+  final String body;
+  const _Resp(this.status, this.body);
+}
+
+/// 按序返回 [responses] 中每个 (status, body)，用尽后重复最后一个。
+class _SeqStatusAdapter implements HttpClientAdapter {
+  final List<_Resp> responses;
+  int _i = 0;
+  _SeqStatusAdapter(this.responses);
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    final r = responses[_i < responses.length ? _i : responses.length - 1];
+    _i++;
+    return ResponseBody.fromString(r.body, r.status, headers: {
+      Headers.contentTypeHeader: ['application/json'],
+    });
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -376,6 +426,85 @@ void main() {
       // 旧 token 不应被误丢弃，且应补盖当前代次(0)纳入墓碑保护。
       expect(tm.hasRefreshToken, isTrue);
       expect(secureStore[KeyConstants.authTokenStamp], '0');
+    });
+  });
+
+  group('refresh 401 容错 (治根因B)', () {
+    test('首个 401 按可重试网络错误处理不登出；连续第二个才判定失效', () async {
+      final tm = TokenManager(tokenDio: _dioWith(_FixedAdapter(401, '')));
+      await tm.saveAuthToken(
+        _jwt('refresh_token', expEpochSec: _nowSec + 30 * 24 * 3600, id: 'userA'),
+      );
+
+      var now = DateTime.now();
+      tm.clock = () => now;
+
+      // 第 1 次 401：网络错误(可重试)，绝不据此登出——保住完好的 30 天 token。
+      final r1 = await tm.refreshAccessToken();
+      expect(r1.success, isFalse);
+      expect(r1.isAuthError, isFalse, reason: '首个 401 不得据此登出(治根因B)');
+      expect(tm.hasRefreshToken, isTrue);
+
+      // 隔 30 秒以上的第 2 次 401：确认失效，返回认证错误。
+      now = now.add(const Duration(seconds: 31));
+      final r2 = await tm.refreshAccessToken();
+      expect(r2.isAuthError, isTrue);
+    });
+
+    test('几秒内连打的两次 401 算同一次抖动，不登出', () async {
+      final tm = TokenManager(tokenDio: _dioWith(_FixedAdapter(401, '')));
+      await tm.saveAuthToken(
+        _jwt('refresh_token', expEpochSec: _nowSec + 30 * 24 * 3600, id: 'userA'),
+      );
+      var now = DateTime.now();
+      tm.clock = () => now;
+
+      final r1 = await tm.refreshAccessToken();
+      now = now.add(const Duration(seconds: 3));
+      final r2 = await tm.refreshAccessToken();
+      expect(r1.isAuthError, isFalse);
+      expect(r2.isAuthError, isFalse, reason: '请求前补刷只隔几秒，不能凑满两次');
+      // 401 之后的退避至少 30 秒，请求前补刷的 3 秒冷却会被拉长。
+      expect(tm.refreshFailedWithin(const Duration(seconds: 3)), isTrue);
+    });
+
+    test('刷新成功后清零 401 计数，瞬时 401 不累积到登出', () async {
+      final access = _jwt('access_token', expEpochSec: _nowSec + 3600, id: 'userA');
+      final tm = TokenManager(
+        tokenDio: _dioWith(_SeqStatusAdapter([
+          const _Resp(401, ''), // 第 1 次瞬时 401
+          _Resp(200, jsonEncode({'accessToken': access})), // 第 2 次成功
+          const _Resp(401, ''), // 第 3 次又一次瞬时 401
+        ])),
+      );
+      await tm.saveAuthToken(
+        _jwt('refresh_token', expEpochSec: _nowSec + 30 * 24 * 3600, id: 'userA'),
+      );
+
+      final r1 = await tm.refreshAccessToken();
+      expect(r1.isAuthError, isFalse); // 计数=1
+      final r2 = await tm.refreshAccessToken();
+      expect(r2.success, isTrue); // 成功 → 计数清零
+      final r3 = await tm.refreshAccessToken();
+      expect(r3.isAuthError, isFalse, reason: '成功后已清零，单个 401 不再登出');
+      expect(tm.hasRefreshToken, isTrue);
+    });
+
+    test('非 401 的非成功响应(429 等)一律按可重试网络错误，不登出', () async {
+      // validateStatus 放宽到 <500（对齐生产 IwaraNetworkService），使 429 以
+      // 响应而非异常抵达刷新分类逻辑。
+      final dio = Dio(BaseOptions(baseUrl: 'https://example.com'));
+      dio.options.validateStatus = (s) => (s ?? 0) < 500;
+      dio.httpClientAdapter = _FixedAdapter(429, '');
+      final tm = TokenManager(tokenDio: dio);
+      await tm.saveAuthToken(
+        _jwt('refresh_token', expEpochSec: _nowSec + 30 * 24 * 3600, id: 'userA'),
+      );
+
+      final r = await tm.refreshAccessToken();
+      expect(r.success, isFalse);
+      expect(r.isAuthError, isFalse);
+      expect(tm.hasRefreshToken, isTrue);
     });
   });
 
