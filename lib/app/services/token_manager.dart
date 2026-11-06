@@ -312,6 +312,14 @@ class TokenManager {
       if (_authToken == null) {
         await _detectSilentTokenLoss();
       }
+      // 安卓上安全存储写成功也常备加密镜像：Keystore 冷启动丢了 token 时，
+      // 读取直接从镜像救回，上面那条检测就碰不到了。救回不等于没丢，照样记。
+      final restoredFromMirror =
+          _authToken != null &&
+          _storage.wasRestoredFromFallback(KeyConstants.authToken);
+      if (restoredFromMirror) {
+        await _recordSilentLoss('restored_from_mirror');
+      }
 
       // 会话作废墓碑校验(HIGH#3)：若持久化 token 属于已登出会话
       // （登出时删除曾失败而残留），代次不符则丢弃，杜绝复活。
@@ -339,7 +347,8 @@ class TokenManager {
       if (_authToken != null) {
         _updateTokenExpireTime(_authToken!, isAuthToken: true);
         // 会话成功恢复：重置连续丢失计数、保持存在标记。
-        await _noteSessionRestored();
+        // 靠镜像救回的不算「正常恢复」，不清丢失计数，否则永远累计不到阈值。
+        await _noteSessionRestored(resetLossCount: !restoredFromMirror);
       }
       if (_accessToken != null) {
         _updateTokenExpireTime(_accessToken!, isAuthToken: false);
@@ -436,17 +445,28 @@ class TokenManager {
       final marker = box.read<String>(_sessionMarkerKey);
       if (marker == null) return;
       await box.remove(_sessionMarkerKey);
+      await _recordSilentLoss('上次落盘=$marker');
+    } catch (e) {
+      LogUtils.w('$_tag 静默丢失检测异常(忽略): $e');
+    }
+  }
+
+  /// 记一次「token 曾保存、未经登出却从安全存储消失」，按连续次数升级保护。
+  Future<void> _recordSilentLoss(String detail) async {
+    final box = _storage.boxOrNull;
+    if (box == null) return;
+    try {
       final count = (box.read<int>(_lossCountKey) ?? 0) + 1;
       await box.write(_lossCountKey, count);
       LogUtils.w(
-        '$_tag 检测到登录态静默丢失（第 $count 次，上次落盘=$marker）——'
-        'token 曾保存但未经登出即消失',
+        '$_tag 检测到登录态静默丢失（第 $count 次，$detail）——'
+        'token 曾保存但未经登出即从安全存储消失',
       );
       if (count >= _lossCountThreshold) {
         await _storage.markSecureStorageUntrusted('token_silent_loss_x$count');
       }
     } catch (e) {
-      LogUtils.w('$_tag 静默丢失检测异常(忽略): $e');
+      LogUtils.w('$_tag 记录静默丢失失败(忽略): $e');
     }
   }
 
@@ -466,11 +486,11 @@ class TokenManager {
   }
 
   /// 启动成功恢复会话：重置连续丢失计数并保持标记在位。
-  Future<void> _noteSessionRestored() async {
+  Future<void> _noteSessionRestored({bool resetLossCount = true}) async {
     final box = _storage.boxOrNull;
     if (box == null) return;
     try {
-      if (!_storage.secureStorageUntrusted) {
+      if (resetLossCount && !_storage.secureStorageUntrusted) {
         await box.remove(_lossCountKey);
       }
       await box.write(_sessionMarkerKey, 'restored');

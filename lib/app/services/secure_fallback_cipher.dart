@@ -104,6 +104,21 @@ class SecureFallbackCipher {
       final rng = Random.secure();
       final keyBytes = List<int>.generate(32, (_) => rng.nextInt(256));
       await file.parent.create(recursive: true);
+      // 多个加密器实例（StorageService、AI 档案存储）可能同时第一次生成密钥。
+      // 先查后建不是原子的：两边各生成一把、后写的覆盖文件，先写那边用自己
+      // 那把加密的数据下次启动就解不开了。文件不存在时用独占创建抢占，
+      // 没抢到的一方读赢家写好的那把。
+      if (!await file.exists()) {
+        try {
+          await file.create(exclusive: true);
+        } on FileSystemException {
+          final winner = await _readKeyWithRetry(file);
+          if (winner != null) {
+            _cachedKey = winner;
+            return _cachedKey;
+          }
+        }
+      }
       await file.writeAsString(base64Encode(keyBytes), flush: true);
       _cachedKey = SecretKey(keyBytes);
       LogUtils.i('$_tag 已生成降级加密密钥', _tag);
@@ -113,6 +128,18 @@ class SecureFallbackCipher {
       _keyUnavailable = true;
       return null;
     }
+  }
+
+  /// 读别的实例刚抢到、可能还没写完的密钥文件，最多等约 200ms。
+  Future<SecretKey?> _readKeyWithRetry(File file) async {
+    for (var i = 0; i < 10; i++) {
+      try {
+        final raw = base64Decode((await file.readAsString()).trim());
+        if (raw.length == 32) return SecretKey(raw);
+      } catch (_) {}
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+    }
+    return null;
   }
 
   /// 测试专用：清除内存缓存的密钥状态。
