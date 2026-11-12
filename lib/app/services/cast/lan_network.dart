@@ -55,6 +55,9 @@ bool _looksLikeTunnel(String name) {
   const prefixes = [
     'tun', 'utun', 'ppp', 'wg', 'ipsec', 'tap', 'gpd', 'zt', //
     'pdp_ip', 'rmnet', 'ccmni', 'v4-',
+    // 欧加系（OPPO / 一加）系统的虚拟网关网卡，地址落在 172.30.x 私有段，
+    // 不排掉会被当成局域网再扫一遍 /24。
+    'vgate',
   ];
   return prefixes.any(n.startsWith);
 }

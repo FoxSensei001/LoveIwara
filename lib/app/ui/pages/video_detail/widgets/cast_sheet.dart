@@ -119,6 +119,11 @@ class _CastSheetState extends State<CastSheet> {
                 child: Obx(
                   () => AnimatedSwitcher(
                     duration: GlassTokens.motionDuration,
+                    // 默认 layoutBuilder 把子项放在 Stack 正中：文字会被居中。
+                    layoutBuilder: (current, previous) => Stack(
+                      alignment: AlignmentDirectional.centerStart,
+                      children: [...previous, ?current],
+                    ),
                     child: Text(
                       _service.isSearching.value
                           ? t.searchingDevices
