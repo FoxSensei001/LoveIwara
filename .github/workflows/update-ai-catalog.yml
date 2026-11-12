@@ -76,9 +76,10 @@ jobs:
               errors.append(f"供应商 {len(old['providers'])} → {len(new['providers'])}，跌得太多")
           if len(new['models']) < len(old['models']) * 0.8:
               errors.append(f"模型 {len(old['models'])} → {len(new['models'])}，跌得太多")
+          # 口径与 overrides.dart 的 kTrackingQueryKey 一致（脚本已剥掉的参数，这里兜底再查一遍）
           referral = [(p, v) for p, pv in new['providers'].items()
                       for v in (pv.get('w') or {}).values()
-                      if re.search(r'/i/|invite|referr|utm_', v, re.I)]
+                      if re.search(r'/i/|invite|referr|utm_|[?&](source|ref|ref_[^=&]*|refcode|refer[^=&]*|from|aff[^=&]*|invit[^=&]*|promo[^=&]*|campaign[^=&]*|spm|channel[^=&]*|gclid|fbclid)=', v, re.I)]
           if referral:
               errors.append(f'混进了返利链接：{referral}')
           if errors:
