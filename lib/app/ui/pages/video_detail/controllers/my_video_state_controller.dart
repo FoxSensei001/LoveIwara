@@ -26,6 +26,7 @@ import 'package:i_iwara/app/ui/pages/local_media/widgets/local_folder_menu.dart'
 import 'package:i_iwara/app/repositories/oreno3d_match_cache_repository.dart';
 import 'package:i_iwara/app/utils/local_vr_filename_detector.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/logging/hang_breadcrumb.dart';
 import 'package:i_iwara/app/services/local_media_derivation_service.dart';
 import 'package:i_iwara/app/services/xr_immersive_service.dart';
 import 'package:i_iwara/app/services/oreno3d_client.dart' show Oreno3dClient;
@@ -3313,7 +3314,14 @@ class MyVideoStateController extends GetxController
   }
 
   // 应用播放器配置
-  Future<void> _applyPlayerConfiguration() async {
+  Future<void> _applyPlayerConfiguration() =>
+      // ⛔ 下面每一个 `setProperty` 都是同步的 `mpv_set_property_string` FFI
+      // 调用（media_kit `real.dart`，`async` 配置只管 `_setProperty`，管不到
+      // 这个公开方法），要拿 mpv 的 core 锁。core 线程一旦忙住，这里就把主
+      // isolate 一起钉在原地——留个名字，下次卡死时看得见是钉在这儿。
+      HangBreadcrumb.guard('mpv-apply-config', _applyPlayerConfigurationInner);
+
+  Future<void> _applyPlayerConfigurationInner() async {
     if (player.platform is! NativePlayer) return;
 
     final platform = player.platform as NativePlayer;

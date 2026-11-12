@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/logging/hang_breadcrumb.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -91,7 +92,13 @@ class DesktopNativeFullscreen {
   static Future<void> enterNative() async {
     if (!GetPlatform.isDesktop) return;
     try {
-      await _mediaKitChannel.invokeMethod('Utils.EnterNativeFullscreen');
+      // 这一步在原生侧是 `SetWindowLongPtr` + `SetWindowPos`，会触发 Flutter
+      // Windows 嵌入层的 resize 握手（平台线程等光栅线程交一帧）。一旦堵住，
+      // 卡死事件里要看得见是堵在这里。
+      await HangBreadcrumb.guard(
+        'fullscreen-enter-native',
+        () => _mediaKitChannel.invokeMethod('Utils.EnterNativeFullscreen'),
+      );
     } catch (e, s) {
       LogUtils.e('进入原生全屏失败', tag: _tag, error: e, stackTrace: s);
     } finally {
@@ -101,16 +108,47 @@ class DesktopNativeFullscreen {
     }
   }
 
+  /// 「主动退出」这条路正在跑（[exitNative] 已经发车、还没回来）。
+  ///
+  /// ⛔ 它存在的唯一理由是挡住孤儿检查，为什么见 [exitNative] 的文档。
+  static bool _exitingNative = false;
+
+  /// 现在是不是正在主动退原生全屏。
+  static bool get isExitingNative => _exitingNative;
+
   /// 退出原生全屏，并清掉留痕。**不**负责还原几何——那是 [restoreGeometry]
   /// 的事，调用方按自己的时序决定要不要还原（系统侧退出时窗口已经自己回去了）。
+  ///
+  /// # ⛔ 为什么要在这里挡住孤儿检查
+  ///
+  /// `exitFullscreen()` 的顺序是「先 [release] 演出者，再 await 本方法」。
+  /// [release] 会排一个 300ms 的孤儿检查，而 [_active] 要等下面这次
+  /// MethodChannel **回来**才清掉。于是「原生退出慢于 300ms」时，孤儿收尾会
+  /// 盖在一次**完全正常的退出**上面再跑一遍：又一次 `Utils.ExitNativeFullscreen`、
+  /// 又一次 `showSystemUI()`、又一次几何还原——全都叠在那个本来就已经卡住的
+  /// 时刻上。
+  ///
+  /// 2026-11-09 一份 Windows 报告里就留着这个脚印：日志打出了「原生全屏已无
+  /// 演出者」。一次干净的 `exitFullscreen` 到那一刻 [_active] 早该是 false、
+  /// 这行**根本不会打印**——它打印了，恰恰说明这次 Win32 调用已经堵了 ≥300ms。
+  /// 95 毫秒后主 isolate 就再没回来。
+  ///
+  /// 所以：进本方法先把在途标记立起来、把已经排上的孤儿检查撤掉。退出成功与否
+  /// 都由本方法自己负责收尾，孤儿检查不该来插一脚。
   static Future<void> exitNative() async {
     if (!GetPlatform.isDesktop) return;
+    _exitingNative = true;
+    cancelPendingOrphanCheck();
     try {
-      await _mediaKitChannel.invokeMethod('Utils.ExitNativeFullscreen');
+      await HangBreadcrumb.guard(
+        'fullscreen-exit-native',
+        () => _mediaKitChannel.invokeMethod('Utils.ExitNativeFullscreen'),
+      );
     } catch (e, s) {
       LogUtils.e('退出原生全屏失败', tag: _tag, error: e, stackTrace: s);
     } finally {
       markExited();
+      _exitingNative = false;
     }
   }
 
@@ -123,6 +161,10 @@ class DesktopNativeFullscreen {
   static final Set<Object> _presenters = <Object>{};
 
   static bool _orphanCheckScheduled = false;
+
+  /// 孤儿收尾正在跑。防自己重入——收尾里每一个 await 都给了下一次定时器插进来
+  /// 的机会，而重入意味着把两组窗口操作叠在同一刻。
+  static bool _endingOrphanedSession = false;
 
   /// 现在还有没有人在全屏里演出。
   static bool get hasPresenter => _presenters.isNotEmpty;
@@ -149,10 +191,23 @@ class DesktopNativeFullscreen {
   /// 兜的是别的路径（push 失败后的 NaviService 兜底重开等）里两步倒过来的情形。
   static const Duration _orphanCheckDelay = Duration(milliseconds: 300);
 
+  /// 撤掉已经排上的孤儿检查。
+  ///
+  /// 主动退出那条路自己就把全屏收干净了（退原生 + 放回 chrome + 还原几何），
+  /// 不需要孤儿检查再来一遍——见 [exitNative] 的说明。
+  static void cancelPendingOrphanCheck() {
+    _orphanCheckTimer?.cancel();
+    _orphanCheckTimer = null;
+    _orphanCheckScheduled = false;
+  }
+
   static void _scheduleOrphanCheck() {
     if (_orphanCheckScheduled) return;
     if (!_active) return;
     if (_presenters.isNotEmpty) return;
+    // 主动退出在途：[_active] 还是 true 只因为那次 MethodChannel 没回来，
+    // 不是因为真有一个没人认领的全屏。见 [exitNative]。
+    if (_exitingNative) return;
 
     _orphanCheckScheduled = true;
     // ⛔ 用定时器而不是 `addPostFrameCallback`：放手常常发生在路由收尾这种
@@ -178,11 +233,24 @@ class DesktopNativeFullscreen {
     // ⛔ 判据只能是**我们自己**开的那个会话（[_active]），不能用 [resolve]：
     // macOS 上用户可能正用绿灯钮把某个非播放页开成全屏，那不是孤儿，是他要的。
     if (!_active) return;
+    // ⛔ 主动退出在途：那条路自己会收尾，这里再收一遍就是把两组窗口操作叠在
+    // 同一刻。[cancelPendingOrphanCheck] 已经撤过一次定时器，这道闸挡的是
+    // 「定时器先于 [exitNative] 起跑」的那一种交错。见 [exitNative]。
+    if (_exitingNative) return;
+    // 自己也要防重入：收尾里每一个 await 都给了下一次定时器插进来的机会。
+    if (_endingOrphanedSession) return;
 
-    LogUtils.i('原生全屏已无演出者，收回全屏并还原窗口', _tag);
-    await exitNative();
-    _restoreAppChrome();
-    await restoreGeometry(reason: 'orphaned native fullscreen session');
+    _endingOrphanedSession = true;
+    try {
+      LogUtils.i('原生全屏已无演出者，收回全屏并还原窗口', _tag);
+      await HangBreadcrumb.guard('fullscreen-orphan-cleanup', () async {
+        await exitNative();
+        _restoreAppChrome();
+        await restoreGeometry(reason: 'orphaned native fullscreen session');
+      });
+    } finally {
+      _endingOrphanedSession = false;
+    }
   }
 
   /// 把应用自己的 chrome（标题栏 / 侧边导航）放回来。
@@ -230,14 +298,16 @@ class DesktopNativeFullscreen {
     }
 
     try {
-      _wasMaximizedBeforeFullscreen = await windowManager.isMaximized();
-      if (_wasMaximizedBeforeFullscreen) {
-        _sizeBeforeFullscreen = null;
-        _positionBeforeFullscreen = null;
-      } else {
-        _sizeBeforeFullscreen = await windowManager.getSize();
-        _positionBeforeFullscreen = await windowManager.getPosition();
-      }
+      await HangBreadcrumb.guard('window-geometry-capture', () async {
+        _wasMaximizedBeforeFullscreen = await windowManager.isMaximized();
+        if (_wasMaximizedBeforeFullscreen) {
+          _sizeBeforeFullscreen = null;
+          _positionBeforeFullscreen = null;
+        } else {
+          _sizeBeforeFullscreen = await windowManager.getSize();
+          _positionBeforeFullscreen = await windowManager.getPosition();
+        }
+      });
       _hasGeometrySnapshot = true;
       LogUtils.d(
         '缓存桌面窗口几何: maximized=$_wasMaximizedBeforeFullscreen, '
@@ -258,30 +328,32 @@ class DesktopNativeFullscreen {
 
     _restoringGeometry = true;
     try {
-      // 等待系统全屏状态稳定退出，避免 setSize/setPosition 被系统覆盖。
-      for (int i = 0; i < 10; i++) {
-        final stillFullscreen = await windowManager.isFullScreen();
-        if (!stillFullscreen) break;
-        await Future.delayed(const Duration(milliseconds: 20));
-      }
+      await HangBreadcrumb.guard('window-geometry-restore', () async {
+        // 等待系统全屏状态稳定退出，避免 setSize/setPosition 被系统覆盖。
+        for (int i = 0; i < 10; i++) {
+          final stillFullscreen = await windowManager.isFullScreen();
+          if (!stillFullscreen) break;
+          await Future.delayed(const Duration(milliseconds: 20));
+        }
 
-      if (_wasMaximizedBeforeFullscreen) {
-        if (!await windowManager.isMaximized()) {
-          await windowManager.maximize();
+        if (_wasMaximizedBeforeFullscreen) {
+          if (!await windowManager.isMaximized()) {
+            await windowManager.maximize();
+          }
+        } else {
+          if (await windowManager.isMaximized()) {
+            await windowManager.unmaximize();
+          }
+          final size = _sizeBeforeFullscreen;
+          if (size != null && !await _sizeAlreadyMatches(size)) {
+            await windowManager.setSize(size);
+          }
+          final position = _positionBeforeFullscreen;
+          if (position != null && !await _positionAlreadyMatches(position)) {
+            await windowManager.setPosition(position);
+          }
         }
-      } else {
-        if (await windowManager.isMaximized()) {
-          await windowManager.unmaximize();
-        }
-        final size = _sizeBeforeFullscreen;
-        if (size != null) {
-          await windowManager.setSize(size);
-        }
-        final position = _positionBeforeFullscreen;
-        if (position != null) {
-          await windowManager.setPosition(position);
-        }
-      }
+      });
 
       LogUtils.d(
         '恢复桌面窗口几何完成: reason=$reason, '
@@ -300,10 +372,52 @@ class DesktopNativeFullscreen {
     }
   }
 
+  /// 「现在的尺寸已经就是要还原的那一组」——别再发一次 `setSize`。
+  ///
+  /// # ⛔ 为什么要先问一句
+  ///
+  /// 每一次 `setSize` / `setPosition` 在 Windows 上都是一次真实的 `SetWindowPos`，
+  /// 而每一次窗口尺寸变化都会让 Flutter 嵌入层做一次 resize 握手：平台线程停下
+  /// 来等光栅线程交出新尺寸的一帧。退全屏这一刻本来就最脆——media_kit 的
+  /// `Utils.ExitNativeFullscreen` 自己已经把窗口 `SetWindowPos` 回
+  /// `rect_before_fullscreen_` 了（见 media_kit_video/windows/utils.cc），我们这
+  /// 一组十有八九是纯多余的第二、第三次握手，叠在播放器还在出帧的时候。
+  ///
+  /// 所以：尺寸 / 位置已经对上就不发。问不出来（通道抛了）就照发——宁可多一次
+  /// resize，也不能把窗口留在满屏回不去，那是本类存在的理由。
+  ///
+  /// 容差 1 逻辑像素：window_manager 的读数经过 DPI 缩放来回换算，严格相等本来
+  /// 就靠不住。
+  static const double _geometryEpsilon = 1.0;
+
+  static Future<bool> _sizeAlreadyMatches(Size target) async {
+    try {
+      final current = await windowManager.getSize();
+      return (current.width - target.width).abs() < _geometryEpsilon &&
+          (current.height - target.height).abs() < _geometryEpsilon;
+    } catch (e) {
+      LogUtils.d('读不到当前窗口大小，照常还原: $e', _tag);
+      return false;
+    }
+  }
+
+  static Future<bool> _positionAlreadyMatches(Offset target) async {
+    try {
+      final current = await windowManager.getPosition();
+      return (current.dx - target.dx).abs() < _geometryEpsilon &&
+          (current.dy - target.dy).abs() < _geometryEpsilon;
+    } catch (e) {
+      LogUtils.d('读不到当前窗口位置，照常还原: $e', _tag);
+      return false;
+    }
+  }
+
   /// 单测用：把这个进程级会话恢复到出厂状态。
   @visibleForTesting
   static void resetForTest() {
     _active = false;
+    _exitingNative = false;
+    _endingOrphanedSession = false;
     _presenters.clear();
     _orphanCheckTimer?.cancel();
     _orphanCheckTimer = null;
