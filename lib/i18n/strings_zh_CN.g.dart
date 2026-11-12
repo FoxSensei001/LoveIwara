@@ -5105,6 +5105,32 @@ class _TranslationsVideoDetailCastDlnaCastSheetZhCn extends TranslationsVideoDet
 	@override String connectedTo({required Object deviceName}) => '已连接到: ${deviceName}';
 	@override String get notConnected => '未连接设备';
 	@override String get stopCasting => '停止投屏';
+	@override String searchFinished({required Object count}) => '搜索完成，找到 ${count} 台设备';
+	@override String get protocolDlna => 'DLNA';
+	@override String get protocolGoogleCast => 'Google Cast';
+	@override String get addByIp => '手动添加';
+	@override String get addByIpTitle => '手动添加设备';
+	@override String get addByIpDesc => '输入电视或盒子的 IP 地址。一般在电视的「设置 → 网络 → 网络状态」里能看到。';
+	@override String get addByIpHint => '例如 192.168.1.20';
+	@override String get addByIpAction => '查找';
+	@override String get addByIpInvalid => '地址格式不对，请输入类似 192.168.1.20 的 IPv4 地址';
+	@override String addByIpNotFound({required Object host}) => '在 ${host} 上没有找到投屏设备';
+	@override String get troubleshootTitle => '找不到你的设备？';
+	@override String get troubleshoot => '· 手机（电脑）和电视要连同一个 Wi-Fi；访客网络、路由器开了「AP 隔离」都会搜不到\n· 开着 VPN／代理软件时可能搜不到，先关掉再试\n· 支持 DLNA 和 Google Cast（Chromecast）；不支持 Apple TV（AirPlay）和部分品牌的私有投屏协议，电视需打开 DLNA／多屏互动功能\n· 仍然没有？点「手动添加」输入电视的 IP';
+	@override late final _TranslationsVideoDetailCastDlnaCastSheetFailureZhCn failure = _TranslationsVideoDetailCastDlnaCastSheetFailureZhCn._(_root);
+}
+
+// Path: videoDetail.cast.dlnaCastSheet.failure
+class _TranslationsVideoDetailCastDlnaCastSheetFailureZhCn extends TranslationsVideoDetailCastDlnaCastSheetFailureEn {
+	_TranslationsVideoDetailCastDlnaCastSheetFailureZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get unreachable => '连不上设备，请确认在同一个 Wi-Fi，并暂时关闭 VPN';
+	@override String get timeout => '设备没有响应';
+	@override String get mediaRejected => '设备无法播放这个视频（格式不支持或地址打不开）';
+	@override String get deviceRejected => '设备拒绝了投屏指令';
 }
 
 /// The flat map containing all translations for locale <zh-CN>.
@@ -6777,6 +6803,22 @@ extension on TranslationsZhCn {
 			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => '已连接到: ${deviceName}',
 			'videoDetail.cast.dlnaCastSheet.notConnected' => '未连接设备',
 			'videoDetail.cast.dlnaCastSheet.stopCasting' => '停止投屏',
+			'videoDetail.cast.dlnaCastSheet.searchFinished' => ({required Object count}) => '搜索完成，找到 ${count} 台设备',
+			'videoDetail.cast.dlnaCastSheet.protocolDlna' => 'DLNA',
+			'videoDetail.cast.dlnaCastSheet.protocolGoogleCast' => 'Google Cast',
+			'videoDetail.cast.dlnaCastSheet.addByIp' => '手动添加',
+			'videoDetail.cast.dlnaCastSheet.addByIpTitle' => '手动添加设备',
+			'videoDetail.cast.dlnaCastSheet.addByIpDesc' => '输入电视或盒子的 IP 地址。一般在电视的「设置 → 网络 → 网络状态」里能看到。',
+			'videoDetail.cast.dlnaCastSheet.addByIpHint' => '例如 192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpAction' => '查找',
+			'videoDetail.cast.dlnaCastSheet.addByIpInvalid' => '地址格式不对，请输入类似 192.168.1.20 的 IPv4 地址',
+			'videoDetail.cast.dlnaCastSheet.addByIpNotFound' => ({required Object host}) => '在 ${host} 上没有找到投屏设备',
+			'videoDetail.cast.dlnaCastSheet.troubleshootTitle' => '找不到你的设备？',
+			'videoDetail.cast.dlnaCastSheet.troubleshoot' => '· 手机（电脑）和电视要连同一个 Wi-Fi；访客网络、路由器开了「AP 隔离」都会搜不到\n· 开着 VPN／代理软件时可能搜不到，先关掉再试\n· 支持 DLNA 和 Google Cast（Chromecast）；不支持 Apple TV（AirPlay）和部分品牌的私有投屏协议，电视需打开 DLNA／多屏互动功能\n· 仍然没有？点「手动添加」输入电视的 IP',
+			'videoDetail.cast.dlnaCastSheet.failure.unreachable' => '连不上设备，请确认在同一个 Wi-Fi，并暂时关闭 VPN',
+			'videoDetail.cast.dlnaCastSheet.failure.timeout' => '设备没有响应',
+			'videoDetail.cast.dlnaCastSheet.failure.mediaRejected' => '设备无法播放这个视频（格式不支持或地址打不开）',
+			'videoDetail.cast.dlnaCastSheet.failure.deviceRejected' => '设备拒绝了投屏指令',
 			'videoDetail.likeAvatars.dialogTitle' => '谁在偷偷喜欢',
 			'videoDetail.likeAvatars.dialogDescription' => '好奇他们是谁？翻翻这本「点赞相册」吧～',
 			'videoDetail.likeAvatars.closeTooltip' => '关闭',
@@ -7153,6 +7195,8 @@ extension on TranslationsZhCn {
 			'download.actions.deleteFiles' => '同时删除磁盘文件',
 			'download.actions.deleteFilesDesc' => '关闭后只移除列表记录，文件留在原处',
 			'download.actions.deleteFilesAllMissing' => '文件已经不在了，只会移除记录',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.deleteDone' => ({required Object count}) => '已删除 ${count} 项',
 			'download.actions.deletePartial' => ({required Object failed}) => '${failed} 项的文件删不掉（可能正被占用），记录已保留',
 			'download.actions.removeRecordAnyway' => '仍移除记录',
@@ -7169,8 +7213,6 @@ extension on TranslationsZhCn {
 			'download.notice.failed' => ({required Object count}) => '${count} 个任务下载失败',
 			'download.notice.retryAll' => '全部重试',
 			'download.notice.view' => '查看',
-			_ => null,
-		} ?? switch (path) {
 			'download.notice.missing' => ({required Object count}) => '${count} 项已下载内容的文件不见了',
 			'download.notice.handle' => '处理…',
 			'download.notice.outside' => ({required Object count}) => '旧下载目录里还有 ${count} 项',
@@ -7667,6 +7709,8 @@ extension on TranslationsZhCn {
 			'translation.sendTemperatureDescription' => '对于拒绝 temperature 参数的模型(多数推理模型)请关闭',
 			'translation.showReasoningProcess' => '显示思考过程',
 			'translation.showReasoningProcessDescription' => '在翻译弹窗中以可折叠形式展示推理模型的思考过程',
+			_ => null,
+		} ?? switch (path) {
 			'translation.provider' => '服务商',
 			'translation.providerOpenAI' => 'OpenAI（及兼容端点）',
 			'translation.providerAnthropic' => 'Anthropic（Claude）',
@@ -7683,8 +7727,6 @@ extension on TranslationsZhCn {
 			'translation.presetNames.anthropic' => 'Anthropic Claude',
 			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude 推理 (extended thinking)',
 			'translation.presetNames.gemini' => 'Google Gemini (原生)',
-			_ => null,
-		} ?? switch (path) {
 			'translation.presetNames.geminiReasoning' => 'Google Gemini 推理 (thinking)',
 			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek 推理 (deepseek-reasoner / R1)',
@@ -8181,6 +8223,8 @@ extension on TranslationsZhCn {
 			'tagSelector.addTagTooltip' => '添加标签',
 			'tagSelector.removeTagTooltip' => '删除标签',
 			'tagSelector.cancelSelection' => '取消选择',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.selectAll' => '全选',
 			'tagSelector.cancelSelectAll' => '取消全选',
 			'tagSelector.delete' => '删除',
@@ -8197,8 +8241,6 @@ extension on TranslationsZhCn {
 			'anime4k.presetGroups.highQuality' => '高质量',
 			'anime4k.presetGroups.fast' => '快速',
 			'anime4k.presetGroups.lite' => '轻量级',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetGroups.moreLite' => '更多轻量级',
 			'anime4k.presetGroups.custom' => '自定义',
 			'anime4k.presetDescriptions.mode_a_hq' => '适用于大多数1080p动漫，特别是处理模糊、重采样和压缩瑕疵。提供最高的感知质量。',
@@ -8695,6 +8737,8 @@ extension on TranslationsZhCn {
 			'localMedia.webdav.previousStep' => '上一步',
 			'localMedia.webdav.bannerUnreachable' => '连不上 NAS，下面是上次看到的内容',
 			'localMedia.webdav.bannerAuthFailed' => '登录已失效，重新登录后才能看到最新内容',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.bannerCertUntrusted' => 'NAS 的证书变了，确认之后才能继续',
 			'localMedia.webdav.bannerCredUnreadable' => '读取保存的密码失败，重新登录一次即可',
 			'localMedia.mediaStoreUnavailable' => '设备媒体索引仅在 Android 上可用',
@@ -8711,8 +8755,6 @@ extension on TranslationsZhCn {
 			'localMedia.sourceAlreadyAdded' => ({required Object name}) => '已经添加过「${name}」',
 			'localMedia.sourceContainsExisting' => ({required Object name}) => '里面已经有添加过的文件夹「${name}」，暂时不能再添加它的上层文件夹',
 			'localMedia.addSourceFailed' => '添加文件夹失败',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.fileMissing' => '这个文件已经不在磁盘上了',
 			'localMedia.permissionDenied' => '未授予文件访问权限，添加文件夹前需要先开启',
 			'localMedia.noVideosFound' => '这个文件夹里没有视频',

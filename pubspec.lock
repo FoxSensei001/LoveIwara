@@ -105,6 +105,54 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.1"
+  bonsoir:
+    dependency: "direct main"
+    description:
+      name: bonsoir
+      sha256: "20fed01e4616e625f4bafd9007ff899d231d8d79bebc8564853fa1e3570294a6"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "7.1.5"
+  bonsoir_android:
+    dependency: transitive
+    description:
+      name: bonsoir_android
+      sha256: "543689dae95e8d4df3576afadd1f8a343e0c2760ae44e5095959d870cfbcb7d3"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "7.1.4"
+  bonsoir_darwin:
+    dependency: transitive
+    description:
+      name: bonsoir_darwin
+      sha256: "5fceef2e607db0b63fc7a51fe3c0e4da66ec77e2896acc697bb531cf48b8df0a"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "7.1.2"
+  bonsoir_linux:
+    dependency: transitive
+    description:
+      name: bonsoir_linux
+      sha256: "9afae7bb9509c5bd20a0ea2ca02a0f2b1ef09cca1ceb2ea288ed58a0f03d1e11"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "7.1.0"
+  bonsoir_platform_interface:
+    dependency: transitive
+    description:
+      name: bonsoir_platform_interface
+      sha256: c08af1733b6ec3bb109e08855f91da6fee52fe57cb6033be2fd6648a74f94de0
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "7.0.1"
+  bonsoir_windows:
+    dependency: transitive
+    description:
+      name: bonsoir_windows
+      sha256: "22ca4c5dcba2b95fcedb723132a5d65930df3d69634f169eb327c366c9f89151"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "7.3.1"
   boolean_selector:
     dependency: transitive
     description:
@@ -417,14 +465,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.2.1"
-  dlna_dart:
-    dependency: "direct main"
-    description:
-      name: dlna_dart
-      sha256: da607931548720331b7503f72c426fa7fbd19e9144a4778d293c16a5bc186407
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.1.1"
   dynamic_color:
     dependency: "direct main"
     description:

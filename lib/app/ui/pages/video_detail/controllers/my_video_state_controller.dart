@@ -31,7 +31,7 @@ import 'package:i_iwara/app/services/xr_immersive_service.dart';
 import 'package:i_iwara/app/services/oreno3d_client.dart' show Oreno3dClient;
 import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/utils/iwara_different_site_recovery.dart';
-import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/utils/oreno3d_match_util.dart';
 import 'package:i_iwara/app/models/oreno3d_video.model.dart';
 import 'package:i_iwara/app/models/vr_format.model.dart';
@@ -42,7 +42,7 @@ import 'package:i_iwara/app/services/playback_history_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/player_notice.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/related_media_controller.dart';
 import 'package:i_iwara/app/services/external_player_service.dart';
-import 'package:i_iwara/app/ui/pages/video_detail/widgets/dlna_cast_sheet.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/cast_sheet.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/external_player_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/error_widget.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
@@ -88,7 +88,7 @@ import '../widgets/player/vr/vr_gyro_tracker.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import '../widgets/private_or_deleted_video_widget.dart';
 import '../services/video_cache_manager.dart';
-import 'dlna_cast_service.dart';
+import 'package:i_iwara/app/services/cast/cast_service.dart';
 
 enum VideoDetailPageLoadingState {
   init, // 初始化
@@ -227,7 +227,7 @@ class MyVideoStateController extends GetxController
   static final VideoCacheManager _cacheManager = VideoCacheManager();
 
   // DLNA 投屏服务
-  DlnaCastService get _dlnaCastService => DlnaCastService.instance;
+  CastService get _castService => CastService.instance;
 
   // Oreno3D相关状态
   final Rxn<Oreno3dVideoDetail> oreno3dVideoDetail = Rxn<Oreno3dVideoDetail>();
@@ -1921,7 +1921,7 @@ class MyVideoStateController extends GetxController
         _pipAutoEnterSettingSubscription = _configService
             .settings[ConfigKey.AUTO_ENTER_PIP_ON_LEAVE_KEY]!
             .listen((_) => _syncPiPAutoEnter());
-        _pipAutoEnterCastingSubscription = _dlnaCastService.isCasting.listen(
+        _pipAutoEnterCastingSubscription = _castService.isCasting.listen(
           (_) => _syncPiPAutoEnter(),
         );
         _pipAutoEnterOverlaySubscription = OverlayTracker
@@ -2994,7 +2994,7 @@ class MyVideoStateController extends GetxController
       !DeviceFormFactorUtils.isXrDevice &&
       !OverlayTracker.instance.hasOverlay &&
       player.state.playing &&
-      !_dlnaCastService.isCasting.value;
+      !_castService.isCasting.value;
 
   /// 按 [_wantsPiPAutoEnter] 设上或撤掉「离开应用时自动进小窗」，宽高变了就重设。
   ///
@@ -6535,14 +6535,16 @@ class MyVideoStateController extends GetxController
       return;
     }
 
-    showAppBottomSheet(
-      DlnaCastSheet(
+    final context = rootNavigatorKey.currentContext;
+    if (context == null) return;
+    showGlassBottomSheet<void>(
+      context: context,
+      builder: (_) => CastSheet(
         videoUrl: videoUrl,
-        dlnaController: _dlnaCastService,
+        videoTitle: videoInfo.value?.title,
+        castService: _castService,
         onCastStarted: pausePlayback,
       ),
-      isScrollControlled: true,
-      elevation: 0,
     );
   }
 
@@ -6592,7 +6594,7 @@ class MyVideoStateController extends GetxController
   }
 
   /// 获取 DLNA 投屏服务
-  DlnaCastService get dlnaCastService => _dlnaCastService;
+  CastService get castService => _castService;
 
   /// 更新缓存中的视频点赞信息
   void updateCachedVideoLikeInfo(String videoId, bool liked, int numLikes) {

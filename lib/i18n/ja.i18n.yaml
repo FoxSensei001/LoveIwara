@@ -1718,6 +1718,23 @@ videoDetail:
       connectedTo: '接続済み: ${deviceName}'
       notConnected: デバイス未接続
       stopCasting: キャスト停止
+      searchFinished: '検索完了：${count} 台のデバイスが見つかりました'
+      protocolDlna: 'DLNA'
+      protocolGoogleCast: 'Google Cast'
+      addByIp: '手動で追加'
+      addByIpTitle: 'デバイスを手動で追加'
+      addByIpDesc: 'テレビやストリーミング端末の IP アドレスを入力してください。通常はテレビの「設定 → ネットワーク → ネットワーク状態」で確認できます。'
+      addByIpHint: '例：192.168.1.20'
+      addByIpAction: '検索'
+      addByIpInvalid: 'アドレスの形式が正しくありません。192.168.1.20 のような IPv4 アドレスを入力してください'
+      addByIpNotFound: '${host} でキャストデバイスが見つかりませんでした'
+      troubleshootTitle: 'デバイスが見つかりませんか？'
+      troubleshoot: '・スマホ（PC）とテレビを同じ Wi-Fi に接続してください。ゲストネットワークやルーターの AP アイソレーションが有効だと検出できません\n・VPN やプロキシアプリを使用中は検出できないことがあります。オフにして再試行してください\n・DLNA と Google Cast（Chromecast）に対応しています。Apple TV（AirPlay）や一部メーカー独自のキャスト方式には対応していません。テレビ側で DLNA を有効にしてください\n・それでも見つからない場合は「手動で追加」からテレビの IP を入力してください'
+      failure:
+        unreachable: 'デバイスに接続できません。同じ Wi-Fi にいるか確認し、VPN をオフにしてみてください'
+        timeout: 'デバイスが応答しません'
+        mediaRejected: 'デバイスがこの動画を再生できません（未対応の形式、またはリンクを開けません）'
+        deviceRejected: 'デバイスがキャスト要求を拒否しました'
   # いいねアバターコンポーネント
   likeAvatars:
     dialogTitle: 誰がこっそり「いいね」したの？

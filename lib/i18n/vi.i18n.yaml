@@ -1717,6 +1717,23 @@ videoDetail:
       connectedTo: 'Đã kết nối với: ${deviceName}'
       notConnected: Chưa kết nối thiết bị nào
       stopCasting: Dừng truyền phát
+      searchFinished: 'Đã tìm xong, tìm thấy ${count} thiết bị'
+      protocolDlna: 'DLNA'
+      protocolGoogleCast: 'Google Cast'
+      addByIp: 'Thêm thủ công'
+      addByIpTitle: 'Thêm thiết bị thủ công'
+      addByIpDesc: 'Nhập địa chỉ IP của TV hoặc hộp phát. Thường xem được trong Cài đặt → Mạng → Trạng thái mạng trên TV.'
+      addByIpHint: 'ví dụ 192.168.1.20'
+      addByIpAction: 'Tìm'
+      addByIpInvalid: 'Địa chỉ không hợp lệ. Hãy nhập địa chỉ IPv4 như 192.168.1.20'
+      addByIpNotFound: 'Không tìm thấy thiết bị truyền tại ${host}'
+      troubleshootTitle: 'Không tìm thấy thiết bị?'
+      troubleshoot: '• Điện thoại/máy tính và TV phải dùng cùng một Wi-Fi. Mạng khách và tính năng cách ly AP của router sẽ chặn việc tìm kiếm\n• VPN hoặc ứng dụng proxy có thể chặn việc tìm kiếm; hãy tắt rồi thử lại\n• Hỗ trợ DLNA và Google Cast (Chromecast). Không hỗ trợ Apple TV (AirPlay) và giao thức riêng của một số hãng; hãy bật DLNA trên TV\n• Vẫn không thấy? Nhấn "Thêm thủ công" và nhập IP của TV'
+      failure:
+        unreachable: 'Không kết nối được thiết bị. Kiểm tra cùng Wi-Fi và thử tắt VPN'
+        timeout: 'Thiết bị không phản hồi'
+        mediaRejected: 'Thiết bị không phát được video này (định dạng không hỗ trợ hoặc không mở được liên kết)'
+        deviceRejected: 'Thiết bị đã từ chối yêu cầu truyền'
   # Like Avatars Component
   likeAvatars:
     dialogTitle: Ai đang âm thầm thích

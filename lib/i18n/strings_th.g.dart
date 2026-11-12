@@ -5083,6 +5083,32 @@ class _TranslationsVideoDetailCastDlnaCastSheetTh extends TranslationsVideoDetai
 	@override String connectedTo({required Object deviceName}) => 'เชื่อมต่อกับ: ${deviceName}';
 	@override String get notConnected => 'ไม่ได้เชื่อมต่ออุปกรณ์';
 	@override String get stopCasting => 'หยุดแคสต์';
+	@override String searchFinished({required Object count}) => 'ค้นหาเสร็จแล้ว พบ ${count} อุปกรณ์';
+	@override String get protocolDlna => 'DLNA';
+	@override String get protocolGoogleCast => 'Google Cast';
+	@override String get addByIp => 'เพิ่มด้วยตนเอง';
+	@override String get addByIpTitle => 'เพิ่มอุปกรณ์ด้วยตนเอง';
+	@override String get addByIpDesc => 'ป้อนที่อยู่ IP ของทีวีหรือกล่องสตรีมมิง โดยปกติดูได้ที่ «การตั้งค่า → เครือข่าย → สถานะเครือข่าย» บนทีวี';
+	@override String get addByIpHint => 'เช่น 192.168.1.20';
+	@override String get addByIpAction => 'ค้นหา';
+	@override String get addByIpInvalid => 'รูปแบบที่อยู่ไม่ถูกต้อง โปรดป้อนที่อยู่ IPv4 เช่น 192.168.1.20';
+	@override String addByIpNotFound({required Object host}) => 'ไม่พบอุปกรณ์แคสต์ที่ ${host}';
+	@override String get troubleshootTitle => 'หาอุปกรณ์ไม่เจอใช่ไหม?';
+	@override String get troubleshoot => '• โทรศัพท์ (คอมพิวเตอร์) และทีวีต้องเชื่อมต่อ Wi-Fi เดียวกัน เครือข่ายแขกหรือเราเตอร์ที่เปิด AP isolation จะทำให้ค้นหาไม่เจอ\n• หากเปิด VPN หรือแอปพร็อกซีอยู่อาจค้นหาไม่เจอ ให้ปิดแล้วลองใหม่\n• รองรับ DLNA และ Google Cast (Chromecast) ไม่รองรับ Apple TV (AirPlay) และโปรโตคอลเฉพาะของบางยี่ห้อ ต้องเปิด DLNA บนทีวี\n• ยังไม่เจอ? แตะ «เพิ่มด้วยตนเอง» แล้วป้อน IP ของทีวี';
+	@override late final _TranslationsVideoDetailCastDlnaCastSheetFailureTh failure = _TranslationsVideoDetailCastDlnaCastSheetFailureTh._(_root);
+}
+
+// Path: videoDetail.cast.dlnaCastSheet.failure
+class _TranslationsVideoDetailCastDlnaCastSheetFailureTh extends TranslationsVideoDetailCastDlnaCastSheetFailureEn {
+	_TranslationsVideoDetailCastDlnaCastSheetFailureTh._(TranslationsTh root) : this._root = root, super.internal(root);
+
+	final TranslationsTh _root; // ignore: unused_field
+
+	// Translations
+	@override String get unreachable => 'เชื่อมต่ออุปกรณ์ไม่ได้ ตรวจสอบว่าอยู่ใน Wi-Fi เดียวกันและลองปิด VPN';
+	@override String get timeout => 'อุปกรณ์ไม่ตอบสนอง';
+	@override String get mediaRejected => 'อุปกรณ์เล่นวิดีโอนี้ไม่ได้ (รูปแบบไม่รองรับหรือเปิดลิงก์ไม่ได้)';
+	@override String get deviceRejected => 'อุปกรณ์ปฏิเสธคำขอแคสต์';
 }
 
 /// The flat map containing all translations for locale <th>.
@@ -6733,6 +6759,22 @@ extension on TranslationsTh {
 			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => 'เชื่อมต่อกับ: ${deviceName}',
 			'videoDetail.cast.dlnaCastSheet.notConnected' => 'ไม่ได้เชื่อมต่ออุปกรณ์',
 			'videoDetail.cast.dlnaCastSheet.stopCasting' => 'หยุดแคสต์',
+			'videoDetail.cast.dlnaCastSheet.searchFinished' => ({required Object count}) => 'ค้นหาเสร็จแล้ว พบ ${count} อุปกรณ์',
+			'videoDetail.cast.dlnaCastSheet.protocolDlna' => 'DLNA',
+			'videoDetail.cast.dlnaCastSheet.protocolGoogleCast' => 'Google Cast',
+			'videoDetail.cast.dlnaCastSheet.addByIp' => 'เพิ่มด้วยตนเอง',
+			'videoDetail.cast.dlnaCastSheet.addByIpTitle' => 'เพิ่มอุปกรณ์ด้วยตนเอง',
+			'videoDetail.cast.dlnaCastSheet.addByIpDesc' => 'ป้อนที่อยู่ IP ของทีวีหรือกล่องสตรีมมิง โดยปกติดูได้ที่ «การตั้งค่า → เครือข่าย → สถานะเครือข่าย» บนทีวี',
+			'videoDetail.cast.dlnaCastSheet.addByIpHint' => 'เช่น 192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpAction' => 'ค้นหา',
+			'videoDetail.cast.dlnaCastSheet.addByIpInvalid' => 'รูปแบบที่อยู่ไม่ถูกต้อง โปรดป้อนที่อยู่ IPv4 เช่น 192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpNotFound' => ({required Object host}) => 'ไม่พบอุปกรณ์แคสต์ที่ ${host}',
+			'videoDetail.cast.dlnaCastSheet.troubleshootTitle' => 'หาอุปกรณ์ไม่เจอใช่ไหม?',
+			'videoDetail.cast.dlnaCastSheet.troubleshoot' => '• โทรศัพท์ (คอมพิวเตอร์) และทีวีต้องเชื่อมต่อ Wi-Fi เดียวกัน เครือข่ายแขกหรือเราเตอร์ที่เปิด AP isolation จะทำให้ค้นหาไม่เจอ\n• หากเปิด VPN หรือแอปพร็อกซีอยู่อาจค้นหาไม่เจอ ให้ปิดแล้วลองใหม่\n• รองรับ DLNA และ Google Cast (Chromecast) ไม่รองรับ Apple TV (AirPlay) และโปรโตคอลเฉพาะของบางยี่ห้อ ต้องเปิด DLNA บนทีวี\n• ยังไม่เจอ? แตะ «เพิ่มด้วยตนเอง» แล้วป้อน IP ของทีวี',
+			'videoDetail.cast.dlnaCastSheet.failure.unreachable' => 'เชื่อมต่ออุปกรณ์ไม่ได้ ตรวจสอบว่าอยู่ใน Wi-Fi เดียวกันและลองปิด VPN',
+			'videoDetail.cast.dlnaCastSheet.failure.timeout' => 'อุปกรณ์ไม่ตอบสนอง',
+			'videoDetail.cast.dlnaCastSheet.failure.mediaRejected' => 'อุปกรณ์เล่นวิดีโอนี้ไม่ได้ (รูปแบบไม่รองรับหรือเปิดลิงก์ไม่ได้)',
+			'videoDetail.cast.dlnaCastSheet.failure.deviceRejected' => 'อุปกรณ์ปฏิเสธคำขอแคสต์',
 			'videoDetail.likeAvatars.dialogTitle' => 'ใครแอบมากดถูกใจ',
 			'videoDetail.likeAvatars.dialogDescription' => 'สงสัยไหมว่าพวกเขาคือใคร? ลองเปิดดู "อัลบั้มการกดถูกใจ" นี้สิ~',
 			'videoDetail.likeAvatars.closeTooltip' => 'ปิด',
@@ -7131,6 +7173,8 @@ extension on TranslationsTh {
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
 			'download.notice.migrate' => 'Move',
 			'download.notice.dismiss' => 'Dismiss',
+			_ => null,
+		} ?? switch (path) {
 			'download.emptyTaskList' => 'ยังไม่มีงานดาวน์โหลด',
 			'download.noMatchingTasks' => 'ไม่มีงานที่ตรงกัน',
 			'download.deleteByDate.menuTitle' => 'ลบตามวันที่',
@@ -7147,8 +7191,6 @@ extension on TranslationsTh {
 			'download.deleteByDate.invalidRange' => 'วันที่เริ่มต้นต้องตรงกับหรือก่อนหน้าวันที่สิ้นสุด',
 			'download.deleteByDate.confirmTitle' => 'ยืนยันการลบ',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => 'ลบ ${count} งานดาวน์โหลดและไฟล์ของงานเหล่านั้นหรือไม่? การดำเนินการนี้ไม่สามารถยกเลิกได้',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'กำลังลบ ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'ลบ ${count} งานแล้ว',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'ลบ ${deleted} งานแล้ว; ข้าม ${skipped} งาน (กำลังถูกใช้งาน)',
@@ -7645,6 +7687,8 @@ extension on TranslationsTh {
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
 			'translation.fetchModelList' => 'ดึงรายการโมเดล',
+			_ => null,
+		} ?? switch (path) {
 			'translation.fetchingModels' => 'กำลังดึงข้อมูล…',
 			'translation.selectModel' => 'เลือกโมเดล',
 			'translation.searchModel' => 'ค้นหาโมเดล',
@@ -7661,8 +7705,6 @@ extension on TranslationsTh {
 			'navigationOrderSettings.navigationItemSorting' => 'การเรียงลำดับรายการนำทาง',
 			'navigationOrderSettings.done' => 'เสร็จสิ้น',
 			'navigationOrderSettings.edit' => 'แก้ไข',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.reset' => 'รีเซ็ต',
 			'navigationOrderSettings.previewEffect' => 'ตัวอย่างผลลัพธ์',
 			'navigationOrderSettings.bottomNavigationPreview' => 'ตัวอย่างแถบนำทางด้านล่าง:',
@@ -8159,6 +8201,8 @@ extension on TranslationsTh {
 			'anime4k.presetDescriptions.mode_b_hq' => 'เหมาะกับอนิเมชันที่มีความเบลอหรือเงาสะท้อนเล็กน้อยจากการปรับขนาด ช่วยลดเงาสะท้อนและรอยหยักได้อย่างมีประสิทธิภาพ',
 			'anime4k.presetDescriptions.mode_c_hq' => 'เหมาะกับแหล่งคุณภาพสูง (เช่น อนิเมชันหรือภาพยนตร์ 1080p แท้) ลดสัญญาณรบกวนและให้ค่า PSNR สูงสุด',
 			'anime4k.presetDescriptions.mode_a_a_hq' => 'เวอร์ชันเสริมของ Mode A ให้คุณภาพที่รับรู้ได้สูงสุดและสามารถสร้างเส้นที่เสื่อมสภาพเกือบทั้งหมดขึ้นมาใหม่ อาจเกิดภาพคมเกินไปหรือเงาสะท้อน',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_b_b_hq' => 'เวอร์ชันเสริมของ Mode B ให้คุณภาพที่รับรู้ได้สูงขึ้น ปรับแต่งเส้นให้ดียิ่งขึ้นและลดอาร์ติแฟกต์',
 			'anime4k.presetDescriptions.mode_c_a_hq' => 'เวอร์ชันเสริมคุณภาพที่รับรู้ได้ของ Mode C รักษาค่า PSNR ให้สูงพร้อมพยายามสร้างรายละเอียดเส้นบางส่วนขึ้นมาใหม่',
 			'anime4k.presetDescriptions.mode_a_fast' => 'เวอร์ชันเร็วของ Mode A สมดุลระหว่างคุณภาพและสมรรถนะ เหมาะกับอนิเมชัน 1080p ส่วนใหญ่',
@@ -8175,8 +8219,6 @@ extension on TranslationsTh {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + การทำให้เส้นเข้มขึ้น เพิ่มเอฟเฟกต์ทำให้เส้นเข้มขึ้นบน Mode A แบบเร็ว เพื่อให้เส้นเด่นชัดและมีสไตล์ยิ่งขึ้น',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + การทำให้เส้นบางลง เพิ่มเอฟเฟกต์ทำให้เส้นบางลงบน Mode A คุณภาพสูง เพื่อให้ดูประณีตยิ่งขึ้น',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8673,6 +8715,8 @@ extension on TranslationsTh {
 			'localMedia.emptyTitle' => 'เพิ่มโฟลเดอร์เพื่อรับชมวิดีโอที่มีอยู่แล้วในอุปกรณ์นี้',
 			'localMedia.emptyPrivacyNote' => 'ไฟล์ถูกอ่านบนอุปกรณ์นี้เท่านั้น ไม่มีการอัปโหลดใดๆ',
 			'localMedia.removeSourceTitle' => ({required Object name}) => 'ลบ “${name}” หรือไม่',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.removeSourceBody' => 'ไฟล์ยังคงอยู่ในดิสก์ ลบเฉพาะรายการในคลังนี้เท่านั้น',
 			'localMedia.remove' => 'ลบ',
 			'localMedia.removeFolder' => 'ลบโฟลเดอร์',
@@ -8689,8 +8733,6 @@ extension on TranslationsTh {
 			'historyPage.removeFromHistory' => 'ลบออกจากประวัติ',
 			'historyPage.removed' => 'ลบออกจากประวัติแล้ว',
 			'historyPage.watchedTo' => ({required Object time}) => 'ดูถึง ${time}',
-			_ => null,
-		} ?? switch (path) {
 			'historyPage.finished' => 'ดูจบแล้ว',
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'ล้าง "${tab}"',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'ประวัติทั้งหมดใน "${tab}" จะถูกลบ รวมถึงตำแหน่งการรับชมของวิดีโอเหล่านั้น ไม่สามารถย้อนกลับได้',

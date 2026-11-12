@@ -1717,6 +1717,23 @@ videoDetail:
       connectedTo: 'เชื่อมต่อกับ: ${deviceName}'
       notConnected: ไม่ได้เชื่อมต่ออุปกรณ์
       stopCasting: หยุดแคสต์
+      searchFinished: 'ค้นหาเสร็จแล้ว พบ ${count} อุปกรณ์'
+      protocolDlna: 'DLNA'
+      protocolGoogleCast: 'Google Cast'
+      addByIp: 'เพิ่มด้วยตนเอง'
+      addByIpTitle: 'เพิ่มอุปกรณ์ด้วยตนเอง'
+      addByIpDesc: 'ป้อนที่อยู่ IP ของทีวีหรือกล่องสตรีมมิง โดยปกติดูได้ที่ «การตั้งค่า → เครือข่าย → สถานะเครือข่าย» บนทีวี'
+      addByIpHint: 'เช่น 192.168.1.20'
+      addByIpAction: 'ค้นหา'
+      addByIpInvalid: 'รูปแบบที่อยู่ไม่ถูกต้อง โปรดป้อนที่อยู่ IPv4 เช่น 192.168.1.20'
+      addByIpNotFound: 'ไม่พบอุปกรณ์แคสต์ที่ ${host}'
+      troubleshootTitle: 'หาอุปกรณ์ไม่เจอใช่ไหม?'
+      troubleshoot: '• โทรศัพท์ (คอมพิวเตอร์) และทีวีต้องเชื่อมต่อ Wi-Fi เดียวกัน เครือข่ายแขกหรือเราเตอร์ที่เปิด AP isolation จะทำให้ค้นหาไม่เจอ\n• หากเปิด VPN หรือแอปพร็อกซีอยู่อาจค้นหาไม่เจอ ให้ปิดแล้วลองใหม่\n• รองรับ DLNA และ Google Cast (Chromecast) ไม่รองรับ Apple TV (AirPlay) และโปรโตคอลเฉพาะของบางยี่ห้อ ต้องเปิด DLNA บนทีวี\n• ยังไม่เจอ? แตะ «เพิ่มด้วยตนเอง» แล้วป้อน IP ของทีวี'
+      failure:
+        unreachable: 'เชื่อมต่ออุปกรณ์ไม่ได้ ตรวจสอบว่าอยู่ใน Wi-Fi เดียวกันและลองปิด VPN'
+        timeout: 'อุปกรณ์ไม่ตอบสนอง'
+        mediaRejected: 'อุปกรณ์เล่นวิดีโอนี้ไม่ได้ (รูปแบบไม่รองรับหรือเปิดลิงก์ไม่ได้)'
+        deviceRejected: 'อุปกรณ์ปฏิเสธคำขอแคสต์'
   # Like Avatars Component
   likeAvatars:
     dialogTitle: ใครแอบมากดถูกใจ

@@ -1717,6 +1717,23 @@ videoDetail:
       connectedTo: 'Connecté à : ${deviceName}'
       notConnected: Aucun appareil connecté
       stopCasting: Arrêter la diffusion
+      searchFinished: 'Recherche terminée : ${count} appareil(s) trouvé(s)'
+      protocolDlna: 'DLNA'
+      protocolGoogleCast: 'Google Cast'
+      addByIp: 'Ajouter manuellement'
+      addByIpTitle: 'Ajouter un appareil manuellement'
+      addByIpDesc: 'Saisissez l''adresse IP de votre TV ou boîtier. Vous la trouverez généralement dans Paramètres → Réseau → État du réseau sur la TV.'
+      addByIpHint: 'ex. 192.168.1.20'
+      addByIpAction: 'Rechercher'
+      addByIpInvalid: 'Adresse invalide. Saisissez une adresse IPv4 comme 192.168.1.20'
+      addByIpNotFound: 'Aucun appareil de diffusion trouvé à ${host}'
+      troubleshootTitle: 'Vous ne trouvez pas votre appareil ?'
+      troubleshoot: '• Le téléphone/ordinateur et la TV doivent être sur le même Wi-Fi. Les réseaux invités et l''isolation AP du routeur empêchent la détection\n• Un VPN ou une app proxy peut bloquer la recherche ; désactivez-le et réessayez\n• DLNA et Google Cast (Chromecast) sont pris en charge. Apple TV (AirPlay) et les protocoles propriétaires de certaines marques ne le sont pas ; activez DLNA sur la TV\n• Toujours rien ? Touchez « Ajouter manuellement » et saisissez l''IP de la TV'
+      failure:
+        unreachable: 'Impossible de joindre l''appareil. Vérifiez qu''il est sur le même Wi-Fi et essayez de désactiver le VPN'
+        timeout: 'L''appareil ne répond pas'
+        mediaRejected: 'L''appareil ne peut pas lire cette vidéo (format non pris en charge ou lien inaccessible)'
+        deviceRejected: 'L''appareil a refusé la demande de diffusion'
   # Like Avatars Component
   likeAvatars:
     dialogTitle: Qui aime en secret

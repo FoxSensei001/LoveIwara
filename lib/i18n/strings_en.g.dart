@@ -12729,6 +12729,65 @@ class TranslationsVideoDetailCastDlnaCastSheetEn {
 
 	/// en: 'Stop Casting'
 	String get stopCasting => 'Stop Casting';
+
+	/// en: 'Search finished, ${count} device(s) found'
+	String searchFinished({required Object count}) => 'Search finished, ${count} device(s) found';
+
+	/// en: 'DLNA'
+	String get protocolDlna => 'DLNA';
+
+	/// en: 'Google Cast'
+	String get protocolGoogleCast => 'Google Cast';
+
+	/// en: 'Add manually'
+	String get addByIp => 'Add manually';
+
+	/// en: 'Add device manually'
+	String get addByIpTitle => 'Add device manually';
+
+	/// en: 'Enter the IP address of your TV or streaming box. You can usually find it under Settings → Network → Network status on the TV.'
+	String get addByIpDesc => 'Enter the IP address of your TV or streaming box. You can usually find it under Settings → Network → Network status on the TV.';
+
+	/// en: 'e.g. 192.168.1.20'
+	String get addByIpHint => 'e.g. 192.168.1.20';
+
+	/// en: 'Find'
+	String get addByIpAction => 'Find';
+
+	/// en: 'Invalid address. Enter an IPv4 address like 192.168.1.20'
+	String get addByIpInvalid => 'Invalid address. Enter an IPv4 address like 192.168.1.20';
+
+	/// en: 'No cast device found at ${host}'
+	String addByIpNotFound({required Object host}) => 'No cast device found at ${host}';
+
+	/// en: 'Can't find your device?'
+	String get troubleshootTitle => 'Can\'t find your device?';
+
+	/// en: '• Your phone/computer and the TV must be on the same Wi-Fi. Guest networks and routers with AP isolation block discovery\n• A VPN or proxy app may block discovery; turn it off and try again\n• DLNA and Google Cast (Chromecast) are supported. Apple TV (AirPlay) and some vendors' proprietary casting protocols are not; make sure DLNA / screen sharing is enabled on the TV\n• Still nothing? Tap "Add manually" and enter the TV's IP address'
+	String get troubleshoot => '• Your phone/computer and the TV must be on the same Wi-Fi. Guest networks and routers with AP isolation block discovery\n• A VPN or proxy app may block discovery; turn it off and try again\n• DLNA and Google Cast (Chromecast) are supported. Apple TV (AirPlay) and some vendors\' proprietary casting protocols are not; make sure DLNA / screen sharing is enabled on the TV\n• Still nothing? Tap "Add manually" and enter the TV\'s IP address';
+
+	late final TranslationsVideoDetailCastDlnaCastSheetFailureEn failure = TranslationsVideoDetailCastDlnaCastSheetFailureEn.internal(_root);
+}
+
+// Path: videoDetail.cast.dlnaCastSheet.failure
+class TranslationsVideoDetailCastDlnaCastSheetFailureEn {
+	TranslationsVideoDetailCastDlnaCastSheetFailureEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Can't reach the device. Make sure it is on the same Wi-Fi and try turning off your VPN'
+	String get unreachable => 'Can\'t reach the device. Make sure it is on the same Wi-Fi and try turning off your VPN';
+
+	/// en: 'The device did not respond'
+	String get timeout => 'The device did not respond';
+
+	/// en: 'The device can't play this video (unsupported format or the link can't be opened)'
+	String get mediaRejected => 'The device can\'t play this video (unsupported format or the link can\'t be opened)';
+
+	/// en: 'The device rejected the cast request'
+	String get deviceRejected => 'The device rejected the cast request';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -14401,6 +14460,22 @@ extension on Translations {
 			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => 'Connected to: ${deviceName}',
 			'videoDetail.cast.dlnaCastSheet.notConnected' => 'No device connected',
 			'videoDetail.cast.dlnaCastSheet.stopCasting' => 'Stop Casting',
+			'videoDetail.cast.dlnaCastSheet.searchFinished' => ({required Object count}) => 'Search finished, ${count} device(s) found',
+			'videoDetail.cast.dlnaCastSheet.protocolDlna' => 'DLNA',
+			'videoDetail.cast.dlnaCastSheet.protocolGoogleCast' => 'Google Cast',
+			'videoDetail.cast.dlnaCastSheet.addByIp' => 'Add manually',
+			'videoDetail.cast.dlnaCastSheet.addByIpTitle' => 'Add device manually',
+			'videoDetail.cast.dlnaCastSheet.addByIpDesc' => 'Enter the IP address of your TV or streaming box. You can usually find it under Settings → Network → Network status on the TV.',
+			'videoDetail.cast.dlnaCastSheet.addByIpHint' => 'e.g. 192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpAction' => 'Find',
+			'videoDetail.cast.dlnaCastSheet.addByIpInvalid' => 'Invalid address. Enter an IPv4 address like 192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpNotFound' => ({required Object host}) => 'No cast device found at ${host}',
+			'videoDetail.cast.dlnaCastSheet.troubleshootTitle' => 'Can\'t find your device?',
+			'videoDetail.cast.dlnaCastSheet.troubleshoot' => '• Your phone/computer and the TV must be on the same Wi-Fi. Guest networks and routers with AP isolation block discovery\n• A VPN or proxy app may block discovery; turn it off and try again\n• DLNA and Google Cast (Chromecast) are supported. Apple TV (AirPlay) and some vendors\' proprietary casting protocols are not; make sure DLNA / screen sharing is enabled on the TV\n• Still nothing? Tap "Add manually" and enter the TV\'s IP address',
+			'videoDetail.cast.dlnaCastSheet.failure.unreachable' => 'Can\'t reach the device. Make sure it is on the same Wi-Fi and try turning off your VPN',
+			'videoDetail.cast.dlnaCastSheet.failure.timeout' => 'The device did not respond',
+			'videoDetail.cast.dlnaCastSheet.failure.mediaRejected' => 'The device can\'t play this video (unsupported format or the link can\'t be opened)',
+			'videoDetail.cast.dlnaCastSheet.failure.deviceRejected' => 'The device rejected the cast request',
 			'videoDetail.likeAvatars.dialogTitle' => 'Who\'s secretly liking',
 			'videoDetail.likeAvatars.dialogDescription' => 'Curious who they are? Flip through this "Like Album"~',
 			'videoDetail.likeAvatars.closeTooltip' => 'Close',
@@ -14777,6 +14852,8 @@ extension on Translations {
 			'download.actions.deleteGalleryNote' => ({required Object count}) => 'Size of ${count} galleries not included',
 			'download.actions.deleteFiles' => 'Also delete files from disk',
 			'download.actions.deleteFilesDesc' => 'When off, only the list entries are removed and the files stay where they are',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.deleteFilesAllMissing' => 'The files are already gone; only the entries will be removed',
 			'download.actions.deleteDone' => ({required Object count}) => 'Deleted ${count} items',
 			'download.actions.deletePartial' => ({required Object failed}) => 'Could not delete the files of ${failed} items (they may be in use); their entries were kept',
@@ -14793,8 +14870,6 @@ extension on Translations {
 			'download.actions.migrateNone' => 'Everything is already in the current download folder',
 			'download.notice.failed' => ({required Object count}) => '${count} downloads failed',
 			'download.notice.retryAll' => 'Retry all',
-			_ => null,
-		} ?? switch (path) {
 			'download.notice.view' => 'View',
 			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			'download.notice.handle' => 'Handle…',
@@ -15291,6 +15366,8 @@ extension on Translations {
 			'translation.sendTemperatureDescription' => 'Turn off for models that reject the temperature parameter (most reasoning models)',
 			'translation.showReasoningProcess' => 'Show thought process',
 			'translation.showReasoningProcessDescription' => 'Show the collapsible reasoning of reasoning models in the translation dialog',
+			_ => null,
+		} ?? switch (path) {
 			'translation.provider' => 'Provider',
 			'translation.providerOpenAI' => 'OpenAI (and compatible)',
 			'translation.providerAnthropic' => 'Anthropic (Claude)',
@@ -15307,8 +15384,6 @@ extension on Translations {
 			'translation.presetNames.anthropic' => 'Anthropic Claude',
 			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude Reasoning (extended thinking)',
 			'translation.presetNames.gemini' => 'Google Gemini (native)',
-			_ => null,
-		} ?? switch (path) {
 			'translation.presetNames.geminiReasoning' => 'Google Gemini Reasoning (thinking)',
 			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek Reasoning (deepseek-reasoner / R1)',
@@ -15805,6 +15880,8 @@ extension on Translations {
 			'tagSelector.addTagTooltip' => 'Add Tag',
 			'tagSelector.removeTagTooltip' => 'Remove Tag',
 			'tagSelector.cancelSelection' => 'Cancel Selection',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.selectAll' => 'Select All',
 			'tagSelector.cancelSelectAll' => 'Cancel Select All',
 			'tagSelector.delete' => 'Delete',
@@ -15821,8 +15898,6 @@ extension on Translations {
 			'anime4k.presetGroups.highQuality' => 'High Quality',
 			'anime4k.presetGroups.fast' => 'Fast',
 			'anime4k.presetGroups.lite' => 'Lite',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetGroups.moreLite' => 'More Lite',
 			'anime4k.presetGroups.custom' => 'Custom',
 			'anime4k.presetDescriptions.mode_a_hq' => 'Suitable for most 1080p animations, especially those dealing with blur, resampling and compression artifacts. Provides the highest perceived quality.',
@@ -16319,6 +16394,8 @@ extension on Translations {
 			'localMedia.webdav.previousStep' => 'Back',
 			'localMedia.webdav.bannerUnreachable' => 'Can\'t reach the NAS. Showing what was seen last time.',
 			'localMedia.webdav.bannerAuthFailed' => 'Login expired. Sign in again to see the latest content.',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.bannerCertUntrusted' => 'The NAS certificate changed. Confirm it to continue.',
 			'localMedia.webdav.bannerCredUnreadable' => 'Couldn\'t read the saved password. Sign in again.',
 			'localMedia.mediaStoreUnavailable' => 'The device media index is only available on Android',
@@ -16335,8 +16412,6 @@ extension on Translations {
 			'localMedia.sourceAlreadyAdded' => ({required Object name}) => '"${name}" has already been added',
 			'localMedia.sourceContainsExisting' => ({required Object name}) => 'It already contains the added folder "${name}"; adding its parent folder isn\'t supported yet',
 			'localMedia.addSourceFailed' => 'Could not add that folder',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.fileMissing' => 'That file is no longer on disk',
 			'localMedia.permissionDenied' => 'File access not granted. Allow it before adding a folder.',
 			'localMedia.noVideosFound' => 'No videos in this folder',

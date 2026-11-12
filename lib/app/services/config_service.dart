@@ -566,6 +566,9 @@ enum ConfigKey {
   // 从官网前端自动提取的视频源签名盐值记录（JSON：salt / script / builtin，
   // 空 Map＝用内置值），见 XVersionSaltService
   X_VERSION_SALT_CACHE,
+  // 投屏「手动添加」记住的设备地址（IPv4 字符串列表，新的在前，最多 8 个），
+  // 每次搜索都会顺带探测一遍，见 CastService
+  CAST_MANUAL_HOSTS,
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -913,6 +916,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'ai_task_bindings';
       case ConfigKey.X_VERSION_SALT_CACHE:
         return 'x_version_salt_cache';
+      case ConfigKey.CAST_MANUAL_HOSTS:
+        return 'cast_manual_hosts';
     }
   }
 
@@ -1309,6 +1314,8 @@ extension ConfigKeyExtension on ConfigKey {
         return '';
       case ConfigKey.X_VERSION_SALT_CACHE:
         return <String, dynamic>{};
+      case ConfigKey.CAST_MANUAL_HOSTS:
+        return <String>[];
     }
   }
 }

@@ -5083,6 +5083,32 @@ class _TranslationsVideoDetailCastDlnaCastSheetVi extends TranslationsVideoDetai
 	@override String connectedTo({required Object deviceName}) => 'Đã kết nối với: ${deviceName}';
 	@override String get notConnected => 'Chưa kết nối thiết bị nào';
 	@override String get stopCasting => 'Dừng truyền phát';
+	@override String searchFinished({required Object count}) => 'Đã tìm xong, tìm thấy ${count} thiết bị';
+	@override String get protocolDlna => 'DLNA';
+	@override String get protocolGoogleCast => 'Google Cast';
+	@override String get addByIp => 'Thêm thủ công';
+	@override String get addByIpTitle => 'Thêm thiết bị thủ công';
+	@override String get addByIpDesc => 'Nhập địa chỉ IP của TV hoặc hộp phát. Thường xem được trong Cài đặt → Mạng → Trạng thái mạng trên TV.';
+	@override String get addByIpHint => 'ví dụ 192.168.1.20';
+	@override String get addByIpAction => 'Tìm';
+	@override String get addByIpInvalid => 'Địa chỉ không hợp lệ. Hãy nhập địa chỉ IPv4 như 192.168.1.20';
+	@override String addByIpNotFound({required Object host}) => 'Không tìm thấy thiết bị truyền tại ${host}';
+	@override String get troubleshootTitle => 'Không tìm thấy thiết bị?';
+	@override String get troubleshoot => '• Điện thoại/máy tính và TV phải dùng cùng một Wi-Fi. Mạng khách và tính năng cách ly AP của router sẽ chặn việc tìm kiếm\n• VPN hoặc ứng dụng proxy có thể chặn việc tìm kiếm; hãy tắt rồi thử lại\n• Hỗ trợ DLNA và Google Cast (Chromecast). Không hỗ trợ Apple TV (AirPlay) và giao thức riêng của một số hãng; hãy bật DLNA trên TV\n• Vẫn không thấy? Nhấn "Thêm thủ công" và nhập IP của TV';
+	@override late final _TranslationsVideoDetailCastDlnaCastSheetFailureVi failure = _TranslationsVideoDetailCastDlnaCastSheetFailureVi._(_root);
+}
+
+// Path: videoDetail.cast.dlnaCastSheet.failure
+class _TranslationsVideoDetailCastDlnaCastSheetFailureVi extends TranslationsVideoDetailCastDlnaCastSheetFailureEn {
+	_TranslationsVideoDetailCastDlnaCastSheetFailureVi._(TranslationsVi root) : this._root = root, super.internal(root);
+
+	final TranslationsVi _root; // ignore: unused_field
+
+	// Translations
+	@override String get unreachable => 'Không kết nối được thiết bị. Kiểm tra cùng Wi-Fi và thử tắt VPN';
+	@override String get timeout => 'Thiết bị không phản hồi';
+	@override String get mediaRejected => 'Thiết bị không phát được video này (định dạng không hỗ trợ hoặc không mở được liên kết)';
+	@override String get deviceRejected => 'Thiết bị đã từ chối yêu cầu truyền';
 }
 
 /// The flat map containing all translations for locale <vi>.
@@ -6733,6 +6759,22 @@ extension on TranslationsVi {
 			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => 'Đã kết nối với: ${deviceName}',
 			'videoDetail.cast.dlnaCastSheet.notConnected' => 'Chưa kết nối thiết bị nào',
 			'videoDetail.cast.dlnaCastSheet.stopCasting' => 'Dừng truyền phát',
+			'videoDetail.cast.dlnaCastSheet.searchFinished' => ({required Object count}) => 'Đã tìm xong, tìm thấy ${count} thiết bị',
+			'videoDetail.cast.dlnaCastSheet.protocolDlna' => 'DLNA',
+			'videoDetail.cast.dlnaCastSheet.protocolGoogleCast' => 'Google Cast',
+			'videoDetail.cast.dlnaCastSheet.addByIp' => 'Thêm thủ công',
+			'videoDetail.cast.dlnaCastSheet.addByIpTitle' => 'Thêm thiết bị thủ công',
+			'videoDetail.cast.dlnaCastSheet.addByIpDesc' => 'Nhập địa chỉ IP của TV hoặc hộp phát. Thường xem được trong Cài đặt → Mạng → Trạng thái mạng trên TV.',
+			'videoDetail.cast.dlnaCastSheet.addByIpHint' => 'ví dụ 192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpAction' => 'Tìm',
+			'videoDetail.cast.dlnaCastSheet.addByIpInvalid' => 'Địa chỉ không hợp lệ. Hãy nhập địa chỉ IPv4 như 192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpNotFound' => ({required Object host}) => 'Không tìm thấy thiết bị truyền tại ${host}',
+			'videoDetail.cast.dlnaCastSheet.troubleshootTitle' => 'Không tìm thấy thiết bị?',
+			'videoDetail.cast.dlnaCastSheet.troubleshoot' => '• Điện thoại/máy tính và TV phải dùng cùng một Wi-Fi. Mạng khách và tính năng cách ly AP của router sẽ chặn việc tìm kiếm\n• VPN hoặc ứng dụng proxy có thể chặn việc tìm kiếm; hãy tắt rồi thử lại\n• Hỗ trợ DLNA và Google Cast (Chromecast). Không hỗ trợ Apple TV (AirPlay) và giao thức riêng của một số hãng; hãy bật DLNA trên TV\n• Vẫn không thấy? Nhấn "Thêm thủ công" và nhập IP của TV',
+			'videoDetail.cast.dlnaCastSheet.failure.unreachable' => 'Không kết nối được thiết bị. Kiểm tra cùng Wi-Fi và thử tắt VPN',
+			'videoDetail.cast.dlnaCastSheet.failure.timeout' => 'Thiết bị không phản hồi',
+			'videoDetail.cast.dlnaCastSheet.failure.mediaRejected' => 'Thiết bị không phát được video này (định dạng không hỗ trợ hoặc không mở được liên kết)',
+			'videoDetail.cast.dlnaCastSheet.failure.deviceRejected' => 'Thiết bị đã từ chối yêu cầu truyền',
 			'videoDetail.likeAvatars.dialogTitle' => 'Ai đang âm thầm thích',
 			'videoDetail.likeAvatars.dialogDescription' => 'Tò mò họ là ai? Lật xem "Album lượt thích" này~',
 			'videoDetail.likeAvatars.closeTooltip' => 'Đóng',
@@ -7131,6 +7173,8 @@ extension on TranslationsVi {
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
 			'download.notice.migrate' => 'Move',
 			'download.notice.dismiss' => 'Dismiss',
+			_ => null,
+		} ?? switch (path) {
 			'download.emptyTaskList' => 'Chưa có tác vụ tải xuống',
 			'download.noMatchingTasks' => 'Không có tác vụ nào khớp',
 			'download.deleteByDate.menuTitle' => 'Xóa theo ngày',
@@ -7147,8 +7191,6 @@ extension on TranslationsVi {
 			'download.deleteByDate.invalidRange' => 'Ngày bắt đầu phải trước hoặc bằng ngày kết thúc',
 			'download.deleteByDate.confirmTitle' => 'Xác nhận xóa',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Xóa ${count} tác vụ tải xuống và tệp của chúng? Thao tác này không thể hoàn tác.',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Đang xóa ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Đã xóa ${count} tác vụ',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Đã xóa ${deleted} tác vụ; bỏ qua ${skipped} (đang được dùng)',
@@ -7645,6 +7687,8 @@ extension on TranslationsVi {
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
 			'translation.fetchModelList' => 'Tải danh sách mô hình',
+			_ => null,
+		} ?? switch (path) {
 			'translation.fetchingModels' => 'Đang tải...',
 			'translation.selectModel' => 'Chọn mô hình',
 			'translation.searchModel' => 'Tìm kiếm mô hình',
@@ -7661,8 +7705,6 @@ extension on TranslationsVi {
 			'navigationOrderSettings.navigationItemSorting' => 'Sắp xếp mục điều hướng',
 			'navigationOrderSettings.done' => 'Xong',
 			'navigationOrderSettings.edit' => 'Chỉnh sửa',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.reset' => 'Đặt lại',
 			'navigationOrderSettings.previewEffect' => 'Xem trước hiệu ứng',
 			'navigationOrderSettings.bottomNavigationPreview' => 'Xem trước thanh điều hướng dưới:',
@@ -8159,6 +8201,8 @@ extension on TranslationsVi {
 			'anime4k.presetDescriptions.mode_b_hq' => 'Phù hợp với video hoạt hình bị mờ nhẹ hoặc có viền răng cưa do nâng tỉ lệ. Giảm hiệu quả viền răng cưa và hiện tượng răng cưa.',
 			'anime4k.presetDescriptions.mode_c_hq' => 'Phù hợp với nguồn chất lượng cao (như video hoạt hình hoặc phim 1080p gốc). Khử nhiễu và mang lại PSNR cao nhất.',
 			'anime4k.presetDescriptions.mode_a_a_hq' => 'Phiên bản nâng cao của Mode A, mang lại chất lượng cảm nhận tối đa và có thể tái tạo gần như toàn bộ đường nét bị suy giảm. Có thể gây quá sắc hoặc viền răng cưa.',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_b_b_hq' => 'Phiên bản nâng cao của Mode B, mang lại chất lượng cảm nhận cao hơn, tối ưu đường nét và giảm lỗi hình.',
 			'anime4k.presetDescriptions.mode_c_a_hq' => 'Phiên bản nâng cao chất lượng cảm nhận của Mode C, duy trì PSNR cao đồng thời cố tái tạo một số chi tiết đường nét.',
 			'anime4k.presetDescriptions.mode_a_fast' => 'Phiên bản nhanh của Mode A, cân bằng giữa chất lượng và hiệu năng, phù hợp với hầu hết video hoạt hình 1080p.',
@@ -8175,8 +8219,6 @@ extension on TranslationsVi {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + làm đậm đường nét, bổ sung hiệu ứng làm đậm đường nét cho Mode A nhanh, giúp đường nét nổi bật và cách điệu hơn.',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + làm mảnh đường nét, bổ sung hiệu ứng làm mảnh đường nét cho Mode A chất lượng cao, giúp hình ảnh tinh tế hơn.',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8673,6 +8715,8 @@ extension on TranslationsVi {
 			'localMedia.emptyTitle' => 'Thêm thư mục để xem các video đã có trên thiết bị này',
 			'localMedia.emptyPrivacyNote' => 'Tệp chỉ được đọc trên thiết bị này. Không có gì được tải lên.',
 			'localMedia.removeSourceTitle' => ({required Object name}) => 'Xóa "${name}"?',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.removeSourceBody' => 'Các tệp vẫn còn trên đĩa. Chỉ mục thư viện này bị xóa.',
 			'localMedia.remove' => 'Xóa',
 			'localMedia.removeFolder' => 'Xóa thư mục',
@@ -8689,8 +8733,6 @@ extension on TranslationsVi {
 			'historyPage.removeFromHistory' => 'Xóa khỏi lịch sử',
 			'historyPage.removed' => 'Đã xóa khỏi lịch sử',
 			'historyPage.watchedTo' => ({required Object time}) => 'Đã xem đến ${time}',
-			_ => null,
-		} ?? switch (path) {
 			'historyPage.finished' => 'Đã xem xong',
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'Xóa "${tab}"',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Toàn bộ lịch sử trong "${tab}" sẽ bị xóa, kèm tiến độ xem của các video đó. Không thể hoàn tác.',

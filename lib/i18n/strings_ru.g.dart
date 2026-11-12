@@ -5083,6 +5083,32 @@ class _TranslationsVideoDetailCastDlnaCastSheetRu extends TranslationsVideoDetai
 	@override String connectedTo({required Object deviceName}) => 'Подключено к: ${deviceName}';
 	@override String get notConnected => 'Нет подключенных устройств';
 	@override String get stopCasting => 'Остановить трансляцию';
+	@override String searchFinished({required Object count}) => 'Поиск завершён, найдено устройств: ${count}';
+	@override String get protocolDlna => 'DLNA';
+	@override String get protocolGoogleCast => 'Google Cast';
+	@override String get addByIp => 'Добавить вручную';
+	@override String get addByIpTitle => 'Добавить устройство вручную';
+	@override String get addByIpDesc => 'Введите IP-адрес телевизора или приставки. Обычно его можно найти в разделе «Настройки → Сеть → Состояние сети» на телевизоре.';
+	@override String get addByIpHint => 'например, 192.168.1.20';
+	@override String get addByIpAction => 'Найти';
+	@override String get addByIpInvalid => 'Неверный адрес. Введите IPv4-адрес, например 192.168.1.20';
+	@override String addByIpNotFound({required Object host}) => 'По адресу ${host} устройство для трансляции не найдено';
+	@override String get troubleshootTitle => 'Не можете найти устройство?';
+	@override String get troubleshoot => '• Телефон (компьютер) и телевизор должны быть в одной сети Wi-Fi. Гостевые сети и изоляция точек доступа на роутере мешают поиску\n• VPN или прокси-приложение может блокировать поиск — отключите его и попробуйте снова\n• Поддерживаются DLNA и Google Cast (Chromecast). Apple TV (AirPlay) и фирменные протоколы некоторых производителей не поддерживаются; включите DLNA на телевизоре\n• Всё ещё нет? Нажмите «Добавить вручную» и введите IP телевизора';
+	@override late final _TranslationsVideoDetailCastDlnaCastSheetFailureRu failure = _TranslationsVideoDetailCastDlnaCastSheetFailureRu._(_root);
+}
+
+// Path: videoDetail.cast.dlnaCastSheet.failure
+class _TranslationsVideoDetailCastDlnaCastSheetFailureRu extends TranslationsVideoDetailCastDlnaCastSheetFailureEn {
+	_TranslationsVideoDetailCastDlnaCastSheetFailureRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get unreachable => 'Не удаётся подключиться к устройству. Убедитесь, что оно в той же сети Wi-Fi, и попробуйте отключить VPN';
+	@override String get timeout => 'Устройство не отвечает';
+	@override String get mediaRejected => 'Устройство не может воспроизвести это видео (неподдерживаемый формат или ссылка недоступна)';
+	@override String get deviceRejected => 'Устройство отклонило запрос';
 }
 
 /// The flat map containing all translations for locale <ru>.
@@ -6733,6 +6759,22 @@ extension on TranslationsRu {
 			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => 'Подключено к: ${deviceName}',
 			'videoDetail.cast.dlnaCastSheet.notConnected' => 'Нет подключенных устройств',
 			'videoDetail.cast.dlnaCastSheet.stopCasting' => 'Остановить трансляцию',
+			'videoDetail.cast.dlnaCastSheet.searchFinished' => ({required Object count}) => 'Поиск завершён, найдено устройств: ${count}',
+			'videoDetail.cast.dlnaCastSheet.protocolDlna' => 'DLNA',
+			'videoDetail.cast.dlnaCastSheet.protocolGoogleCast' => 'Google Cast',
+			'videoDetail.cast.dlnaCastSheet.addByIp' => 'Добавить вручную',
+			'videoDetail.cast.dlnaCastSheet.addByIpTitle' => 'Добавить устройство вручную',
+			'videoDetail.cast.dlnaCastSheet.addByIpDesc' => 'Введите IP-адрес телевизора или приставки. Обычно его можно найти в разделе «Настройки → Сеть → Состояние сети» на телевизоре.',
+			'videoDetail.cast.dlnaCastSheet.addByIpHint' => 'например, 192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpAction' => 'Найти',
+			'videoDetail.cast.dlnaCastSheet.addByIpInvalid' => 'Неверный адрес. Введите IPv4-адрес, например 192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpNotFound' => ({required Object host}) => 'По адресу ${host} устройство для трансляции не найдено',
+			'videoDetail.cast.dlnaCastSheet.troubleshootTitle' => 'Не можете найти устройство?',
+			'videoDetail.cast.dlnaCastSheet.troubleshoot' => '• Телефон (компьютер) и телевизор должны быть в одной сети Wi-Fi. Гостевые сети и изоляция точек доступа на роутере мешают поиску\n• VPN или прокси-приложение может блокировать поиск — отключите его и попробуйте снова\n• Поддерживаются DLNA и Google Cast (Chromecast). Apple TV (AirPlay) и фирменные протоколы некоторых производителей не поддерживаются; включите DLNA на телевизоре\n• Всё ещё нет? Нажмите «Добавить вручную» и введите IP телевизора',
+			'videoDetail.cast.dlnaCastSheet.failure.unreachable' => 'Не удаётся подключиться к устройству. Убедитесь, что оно в той же сети Wi-Fi, и попробуйте отключить VPN',
+			'videoDetail.cast.dlnaCastSheet.failure.timeout' => 'Устройство не отвечает',
+			'videoDetail.cast.dlnaCastSheet.failure.mediaRejected' => 'Устройство не может воспроизвести это видео (неподдерживаемый формат или ссылка недоступна)',
+			'videoDetail.cast.dlnaCastSheet.failure.deviceRejected' => 'Устройство отклонило запрос',
 			'videoDetail.likeAvatars.dialogTitle' => 'Кто оценил',
 			'videoDetail.likeAvatars.dialogDescription' => 'Интересно, кто это? Посмотрите список оценивших~',
 			'videoDetail.likeAvatars.closeTooltip' => 'Закрыть',
@@ -7131,6 +7173,8 @@ extension on TranslationsRu {
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
 			'download.notice.migrate' => 'Move',
 			'download.notice.dismiss' => 'Dismiss',
+			_ => null,
+		} ?? switch (path) {
 			'download.emptyTaskList' => 'Пока нет задач загрузки',
 			'download.noMatchingTasks' => 'Нет подходящих задач',
 			'download.deleteByDate.menuTitle' => 'Удаление по дате',
@@ -7147,8 +7191,6 @@ extension on TranslationsRu {
 			'download.deleteByDate.invalidRange' => 'Дата начала должна быть не позже даты окончания',
 			'download.deleteByDate.confirmTitle' => 'Подтвердите удаление',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Удалить задач загрузки (${count}) и их файлы? Это действие нельзя отменить.',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Удаление ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Удалено задач: ${count}',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Удалено задач: ${deleted}; пропущено: ${skipped} (используются)',
@@ -7645,6 +7687,8 @@ extension on TranslationsRu {
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
 			'translation.fetchModelList' => 'Получить список моделей',
+			_ => null,
+		} ?? switch (path) {
 			'translation.fetchingModels' => 'Получение...',
 			'translation.selectModel' => 'Выберите модель',
 			'translation.searchModel' => 'Поиск модели',
@@ -7661,8 +7705,6 @@ extension on TranslationsRu {
 			'navigationOrderSettings.navigationItemSorting' => 'Сортировка элементов навигации',
 			'navigationOrderSettings.done' => 'Готово',
 			'navigationOrderSettings.edit' => 'Изменить',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.reset' => 'Сбросить',
 			'navigationOrderSettings.previewEffect' => 'Предпросмотр',
 			'navigationOrderSettings.bottomNavigationPreview' => 'Предпросмотр нижней навигации:',
@@ -8159,6 +8201,8 @@ extension on TranslationsRu {
 			'anime4k.presetDescriptions.mode_b_hq' => 'Подходит для аниме с лёгким размытием или звоном, вызванным масштабированием. Эффективно снижает звон и алиасинг.',
 			'anime4k.presetDescriptions.mode_c_hq' => 'Подходит для качественных источников (например, нативных аниме или фильмов в 1080p). Устраняет шум и обеспечивает наивысший PSNR.',
 			'anime4k.presetDescriptions.mode_a_a_hq' => 'Улучшенная версия режима A: максимальное воспринимаемое качество, позволяет восстановить почти все повреждённые линии. Возможно появление избыточной резкости или звона.',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_b_b_hq' => 'Улучшенная версия режима B: более высокое воспринимаемое качество, дополнительная оптимизация линий и снижение артефактов.',
 			'anime4k.presetDescriptions.mode_c_a_hq' => 'Версия режима C с повышенным воспринимаемым качеством: сохраняет высокий PSNR и пытается восстановить часть деталей линий.',
 			'anime4k.presetDescriptions.mode_a_fast' => 'Быстрая версия режима A: баланс качества и производительности, подходит для большинства аниме в 1080p.',
@@ -8175,8 +8219,6 @@ extension on TranslationsRu {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Режим A (быстрый) + затемнение линий: добавляет эффект затемнения линий к быстрому режиму A для более выразительных, стилизованных линий.',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Режим A (HQ) + утончение линий: добавляет эффект утончения линий к высококачественному режиму A для более изящного вида.',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8673,6 +8715,8 @@ extension on TranslationsRu {
 			'localMedia.emptyTitle' => 'Добавьте папку, чтобы просматривать видео, уже имеющиеся на этом устройстве',
 			'localMedia.emptyPrivacyNote' => 'Файлы читаются только на этом устройстве. Ничего не загружается.',
 			'localMedia.removeSourceTitle' => ({required Object name}) => 'Удалить «${name}»?',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.removeSourceBody' => 'Файлы остаются на диске. Удаляется только эта запись в библиотеке.',
 			'localMedia.remove' => 'Удалить',
 			'localMedia.removeFolder' => 'Удалить папку',
@@ -8689,8 +8733,6 @@ extension on TranslationsRu {
 			'historyPage.removeFromHistory' => 'Удалить из истории',
 			'historyPage.removed' => 'Удалено из истории',
 			'historyPage.watchedTo' => ({required Object time}) => 'Просмотрено до ${time}',
-			_ => null,
-		} ?? switch (path) {
 			'historyPage.finished' => 'Просмотрено',
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'Очистить «${tab}»',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Вся история в «${tab}» будет удалена вместе с прогрессом просмотра этих видео. Действие необратимо.',

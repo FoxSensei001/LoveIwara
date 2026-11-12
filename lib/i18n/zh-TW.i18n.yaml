@@ -1789,6 +1789,23 @@ videoDetail:
       connectedTo: '已連接到: ${deviceName}'
       notConnected: 未連接裝置
       stopCasting: 停止投影
+      searchFinished: '搜尋完成，找到 ${count} 台裝置'
+      protocolDlna: 'DLNA'
+      protocolGoogleCast: 'Google Cast'
+      addByIp: '手動新增'
+      addByIpTitle: '手動新增裝置'
+      addByIpDesc: '輸入電視或機上盒的 IP 位址。通常可在電視的「設定 → 網路 → 網路狀態」中找到。'
+      addByIpHint: '例如 192.168.1.20'
+      addByIpAction: '尋找'
+      addByIpInvalid: '位址格式不正確，請輸入類似 192.168.1.20 的 IPv4 位址'
+      addByIpNotFound: '在 ${host} 上找不到投放裝置'
+      troubleshootTitle: '找不到你的裝置？'
+      troubleshoot: '· 手機（電腦）和電視要連同一個 Wi-Fi；訪客網路、路由器開啟「AP 隔離」都會搜不到\n· 開著 VPN／代理軟體時可能搜不到，請先關閉再試\n· 支援 DLNA 和 Google Cast（Chromecast）；不支援 Apple TV（AirPlay）與部分品牌的私有投放協定，電視需開啟 DLNA／多螢幕互動功能\n· 仍然沒有？點「手動新增」輸入電視的 IP'
+      failure:
+        unreachable: '連不上裝置，請確認在同一個 Wi-Fi，並暫時關閉 VPN'
+        timeout: '裝置沒有回應'
+        mediaRejected: '裝置無法播放這部影片（格式不支援或網址無法開啟）'
+        deviceRejected: '裝置拒絕了投放指令'
   # 按讚頭像元件
   likeAvatars:
     dialogTitle: 誰悄悄地喜歡

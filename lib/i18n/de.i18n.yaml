@@ -1717,6 +1717,23 @@ videoDetail:
       connectedTo: 'Verbunden mit: ${deviceName}'
       notConnected: Kein Gerät verbunden
       stopCasting: Übertragung beenden
+      searchFinished: 'Suche abgeschlossen: ${count} Gerät(e) gefunden'
+      protocolDlna: 'DLNA'
+      protocolGoogleCast: 'Google Cast'
+      addByIp: 'Manuell hinzufügen'
+      addByIpTitle: 'Gerät manuell hinzufügen'
+      addByIpDesc: 'Gib die IP-Adresse deines Fernsehers oder Streaming-Geräts ein. Du findest sie meist unter Einstellungen → Netzwerk → Netzwerkstatus am Fernseher.'
+      addByIpHint: 'z. B. 192.168.1.20'
+      addByIpAction: 'Suchen'
+      addByIpInvalid: 'Ungültige Adresse. Gib eine IPv4-Adresse wie 192.168.1.20 ein'
+      addByIpNotFound: 'Unter ${host} wurde kein Cast-Gerät gefunden'
+      troubleshootTitle: 'Gerät nicht gefunden?'
+      troubleshoot: '• Handy/Computer und Fernseher müssen im selben WLAN sein. Gastnetzwerke und AP-Isolation am Router verhindern die Suche\n• Ein VPN oder eine Proxy-App kann die Suche blockieren; schalte sie aus und versuche es erneut\n• Unterstützt werden DLNA und Google Cast (Chromecast). Apple TV (AirPlay) und herstellereigene Cast-Protokolle werden nicht unterstützt; aktiviere DLNA am Fernseher\n• Immer noch nichts? Tippe auf „Manuell hinzufügen“ und gib die IP des Fernsehers ein'
+      failure:
+        unreachable: 'Gerät nicht erreichbar. Prüfe, ob es im selben WLAN ist, und schalte ggf. das VPN aus'
+        timeout: 'Das Gerät antwortet nicht'
+        mediaRejected: 'Das Gerät kann dieses Video nicht abspielen (Format nicht unterstützt oder Link nicht erreichbar)'
+        deviceRejected: 'Das Gerät hat die Anfrage abgelehnt'
   # Like Avatars Component
   likeAvatars:
     dialogTitle: Wer heimlich liked

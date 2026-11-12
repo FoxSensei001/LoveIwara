@@ -5083,6 +5083,32 @@ class _TranslationsVideoDetailCastDlnaCastSheetFr extends TranslationsVideoDetai
 	@override String connectedTo({required Object deviceName}) => 'Connecté à : ${deviceName}';
 	@override String get notConnected => 'Aucun appareil connecté';
 	@override String get stopCasting => 'Arrêter la diffusion';
+	@override String searchFinished({required Object count}) => 'Recherche terminée : ${count} appareil(s) trouvé(s)';
+	@override String get protocolDlna => 'DLNA';
+	@override String get protocolGoogleCast => 'Google Cast';
+	@override String get addByIp => 'Ajouter manuellement';
+	@override String get addByIpTitle => 'Ajouter un appareil manuellement';
+	@override String get addByIpDesc => 'Saisissez l\'adresse IP de votre TV ou boîtier. Vous la trouverez généralement dans Paramètres → Réseau → État du réseau sur la TV.';
+	@override String get addByIpHint => 'ex. 192.168.1.20';
+	@override String get addByIpAction => 'Rechercher';
+	@override String get addByIpInvalid => 'Adresse invalide. Saisissez une adresse IPv4 comme 192.168.1.20';
+	@override String addByIpNotFound({required Object host}) => 'Aucun appareil de diffusion trouvé à ${host}';
+	@override String get troubleshootTitle => 'Vous ne trouvez pas votre appareil ?';
+	@override String get troubleshoot => '• Le téléphone/ordinateur et la TV doivent être sur le même Wi-Fi. Les réseaux invités et l\'isolation AP du routeur empêchent la détection\n• Un VPN ou une app proxy peut bloquer la recherche ; désactivez-le et réessayez\n• DLNA et Google Cast (Chromecast) sont pris en charge. Apple TV (AirPlay) et les protocoles propriétaires de certaines marques ne le sont pas ; activez DLNA sur la TV\n• Toujours rien ? Touchez « Ajouter manuellement » et saisissez l\'IP de la TV';
+	@override late final _TranslationsVideoDetailCastDlnaCastSheetFailureFr failure = _TranslationsVideoDetailCastDlnaCastSheetFailureFr._(_root);
+}
+
+// Path: videoDetail.cast.dlnaCastSheet.failure
+class _TranslationsVideoDetailCastDlnaCastSheetFailureFr extends TranslationsVideoDetailCastDlnaCastSheetFailureEn {
+	_TranslationsVideoDetailCastDlnaCastSheetFailureFr._(TranslationsFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get unreachable => 'Impossible de joindre l\'appareil. Vérifiez qu\'il est sur le même Wi-Fi et essayez de désactiver le VPN';
+	@override String get timeout => 'L\'appareil ne répond pas';
+	@override String get mediaRejected => 'L\'appareil ne peut pas lire cette vidéo (format non pris en charge ou lien inaccessible)';
+	@override String get deviceRejected => 'L\'appareil a refusé la demande de diffusion';
 }
 
 /// The flat map containing all translations for locale <fr>.
@@ -6733,6 +6759,22 @@ extension on TranslationsFr {
 			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => 'Connecté à : ${deviceName}',
 			'videoDetail.cast.dlnaCastSheet.notConnected' => 'Aucun appareil connecté',
 			'videoDetail.cast.dlnaCastSheet.stopCasting' => 'Arrêter la diffusion',
+			'videoDetail.cast.dlnaCastSheet.searchFinished' => ({required Object count}) => 'Recherche terminée : ${count} appareil(s) trouvé(s)',
+			'videoDetail.cast.dlnaCastSheet.protocolDlna' => 'DLNA',
+			'videoDetail.cast.dlnaCastSheet.protocolGoogleCast' => 'Google Cast',
+			'videoDetail.cast.dlnaCastSheet.addByIp' => 'Ajouter manuellement',
+			'videoDetail.cast.dlnaCastSheet.addByIpTitle' => 'Ajouter un appareil manuellement',
+			'videoDetail.cast.dlnaCastSheet.addByIpDesc' => 'Saisissez l\'adresse IP de votre TV ou boîtier. Vous la trouverez généralement dans Paramètres → Réseau → État du réseau sur la TV.',
+			'videoDetail.cast.dlnaCastSheet.addByIpHint' => 'ex. 192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpAction' => 'Rechercher',
+			'videoDetail.cast.dlnaCastSheet.addByIpInvalid' => 'Adresse invalide. Saisissez une adresse IPv4 comme 192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpNotFound' => ({required Object host}) => 'Aucun appareil de diffusion trouvé à ${host}',
+			'videoDetail.cast.dlnaCastSheet.troubleshootTitle' => 'Vous ne trouvez pas votre appareil ?',
+			'videoDetail.cast.dlnaCastSheet.troubleshoot' => '• Le téléphone/ordinateur et la TV doivent être sur le même Wi-Fi. Les réseaux invités et l\'isolation AP du routeur empêchent la détection\n• Un VPN ou une app proxy peut bloquer la recherche ; désactivez-le et réessayez\n• DLNA et Google Cast (Chromecast) sont pris en charge. Apple TV (AirPlay) et les protocoles propriétaires de certaines marques ne le sont pas ; activez DLNA sur la TV\n• Toujours rien ? Touchez « Ajouter manuellement » et saisissez l\'IP de la TV',
+			'videoDetail.cast.dlnaCastSheet.failure.unreachable' => 'Impossible de joindre l\'appareil. Vérifiez qu\'il est sur le même Wi-Fi et essayez de désactiver le VPN',
+			'videoDetail.cast.dlnaCastSheet.failure.timeout' => 'L\'appareil ne répond pas',
+			'videoDetail.cast.dlnaCastSheet.failure.mediaRejected' => 'L\'appareil ne peut pas lire cette vidéo (format non pris en charge ou lien inaccessible)',
+			'videoDetail.cast.dlnaCastSheet.failure.deviceRejected' => 'L\'appareil a refusé la demande de diffusion',
 			'videoDetail.likeAvatars.dialogTitle' => 'Qui aime en secret',
 			'videoDetail.likeAvatars.dialogDescription' => 'Curieux de savoir qui ils sont ? Feuilletez cet « album de J\'aime »~',
 			'videoDetail.likeAvatars.closeTooltip' => 'Fermer',
@@ -7131,6 +7173,8 @@ extension on TranslationsFr {
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
 			'download.notice.migrate' => 'Move',
 			'download.notice.dismiss' => 'Dismiss',
+			_ => null,
+		} ?? switch (path) {
 			'download.emptyTaskList' => 'Aucune tâche de téléchargement pour l\'instant',
 			'download.noMatchingTasks' => 'Aucune tâche correspondante',
 			'download.deleteByDate.menuTitle' => 'Supprimer par date',
@@ -7147,8 +7191,6 @@ extension on TranslationsFr {
 			'download.deleteByDate.invalidRange' => 'La date de début doit être antérieure ou égale à la date de fin',
 			'download.deleteByDate.confirmTitle' => 'Confirmer la suppression',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Supprimer ${count} tâche(s) de téléchargement et leurs fichiers ? Cette action est irréversible.',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Suppression ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count} tâche(s) supprimée(s)',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '${deleted} tâche(s) supprimée(s) ; ${skipped} ignorée(s) (en cours d\'utilisation)',
@@ -7645,6 +7687,8 @@ extension on TranslationsFr {
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
 			'translation.fetchModelList' => 'Récupérer la liste des modèles',
+			_ => null,
+		} ?? switch (path) {
 			'translation.fetchingModels' => 'Récupération...',
 			'translation.selectModel' => 'Sélectionner un modèle',
 			'translation.searchModel' => 'Rechercher un modèle',
@@ -7661,8 +7705,6 @@ extension on TranslationsFr {
 			'navigationOrderSettings.navigationItemSorting' => 'Tri des éléments de navigation',
 			'navigationOrderSettings.done' => 'Terminé',
 			'navigationOrderSettings.edit' => 'Modifier',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.reset' => 'Réinitialiser',
 			'navigationOrderSettings.previewEffect' => 'Aperçu du résultat',
 			'navigationOrderSettings.bottomNavigationPreview' => 'Aperçu de la navigation inférieure :',
@@ -8159,6 +8201,8 @@ extension on TranslationsFr {
 			'anime4k.presetDescriptions.mode_b_hq' => 'Adapté aux animations présentant un léger flou ou des halos dus à la mise à l\'échelle. Réduit efficacement les halos et l\'aliasing.',
 			'anime4k.presetDescriptions.mode_c_hq' => 'Adapté aux sources de haute qualité (animations ou films 1080p natifs, par exemple). Débruite et offre le meilleur PSNR.',
 			'anime4k.presetDescriptions.mode_a_a_hq' => 'Version améliorée du mode A, offrant une qualité perçue optimale et reconstruisant presque toutes les lignes dégradées. Peut produire un excès de netteté ou des halos.',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_b_b_hq' => 'Version améliorée du mode B, offrant une meilleure qualité perçue, optimisant davantage les lignes et réduisant les artefacts.',
 			'anime4k.presetDescriptions.mode_c_a_hq' => 'Version du mode C à qualité perçue améliorée, conservant un PSNR élevé tout en tentant de reconstruire certains détails de lignes.',
 			'anime4k.presetDescriptions.mode_a_fast' => 'Version rapide du mode A, équilibrant qualité et performances, adaptée à la plupart des animations 1080p.',
@@ -8175,8 +8219,6 @@ extension on TranslationsFr {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (rapide) + assombrissement des lignes, ajoutant un effet d\'assombrissement au mode A rapide pour des lignes plus marquées et stylisées.',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + affinage des lignes, ajoutant un effet d\'affinage au mode A haute qualité pour un rendu plus fin.',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8673,6 +8715,8 @@ extension on TranslationsFr {
 			'localMedia.emptyTitle' => 'Ajoutez un dossier pour lire les vidéos déjà présentes sur cet appareil',
 			'localMedia.emptyPrivacyNote' => 'Les fichiers sont lus uniquement sur cet appareil. Rien n\'est envoyé.',
 			'localMedia.removeSourceTitle' => ({required Object name}) => 'Retirer « ${name} » ?',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.removeSourceBody' => 'Les fichiers restent sur le disque. Seule cette entrée de la bibliothèque est retirée.',
 			'localMedia.remove' => 'Retirer',
 			'localMedia.removeFolder' => 'Retirer le dossier',
@@ -8689,8 +8733,6 @@ extension on TranslationsFr {
 			'historyPage.removeFromHistory' => 'Retirer de l\'historique',
 			'historyPage.removed' => 'Retiré de l\'historique',
 			'historyPage.watchedTo' => ({required Object time}) => 'Vu jusqu’à ${time}',
-			_ => null,
-		} ?? switch (path) {
 			'historyPage.finished' => 'Vu',
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'Effacer « ${tab} »',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Tout l’historique de « ${tab} » sera supprimé, ainsi que la progression de lecture de ces vidéos. Action irréversible.',

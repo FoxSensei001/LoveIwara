@@ -86,7 +86,6 @@ dependencies:
   # 17.0.0 起适配 Flutter 3.44+：16.x 内嵌的 editable_text 副本引用了已移除的
   # ExtendSelectionByPageIntent，在 3.47 上无法编译。
   extended_text_field: ^17.0.0
-  dlna_dart: ^0.1.0
   tutorial_coach_mark: ^1.3.1
   connectivity_plus: 7.0.0
   network_info_plus: ^7.0.0
@@ -137,6 +136,7 @@ dependencies:
   material_ui: ^1.8.0
   cupertino_ui: ^1.1.4
   sensors_plus: ^7.1.1
+  bonsoir: ^7.1.5
 dev_dependencies:
   flutter_test:
     sdk: flutter

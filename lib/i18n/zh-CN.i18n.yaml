@@ -1742,6 +1742,23 @@ videoDetail:
       connectedTo: '已连接到: ${deviceName}'
       notConnected: 未连接设备
       stopCasting: 停止投屏
+      searchFinished: '搜索完成，找到 ${count} 台设备'
+      protocolDlna: 'DLNA'
+      protocolGoogleCast: 'Google Cast'
+      addByIp: '手动添加'
+      addByIpTitle: '手动添加设备'
+      addByIpDesc: '输入电视或盒子的 IP 地址。一般在电视的「设置 → 网络 → 网络状态」里能看到。'
+      addByIpHint: '例如 192.168.1.20'
+      addByIpAction: '查找'
+      addByIpInvalid: '地址格式不对，请输入类似 192.168.1.20 的 IPv4 地址'
+      addByIpNotFound: '在 ${host} 上没有找到投屏设备'
+      troubleshootTitle: '找不到你的设备？'
+      troubleshoot: '· 手机（电脑）和电视要连同一个 Wi-Fi；访客网络、路由器开了「AP 隔离」都会搜不到\n· 开着 VPN／代理软件时可能搜不到，先关掉再试\n· 支持 DLNA 和 Google Cast（Chromecast）；不支持 Apple TV（AirPlay）和部分品牌的私有投屏协议，电视需打开 DLNA／多屏互动功能\n· 仍然没有？点「手动添加」输入电视的 IP'
+      failure:
+        unreachable: '连不上设备，请确认在同一个 Wi-Fi，并暂时关闭 VPN'
+        timeout: '设备没有响应'
+        mediaRejected: '设备无法播放这个视频（格式不支持或地址打不开）'
+        deviceRejected: '设备拒绝了投屏指令'
   # 点赞头像组件
   likeAvatars:
     dialogTitle: 谁在偷偷喜欢

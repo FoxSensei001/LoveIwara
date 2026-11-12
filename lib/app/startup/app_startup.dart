@@ -65,7 +65,7 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/version_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/services/auth_service.dart';
-import 'package:i_iwara/app/ui/pages/video_detail/controllers/dlna_cast_service.dart';
+import 'package:i_iwara/app/services/cast/cast_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/db/database_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -530,7 +530,7 @@ class AppStartupCoordinator implements AppStartupRunner {
       permanent: true,
     );
     _registerDeferredSingleton<EmojiLibraryService>(EmojiLibraryService());
-    _registerDeferredSingleton<DlnaCastService>(DlnaCastService());
+    _registerDeferredSingleton<CastService>(CastService());
     _registerDeferredSingleton<HistoryRepository>(HistoryRepository());
     _registerDeferredSingleton<ContentBlockService>(ContentBlockService());
     // 标签本地化词库：注册后后台加载（缓存 -> 打包资源 -> CDN 刷新），不阻塞启动

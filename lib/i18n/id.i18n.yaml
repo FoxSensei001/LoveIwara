@@ -1717,6 +1717,23 @@ videoDetail:
       connectedTo: 'Terhubung ke: ${deviceName}'
       notConnected: Tidak ada perangkat terhubung
       stopCasting: Hentikan Penyiaran
+      searchFinished: 'Pencarian selesai, ${count} perangkat ditemukan'
+      protocolDlna: 'DLNA'
+      protocolGoogleCast: 'Google Cast'
+      addByIp: 'Tambah manual'
+      addByIpTitle: 'Tambah perangkat secara manual'
+      addByIpDesc: 'Masukkan alamat IP TV atau perangkat streaming. Biasanya dapat ditemukan di Pengaturan → Jaringan → Status jaringan pada TV.'
+      addByIpHint: 'mis. 192.168.1.20'
+      addByIpAction: 'Cari'
+      addByIpInvalid: 'Alamat tidak valid. Masukkan alamat IPv4 seperti 192.168.1.20'
+      addByIpNotFound: 'Tidak ada perangkat cast di ${host}'
+      troubleshootTitle: 'Tidak menemukan perangkat?'
+      troubleshoot: '• Ponsel/komputer dan TV harus terhubung ke Wi-Fi yang sama. Jaringan tamu dan isolasi AP pada router menghalangi pencarian\n• VPN atau aplikasi proxy dapat menghalangi pencarian; matikan lalu coba lagi\n• Mendukung DLNA dan Google Cast (Chromecast). Apple TV (AirPlay) dan protokol khusus beberapa merek tidak didukung; aktifkan DLNA di TV\n• Masih tidak ada? Ketuk "Tambah manual" lalu masukkan IP TV'
+      failure:
+        unreachable: 'Tidak dapat terhubung ke perangkat. Pastikan berada di Wi-Fi yang sama dan coba matikan VPN'
+        timeout: 'Perangkat tidak merespons'
+        mediaRejected: 'Perangkat tidak dapat memutar video ini (format tidak didukung atau tautan tidak dapat dibuka)'
+        deviceRejected: 'Perangkat menolak permintaan cast'
   # Like Avatars Component
   likeAvatars:
     dialogTitle: Siapa yang diam-diam menyukai

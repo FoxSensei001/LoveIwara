@@ -1717,6 +1717,23 @@ videoDetail:
       connectedTo: 'Conectado a: ${deviceName}'
       notConnected: Ningún dispositivo conectado
       stopCasting: Detener transmisión
+      searchFinished: 'Búsqueda terminada: ${count} dispositivo(s) encontrado(s)'
+      protocolDlna: 'DLNA'
+      protocolGoogleCast: 'Google Cast'
+      addByIp: 'Añadir manualmente'
+      addByIpTitle: 'Añadir dispositivo manualmente'
+      addByIpDesc: 'Introduce la dirección IP de tu TV o reproductor. Normalmente aparece en Ajustes → Red → Estado de la red del televisor.'
+      addByIpHint: 'p. ej. 192.168.1.20'
+      addByIpAction: 'Buscar'
+      addByIpInvalid: 'Dirección no válida. Introduce una dirección IPv4 como 192.168.1.20'
+      addByIpNotFound: 'No se encontró ningún dispositivo de transmisión en ${host}'
+      troubleshootTitle: '¿No encuentras tu dispositivo?'
+      troubleshoot: '• El teléfono/ordenador y la TV deben estar en la misma red Wi-Fi. Las redes de invitados y el aislamiento AP del router impiden encontrarlos\n• Una VPN o app de proxy puede impedir la búsqueda; desactívala e inténtalo de nuevo\n• Se admiten DLNA y Google Cast (Chromecast). Apple TV (AirPlay) y los protocolos propios de algunas marcas no son compatibles; activa DLNA en la TV\n• ¿Sigue sin aparecer? Pulsa «Añadir manualmente» e introduce la IP de la TV'
+      failure:
+        unreachable: 'No se puede conectar con el dispositivo. Comprueba que está en la misma Wi-Fi y prueba a desactivar la VPN'
+        timeout: 'El dispositivo no responde'
+        mediaRejected: 'El dispositivo no puede reproducir este vídeo (formato no compatible o no se puede abrir el enlace)'
+        deviceRejected: 'El dispositivo rechazó la solicitud'
   # Like Avatars Component
   likeAvatars:
     dialogTitle: Quién da me gusta en secreto

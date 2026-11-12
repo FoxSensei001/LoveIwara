@@ -108,7 +108,13 @@
 
     <!-- 本地网络访问权限描述 -->
     <key>NSLocalNetworkUsageDescription</key>
-    <string>App需要访问本地网络</string>
+    <string>App需要访问本地网络，用于投屏到电视和连接局域网 NAS</string>
+    <!-- 投屏找 Chromecast / 内置 Google Cast 的电视：走系统 Bonjour 浏览，
+         不需要组播 entitlement，但必须在这里声明服务类型，否则 iOS 14+ 静默返回空。 -->
+    <key>NSBonjourServices</key>
+    <array>
+        <string>_googlecast._tcp</string>
+    </array>
 
     <!-- WiFi 权限描述 -->
     <key>NSLocationWhenInUseUsageDescription</key>

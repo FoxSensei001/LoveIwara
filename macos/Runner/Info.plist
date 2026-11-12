@@ -76,6 +76,11 @@
     <!-- 连接局域网 NAS（WebDAV）。macOS 15 起本地网络隐私对未开沙盒的应用同样生效，
          缺这一条时系统不给弹授权框，局域网请求会直接失败。 -->
     <key>NSLocalNetworkUsageDescription</key>
-    <string>App needs local network access to browse and play videos on your NAS.</string>
+    <string>App needs local network access to browse and play videos on your NAS and to cast to TVs.</string>
+    <!-- 投屏找 Chromecast：系统 Bonjour 浏览需要声明服务类型。 -->
+    <key>NSBonjourServices</key>
+    <array>
+        <string>_googlecast._tcp</string>
+    </array>
 </dict>
 </plist>

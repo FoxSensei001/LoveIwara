@@ -5083,6 +5083,32 @@ class _TranslationsVideoDetailCastDlnaCastSheetJa extends TranslationsVideoDetai
 	@override String connectedTo({required Object deviceName}) => '接続済み: ${deviceName}';
 	@override String get notConnected => 'デバイス未接続';
 	@override String get stopCasting => 'キャスト停止';
+	@override String searchFinished({required Object count}) => '検索完了：${count} 台のデバイスが見つかりました';
+	@override String get protocolDlna => 'DLNA';
+	@override String get protocolGoogleCast => 'Google Cast';
+	@override String get addByIp => '手動で追加';
+	@override String get addByIpTitle => 'デバイスを手動で追加';
+	@override String get addByIpDesc => 'テレビやストリーミング端末の IP アドレスを入力してください。通常はテレビの「設定 → ネットワーク → ネットワーク状態」で確認できます。';
+	@override String get addByIpHint => '例：192.168.1.20';
+	@override String get addByIpAction => '検索';
+	@override String get addByIpInvalid => 'アドレスの形式が正しくありません。192.168.1.20 のような IPv4 アドレスを入力してください';
+	@override String addByIpNotFound({required Object host}) => '${host} でキャストデバイスが見つかりませんでした';
+	@override String get troubleshootTitle => 'デバイスが見つかりませんか？';
+	@override String get troubleshoot => '・スマホ（PC）とテレビを同じ Wi-Fi に接続してください。ゲストネットワークやルーターの AP アイソレーションが有効だと検出できません\n・VPN やプロキシアプリを使用中は検出できないことがあります。オフにして再試行してください\n・DLNA と Google Cast（Chromecast）に対応しています。Apple TV（AirPlay）や一部メーカー独自のキャスト方式には対応していません。テレビ側で DLNA を有効にしてください\n・それでも見つからない場合は「手動で追加」からテレビの IP を入力してください';
+	@override late final _TranslationsVideoDetailCastDlnaCastSheetFailureJa failure = _TranslationsVideoDetailCastDlnaCastSheetFailureJa._(_root);
+}
+
+// Path: videoDetail.cast.dlnaCastSheet.failure
+class _TranslationsVideoDetailCastDlnaCastSheetFailureJa extends TranslationsVideoDetailCastDlnaCastSheetFailureEn {
+	_TranslationsVideoDetailCastDlnaCastSheetFailureJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get unreachable => 'デバイスに接続できません。同じ Wi-Fi にいるか確認し、VPN をオフにしてみてください';
+	@override String get timeout => 'デバイスが応答しません';
+	@override String get mediaRejected => 'デバイスがこの動画を再生できません（未対応の形式、またはリンクを開けません）';
+	@override String get deviceRejected => 'デバイスがキャスト要求を拒否しました';
 }
 
 /// The flat map containing all translations for locale <ja>.
@@ -6733,6 +6759,22 @@ extension on TranslationsJa {
 			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => '接続済み: ${deviceName}',
 			'videoDetail.cast.dlnaCastSheet.notConnected' => 'デバイス未接続',
 			'videoDetail.cast.dlnaCastSheet.stopCasting' => 'キャスト停止',
+			'videoDetail.cast.dlnaCastSheet.searchFinished' => ({required Object count}) => '検索完了：${count} 台のデバイスが見つかりました',
+			'videoDetail.cast.dlnaCastSheet.protocolDlna' => 'DLNA',
+			'videoDetail.cast.dlnaCastSheet.protocolGoogleCast' => 'Google Cast',
+			'videoDetail.cast.dlnaCastSheet.addByIp' => '手動で追加',
+			'videoDetail.cast.dlnaCastSheet.addByIpTitle' => 'デバイスを手動で追加',
+			'videoDetail.cast.dlnaCastSheet.addByIpDesc' => 'テレビやストリーミング端末の IP アドレスを入力してください。通常はテレビの「設定 → ネットワーク → ネットワーク状態」で確認できます。',
+			'videoDetail.cast.dlnaCastSheet.addByIpHint' => '例：192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpAction' => '検索',
+			'videoDetail.cast.dlnaCastSheet.addByIpInvalid' => 'アドレスの形式が正しくありません。192.168.1.20 のような IPv4 アドレスを入力してください',
+			'videoDetail.cast.dlnaCastSheet.addByIpNotFound' => ({required Object host}) => '${host} でキャストデバイスが見つかりませんでした',
+			'videoDetail.cast.dlnaCastSheet.troubleshootTitle' => 'デバイスが見つかりませんか？',
+			'videoDetail.cast.dlnaCastSheet.troubleshoot' => '・スマホ（PC）とテレビを同じ Wi-Fi に接続してください。ゲストネットワークやルーターの AP アイソレーションが有効だと検出できません\n・VPN やプロキシアプリを使用中は検出できないことがあります。オフにして再試行してください\n・DLNA と Google Cast（Chromecast）に対応しています。Apple TV（AirPlay）や一部メーカー独自のキャスト方式には対応していません。テレビ側で DLNA を有効にしてください\n・それでも見つからない場合は「手動で追加」からテレビの IP を入力してください',
+			'videoDetail.cast.dlnaCastSheet.failure.unreachable' => 'デバイスに接続できません。同じ Wi-Fi にいるか確認し、VPN をオフにしてみてください',
+			'videoDetail.cast.dlnaCastSheet.failure.timeout' => 'デバイスが応答しません',
+			'videoDetail.cast.dlnaCastSheet.failure.mediaRejected' => 'デバイスがこの動画を再生できません（未対応の形式、またはリンクを開けません）',
+			'videoDetail.cast.dlnaCastSheet.failure.deviceRejected' => 'デバイスがキャスト要求を拒否しました',
 			'videoDetail.likeAvatars.dialogTitle' => '誰がこっそり「いいね」したの？',
 			'videoDetail.likeAvatars.dialogDescription' => '誰か気になる？この「いいねアルバム」をめくってみよう～',
 			'videoDetail.likeAvatars.closeTooltip' => '閉じる',
@@ -7131,6 +7173,8 @@ extension on TranslationsJa {
 			'download.notice.outside' => ({required Object count}) => '古いダウンロードフォルダに ${count} 件残っています',
 			'download.notice.migrate' => '移動',
 			'download.notice.dismiss' => '閉じる',
+			_ => null,
+		} ?? switch (path) {
 			'download.emptyTaskList' => 'ダウンロードタスクがありません',
 			'download.noMatchingTasks' => '一致するタスクがありません',
 			'download.deleteByDate.menuTitle' => '日付で削除',
@@ -7147,8 +7191,6 @@ extension on TranslationsJa {
 			'download.deleteByDate.invalidRange' => '開始日は終了日以前にしてください',
 			'download.deleteByDate.confirmTitle' => '削除の確認',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => '${count}件のダウンロードタスクとそのファイルを削除しますか？この操作は取り消せません。',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '削除中 ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count}件のタスクを削除しました',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '${deleted}件を削除、${skipped}件をスキップ（使用中）',
@@ -7645,6 +7687,8 @@ extension on TranslationsJa {
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
 			'translation.fetchModelList' => 'モデル一覧を取得',
+			_ => null,
+		} ?? switch (path) {
 			'translation.fetchingModels' => '取得中…',
 			'translation.selectModel' => 'モデルを選択',
 			'translation.searchModel' => 'モデルを検索',
@@ -7661,8 +7705,6 @@ extension on TranslationsJa {
 			'mediaPlayer.format' => '形式',
 			'mediaPlayer.suggestion' => '提案',
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'AndroidデバイスはWEBM形式のサポートが限定的です。外部プレイヤーの使用またはWEBMをサポートするプレイヤーアプリのダウンロードをお勧めします',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.currentDeviceCodecNotSupported' => '現在のデバイスはこのビデオ形式のコーデックをサポートしていません',
 			'mediaPlayer.checkNetworkConnection' => 'ネットワーク接続を確認して再試行してください',
 			'mediaPlayer.appMayLackMediaPermission' => 'アプリに必要なメディア再生権限が不足している可能性があります',
@@ -8159,6 +8201,8 @@ extension on TranslationsJa {
 			'anime4k.presetDescriptions.mode_b_hq' => 'スケーリングによる軽度のぼかしやリンギング効果のあるアニメに適しています。リンギングとエイリアスを効果的に減らすことができます。',
 			'anime4k.presetDescriptions.mode_c_hq' => 'ほとんど欠陥のない高品質ソース（ネイティブ1080pアニメや映画など）に適しています。ノイズ除去を行い、最高のPSNRを提供します。',
 			'anime4k.presetDescriptions.mode_a_a_hq' => 'Mode Aの強化版で、究極の知覚品質を提供し、ほぼすべての劣化ラインを再構築できます。過度なシャープネスやリンギングが発生する可能性があります。',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_b_b_hq' => 'Mode Bの強化版で、より高い知覚品質を提供し、ラインをさらに最適化し、アーティファクトを減らします。',
 			'anime4k.presetDescriptions.mode_c_a_hq' => 'Mode Cの知覚品質強化版で、高いPSNRを維持しながら一部のラインデータルを再構築しようとします。',
 			'anime4k.presetDescriptions.mode_a_fast' => 'Mode Aの高速版で、品質とパフォーマンスのバランスが取れており、ほとんどの1080pアニメに適しています。',
@@ -8175,8 +8219,6 @@ extension on TranslationsJa {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + ライン暗化、高速モードAにライン暗化効果を追加し、ラインをより目立たせ、スタイライズ処理を行います。',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + ライン細化、高品質モードAにライン細化効果を追加し、より洗練された外観にします。',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8673,6 +8715,8 @@ extension on TranslationsJa {
 			'localMedia.emptyTitle' => 'フォルダーを追加するか NAS に接続して、手元の動画を見る',
 			'localMedia.emptyPrivacyNote' => '端末内でのみ読み取ります。アップロードは一切ありません。',
 			'localMedia.removeSourceTitle' => ({required Object name}) => '「${name}」を削除しますか？',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.removeSourceBody' => 'ファイル自体はそのままです。ライブラリーから外すだけです。',
 			'localMedia.remove' => '削除',
 			'localMedia.removeFolder' => 'ソースを削除',
@@ -8689,8 +8733,6 @@ extension on TranslationsJa {
 			'historyPage.removeFromHistory' => '履歴から削除',
 			'historyPage.removed' => '履歴から削除しました',
 			'historyPage.watchedTo' => ({required Object time}) => '${time} まで視聴',
-			_ => null,
-		} ?? switch (path) {
 			'historyPage.finished' => '視聴済み',
 			'historyPage.clearTabTitle' => ({required Object tab}) => '「${tab}」を消去',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => '「${tab}」の履歴をすべて削除し、該当する動画の視聴位置も消去します。この操作は元に戻せません。',

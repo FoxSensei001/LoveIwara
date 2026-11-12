@@ -1740,6 +1740,23 @@ videoDetail:
       connectedTo: 'Connected to: ${deviceName}'
       notConnected: No device connected
       stopCasting: Stop Casting
+      searchFinished: 'Search finished, ${count} device(s) found'
+      protocolDlna: 'DLNA'
+      protocolGoogleCast: 'Google Cast'
+      addByIp: 'Add manually'
+      addByIpTitle: 'Add device manually'
+      addByIpDesc: 'Enter the IP address of your TV or streaming box. You can usually find it under Settings → Network → Network status on the TV.'
+      addByIpHint: 'e.g. 192.168.1.20'
+      addByIpAction: 'Find'
+      addByIpInvalid: 'Invalid address. Enter an IPv4 address like 192.168.1.20'
+      addByIpNotFound: 'No cast device found at ${host}'
+      troubleshootTitle: 'Can''t find your device?'
+      troubleshoot: '• Your phone/computer and the TV must be on the same Wi-Fi. Guest networks and routers with AP isolation block discovery\n• A VPN or proxy app may block discovery; turn it off and try again\n• DLNA and Google Cast (Chromecast) are supported. Apple TV (AirPlay) and some vendors'' proprietary casting protocols are not; make sure DLNA / screen sharing is enabled on the TV\n• Still nothing? Tap "Add manually" and enter the TV''s IP address'
+      failure:
+        unreachable: 'Can''t reach the device. Make sure it is on the same Wi-Fi and try turning off your VPN'
+        timeout: 'The device did not respond'
+        mediaRejected: 'The device can''t play this video (unsupported format or the link can''t be opened)'
+        deviceRejected: 'The device rejected the cast request'
   # Like Avatars Component
   likeAvatars:
     dialogTitle: Who's secretly liking

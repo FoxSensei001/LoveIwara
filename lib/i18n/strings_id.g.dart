@@ -5083,6 +5083,32 @@ class _TranslationsVideoDetailCastDlnaCastSheetId extends TranslationsVideoDetai
 	@override String connectedTo({required Object deviceName}) => 'Terhubung ke: ${deviceName}';
 	@override String get notConnected => 'Tidak ada perangkat terhubung';
 	@override String get stopCasting => 'Hentikan Penyiaran';
+	@override String searchFinished({required Object count}) => 'Pencarian selesai, ${count} perangkat ditemukan';
+	@override String get protocolDlna => 'DLNA';
+	@override String get protocolGoogleCast => 'Google Cast';
+	@override String get addByIp => 'Tambah manual';
+	@override String get addByIpTitle => 'Tambah perangkat secara manual';
+	@override String get addByIpDesc => 'Masukkan alamat IP TV atau perangkat streaming. Biasanya dapat ditemukan di Pengaturan → Jaringan → Status jaringan pada TV.';
+	@override String get addByIpHint => 'mis. 192.168.1.20';
+	@override String get addByIpAction => 'Cari';
+	@override String get addByIpInvalid => 'Alamat tidak valid. Masukkan alamat IPv4 seperti 192.168.1.20';
+	@override String addByIpNotFound({required Object host}) => 'Tidak ada perangkat cast di ${host}';
+	@override String get troubleshootTitle => 'Tidak menemukan perangkat?';
+	@override String get troubleshoot => '• Ponsel/komputer dan TV harus terhubung ke Wi-Fi yang sama. Jaringan tamu dan isolasi AP pada router menghalangi pencarian\n• VPN atau aplikasi proxy dapat menghalangi pencarian; matikan lalu coba lagi\n• Mendukung DLNA dan Google Cast (Chromecast). Apple TV (AirPlay) dan protokol khusus beberapa merek tidak didukung; aktifkan DLNA di TV\n• Masih tidak ada? Ketuk "Tambah manual" lalu masukkan IP TV';
+	@override late final _TranslationsVideoDetailCastDlnaCastSheetFailureId failure = _TranslationsVideoDetailCastDlnaCastSheetFailureId._(_root);
+}
+
+// Path: videoDetail.cast.dlnaCastSheet.failure
+class _TranslationsVideoDetailCastDlnaCastSheetFailureId extends TranslationsVideoDetailCastDlnaCastSheetFailureEn {
+	_TranslationsVideoDetailCastDlnaCastSheetFailureId._(TranslationsId root) : this._root = root, super.internal(root);
+
+	final TranslationsId _root; // ignore: unused_field
+
+	// Translations
+	@override String get unreachable => 'Tidak dapat terhubung ke perangkat. Pastikan berada di Wi-Fi yang sama dan coba matikan VPN';
+	@override String get timeout => 'Perangkat tidak merespons';
+	@override String get mediaRejected => 'Perangkat tidak dapat memutar video ini (format tidak didukung atau tautan tidak dapat dibuka)';
+	@override String get deviceRejected => 'Perangkat menolak permintaan cast';
 }
 
 /// The flat map containing all translations for locale <id>.
@@ -6733,6 +6759,22 @@ extension on TranslationsId {
 			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => 'Terhubung ke: ${deviceName}',
 			'videoDetail.cast.dlnaCastSheet.notConnected' => 'Tidak ada perangkat terhubung',
 			'videoDetail.cast.dlnaCastSheet.stopCasting' => 'Hentikan Penyiaran',
+			'videoDetail.cast.dlnaCastSheet.searchFinished' => ({required Object count}) => 'Pencarian selesai, ${count} perangkat ditemukan',
+			'videoDetail.cast.dlnaCastSheet.protocolDlna' => 'DLNA',
+			'videoDetail.cast.dlnaCastSheet.protocolGoogleCast' => 'Google Cast',
+			'videoDetail.cast.dlnaCastSheet.addByIp' => 'Tambah manual',
+			'videoDetail.cast.dlnaCastSheet.addByIpTitle' => 'Tambah perangkat secara manual',
+			'videoDetail.cast.dlnaCastSheet.addByIpDesc' => 'Masukkan alamat IP TV atau perangkat streaming. Biasanya dapat ditemukan di Pengaturan → Jaringan → Status jaringan pada TV.',
+			'videoDetail.cast.dlnaCastSheet.addByIpHint' => 'mis. 192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpAction' => 'Cari',
+			'videoDetail.cast.dlnaCastSheet.addByIpInvalid' => 'Alamat tidak valid. Masukkan alamat IPv4 seperti 192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpNotFound' => ({required Object host}) => 'Tidak ada perangkat cast di ${host}',
+			'videoDetail.cast.dlnaCastSheet.troubleshootTitle' => 'Tidak menemukan perangkat?',
+			'videoDetail.cast.dlnaCastSheet.troubleshoot' => '• Ponsel/komputer dan TV harus terhubung ke Wi-Fi yang sama. Jaringan tamu dan isolasi AP pada router menghalangi pencarian\n• VPN atau aplikasi proxy dapat menghalangi pencarian; matikan lalu coba lagi\n• Mendukung DLNA dan Google Cast (Chromecast). Apple TV (AirPlay) dan protokol khusus beberapa merek tidak didukung; aktifkan DLNA di TV\n• Masih tidak ada? Ketuk "Tambah manual" lalu masukkan IP TV',
+			'videoDetail.cast.dlnaCastSheet.failure.unreachable' => 'Tidak dapat terhubung ke perangkat. Pastikan berada di Wi-Fi yang sama dan coba matikan VPN',
+			'videoDetail.cast.dlnaCastSheet.failure.timeout' => 'Perangkat tidak merespons',
+			'videoDetail.cast.dlnaCastSheet.failure.mediaRejected' => 'Perangkat tidak dapat memutar video ini (format tidak didukung atau tautan tidak dapat dibuka)',
+			'videoDetail.cast.dlnaCastSheet.failure.deviceRejected' => 'Perangkat menolak permintaan cast',
 			'videoDetail.likeAvatars.dialogTitle' => 'Siapa yang diam-diam menyukai',
 			'videoDetail.likeAvatars.dialogDescription' => 'Penasaran siapa mereka? Telusuri "Album Suka" ini~',
 			'videoDetail.likeAvatars.closeTooltip' => 'Tutup',
@@ -7131,6 +7173,8 @@ extension on TranslationsId {
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
 			'download.notice.migrate' => 'Move',
 			'download.notice.dismiss' => 'Dismiss',
+			_ => null,
+		} ?? switch (path) {
 			'download.emptyTaskList' => 'Belum ada tugas unduhan',
 			'download.noMatchingTasks' => 'Tidak ada tugas yang cocok',
 			'download.deleteByDate.menuTitle' => 'Hapus berdasarkan tanggal',
@@ -7147,8 +7191,6 @@ extension on TranslationsId {
 			'download.deleteByDate.invalidRange' => 'Tanggal mulai harus sama dengan atau sebelum tanggal akhir',
 			'download.deleteByDate.confirmTitle' => 'Konfirmasi penghapusan',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Hapus ${count} tugas unduhan dan berkasnya? Tindakan ini tidak dapat dibatalkan.',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Menghapus ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Menghapus ${count} tugas',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Menghapus ${deleted} tugas; ${skipped} dilewati (sedang digunakan)',
@@ -7645,6 +7687,8 @@ extension on TranslationsId {
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
 			'translation.fetchModelList' => 'Ambil daftar model',
+			_ => null,
+		} ?? switch (path) {
 			'translation.fetchingModels' => 'Mengambil...',
 			'translation.selectModel' => 'Pilih Model',
 			'translation.searchModel' => 'Cari model',
@@ -7661,8 +7705,6 @@ extension on TranslationsId {
 			'navigationOrderSettings.navigationItemSorting' => 'Pengurutan Item Navigasi',
 			'navigationOrderSettings.done' => 'Selesai',
 			'navigationOrderSettings.edit' => 'Ubah',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.reset' => 'Atur Ulang',
 			'navigationOrderSettings.previewEffect' => 'Pratinjau Efek',
 			'navigationOrderSettings.bottomNavigationPreview' => 'Pratinjau Navigasi Bawah:',
@@ -8159,6 +8201,8 @@ extension on TranslationsId {
 			'anime4k.presetDescriptions.mode_b_hq' => 'Cocok untuk animasi dengan blur ringan atau efek ringing akibat penskalaan. Dapat mengurangi ringing dan aliasing secara efektif.',
 			'anime4k.presetDescriptions.mode_c_hq' => 'Cocok untuk sumber berkualitas tinggi (seperti animasi 1080p asli atau film). Menghilangkan noise dan memberikan PSNR tertinggi.',
 			'anime4k.presetDescriptions.mode_a_a_hq' => 'Versi lanjutan Mode A, memberikan kualitas persepsi maksimal dan dapat merekonstruksi hampir semua garis yang rusak. Dapat menimbulkan penajaman berlebihan atau ringing.',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_b_b_hq' => 'Versi lanjutan Mode B, memberikan kualitas persepsi lebih tinggi, lebih mengoptimalkan garis dan mengurangi artefak.',
 			'anime4k.presetDescriptions.mode_c_a_hq' => 'Versi Mode C dengan kualitas persepsi yang ditingkatkan, mempertahankan PSNR tinggi sekaligus mencoba merekonstruksi sebagian detail garis.',
 			'anime4k.presetDescriptions.mode_a_fast' => 'Versi cepat Mode A, menyeimbangkan kualitas dan performa, cocok untuk sebagian besar animasi 1080p.',
@@ -8175,8 +8219,6 @@ extension on TranslationsId {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Cepat) + Penggelapan garis, menambahkan efek penggelapan garis pada mode A cepat untuk garis yang lebih menonjol dan bergaya.',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + Penipisan garis, menambahkan efek penipisan garis pada mode A kualitas tinggi untuk tampilan yang lebih halus.',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8673,6 +8715,8 @@ extension on TranslationsId {
 			'localMedia.emptyTitle' => 'Tambahkan folder untuk menonton video yang sudah ada di perangkat ini',
 			'localMedia.emptyPrivacyNote' => 'Berkas hanya dibaca di perangkat ini. Tidak ada yang diunggah.',
 			'localMedia.removeSourceTitle' => ({required Object name}) => 'Hapus "${name}"?',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.removeSourceBody' => 'Berkas tetap ada di disk. Hanya entri pustaka ini yang dihapus.',
 			'localMedia.remove' => 'Hapus',
 			'localMedia.removeFolder' => 'Hapus folder',
@@ -8689,8 +8733,6 @@ extension on TranslationsId {
 			'historyPage.removeFromHistory' => 'Hapus dari riwayat',
 			'historyPage.removed' => 'Dihapus dari riwayat',
 			'historyPage.watchedTo' => ({required Object time}) => 'Ditonton sampai ${time}',
-			_ => null,
-		} ?? switch (path) {
 			'historyPage.finished' => 'Sudah ditonton',
 			'historyPage.clearTabTitle' => ({required Object tab}) => 'Bersihkan "${tab}"',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Semua riwayat di "${tab}" akan dihapus, beserta progres tontonan video tersebut. Tindakan ini tidak dapat dibatalkan.',

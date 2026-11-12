@@ -5083,6 +5083,32 @@ class _TranslationsVideoDetailCastDlnaCastSheetKo extends TranslationsVideoDetai
 	@override String connectedTo({required Object deviceName}) => '연결됨: ${deviceName}';
 	@override String get notConnected => '연결된 기기가 없습니다';
 	@override String get stopCasting => '캐스트 중지';
+	@override String searchFinished({required Object count}) => '검색 완료, 기기 ${count}대 발견';
+	@override String get protocolDlna => 'DLNA';
+	@override String get protocolGoogleCast => 'Google Cast';
+	@override String get addByIp => '직접 추가';
+	@override String get addByIpTitle => '기기 직접 추가';
+	@override String get addByIpDesc => 'TV 또는 셋톱박스의 IP 주소를 입력하세요. 보통 TV의 「설정 → 네트워크 → 네트워크 상태」에서 확인할 수 있습니다.';
+	@override String get addByIpHint => '예: 192.168.1.20';
+	@override String get addByIpAction => '찾기';
+	@override String get addByIpInvalid => '주소 형식이 올바르지 않습니다. 192.168.1.20 같은 IPv4 주소를 입력하세요';
+	@override String addByIpNotFound({required Object host}) => '${host}에서 캐스트 기기를 찾지 못했습니다';
+	@override String get troubleshootTitle => '기기를 찾을 수 없나요?';
+	@override String get troubleshoot => '• 휴대폰(PC)과 TV가 같은 Wi-Fi에 연결되어 있어야 합니다. 게스트 네트워크나 공유기의 AP 격리 기능이 켜져 있으면 검색되지 않습니다\n• VPN이나 프록시 앱을 사용 중이면 검색되지 않을 수 있습니다. 끄고 다시 시도하세요\n• DLNA와 Google Cast(Chromecast)를 지원합니다. Apple TV(AirPlay)와 일부 제조사 전용 캐스트 방식은 지원하지 않으며, TV에서 DLNA 기능을 켜야 합니다\n• 그래도 안 되면 「직접 추가」를 눌러 TV의 IP를 입력하세요';
+	@override late final _TranslationsVideoDetailCastDlnaCastSheetFailureKo failure = _TranslationsVideoDetailCastDlnaCastSheetFailureKo._(_root);
+}
+
+// Path: videoDetail.cast.dlnaCastSheet.failure
+class _TranslationsVideoDetailCastDlnaCastSheetFailureKo extends TranslationsVideoDetailCastDlnaCastSheetFailureEn {
+	_TranslationsVideoDetailCastDlnaCastSheetFailureKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get unreachable => '기기에 연결할 수 없습니다. 같은 Wi-Fi인지 확인하고 VPN을 꺼 보세요';
+	@override String get timeout => '기기가 응답하지 않습니다';
+	@override String get mediaRejected => '기기에서 이 동영상을 재생할 수 없습니다(지원하지 않는 형식이거나 링크를 열 수 없음)';
+	@override String get deviceRejected => '기기가 캐스트 요청을 거부했습니다';
 }
 
 /// The flat map containing all translations for locale <ko>.
@@ -6733,6 +6759,22 @@ extension on TranslationsKo {
 			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => '연결됨: ${deviceName}',
 			'videoDetail.cast.dlnaCastSheet.notConnected' => '연결된 기기가 없습니다',
 			'videoDetail.cast.dlnaCastSheet.stopCasting' => '캐스트 중지',
+			'videoDetail.cast.dlnaCastSheet.searchFinished' => ({required Object count}) => '검색 완료, 기기 ${count}대 발견',
+			'videoDetail.cast.dlnaCastSheet.protocolDlna' => 'DLNA',
+			'videoDetail.cast.dlnaCastSheet.protocolGoogleCast' => 'Google Cast',
+			'videoDetail.cast.dlnaCastSheet.addByIp' => '직접 추가',
+			'videoDetail.cast.dlnaCastSheet.addByIpTitle' => '기기 직접 추가',
+			'videoDetail.cast.dlnaCastSheet.addByIpDesc' => 'TV 또는 셋톱박스의 IP 주소를 입력하세요. 보통 TV의 「설정 → 네트워크 → 네트워크 상태」에서 확인할 수 있습니다.',
+			'videoDetail.cast.dlnaCastSheet.addByIpHint' => '예: 192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpAction' => '찾기',
+			'videoDetail.cast.dlnaCastSheet.addByIpInvalid' => '주소 형식이 올바르지 않습니다. 192.168.1.20 같은 IPv4 주소를 입력하세요',
+			'videoDetail.cast.dlnaCastSheet.addByIpNotFound' => ({required Object host}) => '${host}에서 캐스트 기기를 찾지 못했습니다',
+			'videoDetail.cast.dlnaCastSheet.troubleshootTitle' => '기기를 찾을 수 없나요?',
+			'videoDetail.cast.dlnaCastSheet.troubleshoot' => '• 휴대폰(PC)과 TV가 같은 Wi-Fi에 연결되어 있어야 합니다. 게스트 네트워크나 공유기의 AP 격리 기능이 켜져 있으면 검색되지 않습니다\n• VPN이나 프록시 앱을 사용 중이면 검색되지 않을 수 있습니다. 끄고 다시 시도하세요\n• DLNA와 Google Cast(Chromecast)를 지원합니다. Apple TV(AirPlay)와 일부 제조사 전용 캐스트 방식은 지원하지 않으며, TV에서 DLNA 기능을 켜야 합니다\n• 그래도 안 되면 「직접 추가」를 눌러 TV의 IP를 입력하세요',
+			'videoDetail.cast.dlnaCastSheet.failure.unreachable' => '기기에 연결할 수 없습니다. 같은 Wi-Fi인지 확인하고 VPN을 꺼 보세요',
+			'videoDetail.cast.dlnaCastSheet.failure.timeout' => '기기가 응답하지 않습니다',
+			'videoDetail.cast.dlnaCastSheet.failure.mediaRejected' => '기기에서 이 동영상을 재생할 수 없습니다(지원하지 않는 형식이거나 링크를 열 수 없음)',
+			'videoDetail.cast.dlnaCastSheet.failure.deviceRejected' => '기기가 캐스트 요청을 거부했습니다',
 			'videoDetail.likeAvatars.dialogTitle' => '몰래 좋아요를 누른 사람',
 			'videoDetail.likeAvatars.dialogDescription' => '누가 좋아하는지 궁금하신가요? 이 "좋아요 앨범"을 넘겨 보세요~',
 			'videoDetail.likeAvatars.closeTooltip' => '닫기',
@@ -7131,6 +7173,8 @@ extension on TranslationsKo {
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
 			'download.notice.migrate' => 'Move',
 			'download.notice.dismiss' => 'Dismiss',
+			_ => null,
+		} ?? switch (path) {
 			'download.emptyTaskList' => '아직 다운로드 작업이 없습니다',
 			'download.noMatchingTasks' => '일치하는 작업이 없습니다',
 			'download.deleteByDate.menuTitle' => '날짜로 삭제',
@@ -7147,8 +7191,6 @@ extension on TranslationsKo {
 			'download.deleteByDate.invalidRange' => '시작일은 종료일과 같거나 그보다 앞서야 합니다',
 			'download.deleteByDate.confirmTitle' => '삭제 확인',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => '${count}개의 다운로드 작업과 해당 파일을 삭제하시겠습니까? 되돌릴 수 없습니다.',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '삭제 중 ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count}개 작업 삭제됨',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '${deleted}개 작업 삭제됨, ${skipped}개 건너뜀(사용 중)',
@@ -7645,6 +7687,8 @@ extension on TranslationsKo {
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
 			'translation.fetchModelList' => '모델 목록 가져오기',
+			_ => null,
+		} ?? switch (path) {
 			'translation.fetchingModels' => '가져오는 중...',
 			'translation.selectModel' => '모델 선택',
 			'translation.searchModel' => '모델 검색',
@@ -7661,8 +7705,6 @@ extension on TranslationsKo {
 			'navigationOrderSettings.navigationItemSorting' => '내비게이션 항목 정렬',
 			'navigationOrderSettings.done' => '완료',
 			'navigationOrderSettings.edit' => '편집',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.reset' => '초기화',
 			'navigationOrderSettings.previewEffect' => '미리보기 효과',
 			'navigationOrderSettings.bottomNavigationPreview' => '하단 내비게이션 미리보기:',
@@ -8159,6 +8201,8 @@ extension on TranslationsKo {
 			'anime4k.presetDescriptions.mode_b_hq' => '스케일링으로 인한 약간의 블러나 링잉이 있는 애니메이션에 적합합니다. 링잉과 계단 현상을 효과적으로 줄일 수 있습니다.',
 			'anime4k.presetDescriptions.mode_c_hq' => '고품질 소스(예: 네이티브 1080p 애니메이션 또는 영화)에 적합합니다. 노이즈를 제거하고 가장 높은 PSNR을 제공합니다.',
 			'anime4k.presetDescriptions.mode_a_a_hq' => 'Mode A의 강화 버전으로, 최상의 체감 화질을 제공하며 거의 모든 손상된 선을 복원할 수 있습니다. 과도한 선명화나 링잉이 발생할 수 있습니다.',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_b_b_hq' => 'Mode B의 강화 버전으로, 더 높은 체감 화질을 제공하며 선을 더 최적화하고 아티팩트를 줄입니다.',
 			'anime4k.presetDescriptions.mode_c_a_hq' => 'Mode C의 체감 화질 강화 버전으로, 높은 PSNR을 유지하면서 일부 선 디테일을 복원합니다.',
 			'anime4k.presetDescriptions.mode_a_fast' => 'Mode A의 고속 버전으로, 화질과 성능의 균형을 맞추며 대부분의 1080p 애니메이션에 적합합니다.',
@@ -8175,8 +8219,6 @@ extension on TranslationsKo {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + 선 어둡게 하기로, 고속 Mode A에 선을 더 진하게 만드는 효과를 추가해 선을 더 뚜렷하고 스타일리시하게 표현합니다.',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + 선 얇게 하기로, 고품질 Mode A에 선을 더 가늘게 만드는 효과를 추가해 더 정교하게 표현합니다.',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8673,6 +8715,8 @@ extension on TranslationsKo {
 			'localMedia.emptyTitle' => '폴더를 추가하여 이 기기에 이미 있는 동영상을 시청하세요',
 			'localMedia.emptyPrivacyNote' => '파일은 이 기기에서만 읽습니다. 아무것도 업로드되지 않습니다.',
 			'localMedia.removeSourceTitle' => ({required Object name}) => '"${name}"을(를) 제거하시겠습니까?',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.removeSourceBody' => '파일은 디스크에 그대로 남습니다. 이 라이브러리 항목만 제거됩니다.',
 			'localMedia.remove' => '제거',
 			'localMedia.removeFolder' => '폴더 제거',
@@ -8689,8 +8733,6 @@ extension on TranslationsKo {
 			'historyPage.removeFromHistory' => '기록에서 삭제',
 			'historyPage.removed' => '기록에서 삭제했습니다',
 			'historyPage.watchedTo' => ({required Object time}) => '${time}까지 시청',
-			_ => null,
-		} ?? switch (path) {
 			'historyPage.finished' => '시청 완료',
 			'historyPage.clearTabTitle' => ({required Object tab}) => '"${tab}" 지우기',
 			'historyPage.clearTabConfirm' => ({required Object tab}) => '"${tab}"의 모든 기록과 해당 동영상의 시청 위치가 삭제됩니다. 이 작업은 되돌릴 수 없습니다.',

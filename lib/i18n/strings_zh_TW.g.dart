@@ -5105,6 +5105,32 @@ class _TranslationsVideoDetailCastDlnaCastSheetZhTw extends TranslationsVideoDet
 	@override String connectedTo({required Object deviceName}) => '已連接到: ${deviceName}';
 	@override String get notConnected => '未連接裝置';
 	@override String get stopCasting => '停止投影';
+	@override String searchFinished({required Object count}) => '搜尋完成，找到 ${count} 台裝置';
+	@override String get protocolDlna => 'DLNA';
+	@override String get protocolGoogleCast => 'Google Cast';
+	@override String get addByIp => '手動新增';
+	@override String get addByIpTitle => '手動新增裝置';
+	@override String get addByIpDesc => '輸入電視或機上盒的 IP 位址。通常可在電視的「設定 → 網路 → 網路狀態」中找到。';
+	@override String get addByIpHint => '例如 192.168.1.20';
+	@override String get addByIpAction => '尋找';
+	@override String get addByIpInvalid => '位址格式不正確，請輸入類似 192.168.1.20 的 IPv4 位址';
+	@override String addByIpNotFound({required Object host}) => '在 ${host} 上找不到投放裝置';
+	@override String get troubleshootTitle => '找不到你的裝置？';
+	@override String get troubleshoot => '· 手機（電腦）和電視要連同一個 Wi-Fi；訪客網路、路由器開啟「AP 隔離」都會搜不到\n· 開著 VPN／代理軟體時可能搜不到，請先關閉再試\n· 支援 DLNA 和 Google Cast（Chromecast）；不支援 Apple TV（AirPlay）與部分品牌的私有投放協定，電視需開啟 DLNA／多螢幕互動功能\n· 仍然沒有？點「手動新增」輸入電視的 IP';
+	@override late final _TranslationsVideoDetailCastDlnaCastSheetFailureZhTw failure = _TranslationsVideoDetailCastDlnaCastSheetFailureZhTw._(_root);
+}
+
+// Path: videoDetail.cast.dlnaCastSheet.failure
+class _TranslationsVideoDetailCastDlnaCastSheetFailureZhTw extends TranslationsVideoDetailCastDlnaCastSheetFailureEn {
+	_TranslationsVideoDetailCastDlnaCastSheetFailureZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get unreachable => '連不上裝置，請確認在同一個 Wi-Fi，並暫時關閉 VPN';
+	@override String get timeout => '裝置沒有回應';
+	@override String get mediaRejected => '裝置無法播放這部影片（格式不支援或網址無法開啟）';
+	@override String get deviceRejected => '裝置拒絕了投放指令';
 }
 
 /// The flat map containing all translations for locale <zh-TW>.
@@ -6811,6 +6837,22 @@ extension on TranslationsZhTw {
 			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => '已連接到: ${deviceName}',
 			'videoDetail.cast.dlnaCastSheet.notConnected' => '未連接裝置',
 			'videoDetail.cast.dlnaCastSheet.stopCasting' => '停止投影',
+			'videoDetail.cast.dlnaCastSheet.searchFinished' => ({required Object count}) => '搜尋完成，找到 ${count} 台裝置',
+			'videoDetail.cast.dlnaCastSheet.protocolDlna' => 'DLNA',
+			'videoDetail.cast.dlnaCastSheet.protocolGoogleCast' => 'Google Cast',
+			'videoDetail.cast.dlnaCastSheet.addByIp' => '手動新增',
+			'videoDetail.cast.dlnaCastSheet.addByIpTitle' => '手動新增裝置',
+			'videoDetail.cast.dlnaCastSheet.addByIpDesc' => '輸入電視或機上盒的 IP 位址。通常可在電視的「設定 → 網路 → 網路狀態」中找到。',
+			'videoDetail.cast.dlnaCastSheet.addByIpHint' => '例如 192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpAction' => '尋找',
+			'videoDetail.cast.dlnaCastSheet.addByIpInvalid' => '位址格式不正確，請輸入類似 192.168.1.20 的 IPv4 位址',
+			'videoDetail.cast.dlnaCastSheet.addByIpNotFound' => ({required Object host}) => '在 ${host} 上找不到投放裝置',
+			'videoDetail.cast.dlnaCastSheet.troubleshootTitle' => '找不到你的裝置？',
+			'videoDetail.cast.dlnaCastSheet.troubleshoot' => '· 手機（電腦）和電視要連同一個 Wi-Fi；訪客網路、路由器開啟「AP 隔離」都會搜不到\n· 開著 VPN／代理軟體時可能搜不到，請先關閉再試\n· 支援 DLNA 和 Google Cast（Chromecast）；不支援 Apple TV（AirPlay）與部分品牌的私有投放協定，電視需開啟 DLNA／多螢幕互動功能\n· 仍然沒有？點「手動新增」輸入電視的 IP',
+			'videoDetail.cast.dlnaCastSheet.failure.unreachable' => '連不上裝置，請確認在同一個 Wi-Fi，並暫時關閉 VPN',
+			'videoDetail.cast.dlnaCastSheet.failure.timeout' => '裝置沒有回應',
+			'videoDetail.cast.dlnaCastSheet.failure.mediaRejected' => '裝置無法播放這部影片（格式不支援或網址無法開啟）',
+			'videoDetail.cast.dlnaCastSheet.failure.deviceRejected' => '裝置拒絕了投放指令',
 			'videoDetail.likeAvatars.dialogTitle' => '誰悄悄地喜歡',
 			'videoDetail.likeAvatars.dialogDescription' => '好奇他們是誰？來翻翻這本「按讚相簿」吧～',
 			'videoDetail.likeAvatars.closeTooltip' => '關閉',
@@ -7153,6 +7195,8 @@ extension on TranslationsZhTw {
 			'download.clearFilters' => '清除篩選',
 			'download.pauseAll' => '全部暫停',
 			'download.resumeAll' => '全部開始',
+			_ => null,
+		} ?? switch (path) {
 			'download.remainingTime' => ({required Object time}) => '剩 ${time}',
 			'download.timeline.today' => '今天',
 			'download.timeline.yesterday' => '昨天',
@@ -7169,8 +7213,6 @@ extension on TranslationsZhTw {
 			'download.errorDetailCopied' => '已複製錯誤詳情',
 			'download.errorDetailCopyHint' => '長按複製錯誤詳情',
 			'download.restoredPaused.banner' => ({required Object num}) => '上次離開時有 ${num} 個任務未完成，已暫停',
-			_ => null,
-		} ?? switch (path) {
 			'download.restoredPaused.resume' => '全部繼續',
 			'download.restoredPaused.dismiss' => '忽略',
 			'download.actions.open' => '開啟',
@@ -7667,6 +7709,8 @@ extension on TranslationsZhTw {
 			'translation.dlSessionHelperText' => 'Pro 端點必需的工作階段參數，從 DeepL Pro 帳戶獲取',
 			'translation.proModeRequiresDlSession' => 'Pro 模式需要填寫 dl_session',
 			'translation.clickTestButtonToVerifyDeepLXAPI' => '點擊測試按鈕驗證 DeepLX API 連接',
+			_ => null,
+		} ?? switch (path) {
 			'translation.enableDeepLXTranslation' => '啟用 DeepLX 翻譯',
 			'translation.deepLXTranslationWillBeDisabled' => 'DeepLX翻譯將因配置更改而被停用',
 			'translation.translatedResult' => '翻譯結果',
@@ -7683,8 +7727,6 @@ extension on TranslationsZhTw {
 			'translation.streamingTranslationTimeout' => '流式翻譯超時，強制關閉資源',
 			'translation.translationRequestTimeout' => '翻譯請求超時',
 			'translation.streamingTranslationDataTimeout' => '流式翻譯接收資料超時',
-			_ => null,
-		} ?? switch (path) {
 			'translation.dataReceptionTimeout' => '接收資料超時',
 			'translation.streamDataParseError' => '解析流資料時出錯',
 			'translation.streamingTranslationFailed' => '流式翻譯失敗',
@@ -8181,6 +8223,8 @@ extension on TranslationsZhTw {
 			'tagSelector.addTagTooltip' => '新增標籤',
 			'tagSelector.removeTagTooltip' => '刪除標籤',
 			'tagSelector.cancelSelection' => '取消選擇',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.selectAll' => '全選',
 			'tagSelector.cancelSelectAll' => '取消全選',
 			'tagSelector.delete' => '刪除',
@@ -8197,8 +8241,6 @@ extension on TranslationsZhTw {
 			'anime4k.presetGroups.highQuality' => '高品質',
 			'anime4k.presetGroups.fast' => '快速',
 			'anime4k.presetGroups.lite' => '輕量級',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetGroups.moreLite' => '更多輕量級',
 			'anime4k.presetGroups.custom' => '自訂',
 			'anime4k.presetDescriptions.mode_a_hq' => '適用於大多數1080p動漫，特別是處理模糊、重採樣和壓縮瑕疵。提供最高的感知品質。',
@@ -8695,6 +8737,8 @@ extension on TranslationsZhTw {
 			'localMedia.webdav.previousStep' => '上一步',
 			'localMedia.webdav.bannerUnreachable' => '連不上 NAS，下面是上次看到的內容',
 			'localMedia.webdav.bannerAuthFailed' => '登入已失效，重新登入後才能看到最新內容',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.bannerCertUntrusted' => 'NAS 的憑證變了，確認之後才能繼續',
 			'localMedia.webdav.bannerCredUnreadable' => '讀取儲存的密碼失敗，重新登入一次即可',
 			'localMedia.mediaStoreUnavailable' => '裝置媒體索引僅在 Android 上可用',
@@ -8711,8 +8755,6 @@ extension on TranslationsZhTw {
 			'localMedia.sourceAlreadyAdded' => ({required Object name}) => '已經新增過「${name}」',
 			'localMedia.sourceContainsExisting' => ({required Object name}) => '裡面已經有新增過的資料夾「${name}」，暫時不能再新增它的上層資料夾',
 			'localMedia.addSourceFailed' => '新增資料夾失敗',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.fileMissing' => '這個檔案已經不在磁碟上了',
 			'localMedia.permissionDenied' => '未授予檔案存取權限，新增資料夾前需要先開啟',
 			'localMedia.noVideosFound' => '這個資料夾裡沒有影片',

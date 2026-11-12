@@ -580,7 +580,7 @@ class _TopToolbarState extends State<TopToolbar> {
                               icon: PlayerIcon(
                                 widget
                                         .myVideoStateController
-                                        .dlnaCastService
+                                        .castService
                                         .isConnected
                                         .value
                                     ? PlayerSymbol.castConnected
@@ -591,7 +591,7 @@ class _TopToolbarState extends State<TopToolbar> {
                               onPressed:
                                   widget
                                       .myVideoStateController
-                                      .dlnaCastService
+                                      .castService
                                       .isCasting
                                       .value
                                   ? null
