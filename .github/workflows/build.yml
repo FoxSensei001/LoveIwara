@@ -2,11 +2,16 @@ name: Flutter Build
 
 env:
   FLUTTER_VERSION: '3.47.8'
-  # pubspec.lock 里 290 条依赖记的全是这个镜像地址。CI 不设这一项就会退回 pub.dev，
-  # 来源对不上 → 整份 lock 作废 → 按 ^ 约束重解到最新版，打出来的包根本不是本机测过
-  # 的那套依赖。liquid_glass_easy 就这么从 4.1.1 被解到 4.3.1，Windows/Impeller 上
-  # 首帧出不来、整窗白屏。改动这里前先看一眼 pubspec.lock 里的 url 是什么。
-  PUB_HOSTED_URL: 'https://pub.flutter-io.cn'
+  # CI 从官方 pub.dev 拉依赖。本机开发走国内镜像，所以 pubspec.lock 里 287 条依赖记的全是
+  # https://pub.flutter-io.cn；.github/actions/pub-get 会先在 runner 的检出里把 lock 的地址
+  # 换成这一项再装（不入库）。两边的压缩包字节一样，lock 里的 sha256 照旧逐包校验。
+  # 为什么不继续用镜像：runner 在美国，跨境冷下载时镜像 CDN 给了坏压缩包，2026-11-06 起
+  # build-ios 连挂三次（"wrong content-hash"，重跑还是同一个包）。
+  # ⛔ 这一项必须和 lock 里的 url 一致（由 pub-get 保证）：来源对不上 → 整份 lock 作废 →
+  # 按 ^ 约束重解到最新版，打出来的包根本不是本机测过的那套依赖。liquid_glass_easy 就这么
+  # 从 4.1.1 被解到 4.3.1，Windows/Impeller 上首帧出不来、整窗白屏。所以改这一项之前先看
+  # pub-get 是怎么换的，别只改这一行。
+  PUB_HOSTED_URL: 'https://pub.dev'
   # 每个包都带上「哪次提交、哪次 run」打的：同一个 semver 会有很多次 CI 包，
   # 报障日志里只有版本号时分不清用户装的是哪一个（2026-10-29 就栽在这上面）。
   # 读取方在 lib/common/constants.dart 的 BUILD_COMMIT / BUILD_RUN_ID。
@@ -122,6 +127,9 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
+          # 依赖来源换成 pub.dev 后 ~/.pub-cache 里的目录是 hosted/pub.dev，和旧的镜像缓存对不上；
+          # 换个键，旧缓存就不会被恢复成一份没用的东西。
+          pub-cache-key: 'flutter-pub-pubdev-:os:-:channel:-:version:-:arch:-:hash:'
 
       - name: Setup Keystore
         run: |
@@ -129,8 +137,8 @@ jobs:
         shell: bash
 
       - name: Get dependencies
-        # --enforce-lockfile：lock 一旦用不上就让构建失败，而不是静默重解成另一套依赖。
-        run: flutter pub get --enforce-lockfile
+        # 先把 lock 的来源换成 PUB_HOSTED_URL，再 flutter pub get --enforce-lockfile，出错重试；说明见 .github/actions/pub-get
+        uses: ./.github/actions/pub-get
 
       # ⛔ 必须带 --flavor standard：android/app/build.gradle 定义了 platform 维度
       # （standard / quest）之后，AGP 就不再有「不带 flavor」的变体，裸的
@@ -224,6 +232,9 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
+          # 依赖来源换成 pub.dev 后 ~/.pub-cache 里的目录是 hosted/pub.dev，和旧的镜像缓存对不上；
+          # 换个键，旧缓存就不会被恢复成一份没用的东西。
+          pub-cache-key: 'flutter-pub-pubdev-:os:-:channel:-:version:-:arch:-:hash:'
 
       - name: Setup Keystore
         run: |
@@ -231,8 +242,8 @@ jobs:
         shell: bash
 
       - name: Get dependencies
-        # --enforce-lockfile：lock 一旦用不上就让构建失败，而不是静默重解成另一套依赖。
-        run: flutter pub get --enforce-lockfile
+        # 先把 lock 的来源换成 PUB_HOSTED_URL，再 flutter pub get --enforce-lockfile，出错重试；说明见 .github/actions/pub-get
+        uses: ./.github/actions/pub-get
 
       # 只出 arm64：quest flavor 的 abiFilters + androidComponents 已经把 v7a / x86_64
       # 关掉了（那些包里没有 Spatial 的 .so，装上即崩），这里再显式限定一次。
@@ -271,6 +282,9 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
+          # 依赖来源换成 pub.dev 后 ~/.pub-cache 里的目录是 hosted/pub.dev，和旧的镜像缓存对不上；
+          # 换个键，旧缓存就不会被恢复成一份没用的东西。
+          pub-cache-key: 'flutter-pub-pubdev-:os:-:channel:-:version:-:arch:-:hash:'
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -284,8 +298,8 @@ jobs:
         run: choco install innosetup --no-progress
 
       - name: Get dependencies
-        # --enforce-lockfile：lock 一旦用不上就让构建失败，而不是静默重解成另一套依赖。
-        run: flutter pub get --enforce-lockfile
+        # 先把 lock 的来源换成 PUB_HOSTED_URL，再 flutter pub get --enforce-lockfile，出错重试；说明见 .github/actions/pub-get
+        uses: ./.github/actions/pub-get
 
       - name: Build Windows with Installer
         env:
@@ -327,10 +341,13 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
+          # 依赖来源换成 pub.dev 后 ~/.pub-cache 里的目录是 hosted/pub.dev，和旧的镜像缓存对不上；
+          # 换个键，旧缓存就不会被恢复成一份没用的东西。
+          pub-cache-key: 'flutter-pub-pubdev-:os:-:channel:-:version:-:arch:-:hash:'
 
       - name: Get dependencies
-        # --enforce-lockfile：lock 一旦用不上就让构建失败，而不是静默重解成另一套依赖。
-        run: flutter pub get --enforce-lockfile
+        # 先把 lock 的来源换成 PUB_HOSTED_URL，再 flutter pub get --enforce-lockfile，出错重试；说明见 .github/actions/pub-get
+        uses: ./.github/actions/pub-get
 
       - name: Enable macOS
         run: flutter config --enable-macos-desktop
@@ -433,8 +450,8 @@ jobs:
           cache: false
 
       - name: Get dependencies
-        # --enforce-lockfile：lock 一旦用不上就让构建失败，而不是静默重解成另一套依赖。
-        run: flutter pub get --enforce-lockfile
+        # 先把 lock 的来源换成 PUB_HOSTED_URL，再 flutter pub get --enforce-lockfile，出错重试；说明见 .github/actions/pub-get
+        uses: ./.github/actions/pub-get
 
       - name: Build iOS
         run: flutter build ios --release --no-codesign ${{ env.BUILD_DEFINES }}
@@ -494,10 +511,13 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
+          # 依赖来源换成 pub.dev 后 ~/.pub-cache 里的目录是 hosted/pub.dev，和旧的镜像缓存对不上；
+          # 换个键，旧缓存就不会被恢复成一份没用的东西。
+          pub-cache-key: 'flutter-pub-pubdev-:os:-:channel:-:version:-:arch:-:hash:'
 
       - name: Get dependencies
-        # --enforce-lockfile：lock 一旦用不上就让构建失败，而不是静默重解成另一套依赖。
-        run: flutter pub get --enforce-lockfile
+        # 先把 lock 的来源换成 PUB_HOSTED_URL，再 flutter pub get --enforce-lockfile，出错重试；说明见 .github/actions/pub-get
+        uses: ./.github/actions/pub-get
 
       - name: Enable Linux
         run: flutter config --enable-linux-desktop
