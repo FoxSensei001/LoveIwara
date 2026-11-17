@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:i_iwara/utils/proxy/app_proxy_tunnel.dart';
 
 /// 本机一张可用于局域网发现的 IPv4 网卡。
 class LanInterface {
@@ -81,8 +82,7 @@ bool isPrivateIPv4(String address) {
 /// 所有 `HttpClient()` 默认都走 `PROXY x; DIRECT`——代理是全局模式或在别的机器上
 /// 时，发往 192.168.x.x 的请求会被代理吞掉，设备描述取不回、投屏指令发不出。
 HttpClient createLanHttpClient() {
-  final client = HttpClient()
-    ..findProxy = ((_) => 'DIRECT')
+  final client = createDirectHttpClient()
     ..connectionTimeout = const Duration(seconds: 4)
     ..idleTimeout = const Duration(seconds: 5)
     ..userAgent = 'UPnP/1.0 DLNADOC/1.50 i_iwara';

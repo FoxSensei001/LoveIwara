@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:i_iwara/app/services/webdav/webdav_propfind.dart';
+import 'package:i_iwara/utils/proxy/app_proxy_tunnel.dart';
 
 /// 连上一个 WebDAV 服务器所需的一切。**只含可跨 isolate 传递的纯数据**：
 /// 列目录在 `Isolate.run` 里跑、网关在后台 isolate 里跑，都要把它发过去。
@@ -114,7 +115,7 @@ String certificateFingerprint(X509Certificate certificate) =>
 /// 建一个连 NAS 专用的 [HttpClient]。
 ///
 /// ⛔ 每一条都是踩过或审查出来的：
-/// - `findProxy` 固定 DIRECT：全局 `HttpOverrides` 会把所有请求送进用户代理，
+/// - 用 createDirectHttpClient 直连：全局 `HttpOverrides` 会把所有请求送进用户代理，
 ///   明文 NAS 的 Basic 凭据就这样被发给第三方；代理在另一台机器上时还根本连不上
 ///   局域网地址。
 /// - `autoUncompress = false`：网关要原样透传字节与 `Content-Length`/
@@ -132,12 +133,11 @@ HttpClient createWebDavHttpClient(
 }) {
   final pinned = endpoint.tlsFingerprint;
   final client =
-      HttpClient(
+      createDirectHttpClient(
           context: pinned != null
               ? SecurityContext(withTrustedRoots: false)
               : null,
         )
-        ..findProxy = ((_) => 'DIRECT')
         ..autoUncompress = false
         ..connectionTimeout = const Duration(seconds: 10)
         ..idleTimeout = const Duration(seconds: 20)

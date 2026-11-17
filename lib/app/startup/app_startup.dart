@@ -4,7 +4,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_appearance_scope.dart';
 import 'dart:io';
 
 import 'package:get/get.dart';
-import 'package:i_iwara/utils/loopback_host.dart';
+import 'package:i_iwara/utils/proxy/app_proxy_tunnel.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/services/ai_catalog_service.dart';
@@ -701,15 +701,34 @@ class MyHttpOverrides extends HttpOverrides {
     final client = super.createHttpClient(context);
     client.idleTimeout = const Duration(seconds: 90);
 
-    if (proxy != null && proxy!.isNotEmpty) {
-      // ⛔ 本机回环必须直连：自定义 findProxy 不会像 findProxyFromEnvironment
-      // 那样自动放过 localhost。NAS 的本机网关（127.0.0.1）一旦被送进用户代理，
-      // 代理在另一台机器上时连的是**它自己的** 127.0.0.1，带 token 的地址还会
-      // 进代理日志。
-      client.findProxy = (uri) =>
-          isLoopbackHost(uri.host) ? 'DIRECT' : 'PROXY $proxy; DIRECT';
+    // 局域网投屏、本机网关、NAS 这类必须直连的客户端走 createDirectHttpClient，
+    // 不给它们装代理（只设 findProxy=DIRECT 拦不住隧道工厂）。
+    if (isCreatingDirectHttpClient) return client;
+
+    final tunnel = _tunnel;
+    if (tunnel != null) {
+      // ⛔ 本机回环直连由 AppProxyTunnel 默认的 bypass 负责：NAS 的本机网关
+      // （127.0.0.1）一旦被送进用户代理，代理在另一台机器上时连的是**它自己的**
+      // 127.0.0.1，带 token 的地址还会进代理日志。
+      // ⛔ HTTPS 隧道自建而不用 `PROXY x; DIRECT`：dart:io 经代理的 HTTPS 连接
+      // 永不复用，见 AppProxyTunnel 的类注释。
+      tunnel.install(client, context: context);
     }
 
     return client;
   }
+
+  /// 代理地址不合法时为 null（等同未开代理，与原来「findProxy 拼出无效规则」
+  /// 相比更安全：不会让每个请求都先撞一次坏规则）。
+  late final AppProxyTunnel? _tunnel = () {
+    final value = proxy;
+    if (value == null || value.isEmpty) return null;
+    try {
+      final (host, port) = AppProxyTunnel.parseAddress(value);
+      return AppProxyTunnel(host, port);
+    } catch (e) {
+      LogUtils.w('代理地址无效，按未开代理处理: $value ($e)', '启动初始化');
+      return null;
+    }
+  }();
 }

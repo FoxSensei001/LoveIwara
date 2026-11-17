@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:i_iwara/utils/proxy/app_proxy_tunnel.dart';
 
 /// [fetchGatewayFileTo] 的结局。「太大」与「没拉到」必须分开：前者是这个文件
 /// 自己的确定性结论（可以记负缓存），后者多半是网络暂时不好（只该计熔断）。
@@ -17,7 +18,7 @@ Future<GatewayFetchResult> fetchGatewayFileTo(
   required int maxBytes,
   Duration timeout = const Duration(seconds: 30),
 }) async {
-  final client = HttpClient()..findProxy = ((_) => 'DIRECT');
+  final client = createDirectHttpClient();
   final temp = File('${target.path}.part');
   try {
     final request = await client.getUrl(Uri.parse(gatewayUrl)).timeout(timeout);

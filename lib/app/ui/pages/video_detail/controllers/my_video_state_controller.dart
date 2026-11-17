@@ -90,6 +90,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import '../widgets/private_or_deleted_video_widget.dart';
 import '../services/video_cache_manager.dart';
 import 'package:i_iwara/app/services/cast/cast_service.dart';
+import 'package:i_iwara/utils/proxy/app_proxy_tunnel.dart';
 
 enum VideoDetailPageLoadingState {
   init, // 初始化
@@ -4587,7 +4588,7 @@ class MyVideoStateController extends GetxController
     final url = _remotePlaybackUrl;
     if (url == null || _isDisposed) return;
     var state = LocalMediaRemoteState.unreachable;
-    final client = HttpClient()..findProxy = ((_) => 'DIRECT');
+    final client = createDirectHttpClient();
     try {
       final request = await client
           .openUrl('HEAD', Uri.parse(url))
