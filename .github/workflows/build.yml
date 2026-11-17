@@ -416,31 +416,37 @@ jobs:
   build-ios:
     needs: version-guard
     if: ${{ inputs.build_ios }}
-    runs-on: macos-15
+    # ⛔ 不能再回到 macos-15 + Xcode 16.4（iOS 18.5 SDK）。2026-11-16 实测：同一提交、
+    # 同一 Flutter，CI 用 iOS 18.5 SDK 链接的包在 iOS 27 的 iPhone 上滑列表大量掉帧，
+    # 本机 Xcode 27 打的 release 包流畅。iOS 26 起，用旧 SDK 链接的 App 走系统的
+    # 兼容模式，链接的 SDK 至少要 26。
+    runs-on: macos-26
 
     steps:
       - uses: actions/checkout@v6
 
-      - name: Select Xcode 16.4
+      - name: Select Xcode (26+)
         shell: bash
         run: |
-          if [ -d /Applications/Xcode_16.4.app ]; then
-            XCODE_APP=/Applications/Xcode_16.4.app
-          else
-            shopt -s nullglob
-            matches=(/Applications/Xcode_16.4*.app)
-
-            if [ ${#matches[@]} -eq 0 ]; then
-              echo "Xcode 16.4 is not installed on this runner. Available Xcode apps:"
-              ls -1 /Applications/Xcode*.app 2>/dev/null || true
-              exit 1
-            fi
-
-            XCODE_APP="${matches[0]}"
+          shopt -s nullglob
+          # 只挑正式版（文件名不带 beta / Release_Candidate），取版本号最高的那个。
+          XCODE_APP=$(ls -d /Applications/Xcode_*.app \
+            | grep -v -i -E 'beta|release_candidate' \
+            | sort -V | tail -n 1)
+          if [ -z "$XCODE_APP" ]; then
+            echo "No Xcode found on this runner."
+            exit 1
+          fi
+          MAJOR=$(basename "$XCODE_APP" .app | sed -E 's/^Xcode_([0-9]+).*/\1/')
+          if [ "$MAJOR" -lt 26 ]; then
+            echo "Need Xcode 26+ (iOS 26+ SDK), got $XCODE_APP. Available Xcode apps:"
+            ls -1 /Applications/Xcode*.app 2>/dev/null || true
+            exit 1
           fi
 
           sudo xcode-select -s "$XCODE_APP/Contents/Developer"
           xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -455,6 +461,17 @@ jobs:
 
       - name: Build iOS
         run: flutter build ios --release --no-codesign ${{ env.BUILD_DEFINES }}
+
+      - name: Check linked iOS SDK
+        # 防回退：链接的 SDK 低于 26 时 iOS 26+ 上走兼容模式、滑动大量掉帧（见 runs-on 上方注释）。
+        shell: bash
+        run: |
+          SDK=$(xcrun vtool -show-build build/ios/iphoneos/Runner.app/Runner | awk '$1=="sdk"{print $2; exit}')
+          echo "Linked iOS SDK: $SDK"
+          if [ -z "$SDK" ] || [ "${SDK%%.*}" -lt 26 ]; then
+            echo "::error::Runner is linked against iOS SDK '$SDK'; need 26 or newer."
+            exit 1
+          fi
 
       - name: Create IPA with version
         id: pkg
