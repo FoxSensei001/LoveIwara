@@ -315,6 +315,10 @@ class MyVideoStateController extends GetxController
   Duration _deferredInitialPlaybackPosition = Duration.zero;
   bool _isStartingDeferredInitialPlayback = false;
 
+  /// 媒体正在打开时用户按了播放（[requestInitialPlayback] 那时只能登记、不能再开一次）。
+  /// 打开完成后的对账据此补播——不管这次打开是预热、出错重开还是切清晰度。
+  bool _playRequestedWhileOpening = false;
+
   /// 在视频源尚未加载完成时，用户点击了暂停或离开了当前页面。
   /// 此时 player 还未 open，直接 pause() 无效；加载完成后的延迟初始播放
   /// 必须尊重这个意图，不能自动开始播放（否则会出现"页面已切走仍听到背景声音"）。
@@ -2256,21 +2260,28 @@ class MyVideoStateController extends GetxController
       (!_xrImmersiveAvailable &&
           (_configService[ConfigKey.AUTO_PLAY_VIDEO_ON_FIRST_ENTER] as bool));
 
+  /// 「关掉了首次自动播放、用户还没按过播放」。
+  ///
+  /// ⛔ 不再看 [videoPlayerReady]：媒体可能已经被 [_prewarmDeferredPlayback] 在
+  /// 暂停状态下预先打开（就绪了），但用户没点播放，播放意图仍然是「等着」。
   bool get _shouldKeepInitialPlaybackDeferred =>
       !isLocalVideoMode &&
       videoInfo.value != null &&
       videoInfo.value?.isExternalVideo != true &&
       !_shouldAutoPlayOnInitialEntry &&
-      !videoPlayerReady.value &&
       !hasRequestedInitialPlayback.value;
 
+  /// 封面挡到「媒体就绪**并且**用户按过播放」为止。
+  ///
+  /// 预热（[_prewarmDeferredPlayback]）会让媒体在封面底下先就绪，所以只看
+  /// [videoPlayerReady] 不够——那样封面会在用户没点任何东西时自己消失。
   bool get shouldShowInitialPlaybackCover =>
       !_isDisposed &&
       !isLocalVideoMode &&
       videoInfo.value != null &&
       videoInfo.value?.isExternalVideo != true &&
       !_shouldAutoPlayOnInitialEntry &&
-      !videoPlayerReady.value &&
+      !(videoPlayerReady.value && hasRequestedInitialPlayback.value) &&
       videoSourceErrorMessage.value == null;
 
   bool get isWaitingForInitialPlaybackStart =>
@@ -2320,6 +2331,13 @@ class MyVideoStateController extends GetxController
     // 用户显式请求播放，撤销此前在加载阶段产生的暂停意图。
     _suppressAutoPlayOnReady = false;
 
+    // ⛔ 必须在「已就绪」分支之前置位：预热过的媒体此刻已经就绪，封面要靠它
+    // 才知道用户按过播放、可以撤了（见 [shouldShowInitialPlaybackCover]）。
+    hasRequestedInitialPlayback.value = true;
+    _markStartup('点播放');
+    // 预热期间限过预读，真要看了就放开，否则边播边只攒几秒，弱网下更容易卡。
+    await _releasePrewarmReadaheadLimit();
+
     if (videoPlayerReady.value) {
       if (!videoPlaying.value) {
         await player.play();
@@ -2328,14 +2346,13 @@ class MyVideoStateController extends GetxController
       return;
     }
 
-    hasRequestedInitialPlayback.value = true;
-
     // 媒体已经打开、或正在打开：只能让它播，**绝不能再打开一次**。
     // 少了这道守卫，加载态下每按一次播放都会重开同一个地址，转圈永远不结束。
     if (_hasIssuedMediaSourceOpen) {
       if (_isCurrentMediaSourceOpening) {
         // 打开还在路上。方法开头已经把 _suppressAutoPlayOnReady 置回 false，
         // 打开完成后的对账（见 resetVideoInfo）会据此决定最终播放状态。
+        _playRequestedWhileOpening = true;
         return;
       }
       await player.play();
@@ -2416,12 +2433,26 @@ class MyVideoStateController extends GetxController
     hasRequestedInitialPlayback.value = false;
   }
 
+  /// 用户明确要看（进小窗）时开播。封面还在＝首次播放没开始：必须走
+  /// [requestInitialPlayback]，否则预热过的媒体会在封面底下出声。
+  Future<void> _playForExplicitIntent() async {
+    if (_isDisposed) return;
+    if (shouldShowInitialPlaybackCover) {
+      await requestInitialPlayback();
+    } else {
+      await player.play();
+    }
+  }
+
   Future<void> playFromUserAction() async {
     if (_isDisposed) {
       return;
     }
 
+    // 封面还在 = 首次播放还没开始。预热过的媒体虽然已就绪，也得走首次播放那条
+    // 路，否则只调了 player.play()，封面不知道该撤、用户看到的是封面底下在出声。
     final shouldBootstrapDeferredPlayback =
+        shouldShowInitialPlaybackCover ||
         shouldBootstrapDeferredPlaybackOnUserPlay(
           isLocalVideoMode: isLocalVideoMode,
           isExternalVideo: videoInfo.value?.isExternalVideo == true,
@@ -2551,7 +2582,172 @@ class MyVideoStateController extends GetxController
     return decision.shouldOpenPlayer;
   }
 
-  Future<void> _startDeferredInitialPlayback({required bool playOnOpen}) async {
+  /// 预热时 mpv 最多往前攒几秒（`cache-secs`）。
+  ///
+  /// 暂停状态下 mpv 照样会把缓存灌满到 `demuxer-max-bytes`（默认 20MB、扩大
+  /// 缓冲时 64MB）。用户可能只是进来看评论、根本不播，所以预热只攒够「一点
+  /// 播放就能出画面」的量：1080p Source 约 10Mbps，8 秒 ≈ 10MB，540p 只有
+  /// 两三 MB。用户一按播放就恢复原值（见 [_releasePrewarmReadaheadLimit]）。
+  ///
+  /// 运行期改 `cache-secs` 有效：mpv 的 demux 线程每轮都会检查选项变更并
+  /// 重算预读上限（demux.c `update_opts`）。
+  static const String _prewarmCacheSecs = '8';
+
+  /// 预热前 `cache-secs` 的原值；非 null 表示预读正被预热限着。
+  String? _cacheSecsBeforePrewarm;
+  bool _prewarmReadaheadLimited = false;
+
+  /// 一次预热正在路上（读写 cache-secs 到发出打开之间）。没有它，同时进来的第二次
+  /// 预热会在复查时看到第一次的打开、把第一次设下的预读限制当成自己的给撤了。
+  bool _isPrewarming = false;
+
+  /// 「关掉首次自动播放」的用户：视频源到手后，在**暂停状态**下把媒体先打开。
+  ///
+  /// 原来要等用户点了播放才开始 `player.open`，连 CDN、TLS 握手、读文件头、
+  /// 跳到历史进度、缓冲，全部压在点击之后。预热把这些挪到用户看简介、看评论
+  /// 的时间里：点播放时多半已经就绪，直接出画面。
+  ///
+  /// 封面照旧挡在上面（[shouldShowInitialPlaybackCover] 要求「就绪且按过播放」），
+  /// 用户看到的和以前一样，只是点下去快了。
+  ///
+  /// 不预热的情况：
+  /// - 头显：播放器区域只是封面，真正播放交给空间播放器，预热只是白占带宽；
+  /// - 投屏中：画面在电视上，本机不该再拉一路；
+  /// - 页面被盖住：用户已经走了，等回来（[resumeFromCoveredRoute]）再说。
+  Future<void> _prewarmDeferredPlayback() async {
+    if (_isDisposed ||
+        _isPrewarming ||
+        !_shouldKeepInitialPlaybackDeferred ||
+        _hasIssuedMediaSourceOpen ||
+        _isStartingDeferredInitialPlayback ||
+        currentVideoSourceList.isEmpty ||
+        videoSourceErrorMessage.value != null ||
+        DeviceFormFactorUtils.isXrDevice ||
+        _xrImmersiveAvailable ||
+        _castService.isCasting.value ||
+        _isRouteCovered) {
+      return;
+    }
+
+    LogUtils.i('首次自动播放已关闭：在暂停状态下预先打开视频', 'MyVideoStateController');
+    _isPrewarming = true;
+    try {
+      await _limitReadaheadForPrewarm();
+      // 读写 cache-secs 那一下里，用户可能已经点了播放、走了正常的打开——
+      // 再预热一次就是对同一个地址第二次 open。
+      if (_isDisposed ||
+          hasRequestedInitialPlayback.value ||
+          _hasIssuedMediaSourceOpen ||
+          _isStartingDeferredInitialPlayback) {
+        await _releasePrewarmReadaheadLimit();
+        return;
+      }
+    } finally {
+      _isPrewarming = false;
+    }
+    await _startDeferredInitialPlayback(playOnOpen: false, prewarm: true);
+  }
+
+  Future<void> _limitReadaheadForPrewarm() async {
+    if (player.platform is! NativePlayer) return;
+    final NativePlayer platform = player.platform as NativePlayer;
+    try {
+      final String original = await platform.getProperty('cache-secs');
+      // 读原值的这一下里用户可能已经点了播放——那就别再限了。
+      if (_isDisposed ||
+          hasRequestedInitialPlayback.value ||
+          _prewarmReadaheadLimited) {
+        return;
+      }
+      _cacheSecsBeforePrewarm = original;
+      // 先置位再发：此后任何一次 release 都排在这次 setProperty 之后执行
+      // （两者都先 await 同一个已完成的初始化 future，FFI 调用按发出顺序落地）。
+      _prewarmReadaheadLimited = true;
+      await platform.setProperty('cache-secs', _prewarmCacheSecs);
+    } catch (e) {
+      LogUtils.w('预热时限制预读失败: $e', 'MyVideoStateController');
+    }
+  }
+
+  Future<void> _releasePrewarmReadaheadLimit() async {
+    if (!_prewarmReadaheadLimited) return;
+    _prewarmReadaheadLimited = false;
+    final String? original = _cacheSecsBeforePrewarm;
+    _cacheSecsBeforePrewarm = null;
+    if (_isDisposed ||
+        original == null ||
+        original.isEmpty ||
+        player.platform is! NativePlayer) {
+      return;
+    }
+    try {
+      final NativePlayer platform = player.platform as NativePlayer;
+      // 预热攒了多少：用来核对 cache-secs 运行期修改真的生效（应 ≈8 秒，
+      // 不该是几十秒）。
+      final String cachedSecs = await platform.getProperty(
+        'demuxer-cache-duration',
+      );
+      LogUtils.i(
+        '放开预热的预读限制：预热期间已缓存 ${cachedSecs}s，cache-secs 恢复为 $original',
+        'MyVideoStateController',
+      );
+      await platform.setProperty('cache-secs', original);
+    } catch (e) {
+      LogUtils.w('恢复预读上限失败: $e', 'MyVideoStateController');
+    }
+  }
+
+  /// 关掉首次自动播放、还没按过播放（媒体可能已被预热打开）。
+  ///
+  /// 这段时间里播放器的「位置」只是停在历史进度上，用户什么都没看：不能报给
+  /// 稍后再看、不能写播放历史，否则光是进一次详情页就会改动进度记录。
+  bool get _hasNotStartedDeferredPlayback =>
+      !isLocalVideoMode &&
+      videoInfo.value?.isExternalVideo != true &&
+      !_shouldAutoPlayOnInitialEntry &&
+      !hasRequestedInitialPlayback.value;
+
+  // ------------------------------------------------------------ 起播耗时分解
+
+  /// 从进详情页到画面真正动起来，每一段花了多久。开播那一刻打一行日志，
+  /// 之后不再记（切清晰度、续播那些重开不算起播）。
+  ///
+  /// 用来回答「用户到底在等什么」：等接口、等 CDN、还是等缓冲。
+  final Stopwatch _startupClock = Stopwatch();
+  final Map<String, int> _startupMarks = <String, int>{};
+  bool _startupReported = false;
+
+  /// 同名标记只记第一次。
+  void _markStartup(String label) {
+    if (_startupReported || isLocalVideoMode) return;
+    if (!_startupClock.isRunning) _startupClock.start();
+    _startupMarks.putIfAbsent(label, () => _startupClock.elapsedMilliseconds);
+  }
+
+  /// 在播 + 不在缓冲 + 宽高已知 才算画面真的动起来了。
+  ///
+  /// ⛔ 不能只看 playing：`open(play: true)` 一发出去 mpv 就报 playing=true，
+  /// 那时连文件头都还没读，拿它当「开播」会把整段等待算成 0（Mac 实测）。
+  void _reportStartupIfFirstPlay() {
+    if (_startupReported || isLocalVideoMode || _startupMarks.isEmpty) return;
+    if (!player.state.playing ||
+        player.state.buffering ||
+        sourceVideoHeight.value <= 0) {
+      return;
+    }
+    _markStartup('开播');
+    _startupReported = true;
+    _startupClock.stop();
+    final summary = _startupMarks.entries
+        .map((e) => '${e.key}@${e.value}ms')
+        .join(' → ');
+    LogUtils.i('起播耗时: $summary', 'MyVideoStateController');
+  }
+
+  Future<void> _startDeferredInitialPlayback({
+    required bool playOnOpen,
+    bool prewarm = false,
+  }) async {
     if (_isDisposed ||
         _isStartingDeferredInitialPlayback ||
         currentVideoSourceList.isEmpty ||
@@ -2592,6 +2788,7 @@ class MyVideoStateController extends GetxController
         videoResolutions: resolvedVideoResolutions,
         position: _deferredInitialPlaybackPosition,
         playOnOpen: effectivePlayOnOpen,
+        prewarm: prewarm,
       );
 
       // 这里只**登记待办**，不点亮提示。
@@ -2941,7 +3138,7 @@ class MyVideoStateController extends GetxController
         // 走「离开时自动进入」兜底进来的：用户点过小窗，进了就该播（当场进入那条路
         // 在 [enterPiPMode] 里自己 play）。设置开关只在播放中才设，不必再补。
         if (autoEntered && _pipAutoEnterIsFallback) {
-          unawaited(player.play());
+          unawaited(_playForExplicitIntent());
         }
       }
       return;
@@ -3468,7 +3665,11 @@ class MyVideoStateController extends GetxController
 
     final historyVideoId = videoId;
     final historyPosition = currentPosition;
-    final historyDuration = totalDuration.value;
+    // 预热打开过、但用户一直没按播放：时长虽然拿到了，人其实没看。按 0 处理，
+    // 下面的「duration <= 0 不写」就会跳过——和没预热时进出详情页的结果一样。
+    final historyDuration = _hasNotStartedDeferredPlayback
+        ? Duration.zero
+        : totalDuration.value;
     // ⛔ 本地库的进度**同步落**，不能跟着下面那串异步收尾走：写库本身是同步的
     // （sqlite3 同步 API），而异步收尾要先 await 掉播放器 dispose 那一串，
     // 进程在这中间被杀（后台回收 / 摘下头显）这一次就白记了。
@@ -3626,6 +3827,7 @@ class MyVideoStateController extends GetxController
     if (_isDisposed) return;
 
     LogUtils.i('开始获取视频详情，videoId: $videoId', 'MyVideoStateController');
+    _markStartup('进详情');
     pageLoadingState.value = VideoDetailPageLoadingState.loadingVideoInfo;
     videoErrorMessage.value = null;
     mainErrorWidget.value = null;
@@ -3968,6 +4170,22 @@ class MyVideoStateController extends GetxController
         _videoSourceFetchFuture = null;
       }
     }
+    // 源到手、用户又没要求立刻播：先在暂停状态下把媒体打开（条件全在里面判）。
+    unawaited(_prewarmDeferredPlayback());
+  }
+
+  /// 首次打开时要跳到的历史进度；失败、关了进度记录、或已经播过（切清晰度等
+  /// 重取源）都返回 0。不抛异常，好让调用方把它和网络请求并行等。
+  Future<Duration> _loadInitialResumePosition() async {
+    try {
+      if (!firstLoaded &&
+          _configService[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]) {
+        return await _playbackHistoryService.resumePosition(videoId!);
+      }
+    } catch (e) {
+      LogUtils.e('还原历史记录失败: $e', tag: 'MyVideoStateController', error: e);
+    }
+    return Duration.zero;
   }
 
   Future<void> _fetchVideoSourceInternal({
@@ -3988,20 +4206,14 @@ class MyVideoStateController extends GetxController
     final cachedSources = _cacheManager.getVideoSources(cacheKey);
     final logVideoUrl = videoInfo.value!.fileUrl!;
 
-    Duration targetDuration = Duration.zero;
-    try {
-      if (!firstLoaded &&
-          _configService[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]) {
-        targetDuration = await _playbackHistoryService.resumePosition(videoId!);
-        if (_isDisposed) return;
-      }
-    } catch (e) {
-      LogUtils.e('还原历史记录失败: $e', tag: 'MyVideoStateController', error: e);
-    }
-
-    _deferredInitialPlaybackPosition = targetDuration;
+    // 历史进度和视频源互不依赖：先把查库发出去，网络请求同时进行，
+    // 两边都回来再用——原来是查完库才发请求，白白串行。
+    final Future<Duration> resumePositionFuture = _loadInitialResumePosition();
 
     if (cachedSources != null && !forceRefresh) {
+      _deferredInitialPlaybackPosition = await resumePositionFuture;
+      if (_isDisposed) return;
+      _markStartup('视频源(缓存)');
       final serializedSources = cachedSources
           .map(
             (source) => {
@@ -4059,6 +4271,9 @@ class MyVideoStateController extends GetxController
         checkSiteTimeout: XVersionSaltService.playbackCheckSiteTimeout,
       );
 
+      if (_isDisposed) return;
+      _markStartup('视频源(网络)');
+      _deferredInitialPlaybackPosition = await resumePositionFuture;
       if (_isDisposed) return;
 
       final List<dynamic> data = res.data;
@@ -4272,8 +4487,14 @@ class MyVideoStateController extends GetxController
     required List<VideoResolution> videoResolutions,
     Duration position = Duration.zero,
     bool playOnOpen = true,
+
+    /// 由 [_prewarmDeferredPlayback] 发起：用户还没按播放，打开期间按下的那一下
+    /// 要在打开完成后补上（见下面的对账）。
+    bool prewarm = false,
   }) async {
     if (_isDisposed) return;
+    // 不是预热的打开都是「真要看」：预热留下的预读限制不能带过去。
+    if (!prewarm) await _releasePrewarmReadaheadLimit();
     pageLoadingState.value = VideoDetailPageLoadingState.applyingSolution;
     videoLoadingSpeedBytesPerSecond.value = null;
     // 重置状态
@@ -4342,11 +4563,15 @@ class MyVideoStateController extends GetxController
         'MyVideoStateController',
       );
       mediaSourceGeneration = _beginCurrentMediaSourceOpen(finalUrl);
+      _markStartup(prewarm ? '预热打开' : '打开');
       await player.open(
         Media(finalUrl, start: currentPosition),
         play: playOnOpen,
       );
       _finishCurrentMediaSourceOpen(mediaSourceGeneration, succeeded: true);
+      _markStartup('打开返回');
+      final playRequestedWhileOpening = _playRequestedWhileOpening;
+      _playRequestedWhileOpening = false;
       // 打开是异步的，这期间用户完全可能改主意（在加载转圈上按了暂停）。
       // playOnOpen 是**打开之前**算出来的，而 open(play: true) 又会盖掉期间那次
       // pause()，所以必须在打开之后按最终意图再对一次账，否则「加载中按暂停」
@@ -4354,11 +4579,31 @@ class MyVideoStateController extends GetxController
       if (playOnOpen && _suppressAutoPlayOnReady) {
         await player.pause();
         videoPlaying.value = false;
+      } else if (!playOnOpen &&
+          !_suppressAutoPlayOnReady &&
+          (playRequestedWhileOpening ||
+              (prewarm && hasRequestedInitialPlayback.value))) {
+        // 反方向的同一笔账：这次是暂停着打开的（预热，或预热后出错重开、切清晰度），
+        // 打开途中用户按了播放——那一下在 requestInitialPlayback 里只登记了意图
+        // （媒体正在打开，不能再开一次），这里补上。
+        await _releasePrewarmReadaheadLimit();
+        await player.play();
+        videoPlaying.value = true;
       }
+      // open 返回只代表 loadfile 发出去了；连服务器、读文件头都在这之后，
+      // 这一段在界面上叫「正在连接视频服务器」。
       pageLoadingState.value = VideoDetailPageLoadingState.addingListeners;
     } catch (e) {
       _finishCurrentMediaSourceOpen(mediaSourceGeneration, succeeded: false);
+      _playRequestedWhileOpening = false;
       if (_isDisposed) return;
+      if (prewarm && !hasRequestedInitialPlayback.value) {
+        // 用户还没要看，预热失败不该把错误页甩到他脸上；点播放时会正常重新打开，
+        // 真打不开那次再报。
+        LogUtils.w('预热打开视频失败，等用户点播放再试: $e', 'MyVideoStateController');
+        await _releasePrewarmReadaheadLimit();
+        return;
+      }
       LogUtils.e('Player open 出错: $e', tag: 'MyVideoStateController', error: e);
       videoErrorMessage.value =
           '${slang.t.videoDetail.player.errorWhileLoadingVideoSource}: $e';
@@ -4397,12 +4642,18 @@ class MyVideoStateController extends GetxController
         videoLoadingSpeedBytesPerSecond.value = null;
       }
       videoBuffering.value = buffering;
+      if (buffering) {
+        _markStartup('开始缓冲');
+      } else {
+        _reportStartupIfFirstPlay();
+      }
     });
 
     // 总时长
     durationSubscription = player.stream.duration.listen((duration) async {
       if (_isDisposed) return;
       totalDuration.value = duration;
+      _markStartup('拿到时长');
       pageLoadingState.value =
           VideoDetailPageLoadingState.successFecthVideoDurationInfo;
     });
@@ -4420,6 +4671,9 @@ class MyVideoStateController extends GetxController
       if (_isDisposed) return;
       if (height != null) {
         sourceVideoHeight.value = height;
+        _markStartup('拿到宽高');
+        // 缓冲结束可能先于宽高到达，这里再问一次。
+        _reportStartupIfFirstPlay();
         // [tip]: 发现每次都是先监听到 width，再监听到height，所以这里先更新宽高比
         pageLoadingState.value =
             VideoDetailPageLoadingState.successFecthVideoHeightInfo;
@@ -4435,6 +4689,7 @@ class MyVideoStateController extends GetxController
         videoPlaying.value = playing;
       }
       if (playing) {
+        _reportStartupIfFirstPlay();
         _reconcileAutoFullscreen(AutoFullscreenTrigger.playbackStarted);
       }
       _syncPiPAutoEnter();
@@ -5620,8 +5875,11 @@ class MyVideoStateController extends GetxController
 
     Duration target = position < Duration.zero ? Duration.zero : position;
 
-    // 播放器尚未就绪时，先触发初始播放
-    if (!videoPlayerReady.value && !isLocalVideoMode) {
+    // 首次播放还没开始时，先走首次播放。⛔ 不能只看「是否就绪」：预热过的媒体
+    // 已经就绪，跳过这里就会在封面底下开播，历史、稍后再看、预读上限都以为
+    // 用户没开始看。
+    if ((!videoPlayerReady.value || shouldShowInitialPlaybackCover) &&
+        !isLocalVideoMode) {
       await requestInitialPlayback();
     }
 
@@ -5902,7 +6160,7 @@ class MyVideoStateController extends GetxController
       if (_isDisposed) return;
       if (result.entered) {
         isPiPMode.value = true;
-        await player.play();
+        await _playForExplicitIntent();
         return;
       }
 
@@ -5994,7 +6252,11 @@ class MyVideoStateController extends GetxController
         //
         // ⛔ 不能复用 video_playback_history：那张表跟着浏览历史一起删，
         // 用户删一条历史不该连「稍后再看」的看完状态一起丢。
-        _reportWatchLaterProgress(position);
+        //
+        // 预热打开、用户还没按播放：位置只是停在历史进度上，不算看过。
+        if (!_hasNotStartedDeferredPlayback) {
+          _reportWatchLaterProgress(position);
+        }
 
         // 本地库那条路的进度（自己节流，见 [_saveLocalLibraryProgress]）。
         _saveLocalLibraryProgress(position, totalDuration.value);
@@ -6121,6 +6383,8 @@ class MyVideoStateController extends GetxController
     _startHealthSnapshotTimer();
     _setupVideoSourceExpirationTimer();
     _syncPiPAutoEnter();
+    // 源到手时页面正被盖着、没预热，回来了补上。
+    unawaited(_prewarmDeferredPlayback());
   }
 
   void _bindSystemVolumeListener() {

@@ -3799,7 +3799,7 @@ class _TranslationsVideoDetailSkeletonTh extends TranslationsVideoDetailSkeleton
 	@override String get fetchingVideoSources => 'กำลังดึงแหล่งที่มาของวิดีโอ...';
 	@override String get loadingVideo => 'กำลังโหลดวิดีโอ...';
 	@override String get applyingSolution => 'กำลังนำการตั้งค่าความละเอียดนี้ไปใช้...';
-	@override String get addingListeners => 'กำลังเพิ่มตัวรับฟังเหตุการณ์...';
+	@override String get addingListeners => 'กำลังเชื่อมต่อเซิร์ฟเวอร์วิดีโอ...';
 	@override String get successFecthVideoDurationInfo => 'ดึงข้อมูลความยาววิดีโอสำเร็จ เริ่มโหลดวิดีโอ...';
 	@override String get successFecthVideoHeightInfo => 'โหลดเสร็จสมบูรณ์';
 }
@@ -6725,7 +6725,7 @@ extension on TranslationsTh {
 			'videoDetail.skeleton.fetchingVideoSources' => 'กำลังดึงแหล่งที่มาของวิดีโอ...',
 			'videoDetail.skeleton.loadingVideo' => 'กำลังโหลดวิดีโอ...',
 			'videoDetail.skeleton.applyingSolution' => 'กำลังนำการตั้งค่าความละเอียดนี้ไปใช้...',
-			'videoDetail.skeleton.addingListeners' => 'กำลังเพิ่มตัวรับฟังเหตุการณ์...',
+			'videoDetail.skeleton.addingListeners' => 'กำลังเชื่อมต่อเซิร์ฟเวอร์วิดีโอ...',
 			'videoDetail.skeleton.successFecthVideoDurationInfo' => 'ดึงข้อมูลความยาววิดีโอสำเร็จ เริ่มโหลดวิดีโอ...',
 			'videoDetail.skeleton.successFecthVideoHeightInfo' => 'โหลดเสร็จสมบูรณ์',
 			'videoDetail.cast.dlnaCast' => 'แคสต์',

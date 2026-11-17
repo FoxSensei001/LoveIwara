@@ -3799,7 +3799,7 @@ class _TranslationsVideoDetailSkeletonId extends TranslationsVideoDetailSkeleton
 	@override String get fetchingVideoSources => 'Mengambil sumber video...';
 	@override String get loadingVideo => 'Memuat video...';
 	@override String get applyingSolution => 'Menerapkan solusi...';
-	@override String get addingListeners => 'Menambahkan pemantau...';
+	@override String get addingListeners => 'Menghubungkan ke server video...';
 	@override String get successFecthVideoDurationInfo => 'Berhasil mengambil durasi video, mulai memuat video...';
 	@override String get successFecthVideoHeightInfo => 'Pemuatan selesai';
 }
@@ -6725,7 +6725,7 @@ extension on TranslationsId {
 			'videoDetail.skeleton.fetchingVideoSources' => 'Mengambil sumber video...',
 			'videoDetail.skeleton.loadingVideo' => 'Memuat video...',
 			'videoDetail.skeleton.applyingSolution' => 'Menerapkan solusi...',
-			'videoDetail.skeleton.addingListeners' => 'Menambahkan pemantau...',
+			'videoDetail.skeleton.addingListeners' => 'Menghubungkan ke server video...',
 			'videoDetail.skeleton.successFecthVideoDurationInfo' => 'Berhasil mengambil durasi video, mulai memuat video...',
 			'videoDetail.skeleton.successFecthVideoHeightInfo' => 'Pemuatan selesai',
 			'videoDetail.cast.dlnaCast' => 'Siarkan',

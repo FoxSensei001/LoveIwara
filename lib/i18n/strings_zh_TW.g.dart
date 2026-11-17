@@ -3924,7 +3924,7 @@ class _TranslationsVideoDetailSkeletonZhTw extends TranslationsVideoDetailSkelet
 	@override String get fetchingVideoSources => '取得影片來源中...';
 	@override String get loadingVideo => '正在載入影片...';
 	@override String get applyingSolution => '正在應用此解析度...';
-	@override String get addingListeners => '正在添加監聽器...';
+	@override String get addingListeners => '正在連接影片伺服器...';
 	@override String get successFecthVideoDurationInfo => '成功獲取影片資源，開始載入影片...';
 	@override String get successFecthVideoHeightInfo => '載入完成';
 }
@@ -6803,7 +6803,7 @@ extension on TranslationsZhTw {
 			'videoDetail.skeleton.fetchingVideoSources' => '取得影片來源中...',
 			'videoDetail.skeleton.loadingVideo' => '正在載入影片...',
 			'videoDetail.skeleton.applyingSolution' => '正在應用此解析度...',
-			'videoDetail.skeleton.addingListeners' => '正在添加監聽器...',
+			'videoDetail.skeleton.addingListeners' => '正在連接影片伺服器...',
 			'videoDetail.skeleton.successFecthVideoDurationInfo' => '成功獲取影片資源，開始載入影片...',
 			'videoDetail.skeleton.successFecthVideoHeightInfo' => '載入完成',
 			'videoDetail.cast.dlnaCast' => '投影',

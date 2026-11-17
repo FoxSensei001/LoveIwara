@@ -919,6 +919,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       controller.videoPlaying.value;
       controller.aspectRatio.value;
       controller.videoPlayerReady.value;
+      // 预热后封面撤不撤还取决于用户按没按过播放（见 shouldShowInitialPlaybackCover）。
+      controller.hasRequestedInitialPlayback.value;
       return ExtendedNestedScrollView(
         key: controller.nestedScrollViewKey,
         controller: controller.scrollController,

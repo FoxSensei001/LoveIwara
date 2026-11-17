@@ -3821,7 +3821,7 @@ class _TranslationsVideoDetailSkeletonZhCn extends TranslationsVideoDetailSkelet
 	@override String get fetchingVideoSources => '正在获取视频源...';
 	@override String get loadingVideo => '正在加载视频...';
 	@override String get applyingSolution => '正在应用此分辨率...';
-	@override String get addingListeners => '正在添加监听器...';
+	@override String get addingListeners => '正在连接视频服务器...';
 	@override String get successFecthVideoDurationInfo => '成功获取视频资源，开始加载视频...';
 	@override String get successFecthVideoHeightInfo => '加载完成';
 }
@@ -6769,7 +6769,7 @@ extension on TranslationsZhCn {
 			'videoDetail.skeleton.fetchingVideoSources' => '正在获取视频源...',
 			'videoDetail.skeleton.loadingVideo' => '正在加载视频...',
 			'videoDetail.skeleton.applyingSolution' => '正在应用此分辨率...',
-			'videoDetail.skeleton.addingListeners' => '正在添加监听器...',
+			'videoDetail.skeleton.addingListeners' => '正在连接视频服务器...',
 			'videoDetail.skeleton.successFecthVideoDurationInfo' => '成功获取视频资源，开始加载视频...',
 			'videoDetail.skeleton.successFecthVideoHeightInfo' => '加载完成',
 			'videoDetail.cast.dlnaCast' => '投屏',

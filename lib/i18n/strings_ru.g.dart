@@ -3799,7 +3799,7 @@ class _TranslationsVideoDetailSkeletonRu extends TranslationsVideoDetailSkeleton
 	@override String get fetchingVideoSources => 'Загрузка источников видео...';
 	@override String get loadingVideo => 'Загрузка видео...';
 	@override String get applyingSolution => 'Применение решения...';
-	@override String get addingListeners => 'Добавление слушателей...';
+	@override String get addingListeners => 'Подключение к видеосерверу...';
 	@override String get successFecthVideoDurationInfo => 'Длительность видео получена, загрузка видео...';
 	@override String get successFecthVideoHeightInfo => 'Загрузка завершена';
 }
@@ -6725,7 +6725,7 @@ extension on TranslationsRu {
 			'videoDetail.skeleton.fetchingVideoSources' => 'Загрузка источников видео...',
 			'videoDetail.skeleton.loadingVideo' => 'Загрузка видео...',
 			'videoDetail.skeleton.applyingSolution' => 'Применение решения...',
-			'videoDetail.skeleton.addingListeners' => 'Добавление слушателей...',
+			'videoDetail.skeleton.addingListeners' => 'Подключение к видеосерверу...',
 			'videoDetail.skeleton.successFecthVideoDurationInfo' => 'Длительность видео получена, загрузка видео...',
 			'videoDetail.skeleton.successFecthVideoHeightInfo' => 'Загрузка завершена',
 			'videoDetail.cast.dlnaCast' => 'Трансляция',

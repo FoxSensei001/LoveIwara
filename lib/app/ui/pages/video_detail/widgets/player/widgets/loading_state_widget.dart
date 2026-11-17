@@ -84,6 +84,11 @@ class LoadingStateWidget extends StatelessWidget {
         return slang.t.videoDetail.skeleton.addingListeners;
       case VideoDetailPageLoadingState.successFecthVideoDurationInfo:
       case VideoDetailPageLoadingState.successFecthVideoHeightInfo:
+        // 文件头读到了，还在等首帧/缓冲。播放器就绪后这个浮层就不画了，
+        // 所以这里给一句阶段名，不留空白（每个加载阶段都要有面向用户的文案）。
+        if (!controller.videoPlayerReady.value) {
+          return slang.t.videoDetail.skeleton.loadingVideo;
+        }
         return '';
       case VideoDetailPageLoadingState.playerError:
         return controller.videoErrorMessage.value ??

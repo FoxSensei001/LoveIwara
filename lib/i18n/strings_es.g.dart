@@ -3799,7 +3799,7 @@ class _TranslationsVideoDetailSkeletonEs extends TranslationsVideoDetailSkeleton
 	@override String get fetchingVideoSources => 'Obteniendo las fuentes de video...';
 	@override String get loadingVideo => 'Cargando el video...';
 	@override String get applyingSolution => 'Aplicando la solución...';
-	@override String get addingListeners => 'Añadiendo receptores...';
+	@override String get addingListeners => 'Conectando con el servidor de video...';
 	@override String get successFecthVideoDurationInfo => 'Se obtuvo la duración del video correctamente; empezando a cargar el video...';
 	@override String get successFecthVideoHeightInfo => 'Carga completada';
 }
@@ -6725,7 +6725,7 @@ extension on TranslationsEs {
 			'videoDetail.skeleton.fetchingVideoSources' => 'Obteniendo las fuentes de video...',
 			'videoDetail.skeleton.loadingVideo' => 'Cargando el video...',
 			'videoDetail.skeleton.applyingSolution' => 'Aplicando la solución...',
-			'videoDetail.skeleton.addingListeners' => 'Añadiendo receptores...',
+			'videoDetail.skeleton.addingListeners' => 'Conectando con el servidor de video...',
 			'videoDetail.skeleton.successFecthVideoDurationInfo' => 'Se obtuvo la duración del video correctamente; empezando a cargar el video...',
 			'videoDetail.skeleton.successFecthVideoHeightInfo' => 'Carga completada',
 			'videoDetail.cast.dlnaCast' => 'Transmitir',

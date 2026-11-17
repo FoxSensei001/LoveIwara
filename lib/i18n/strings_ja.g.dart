@@ -3799,7 +3799,7 @@ class _TranslationsVideoDetailSkeletonJa extends TranslationsVideoDetailSkeleton
 	@override String get fetchingVideoSources => 'ビデオソースを取得中...';
 	@override String get loadingVideo => 'ビデオを読み込み中...';
 	@override String get applyingSolution => '解像度を適用中...';
-	@override String get addingListeners => '監視器を追加中...';
+	@override String get addingListeners => '動画サーバーに接続中...';
 	@override String get successFecthVideoDurationInfo => 'ビデオの総時間を取得しました、ビデオを読み込み中...';
 	@override String get successFecthVideoHeightInfo => '読み込み完了';
 }
@@ -6725,7 +6725,7 @@ extension on TranslationsJa {
 			'videoDetail.skeleton.fetchingVideoSources' => 'ビデオソースを取得中...',
 			'videoDetail.skeleton.loadingVideo' => 'ビデオを読み込み中...',
 			'videoDetail.skeleton.applyingSolution' => '解像度を適用中...',
-			'videoDetail.skeleton.addingListeners' => '監視器を追加中...',
+			'videoDetail.skeleton.addingListeners' => '動画サーバーに接続中...',
 			'videoDetail.skeleton.successFecthVideoDurationInfo' => 'ビデオの総時間を取得しました、ビデオを読み込み中...',
 			'videoDetail.skeleton.successFecthVideoHeightInfo' => '読み込み完了',
 			'videoDetail.cast.dlnaCast' => 'キャスト',

@@ -3799,7 +3799,7 @@ class _TranslationsVideoDetailSkeletonVi extends TranslationsVideoDetailSkeleton
 	@override String get fetchingVideoSources => 'Đang lấy nguồn video...';
 	@override String get loadingVideo => 'Đang tải video...';
 	@override String get applyingSolution => 'Đang áp dụng giải pháp...';
-	@override String get addingListeners => 'Đang thêm trình lắng nghe...';
+	@override String get addingListeners => 'Đang kết nối máy chủ video...';
 	@override String get successFecthVideoDurationInfo => 'Đã lấy thành công thời lượng video, bắt đầu tải video...';
 	@override String get successFecthVideoHeightInfo => 'Tải hoàn tất';
 }
@@ -6725,7 +6725,7 @@ extension on TranslationsVi {
 			'videoDetail.skeleton.fetchingVideoSources' => 'Đang lấy nguồn video...',
 			'videoDetail.skeleton.loadingVideo' => 'Đang tải video...',
 			'videoDetail.skeleton.applyingSolution' => 'Đang áp dụng giải pháp...',
-			'videoDetail.skeleton.addingListeners' => 'Đang thêm trình lắng nghe...',
+			'videoDetail.skeleton.addingListeners' => 'Đang kết nối máy chủ video...',
 			'videoDetail.skeleton.successFecthVideoDurationInfo' => 'Đã lấy thành công thời lượng video, bắt đầu tải video...',
 			'videoDetail.skeleton.successFecthVideoHeightInfo' => 'Tải hoàn tất',
 			'videoDetail.cast.dlnaCast' => 'Truyền phát',

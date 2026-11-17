@@ -3799,7 +3799,7 @@ class _TranslationsVideoDetailSkeletonKo extends TranslationsVideoDetailSkeleton
 	@override String get fetchingVideoSources => '동영상 소스 가져오는 중...';
 	@override String get loadingVideo => '동영상 불러오는 중...';
 	@override String get applyingSolution => '해결 방법 적용 중...';
-	@override String get addingListeners => '리스너 추가 중...';
+	@override String get addingListeners => '동영상 서버에 연결 중...';
 	@override String get successFecthVideoDurationInfo => '동영상 길이를 가져왔습니다. 동영상 로드를 시작합니다...';
 	@override String get successFecthVideoHeightInfo => '로딩 완료';
 }
@@ -6725,7 +6725,7 @@ extension on TranslationsKo {
 			'videoDetail.skeleton.fetchingVideoSources' => '동영상 소스 가져오는 중...',
 			'videoDetail.skeleton.loadingVideo' => '동영상 불러오는 중...',
 			'videoDetail.skeleton.applyingSolution' => '해결 방법 적용 중...',
-			'videoDetail.skeleton.addingListeners' => '리스너 추가 중...',
+			'videoDetail.skeleton.addingListeners' => '동영상 서버에 연결 중...',
 			'videoDetail.skeleton.successFecthVideoDurationInfo' => '동영상 길이를 가져왔습니다. 동영상 로드를 시작합니다...',
 			'videoDetail.skeleton.successFecthVideoHeightInfo' => '로딩 완료',
 			'videoDetail.cast.dlnaCast' => '캐스트',

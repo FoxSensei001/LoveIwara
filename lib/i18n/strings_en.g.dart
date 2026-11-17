@@ -9708,8 +9708,8 @@ class TranslationsVideoDetailSkeletonEn {
 	/// en: 'Applying solution...'
 	String get applyingSolution => 'Applying solution...';
 
-	/// en: 'Adding listeners...'
-	String get addingListeners => 'Adding listeners...';
+	/// en: 'Connecting to video server...'
+	String get addingListeners => 'Connecting to video server...';
 
 	/// en: 'Successfully fetched video duration, starting to load video...'
 	String get successFecthVideoDurationInfo => 'Successfully fetched video duration, starting to load video...';
@@ -14426,7 +14426,7 @@ extension on Translations {
 			'videoDetail.skeleton.fetchingVideoSources' => 'Fetching video sources...',
 			'videoDetail.skeleton.loadingVideo' => 'Loading video...',
 			'videoDetail.skeleton.applyingSolution' => 'Applying solution...',
-			'videoDetail.skeleton.addingListeners' => 'Adding listeners...',
+			'videoDetail.skeleton.addingListeners' => 'Connecting to video server...',
 			'videoDetail.skeleton.successFecthVideoDurationInfo' => 'Successfully fetched video duration, starting to load video...',
 			'videoDetail.skeleton.successFecthVideoHeightInfo' => 'Loading completed',
 			'videoDetail.cast.dlnaCast' => 'Cast',
