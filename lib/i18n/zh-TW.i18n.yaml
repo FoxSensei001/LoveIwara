@@ -1596,6 +1596,7 @@ videoDetail:
   getVideoInfoFailed: '取得影片資訊失敗，請稍後再試'
   noVideoSourceFound: 未找到對應的影片來源
   sourceFileMissingOnServer: '影片檔案在 Iwara 伺服器上不存在（HTTP 404），網頁端同樣無法播放。可能是伺服器故障，請稍後再試。'
+  qualityFileMissingOnServer: '「${quality}」這一檔的影片檔案在伺服器上不存在（HTTP 404），可以在畫質選單裡換一檔。'
   playbackRetryExhausted: '影片連續多次無法開啟，已停止自動重試。可以稍後點重試。'
   tagCopiedToClipboard: '標籤 "${tagId}" 已複製到剪貼簿'
   errorLoadingVideo: 載入影片時出錯
@@ -2850,7 +2851,6 @@ mediaPlayer:
     hardwareDecodeFellBack: "已切換為軟體解碼，可能更耗電"
     videoDecodeProblem: "可嘗試切換畫質，畫面可能破圖"
     repeatedPlaybackProblems: "匯出日誌回報：播放多次出錯"
-    qualityFileMissingSwitched: '這個畫質的檔案在伺服器上缺失，已換成其他畫質'
     issuesSheetTitle: "播放問題"
     issueOccurrences: "出現 ${count} 次"
     issueAtPosition: "位於 ${position}"

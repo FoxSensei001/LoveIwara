@@ -1314,6 +1314,7 @@ class _TranslationsVideoDetailJa extends TranslationsVideoDetailEn {
 	@override String get getVideoInfoFailed => 'ビデオ情報の取得に失敗しました。後でもう一度お試しください';
 	@override String get noVideoSourceFound => '対応するビデオソースが見つかりません';
 	@override String get sourceFileMissingOnServer => '動画ファイルが Iwara のサーバー上に存在しません（HTTP 404）。ウェブ版でも再生できません。サーバー障害の可能性があるため、後でもう一度お試しください。';
+	@override String qualityFileMissingOnServer({required Object quality}) => '「${quality}」のファイルがサーバー上にありません（HTTP 404）。画質メニューから別の画質を選んでください。';
 	@override String get playbackRetryExhausted => '動画を何度も開けなかったため、自動再試行を停止しました。後で再試行してください。';
 	@override String tagCopiedToClipboard({required Object tagId}) => 'タグ "${tagId}" がクリップボードにコピーされました';
 	@override String get errorLoadingVideo => 'ビデオの読み込み中にエラーが発生しました';
@@ -4506,7 +4507,6 @@ class _TranslationsMediaPlayerNoticeJa extends TranslationsMediaPlayerNoticeEn {
 	@override String get hardwareDecodeFellBack => 'ソフトウェアデコードに切り替え。電池消費が増えます';
 	@override String get videoDecodeProblem => '画質の切り替えをお試しください。映像が乱れます';
 	@override String get repeatedPlaybackProblems => 'ログを書き出して報告してください。エラーが続いています';
-	@override String get qualityFileMissingSwitched => 'この画質のファイルがサーバー上にないため、別の画質に切り替えました';
 	@override String get issuesSheetTitle => '再生の問題';
 	@override String issueOccurrences({required Object count}) => '${count} 回発生';
 	@override String issueAtPosition({required Object position}) => '位置 ${position}';
@@ -6578,6 +6578,7 @@ extension on TranslationsJa {
 			'videoDetail.getVideoInfoFailed' => 'ビデオ情報の取得に失敗しました。後でもう一度お試しください',
 			'videoDetail.noVideoSourceFound' => '対応するビデオソースが見つかりません',
 			'videoDetail.sourceFileMissingOnServer' => '動画ファイルが Iwara のサーバー上に存在しません（HTTP 404）。ウェブ版でも再生できません。サーバー障害の可能性があるため、後でもう一度お試しください。',
+			'videoDetail.qualityFileMissingOnServer' => ({required Object quality}) => '「${quality}」のファイルがサーバー上にありません（HTTP 404）。画質メニューから別の画質を選んでください。',
 			'videoDetail.playbackRetryExhausted' => '動画を何度も開けなかったため、自動再試行を停止しました。後で再試行してください。',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'タグ "${tagId}" がクリップボードにコピーされました',
 			'videoDetail.errorLoadingVideo' => 'ビデオの読み込み中にエラーが発生しました',
@@ -6663,9 +6664,9 @@ extension on TranslationsJa {
 			'videoDetail.gestureGuide.quest.browseTitle' => 'スティックで画像を送る',
 			'videoDetail.gestureGuide.quest.browseBody' => '左右どちらのスティックでも、左・右で前後の項目へ移動し、倒し続けると連続で送れます。フィルムストリップのサムネイルも選べます。',
 			'videoDetail.gestureGuide.quest.browseHint' => 'ギャラリー内の動画も同じように送れます。レイが操作パネル上にあると、スティックはスクロールになります。',
-			'videoDetail.gestureGuide.quest.swipeTitle' => '横ドラッグでページを送る',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.swipeTitle' => '横ドラッグでページを送る',
 			'videoDetail.gestureGuide.quest.swipeBody' => '画像にレイを合わせ、トリガーを押したまま左へドラッグします。ページ送りの表示が出たら離すと次へ、右へドラッグすると前へ戻ります。ピンチでも操作できます。',
 			'videoDetail.gestureGuide.quest.swipeHint' => '画像は 1× のときにページ送りできます。ギャラリー内の動画にも対応しています。ドラッグ中は画面が動かず、離してから切り替わります。',
 			'videoDetail.gestureGuide.quest.zoomTitle' => '画像の細部を拡大',
@@ -7177,9 +7178,9 @@ extension on TranslationsJa {
 			'download.notice.failed' => ({required Object count}) => '${count} 件のダウンロードが失敗しました',
 			'download.notice.retryAll' => 'すべて再試行',
 			'download.notice.view' => '表示',
-			'download.notice.missing' => ({required Object count}) => 'ダウンロード済みの ${count} 件のファイルが見つかりません',
 			_ => null,
 		} ?? switch (path) {
+			'download.notice.missing' => ({required Object count}) => 'ダウンロード済みの ${count} 件のファイルが見つかりません',
 			'download.notice.handle' => '対処…',
 			'download.notice.outside' => ({required Object count}) => '古いダウンロードフォルダに ${count} 件残っています',
 			'download.notice.migrate' => '移動',
@@ -7691,9 +7692,9 @@ extension on TranslationsJa {
 			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude 推論 (extended thinking)',
 			'translation.presetNames.gemini' => 'Google Gemini (ネイティブ)',
 			'translation.presetNames.geminiReasoning' => 'Google Gemini 推論 (thinking)',
-			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			_ => null,
 		} ?? switch (path) {
+			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek 推論 (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
@@ -7766,7 +7767,6 @@ extension on TranslationsJa {
 			'mediaPlayer.notice.hardwareDecodeFellBack' => 'ソフトウェアデコードに切り替え。電池消費が増えます',
 			'mediaPlayer.notice.videoDecodeProblem' => '画質の切り替えをお試しください。映像が乱れます',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => 'ログを書き出して報告してください。エラーが続いています',
-			'mediaPlayer.notice.qualityFileMissingSwitched' => 'この画質のファイルがサーバー上にないため、別の画質に切り替えました',
 			'mediaPlayer.notice.issuesSheetTitle' => '再生の問題',
 			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => '${count} 回発生',
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => '位置 ${position}',

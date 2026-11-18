@@ -208,8 +208,6 @@ class _PlayerNoticeChipState extends State<PlayerNoticeChip>
         return t.mediaPlayer.notice.repeatedPlaybackProblems;
       case PlayerNoticeKind.noVideoSource:
         return t.videoDetail.noVideoSourceFound;
-      case PlayerNoticeKind.qualityFileMissingSwitched:
-        return t.mediaPlayer.notice.qualityFileMissingSwitched;
       case PlayerNoticeKind.castNotSupported:
         return t.videoDetail.cast.currentPlatformNotSupported;
       case PlayerNoticeKind.castUrlUnavailable:
@@ -235,8 +233,6 @@ class _PlayerNoticeChipState extends State<PlayerNoticeChip>
         return Icons.warning_amber_rounded;
       case PlayerNoticeKind.noVideoSource:
         return Icons.videocam_off_outlined;
-      case PlayerNoticeKind.qualityFileMissingSwitched:
-        return Icons.high_quality_outlined;
       case PlayerNoticeKind.castNotSupported:
       case PlayerNoticeKind.castUrlUnavailable:
         return Icons.cast_connected_rounded;

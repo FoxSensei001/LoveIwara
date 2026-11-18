@@ -1314,6 +1314,7 @@ class _TranslationsVideoDetailRu extends TranslationsVideoDetailEn {
 	@override String get getVideoInfoFailed => 'Не удалось получить данные о видео, повторите позже';
 	@override String get noVideoSourceFound => 'Источник видео не найден';
 	@override String get sourceFileMissingOnServer => 'Файл видео отсутствует на сервере Iwara (HTTP 404), поэтому он не воспроизводится и на сайте. Возможно, у сервера неполадки; попробуйте позже.';
+	@override String qualityFileMissingOnServer({required Object quality}) => 'Файла качества «${quality}» нет на сервере (HTTP 404). Выберите другое качество в меню качества.';
 	@override String get playbackRetryExhausted => 'Видео несколько раз подряд не открылось, автоматические повторы остановлены. Попробуйте позже.';
 	@override String tagCopiedToClipboard({required Object tagId}) => 'Тег «${tagId}» скопирован';
 	@override String get errorLoadingVideo => 'Ошибка загрузки видео';
@@ -4506,7 +4507,6 @@ class _TranslationsMediaPlayerNoticeRu extends TranslationsMediaPlayerNoticeEn {
 	@override String get hardwareDecodeFellBack => 'Переключено на программное декодирование; может расходовать больше энергии';
 	@override String get videoDecodeProblem => 'Попробуйте другое качество; изображение может сбоить';
 	@override String get repeatedPlaybackProblems => 'Экспортируйте логи, чтобы сообщить о повторяющихся проблемах воспроизведения';
-	@override String get qualityFileMissingSwitched => 'Файла этого качества нет на сервере, выбрано другое качество';
 	@override String get issuesSheetTitle => 'Проблемы воспроизведения';
 	@override String issueOccurrences({required Object count}) => 'Произошло раз: ${count}';
 	@override String issueAtPosition({required Object position}) => 'На ${position}';
@@ -6578,6 +6578,7 @@ extension on TranslationsRu {
 			'videoDetail.getVideoInfoFailed' => 'Не удалось получить данные о видео, повторите позже',
 			'videoDetail.noVideoSourceFound' => 'Источник видео не найден',
 			'videoDetail.sourceFileMissingOnServer' => 'Файл видео отсутствует на сервере Iwara (HTTP 404), поэтому он не воспроизводится и на сайте. Возможно, у сервера неполадки; попробуйте позже.',
+			'videoDetail.qualityFileMissingOnServer' => ({required Object quality}) => 'Файла качества «${quality}» нет на сервере (HTTP 404). Выберите другое качество в меню качества.',
 			'videoDetail.playbackRetryExhausted' => 'Видео несколько раз подряд не открылось, автоматические повторы остановлены. Попробуйте позже.',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'Тег «${tagId}» скопирован',
 			'videoDetail.errorLoadingVideo' => 'Ошибка загрузки видео',
@@ -6663,9 +6664,9 @@ extension on TranslationsRu {
 			'videoDetail.gestureGuide.quest.browseTitle' => 'Просмотр стиком',
 			'videoDetail.gestureGuide.quest.browseBody' => 'Отклоните стик влево/вправо для перехода к предыдущему или следующему элементу; удерживайте для непрерывного листания. Можно также выбрать миниатюру.',
 			'videoDetail.gestureGuide.quest.browseHint' => 'Видео в галерее также считаются элементами. Наведение на панель переключает стик на ее прокрутку.',
-			'videoDetail.gestureGuide.quest.swipeTitle' => 'Перелистывание перетаскиванием',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.swipeTitle' => 'Перелистывание перетаскиванием',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Наведите на изображение, зажмите триггер и потяните влево. Отпустите после подсказки о смене страницы; потяните вправо для возврата. Щипок с перетаскиванием тоже работает.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Для перелистывания изображение должно быть в масштабе 1×. Поддерживаются и видео в галерее. Сцена остается на месте до отпускания.',
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'Масштабирование изображения',
@@ -7177,9 +7178,9 @@ extension on TranslationsRu {
 			'download.notice.failed' => ({required Object count}) => '${count} downloads failed',
 			'download.notice.retryAll' => 'Retry all',
 			'download.notice.view' => 'View',
-			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			_ => null,
 		} ?? switch (path) {
+			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			'download.notice.handle' => 'Handle…',
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
 			'download.notice.migrate' => 'Move',
@@ -7691,9 +7692,9 @@ extension on TranslationsRu {
 			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude Рассуждение (расширенное мышление)',
 			'translation.presetNames.gemini' => 'Google Gemini (нативно)',
 			'translation.presetNames.geminiReasoning' => 'Google Gemini Рассуждение (мышление)',
-			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			_ => null,
 		} ?? switch (path) {
+			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek Рассуждение (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
@@ -7852,7 +7853,6 @@ extension on TranslationsRu {
 			'mediaPlayer.notice.hardwareDecodeFellBack' => 'Переключено на программное декодирование; может расходовать больше энергии',
 			'mediaPlayer.notice.videoDecodeProblem' => 'Попробуйте другое качество; изображение может сбоить',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => 'Экспортируйте логи, чтобы сообщить о повторяющихся проблемах воспроизведения',
-			'mediaPlayer.notice.qualityFileMissingSwitched' => 'Файла этого качества нет на сервере, выбрано другое качество',
 			'mediaPlayer.notice.issuesSheetTitle' => 'Проблемы воспроизведения',
 			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => 'Произошло раз: ${count}',
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'На ${position}',

@@ -1524,6 +1524,7 @@ videoDetail:
   getVideoInfoFailed: 'Lấy thông tin video thất bại, vui lòng thử lại sau'
   noVideoSourceFound: Không tìm thấy nguồn video
   sourceFileMissingOnServer: 'Tệp video không tồn tại trên máy chủ Iwara (HTTP 404), nên trên web cũng không phát được. Máy chủ có thể đang gặp sự cố; hãy thử lại sau.'
+  qualityFileMissingOnServer: 'Tệp chất lượng “${quality}” không có trên máy chủ (HTTP 404). Hãy chọn chất lượng khác trong menu chất lượng.'
   playbackRetryExhausted: 'Video không mở được nhiều lần liên tiếp nên đã dừng tự động thử lại. Hãy thử lại sau.'
   tagCopiedToClipboard: 'Đã sao chép thẻ "${tagId}" vào bộ nhớ tạm'
   errorLoadingVideo: Lỗi khi tải video
@@ -2881,7 +2882,6 @@ mediaPlayer:
     hardwareDecodeFellBack: "Đã chuyển sang giải mã phần mềm; có thể tốn pin hơn"
     videoDecodeProblem: "Hãy thử chất lượng khác; hình ảnh có thể bị lỗi"
     repeatedPlaybackProblems: "Xuất nhật ký để báo cáo các vấn đề phát lặp lại"
-    qualityFileMissingSwitched: 'Tệp chất lượng này không có trên máy chủ, đã chuyển sang chất lượng khác'
     issuesSheetTitle: "Vấn đề khi phát"
     issueOccurrences: "Đã xảy ra ${count} lần"
     issueAtPosition: "Tại ${position}"

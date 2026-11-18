@@ -1336,6 +1336,7 @@ class _TranslationsVideoDetailZhCn extends TranslationsVideoDetailEn {
 	@override String get getVideoInfoFailed => '获取视频信息失败，请稍后再试';
 	@override String get noVideoSourceFound => '未找到对应的视频源';
 	@override String get sourceFileMissingOnServer => '视频文件在 Iwara 服务器上不存在（HTTP 404），网页端同样播放不了。可能是服务器故障，请稍后再试。';
+	@override String qualityFileMissingOnServer({required Object quality}) => '「${quality}」这一档的视频文件在服务器上不存在（HTTP 404），可以在清晰度菜单里换一档。';
 	@override String get playbackRetryExhausted => '视频连续多次打不开，已停止自动重试。可以稍后点重试。';
 	@override String tagCopiedToClipboard({required Object tagId}) => '标签 "${tagId}" 已复制到剪贴板';
 	@override String get errorLoadingVideo => '在加载视频时出现了错误';
@@ -4528,7 +4529,6 @@ class _TranslationsMediaPlayerNoticeZhCn extends TranslationsMediaPlayerNoticeEn
 	@override String get hardwareDecodeFellBack => '已切换为软件解码，可能更耗电';
 	@override String get videoDecodeProblem => '可尝试切换清晰度，画面可能花屏';
 	@override String get repeatedPlaybackProblems => '导出日志反馈：播放多次出错';
-	@override String get qualityFileMissingSwitched => '这个清晰度的文件在服务器上缺失，已换成其他清晰度';
 	@override String get issuesSheetTitle => '播放问题';
 	@override String issueOccurrences({required Object count}) => '出现 ${count} 次';
 	@override String issueAtPosition({required Object position}) => '位于 ${position}';
@@ -6622,6 +6622,7 @@ extension on TranslationsZhCn {
 			'videoDetail.getVideoInfoFailed' => '获取视频信息失败，请稍后再试',
 			'videoDetail.noVideoSourceFound' => '未找到对应的视频源',
 			'videoDetail.sourceFileMissingOnServer' => '视频文件在 Iwara 服务器上不存在（HTTP 404），网页端同样播放不了。可能是服务器故障，请稍后再试。',
+			'videoDetail.qualityFileMissingOnServer' => ({required Object quality}) => '「${quality}」这一档的视频文件在服务器上不存在（HTTP 404），可以在清晰度菜单里换一档。',
 			'videoDetail.playbackRetryExhausted' => '视频连续多次打不开，已停止自动重试。可以稍后点重试。',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => '标签 "${tagId}" 已复制到剪贴板',
 			'videoDetail.errorLoadingVideo' => '在加载视频时出现了错误',
@@ -6685,9 +6686,9 @@ extension on TranslationsZhCn {
 			'videoDetail.gestureGuide.quest.grip' => '侧握键',
 			'videoDetail.gestureGuide.quest.bothGrips' => '双手侧握键',
 			'videoDetail.gestureGuide.quest.stick' => '摇杆',
-			'videoDetail.gestureGuide.quest.handTracking' => '手势追踪',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.handTracking' => '手势追踪',
 			'videoDetail.gestureGuide.quest.ready' => '准备',
 			'videoDetail.gestureGuide.quest.press' => '按下',
 			'videoDetail.gestureGuide.quest.hold' => '保持',
@@ -7199,9 +7200,9 @@ extension on TranslationsZhCn {
 			'download.actions.redownloadNone' => '没有可重新下载的项目',
 			'download.actions.deleteTitle' => ({required Object count}) => '删除 ${count} 项下载？',
 			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '共 ${count} 项 · ${size}',
-			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '共 ${count} 项',
 			_ => null,
 		} ?? switch (path) {
+			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '共 ${count} 项',
 			'download.actions.deleteGalleryNote' => ({required Object count}) => '其中 ${count} 个图库的大小未计入',
 			'download.actions.deleteFiles' => '同时删除磁盘文件',
 			'download.actions.deleteFilesDesc' => '关闭后只移除列表记录，文件留在原处',
@@ -7713,9 +7714,9 @@ extension on TranslationsZhCn {
 			'translation.reasoningModel' => '推理模型',
 			'translation.reasoningModelDescription' => '适用于 o1/o3、DeepSeek-R1、QwQ 等：将提示词并入用户消息、不下发 temperature、改用 max_completion_tokens',
 			'translation.useMaxCompletionTokens' => '使用 max_completion_tokens',
-			'translation.useMaxCompletionTokensDescription' => '新版 OpenAI 端点已弃用 max_tokens，需改用 max_completion_tokens',
 			_ => null,
 		} ?? switch (path) {
+			'translation.useMaxCompletionTokensDescription' => '新版 OpenAI 端点已弃用 max_tokens，需改用 max_completion_tokens',
 			'translation.sendTemperature' => '下发 temperature',
 			'translation.sendTemperatureDescription' => '对于拒绝 temperature 参数的模型(多数推理模型)请关闭',
 			'translation.showReasoningProcess' => '显示思考过程',
@@ -7810,7 +7811,6 @@ extension on TranslationsZhCn {
 			'mediaPlayer.notice.hardwareDecodeFellBack' => '已切换为软件解码，可能更耗电',
 			'mediaPlayer.notice.videoDecodeProblem' => '可尝试切换清晰度，画面可能花屏',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => '导出日志反馈：播放多次出错',
-			'mediaPlayer.notice.qualityFileMissingSwitched' => '这个清晰度的文件在服务器上缺失，已换成其他清晰度',
 			'mediaPlayer.notice.issuesSheetTitle' => '播放问题',
 			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => '出现 ${count} 次',
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => '位于 ${position}',

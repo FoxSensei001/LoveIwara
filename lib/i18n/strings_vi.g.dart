@@ -1314,6 +1314,7 @@ class _TranslationsVideoDetailVi extends TranslationsVideoDetailEn {
 	@override String get getVideoInfoFailed => 'Lấy thông tin video thất bại, vui lòng thử lại sau';
 	@override String get noVideoSourceFound => 'Không tìm thấy nguồn video';
 	@override String get sourceFileMissingOnServer => 'Tệp video không tồn tại trên máy chủ Iwara (HTTP 404), nên trên web cũng không phát được. Máy chủ có thể đang gặp sự cố; hãy thử lại sau.';
+	@override String qualityFileMissingOnServer({required Object quality}) => 'Tệp chất lượng “${quality}” không có trên máy chủ (HTTP 404). Hãy chọn chất lượng khác trong menu chất lượng.';
 	@override String get playbackRetryExhausted => 'Video không mở được nhiều lần liên tiếp nên đã dừng tự động thử lại. Hãy thử lại sau.';
 	@override String tagCopiedToClipboard({required Object tagId}) => 'Đã sao chép thẻ "${tagId}" vào bộ nhớ tạm';
 	@override String get errorLoadingVideo => 'Lỗi khi tải video';
@@ -4506,7 +4507,6 @@ class _TranslationsMediaPlayerNoticeVi extends TranslationsMediaPlayerNoticeEn {
 	@override String get hardwareDecodeFellBack => 'Đã chuyển sang giải mã phần mềm; có thể tốn pin hơn';
 	@override String get videoDecodeProblem => 'Hãy thử chất lượng khác; hình ảnh có thể bị lỗi';
 	@override String get repeatedPlaybackProblems => 'Xuất nhật ký để báo cáo các vấn đề phát lặp lại';
-	@override String get qualityFileMissingSwitched => 'Tệp chất lượng này không có trên máy chủ, đã chuyển sang chất lượng khác';
 	@override String get issuesSheetTitle => 'Vấn đề khi phát';
 	@override String issueOccurrences({required Object count}) => 'Đã xảy ra ${count} lần';
 	@override String issueAtPosition({required Object position}) => 'Tại ${position}';
@@ -6578,6 +6578,7 @@ extension on TranslationsVi {
 			'videoDetail.getVideoInfoFailed' => 'Lấy thông tin video thất bại, vui lòng thử lại sau',
 			'videoDetail.noVideoSourceFound' => 'Không tìm thấy nguồn video',
 			'videoDetail.sourceFileMissingOnServer' => 'Tệp video không tồn tại trên máy chủ Iwara (HTTP 404), nên trên web cũng không phát được. Máy chủ có thể đang gặp sự cố; hãy thử lại sau.',
+			'videoDetail.qualityFileMissingOnServer' => ({required Object quality}) => 'Tệp chất lượng “${quality}” không có trên máy chủ (HTTP 404). Hãy chọn chất lượng khác trong menu chất lượng.',
 			'videoDetail.playbackRetryExhausted' => 'Video không mở được nhiều lần liên tiếp nên đã dừng tự động thử lại. Hãy thử lại sau.',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'Đã sao chép thẻ "${tagId}" vào bộ nhớ tạm',
 			'videoDetail.errorLoadingVideo' => 'Lỗi khi tải video',
@@ -6663,9 +6664,9 @@ extension on TranslationsVi {
 			'videoDetail.gestureGuide.quest.browseTitle' => 'Duyệt bằng cần gạt',
 			'videoDetail.gestureGuide.quest.browseBody' => 'Đẩy cần gạt sang trái hoặc phải để chuyển mục trước hoặc sau; giữ để tiếp tục duyệt. Bạn cũng có thể chọn một ảnh thu nhỏ trong dải phim.',
 			'videoDetail.gestureGuide.quest.browseHint' => 'Video trong thư viện cũng là các mục. Chỉ vào bảng điều khiển sẽ khiến cần gạt cuộn bảng.',
-			'videoDetail.gestureGuide.quest.swipeTitle' => 'Kéo ngang để lật trang',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.swipeTitle' => 'Kéo ngang để lật trang',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Hướng vào hình ảnh, giữ cò ngón trỏ và kéo sang trái. Thả ra sau tín hiệu lật trang để chuyển tiếp; kéo sang phải để lùi lại. Chụm và kéo cũng hoạt động.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Hình ảnh phải ở mức 1× để lật trang bằng cách kéo. Video trong thư viện cũng hỗ trợ. Sân khấu đứng yên cho đến khi bạn thả ra.',
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'Thu phóng vào hình ảnh',
@@ -7177,9 +7178,9 @@ extension on TranslationsVi {
 			'download.notice.failed' => ({required Object count}) => '${count} downloads failed',
 			'download.notice.retryAll' => 'Retry all',
 			'download.notice.view' => 'View',
-			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			_ => null,
 		} ?? switch (path) {
+			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			'download.notice.handle' => 'Handle…',
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
 			'download.notice.migrate' => 'Move',
@@ -7691,9 +7692,9 @@ extension on TranslationsVi {
 			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude Reasoning (suy luận mở rộng)',
 			'translation.presetNames.gemini' => 'Google Gemini (gốc)',
 			'translation.presetNames.geminiReasoning' => 'Google Gemini Reasoning (suy nghĩ)',
-			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			_ => null,
 		} ?? switch (path) {
+			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek Reasoning (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
@@ -7852,7 +7853,6 @@ extension on TranslationsVi {
 			'mediaPlayer.notice.hardwareDecodeFellBack' => 'Đã chuyển sang giải mã phần mềm; có thể tốn pin hơn',
 			'mediaPlayer.notice.videoDecodeProblem' => 'Hãy thử chất lượng khác; hình ảnh có thể bị lỗi',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => 'Xuất nhật ký để báo cáo các vấn đề phát lặp lại',
-			'mediaPlayer.notice.qualityFileMissingSwitched' => 'Tệp chất lượng này không có trên máy chủ, đã chuyển sang chất lượng khác',
 			'mediaPlayer.notice.issuesSheetTitle' => 'Vấn đề khi phát',
 			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => 'Đã xảy ra ${count} lần',
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'Tại ${position}',

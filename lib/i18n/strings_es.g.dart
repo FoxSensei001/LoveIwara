@@ -1314,6 +1314,7 @@ class _TranslationsVideoDetailEs extends TranslationsVideoDetailEn {
 	@override String get getVideoInfoFailed => 'No se pudo obtener la información del video; inténtelo de nuevo más tarde';
 	@override String get noVideoSourceFound => 'No se encontró ninguna fuente de video';
 	@override String get sourceFileMissingOnServer => 'El archivo de video no existe en el servidor de Iwara (HTTP 404), así que tampoco se reproduce en la web. Puede que el servidor tenga problemas; inténtalo más tarde.';
+	@override String qualityFileMissingOnServer({required Object quality}) => 'El archivo de «${quality}» no está en el servidor (HTTP 404). Elige otra calidad en el menú de calidad.';
 	@override String get playbackRetryExhausted => 'El video no se pudo abrir varias veces seguidas, así que se detuvieron los reintentos automáticos. Vuelve a intentarlo más tarde.';
 	@override String tagCopiedToClipboard({required Object tagId}) => 'Etiqueta "${tagId}" copiada al portapapeles';
 	@override String get errorLoadingVideo => 'Error al cargar el video';
@@ -4506,7 +4507,6 @@ class _TranslationsMediaPlayerNoticeEs extends TranslationsMediaPlayerNoticeEn {
 	@override String get hardwareDecodeFellBack => 'Se cambió a la decodificación por software; puede consumir más energía';
 	@override String get videoDecodeProblem => 'Pruebe otra calidad; la imagen puede presentar fallos';
 	@override String get repeatedPlaybackProblems => 'Exporte los registros para informar de problemas de reproducción repetidos';
-	@override String get qualityFileMissingSwitched => 'Esta calidad no está en el servidor; se cambió a otra calidad';
 	@override String get issuesSheetTitle => 'Problemas de reproducción';
 	@override String issueOccurrences({required Object count}) => 'Ocurrió ${count} veces';
 	@override String issueAtPosition({required Object position}) => 'En ${position}';
@@ -6578,6 +6578,7 @@ extension on TranslationsEs {
 			'videoDetail.getVideoInfoFailed' => 'No se pudo obtener la información del video; inténtelo de nuevo más tarde',
 			'videoDetail.noVideoSourceFound' => 'No se encontró ninguna fuente de video',
 			'videoDetail.sourceFileMissingOnServer' => 'El archivo de video no existe en el servidor de Iwara (HTTP 404), así que tampoco se reproduce en la web. Puede que el servidor tenga problemas; inténtalo más tarde.',
+			'videoDetail.qualityFileMissingOnServer' => ({required Object quality}) => 'El archivo de «${quality}» no está en el servidor (HTTP 404). Elige otra calidad en el menú de calidad.',
 			'videoDetail.playbackRetryExhausted' => 'El video no se pudo abrir varias veces seguidas, así que se detuvieron los reintentos automáticos. Vuelve a intentarlo más tarde.',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'Etiqueta "${tagId}" copiada al portapapeles',
 			'videoDetail.errorLoadingVideo' => 'Error al cargar el video',
@@ -6663,9 +6664,9 @@ extension on TranslationsEs {
 			'videoDetail.gestureGuide.quest.browseTitle' => 'Navegar con el joystick',
 			'videoDetail.gestureGuide.quest.browseBody' => 'Mueva cualquiera de los joysticks a izquierda o derecha para el elemento anterior o siguiente; mantenga para seguir navegando. También puede seleccionar una miniatura en la tira de película.',
 			'videoDetail.gestureGuide.quest.browseHint' => 'Los videos de una galería también son elementos. Apuntar al panel de control hace que el joystick desplace el panel.',
-			'videoDetail.gestureGuide.quest.swipeTitle' => 'Arrastrar a lo ancho para pasar de página',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.swipeTitle' => 'Arrastrar a lo ancho para pasar de página',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Apunte a la imagen, mantenga el gatillo índice y arrastre a la izquierda. Suelte tras la señal de cambio de página para avanzar; arrastre a la derecha para retroceder. También funciona pellizcar y arrastrar.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Las imágenes deben estar a 1× para pasar páginas arrastrando. Los videos de galería también lo admiten. El escenario permanece inmóvil hasta que suelte.',
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'Ampliar la imagen',
@@ -7177,9 +7178,9 @@ extension on TranslationsEs {
 			'download.notice.failed' => ({required Object count}) => '${count} downloads failed',
 			'download.notice.retryAll' => 'Retry all',
 			'download.notice.view' => 'View',
-			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			_ => null,
 		} ?? switch (path) {
+			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			'download.notice.handle' => 'Handle…',
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
 			'download.notice.migrate' => 'Move',
@@ -7691,9 +7692,9 @@ extension on TranslationsEs {
 			'translation.presetNames.anthropicReasoning' => 'Razonamiento de Anthropic Claude (pensamiento extendido)',
 			'translation.presetNames.gemini' => 'Google Gemini (nativo)',
 			'translation.presetNames.geminiReasoning' => 'Razonamiento de Google Gemini (pensamiento)',
-			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			_ => null,
 		} ?? switch (path) {
+			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			'translation.presetNames.deepseekReasoner' => 'Razonamiento de DeepSeek (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
@@ -7852,7 +7853,6 @@ extension on TranslationsEs {
 			'mediaPlayer.notice.hardwareDecodeFellBack' => 'Se cambió a la decodificación por software; puede consumir más energía',
 			'mediaPlayer.notice.videoDecodeProblem' => 'Pruebe otra calidad; la imagen puede presentar fallos',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => 'Exporte los registros para informar de problemas de reproducción repetidos',
-			'mediaPlayer.notice.qualityFileMissingSwitched' => 'Esta calidad no está en el servidor; se cambió a otra calidad',
 			'mediaPlayer.notice.issuesSheetTitle' => 'Problemas de reproducción',
 			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => 'Ocurrió ${count} veces',
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'En ${position}',

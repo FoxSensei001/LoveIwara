@@ -3428,6 +3428,9 @@ class TranslationsVideoDetailEn {
 	/// en: 'The video file is missing on the Iwara server (HTTP 404), so it will not play on the website either. The server may be having problems; try again later.'
 	String get sourceFileMissingOnServer => 'The video file is missing on the Iwara server (HTTP 404), so it will not play on the website either. The server may be having problems; try again later.';
 
+	/// en: 'The “${quality}” file is missing on the server (HTTP 404). Pick another quality from the quality menu.'
+	String qualityFileMissingOnServer({required Object quality}) => 'The “${quality}” file is missing on the server (HTTP 404). Pick another quality from the quality menu.';
+
 	/// en: 'The video failed to open several times in a row, so automatic retries have stopped. Tap retry to try again later.'
 	String get playbackRetryExhausted => 'The video failed to open several times in a row, so automatic retries have stopped. Tap retry to try again later.';
 
@@ -11395,9 +11398,6 @@ class TranslationsMediaPlayerNoticeEn {
 	/// en: 'Export logs to report repeated playback issues'
 	String get repeatedPlaybackProblems => 'Export logs to report repeated playback issues';
 
-	/// en: 'This quality is missing on the server, switched to another quality'
-	String get qualityFileMissingSwitched => 'This quality is missing on the server, switched to another quality';
-
 	/// en: 'Playback issues'
 	String get issuesSheetTitle => 'Playback issues';
 
@@ -14289,6 +14289,7 @@ extension on Translations {
 			'videoDetail.getVideoInfoFailed' => 'Get video info failed, please try again later',
 			'videoDetail.noVideoSourceFound' => 'No video source found',
 			'videoDetail.sourceFileMissingOnServer' => 'The video file is missing on the Iwara server (HTTP 404), so it will not play on the website either. The server may be having problems; try again later.',
+			'videoDetail.qualityFileMissingOnServer' => ({required Object quality}) => 'The “${quality}” file is missing on the server (HTTP 404). Pick another quality from the quality menu.',
 			'videoDetail.playbackRetryExhausted' => 'The video failed to open several times in a row, so automatic retries have stopped. Tap retry to try again later.',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'Tag "${tagId}" copied to clipboard',
 			'videoDetail.errorLoadingVideo' => 'Error loading video',
@@ -14352,9 +14353,9 @@ extension on Translations {
 			'videoDetail.gestureGuide.quest.grip' => 'Grip button',
 			'videoDetail.gestureGuide.quest.bothGrips' => 'Both grip buttons',
 			'videoDetail.gestureGuide.quest.stick' => 'Thumbstick',
-			'videoDetail.gestureGuide.quest.handTracking' => 'Hand tracking',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.handTracking' => 'Hand tracking',
 			'videoDetail.gestureGuide.quest.ready' => 'Ready',
 			'videoDetail.gestureGuide.quest.press' => 'Press',
 			'videoDetail.gestureGuide.quest.hold' => 'Hold',
@@ -14866,9 +14867,9 @@ extension on Translations {
 			'download.actions.redownloadStarted' => ({required Object count}) => 'Started downloading ${count} items again',
 			'download.actions.redownloadNone' => 'Nothing to download again',
 			'download.actions.deleteTitle' => ({required Object count}) => 'Delete ${count} downloads?',
-			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '${count} items · ${size}',
 			_ => null,
 		} ?? switch (path) {
+			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '${count} items · ${size}',
 			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '${count} items',
 			'download.actions.deleteGalleryNote' => ({required Object count}) => 'Size of ${count} galleries not included',
 			'download.actions.deleteFiles' => 'Also delete files from disk',
@@ -15380,9 +15381,9 @@ extension on Translations {
 			'translation.reasoningModel' => 'Reasoning Model',
 			'translation.reasoningModelDescription' => 'For o1/o3, DeepSeek-R1, QwQ, etc. Folds the prompt into the user message, omits temperature, and uses max_completion_tokens',
 			'translation.useMaxCompletionTokens' => 'Use max_completion_tokens',
-			'translation.useMaxCompletionTokensDescription' => 'Newer OpenAI endpoints require max_completion_tokens instead of the deprecated max_tokens',
 			_ => null,
 		} ?? switch (path) {
+			'translation.useMaxCompletionTokensDescription' => 'Newer OpenAI endpoints require max_completion_tokens instead of the deprecated max_tokens',
 			'translation.sendTemperature' => 'Send temperature',
 			'translation.sendTemperatureDescription' => 'Turn off for models that reject the temperature parameter (most reasoning models)',
 			'translation.showReasoningProcess' => 'Show thought process',
@@ -15563,7 +15564,6 @@ extension on Translations {
 			'mediaPlayer.notice.hardwareDecodeFellBack' => 'Switched to software decoding; may use more power',
 			'mediaPlayer.notice.videoDecodeProblem' => 'Try another quality; the picture may glitch',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => 'Export logs to report repeated playback issues',
-			'mediaPlayer.notice.qualityFileMissingSwitched' => 'This quality is missing on the server, switched to another quality',
 			'mediaPlayer.notice.issuesSheetTitle' => 'Playback issues',
 			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => 'Occurred ${count} times',
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'At ${position}',

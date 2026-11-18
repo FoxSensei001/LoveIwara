@@ -1524,6 +1524,7 @@ videoDetail:
   getVideoInfoFailed: 'Не удалось получить данные о видео, повторите позже'
   noVideoSourceFound: Источник видео не найден
   sourceFileMissingOnServer: 'Файл видео отсутствует на сервере Iwara (HTTP 404), поэтому он не воспроизводится и на сайте. Возможно, у сервера неполадки; попробуйте позже.'
+  qualityFileMissingOnServer: 'Файла качества «${quality}» нет на сервере (HTTP 404). Выберите другое качество в меню качества.'
   playbackRetryExhausted: 'Видео несколько раз подряд не открылось, автоматические повторы остановлены. Попробуйте позже.'
   tagCopiedToClipboard: 'Тег «${tagId}» скопирован'
   errorLoadingVideo: Ошибка загрузки видео
@@ -2881,7 +2882,6 @@ mediaPlayer:
     hardwareDecodeFellBack: "Переключено на программное декодирование; может расходовать больше энергии"
     videoDecodeProblem: "Попробуйте другое качество; изображение может сбоить"
     repeatedPlaybackProblems: "Экспортируйте логи, чтобы сообщить о повторяющихся проблемах воспроизведения"
-    qualityFileMissingSwitched: 'Файла этого качества нет на сервере, выбрано другое качество'
     issuesSheetTitle: "Проблемы воспроизведения"
     issueOccurrences: "Произошло раз: ${count}"
     issueAtPosition: "На ${position}"

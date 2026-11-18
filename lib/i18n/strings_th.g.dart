@@ -1314,6 +1314,7 @@ class _TranslationsVideoDetailTh extends TranslationsVideoDetailEn {
 	@override String get getVideoInfoFailed => 'รับข้อมูลวิดีโอล้มเหลว โปรดลองใหม่อีกครั้งในภายหลัง';
 	@override String get noVideoSourceFound => 'ไม่พบแหล่งที่มาของวิดีโอ';
 	@override String get sourceFileMissingOnServer => 'ไม่พบไฟล์วิดีโอบนเซิร์ฟเวอร์ Iwara (HTTP 404) จึงเล่นบนเว็บไม่ได้เช่นกัน เซิร์ฟเวอร์อาจมีปัญหา โปรดลองใหม่ภายหลัง';
+	@override String qualityFileMissingOnServer({required Object quality}) => 'ไม่พบไฟล์คุณภาพ「${quality}」บนเซิร์ฟเวอร์ (HTTP 404) เลือกคุณภาพอื่นจากเมนูคุณภาพ';
 	@override String get playbackRetryExhausted => 'เปิดวิดีโอไม่สำเร็จหลายครั้งติดกัน จึงหยุดลองใหม่อัตโนมัติแล้ว โปรดลองใหม่ภายหลัง';
 	@override String tagCopiedToClipboard({required Object tagId}) => 'คัดลอกแท็ก "${tagId}" ไปยังคลิปบอร์ดแล้ว';
 	@override String get errorLoadingVideo => 'เกิดข้อผิดพลาดขณะโหลดวิดีโอ';
@@ -4506,7 +4507,6 @@ class _TranslationsMediaPlayerNoticeTh extends TranslationsMediaPlayerNoticeEn {
 	@override String get hardwareDecodeFellBack => 'สลับไปใช้การถอดรหัสด้วยซอฟต์แวร์ อาจใช้พลังงานแบตเตอรี่มากขึ้น';
 	@override String get videoDecodeProblem => 'ลองเปลี่ยนความละเอียด ภาพอาจมีอาการกระตุกหรือแตก';
 	@override String get repeatedPlaybackProblems => 'ส่งออกบันทึกเพื่อรายงานปัญหาการเล่นซ้ำๆ';
-	@override String get qualityFileMissingSwitched => 'ไม่พบไฟล์คุณภาพนี้บนเซิร์ฟเวอร์ จึงเปลี่ยนเป็นคุณภาพอื่น';
 	@override String get issuesSheetTitle => 'ปัญหาการเล่น';
 	@override String issueOccurrences({required Object count}) => 'เกิดขึ้น ${count} ครั้ง';
 	@override String issueAtPosition({required Object position}) => 'ที่ตำแหน่ง ${position}';
@@ -6578,6 +6578,7 @@ extension on TranslationsTh {
 			'videoDetail.getVideoInfoFailed' => 'รับข้อมูลวิดีโอล้มเหลว โปรดลองใหม่อีกครั้งในภายหลัง',
 			'videoDetail.noVideoSourceFound' => 'ไม่พบแหล่งที่มาของวิดีโอ',
 			'videoDetail.sourceFileMissingOnServer' => 'ไม่พบไฟล์วิดีโอบนเซิร์ฟเวอร์ Iwara (HTTP 404) จึงเล่นบนเว็บไม่ได้เช่นกัน เซิร์ฟเวอร์อาจมีปัญหา โปรดลองใหม่ภายหลัง',
+			'videoDetail.qualityFileMissingOnServer' => ({required Object quality}) => 'ไม่พบไฟล์คุณภาพ「${quality}」บนเซิร์ฟเวอร์ (HTTP 404) เลือกคุณภาพอื่นจากเมนูคุณภาพ',
 			'videoDetail.playbackRetryExhausted' => 'เปิดวิดีโอไม่สำเร็จหลายครั้งติดกัน จึงหยุดลองใหม่อัตโนมัติแล้ว โปรดลองใหม่ภายหลัง',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'คัดลอกแท็ก "${tagId}" ไปยังคลิปบอร์ดแล้ว',
 			'videoDetail.errorLoadingVideo' => 'เกิดข้อผิดพลาดขณะโหลดวิดีโอ',
@@ -6663,9 +6664,9 @@ extension on TranslationsTh {
 			'videoDetail.gestureGuide.quest.browseTitle' => 'เรียกดูด้วยก้านอนาล็อก',
 			'videoDetail.gestureGuide.quest.browseBody' => 'ขยับก้านอนาล็อกข้างใดก็ได้ไปทางซ้ายหรือขวาเพื่อดูรายการก่อนหน้าหรือถัดไป ดันค้างไว้เพื่อเรียกดูต่อเนื่อง คุณยังสามารถเลือกภาพขนาดย่อในแถบฟิล์มได้ด้วย',
 			'videoDetail.gestureGuide.quest.browseHint' => 'วิดีโอในแกลเลอรีก็ถือเป็นรายการเช่นกัน การชี้ไปที่แผงควบคุมจะทำให้ก้านอนาล็อกเลื่อนเนื้อหาในแผงแทน',
-			'videoDetail.gestureGuide.quest.swipeTitle' => 'ลากเพื่อพลิกหน้า',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.swipeTitle' => 'ลากเพื่อพลิกหน้า',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'เล็งไปที่รูปภาพ กดไกชี้ค้างไว้แล้วลากไปทางซ้าย ปล่อยหลังจากมีสัญญาณเปลี่ยนหน้าเพื่อไปข้างหน้า ลากไปทางขวาเพื่อย้อนกลับ การจีบนิ้วแล้วลากก็ใช้ได้เช่นกัน',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'รูปภาพต้องอยู่ที่ขนาด 1× จึงจะเปลี่ยนหน้าด้วยการลากได้ วิดีโอในแกลเลอรีก็รองรับเช่นกัน หน้าจอจะอยู่นิ่งจนกว่าคุณจะปล่อย',
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'ซูมดูรายละเอียดรูปภาพ',
@@ -7177,9 +7178,9 @@ extension on TranslationsTh {
 			'download.notice.failed' => ({required Object count}) => '${count} downloads failed',
 			'download.notice.retryAll' => 'Retry all',
 			'download.notice.view' => 'View',
-			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			_ => null,
 		} ?? switch (path) {
+			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			'download.notice.handle' => 'Handle…',
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
 			'download.notice.migrate' => 'Move',
@@ -7691,9 +7692,9 @@ extension on TranslationsTh {
 			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude การให้เหตุผล (extended thinking)',
 			'translation.presetNames.gemini' => 'Google Gemini (เนทีฟ)',
 			'translation.presetNames.geminiReasoning' => 'Google Gemini การให้เหตุผล (thinking)',
-			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			_ => null,
 		} ?? switch (path) {
+			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek การให้เหตุผล (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
@@ -7852,7 +7853,6 @@ extension on TranslationsTh {
 			'mediaPlayer.notice.hardwareDecodeFellBack' => 'สลับไปใช้การถอดรหัสด้วยซอฟต์แวร์ อาจใช้พลังงานแบตเตอรี่มากขึ้น',
 			'mediaPlayer.notice.videoDecodeProblem' => 'ลองเปลี่ยนความละเอียด ภาพอาจมีอาการกระตุกหรือแตก',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => 'ส่งออกบันทึกเพื่อรายงานปัญหาการเล่นซ้ำๆ',
-			'mediaPlayer.notice.qualityFileMissingSwitched' => 'ไม่พบไฟล์คุณภาพนี้บนเซิร์ฟเวอร์ จึงเปลี่ยนเป็นคุณภาพอื่น',
 			'mediaPlayer.notice.issuesSheetTitle' => 'ปัญหาการเล่น',
 			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => 'เกิดขึ้น ${count} ครั้ง',
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'ที่ตำแหน่ง ${position}',

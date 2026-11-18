@@ -4396,6 +4396,13 @@ class MyVideoStateController extends GetxController
       return;
     }
 
+    // 错误浮层还在时用户自己换了档（「这一档缺失，可以换一档」就是让人这么做的）：
+    // 撤掉浮层再按新档打开，否则新档播起来了浮层还盖着。新档也打不开会重新报。
+    if (videoSourceErrorMessage.value != null) {
+      videoSourceErrorMessage.value = null;
+      _openFailureRetries = 0;
+    }
+
     // 如果播放器已经准备好，使用无缝切换模式
     if (videoPlayerReady.value) {
       await _switchResolutionSeamlessly(
@@ -4867,7 +4874,7 @@ class MyVideoStateController extends GetxController
         _openFailureRetries++;
         LogUtils.i(
           '开始第 $_openFailureRetries 次重试刷新播放器，当前缓冲状态: '
-          'buffering=${videoBuffering.value}, buffers=${buffers.length}',
+              'buffering=${videoBuffering.value}, buffers=${buffers.length}',
           'MyVideoStateController',
         );
         await fetchVideoSource(forceRefresh: true);
@@ -4881,10 +4888,14 @@ class MyVideoStateController extends GetxController
 
   /// mpv 报「Failed to open https://…」：先探一下当前清晰度地址的 HTTP 状态。
   ///
-  /// - 404 / 410：这一档的文件在服务器上没有。逐个探其余清晰度，换到第一档
-  ///   取得到的，并在播放器上提示；全都取不到就直接给错误，不再重试。
-  ///   （实例：An7kifYn7bMZS6 的 Source/540/360 只会分到 acheron / yuko，
-  ///   两台都回 404，只有 preview 还在。）
+  /// - 404 / 410：这一档的文件在服务器上没有，重试也没用，直接给错误浮层。
+  ///   再探一下其余正片清晰度，只为挑说法：还有取得到（或探不通）的，就说
+  ///   「这一档缺失，可以在清晰度菜单里换一档」；正片档全都 404，就说视频
+  ///   文件在服务器上不存在。（实例：An7kifYn7bMZS6 的 Source/540/360 只会
+  ///   分到 acheron / yuko，两台都回 404，只有 preview 还在。）
+  /// - ⛔ 不自动换档，preview 也不算正片（2026-11-18 用户纠正：「不应该是替换
+  ///   到preview档，而是应该用报错等形式提示用户」，随后「也改成报错」）。换不
+  ///   换、换哪一档由用户自己在清晰度菜单里选。
   /// - 其他状态或探不通：照旧走 [_scheduleOpenFailureRetry]（链接过期、网络
   ///   抖动这类重取源能救回来）。
   Future<void> _handleOnlineOpenFailure(Duration savedErrorPosition) async {
@@ -4909,49 +4920,46 @@ class MyVideoStateController extends GetxController
         return;
       }
       LogUtils.w(
-        '清晰度 [$label] 的文件在服务器上不存在 (HTTP $status)，探测其余清晰度',
+        '清晰度 [$label] 的文件在服务器上不存在 (HTTP $status)，停止重试',
         'MyVideoStateController',
       );
       if (label != null) _missingSourceLabels.add(label);
 
-      var sawUnknown = false;
+      // 只探到第一档「可能还在」的为止：用来决定错误文案，不换档。
+      var otherMayExist = false;
       for (final resolution in videoResolutions.toList()) {
         if (resolution.label == label ||
+            _isPreviewLabel(resolution.label) ||
             _missingSourceLabels.contains(resolution.label)) {
           continue;
         }
         final int? other = await _probeMediaUrlStatus(resolution.url);
         if (_isDisposed) return;
-        if (other != null && other >= 200 && other < 300) {
-          LogUtils.i(
-            '改用清晰度 [${resolution.label}] (HTTP $other)',
-            'MyVideoStateController',
-          );
-          await switchResolution(resolution.label);
-          if (_isDisposed) return;
-          // 换档会重开播放器并重置提示中枢，所以提示要放在换完之后。
-          noticeCenter.reportApp(PlayerNoticeKind.qualityFileMissingSwitched);
-          return;
-        }
         if (_isMissingStatus(other)) {
           _missingSourceLabels.add(resolution.label);
-        } else {
-          sawUnknown = true;
+          continue;
         }
+        // 2xx 或探不通：都算「说不准还在」，让用户自己去试。
+        otherMayExist = true;
+        break;
       }
+      if (_isDisposed) return;
 
-      if (sawUnknown) {
-        // 有几档探不通，说不准是不是也没了：交给常规重试（有上限）。
-        _scheduleOpenFailureRetry(savedErrorPosition);
-        return;
-      }
-      _stopPlaybackWithError(slang.t.videoDetail.sourceFileMissingOnServer);
+      _stopPlaybackWithError(
+        otherMayExist
+            ? slang.t.videoDetail.qualityFileMissingOnServer(
+                quality: CommonUtils.getQualityDisplayLabel(slang.t, label),
+              )
+            : slang.t.videoDetail.sourceFileMissingOnServer,
+      );
     } finally {
       _probingOpenFailure = false;
     }
   }
 
   static bool _isMissingStatus(int? status) => status == 404 || status == 410;
+
+  static bool _isPreviewLabel(String label) => label.toLowerCase() == 'preview';
 
   /// 只取 1 个字节问状态码。不带额外请求头，和 mpv 发出去的请求保持一致。
   /// 探不通（超时、断网）返回 null。

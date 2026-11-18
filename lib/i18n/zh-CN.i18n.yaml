@@ -1549,6 +1549,7 @@ videoDetail:
   getVideoInfoFailed: '获取视频信息失败，请稍后再试'
   noVideoSourceFound: 未找到对应的视频源
   sourceFileMissingOnServer: '视频文件在 Iwara 服务器上不存在（HTTP 404），网页端同样播放不了。可能是服务器故障，请稍后再试。'
+  qualityFileMissingOnServer: '「${quality}」这一档的视频文件在服务器上不存在（HTTP 404），可以在清晰度菜单里换一档。'
   playbackRetryExhausted: '视频连续多次打不开，已停止自动重试。可以稍后点重试。'
   tagCopiedToClipboard: '标签 "${tagId}" 已复制到剪贴板'
   errorLoadingVideo: 在加载视频时出现了错误
@@ -2804,7 +2805,6 @@ mediaPlayer:
     hardwareDecodeFellBack: "已切换为软件解码，可能更耗电"
     videoDecodeProblem: "可尝试切换清晰度，画面可能花屏"
     repeatedPlaybackProblems: "导出日志反馈：播放多次出错"
-    qualityFileMissingSwitched: '这个清晰度的文件在服务器上缺失，已换成其他清晰度'
     issuesSheetTitle: "播放问题"
     issueOccurrences: "出现 ${count} 次"
     issueAtPosition: "位于 ${position}"

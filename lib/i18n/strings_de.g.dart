@@ -1314,6 +1314,7 @@ class _TranslationsVideoDetailDe extends TranslationsVideoDetailEn {
 	@override String get getVideoInfoFailed => 'Videoinformationen konnten nicht abgerufen werden, bitte später erneut versuchen';
 	@override String get noVideoSourceFound => 'Keine Videoquelle gefunden';
 	@override String get sourceFileMissingOnServer => 'Die Videodatei fehlt auf dem Iwara-Server (HTTP 404) und lässt sich auch auf der Website nicht abspielen. Möglicherweise hat der Server Probleme; versuche es später erneut.';
+	@override String qualityFileMissingOnServer({required Object quality}) => 'Die Datei für „${quality}“ fehlt auf dem Server (HTTP 404). Wähle im Qualitätsmenü eine andere Qualität.';
 	@override String get playbackRetryExhausted => 'Das Video ließ sich mehrmals nacheinander nicht öffnen, automatische Wiederholungen wurden beendet. Versuche es später erneut.';
 	@override String tagCopiedToClipboard({required Object tagId}) => 'Tag „${tagId}“ in die Zwischenablage kopiert';
 	@override String get errorLoadingVideo => 'Fehler beim Laden des Videos';
@@ -4506,7 +4507,6 @@ class _TranslationsMediaPlayerNoticeDe extends TranslationsMediaPlayerNoticeEn {
 	@override String get hardwareDecodeFellBack => 'Auf Software-Dekodierung umgeschaltet; kann mehr Energie verbrauchen';
 	@override String get videoDecodeProblem => 'Versuchen Sie eine andere Qualität; das Bild kann Störungen aufweisen';
 	@override String get repeatedPlaybackProblems => 'Exportieren Sie die Protokolle, um wiederkehrende Wiedergabeprobleme zu melden';
-	@override String get qualityFileMissingSwitched => 'Diese Qualität fehlt auf dem Server, zu einer anderen Qualität gewechselt';
 	@override String get issuesSheetTitle => 'Wiedergabeprobleme';
 	@override String issueOccurrences({required Object count}) => '${count}-mal aufgetreten';
 	@override String issueAtPosition({required Object position}) => 'Bei ${position}';
@@ -6578,6 +6578,7 @@ extension on TranslationsDe {
 			'videoDetail.getVideoInfoFailed' => 'Videoinformationen konnten nicht abgerufen werden, bitte später erneut versuchen',
 			'videoDetail.noVideoSourceFound' => 'Keine Videoquelle gefunden',
 			'videoDetail.sourceFileMissingOnServer' => 'Die Videodatei fehlt auf dem Iwara-Server (HTTP 404) und lässt sich auch auf der Website nicht abspielen. Möglicherweise hat der Server Probleme; versuche es später erneut.',
+			'videoDetail.qualityFileMissingOnServer' => ({required Object quality}) => 'Die Datei für „${quality}“ fehlt auf dem Server (HTTP 404). Wähle im Qualitätsmenü eine andere Qualität.',
 			'videoDetail.playbackRetryExhausted' => 'Das Video ließ sich mehrmals nacheinander nicht öffnen, automatische Wiederholungen wurden beendet. Versuche es später erneut.',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'Tag „${tagId}“ in die Zwischenablage kopiert',
 			'videoDetail.errorLoadingVideo' => 'Fehler beim Laden des Videos',
@@ -6663,9 +6664,9 @@ extension on TranslationsDe {
 			'videoDetail.gestureGuide.quest.browseTitle' => 'Mit dem Stick blättern',
 			'videoDetail.gestureGuide.quest.browseBody' => 'Bewegen Sie einen der Sticks nach links oder rechts für das vorherige oder nächste Element; halten, um weiterzublättern. Sie können auch ein Miniaturbild im Filmstreifen auswählen.',
 			'videoDetail.gestureGuide.quest.browseHint' => 'Videos in einer Galerie sind ebenfalls Elemente. Wenn Sie auf das Bedienfeld zeigen, scrollt der Stick das Bedienfeld.',
-			'videoDetail.gestureGuide.quest.swipeTitle' => 'Zum Umblättern quer ziehen',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.swipeTitle' => 'Zum Umblättern quer ziehen',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Zielen Sie auf das Bild, halten Sie den Zeigefinger-Auslöser und ziehen Sie nach links. Lassen Sie nach dem Umblätter-Signal los, um weiterzublättern; ziehen Sie nach rechts, um zurückzugehen. Kneifen und Ziehen funktioniert ebenfalls.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Bilder müssen bei 1× sein, um durch Ziehen umzublättern. Galerie-Videos unterstützen dies ebenfalls. Die Bühne bleibt stehen, bis Sie loslassen.',
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'In das Bild hineinzoomen',
@@ -7177,9 +7178,9 @@ extension on TranslationsDe {
 			'download.notice.failed' => ({required Object count}) => '${count} downloads failed',
 			'download.notice.retryAll' => 'Retry all',
 			'download.notice.view' => 'View',
-			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			_ => null,
 		} ?? switch (path) {
+			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			'download.notice.handle' => 'Handle…',
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
 			'download.notice.migrate' => 'Move',
@@ -7691,9 +7692,9 @@ extension on TranslationsDe {
 			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude Reasoning (erweitertes Denken)',
 			'translation.presetNames.gemini' => 'Google Gemini (nativ)',
 			'translation.presetNames.geminiReasoning' => 'Google Gemini Reasoning (Denken)',
-			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			_ => null,
 		} ?? switch (path) {
+			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek Reasoning (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
@@ -7852,7 +7853,6 @@ extension on TranslationsDe {
 			'mediaPlayer.notice.hardwareDecodeFellBack' => 'Auf Software-Dekodierung umgeschaltet; kann mehr Energie verbrauchen',
 			'mediaPlayer.notice.videoDecodeProblem' => 'Versuchen Sie eine andere Qualität; das Bild kann Störungen aufweisen',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => 'Exportieren Sie die Protokolle, um wiederkehrende Wiedergabeprobleme zu melden',
-			'mediaPlayer.notice.qualityFileMissingSwitched' => 'Diese Qualität fehlt auf dem Server, zu einer anderen Qualität gewechselt',
 			'mediaPlayer.notice.issuesSheetTitle' => 'Wiedergabeprobleme',
 			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => '${count}-mal aufgetreten',
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'Bei ${position}',

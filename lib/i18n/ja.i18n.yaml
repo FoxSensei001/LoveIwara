@@ -1525,6 +1525,7 @@ videoDetail:
   getVideoInfoFailed: 'ビデオ情報の取得に失敗しました。後でもう一度お試しください'
   noVideoSourceFound: 対応するビデオソースが見つかりません
   sourceFileMissingOnServer: '動画ファイルが Iwara のサーバー上に存在しません（HTTP 404）。ウェブ版でも再生できません。サーバー障害の可能性があるため、後でもう一度お試しください。'
+  qualityFileMissingOnServer: '「${quality}」のファイルがサーバー上にありません（HTTP 404）。画質メニューから別の画質を選んでください。'
   playbackRetryExhausted: '動画を何度も開けなかったため、自動再試行を停止しました。後で再試行してください。'
   tagCopiedToClipboard: 'タグ "${tagId}" がクリップボードにコピーされました'
   errorLoadingVideo: ビデオの読み込み中にエラーが発生しました
@@ -2782,7 +2783,6 @@ mediaPlayer:
     hardwareDecodeFellBack: "ソフトウェアデコードに切り替え。電池消費が増えます"
     videoDecodeProblem: "画質の切り替えをお試しください。映像が乱れます"
     repeatedPlaybackProblems: "ログを書き出して報告してください。エラーが続いています"
-    qualityFileMissingSwitched: 'この画質のファイルがサーバー上にないため、別の画質に切り替えました'
     issuesSheetTitle: "再生の問題"
     issueOccurrences: "${count} 回発生"
     issueAtPosition: "位置 ${position}"

@@ -1524,6 +1524,7 @@ videoDetail:
   getVideoInfoFailed: '동영상 정보를 가져오지 못했습니다. 나중에 다시 시도해 주세요'
   noVideoSourceFound: 동영상 소스를 찾을 수 없습니다
   sourceFileMissingOnServer: 'Iwara 서버에 동영상 파일이 없습니다(HTTP 404). 웹에서도 재생되지 않습니다. 서버 장애일 수 있으니 나중에 다시 시도하세요.'
+  qualityFileMissingOnServer: '「${quality}」 화질 파일이 서버에 없습니다(HTTP 404). 화질 메뉴에서 다른 화질을 선택하세요.'
   playbackRetryExhausted: '동영상을 여러 번 연속으로 열지 못해 자동 재시도를 중단했습니다. 나중에 다시 시도하세요.'
   tagCopiedToClipboard: '태그 "${tagId}"이(가) 클립보드에 복사되었습니다'
   errorLoadingVideo: 동영상을 불러오는 중 오류
@@ -2881,7 +2882,6 @@ mediaPlayer:
     hardwareDecodeFellBack: "소프트웨어 디코딩으로 전환했습니다. 전력을 더 사용할 수 있습니다"
     videoDecodeProblem: "다른 화질을 시도해 보세요. 화면이 깨질 수 있습니다"
     repeatedPlaybackProblems: "반복되는 재생 문제를 신고하려면 로그를 내보내세요"
-    qualityFileMissingSwitched: '이 화질의 파일이 서버에 없어 다른 화질로 전환했습니다'
     issuesSheetTitle: "재생 문제"
     issueOccurrences: "${count}회 발생"
     issueAtPosition: "${position} 지점"

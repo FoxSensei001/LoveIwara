@@ -1524,6 +1524,7 @@ videoDetail:
   getVideoInfoFailed: 'No se pudo obtener la información del video; inténtelo de nuevo más tarde'
   noVideoSourceFound: No se encontró ninguna fuente de video
   sourceFileMissingOnServer: 'El archivo de video no existe en el servidor de Iwara (HTTP 404), así que tampoco se reproduce en la web. Puede que el servidor tenga problemas; inténtalo más tarde.'
+  qualityFileMissingOnServer: 'El archivo de «${quality}» no está en el servidor (HTTP 404). Elige otra calidad en el menú de calidad.'
   playbackRetryExhausted: 'El video no se pudo abrir varias veces seguidas, así que se detuvieron los reintentos automáticos. Vuelve a intentarlo más tarde.'
   tagCopiedToClipboard: 'Etiqueta "${tagId}" copiada al portapapeles'
   errorLoadingVideo: Error al cargar el video
@@ -2881,7 +2882,6 @@ mediaPlayer:
     hardwareDecodeFellBack: "Se cambió a la decodificación por software; puede consumir más energía"
     videoDecodeProblem: "Pruebe otra calidad; la imagen puede presentar fallos"
     repeatedPlaybackProblems: "Exporte los registros para informar de problemas de reproducción repetidos"
-    qualityFileMissingSwitched: 'Esta calidad no está en el servidor; se cambió a otra calidad'
     issuesSheetTitle: "Problemas de reproducción"
     issueOccurrences: "Ocurrió ${count} veces"
     issueAtPosition: "En ${position}"

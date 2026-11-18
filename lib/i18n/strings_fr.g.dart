@@ -1314,6 +1314,7 @@ class _TranslationsVideoDetailFr extends TranslationsVideoDetailEn {
 	@override String get getVideoInfoFailed => 'Échec de l\'obtention des informations de la vidéo, veuillez réessayer plus tard';
 	@override String get noVideoSourceFound => 'Aucune source vidéo trouvée';
 	@override String get sourceFileMissingOnServer => 'Le fichier vidéo est absent du serveur Iwara (HTTP 404) et ne se lit pas non plus sur le site. Le serveur rencontre peut-être un problème ; réessayez plus tard.';
+	@override String qualityFileMissingOnServer({required Object quality}) => 'Le fichier « ${quality} » est absent du serveur (HTTP 404). Choisissez une autre qualité dans le menu qualité.';
 	@override String get playbackRetryExhausted => 'La vidéo n’a pas pu s’ouvrir plusieurs fois de suite, les nouvelles tentatives automatiques sont arrêtées. Réessayez plus tard.';
 	@override String tagCopiedToClipboard({required Object tagId}) => 'Tag « ${tagId} » copié dans le presse-papiers';
 	@override String get errorLoadingVideo => 'Erreur de chargement de la vidéo';
@@ -4506,7 +4507,6 @@ class _TranslationsMediaPlayerNoticeFr extends TranslationsMediaPlayerNoticeEn {
 	@override String get hardwareDecodeFellBack => 'Passage au décodage logiciel ; consommation d\'énergie accrue possible';
 	@override String get videoDecodeProblem => 'Essayez une autre qualité ; l\'image peut présenter des artefacts';
 	@override String get repeatedPlaybackProblems => 'Exportez les journaux pour signaler des problèmes de lecture répétés';
-	@override String get qualityFileMissingSwitched => 'Cette qualité est absente du serveur, passage à une autre qualité';
 	@override String get issuesSheetTitle => 'Problèmes de lecture';
 	@override String issueOccurrences({required Object count}) => 'Survenu ${count} fois';
 	@override String issueAtPosition({required Object position}) => 'À ${position}';
@@ -6578,6 +6578,7 @@ extension on TranslationsFr {
 			'videoDetail.getVideoInfoFailed' => 'Échec de l\'obtention des informations de la vidéo, veuillez réessayer plus tard',
 			'videoDetail.noVideoSourceFound' => 'Aucune source vidéo trouvée',
 			'videoDetail.sourceFileMissingOnServer' => 'Le fichier vidéo est absent du serveur Iwara (HTTP 404) et ne se lit pas non plus sur le site. Le serveur rencontre peut-être un problème ; réessayez plus tard.',
+			'videoDetail.qualityFileMissingOnServer' => ({required Object quality}) => 'Le fichier « ${quality} » est absent du serveur (HTTP 404). Choisissez une autre qualité dans le menu qualité.',
 			'videoDetail.playbackRetryExhausted' => 'La vidéo n’a pas pu s’ouvrir plusieurs fois de suite, les nouvelles tentatives automatiques sont arrêtées. Réessayez plus tard.',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'Tag « ${tagId} » copié dans le presse-papiers',
 			'videoDetail.errorLoadingVideo' => 'Erreur de chargement de la vidéo',
@@ -6663,9 +6664,9 @@ extension on TranslationsFr {
 			'videoDetail.gestureGuide.quest.browseTitle' => 'Parcourir avec le stick',
 			'videoDetail.gestureGuide.quest.browseBody' => 'Déplacez l\'un ou l\'autre stick vers la gauche ou la droite pour passer à l\'élément précédent ou suivant ; maintenez pour continuer à parcourir. Vous pouvez aussi sélectionner une vignette dans la bande d\'images.',
 			'videoDetail.gestureGuide.quest.browseHint' => 'Les vidéos d\'une galerie sont aussi des éléments. En pointant vers le panneau de contrôle, le stick fait défiler le panneau.',
-			'videoDetail.gestureGuide.quest.swipeTitle' => 'Glisser pour tourner une page',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.swipeTitle' => 'Glisser pour tourner une page',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Visez l\'image, maintenez la gâchette d\'index et faites glisser vers la gauche. Relâchez après l\'indice de changement de page pour avancer ; faites glisser vers la droite pour revenir. Un pincement-glissement fonctionne aussi.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Les images doivent être à 1× pour changer de page en glissant. Les vidéos de galerie le permettent aussi. La scène reste immobile jusqu\'au relâchement.',
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'Zoomer sur l\'image',
@@ -7177,9 +7178,9 @@ extension on TranslationsFr {
 			'download.notice.failed' => ({required Object count}) => '${count} downloads failed',
 			'download.notice.retryAll' => 'Retry all',
 			'download.notice.view' => 'View',
-			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			_ => null,
 		} ?? switch (path) {
+			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			'download.notice.handle' => 'Handle…',
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
 			'download.notice.migrate' => 'Move',
@@ -7691,9 +7692,9 @@ extension on TranslationsFr {
 			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude Reasoning (réflexion étendue)',
 			'translation.presetNames.gemini' => 'Google Gemini (natif)',
 			'translation.presetNames.geminiReasoning' => 'Google Gemini Reasoning (réflexion)',
-			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			_ => null,
 		} ?? switch (path) {
+			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek Reasoning (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
@@ -7852,7 +7853,6 @@ extension on TranslationsFr {
 			'mediaPlayer.notice.hardwareDecodeFellBack' => 'Passage au décodage logiciel ; consommation d\'énergie accrue possible',
 			'mediaPlayer.notice.videoDecodeProblem' => 'Essayez une autre qualité ; l\'image peut présenter des artefacts',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => 'Exportez les journaux pour signaler des problèmes de lecture répétés',
-			'mediaPlayer.notice.qualityFileMissingSwitched' => 'Cette qualité est absente du serveur, passage à une autre qualité',
 			'mediaPlayer.notice.issuesSheetTitle' => 'Problèmes de lecture',
 			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => 'Survenu ${count} fois',
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'À ${position}',

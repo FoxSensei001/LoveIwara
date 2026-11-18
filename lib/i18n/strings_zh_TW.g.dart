@@ -1365,6 +1365,7 @@ class _TranslationsVideoDetailZhTw extends TranslationsVideoDetailEn {
 	@override String get getVideoInfoFailed => '取得影片資訊失敗，請稍後再試';
 	@override String get noVideoSourceFound => '未找到對應的影片來源';
 	@override String get sourceFileMissingOnServer => '影片檔案在 Iwara 伺服器上不存在（HTTP 404），網頁端同樣無法播放。可能是伺服器故障，請稍後再試。';
+	@override String qualityFileMissingOnServer({required Object quality}) => '「${quality}」這一檔的影片檔案在伺服器上不存在（HTTP 404），可以在畫質選單裡換一檔。';
 	@override String get playbackRetryExhausted => '影片連續多次無法開啟，已停止自動重試。可以稍後點重試。';
 	@override String tagCopiedToClipboard({required Object tagId}) => '標籤 "${tagId}" 已複製到剪貼簿';
 	@override String get errorLoadingVideo => '載入影片時出錯';
@@ -4631,7 +4632,6 @@ class _TranslationsMediaPlayerNoticeZhTw extends TranslationsMediaPlayerNoticeEn
 	@override String get hardwareDecodeFellBack => '已切換為軟體解碼，可能更耗電';
 	@override String get videoDecodeProblem => '可嘗試切換畫質，畫面可能破圖';
 	@override String get repeatedPlaybackProblems => '匯出日誌回報：播放多次出錯';
-	@override String get qualityFileMissingSwitched => '這個畫質的檔案在伺服器上缺失，已換成其他畫質';
 	@override String get issuesSheetTitle => '播放問題';
 	@override String issueOccurrences({required Object count}) => '出現 ${count} 次';
 	@override String issueAtPosition({required Object position}) => '位於 ${position}';
@@ -6656,6 +6656,7 @@ extension on TranslationsZhTw {
 			'videoDetail.getVideoInfoFailed' => '取得影片資訊失敗，請稍後再試',
 			'videoDetail.noVideoSourceFound' => '未找到對應的影片來源',
 			'videoDetail.sourceFileMissingOnServer' => '影片檔案在 Iwara 伺服器上不存在（HTTP 404），網頁端同樣無法播放。可能是伺服器故障，請稍後再試。',
+			'videoDetail.qualityFileMissingOnServer' => ({required Object quality}) => '「${quality}」這一檔的影片檔案在伺服器上不存在（HTTP 404），可以在畫質選單裡換一檔。',
 			'videoDetail.playbackRetryExhausted' => '影片連續多次無法開啟，已停止自動重試。可以稍後點重試。',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => '標籤 "${tagId}" 已複製到剪貼簿',
 			'videoDetail.errorLoadingVideo' => '載入影片時出錯',
@@ -6685,9 +6686,9 @@ extension on TranslationsZhTw {
 			'videoDetail.gestureGuide.zoomTitle' => '縮放 / 旋轉 / 平移',
 			'videoDetail.gestureGuide.restoreTip' => '點擊右下角「還原」按鈕可復位縮放、旋轉與位置。',
 			'videoDetail.gestureGuide.mTap' => '單擊：顯示 / 隱藏控制列',
-			'videoDetail.gestureGuide.mDoubleTap' => '雙擊：左側後退 / 中央暫停 / 右側快進',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.mDoubleTap' => '雙擊：左側後退 / 中央暫停 / 右側快進',
 			'videoDetail.gestureGuide.mHorizontalDrag' => '橫向滑動：調整進度',
 			'videoDetail.gestureGuide.mVerticalDrag' => '垂直滑動：左側亮度 / 右側音量',
 			'videoDetail.gestureGuide.mLongPress' => '長按：臨時倍速播放',
@@ -7199,9 +7200,9 @@ extension on TranslationsZhTw {
 			'download.allTypes' => '所有類型',
 			'download.taskType' => '類型',
 			'download.video' => '影片',
-			'download.gallery' => '圖庫',
 			_ => null,
 		} ?? switch (path) {
+			'download.gallery' => '圖庫',
 			'download.other' => '其他',
 			'download.clearFilters' => '清除篩選',
 			'download.pauseAll' => '全部暫停',
@@ -7713,9 +7714,9 @@ extension on TranslationsZhTw {
 			'translation.apiKeyOptional' => 'API Key (可選)',
 			'translation.apiKeyOptionalHint' => '用於訪問受保護的 DeepLX 服務',
 			'translation.apiKeyOptionalHelperText' => '某些 DeepLX 服務需要 API Key 進行身份驗證',
-			'translation.dlSession' => 'DL Session',
 			_ => null,
 		} ?? switch (path) {
+			'translation.dlSession' => 'DL Session',
 			'translation.dlSessionHint' => 'Pro 模式需要的 dl_session 參數',
 			'translation.dlSessionHelperText' => 'Pro 端點必需的工作階段參數，從 DeepL Pro 帳戶獲取',
 			'translation.proModeRequiresDlSession' => 'Pro 模式需要填寫 dl_session',
@@ -7844,7 +7845,6 @@ extension on TranslationsZhTw {
 			'mediaPlayer.notice.hardwareDecodeFellBack' => '已切換為軟體解碼，可能更耗電',
 			'mediaPlayer.notice.videoDecodeProblem' => '可嘗試切換畫質，畫面可能破圖',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => '匯出日誌回報：播放多次出錯',
-			'mediaPlayer.notice.qualityFileMissingSwitched' => '這個畫質的檔案在伺服器上缺失，已換成其他畫質',
 			'mediaPlayer.notice.issuesSheetTitle' => '播放問題',
 			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => '出現 ${count} 次',
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => '位於 ${position}',

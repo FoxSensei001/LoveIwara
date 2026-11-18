@@ -1524,6 +1524,7 @@ videoDetail:
   getVideoInfoFailed: 'Videoinformationen konnten nicht abgerufen werden, bitte später erneut versuchen'
   noVideoSourceFound: Keine Videoquelle gefunden
   sourceFileMissingOnServer: 'Die Videodatei fehlt auf dem Iwara-Server (HTTP 404) und lässt sich auch auf der Website nicht abspielen. Möglicherweise hat der Server Probleme; versuche es später erneut.'
+  qualityFileMissingOnServer: 'Die Datei für „${quality}“ fehlt auf dem Server (HTTP 404). Wähle im Qualitätsmenü eine andere Qualität.'
   playbackRetryExhausted: 'Das Video ließ sich mehrmals nacheinander nicht öffnen, automatische Wiederholungen wurden beendet. Versuche es später erneut.'
   tagCopiedToClipboard: 'Tag „${tagId}“ in die Zwischenablage kopiert'
   errorLoadingVideo: Fehler beim Laden des Videos
@@ -2881,7 +2882,6 @@ mediaPlayer:
     hardwareDecodeFellBack: "Auf Software-Dekodierung umgeschaltet; kann mehr Energie verbrauchen"
     videoDecodeProblem: "Versuchen Sie eine andere Qualität; das Bild kann Störungen aufweisen"
     repeatedPlaybackProblems: "Exportieren Sie die Protokolle, um wiederkehrende Wiedergabeprobleme zu melden"
-    qualityFileMissingSwitched: 'Diese Qualität fehlt auf dem Server, zu einer anderen Qualität gewechselt'
     issuesSheetTitle: "Wiedergabeprobleme"
     issueOccurrences: "${count}-mal aufgetreten"
     issueAtPosition: "Bei ${position}"

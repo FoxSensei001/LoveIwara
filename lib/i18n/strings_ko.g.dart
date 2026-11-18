@@ -1314,6 +1314,7 @@ class _TranslationsVideoDetailKo extends TranslationsVideoDetailEn {
 	@override String get getVideoInfoFailed => '동영상 정보를 가져오지 못했습니다. 나중에 다시 시도해 주세요';
 	@override String get noVideoSourceFound => '동영상 소스를 찾을 수 없습니다';
 	@override String get sourceFileMissingOnServer => 'Iwara 서버에 동영상 파일이 없습니다(HTTP 404). 웹에서도 재생되지 않습니다. 서버 장애일 수 있으니 나중에 다시 시도하세요.';
+	@override String qualityFileMissingOnServer({required Object quality}) => '「${quality}」 화질 파일이 서버에 없습니다(HTTP 404). 화질 메뉴에서 다른 화질을 선택하세요.';
 	@override String get playbackRetryExhausted => '동영상을 여러 번 연속으로 열지 못해 자동 재시도를 중단했습니다. 나중에 다시 시도하세요.';
 	@override String tagCopiedToClipboard({required Object tagId}) => '태그 "${tagId}"이(가) 클립보드에 복사되었습니다';
 	@override String get errorLoadingVideo => '동영상을 불러오는 중 오류';
@@ -4506,7 +4507,6 @@ class _TranslationsMediaPlayerNoticeKo extends TranslationsMediaPlayerNoticeEn {
 	@override String get hardwareDecodeFellBack => '소프트웨어 디코딩으로 전환했습니다. 전력을 더 사용할 수 있습니다';
 	@override String get videoDecodeProblem => '다른 화질을 시도해 보세요. 화면이 깨질 수 있습니다';
 	@override String get repeatedPlaybackProblems => '반복되는 재생 문제를 신고하려면 로그를 내보내세요';
-	@override String get qualityFileMissingSwitched => '이 화질의 파일이 서버에 없어 다른 화질로 전환했습니다';
 	@override String get issuesSheetTitle => '재생 문제';
 	@override String issueOccurrences({required Object count}) => '${count}회 발생';
 	@override String issueAtPosition({required Object position}) => '${position} 지점';
@@ -6578,6 +6578,7 @@ extension on TranslationsKo {
 			'videoDetail.getVideoInfoFailed' => '동영상 정보를 가져오지 못했습니다. 나중에 다시 시도해 주세요',
 			'videoDetail.noVideoSourceFound' => '동영상 소스를 찾을 수 없습니다',
 			'videoDetail.sourceFileMissingOnServer' => 'Iwara 서버에 동영상 파일이 없습니다(HTTP 404). 웹에서도 재생되지 않습니다. 서버 장애일 수 있으니 나중에 다시 시도하세요.',
+			'videoDetail.qualityFileMissingOnServer' => ({required Object quality}) => '「${quality}」 화질 파일이 서버에 없습니다(HTTP 404). 화질 메뉴에서 다른 화질을 선택하세요.',
 			'videoDetail.playbackRetryExhausted' => '동영상을 여러 번 연속으로 열지 못해 자동 재시도를 중단했습니다. 나중에 다시 시도하세요.',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => '태그 "${tagId}"이(가) 클립보드에 복사되었습니다',
 			'videoDetail.errorLoadingVideo' => '동영상을 불러오는 중 오류',
@@ -6663,9 +6664,9 @@ extension on TranslationsKo {
 			'videoDetail.gestureGuide.quest.browseTitle' => '스틱으로 탐색',
 			'videoDetail.gestureGuide.quest.browseBody' => '어느 한 스틱을 좌우로 움직여 이전/다음 항목으로 이동합니다. 계속 누르면 계속 탐색합니다. 필름스트립에서 썸네일을 선택할 수도 있습니다.',
 			'videoDetail.gestureGuide.quest.browseHint' => '갤러리의 동영상도 항목입니다. 컨트롤 패널을 가리키면 스틱이 패널을 스크롤합니다.',
-			'videoDetail.gestureGuide.quest.swipeTitle' => '옆으로 끌어 페이지 넘기기',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.swipeTitle' => '옆으로 끌어 페이지 넘기기',
 			'videoDetail.gestureGuide.quest.swipeBody' => '이미지에 광선을 맞추고 검지 트리거를 누른 채 왼쪽으로 끄세요. 페이지 넘김 신호 후 놓으면 넘어가고, 오른쪽으로 끌면 뒤로 갑니다. 집어서 끌어도 됩니다.',
 			'videoDetail.gestureGuide.quest.swipeHint' => '이미지를 끌어 페이지를 넘기려면 1배 상태여야 합니다. 갤러리 동영상도 지원합니다. 놓을 때까지 스테이지는 그대로 유지됩니다.',
 			'videoDetail.gestureGuide.quest.zoomTitle' => '이미지 확대',
@@ -7177,9 +7178,9 @@ extension on TranslationsKo {
 			'download.notice.failed' => ({required Object count}) => '${count} downloads failed',
 			'download.notice.retryAll' => 'Retry all',
 			'download.notice.view' => 'View',
-			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			_ => null,
 		} ?? switch (path) {
+			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			'download.notice.handle' => 'Handle…',
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
 			'download.notice.migrate' => 'Move',
@@ -7691,9 +7692,9 @@ extension on TranslationsKo {
 			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude 추론 (확장 사고)',
 			'translation.presetNames.gemini' => 'Google Gemini (네이티브)',
 			'translation.presetNames.geminiReasoning' => 'Google Gemini 추론 (사고)',
-			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			_ => null,
 		} ?? switch (path) {
+			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek 추론 (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
@@ -7852,7 +7853,6 @@ extension on TranslationsKo {
 			'mediaPlayer.notice.hardwareDecodeFellBack' => '소프트웨어 디코딩으로 전환했습니다. 전력을 더 사용할 수 있습니다',
 			'mediaPlayer.notice.videoDecodeProblem' => '다른 화질을 시도해 보세요. 화면이 깨질 수 있습니다',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => '반복되는 재생 문제를 신고하려면 로그를 내보내세요',
-			'mediaPlayer.notice.qualityFileMissingSwitched' => '이 화질의 파일이 서버에 없어 다른 화질로 전환했습니다',
 			'mediaPlayer.notice.issuesSheetTitle' => '재생 문제',
 			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => '${count}회 발생',
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => '${position} 지점',

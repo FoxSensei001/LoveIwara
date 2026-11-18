@@ -1314,6 +1314,7 @@ class _TranslationsVideoDetailId extends TranslationsVideoDetailEn {
 	@override String get getVideoInfoFailed => 'Gagal mendapatkan info video, silakan coba lagi nanti';
 	@override String get noVideoSourceFound => 'Tidak ada sumber video yang ditemukan';
 	@override String get sourceFileMissingOnServer => 'File video tidak ada di server Iwara (HTTP 404), jadi juga tidak bisa diputar di situs web. Server mungkin sedang bermasalah; coba lagi nanti.';
+	@override String qualityFileMissingOnServer({required Object quality}) => 'File kualitas “${quality}” tidak ada di server (HTTP 404). Pilih kualitas lain dari menu kualitas.';
 	@override String get playbackRetryExhausted => 'Video gagal dibuka beberapa kali berturut-turut, percobaan ulang otomatis dihentikan. Coba lagi nanti.';
 	@override String tagCopiedToClipboard({required Object tagId}) => 'Tag "${tagId}" disalin ke papan klip';
 	@override String get errorLoadingVideo => 'Kesalahan memuat video';
@@ -4506,7 +4507,6 @@ class _TranslationsMediaPlayerNoticeId extends TranslationsMediaPlayerNoticeEn {
 	@override String get hardwareDecodeFellBack => 'Beralih ke dekode perangkat lunak; mungkin lebih boros daya';
 	@override String get videoDecodeProblem => 'Coba kualitas lain; gambar mungkin rusak';
 	@override String get repeatedPlaybackProblems => 'Ekspor log untuk melaporkan masalah pemutaran yang berulang';
-	@override String get qualityFileMissingSwitched => 'File kualitas ini tidak ada di server, beralih ke kualitas lain';
 	@override String get issuesSheetTitle => 'Masalah pemutaran';
 	@override String issueOccurrences({required Object count}) => 'Terjadi ${count} kali';
 	@override String issueAtPosition({required Object position}) => 'Pada ${position}';
@@ -6578,6 +6578,7 @@ extension on TranslationsId {
 			'videoDetail.getVideoInfoFailed' => 'Gagal mendapatkan info video, silakan coba lagi nanti',
 			'videoDetail.noVideoSourceFound' => 'Tidak ada sumber video yang ditemukan',
 			'videoDetail.sourceFileMissingOnServer' => 'File video tidak ada di server Iwara (HTTP 404), jadi juga tidak bisa diputar di situs web. Server mungkin sedang bermasalah; coba lagi nanti.',
+			'videoDetail.qualityFileMissingOnServer' => ({required Object quality}) => 'File kualitas “${quality}” tidak ada di server (HTTP 404). Pilih kualitas lain dari menu kualitas.',
 			'videoDetail.playbackRetryExhausted' => 'Video gagal dibuka beberapa kali berturut-turut, percobaan ulang otomatis dihentikan. Coba lagi nanti.',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'Tag "${tagId}" disalin ke papan klip',
 			'videoDetail.errorLoadingVideo' => 'Kesalahan memuat video',
@@ -6663,9 +6664,9 @@ extension on TranslationsId {
 			'videoDetail.gestureGuide.quest.browseTitle' => 'Jelajahi dengan stik',
 			'videoDetail.gestureGuide.quest.browseBody' => 'Gerakkan salah satu stik ke kiri atau kanan untuk item sebelumnya atau berikutnya; tahan untuk terus menjelajah. Anda juga dapat memilih gambar mini di strip film.',
 			'videoDetail.gestureGuide.quest.browseHint' => 'Video dalam galeri juga merupakan item. Mengarahkan ke panel kontrol membuat stik menggulir panel.',
-			'videoDetail.gestureGuide.quest.swipeTitle' => 'Seret melintasi untuk membalik halaman',
 			_ => null,
 		} ?? switch (path) {
+			'videoDetail.gestureGuide.quest.swipeTitle' => 'Seret melintasi untuk membalik halaman',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Arahkan ke gambar, tahan pemicu telunjuk dan seret ke kiri. Lepaskan setelah isyarat balik halaman untuk maju; seret ke kanan untuk kembali. Cubit-lalu-seret juga berfungsi.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Gambar harus pada 1× untuk membalik halaman dengan menyeret. Video galeri juga mendukungnya. Panggung tetap diam hingga Anda melepaskan.',
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'Perbesar ke dalam gambar',
@@ -7177,9 +7178,9 @@ extension on TranslationsId {
 			'download.notice.failed' => ({required Object count}) => '${count} downloads failed',
 			'download.notice.retryAll' => 'Retry all',
 			'download.notice.view' => 'View',
-			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			_ => null,
 		} ?? switch (path) {
+			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			'download.notice.handle' => 'Handle…',
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
 			'download.notice.migrate' => 'Move',
@@ -7691,9 +7692,9 @@ extension on TranslationsId {
 			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude Penalaran (pemikiran lanjutan)',
 			'translation.presetNames.gemini' => 'Google Gemini (asli)',
 			'translation.presetNames.geminiReasoning' => 'Google Gemini Penalaran (berpikir)',
-			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			_ => null,
 		} ?? switch (path) {
+			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek Penalaran (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
@@ -7852,7 +7853,6 @@ extension on TranslationsId {
 			'mediaPlayer.notice.hardwareDecodeFellBack' => 'Beralih ke dekode perangkat lunak; mungkin lebih boros daya',
 			'mediaPlayer.notice.videoDecodeProblem' => 'Coba kualitas lain; gambar mungkin rusak',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => 'Ekspor log untuk melaporkan masalah pemutaran yang berulang',
-			'mediaPlayer.notice.qualityFileMissingSwitched' => 'File kualitas ini tidak ada di server, beralih ke kualitas lain',
 			'mediaPlayer.notice.issuesSheetTitle' => 'Masalah pemutaran',
 			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => 'Terjadi ${count} kali',
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'Pada ${position}',

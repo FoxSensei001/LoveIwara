@@ -1524,6 +1524,7 @@ videoDetail:
   getVideoInfoFailed: 'Gagal mendapatkan info video, silakan coba lagi nanti'
   noVideoSourceFound: Tidak ada sumber video yang ditemukan
   sourceFileMissingOnServer: 'File video tidak ada di server Iwara (HTTP 404), jadi juga tidak bisa diputar di situs web. Server mungkin sedang bermasalah; coba lagi nanti.'
+  qualityFileMissingOnServer: 'File kualitas “${quality}” tidak ada di server (HTTP 404). Pilih kualitas lain dari menu kualitas.'
   playbackRetryExhausted: 'Video gagal dibuka beberapa kali berturut-turut, percobaan ulang otomatis dihentikan. Coba lagi nanti.'
   tagCopiedToClipboard: 'Tag "${tagId}" disalin ke papan klip'
   errorLoadingVideo: Kesalahan memuat video
@@ -2881,7 +2882,6 @@ mediaPlayer:
     hardwareDecodeFellBack: "Beralih ke dekode perangkat lunak; mungkin lebih boros daya"
     videoDecodeProblem: "Coba kualitas lain; gambar mungkin rusak"
     repeatedPlaybackProblems: "Ekspor log untuk melaporkan masalah pemutaran yang berulang"
-    qualityFileMissingSwitched: 'File kualitas ini tidak ada di server, beralih ke kualitas lain'
     issuesSheetTitle: "Masalah pemutaran"
     issueOccurrences: "Terjadi ${count} kali"
     issueAtPosition: "Pada ${position}"
