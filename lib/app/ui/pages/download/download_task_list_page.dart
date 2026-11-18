@@ -558,7 +558,6 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final double statusBarHeight = MediaQuery.paddingOf(context).top;
     final double headerHeight =
         GlassTokens.headerRowHeight + _headerRowGap + _categoryStripHeight;
@@ -570,32 +569,23 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       headerExtent: headerExtent,
     );
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      // 没有 AppBar 就没人管状态栏图标明暗，不显式声明会沿用上一页
-      //（如视频详情页的白色图标），在浅色背景下看不见。
-      value: SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-      ),
-      child: Scaffold(
-        body: Obx(() {
-          // 坞上摆哪些动作取决于所选任务的**当前状态**（暂停的给「继续」、下载中
-          // 的给「暂停」）。状态一变任务就换区，这里读一下四个分区，换区时只重建
-          // 这一层作用域——下面的页面主体是同一个 widget 实例，不会跟着重建。
-          _store.downloadingIds.length;
-          _store.pendingIds.length;
-          _store.pausedIds.length;
-          _store.failedIds.length;
-          return BatchSelectionScope(
-            active: _isSelectionMode,
-            selectedCount: _selectedTaskIds.length,
-            actions: _batchActions(context),
-            onClear: () => setState(_selectedTaskIds.clear),
-            child: page,
-          );
-        }),
-      ),
+    return Scaffold(
+      body: Obx(() {
+        // 坞上摆哪些动作取决于所选任务的**当前状态**（暂停的给「继续」、下载中
+        // 的给「暂停」）。状态一变任务就换区，这里读一下四个分区，换区时只重建
+        // 这一层作用域——下面的页面主体是同一个 widget 实例，不会跟着重建。
+        _store.downloadingIds.length;
+        _store.pendingIds.length;
+        _store.pausedIds.length;
+        _store.failedIds.length;
+        return BatchSelectionScope(
+          active: _isSelectionMode,
+          selectedCount: _selectedTaskIds.length,
+          actions: _batchActions(context),
+          onClear: () => setState(_selectedTaskIds.clear),
+          child: page,
+        );
+      }),
     );
   }
 

@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/emoji_library_service.dart';
@@ -51,40 +50,32 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final double statusBarHeight = MediaQuery.paddingOf(context).top;
     final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-      ),
-      child: Scaffold(
-        body: GlassHeaderOverlay(
-          liquid: true,
-          headerExtent: headerExtent,
-          headerTop: statusBarHeight,
-          solidExtent: statusBarHeight,
-          body: _buildBody(context, headerExtent, t),
-          // header 行：左 返回圆钮 / 中 标题胶囊 / 右 动作胶囊
-          header: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                GlassIconButton(
-                  standalone: true,
-                  icon: const Icon(Icons.arrow_back),
-                  tooltip: t.common.back,
-                  onPressed: () => AppService.tryPop(),
-                ),
-                const SizedBox(width: 8),
-                Expanded(child: GlassTitlePill(title: t.emoji.library)),
-                const SizedBox(width: 8),
-                _buildActionGroup(t),
-              ],
-            ),
+    return Scaffold(
+      body: GlassHeaderOverlay(
+        liquid: true,
+        headerExtent: headerExtent,
+        headerTop: statusBarHeight,
+        solidExtent: statusBarHeight,
+        body: _buildBody(context, headerExtent, t),
+        // header 行：左 返回圆钮 / 中 标题胶囊 / 右 动作胶囊
+        header: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.arrow_back),
+                tooltip: t.common.back,
+                onPressed: () => AppService.tryPop(),
+              ),
+              const SizedBox(width: 8),
+              Expanded(child: GlassTitlePill(title: t.emoji.library)),
+              const SizedBox(width: 8),
+              _buildActionGroup(t),
+            ],
           ),
         ),
       ),
@@ -109,11 +100,7 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
     );
   }
 
-  Widget _buildBody(
-    BuildContext context,
-    double headerExtent,
-    Translations t,
-  ) {
+  Widget _buildBody(BuildContext context, double headerExtent, Translations t) {
     final double bottomInset =
         computeBottomSafeInset(MediaQuery.of(context)) + 8;
 
@@ -170,9 +157,7 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         leading: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

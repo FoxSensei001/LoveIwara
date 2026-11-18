@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter/services.dart';
+import 'package:i_iwara/app/ui/widgets/system_bars.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -77,16 +77,8 @@ class _FirstTimeSetupPageState extends State<FirstTimeSetupPage> {
         // 向导是 go 替换整个路由栈进来的，不该出现返回箭头；显式关掉，
         // 免得某条深链让它冒出来把标题整体推右 40。
         automaticallyImplyLeading: false,
-        systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: theme.brightness == Brightness.dark
-              ? Brightness.light
-              : Brightness.dark,
-          systemNavigationBarColor: Colors.transparent,
-          systemNavigationBarIconBrightness: theme.brightness == Brightness.dark
-              ? Brightness.light
-              : Brightness.dark,
-        ),
+        // 透明底色会被 AppBar 估成「深色背景」而给白字，这里按主题给。
+        systemOverlayStyle: SystemBarStyles.forTheme(theme),
         flexibleSpace: ClipRRect(
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),

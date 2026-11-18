@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter/services.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_section.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
@@ -63,58 +62,45 @@ class GlassSettingsScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final double statusBarHeight = MediaQuery.paddingOf(context).top;
     final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
     final bool showBackButton = _resolveShowBack(context);
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: isDarkMode
-            ? Brightness.light
-            : Brightness.dark,
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarIconBrightness: isDarkMode
-            ? Brightness.light
-            : Brightness.dark,
+    return GlassHeaderOverlay(
+      headerExtent: headerExtent,
+      headerTop: statusBarHeight,
+      solidExtent: statusBarHeight,
+      liquid: true,
+      // 视口铺满整个区域（不能在外面套 Padding，否则内容会在 header 下边缘
+      // 被裁掉、永远滚不到 header 背后）；首屏留白交给列表自己的 spacer。
+      body: CustomScrollView(
+        controller: controller,
+        slivers: [
+          SliverToBoxAdapter(child: SizedBox(height: headerExtent)),
+          ...slivers,
+        ],
       ),
-      child: GlassHeaderOverlay(
-        headerExtent: headerExtent,
-        headerTop: statusBarHeight,
-        solidExtent: statusBarHeight,
-        liquid: true,
-        // 视口铺满整个区域（不能在外面套 Padding，否则内容会在 header 下边缘
-        // 被裁掉、永远滚不到 header 背后）；首屏留白交给列表自己的 spacer。
-        body: CustomScrollView(
-          controller: controller,
-          slivers: [
-            SliverToBoxAdapter(child: SizedBox(height: headerExtent)),
-            ...slivers,
-          ],
-        ),
-        // header 行：左 返回圆钮（窄屏才有）/ 中 标题胶囊 / 右 动作位
-        header: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              if (showBackButton) ...[
-                GlassIconButton(
-                  standalone: true,
-                  icon: const Icon(Icons.arrow_back),
-                  tooltip: t.common.back,
-                  onPressed: onBack ?? AppService.tryPop,
-                ),
-                const SizedBox(width: 8),
-              ],
-              // 标题胶囊：点按/长按弹出完整标题弹窗（长标题被截断时的出口）
-              Expanded(child: GlassTitlePill(title: title)),
-              if (actions != null && actions!.isNotEmpty) ...[
-                const SizedBox(width: 8),
-                ...actions!,
-              ],
+      // header 行：左 返回圆钮（窄屏才有）/ 中 标题胶囊 / 右 动作位
+      header: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            if (showBackButton) ...[
+              GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.arrow_back),
+                tooltip: t.common.back,
+                onPressed: onBack ?? AppService.tryPop,
+              ),
+              const SizedBox(width: 8),
             ],
-          ),
+            // 标题胶囊：点按/长按弹出完整标题弹窗（长标题被截断时的出口）
+            Expanded(child: GlassTitlePill(title: title)),
+            if (actions != null && actions!.isNotEmpty) ...[
+              const SizedBox(width: 8),
+              ...actions!,
+            ],
+          ],
         ),
       ),
     );

@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/my_app.dart';
 import 'package:i_iwara/app/services/theme_service.dart';
+import 'package:i_iwara/app/ui/widgets/system_bars.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -153,6 +154,9 @@ class _StartupShellMaterialApp extends StatelessWidget {
       // 与 [MyApp] 一样跟着 slang 的 AppLocale 走，避免两处各维护一份清单。
       supportedLocales: AppLocaleUtils.supportedLocales,
       locale: LocaleSettings.currentLocale.flutterLocale,
+      // 启动壳是另一只 MaterialApp，不经过 [MyApp] 的 builder，兜底要自己挂。
+      builder: (context, child) =>
+          SystemBarsThemeFallback(child: child ?? const SizedBox.shrink()),
       home: _StartupSplashPage(
         progress: progress,
         error: error,

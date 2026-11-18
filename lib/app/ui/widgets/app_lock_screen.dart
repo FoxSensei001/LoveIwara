@@ -9,6 +9,7 @@ import 'package:i_iwara/app/ui/widgets/detached_navigator_host.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/system_bars.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -352,21 +353,26 @@ class _AppLockScreenState extends State<AppLockScreen>
 
   Widget _buildSurface(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return PopScope(
-      canPop: false,
-      child: Focus(
-        focusNode: _keyboardFocus,
-        autofocus: true,
-        onKeyEvent: _onKeyEvent,
-        child: Material(
-          // 不透明的一层：既是背景，也负责把身下整棵路由树的点击全部吃掉。
-          color: colors.surface,
-          child: _LockBackdrop(
-            child: SafeArea(
-              child: Obx(
-                () => _service.credentialUnavailable.value
-                    ? _buildCredentialFailureLayout(context)
-                    : _buildPinLayout(context),
+    // 锁屏盖在所有路由之上：不声明的话，状态栏会沿用下面那一页的
+    // （比如视频页的白字），压在浅色锁屏上看不见。
+    return SystemBarsRegion(
+      background: colors.surface,
+      child: PopScope(
+        canPop: false,
+        child: Focus(
+          focusNode: _keyboardFocus,
+          autofocus: true,
+          onKeyEvent: _onKeyEvent,
+          child: Material(
+            // 不透明的一层：既是背景，也负责把身下整棵路由树的点击全部吃掉。
+            color: colors.surface,
+            child: _LockBackdrop(
+              child: SafeArea(
+                child: Obx(
+                  () => _service.credentialUnavailable.value
+                      ? _buildCredentialFailureLayout(context)
+                      : _buildPinLayout(context),
+                ),
               ),
             ),
           ),
@@ -753,7 +759,11 @@ class _AppLockScreenState extends State<AppLockScreen>
     );
   }
 
-  Widget _buildBadge(BuildContext context, IconData icon, {bool error = false}) {
+  Widget _buildBadge(
+    BuildContext context,
+    IconData icon, {
+    bool error = false,
+  }) {
     final colors = Theme.of(context).colorScheme;
     final Color tint = error ? colors.error : colors.primary;
     return Container(

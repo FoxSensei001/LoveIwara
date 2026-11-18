@@ -8,7 +8,6 @@ import 'dart:ui' show Canvas, PaintingStyle, Picture, PictureRecorder, Rect;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart' show FrameTiming, TimingsCallback;
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -80,17 +79,10 @@ void main(List<String> args) {
         '启动初始化',
       );
 
-      SystemChrome.setSystemUIOverlayStyle(
-        SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.dark,
-          systemNavigationBarColor: Colors.white,
-          systemNavigationBarIconBrightness: Brightness.dark,
-          systemNavigationBarDividerColor: Colors.transparent.withAlpha(
-            0x01,
-          ) /*Android=28,不能用全透明 */,
-        ),
-      );
+      // 系统栏样式不在这里设：首帧起由应用根上的 SystemBarsThemeFallback 按主题
+      // 声明（见 lib/app/ui/widgets/system_bars.dart）。这里原先写死「黑字 + 白色
+      // 导航栏」，深色主题下首帧前会闪一下白导航栏；iOS 上缺 statusBarBrightness，
+      // 本来就不生效。首帧之前的样子由原生主题 styles.xml 管。
 
       // 设置Flutter错误处理
       FlutterError.onError = (FlutterErrorDetails details) {

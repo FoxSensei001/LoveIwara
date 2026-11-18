@@ -8,7 +8,6 @@ import 'package:dio/dio.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart'
     show ExtendedNestedScrollViewState;
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/local_media/dav_path.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
@@ -3653,23 +3652,8 @@ class MyVideoStateController extends GetxController
 
     WidgetsBinding.instance.removeObserver(this);
 
-    final context = rootNavigatorKey.currentContext;
-    final isDarkMode = context != null
-        ? Theme.of(context).brightness == Brightness.dark
-        : WidgetsBinding.instance.platformDispatcher.platformBrightness ==
-              Brightness.dark;
-    SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: isDarkMode
-            ? Brightness.light
-            : Brightness.dark,
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarIconBrightness: isDarkMode
-            ? Brightness.light
-            : Brightness.dark,
-      ),
-    );
+    // 系统栏样式不用在这里恢复：页面一摘掉，它的声明就不在图层树里了，
+    // 下一帧自然轮到下面那一页或根上的主题兜底（见 system_bars.dart）。
 
     animationController.dispose();
     scrollController.removeListener(_scrollListener);
