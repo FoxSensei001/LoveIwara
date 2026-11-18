@@ -22,24 +22,6 @@ import 'common_media_list_widgets.dart';
 import 'package:flutter/rendering.dart'; // 用于 ScrollDirection
 import 'package:i_iwara/app/ui/pages/subscriptions/controllers/media_list_controller.dart'; // 导入 MediaListController
 
-// 添加节流控制类
-class ScrollThrottler {
-  int _lastScrollTime = 0;
-  final int _throttleInterval;
-
-  ScrollThrottler({int throttleIntervalMillis = 16})
-    : _throttleInterval = throttleIntervalMillis;
-
-  bool shouldProcessScroll() {
-    final now = DateTime.now().millisecondsSinceEpoch;
-    if (now - _lastScrollTime > _throttleInterval) {
-      _lastScrollTime = now;
-      return true;
-    }
-    return false;
-  }
-}
-
 /// A paginated response that was invalidated while its request was in flight.
 ///
 /// Direct pagination callers must ignore this result instead of treating an
@@ -404,9 +386,6 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   // 当接口不返回 total(count) 时，用于记录“已知最后一页”
   // null 表示未知最后一页；非 null 表示最后一页（含）索引
   int? _unknownTotalMaxPageIndex;
-
-  final ScrollThrottler _scrollThrottler = ScrollThrottler();
-
   // 添加 MediaListController 引用
   MediaListController? _mediaListController;
   // 添加 rebuildKey 监听器引用，用于清理
@@ -809,69 +788,48 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   }
 
   bool _handleScrollNotification(ScrollNotification notification) {
-    // 使用节流器降低滚动事件处理频率
-    if (!_scrollThrottler.shouldProcessScroll()) {
+    if (notification.depth != 0 || notification.metrics.axis != Axis.vertical) {
       return false;
     }
 
-    // 检查是否是有效的滚动通知
-    if (notification.depth != 0) {
+    final double delta;
+    if (notification is ScrollUpdateNotification) {
+      delta = notification.scrollDelta ?? 0.0;
+    } else if (notification is OverscrollNotification) {
+      delta = notification.overscroll;
+    } else {
       return false;
     }
 
-    final bool isVerticalScrollNotification =
-        notification is ScrollUpdateNotification ||
-        notification is OverscrollNotification;
-
-    if (isVerticalScrollNotification) {
-      final double delta = switch (notification) {
-        ScrollUpdateNotification update => update.scrollDelta ?? 0.0,
-        OverscrollNotification overscroll => overscroll.overscroll,
-        _ => 0.0,
-      };
-
-      ScrollDirection direction = ScrollDirection.idle;
-      if (delta > 0.1) {
-        direction = ScrollDirection.reverse;
-      } else if (delta < -0.1) {
-        direction = ScrollDirection.forward;
-      }
-
-      final bool shouldNotifyScroll =
-          direction != ScrollDirection.idle ||
-          notification.metrics.pixels == 0 ||
-          notification.metrics.pixels == notification.metrics.maxScrollExtent;
-
-      if (shouldNotifyScroll) {
-        _mediaListController?.notifyListScroll(
-          notification.metrics.pixels,
-          direction,
-          delta: delta,
-        );
-        widget.onScrollMetricsChanged?.call(
-          notification.metrics.pixels,
-          delta,
-          direction,
-        );
-      }
-
-      // 达到加载更多的像素点
-      if (notification.metrics.pixels + 200 >=
-              notification.metrics.maxScrollExtent &&
-          notification.metrics.maxScrollExtent > 0) {
-        // 确保有可滚动内容
-        if (widget.isPaginated) {
-          // 分页模式下不自动加载下一页
-        } else {
-          // 瀑布流模式下加载更多
-          if (widget.sourceList.hasMore && !widget.sourceList.isLoading) {
-            widget.sourceList.loadMore();
-          }
-        }
-      }
+    // Scroll deltas are incremental, not snapshots. A wall-clock throttle
+    // drops part of the distance at 90/120 Hz and can miss the final offset.
+    final metrics = notification.metrics;
+    final direction = switch (delta) {
+      > 0.1 => ScrollDirection.reverse,
+      < -0.1 => ScrollDirection.forward,
+      _ => ScrollDirection.idle,
+    };
+    if (direction != ScrollDirection.idle ||
+        metrics.pixels == metrics.minScrollExtent ||
+        metrics.pixels == metrics.maxScrollExtent) {
+      _mediaListController?.notifyListScroll(
+        metrics.pixels,
+        direction,
+        delta: delta,
+      );
+      widget.onScrollMetricsChanged?.call(metrics.pixels, delta, direction);
     }
-
     return false;
+  }
+
+  Widget _observeScroll(Widget child) {
+    if (_mediaListController == null && widget.onScrollMetricsChanged == null) {
+      return child;
+    }
+    return NotificationListener<ScrollNotification>(
+      onNotification: _handleScrollNotification,
+      child: child,
+    );
   }
 
   @override
@@ -889,20 +847,27 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
                 false, // Both branches share widget.scrollController.
             child: _buildPaginatedView(context, constraints.maxWidth),
           );
-        } else {
-          return StreamBuilder<Iterable<T>>(
-            stream: widget.sourceList.rebuild,
-            builder: (context, snapshot) => LoadingContentTransition(
-              key: ObjectKey(widget.sourceList),
-              isLoading:
-                  widget.sourceList.isEmpty &&
-                  widget.sourceList.indicatorStatus ==
-                      IndicatorStatus.fullScreenBusying,
-              retainLoading: false, // Keep a single live scroll view.
-              child: _buildInfiniteScrollView(context, constraints.maxWidth),
-            ),
-          );
         }
+
+        // LoadingMoreSliverList already listens for data and footer changes.
+        // Keep its viewport/config stable when only that stream emits, and feed
+        // just the initial-loading transition from the outer listener.
+        final source = widget.sourceList;
+        final scrollView = _buildInfiniteScrollView(
+          context,
+          constraints.maxWidth,
+        );
+        return StreamBuilder<Iterable<T>>(
+          key: ObjectKey(source),
+          stream: source.rebuild,
+          builder: (context, _) => LoadingContentTransition(
+            isLoading:
+                source.isEmpty &&
+                source.indicatorStatus == IndicatorStatus.fullScreenBusying,
+            retainLoading: false, // Keep a single live scroll view.
+            child: scrollView,
+          ),
+        );
       },
     );
   }
@@ -1012,6 +977,8 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
       physics: const ClampingScrollPhysics(),
       // 适度放大视口外预布局/预光栅化距离，削平高速滚动时卡片突发进入视口的构建与绘制峰值
       cacheExtent: 600.0,
+      // The loading_more_list scroll view owns prefetch and error/retry guards.
+      preloadExtent: 200,
       slivers: <Widget>[
         LoadingMoreSliverList(
           SliverListConfig<T>(
@@ -1024,7 +991,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
               cardWidth,
               // 非瀑布流布局下每行占满去掉左右内边距的整行宽度
               screenWidth - MediaListView.listHorizontalPadding * 2,
-              widget.sourceList.cast<T>(),
+              widget.sourceList,
             ),
             sourceList: widget.sourceList,
             // 关掉空转的 keep-alive 包装：卡片里没有任何
@@ -1079,9 +1046,8 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
       ],
     );
 
-    return NotificationListener<ScrollNotification>(
-      onNotification: _handleScrollNotification,
-      child: widget.enablePullToRefresh
+    return _observeScroll(
+      widget.enablePullToRefresh
           ? RefreshIndicator(
               displacement: widget.paddingTop,
               onRefresh: () => widget.sourceList.refresh(true),
@@ -1140,9 +1106,8 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     return Stack(
       children: [
         // 主内容区域
-        NotificationListener<ScrollNotification>(
-          onNotification: _handleScrollNotification,
-          child: widget.enablePullToRefresh
+        _observeScroll(
+          widget.enablePullToRefresh
               ? RefreshIndicator(
                   // 设置下拉指示器的垂直偏移量
                   displacement: widget.paddingTop,

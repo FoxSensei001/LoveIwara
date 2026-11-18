@@ -1,11 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter/rendering.dart'; // 用于 ScrollDirection
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/pages/subscriptions/controllers/media_list_controller.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:i_iwara/utils/easy_throttle.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 
 /// 订阅列表基类 - 提供通用功能以减少子类重复代码
@@ -77,9 +75,6 @@ abstract class BaseSubscriptionListState<
     super.initState();
     repository = createRepository();
 
-    // 添加滚动监听
-    _scrollController.addListener(_throttledScrollListener);
-
     // 尝试获取 MediaListController 实例并监听 rebuildKey
     try {
       _mediaListController = Get.find<MediaListController>();
@@ -90,26 +85,6 @@ abstract class BaseSubscriptionListState<
       // 未找到 MediaListController，继续执行
       _mediaListController = null;
     }
-  }
-
-  // 滚动监听器 - 使用节流降低处理频率
-  void _throttledScrollListener() {
-    // 使用EasyThrottle进行节流控制
-    EasyThrottle.throttle(
-      'scroll_${widget.userId}',
-      const Duration(milliseconds: 16),
-      () {
-        // 处理滚动事件，例如无限加载或分页预加载等
-        final position = _scrollController.position;
-        final maxScroll = position.maxScrollExtent;
-        final currentScroll = position.pixels;
-
-        // 当滚动到页面末尾前200像素时预加载下一页
-        if (maxScroll - currentScroll <= 200 && !widget.isPaginated) {
-          repository.loadMore();
-        }
-      },
-    );
   }
 
   @override
@@ -170,11 +145,8 @@ abstract class BaseSubscriptionListState<
 
   @override
   void dispose() {
-    _scrollController.removeListener(_throttledScrollListener);
     _scrollController.dispose();
     repository.dispose();
-    // 取消该滚动器相关的节流任务
-    EasyThrottle.cancel('scroll_${widget.userId}');
     super.dispose();
   }
 
@@ -193,11 +165,7 @@ abstract class BaseSubscriptionListState<
   /// 统一刷新方法
   Future<void> refresh() async {
     // 重置 MediaListController 的滚动状态，这会触发父组件的头部展开
-    if (_mediaListController != null) {
-      _mediaListController!.resetHeaderState();
-      _mediaListController!.currentScrollOffset.value = 0.0;
-      _mediaListController!.lastScrollDirection.value = ScrollDirection.idle;
-    }
+    _mediaListController?.resetScrollState();
 
     if (widget.isPaginated) {
       if (!mounted) return;

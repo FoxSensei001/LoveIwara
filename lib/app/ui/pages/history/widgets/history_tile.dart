@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:i_iwara/app/ui/widgets/cached_list_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
@@ -306,11 +306,10 @@ class _HistoryTileState extends State<HistoryTile>
             icon: _typeIcon ?? Icons.history,
             width: width,
           )
-        : CachedNetworkImage(
+        : CachedListImage(
             imageUrl: url,
             fit: BoxFit.cover,
             memCacheWidth: (width * dpr).round(),
-            fadeInDuration: const Duration(milliseconds: 120),
             placeholder: (_, _) =>
                 ColoredBox(color: cs.surfaceContainerHighest),
             errorWidget: (_, _, _) => ColoredBox(
