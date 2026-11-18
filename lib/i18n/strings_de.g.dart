@@ -354,6 +354,8 @@ class _TranslationsCommonDe extends TranslationsCommonEn {
 	@override String get disagree => 'Ablehnen';
 	@override String get agreeToRules => 'Den Regeln zustimmen';
 	@override String get tapToReread => 'Zum erneuten Lesen tippen';
+	@override String get rulesRequiredHint => 'Lies vor dem Posten die Community-Regeln und stimme ihnen zu';
+	@override String get readAndAgree => 'Lesen & zustimmen';
 	@override String get markdownSyntaxHelp => 'Markdown-Syntax-Hilfe';
 	@override String get previewContent => 'Inhalt vorschauen';
 	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
@@ -1311,6 +1313,8 @@ class _TranslationsVideoDetailDe extends TranslationsVideoDetailEn {
 	@override String get thisIsAPrivateVideo => 'Dies ist ein privates Video';
 	@override String get getVideoInfoFailed => 'Videoinformationen konnten nicht abgerufen werden, bitte später erneut versuchen';
 	@override String get noVideoSourceFound => 'Keine Videoquelle gefunden';
+	@override String get sourceFileMissingOnServer => 'Die Videodatei fehlt auf dem Iwara-Server (HTTP 404) und lässt sich auch auf der Website nicht abspielen. Möglicherweise hat der Server Probleme; versuche es später erneut.';
+	@override String get playbackRetryExhausted => 'Das Video ließ sich mehrmals nacheinander nicht öffnen, automatische Wiederholungen wurden beendet. Versuche es später erneut.';
 	@override String tagCopiedToClipboard({required Object tagId}) => 'Tag „${tagId}“ in die Zwischenablage kopiert';
 	@override String get errorLoadingVideo => 'Fehler beim Laden des Videos';
 	@override String get play => 'Wiedergabe';
@@ -4502,6 +4506,7 @@ class _TranslationsMediaPlayerNoticeDe extends TranslationsMediaPlayerNoticeEn {
 	@override String get hardwareDecodeFellBack => 'Auf Software-Dekodierung umgeschaltet; kann mehr Energie verbrauchen';
 	@override String get videoDecodeProblem => 'Versuchen Sie eine andere Qualität; das Bild kann Störungen aufweisen';
 	@override String get repeatedPlaybackProblems => 'Exportieren Sie die Protokolle, um wiederkehrende Wiedergabeprobleme zu melden';
+	@override String get qualityFileMissingSwitched => 'Diese Qualität fehlt auf dem Server, zu einer anderen Qualität gewechselt';
 	@override String get issuesSheetTitle => 'Wiedergabeprobleme';
 	@override String issueOccurrences({required Object count}) => '${count}-mal aufgetreten';
 	@override String issueAtPosition({required Object position}) => 'Bei ${position}';
@@ -5330,6 +5335,8 @@ extension on TranslationsDe {
 			'common.disagree' => 'Ablehnen',
 			'common.agreeToRules' => 'Den Regeln zustimmen',
 			'common.tapToReread' => 'Zum erneuten Lesen tippen',
+			'common.rulesRequiredHint' => 'Lies vor dem Posten die Community-Regeln und stimme ihnen zu',
+			'common.readAndAgree' => 'Lesen & zustimmen',
 			'common.markdownSyntaxHelp' => 'Markdown-Syntax-Hilfe',
 			'common.previewContent' => 'Inhalt vorschauen',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -5629,10 +5636,10 @@ extension on TranslationsDe {
 			'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain' => 'Diese Konfiguration legt fest, ob beim erneuten Abspielen von Videos die vorherige Konfiguration verwendet wird.',
 			'settings.playControl' => 'Wiedergabesteuerung',
 			'settings.playbackSpeedSettings' => 'Wiedergabe & Geschwindigkeit',
-			'settings.playbackBehaviorSettings' => 'Wiedergabeverhalten',
-			'settings.enhancementSettings' => 'Kino & Verbesserungen',
 			_ => null,
 		} ?? switch (path) {
+			'settings.playbackBehaviorSettings' => 'Wiedergabeverhalten',
+			'settings.enhancementSettings' => 'Kino & Verbesserungen',
 			'settings.fastForwardTime' => 'Vorspulzeit',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => 'Die Vorspulzeit muss eine positive ganze Zahl sein.',
 			'settings.rewindTime' => 'Rückspulzeit',
@@ -6143,10 +6150,10 @@ extension on TranslationsDe {
 			'settings.leftDoubleTapRewind' => 'Zurückspulen bei Doppeltipp links',
 			'settings.rightDoubleTapFastForward' => 'Vorspulen bei Doppeltipp rechts',
 			'settings.doubleTapPause' => 'Pause durch Doppeltippen',
-			'settings.rightVerticalSwipeVolume' => 'Lautstärke durch vertikales Wischen rechts (wirksam beim Öffnen einer neuen Seite)',
-			'settings.leftVerticalSwipeBrightness' => 'Helligkeit durch vertikales Wischen links (wirksam beim Öffnen einer neuen Seite)',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rightVerticalSwipeVolume' => 'Lautstärke durch vertikales Wischen rechts (wirksam beim Öffnen einer neuen Seite)',
+			'settings.leftVerticalSwipeBrightness' => 'Helligkeit durch vertikales Wischen links (wirksam beim Öffnen einer neuen Seite)',
 			'settings.longPressFastForward' => 'Vorspulen bei Langdruck',
 			'settings.enableMouseHoverShowToolbar' => 'Symbolleiste bei Mauszeiger-Anzeige einblenden',
 			'settings.enableMouseHoverShowToolbarInfo' => 'Wenn aktiviert, wird die Video-Symbolleiste angezeigt, wenn der Mauszeiger über dem Player schwebt. Nach 3 Sekunden Inaktivität wird sie automatisch ausgeblendet.',
@@ -6570,6 +6577,8 @@ extension on TranslationsDe {
 			'videoDetail.thisIsAPrivateVideo' => 'Dies ist ein privates Video',
 			'videoDetail.getVideoInfoFailed' => 'Videoinformationen konnten nicht abgerufen werden, bitte später erneut versuchen',
 			'videoDetail.noVideoSourceFound' => 'Keine Videoquelle gefunden',
+			'videoDetail.sourceFileMissingOnServer' => 'Die Videodatei fehlt auf dem Iwara-Server (HTTP 404) und lässt sich auch auf der Website nicht abspielen. Möglicherweise hat der Server Probleme; versuche es später erneut.',
+			'videoDetail.playbackRetryExhausted' => 'Das Video ließ sich mehrmals nacheinander nicht öffnen, automatische Wiederholungen wurden beendet. Versuche es später erneut.',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'Tag „${tagId}“ in die Zwischenablage kopiert',
 			'videoDetail.errorLoadingVideo' => 'Fehler beim Laden des Videos',
 			'videoDetail.play' => 'Wiedergabe',
@@ -6655,12 +6664,12 @@ extension on TranslationsDe {
 			'videoDetail.gestureGuide.quest.browseBody' => 'Bewegen Sie einen der Sticks nach links oder rechts für das vorherige oder nächste Element; halten, um weiterzublättern. Sie können auch ein Miniaturbild im Filmstreifen auswählen.',
 			'videoDetail.gestureGuide.quest.browseHint' => 'Videos in einer Galerie sind ebenfalls Elemente. Wenn Sie auf das Bedienfeld zeigen, scrollt der Stick das Bedienfeld.',
 			'videoDetail.gestureGuide.quest.swipeTitle' => 'Zum Umblättern quer ziehen',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Zielen Sie auf das Bild, halten Sie den Zeigefinger-Auslöser und ziehen Sie nach links. Lassen Sie nach dem Umblätter-Signal los, um weiterzublättern; ziehen Sie nach rechts, um zurückzugehen. Kneifen und Ziehen funktioniert ebenfalls.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Bilder müssen bei 1× sein, um durch Ziehen umzublättern. Galerie-Videos unterstützen dies ebenfalls. Die Bühne bleibt stehen, bis Sie loslassen.',
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'In das Bild hineinzoomen',
 			'videoDetail.gestureGuide.quest.zoomBody' => 'Zielen Sie auf ein Detail im Bild, halten Sie den Zeigefinger-Auslöser und schieben Sie dann den Stick nach oben, um hineinzuzoomen, oder nach unten, um herauszuzoomen. Der Zoom ist dort verankert, wo Sie gedrückt haben.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Dadurch wird das Bild innerhalb seines Fensters vergrößert. Ohne Halten des Bildes passt Auf/Ab den Betrachtungsabstand an.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Das Bild verschieben und wiederherstellen',
 			'videoDetail.gestureGuide.quest.panBody' => 'Sobald Sie hineingezoomt haben, halten Sie den Zeigefinger-Auslöser und ziehen Sie, um sich umzusehen. Doppeltippen Sie auf das Bild, um auf 2,5× zu zoomen oder es wiederherzustellen. Mit Händen zweimal schnell kneifen.',
@@ -7169,12 +7178,12 @@ extension on TranslationsDe {
 			'download.notice.retryAll' => 'Retry all',
 			'download.notice.view' => 'View',
 			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
+			_ => null,
+		} ?? switch (path) {
 			'download.notice.handle' => 'Handle…',
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
 			'download.notice.migrate' => 'Move',
 			'download.notice.dismiss' => 'Dismiss',
-			_ => null,
-		} ?? switch (path) {
 			'download.emptyTaskList' => 'Noch keine Download-Aufgaben',
 			'download.noMatchingTasks' => 'Keine passenden Aufgaben',
 			'download.deleteByDate.menuTitle' => 'Nach Datum löschen',
@@ -7683,12 +7692,12 @@ extension on TranslationsDe {
 			'translation.presetNames.gemini' => 'Google Gemini (nativ)',
 			'translation.presetNames.geminiReasoning' => 'Google Gemini Reasoning (Denken)',
 			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
+			_ => null,
+		} ?? switch (path) {
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek Reasoning (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
 			'translation.fetchModelList' => 'Modellliste abrufen',
-			_ => null,
-		} ?? switch (path) {
 			'translation.fetchingModels' => 'Wird abgerufen...',
 			'translation.selectModel' => 'Modell auswählen',
 			'translation.searchModel' => 'Modell suchen',
@@ -7843,6 +7852,7 @@ extension on TranslationsDe {
 			'mediaPlayer.notice.hardwareDecodeFellBack' => 'Auf Software-Dekodierung umgeschaltet; kann mehr Energie verbrauchen',
 			'mediaPlayer.notice.videoDecodeProblem' => 'Versuchen Sie eine andere Qualität; das Bild kann Störungen aufweisen',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => 'Exportieren Sie die Protokolle, um wiederkehrende Wiedergabeprobleme zu melden',
+			'mediaPlayer.notice.qualityFileMissingSwitched' => 'Diese Qualität fehlt auf dem Server, zu einer anderen Qualität gewechselt',
 			'mediaPlayer.notice.issuesSheetTitle' => 'Wiedergabeprobleme',
 			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => '${count}-mal aufgetreten',
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'Bei ${position}',
@@ -8196,13 +8206,13 @@ extension on TranslationsDe {
 			'anime4k.presetGroups.fast' => 'Schnell',
 			'anime4k.presetGroups.lite' => 'Leicht',
 			'anime4k.presetGroups.moreLite' => 'Leichter',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetGroups.custom' => 'Eigene',
 			'anime4k.presetDescriptions.mode_a_hq' => 'Geeignet für die meisten 1080p-Animationen, insbesondere bei Unschärfe, Resampling- und Kompressionsartefakten. Bietet die höchste wahrgenommene Qualität.',
 			'anime4k.presetDescriptions.mode_b_hq' => 'Geeignet für Animationen mit leichter Unschärfe oder durch Skalierung verursachtem Ringing. Kann Ringing und Aliasing wirksam reduzieren.',
 			'anime4k.presetDescriptions.mode_c_hq' => 'Geeignet für hochwertige Quellen (z. B. native 1080p-Animationen oder Filme). Unterdrückt Rauschen und bietet den höchsten PSNR.',
 			'anime4k.presetDescriptions.mode_a_a_hq' => 'Erweiterte Version von Modus A, bietet höchste wahrgenommene Qualität und kann fast alle degradierten Linien rekonstruieren. Kann Überschärfung oder Ringing erzeugen.',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_b_b_hq' => 'Erweiterte Version von Modus B, bietet höhere wahrgenommene Qualität, optimiert Linien weiter und reduziert Artefakte.',
 			'anime4k.presetDescriptions.mode_c_a_hq' => 'Version von Modus C mit verbesserter wahrgenommener Qualität, hält hohen PSNR und versucht, einige Liniendetails zu rekonstruieren.',
 			'anime4k.presetDescriptions.mode_a_fast' => 'Schnelle Version von Modus A, gleicht Qualität und Leistung aus, geeignet für die meisten 1080p-Animationen.',
@@ -8710,13 +8720,13 @@ extension on TranslationsDe {
 			'localMedia.sourceContainsExisting' => ({required Object name}) => 'Er enthält bereits den hinzugefügten Ordner „${name}“; das Hinzufügen des übergeordneten Ordners wird noch nicht unterstützt',
 			'localMedia.addSourceFailed' => 'Dieser Ordner konnte nicht hinzugefügt werden',
 			'localMedia.fileMissing' => 'Diese Datei befindet sich nicht mehr auf dem Datenträger',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.permissionDenied' => 'Dateizugriff nicht erteilt · zum Erteilen tippen',
 			'localMedia.noVideosFound' => 'Keine Videos in diesem Ordner',
 			'localMedia.emptyTitle' => 'Fügen Sie einen Ordner hinzu, um die bereits auf diesem Gerät befindlichen Videos anzusehen',
 			'localMedia.emptyPrivacyNote' => 'Dateien werden nur auf diesem Gerät gelesen. Nichts wird hochgeladen.',
 			'localMedia.removeSourceTitle' => ({required Object name}) => '„${name}“ entfernen?',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.removeSourceBody' => 'Die Dateien bleiben auf dem Datenträger. Nur dieser Bibliothekseintrag wird entfernt.',
 			'localMedia.remove' => 'Entfernen',
 			'localMedia.removeFolder' => 'Ordner entfernen',

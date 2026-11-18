@@ -679,8 +679,9 @@ class GlassComposerBar extends StatelessWidget {
   final bool translateEnabled;
   final VoidCallback? onMarkdownHelp;
 
-  /// 非 null 表示本弹窗要过规则闸门。**未同意时**规则徽标会占住左端（它拦着
-  /// 发送，必须看得见）；**同意之后整枚消失**，改进「更多」菜单里仍可重读
+  /// 非 null 表示本弹窗要过规则闸门。**未同意时**底栏上方挂一条整行提示
+  /// [GlassRulesNotice]（它拦着发送，必须看得见、读得完）；**同意之后整条
+  /// 收起**，改进「更多」菜单里仍可重读
   /// ——同意是一次性的，之后每次发评论都再看一遍一个已完成的状态是纯噪音。
   final bool? rulesAgreed;
   final VoidCallback? onRulesTap;
@@ -875,25 +876,12 @@ class GlassComposerBar extends StatelessWidget {
         ),
     ];
 
-    return Row(
+    final bar = Row(
       children: [
-        // 未同意规则：徽标占左端（它拦着发送，必须看得见）。
-        // ⛔ 工具键**不随它一起消失**：「更多」是翻译 / markdown 帮助 / 小尾巴 /
-        // 引用开关的唯一入口，藏掉等于新用户在点头同意之前一件工具都用不了。
-        // 徽标用 Flexible 吃剩余宽度，挤的时候先压它、不压工具键。
-        if (pendingRules)
-          Flexible(
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: GlassRulesBadge(agreed: false, onTap: onRulesTap),
-            ),
-          ),
-        if (actions.isNotEmpty) ...[
-          if (pendingRules) const SizedBox(width: 8),
+        if (actions.isNotEmpty)
           GlassButtonGroup(
             children: actions,
           ),
-        ],
 
         // 状态与字数占同一个位置：发送已经开始了，这时候报字数没有意义。
         // 「有出有入」：两者互换走淡入淡出，不是硬切。
@@ -935,6 +923,106 @@ class GlassComposerBar extends StatelessWidget {
           compact: submitText == null,
         ),
       ],
+    );
+
+    // 未同意规则：底栏**上方**单独一条整行提示，说清卡在哪、点哪里解开。
+    //
+    // ⛔ 早先是塞进底栏左端的一枚中性灰小胶囊。它和工具组、字数格分同一行的
+    // 剩余宽度，窄屏上被压成「📄 同…」，颜色又和置灰的发送键一样灰——用户
+    // 只看见一枚灰键「啥也干不了」，根本认不出那是一道要先过的闸门
+    // （2026-11-18 用户报障）。整行之后文案能完整显示，工具键也不必让位。
+    //
+    // 「有出有入」：同意那一刻提示条淡出并收起高度，不是硬切。
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        AnimatedSize(
+          duration: GlassTokens.motionDuration,
+          curve: GlassTokens.motionCurve,
+          alignment: Alignment.bottomCenter,
+          child: AnimatedSwitcher(
+            duration: GlassTokens.motionDuration,
+            switchInCurve: GlassTokens.motionCurve,
+            switchOutCurve: GlassTokens.motionCurve.flipped,
+            child: pendingRules
+                ? Padding(
+                    key: const ValueKey('rules-notice'),
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: GlassRulesNotice(onTap: onRulesTap),
+                  )
+                : const SizedBox(
+                    key: ValueKey('rules-notice-none'),
+                    width: double.infinity,
+                  ),
+          ),
+        ),
+        bar,
+      ],
+    );
+  }
+}
+
+/// 未同意规则时挂在 composer 底栏上方的整行提示：一句话说明 + 一枚主色
+/// 「阅读并同意」。整条都可点，点下去弹规则全文。
+///
+/// 这里破例染了主色（本文件的规矩是「只有发送键染色」）：未同意时发送键
+/// 本身是灰的，此刻真正的下一步是这枚，视线应该落在它上面。
+class GlassRulesNotice extends StatelessWidget {
+  const GlassRulesNotice({super.key, this.onTap});
+
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final cs = Theme.of(context).colorScheme;
+    return GlassPressable(
+      onTap: onTap,
+      builder: (context, pressed) => AnimatedContainer(
+        duration: GlassTokens.pressDuration,
+        curve: Curves.easeOut,
+        padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
+        decoration: BoxDecoration(
+          color: cs.primary.withValues(alpha: pressed ? 0.16 : 0.09),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.article_outlined, size: 18, color: cs.primary),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                t.common.rulesRequiredHint,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  height: 1.3,
+                  color: cs.onSurface,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: cs.primary,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                t.common.readAndAgree,
+                maxLines: 1,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: cs.onPrimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

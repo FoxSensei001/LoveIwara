@@ -354,6 +354,8 @@ class _TranslationsCommonId extends TranslationsCommonEn {
 	@override String get disagree => 'Tidak Setuju';
 	@override String get agreeToRules => 'Setujui Aturan';
 	@override String get tapToReread => 'Ketuk untuk baca ulang';
+	@override String get rulesRequiredHint => 'Baca dan setujui aturan komunitas sebelum memposting';
+	@override String get readAndAgree => 'Baca & setujui';
 	@override String get markdownSyntaxHelp => 'Bantuan Sintaks Markdown';
 	@override String get previewContent => 'Pratinjau Konten';
 	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
@@ -1311,6 +1313,8 @@ class _TranslationsVideoDetailId extends TranslationsVideoDetailEn {
 	@override String get thisIsAPrivateVideo => 'Ini adalah video privat';
 	@override String get getVideoInfoFailed => 'Gagal mendapatkan info video, silakan coba lagi nanti';
 	@override String get noVideoSourceFound => 'Tidak ada sumber video yang ditemukan';
+	@override String get sourceFileMissingOnServer => 'File video tidak ada di server Iwara (HTTP 404), jadi juga tidak bisa diputar di situs web. Server mungkin sedang bermasalah; coba lagi nanti.';
+	@override String get playbackRetryExhausted => 'Video gagal dibuka beberapa kali berturut-turut, percobaan ulang otomatis dihentikan. Coba lagi nanti.';
 	@override String tagCopiedToClipboard({required Object tagId}) => 'Tag "${tagId}" disalin ke papan klip';
 	@override String get errorLoadingVideo => 'Kesalahan memuat video';
 	@override String get play => 'Putar';
@@ -4502,6 +4506,7 @@ class _TranslationsMediaPlayerNoticeId extends TranslationsMediaPlayerNoticeEn {
 	@override String get hardwareDecodeFellBack => 'Beralih ke dekode perangkat lunak; mungkin lebih boros daya';
 	@override String get videoDecodeProblem => 'Coba kualitas lain; gambar mungkin rusak';
 	@override String get repeatedPlaybackProblems => 'Ekspor log untuk melaporkan masalah pemutaran yang berulang';
+	@override String get qualityFileMissingSwitched => 'File kualitas ini tidak ada di server, beralih ke kualitas lain';
 	@override String get issuesSheetTitle => 'Masalah pemutaran';
 	@override String issueOccurrences({required Object count}) => 'Terjadi ${count} kali';
 	@override String issueAtPosition({required Object position}) => 'Pada ${position}';
@@ -5330,6 +5335,8 @@ extension on TranslationsId {
 			'common.disagree' => 'Tidak Setuju',
 			'common.agreeToRules' => 'Setujui Aturan',
 			'common.tapToReread' => 'Ketuk untuk baca ulang',
+			'common.rulesRequiredHint' => 'Baca dan setujui aturan komunitas sebelum memposting',
+			'common.readAndAgree' => 'Baca & setujui',
 			'common.markdownSyntaxHelp' => 'Bantuan Sintaks Markdown',
 			'common.previewContent' => 'Pratinjau Konten',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -5629,10 +5636,10 @@ extension on TranslationsId {
 			'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain' => 'Konfigurasi ini menentukan apakah konfigurasi sebelumnya akan digunakan saat memutar video lagi.',
 			'settings.playControl' => 'Kontrol Pemutaran',
 			'settings.playbackSpeedSettings' => 'Pemutaran & Kecepatan',
-			'settings.playbackBehaviorSettings' => 'Perilaku Pemutaran',
-			'settings.enhancementSettings' => 'Teater & Peningkatan',
 			_ => null,
 		} ?? switch (path) {
+			'settings.playbackBehaviorSettings' => 'Perilaku Pemutaran',
+			'settings.enhancementSettings' => 'Teater & Peningkatan',
 			'settings.fastForwardTime' => 'Waktu Maju Cepat',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => 'Waktu maju cepat harus berupa bilangan bulat positif.',
 			'settings.rewindTime' => 'Waktu Mundur',
@@ -6143,10 +6150,10 @@ extension on TranslationsId {
 			'settings.leftDoubleTapRewind' => 'Ketuk Ganda Kiri untuk Mundur',
 			'settings.rightDoubleTapFastForward' => 'Ketuk Ganda Kanan untuk Maju Cepat',
 			'settings.doubleTapPause' => 'Jeda Ketuk Ganda',
-			'settings.rightVerticalSwipeVolume' => 'Geser Vertikal Kanan untuk Volume (Berlaku saat memasuki halaman baru)',
-			'settings.leftVerticalSwipeBrightness' => 'Geser Vertikal Kiri untuk Kecerahan (Berlaku saat memasuki halaman baru)',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rightVerticalSwipeVolume' => 'Geser Vertikal Kanan untuk Volume (Berlaku saat memasuki halaman baru)',
+			'settings.leftVerticalSwipeBrightness' => 'Geser Vertikal Kiri untuk Kecerahan (Berlaku saat memasuki halaman baru)',
 			'settings.longPressFastForward' => 'Tekan Lama untuk Maju Cepat',
 			'settings.enableMouseHoverShowToolbar' => 'Aktifkan Tampilkan Bilah Alat saat Kursor Melayang',
 			'settings.enableMouseHoverShowToolbarInfo' => 'Saat diaktifkan, bilah alat video akan ditampilkan saat kursor melayang di atas pemutar. Bilah akan disembunyikan secara otomatis setelah 3 detik tidak ada aktivitas.',
@@ -6570,6 +6577,8 @@ extension on TranslationsId {
 			'videoDetail.thisIsAPrivateVideo' => 'Ini adalah video privat',
 			'videoDetail.getVideoInfoFailed' => 'Gagal mendapatkan info video, silakan coba lagi nanti',
 			'videoDetail.noVideoSourceFound' => 'Tidak ada sumber video yang ditemukan',
+			'videoDetail.sourceFileMissingOnServer' => 'File video tidak ada di server Iwara (HTTP 404), jadi juga tidak bisa diputar di situs web. Server mungkin sedang bermasalah; coba lagi nanti.',
+			'videoDetail.playbackRetryExhausted' => 'Video gagal dibuka beberapa kali berturut-turut, percobaan ulang otomatis dihentikan. Coba lagi nanti.',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'Tag "${tagId}" disalin ke papan klip',
 			'videoDetail.errorLoadingVideo' => 'Kesalahan memuat video',
 			'videoDetail.play' => 'Putar',
@@ -6655,12 +6664,12 @@ extension on TranslationsId {
 			'videoDetail.gestureGuide.quest.browseBody' => 'Gerakkan salah satu stik ke kiri atau kanan untuk item sebelumnya atau berikutnya; tahan untuk terus menjelajah. Anda juga dapat memilih gambar mini di strip film.',
 			'videoDetail.gestureGuide.quest.browseHint' => 'Video dalam galeri juga merupakan item. Mengarahkan ke panel kontrol membuat stik menggulir panel.',
 			'videoDetail.gestureGuide.quest.swipeTitle' => 'Seret melintasi untuk membalik halaman',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Arahkan ke gambar, tahan pemicu telunjuk dan seret ke kiri. Lepaskan setelah isyarat balik halaman untuk maju; seret ke kanan untuk kembali. Cubit-lalu-seret juga berfungsi.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Gambar harus pada 1× untuk membalik halaman dengan menyeret. Video galeri juga mendukungnya. Panggung tetap diam hingga Anda melepaskan.',
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'Perbesar ke dalam gambar',
 			'videoDetail.gestureGuide.quest.zoomBody' => 'Arahkan ke detail pada gambar, tahan pemicu telunjuk, lalu dorong stik ke atas untuk memperbesar atau ke bawah untuk memperkecil. Zoom berjangkar di tempat Anda menekan.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Ini memperbesar gambar di dalam jendelanya. Tanpa menahan gambar, atas/bawah menyesuaikan jarak pandang.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Geser dan pulihkan gambar',
 			'videoDetail.gestureGuide.quest.panBody' => 'Setelah diperbesar, tahan pemicu telunjuk dan seret untuk melihat sekeliling. Ketuk dua kali gambar untuk memperbesar ke 2,5× atau memulihkannya. Dengan tangan, cubit dua kali dengan cepat.',
@@ -7169,12 +7178,12 @@ extension on TranslationsId {
 			'download.notice.retryAll' => 'Retry all',
 			'download.notice.view' => 'View',
 			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
+			_ => null,
+		} ?? switch (path) {
 			'download.notice.handle' => 'Handle…',
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
 			'download.notice.migrate' => 'Move',
 			'download.notice.dismiss' => 'Dismiss',
-			_ => null,
-		} ?? switch (path) {
 			'download.emptyTaskList' => 'Belum ada tugas unduhan',
 			'download.noMatchingTasks' => 'Tidak ada tugas yang cocok',
 			'download.deleteByDate.menuTitle' => 'Hapus berdasarkan tanggal',
@@ -7683,12 +7692,12 @@ extension on TranslationsId {
 			'translation.presetNames.gemini' => 'Google Gemini (asli)',
 			'translation.presetNames.geminiReasoning' => 'Google Gemini Penalaran (berpikir)',
 			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
+			_ => null,
+		} ?? switch (path) {
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek Penalaran (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
 			'translation.fetchModelList' => 'Ambil daftar model',
-			_ => null,
-		} ?? switch (path) {
 			'translation.fetchingModels' => 'Mengambil...',
 			'translation.selectModel' => 'Pilih Model',
 			'translation.searchModel' => 'Cari model',
@@ -7843,6 +7852,7 @@ extension on TranslationsId {
 			'mediaPlayer.notice.hardwareDecodeFellBack' => 'Beralih ke dekode perangkat lunak; mungkin lebih boros daya',
 			'mediaPlayer.notice.videoDecodeProblem' => 'Coba kualitas lain; gambar mungkin rusak',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => 'Ekspor log untuk melaporkan masalah pemutaran yang berulang',
+			'mediaPlayer.notice.qualityFileMissingSwitched' => 'File kualitas ini tidak ada di server, beralih ke kualitas lain',
 			'mediaPlayer.notice.issuesSheetTitle' => 'Masalah pemutaran',
 			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => 'Terjadi ${count} kali',
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'Pada ${position}',
@@ -8196,13 +8206,13 @@ extension on TranslationsId {
 			'anime4k.presetGroups.fast' => 'Cepat',
 			'anime4k.presetGroups.lite' => 'Ringan',
 			'anime4k.presetGroups.moreLite' => 'Lebih Ringan',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetGroups.custom' => 'Kustom',
 			'anime4k.presetDescriptions.mode_a_hq' => 'Cocok untuk sebagian besar animasi 1080p, terutama yang menghadapi blur, resampling, dan artefak kompresi. Memberikan kualitas persepsi tertinggi.',
 			'anime4k.presetDescriptions.mode_b_hq' => 'Cocok untuk animasi dengan blur ringan atau efek ringing akibat penskalaan. Dapat mengurangi ringing dan aliasing secara efektif.',
 			'anime4k.presetDescriptions.mode_c_hq' => 'Cocok untuk sumber berkualitas tinggi (seperti animasi 1080p asli atau film). Menghilangkan noise dan memberikan PSNR tertinggi.',
 			'anime4k.presetDescriptions.mode_a_a_hq' => 'Versi lanjutan Mode A, memberikan kualitas persepsi maksimal dan dapat merekonstruksi hampir semua garis yang rusak. Dapat menimbulkan penajaman berlebihan atau ringing.',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_b_b_hq' => 'Versi lanjutan Mode B, memberikan kualitas persepsi lebih tinggi, lebih mengoptimalkan garis dan mengurangi artefak.',
 			'anime4k.presetDescriptions.mode_c_a_hq' => 'Versi Mode C dengan kualitas persepsi yang ditingkatkan, mempertahankan PSNR tinggi sekaligus mencoba merekonstruksi sebagian detail garis.',
 			'anime4k.presetDescriptions.mode_a_fast' => 'Versi cepat Mode A, menyeimbangkan kualitas dan performa, cocok untuk sebagian besar animasi 1080p.',
@@ -8710,13 +8720,13 @@ extension on TranslationsId {
 			'localMedia.sourceContainsExisting' => ({required Object name}) => 'Sudah berisi folder yang ditambahkan "${name}"; menambahkan folder induknya belum didukung',
 			'localMedia.addSourceFailed' => 'Tidak dapat menambahkan folder tersebut',
 			'localMedia.fileMissing' => 'Berkas itu sudah tidak ada di disk',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.permissionDenied' => 'Akses berkas tidak diberikan · ketuk untuk memberi izin',
 			'localMedia.noVideosFound' => 'Tidak ada video di folder ini',
 			'localMedia.emptyTitle' => 'Tambahkan folder untuk menonton video yang sudah ada di perangkat ini',
 			'localMedia.emptyPrivacyNote' => 'Berkas hanya dibaca di perangkat ini. Tidak ada yang diunggah.',
 			'localMedia.removeSourceTitle' => ({required Object name}) => 'Hapus "${name}"?',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.removeSourceBody' => 'Berkas tetap ada di disk. Hanya entri pustaka ini yang dihapus.',
 			'localMedia.remove' => 'Hapus',
 			'localMedia.removeFolder' => 'Hapus folder',

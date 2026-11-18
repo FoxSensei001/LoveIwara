@@ -227,6 +227,8 @@ common:
   disagree: Disagree
   agreeToRules: Agree to Rules
   tapToReread: 'Tap to read again'
+  rulesRequiredHint: 'Read and agree to the community rules before posting'
+  readAndAgree: 'Read & agree'
   # Base Input Dialog
   markdownSyntaxHelp: Markdown Syntax Help
   previewContent: Preview Content
@@ -1544,6 +1546,8 @@ videoDetail:
   thisIsAPrivateVideo: This is a private video
   getVideoInfoFailed: 'Get video info failed, please try again later'
   noVideoSourceFound: No video source found
+  sourceFileMissingOnServer: 'The video file is missing on the Iwara server (HTTP 404), so it will not play on the website either. The server may be having problems; try again later.'
+  playbackRetryExhausted: 'The video failed to open several times in a row, so automatic retries have stopped. Tap retry to try again later.'
   tagCopiedToClipboard: 'Tag "${tagId}" copied to clipboard'
   errorLoadingVideo: Error loading video
   play: Play
@@ -2901,6 +2905,7 @@ mediaPlayer:
     hardwareDecodeFellBack: "Switched to software decoding; may use more power"
     videoDecodeProblem: "Try another quality; the picture may glitch"
     repeatedPlaybackProblems: "Export logs to report repeated playback issues"
+    qualityFileMissingSwitched: 'This quality is missing on the server, switched to another quality'
     issuesSheetTitle: "Playback issues"
     issueOccurrences: "Occurred ${count} times"
     issueAtPosition: "At ${position}"

@@ -354,6 +354,8 @@ class _TranslationsCommonZhCn extends TranslationsCommonEn {
 	@override String get disagree => '不同意';
 	@override String get agreeToRules => '同意规则';
 	@override String get tapToReread => '点击重读全文';
+	@override String get rulesRequiredHint => '发表前需要先阅读并同意社区规则';
+	@override String get readAndAgree => '阅读并同意';
 	@override String get markdownSyntaxHelp => 'Markdown语法帮助';
 	@override String get previewContent => '预览内容';
 	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
@@ -1333,6 +1335,8 @@ class _TranslationsVideoDetailZhCn extends TranslationsVideoDetailEn {
 	@override String get thisIsAPrivateVideo => '这是一个私密视频';
 	@override String get getVideoInfoFailed => '获取视频信息失败，请稍后再试';
 	@override String get noVideoSourceFound => '未找到对应的视频源';
+	@override String get sourceFileMissingOnServer => '视频文件在 Iwara 服务器上不存在（HTTP 404），网页端同样播放不了。可能是服务器故障，请稍后再试。';
+	@override String get playbackRetryExhausted => '视频连续多次打不开，已停止自动重试。可以稍后点重试。';
 	@override String tagCopiedToClipboard({required Object tagId}) => '标签 "${tagId}" 已复制到剪贴板';
 	@override String get errorLoadingVideo => '在加载视频时出现了错误';
 	@override String get play => '播放';
@@ -4524,6 +4528,7 @@ class _TranslationsMediaPlayerNoticeZhCn extends TranslationsMediaPlayerNoticeEn
 	@override String get hardwareDecodeFellBack => '已切换为软件解码，可能更耗电';
 	@override String get videoDecodeProblem => '可尝试切换清晰度，画面可能花屏';
 	@override String get repeatedPlaybackProblems => '导出日志反馈：播放多次出错';
+	@override String get qualityFileMissingSwitched => '这个清晰度的文件在服务器上缺失，已换成其他清晰度';
 	@override String get issuesSheetTitle => '播放问题';
 	@override String issueOccurrences({required Object count}) => '出现 ${count} 次';
 	@override String issueAtPosition({required Object position}) => '位于 ${position}';
@@ -5352,6 +5357,8 @@ extension on TranslationsZhCn {
 			'common.disagree' => '不同意',
 			'common.agreeToRules' => '同意规则',
 			'common.tapToReread' => '点击重读全文',
+			'common.rulesRequiredHint' => '发表前需要先阅读并同意社区规则',
+			'common.readAndAgree' => '阅读并同意',
 			'common.markdownSyntaxHelp' => 'Markdown语法帮助',
 			'common.previewContent' => '预览内容',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -5651,10 +5658,10 @@ extension on TranslationsZhCn {
 			'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain' => '此配置决定当你之后播放视频时是否会沿用之前的配置。',
 			'settings.playControl' => '播放控制',
 			'settings.playbackSpeedSettings' => '播放与倍速',
-			'settings.playbackBehaviorSettings' => '播放行为',
-			'settings.enhancementSettings' => '剧院与画质增强',
 			_ => null,
 		} ?? switch (path) {
+			'settings.playbackBehaviorSettings' => '播放行为',
+			'settings.enhancementSettings' => '剧院与画质增强',
 			'settings.fastForwardTime' => '快进时间',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => '快进时间必须是一个正整数。',
 			'settings.rewindTime' => '后退时间',
@@ -6165,10 +6172,10 @@ extension on TranslationsZhCn {
 			'settings.keybinding.actionGallerySeekBackward' => '快退',
 			'settings.keybinding.actionGallerySeekForward' => '快进',
 			'settings.keybinding.actionGalleryToggleMute' => '静音切换',
-			'settings.keybinding.actionPlayPause' => '播放 / 暂停',
-			'settings.keybinding.actionSpeedUp' => '加快倍速',
 			_ => null,
 		} ?? switch (path) {
+			'settings.keybinding.actionPlayPause' => '播放 / 暂停',
+			'settings.keybinding.actionSpeedUp' => '加快倍速',
 			'settings.keybinding.actionSpeedDown' => '减慢倍速',
 			'settings.keybinding.actionSeekForward' => '快进',
 			'settings.keybinding.actionSeekBackward' => '快退',
@@ -6614,6 +6621,8 @@ extension on TranslationsZhCn {
 			'videoDetail.thisIsAPrivateVideo' => '这是一个私密视频',
 			'videoDetail.getVideoInfoFailed' => '获取视频信息失败，请稍后再试',
 			'videoDetail.noVideoSourceFound' => '未找到对应的视频源',
+			'videoDetail.sourceFileMissingOnServer' => '视频文件在 Iwara 服务器上不存在（HTTP 404），网页端同样播放不了。可能是服务器故障，请稍后再试。',
+			'videoDetail.playbackRetryExhausted' => '视频连续多次打不开，已停止自动重试。可以稍后点重试。',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => '标签 "${tagId}" 已复制到剪贴板',
 			'videoDetail.errorLoadingVideo' => '在加载视频时出现了错误',
 			'videoDetail.play' => '播放',
@@ -6677,12 +6686,12 @@ extension on TranslationsZhCn {
 			'videoDetail.gestureGuide.quest.bothGrips' => '双手侧握键',
 			'videoDetail.gestureGuide.quest.stick' => '摇杆',
 			'videoDetail.gestureGuide.quest.handTracking' => '手势追踪',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.ready' => '准备',
 			'videoDetail.gestureGuide.quest.press' => '按下',
 			'videoDetail.gestureGuide.quest.hold' => '保持',
 			'videoDetail.gestureGuide.quest.release' => '松开',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.result' => '查看效果',
 			'videoDetail.gestureGuide.quest.pinch' => '捏合',
 			'videoDetail.gestureGuide.quest.selectTitle' => '用射线点选',
@@ -7191,12 +7200,12 @@ extension on TranslationsZhCn {
 			'download.actions.deleteTitle' => ({required Object count}) => '删除 ${count} 项下载？',
 			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '共 ${count} 项 · ${size}',
 			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '共 ${count} 项',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.deleteGalleryNote' => ({required Object count}) => '其中 ${count} 个图库的大小未计入',
 			'download.actions.deleteFiles' => '同时删除磁盘文件',
 			'download.actions.deleteFilesDesc' => '关闭后只移除列表记录，文件留在原处',
 			'download.actions.deleteFilesAllMissing' => '文件已经不在了，只会移除记录',
-			_ => null,
-		} ?? switch (path) {
 			'download.actions.deleteDone' => ({required Object count}) => '已删除 ${count} 项',
 			'download.actions.deletePartial' => ({required Object failed}) => '${failed} 项的文件删不掉（可能正被占用），记录已保留',
 			'download.actions.removeRecordAnyway' => '仍移除记录',
@@ -7705,12 +7714,12 @@ extension on TranslationsZhCn {
 			'translation.reasoningModelDescription' => '适用于 o1/o3、DeepSeek-R1、QwQ 等：将提示词并入用户消息、不下发 temperature、改用 max_completion_tokens',
 			'translation.useMaxCompletionTokens' => '使用 max_completion_tokens',
 			'translation.useMaxCompletionTokensDescription' => '新版 OpenAI 端点已弃用 max_tokens，需改用 max_completion_tokens',
+			_ => null,
+		} ?? switch (path) {
 			'translation.sendTemperature' => '下发 temperature',
 			'translation.sendTemperatureDescription' => '对于拒绝 temperature 参数的模型(多数推理模型)请关闭',
 			'translation.showReasoningProcess' => '显示思考过程',
 			'translation.showReasoningProcessDescription' => '在翻译弹窗中以可折叠形式展示推理模型的思考过程',
-			_ => null,
-		} ?? switch (path) {
 			'translation.provider' => '服务商',
 			'translation.providerOpenAI' => 'OpenAI（及兼容端点）',
 			'translation.providerAnthropic' => 'Anthropic（Claude）',
@@ -7801,6 +7810,7 @@ extension on TranslationsZhCn {
 			'mediaPlayer.notice.hardwareDecodeFellBack' => '已切换为软件解码，可能更耗电',
 			'mediaPlayer.notice.videoDecodeProblem' => '可尝试切换清晰度，画面可能花屏',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => '导出日志反馈：播放多次出错',
+			'mediaPlayer.notice.qualityFileMissingSwitched' => '这个清晰度的文件在服务器上缺失，已换成其他清晰度',
 			'mediaPlayer.notice.issuesSheetTitle' => '播放问题',
 			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => '出现 ${count} 次',
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => '位于 ${position}',
@@ -8218,13 +8228,13 @@ extension on TranslationsZhCn {
 			'tagSelector.addTag' => '添加标签',
 			'tagSelector.removeTag' => '移除标签',
 			'tagSelector.deleteTag' => '删除标签',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.usageInstructions' => '需先添加标签，然后再从已有的标签中点击选中',
 			'tagSelector.usageInstructionsTooltip' => '使用说明',
 			'tagSelector.addTagTooltip' => '添加标签',
 			'tagSelector.removeTagTooltip' => '删除标签',
 			'tagSelector.cancelSelection' => '取消选择',
-			_ => null,
-		} ?? switch (path) {
 			'tagSelector.selectAll' => '全选',
 			'tagSelector.cancelSelectAll' => '取消全选',
 			'tagSelector.delete' => '删除',
@@ -8732,13 +8742,13 @@ extension on TranslationsZhCn {
 			'localMedia.webdav.stateCredUnreadable' => '读取密码失败',
 			'localMedia.webdav.connected' => '已连接',
 			'localMedia.webdav.errorForbidden' => '这个账号没有 WebDAV 访问权限：请在 NAS 的 WebDAV 设置里给它开权限',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.errorTls' => '安全连接失败：检查地址开头的 http:// 或 https:// 与 NAS 设置是否一致',
 			'localMedia.webdav.errorTryHttps' => '如果 NAS 只开了 HTTPS，请在地址前加上 https://',
 			'localMedia.webdav.previousStep' => '上一步',
 			'localMedia.webdav.bannerUnreachable' => '连不上 NAS，下面是上次看到的内容',
 			'localMedia.webdav.bannerAuthFailed' => '登录已失效，重新登录后才能看到最新内容',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.webdav.bannerCertUntrusted' => 'NAS 的证书变了，确认之后才能继续',
 			'localMedia.webdav.bannerCredUnreadable' => '读取保存的密码失败，重新登录一次即可',
 			'localMedia.mediaStoreUnavailable' => '设备媒体索引仅在 Android 上可用',

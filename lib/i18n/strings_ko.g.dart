@@ -354,6 +354,8 @@ class _TranslationsCommonKo extends TranslationsCommonEn {
 	@override String get disagree => '동의하지 않음';
 	@override String get agreeToRules => '규칙에 동의';
 	@override String get tapToReread => '탭하여 전문 다시 읽기';
+	@override String get rulesRequiredHint => '게시하기 전에 커뮤니티 규칙을 읽고 동의해 주세요';
+	@override String get readAndAgree => '읽고 동의';
 	@override String get markdownSyntaxHelp => 'Markdown 문법 도움말';
 	@override String get previewContent => '내용 미리보기';
 	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
@@ -1311,6 +1313,8 @@ class _TranslationsVideoDetailKo extends TranslationsVideoDetailEn {
 	@override String get thisIsAPrivateVideo => '비공개 동영상입니다';
 	@override String get getVideoInfoFailed => '동영상 정보를 가져오지 못했습니다. 나중에 다시 시도해 주세요';
 	@override String get noVideoSourceFound => '동영상 소스를 찾을 수 없습니다';
+	@override String get sourceFileMissingOnServer => 'Iwara 서버에 동영상 파일이 없습니다(HTTP 404). 웹에서도 재생되지 않습니다. 서버 장애일 수 있으니 나중에 다시 시도하세요.';
+	@override String get playbackRetryExhausted => '동영상을 여러 번 연속으로 열지 못해 자동 재시도를 중단했습니다. 나중에 다시 시도하세요.';
 	@override String tagCopiedToClipboard({required Object tagId}) => '태그 "${tagId}"이(가) 클립보드에 복사되었습니다';
 	@override String get errorLoadingVideo => '동영상을 불러오는 중 오류';
 	@override String get play => '재생';
@@ -4502,6 +4506,7 @@ class _TranslationsMediaPlayerNoticeKo extends TranslationsMediaPlayerNoticeEn {
 	@override String get hardwareDecodeFellBack => '소프트웨어 디코딩으로 전환했습니다. 전력을 더 사용할 수 있습니다';
 	@override String get videoDecodeProblem => '다른 화질을 시도해 보세요. 화면이 깨질 수 있습니다';
 	@override String get repeatedPlaybackProblems => '반복되는 재생 문제를 신고하려면 로그를 내보내세요';
+	@override String get qualityFileMissingSwitched => '이 화질의 파일이 서버에 없어 다른 화질로 전환했습니다';
 	@override String get issuesSheetTitle => '재생 문제';
 	@override String issueOccurrences({required Object count}) => '${count}회 발생';
 	@override String issueAtPosition({required Object position}) => '${position} 지점';
@@ -5330,6 +5335,8 @@ extension on TranslationsKo {
 			'common.disagree' => '동의하지 않음',
 			'common.agreeToRules' => '규칙에 동의',
 			'common.tapToReread' => '탭하여 전문 다시 읽기',
+			'common.rulesRequiredHint' => '게시하기 전에 커뮤니티 규칙을 읽고 동의해 주세요',
+			'common.readAndAgree' => '읽고 동의',
 			'common.markdownSyntaxHelp' => 'Markdown 문법 도움말',
 			'common.previewContent' => '내용 미리보기',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -5629,10 +5636,10 @@ extension on TranslationsKo {
 			'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain' => '이 설정은 동영상을 다시 재생할 때 이전 설정을 사용할지 여부를 결정합니다.',
 			'settings.playControl' => '재생 제어',
 			'settings.playbackSpeedSettings' => '재생 및 속도',
-			'settings.playbackBehaviorSettings' => '재생 동작',
-			'settings.enhancementSettings' => '극장 및 향상',
 			_ => null,
 		} ?? switch (path) {
+			'settings.playbackBehaviorSettings' => '재생 동작',
+			'settings.enhancementSettings' => '극장 및 향상',
 			'settings.fastForwardTime' => '빨리 감기 시간',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => '빨리 감기 시간은 양의 정수여야 합니다.',
 			'settings.rewindTime' => '되감기 시간',
@@ -6143,10 +6150,10 @@ extension on TranslationsKo {
 			'settings.leftDoubleTapRewind' => '왼쪽 두 번 탭 되감기',
 			'settings.rightDoubleTapFastForward' => '오른쪽 두 번 탭 빨리 감기',
 			'settings.doubleTapPause' => '두 번 탭하여 일시정지',
-			'settings.rightVerticalSwipeVolume' => '오른쪽 세로 스와이프 볼륨 (새 페이지 진입 시 적용)',
-			'settings.leftVerticalSwipeBrightness' => '왼쪽 세로 스와이프 밝기 (새 페이지 진입 시 적용)',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rightVerticalSwipeVolume' => '오른쪽 세로 스와이프 볼륨 (새 페이지 진입 시 적용)',
+			'settings.leftVerticalSwipeBrightness' => '왼쪽 세로 스와이프 밝기 (새 페이지 진입 시 적용)',
 			'settings.longPressFastForward' => '길게 눌러 빨리 감기',
 			'settings.enableMouseHoverShowToolbar' => '마우스 오버 시 도구 모음 표시',
 			'settings.enableMouseHoverShowToolbarInfo' => '활성화하면 플레이어 위로 마우스를 올리면 동영상 도구 모음이 표시됩니다. 3초 동안 활동이 없으면 자동으로 숨겨집니다.',
@@ -6570,6 +6577,8 @@ extension on TranslationsKo {
 			'videoDetail.thisIsAPrivateVideo' => '비공개 동영상입니다',
 			'videoDetail.getVideoInfoFailed' => '동영상 정보를 가져오지 못했습니다. 나중에 다시 시도해 주세요',
 			'videoDetail.noVideoSourceFound' => '동영상 소스를 찾을 수 없습니다',
+			'videoDetail.sourceFileMissingOnServer' => 'Iwara 서버에 동영상 파일이 없습니다(HTTP 404). 웹에서도 재생되지 않습니다. 서버 장애일 수 있으니 나중에 다시 시도하세요.',
+			'videoDetail.playbackRetryExhausted' => '동영상을 여러 번 연속으로 열지 못해 자동 재시도를 중단했습니다. 나중에 다시 시도하세요.',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => '태그 "${tagId}"이(가) 클립보드에 복사되었습니다',
 			'videoDetail.errorLoadingVideo' => '동영상을 불러오는 중 오류',
 			'videoDetail.play' => '재생',
@@ -6655,12 +6664,12 @@ extension on TranslationsKo {
 			'videoDetail.gestureGuide.quest.browseBody' => '어느 한 스틱을 좌우로 움직여 이전/다음 항목으로 이동합니다. 계속 누르면 계속 탐색합니다. 필름스트립에서 썸네일을 선택할 수도 있습니다.',
 			'videoDetail.gestureGuide.quest.browseHint' => '갤러리의 동영상도 항목입니다. 컨트롤 패널을 가리키면 스틱이 패널을 스크롤합니다.',
 			'videoDetail.gestureGuide.quest.swipeTitle' => '옆으로 끌어 페이지 넘기기',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.swipeBody' => '이미지에 광선을 맞추고 검지 트리거를 누른 채 왼쪽으로 끄세요. 페이지 넘김 신호 후 놓으면 넘어가고, 오른쪽으로 끌면 뒤로 갑니다. 집어서 끌어도 됩니다.',
 			'videoDetail.gestureGuide.quest.swipeHint' => '이미지를 끌어 페이지를 넘기려면 1배 상태여야 합니다. 갤러리 동영상도 지원합니다. 놓을 때까지 스테이지는 그대로 유지됩니다.',
 			'videoDetail.gestureGuide.quest.zoomTitle' => '이미지 확대',
 			'videoDetail.gestureGuide.quest.zoomBody' => '이미지의 세부 부분에 광선을 맞추고 검지 트리거를 누른 뒤 스틱을 위로 밀면 확대, 아래로 밀면 축소됩니다. 확대는 누른 지점을 기준으로 고정됩니다.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomHint' => '이미지 창 안의 이미지를 확대합니다. 이미지를 잡지 않은 상태에서는 위/아래가 시청 거리를 조정합니다.',
 			'videoDetail.gestureGuide.quest.panTitle' => '이미지 이동 및 복원',
 			'videoDetail.gestureGuide.quest.panBody' => '확대한 후 검지 트리거를 누른 채 끌면 주변을 둘러볼 수 있습니다. 이미지를 두 번 탭하면 2.5배로 확대하거나 원래대로 되돌립니다. 손을 사용할 때는 빠르게 두 번 집으세요.',
@@ -7169,12 +7178,12 @@ extension on TranslationsKo {
 			'download.notice.retryAll' => 'Retry all',
 			'download.notice.view' => 'View',
 			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
+			_ => null,
+		} ?? switch (path) {
 			'download.notice.handle' => 'Handle…',
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
 			'download.notice.migrate' => 'Move',
 			'download.notice.dismiss' => 'Dismiss',
-			_ => null,
-		} ?? switch (path) {
 			'download.emptyTaskList' => '아직 다운로드 작업이 없습니다',
 			'download.noMatchingTasks' => '일치하는 작업이 없습니다',
 			'download.deleteByDate.menuTitle' => '날짜로 삭제',
@@ -7683,12 +7692,12 @@ extension on TranslationsKo {
 			'translation.presetNames.gemini' => 'Google Gemini (네이티브)',
 			'translation.presetNames.geminiReasoning' => 'Google Gemini 추론 (사고)',
 			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
+			_ => null,
+		} ?? switch (path) {
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek 추론 (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
 			'translation.fetchModelList' => '모델 목록 가져오기',
-			_ => null,
-		} ?? switch (path) {
 			'translation.fetchingModels' => '가져오는 중...',
 			'translation.selectModel' => '모델 선택',
 			'translation.searchModel' => '모델 검색',
@@ -7843,6 +7852,7 @@ extension on TranslationsKo {
 			'mediaPlayer.notice.hardwareDecodeFellBack' => '소프트웨어 디코딩으로 전환했습니다. 전력을 더 사용할 수 있습니다',
 			'mediaPlayer.notice.videoDecodeProblem' => '다른 화질을 시도해 보세요. 화면이 깨질 수 있습니다',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => '반복되는 재생 문제를 신고하려면 로그를 내보내세요',
+			'mediaPlayer.notice.qualityFileMissingSwitched' => '이 화질의 파일이 서버에 없어 다른 화질로 전환했습니다',
 			'mediaPlayer.notice.issuesSheetTitle' => '재생 문제',
 			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => '${count}회 발생',
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => '${position} 지점',
@@ -8196,13 +8206,13 @@ extension on TranslationsKo {
 			'anime4k.presetGroups.fast' => '고속',
 			'anime4k.presetGroups.lite' => '경량',
 			'anime4k.presetGroups.moreLite' => '초경량',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetGroups.custom' => '사용자 지정',
 			'anime4k.presetDescriptions.mode_a_hq' => '대부분의 1080p 애니메이션, 특히 블러, 리샘플링 및 압축 아티팩트를 처리하는 영상에 적합합니다. 가장 높은 체감 화질을 제공합니다.',
 			'anime4k.presetDescriptions.mode_b_hq' => '스케일링으로 인한 약간의 블러나 링잉이 있는 애니메이션에 적합합니다. 링잉과 계단 현상을 효과적으로 줄일 수 있습니다.',
 			'anime4k.presetDescriptions.mode_c_hq' => '고품질 소스(예: 네이티브 1080p 애니메이션 또는 영화)에 적합합니다. 노이즈를 제거하고 가장 높은 PSNR을 제공합니다.',
 			'anime4k.presetDescriptions.mode_a_a_hq' => 'Mode A의 강화 버전으로, 최상의 체감 화질을 제공하며 거의 모든 손상된 선을 복원할 수 있습니다. 과도한 선명화나 링잉이 발생할 수 있습니다.',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_b_b_hq' => 'Mode B의 강화 버전으로, 더 높은 체감 화질을 제공하며 선을 더 최적화하고 아티팩트를 줄입니다.',
 			'anime4k.presetDescriptions.mode_c_a_hq' => 'Mode C의 체감 화질 강화 버전으로, 높은 PSNR을 유지하면서 일부 선 디테일을 복원합니다.',
 			'anime4k.presetDescriptions.mode_a_fast' => 'Mode A의 고속 버전으로, 화질과 성능의 균형을 맞추며 대부분의 1080p 애니메이션에 적합합니다.',
@@ -8710,13 +8720,13 @@ extension on TranslationsKo {
 			'localMedia.sourceContainsExisting' => ({required Object name}) => '이미 추가된 폴더 "${name}"을(를) 포함하고 있어 상위 폴더 추가는 아직 지원되지 않습니다',
 			'localMedia.addSourceFailed' => '해당 폴더를 추가할 수 없습니다',
 			'localMedia.fileMissing' => '해당 파일이 더 이상 디스크에 없습니다',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.permissionDenied' => '파일 접근 권한 없음 · 탭하여 허용',
 			'localMedia.noVideosFound' => '이 폴더에 동영상이 없습니다',
 			'localMedia.emptyTitle' => '폴더를 추가하여 이 기기에 이미 있는 동영상을 시청하세요',
 			'localMedia.emptyPrivacyNote' => '파일은 이 기기에서만 읽습니다. 아무것도 업로드되지 않습니다.',
 			'localMedia.removeSourceTitle' => ({required Object name}) => '"${name}"을(를) 제거하시겠습니까?',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.removeSourceBody' => '파일은 디스크에 그대로 남습니다. 이 라이브러리 항목만 제거됩니다.',
 			'localMedia.remove' => '제거',
 			'localMedia.removeFolder' => '폴더 제거',

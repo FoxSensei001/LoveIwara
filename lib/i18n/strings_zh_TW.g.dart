@@ -360,6 +360,8 @@ class _TranslationsCommonZhTw extends TranslationsCommonEn {
 	@override String get disagree => '不同意';
 	@override String get agreeToRules => '同意規則';
 	@override String get tapToReread => '點擊重讀全文';
+	@override String get rulesRequiredHint => '發表前需要先閱讀並同意社群規則';
+	@override String get readAndAgree => '閱讀並同意';
 	@override String get markdownSyntaxHelp => 'Markdown語法幫助';
 	@override String get previewContent => '預覽內容';
 	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
@@ -1362,6 +1364,8 @@ class _TranslationsVideoDetailZhTw extends TranslationsVideoDetailEn {
 	@override String get thisIsAPrivateVideo => '這是私密影片';
 	@override String get getVideoInfoFailed => '取得影片資訊失敗，請稍後再試';
 	@override String get noVideoSourceFound => '未找到對應的影片來源';
+	@override String get sourceFileMissingOnServer => '影片檔案在 Iwara 伺服器上不存在（HTTP 404），網頁端同樣無法播放。可能是伺服器故障，請稍後再試。';
+	@override String get playbackRetryExhausted => '影片連續多次無法開啟，已停止自動重試。可以稍後點重試。';
 	@override String tagCopiedToClipboard({required Object tagId}) => '標籤 "${tagId}" 已複製到剪貼簿';
 	@override String get errorLoadingVideo => '載入影片時出錯';
 	@override String get play => '播放';
@@ -4627,6 +4631,7 @@ class _TranslationsMediaPlayerNoticeZhTw extends TranslationsMediaPlayerNoticeEn
 	@override String get hardwareDecodeFellBack => '已切換為軟體解碼，可能更耗電';
 	@override String get videoDecodeProblem => '可嘗試切換畫質，畫面可能破圖';
 	@override String get repeatedPlaybackProblems => '匯出日誌回報：播放多次出錯';
+	@override String get qualityFileMissingSwitched => '這個畫質的檔案在伺服器上缺失，已換成其他畫質';
 	@override String get issuesSheetTitle => '播放問題';
 	@override String issueOccurrences({required Object count}) => '出現 ${count} 次';
 	@override String issueAtPosition({required Object position}) => '位於 ${position}';
@@ -5358,6 +5363,8 @@ extension on TranslationsZhTw {
 			'common.disagree' => '不同意',
 			'common.agreeToRules' => '同意規則',
 			'common.tapToReread' => '點擊重讀全文',
+			'common.rulesRequiredHint' => '發表前需要先閱讀並同意社群規則',
+			'common.readAndAgree' => '閱讀並同意',
 			'common.markdownSyntaxHelp' => 'Markdown語法幫助',
 			'common.previewContent' => '預覽內容',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -5651,10 +5658,10 @@ extension on TranslationsZhTw {
 			'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain' => '此設定將決定您之後播放影片時是否會沿用之前的設定。',
 			'settings.playControl' => '播放控制',
 			'settings.playbackSpeedSettings' => '播放與倍速',
-			'settings.playbackBehaviorSettings' => '播放行為',
-			'settings.enhancementSettings' => '劇院與畫質增強',
 			_ => null,
 		} ?? switch (path) {
+			'settings.playbackBehaviorSettings' => '播放行為',
+			'settings.enhancementSettings' => '劇院與畫質增強',
 			'settings.fastForwardTime' => '快進時間',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => '快進時間必須是正整數。',
 			'settings.rewindTime' => '快退時間',
@@ -6165,10 +6172,10 @@ extension on TranslationsZhTw {
 			'settings.keybinding.actionGallerySeekBackward' => '快退',
 			'settings.keybinding.actionGallerySeekForward' => '快進',
 			'settings.keybinding.actionGalleryToggleMute' => '靜音切換',
-			'settings.keybinding.actionPlayPause' => '播放 / 暫停',
-			'settings.keybinding.actionSpeedUp' => '加快倍速',
 			_ => null,
 		} ?? switch (path) {
+			'settings.keybinding.actionPlayPause' => '播放 / 暫停',
+			'settings.keybinding.actionSpeedUp' => '加快倍速',
 			'settings.keybinding.actionSpeedDown' => '減慢倍速',
 			'settings.keybinding.actionSeekForward' => '快進',
 			'settings.keybinding.actionSeekBackward' => '快退',
@@ -6648,6 +6655,8 @@ extension on TranslationsZhTw {
 			'videoDetail.thisIsAPrivateVideo' => '這是私密影片',
 			'videoDetail.getVideoInfoFailed' => '取得影片資訊失敗，請稍後再試',
 			'videoDetail.noVideoSourceFound' => '未找到對應的影片來源',
+			'videoDetail.sourceFileMissingOnServer' => '影片檔案在 Iwara 伺服器上不存在（HTTP 404），網頁端同樣無法播放。可能是伺服器故障，請稍後再試。',
+			'videoDetail.playbackRetryExhausted' => '影片連續多次無法開啟，已停止自動重試。可以稍後點重試。',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => '標籤 "${tagId}" 已複製到剪貼簿',
 			'videoDetail.errorLoadingVideo' => '載入影片時出錯',
 			'videoDetail.play' => '播放',
@@ -6677,12 +6686,12 @@ extension on TranslationsZhTw {
 			'videoDetail.gestureGuide.restoreTip' => '點擊右下角「還原」按鈕可復位縮放、旋轉與位置。',
 			'videoDetail.gestureGuide.mTap' => '單擊：顯示 / 隱藏控制列',
 			'videoDetail.gestureGuide.mDoubleTap' => '雙擊：左側後退 / 中央暫停 / 右側快進',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.mHorizontalDrag' => '橫向滑動：調整進度',
 			'videoDetail.gestureGuide.mVerticalDrag' => '垂直滑動：左側亮度 / 右側音量',
 			'videoDetail.gestureGuide.mLongPress' => '長按：臨時倍速播放',
 			'videoDetail.gestureGuide.mPinch' => '雙指捏合：縮放畫面',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.mRotate' => '雙指旋轉：旋轉畫面',
 			'videoDetail.gestureGuide.dTap' => '單擊：顯示 / 隱藏控制列',
 			'videoDetail.gestureGuide.dDoubleTap' => '雙擊：左側後退 / 中央暫停 / 右側快進',
@@ -7191,12 +7200,12 @@ extension on TranslationsZhTw {
 			'download.taskType' => '類型',
 			'download.video' => '影片',
 			'download.gallery' => '圖庫',
+			_ => null,
+		} ?? switch (path) {
 			'download.other' => '其他',
 			'download.clearFilters' => '清除篩選',
 			'download.pauseAll' => '全部暫停',
 			'download.resumeAll' => '全部開始',
-			_ => null,
-		} ?? switch (path) {
 			'download.remainingTime' => ({required Object time}) => '剩 ${time}',
 			'download.timeline.today' => '今天',
 			'download.timeline.yesterday' => '昨天',
@@ -7705,12 +7714,12 @@ extension on TranslationsZhTw {
 			'translation.apiKeyOptionalHint' => '用於訪問受保護的 DeepLX 服務',
 			'translation.apiKeyOptionalHelperText' => '某些 DeepLX 服務需要 API Key 進行身份驗證',
 			'translation.dlSession' => 'DL Session',
+			_ => null,
+		} ?? switch (path) {
 			'translation.dlSessionHint' => 'Pro 模式需要的 dl_session 參數',
 			'translation.dlSessionHelperText' => 'Pro 端點必需的工作階段參數，從 DeepL Pro 帳戶獲取',
 			'translation.proModeRequiresDlSession' => 'Pro 模式需要填寫 dl_session',
 			'translation.clickTestButtonToVerifyDeepLXAPI' => '點擊測試按鈕驗證 DeepLX API 連接',
-			_ => null,
-		} ?? switch (path) {
 			'translation.enableDeepLXTranslation' => '啟用 DeepLX 翻譯',
 			'translation.deepLXTranslationWillBeDisabled' => 'DeepLX翻譯將因配置更改而被停用',
 			'translation.translatedResult' => '翻譯結果',
@@ -7835,6 +7844,7 @@ extension on TranslationsZhTw {
 			'mediaPlayer.notice.hardwareDecodeFellBack' => '已切換為軟體解碼，可能更耗電',
 			'mediaPlayer.notice.videoDecodeProblem' => '可嘗試切換畫質，畫面可能破圖',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => '匯出日誌回報：播放多次出錯',
+			'mediaPlayer.notice.qualityFileMissingSwitched' => '這個畫質的檔案在伺服器上缺失，已換成其他畫質',
 			'mediaPlayer.notice.issuesSheetTitle' => '播放問題',
 			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => '出現 ${count} 次',
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => '位於 ${position}',
@@ -8218,13 +8228,13 @@ extension on TranslationsZhTw {
 			'tagSelector.addTag' => '新增標籤',
 			'tagSelector.removeTag' => '移除標籤',
 			'tagSelector.deleteTag' => '刪除標籤',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.usageInstructions' => '需先新增標籤，然後再從已有的標籤中點擊選中',
 			'tagSelector.usageInstructionsTooltip' => '使用說明',
 			'tagSelector.addTagTooltip' => '新增標籤',
 			'tagSelector.removeTagTooltip' => '刪除標籤',
 			'tagSelector.cancelSelection' => '取消選擇',
-			_ => null,
-		} ?? switch (path) {
 			'tagSelector.selectAll' => '全選',
 			'tagSelector.cancelSelectAll' => '取消全選',
 			'tagSelector.delete' => '刪除',
@@ -8732,13 +8742,13 @@ extension on TranslationsZhTw {
 			'localMedia.webdav.stateCredUnreadable' => '讀取密碼失敗',
 			'localMedia.webdav.connected' => '已連接',
 			'localMedia.webdav.errorForbidden' => '這個帳號沒有 WebDAV 存取權限：請在 NAS 的 WebDAV 設定裡為它開啟權限',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.errorTls' => '安全連線失敗：檢查位址開頭的 http:// 或 https:// 是否與 NAS 設定一致',
 			'localMedia.webdav.errorTryHttps' => '如果 NAS 只開了 HTTPS，請在位址前加上 https://',
 			'localMedia.webdav.previousStep' => '上一步',
 			'localMedia.webdav.bannerUnreachable' => '連不上 NAS，下面是上次看到的內容',
 			'localMedia.webdav.bannerAuthFailed' => '登入已失效，重新登入後才能看到最新內容',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.webdav.bannerCertUntrusted' => 'NAS 的憑證變了，確認之後才能繼續',
 			'localMedia.webdav.bannerCredUnreadable' => '讀取儲存的密碼失敗，重新登入一次即可',
 			'localMedia.mediaStoreUnavailable' => '裝置媒體索引僅在 Android 上可用',

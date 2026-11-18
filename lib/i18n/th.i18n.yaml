@@ -227,6 +227,8 @@ common:
   disagree: ไม่ยอมรับ
   agreeToRules: ยอมรับกฎระเบียบ
   tapToReread: 'แตะเพื่ออ่านอีกครั้ง'
+  rulesRequiredHint: 'โปรดอ่านและยอมรับกฎของชุมชนก่อนโพสต์'
+  readAndAgree: 'อ่านและยอมรับ'
   # Base Input Dialog
   markdownSyntaxHelp: วิธีใช้ไวยากรณ์ Markdown
   previewContent: แสดงตัวอย่างเนื้อหา
@@ -1521,6 +1523,8 @@ videoDetail:
   thisIsAPrivateVideo: นี่เป็นวิดีโอส่วนตัว
   getVideoInfoFailed: 'รับข้อมูลวิดีโอล้มเหลว โปรดลองใหม่อีกครั้งในภายหลัง'
   noVideoSourceFound: ไม่พบแหล่งที่มาของวิดีโอ
+  sourceFileMissingOnServer: 'ไม่พบไฟล์วิดีโอบนเซิร์ฟเวอร์ Iwara (HTTP 404) จึงเล่นบนเว็บไม่ได้เช่นกัน เซิร์ฟเวอร์อาจมีปัญหา โปรดลองใหม่ภายหลัง'
+  playbackRetryExhausted: 'เปิดวิดีโอไม่สำเร็จหลายครั้งติดกัน จึงหยุดลองใหม่อัตโนมัติแล้ว โปรดลองใหม่ภายหลัง'
   tagCopiedToClipboard: 'คัดลอกแท็ก "${tagId}" ไปยังคลิปบอร์ดแล้ว'
   errorLoadingVideo: เกิดข้อผิดพลาดขณะโหลดวิดีโอ
   play: เล่น
@@ -2877,6 +2881,7 @@ mediaPlayer:
     hardwareDecodeFellBack: "สลับไปใช้การถอดรหัสด้วยซอฟต์แวร์ อาจใช้พลังงานแบตเตอรี่มากขึ้น"
     videoDecodeProblem: "ลองเปลี่ยนความละเอียด ภาพอาจมีอาการกระตุกหรือแตก"
     repeatedPlaybackProblems: "ส่งออกบันทึกเพื่อรายงานปัญหาการเล่นซ้ำๆ"
+    qualityFileMissingSwitched: 'ไม่พบไฟล์คุณภาพนี้บนเซิร์ฟเวอร์ จึงเปลี่ยนเป็นคุณภาพอื่น'
     issuesSheetTitle: "ปัญหาการเล่น"
     issueOccurrences: "เกิดขึ้น ${count} ครั้ง"
     issueAtPosition: "ที่ตำแหน่ง ${position}"

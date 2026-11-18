@@ -778,6 +778,12 @@ class TranslationsCommonEn {
 	/// en: 'Tap to read again'
 	String get tapToReread => 'Tap to read again';
 
+	/// en: 'Read and agree to the community rules before posting'
+	String get rulesRequiredHint => 'Read and agree to the community rules before posting';
+
+	/// en: 'Read & agree'
+	String get readAndAgree => 'Read & agree';
+
 	/// en: 'Markdown Syntax Help'
 	String get markdownSyntaxHelp => 'Markdown Syntax Help';
 
@@ -3418,6 +3424,12 @@ class TranslationsVideoDetailEn {
 
 	/// en: 'No video source found'
 	String get noVideoSourceFound => 'No video source found';
+
+	/// en: 'The video file is missing on the Iwara server (HTTP 404), so it will not play on the website either. The server may be having problems; try again later.'
+	String get sourceFileMissingOnServer => 'The video file is missing on the Iwara server (HTTP 404), so it will not play on the website either. The server may be having problems; try again later.';
+
+	/// en: 'The video failed to open several times in a row, so automatic retries have stopped. Tap retry to try again later.'
+	String get playbackRetryExhausted => 'The video failed to open several times in a row, so automatic retries have stopped. Tap retry to try again later.';
 
 	/// en: 'Tag "${tagId}" copied to clipboard'
 	String tagCopiedToClipboard({required Object tagId}) => 'Tag "${tagId}" copied to clipboard';
@@ -11383,6 +11395,9 @@ class TranslationsMediaPlayerNoticeEn {
 	/// en: 'Export logs to report repeated playback issues'
 	String get repeatedPlaybackProblems => 'Export logs to report repeated playback issues';
 
+	/// en: 'This quality is missing on the server, switched to another quality'
+	String get qualityFileMissingSwitched => 'This quality is missing on the server, switched to another quality';
+
 	/// en: 'Playback issues'
 	String get issuesSheetTitle => 'Playback issues';
 
@@ -13009,6 +13024,8 @@ extension on Translations {
 			'common.disagree' => 'Disagree',
 			'common.agreeToRules' => 'Agree to Rules',
 			'common.tapToReread' => 'Tap to read again',
+			'common.rulesRequiredHint' => 'Read and agree to the community rules before posting',
+			'common.readAndAgree' => 'Read & agree',
 			'common.markdownSyntaxHelp' => 'Markdown Syntax Help',
 			'common.previewContent' => 'Preview Content',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -13308,10 +13325,10 @@ extension on Translations {
 			'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain' => 'This configuration determines whether the previous configuration will be used when playing videos again.',
 			'settings.playControl' => 'Play Control',
 			'settings.playbackSpeedSettings' => 'Playback & Speed',
-			'settings.playbackBehaviorSettings' => 'Playback Behavior',
-			'settings.enhancementSettings' => 'Theater & Enhancement',
 			_ => null,
 		} ?? switch (path) {
+			'settings.playbackBehaviorSettings' => 'Playback Behavior',
+			'settings.enhancementSettings' => 'Theater & Enhancement',
 			'settings.fastForwardTime' => 'Fast Forward Time',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => 'Fast forward time must be a positive integer.',
 			'settings.rewindTime' => 'Rewind Time',
@@ -13822,10 +13839,10 @@ extension on Translations {
 			'settings.keybinding.actionGallerySeekBackward' => 'Rewind',
 			'settings.keybinding.actionGallerySeekForward' => 'Fast Forward',
 			'settings.keybinding.actionGalleryToggleMute' => 'Toggle Mute',
-			'settings.keybinding.actionPlayPause' => 'Play / Pause',
-			'settings.keybinding.actionSpeedUp' => 'Increase Speed',
 			_ => null,
 		} ?? switch (path) {
+			'settings.keybinding.actionPlayPause' => 'Play / Pause',
+			'settings.keybinding.actionSpeedUp' => 'Increase Speed',
 			'settings.keybinding.actionSpeedDown' => 'Decrease Speed',
 			'settings.keybinding.actionSeekForward' => 'Seek Forward',
 			'settings.keybinding.actionSeekBackward' => 'Seek Backward',
@@ -14271,6 +14288,8 @@ extension on Translations {
 			'videoDetail.thisIsAPrivateVideo' => 'This is a private video',
 			'videoDetail.getVideoInfoFailed' => 'Get video info failed, please try again later',
 			'videoDetail.noVideoSourceFound' => 'No video source found',
+			'videoDetail.sourceFileMissingOnServer' => 'The video file is missing on the Iwara server (HTTP 404), so it will not play on the website either. The server may be having problems; try again later.',
+			'videoDetail.playbackRetryExhausted' => 'The video failed to open several times in a row, so automatic retries have stopped. Tap retry to try again later.',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'Tag "${tagId}" copied to clipboard',
 			'videoDetail.errorLoadingVideo' => 'Error loading video',
 			'videoDetail.play' => 'Play',
@@ -14334,12 +14353,12 @@ extension on Translations {
 			'videoDetail.gestureGuide.quest.bothGrips' => 'Both grip buttons',
 			'videoDetail.gestureGuide.quest.stick' => 'Thumbstick',
 			'videoDetail.gestureGuide.quest.handTracking' => 'Hand tracking',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.ready' => 'Ready',
 			'videoDetail.gestureGuide.quest.press' => 'Press',
 			'videoDetail.gestureGuide.quest.hold' => 'Hold',
 			'videoDetail.gestureGuide.quest.release' => 'Release',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.result' => 'See the result',
 			'videoDetail.gestureGuide.quest.pinch' => 'Pinch',
 			'videoDetail.gestureGuide.quest.selectTitle' => 'Point and select',
@@ -14848,12 +14867,12 @@ extension on Translations {
 			'download.actions.redownloadNone' => 'Nothing to download again',
 			'download.actions.deleteTitle' => ({required Object count}) => 'Delete ${count} downloads?',
 			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '${count} items · ${size}',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '${count} items',
 			'download.actions.deleteGalleryNote' => ({required Object count}) => 'Size of ${count} galleries not included',
 			'download.actions.deleteFiles' => 'Also delete files from disk',
 			'download.actions.deleteFilesDesc' => 'When off, only the list entries are removed and the files stay where they are',
-			_ => null,
-		} ?? switch (path) {
 			'download.actions.deleteFilesAllMissing' => 'The files are already gone; only the entries will be removed',
 			'download.actions.deleteDone' => ({required Object count}) => 'Deleted ${count} items',
 			'download.actions.deletePartial' => ({required Object failed}) => 'Could not delete the files of ${failed} items (they may be in use); their entries were kept',
@@ -15362,12 +15381,12 @@ extension on Translations {
 			'translation.reasoningModelDescription' => 'For o1/o3, DeepSeek-R1, QwQ, etc. Folds the prompt into the user message, omits temperature, and uses max_completion_tokens',
 			'translation.useMaxCompletionTokens' => 'Use max_completion_tokens',
 			'translation.useMaxCompletionTokensDescription' => 'Newer OpenAI endpoints require max_completion_tokens instead of the deprecated max_tokens',
+			_ => null,
+		} ?? switch (path) {
 			'translation.sendTemperature' => 'Send temperature',
 			'translation.sendTemperatureDescription' => 'Turn off for models that reject the temperature parameter (most reasoning models)',
 			'translation.showReasoningProcess' => 'Show thought process',
 			'translation.showReasoningProcessDescription' => 'Show the collapsible reasoning of reasoning models in the translation dialog',
-			_ => null,
-		} ?? switch (path) {
 			'translation.provider' => 'Provider',
 			'translation.providerOpenAI' => 'OpenAI (and compatible)',
 			'translation.providerAnthropic' => 'Anthropic (Claude)',
@@ -15544,6 +15563,7 @@ extension on Translations {
 			'mediaPlayer.notice.hardwareDecodeFellBack' => 'Switched to software decoding; may use more power',
 			'mediaPlayer.notice.videoDecodeProblem' => 'Try another quality; the picture may glitch',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => 'Export logs to report repeated playback issues',
+			'mediaPlayer.notice.qualityFileMissingSwitched' => 'This quality is missing on the server, switched to another quality',
 			'mediaPlayer.notice.issuesSheetTitle' => 'Playback issues',
 			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => 'Occurred ${count} times',
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'At ${position}',
@@ -15875,13 +15895,13 @@ extension on Translations {
 			'tagSelector.addTag' => 'Add Tag',
 			'tagSelector.removeTag' => 'Remove Tag',
 			'tagSelector.deleteTag' => 'Delete Tag',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.usageInstructions' => 'First add tags, then click to select from existing tags',
 			'tagSelector.usageInstructionsTooltip' => 'Usage Instructions',
 			'tagSelector.addTagTooltip' => 'Add Tag',
 			'tagSelector.removeTagTooltip' => 'Remove Tag',
 			'tagSelector.cancelSelection' => 'Cancel Selection',
-			_ => null,
-		} ?? switch (path) {
 			'tagSelector.selectAll' => 'Select All',
 			'tagSelector.cancelSelectAll' => 'Cancel Select All',
 			'tagSelector.delete' => 'Delete',
@@ -16389,13 +16409,13 @@ extension on Translations {
 			'localMedia.webdav.stateCredUnreadable' => 'Couldn\'t read password',
 			'localMedia.webdav.connected' => 'Connected',
 			'localMedia.webdav.errorForbidden' => 'This account has no WebDAV access. Grant it WebDAV permission in the NAS settings.',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.errorTls' => 'Secure connection failed. Check that http:// or https:// matches the NAS settings.',
 			'localMedia.webdav.errorTryHttps' => 'If the NAS only serves HTTPS, add https:// in front of the address.',
 			'localMedia.webdav.previousStep' => 'Back',
 			'localMedia.webdav.bannerUnreachable' => 'Can\'t reach the NAS. Showing what was seen last time.',
 			'localMedia.webdav.bannerAuthFailed' => 'Login expired. Sign in again to see the latest content.',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.webdav.bannerCertUntrusted' => 'The NAS certificate changed. Confirm it to continue.',
 			'localMedia.webdav.bannerCredUnreadable' => 'Couldn\'t read the saved password. Sign in again.',
 			'localMedia.mediaStoreUnavailable' => 'The device media index is only available on Android',

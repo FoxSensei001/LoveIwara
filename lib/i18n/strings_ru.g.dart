@@ -354,6 +354,8 @@ class _TranslationsCommonRu extends TranslationsCommonEn {
 	@override String get disagree => 'Отклонить';
 	@override String get agreeToRules => 'Принять правила';
 	@override String get tapToReread => 'Нажмите, чтобы перечитать';
+	@override String get rulesRequiredHint => 'Перед публикацией прочитайте и примите правила сообщества';
+	@override String get readAndAgree => 'Прочитать и принять';
 	@override String get markdownSyntaxHelp => 'Справка по Markdown';
 	@override String get previewContent => 'Предпросмотр';
 	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
@@ -1311,6 +1313,8 @@ class _TranslationsVideoDetailRu extends TranslationsVideoDetailEn {
 	@override String get thisIsAPrivateVideo => 'Это приватное видео';
 	@override String get getVideoInfoFailed => 'Не удалось получить данные о видео, повторите позже';
 	@override String get noVideoSourceFound => 'Источник видео не найден';
+	@override String get sourceFileMissingOnServer => 'Файл видео отсутствует на сервере Iwara (HTTP 404), поэтому он не воспроизводится и на сайте. Возможно, у сервера неполадки; попробуйте позже.';
+	@override String get playbackRetryExhausted => 'Видео несколько раз подряд не открылось, автоматические повторы остановлены. Попробуйте позже.';
 	@override String tagCopiedToClipboard({required Object tagId}) => 'Тег «${tagId}» скопирован';
 	@override String get errorLoadingVideo => 'Ошибка загрузки видео';
 	@override String get play => 'Воспроизвести';
@@ -4502,6 +4506,7 @@ class _TranslationsMediaPlayerNoticeRu extends TranslationsMediaPlayerNoticeEn {
 	@override String get hardwareDecodeFellBack => 'Переключено на программное декодирование; может расходовать больше энергии';
 	@override String get videoDecodeProblem => 'Попробуйте другое качество; изображение может сбоить';
 	@override String get repeatedPlaybackProblems => 'Экспортируйте логи, чтобы сообщить о повторяющихся проблемах воспроизведения';
+	@override String get qualityFileMissingSwitched => 'Файла этого качества нет на сервере, выбрано другое качество';
 	@override String get issuesSheetTitle => 'Проблемы воспроизведения';
 	@override String issueOccurrences({required Object count}) => 'Произошло раз: ${count}';
 	@override String issueAtPosition({required Object position}) => 'На ${position}';
@@ -5330,6 +5335,8 @@ extension on TranslationsRu {
 			'common.disagree' => 'Отклонить',
 			'common.agreeToRules' => 'Принять правила',
 			'common.tapToReread' => 'Нажмите, чтобы перечитать',
+			'common.rulesRequiredHint' => 'Перед публикацией прочитайте и примите правила сообщества',
+			'common.readAndAgree' => 'Прочитать и принять',
 			'common.markdownSyntaxHelp' => 'Справка по Markdown',
 			'common.previewContent' => 'Предпросмотр',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -5629,10 +5636,10 @@ extension on TranslationsRu {
 			'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain' => 'Использовать ли предыдущие параметры при повторном воспроизведении видео.',
 			'settings.playControl' => 'Управление воспроизведением',
 			'settings.playbackSpeedSettings' => 'Скорость воспроизведения',
-			'settings.playbackBehaviorSettings' => 'Поведение воспроизведения',
-			'settings.enhancementSettings' => 'Кинотеатр и улучшение',
 			_ => null,
 		} ?? switch (path) {
+			'settings.playbackBehaviorSettings' => 'Поведение воспроизведения',
+			'settings.enhancementSettings' => 'Кинотеатр и улучшение',
 			'settings.fastForwardTime' => 'Время перемотки вперед',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => 'Время перемотки должно быть положительным целым числом.',
 			'settings.rewindTime' => 'Время перемотки назад',
@@ -6143,10 +6150,10 @@ extension on TranslationsRu {
 			'settings.leftDoubleTapRewind' => 'Двойное нажатие слева: перемотка назад',
 			'settings.rightDoubleTapFastForward' => 'Двойное нажатие справа: перемотка вперед',
 			'settings.doubleTapPause' => 'Двойное нажатие: пауза',
-			'settings.rightVerticalSwipeVolume' => 'Смахивание справа по вертикали: громкость (при входе на новую страницу)',
-			'settings.leftVerticalSwipeBrightness' => 'Смахивание слева по вертикали: яркость (при входе на новую страницу)',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rightVerticalSwipeVolume' => 'Смахивание справа по вертикали: громкость (при входе на новую страницу)',
+			'settings.leftVerticalSwipeBrightness' => 'Смахивание слева по вертикали: яркость (при входе на новую страницу)',
 			'settings.longPressFastForward' => 'Долгое нажатие: ускорение',
 			'settings.enableMouseHoverShowToolbar' => 'Показывать панель при наведении мыши',
 			'settings.enableMouseHoverShowToolbarInfo' => 'Панель управления видео появляется при наведении курсора и скрывается через 3 секунды бездействия.',
@@ -6570,6 +6577,8 @@ extension on TranslationsRu {
 			'videoDetail.thisIsAPrivateVideo' => 'Это приватное видео',
 			'videoDetail.getVideoInfoFailed' => 'Не удалось получить данные о видео, повторите позже',
 			'videoDetail.noVideoSourceFound' => 'Источник видео не найден',
+			'videoDetail.sourceFileMissingOnServer' => 'Файл видео отсутствует на сервере Iwara (HTTP 404), поэтому он не воспроизводится и на сайте. Возможно, у сервера неполадки; попробуйте позже.',
+			'videoDetail.playbackRetryExhausted' => 'Видео несколько раз подряд не открылось, автоматические повторы остановлены. Попробуйте позже.',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'Тег «${tagId}» скопирован',
 			'videoDetail.errorLoadingVideo' => 'Ошибка загрузки видео',
 			'videoDetail.play' => 'Воспроизвести',
@@ -6655,12 +6664,12 @@ extension on TranslationsRu {
 			'videoDetail.gestureGuide.quest.browseBody' => 'Отклоните стик влево/вправо для перехода к предыдущему или следующему элементу; удерживайте для непрерывного листания. Можно также выбрать миниатюру.',
 			'videoDetail.gestureGuide.quest.browseHint' => 'Видео в галерее также считаются элементами. Наведение на панель переключает стик на ее прокрутку.',
 			'videoDetail.gestureGuide.quest.swipeTitle' => 'Перелистывание перетаскиванием',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Наведите на изображение, зажмите триггер и потяните влево. Отпустите после подсказки о смене страницы; потяните вправо для возврата. Щипок с перетаскиванием тоже работает.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Для перелистывания изображение должно быть в масштабе 1×. Поддерживаются и видео в галерее. Сцена остается на месте до отпускания.',
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'Масштабирование изображения',
 			'videoDetail.gestureGuide.quest.zoomBody' => 'Наведите на деталь, зажмите триггер и отклоните стик вверх для приближения или вниз для отдаления. Центр зума фиксируется в точке нажатия.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Масштабирует изображение внутри его окна. Без зажатия изображения стик вверх/вниз меняет расстояние до экрана.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Панорамирование и сброс',
 			'videoDetail.gestureGuide.quest.panBody' => 'При приближении удерживайте триггер и двигайте руку для осмотра. Двойное нажатие по изображению увеличивает до 2.5× или сбрасывает масштаб. Руками: быстрый двойной щипок.',
@@ -7169,12 +7178,12 @@ extension on TranslationsRu {
 			'download.notice.retryAll' => 'Retry all',
 			'download.notice.view' => 'View',
 			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
+			_ => null,
+		} ?? switch (path) {
 			'download.notice.handle' => 'Handle…',
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
 			'download.notice.migrate' => 'Move',
 			'download.notice.dismiss' => 'Dismiss',
-			_ => null,
-		} ?? switch (path) {
 			'download.emptyTaskList' => 'Пока нет задач загрузки',
 			'download.noMatchingTasks' => 'Нет подходящих задач',
 			'download.deleteByDate.menuTitle' => 'Удаление по дате',
@@ -7683,12 +7692,12 @@ extension on TranslationsRu {
 			'translation.presetNames.gemini' => 'Google Gemini (нативно)',
 			'translation.presetNames.geminiReasoning' => 'Google Gemini Рассуждение (мышление)',
 			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
+			_ => null,
+		} ?? switch (path) {
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek Рассуждение (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
 			'translation.fetchModelList' => 'Получить список моделей',
-			_ => null,
-		} ?? switch (path) {
 			'translation.fetchingModels' => 'Получение...',
 			'translation.selectModel' => 'Выберите модель',
 			'translation.searchModel' => 'Поиск модели',
@@ -7843,6 +7852,7 @@ extension on TranslationsRu {
 			'mediaPlayer.notice.hardwareDecodeFellBack' => 'Переключено на программное декодирование; может расходовать больше энергии',
 			'mediaPlayer.notice.videoDecodeProblem' => 'Попробуйте другое качество; изображение может сбоить',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => 'Экспортируйте логи, чтобы сообщить о повторяющихся проблемах воспроизведения',
+			'mediaPlayer.notice.qualityFileMissingSwitched' => 'Файла этого качества нет на сервере, выбрано другое качество',
 			'mediaPlayer.notice.issuesSheetTitle' => 'Проблемы воспроизведения',
 			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => 'Произошло раз: ${count}',
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'На ${position}',
@@ -8196,13 +8206,13 @@ extension on TranslationsRu {
 			'anime4k.presetGroups.fast' => 'Быстрый',
 			'anime4k.presetGroups.lite' => 'Облегчённый',
 			'anime4k.presetGroups.moreLite' => 'Более облегчённый',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetGroups.custom' => 'Пользовательский',
 			'anime4k.presetDescriptions.mode_a_hq' => 'Подходит для большинства аниме в 1080p, особенно при наличии размытия, артефактов ресемплинга и сжатия. Обеспечивает наивысшее воспринимаемое качество.',
 			'anime4k.presetDescriptions.mode_b_hq' => 'Подходит для аниме с лёгким размытием или звоном, вызванным масштабированием. Эффективно снижает звон и алиасинг.',
 			'anime4k.presetDescriptions.mode_c_hq' => 'Подходит для качественных источников (например, нативных аниме или фильмов в 1080p). Устраняет шум и обеспечивает наивысший PSNR.',
 			'anime4k.presetDescriptions.mode_a_a_hq' => 'Улучшенная версия режима A: максимальное воспринимаемое качество, позволяет восстановить почти все повреждённые линии. Возможно появление избыточной резкости или звона.',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_b_b_hq' => 'Улучшенная версия режима B: более высокое воспринимаемое качество, дополнительная оптимизация линий и снижение артефактов.',
 			'anime4k.presetDescriptions.mode_c_a_hq' => 'Версия режима C с повышенным воспринимаемым качеством: сохраняет высокий PSNR и пытается восстановить часть деталей линий.',
 			'anime4k.presetDescriptions.mode_a_fast' => 'Быстрая версия режима A: баланс качества и производительности, подходит для большинства аниме в 1080p.',
@@ -8710,13 +8720,13 @@ extension on TranslationsRu {
 			'localMedia.sourceContainsExisting' => ({required Object name}) => 'Он уже содержит добавленную папку «${name}»; добавление её родительской папки пока не поддерживается',
 			'localMedia.addSourceFailed' => 'Не удалось добавить эту папку',
 			'localMedia.fileMissing' => 'Этот файл больше не находится на диске',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.permissionDenied' => 'Доступ к файлам не предоставлен · нажмите, чтобы предоставить',
 			'localMedia.noVideosFound' => 'В этой папке нет видео',
 			'localMedia.emptyTitle' => 'Добавьте папку, чтобы просматривать видео, уже имеющиеся на этом устройстве',
 			'localMedia.emptyPrivacyNote' => 'Файлы читаются только на этом устройстве. Ничего не загружается.',
 			'localMedia.removeSourceTitle' => ({required Object name}) => 'Удалить «${name}»?',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.removeSourceBody' => 'Файлы остаются на диске. Удаляется только эта запись в библиотеке.',
 			'localMedia.remove' => 'Удалить',
 			'localMedia.removeFolder' => 'Удалить папку',

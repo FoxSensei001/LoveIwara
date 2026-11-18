@@ -354,6 +354,8 @@ class _TranslationsCommonTh extends TranslationsCommonEn {
 	@override String get disagree => 'ไม่ยอมรับ';
 	@override String get agreeToRules => 'ยอมรับกฎระเบียบ';
 	@override String get tapToReread => 'แตะเพื่ออ่านอีกครั้ง';
+	@override String get rulesRequiredHint => 'โปรดอ่านและยอมรับกฎของชุมชนก่อนโพสต์';
+	@override String get readAndAgree => 'อ่านและยอมรับ';
 	@override String get markdownSyntaxHelp => 'วิธีใช้ไวยากรณ์ Markdown';
 	@override String get previewContent => 'แสดงตัวอย่างเนื้อหา';
 	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
@@ -1311,6 +1313,8 @@ class _TranslationsVideoDetailTh extends TranslationsVideoDetailEn {
 	@override String get thisIsAPrivateVideo => 'นี่เป็นวิดีโอส่วนตัว';
 	@override String get getVideoInfoFailed => 'รับข้อมูลวิดีโอล้มเหลว โปรดลองใหม่อีกครั้งในภายหลัง';
 	@override String get noVideoSourceFound => 'ไม่พบแหล่งที่มาของวิดีโอ';
+	@override String get sourceFileMissingOnServer => 'ไม่พบไฟล์วิดีโอบนเซิร์ฟเวอร์ Iwara (HTTP 404) จึงเล่นบนเว็บไม่ได้เช่นกัน เซิร์ฟเวอร์อาจมีปัญหา โปรดลองใหม่ภายหลัง';
+	@override String get playbackRetryExhausted => 'เปิดวิดีโอไม่สำเร็จหลายครั้งติดกัน จึงหยุดลองใหม่อัตโนมัติแล้ว โปรดลองใหม่ภายหลัง';
 	@override String tagCopiedToClipboard({required Object tagId}) => 'คัดลอกแท็ก "${tagId}" ไปยังคลิปบอร์ดแล้ว';
 	@override String get errorLoadingVideo => 'เกิดข้อผิดพลาดขณะโหลดวิดีโอ';
 	@override String get play => 'เล่น';
@@ -4502,6 +4506,7 @@ class _TranslationsMediaPlayerNoticeTh extends TranslationsMediaPlayerNoticeEn {
 	@override String get hardwareDecodeFellBack => 'สลับไปใช้การถอดรหัสด้วยซอฟต์แวร์ อาจใช้พลังงานแบตเตอรี่มากขึ้น';
 	@override String get videoDecodeProblem => 'ลองเปลี่ยนความละเอียด ภาพอาจมีอาการกระตุกหรือแตก';
 	@override String get repeatedPlaybackProblems => 'ส่งออกบันทึกเพื่อรายงานปัญหาการเล่นซ้ำๆ';
+	@override String get qualityFileMissingSwitched => 'ไม่พบไฟล์คุณภาพนี้บนเซิร์ฟเวอร์ จึงเปลี่ยนเป็นคุณภาพอื่น';
 	@override String get issuesSheetTitle => 'ปัญหาการเล่น';
 	@override String issueOccurrences({required Object count}) => 'เกิดขึ้น ${count} ครั้ง';
 	@override String issueAtPosition({required Object position}) => 'ที่ตำแหน่ง ${position}';
@@ -5330,6 +5335,8 @@ extension on TranslationsTh {
 			'common.disagree' => 'ไม่ยอมรับ',
 			'common.agreeToRules' => 'ยอมรับกฎระเบียบ',
 			'common.tapToReread' => 'แตะเพื่ออ่านอีกครั้ง',
+			'common.rulesRequiredHint' => 'โปรดอ่านและยอมรับกฎของชุมชนก่อนโพสต์',
+			'common.readAndAgree' => 'อ่านและยอมรับ',
 			'common.markdownSyntaxHelp' => 'วิธีใช้ไวยากรณ์ Markdown',
 			'common.previewContent' => 'แสดงตัวอย่างเนื้อหา',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -5629,10 +5636,10 @@ extension on TranslationsTh {
 			'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain' => 'การกำหนดค่านี้กำหนดว่าจะใช้การกำหนดค่าก่อนหน้าซ้ำหรือไม่เมื่อเล่นวิดีโออีกครั้ง',
 			'settings.playControl' => 'การควบคุมการเล่น',
 			'settings.playbackSpeedSettings' => 'การเล่นและความเร็ว',
-			'settings.playbackBehaviorSettings' => 'พฤติกรรมการเล่น',
-			'settings.enhancementSettings' => 'โหมดโรงภาพยนตร์และการเพิ่มประสิทธิภาพ',
 			_ => null,
 		} ?? switch (path) {
+			'settings.playbackBehaviorSettings' => 'พฤติกรรมการเล่น',
+			'settings.enhancementSettings' => 'โหมดโรงภาพยนตร์และการเพิ่มประสิทธิภาพ',
 			'settings.fastForwardTime' => 'เวลาเดินหน้าอย่างเร็ว',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => 'เวลาเดินหน้าอย่างเร็วต้องเป็นจำนวนเต็มบวก',
 			'settings.rewindTime' => 'เวลาย้อนกลับ',
@@ -6143,10 +6150,10 @@ extension on TranslationsTh {
 			'settings.leftDoubleTapRewind' => 'แตะสองครั้งด้านซ้ายเพื่อย้อนกลับ',
 			'settings.rightDoubleTapFastForward' => 'แตะสองครั้งด้านขวาเพื่อเดินหน้าอย่างเร็ว',
 			'settings.doubleTapPause' => 'แตะสองครั้งเพื่อหยุดชั่วคราว',
-			'settings.rightVerticalSwipeVolume' => 'ปัดแนวตั้งด้านขวาเพื่อปรับระดับเสียง (มีผลเมื่อเข้าสู่หน้าใหม่)',
-			'settings.leftVerticalSwipeBrightness' => 'ปัดแนวตั้งด้านซ้ายเพื่อปรับความสว่าง (มีผลเมื่อเข้าสู่หน้าใหม่)',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rightVerticalSwipeVolume' => 'ปัดแนวตั้งด้านขวาเพื่อปรับระดับเสียง (มีผลเมื่อเข้าสู่หน้าใหม่)',
+			'settings.leftVerticalSwipeBrightness' => 'ปัดแนวตั้งด้านซ้ายเพื่อปรับความสว่าง (มีผลเมื่อเข้าสู่หน้าใหม่)',
 			'settings.longPressFastForward' => 'กดค้างเพื่อเดินหน้าอย่างเร็ว',
 			'settings.enableMouseHoverShowToolbar' => 'เปิดใช้การชี้เมาส์เพื่อแสดงแถบเครื่องมือ',
 			'settings.enableMouseHoverShowToolbarInfo' => 'เมื่อเปิดใช้งาน แถบเครื่องมือวิดีโอจะแสดงขึ้นเมื่อเลื่อนเมาส์ไปเหนือเครื่องเล่น และจะซ่อนโดยอัตโนมัติหลังจากไม่มีการใช้งานเป็นเวลา 3 วินาที',
@@ -6570,6 +6577,8 @@ extension on TranslationsTh {
 			'videoDetail.thisIsAPrivateVideo' => 'นี่เป็นวิดีโอส่วนตัว',
 			'videoDetail.getVideoInfoFailed' => 'รับข้อมูลวิดีโอล้มเหลว โปรดลองใหม่อีกครั้งในภายหลัง',
 			'videoDetail.noVideoSourceFound' => 'ไม่พบแหล่งที่มาของวิดีโอ',
+			'videoDetail.sourceFileMissingOnServer' => 'ไม่พบไฟล์วิดีโอบนเซิร์ฟเวอร์ Iwara (HTTP 404) จึงเล่นบนเว็บไม่ได้เช่นกัน เซิร์ฟเวอร์อาจมีปัญหา โปรดลองใหม่ภายหลัง',
+			'videoDetail.playbackRetryExhausted' => 'เปิดวิดีโอไม่สำเร็จหลายครั้งติดกัน จึงหยุดลองใหม่อัตโนมัติแล้ว โปรดลองใหม่ภายหลัง',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'คัดลอกแท็ก "${tagId}" ไปยังคลิปบอร์ดแล้ว',
 			'videoDetail.errorLoadingVideo' => 'เกิดข้อผิดพลาดขณะโหลดวิดีโอ',
 			'videoDetail.play' => 'เล่น',
@@ -6655,12 +6664,12 @@ extension on TranslationsTh {
 			'videoDetail.gestureGuide.quest.browseBody' => 'ขยับก้านอนาล็อกข้างใดก็ได้ไปทางซ้ายหรือขวาเพื่อดูรายการก่อนหน้าหรือถัดไป ดันค้างไว้เพื่อเรียกดูต่อเนื่อง คุณยังสามารถเลือกภาพขนาดย่อในแถบฟิล์มได้ด้วย',
 			'videoDetail.gestureGuide.quest.browseHint' => 'วิดีโอในแกลเลอรีก็ถือเป็นรายการเช่นกัน การชี้ไปที่แผงควบคุมจะทำให้ก้านอนาล็อกเลื่อนเนื้อหาในแผงแทน',
 			'videoDetail.gestureGuide.quest.swipeTitle' => 'ลากเพื่อพลิกหน้า',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.swipeBody' => 'เล็งไปที่รูปภาพ กดไกชี้ค้างไว้แล้วลากไปทางซ้าย ปล่อยหลังจากมีสัญญาณเปลี่ยนหน้าเพื่อไปข้างหน้า ลากไปทางขวาเพื่อย้อนกลับ การจีบนิ้วแล้วลากก็ใช้ได้เช่นกัน',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'รูปภาพต้องอยู่ที่ขนาด 1× จึงจะเปลี่ยนหน้าด้วยการลากได้ วิดีโอในแกลเลอรีก็รองรับเช่นกัน หน้าจอจะอยู่นิ่งจนกว่าคุณจะปล่อย',
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'ซูมดูรายละเอียดรูปภาพ',
 			'videoDetail.gestureGuide.quest.zoomBody' => 'เล็งไปที่รายละเอียดในภาพ กดไกชี้ค้างไว้ แล้วดันก้านอนาล็อกขึ้นเพื่อซูมเข้า หรือลงเพื่อซูมออก การซูมจะยึดตำแหน่งที่คุณกดไว้',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'การดำเนินการนี้จะขยายรูปภาพภายในหน้าต่าง หากไม่ได้จับรูปภาพไว้ การดันขึ้น/ลงจะเป็นการปรับระยะการมอง',
 			'videoDetail.gestureGuide.quest.panTitle' => 'เลื่อนและคืนค่ารูปภาพ',
 			'videoDetail.gestureGuide.quest.panBody' => 'เมื่อซูมเข้าแล้ว ให้กดไกชี้ค้างไว้แล้วลากเพื่อดูรอบๆ แตะสองครั้งที่รูปภาพเพื่อซูมเป็น 2.5× หรือคืนค่าเดิม สำหรับมือ ให้จีบนิ้วสองครั้งอย่างรวดเร็ว',
@@ -7169,12 +7178,12 @@ extension on TranslationsTh {
 			'download.notice.retryAll' => 'Retry all',
 			'download.notice.view' => 'View',
 			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
+			_ => null,
+		} ?? switch (path) {
 			'download.notice.handle' => 'Handle…',
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
 			'download.notice.migrate' => 'Move',
 			'download.notice.dismiss' => 'Dismiss',
-			_ => null,
-		} ?? switch (path) {
 			'download.emptyTaskList' => 'ยังไม่มีงานดาวน์โหลด',
 			'download.noMatchingTasks' => 'ไม่มีงานที่ตรงกัน',
 			'download.deleteByDate.menuTitle' => 'ลบตามวันที่',
@@ -7683,12 +7692,12 @@ extension on TranslationsTh {
 			'translation.presetNames.gemini' => 'Google Gemini (เนทีฟ)',
 			'translation.presetNames.geminiReasoning' => 'Google Gemini การให้เหตุผล (thinking)',
 			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
+			_ => null,
+		} ?? switch (path) {
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek การให้เหตุผล (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
 			'translation.fetchModelList' => 'ดึงรายการโมเดล',
-			_ => null,
-		} ?? switch (path) {
 			'translation.fetchingModels' => 'กำลังดึงข้อมูล…',
 			'translation.selectModel' => 'เลือกโมเดล',
 			'translation.searchModel' => 'ค้นหาโมเดล',
@@ -7843,6 +7852,7 @@ extension on TranslationsTh {
 			'mediaPlayer.notice.hardwareDecodeFellBack' => 'สลับไปใช้การถอดรหัสด้วยซอฟต์แวร์ อาจใช้พลังงานแบตเตอรี่มากขึ้น',
 			'mediaPlayer.notice.videoDecodeProblem' => 'ลองเปลี่ยนความละเอียด ภาพอาจมีอาการกระตุกหรือแตก',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => 'ส่งออกบันทึกเพื่อรายงานปัญหาการเล่นซ้ำๆ',
+			'mediaPlayer.notice.qualityFileMissingSwitched' => 'ไม่พบไฟล์คุณภาพนี้บนเซิร์ฟเวอร์ จึงเปลี่ยนเป็นคุณภาพอื่น',
 			'mediaPlayer.notice.issuesSheetTitle' => 'ปัญหาการเล่น',
 			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => 'เกิดขึ้น ${count} ครั้ง',
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'ที่ตำแหน่ง ${position}',
@@ -8196,13 +8206,13 @@ extension on TranslationsTh {
 			'anime4k.presetGroups.fast' => 'เร็ว',
 			'anime4k.presetGroups.lite' => 'เบา',
 			'anime4k.presetGroups.moreLite' => 'เบายิ่งขึ้น',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetGroups.custom' => 'กำหนดเอง',
 			'anime4k.presetDescriptions.mode_a_hq' => 'เหมาะกับอนิเมชัน 1080p ส่วนใหญ่ โดยเฉพาะที่ต้องรับมือกับความเบลอ การรีแซมเพิล และอาร์ติแฟกต์จากการบีบอัด ให้คุณภาพที่รับรู้ได้สูงสุด',
 			'anime4k.presetDescriptions.mode_b_hq' => 'เหมาะกับอนิเมชันที่มีความเบลอหรือเงาสะท้อนเล็กน้อยจากการปรับขนาด ช่วยลดเงาสะท้อนและรอยหยักได้อย่างมีประสิทธิภาพ',
 			'anime4k.presetDescriptions.mode_c_hq' => 'เหมาะกับแหล่งคุณภาพสูง (เช่น อนิเมชันหรือภาพยนตร์ 1080p แท้) ลดสัญญาณรบกวนและให้ค่า PSNR สูงสุด',
 			'anime4k.presetDescriptions.mode_a_a_hq' => 'เวอร์ชันเสริมของ Mode A ให้คุณภาพที่รับรู้ได้สูงสุดและสามารถสร้างเส้นที่เสื่อมสภาพเกือบทั้งหมดขึ้นมาใหม่ อาจเกิดภาพคมเกินไปหรือเงาสะท้อน',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_b_b_hq' => 'เวอร์ชันเสริมของ Mode B ให้คุณภาพที่รับรู้ได้สูงขึ้น ปรับแต่งเส้นให้ดียิ่งขึ้นและลดอาร์ติแฟกต์',
 			'anime4k.presetDescriptions.mode_c_a_hq' => 'เวอร์ชันเสริมคุณภาพที่รับรู้ได้ของ Mode C รักษาค่า PSNR ให้สูงพร้อมพยายามสร้างรายละเอียดเส้นบางส่วนขึ้นมาใหม่',
 			'anime4k.presetDescriptions.mode_a_fast' => 'เวอร์ชันเร็วของ Mode A สมดุลระหว่างคุณภาพและสมรรถนะ เหมาะกับอนิเมชัน 1080p ส่วนใหญ่',
@@ -8710,13 +8720,13 @@ extension on TranslationsTh {
 			'localMedia.sourceContainsExisting' => ({required Object name}) => 'มีโฟลเดอร์ที่เพิ่มไว้แล้ว “${name}” อยู่ภายใน การเพิ่มโฟลเดอร์แม่ยังไม่รองรับในขณะนี้',
 			'localMedia.addSourceFailed' => 'ไม่สามารถเพิ่มโฟลเดอร์นั้นได้',
 			'localMedia.fileMissing' => 'ไฟล์นั้นไม่มีอยู่ในดิสก์แล้ว',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.permissionDenied' => 'ไม่ได้รับอนุญาตให้เข้าถึงไฟล์ · แตะเพื่ออนุญาต',
 			'localMedia.noVideosFound' => 'ไม่มีวิดีโอในโฟลเดอร์นี้',
 			'localMedia.emptyTitle' => 'เพิ่มโฟลเดอร์เพื่อรับชมวิดีโอที่มีอยู่แล้วในอุปกรณ์นี้',
 			'localMedia.emptyPrivacyNote' => 'ไฟล์ถูกอ่านบนอุปกรณ์นี้เท่านั้น ไม่มีการอัปโหลดใดๆ',
 			'localMedia.removeSourceTitle' => ({required Object name}) => 'ลบ “${name}” หรือไม่',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.removeSourceBody' => 'ไฟล์ยังคงอยู่ในดิสก์ ลบเฉพาะรายการในคลังนี้เท่านั้น',
 			'localMedia.remove' => 'ลบ',
 			'localMedia.removeFolder' => 'ลบโฟลเดอร์',

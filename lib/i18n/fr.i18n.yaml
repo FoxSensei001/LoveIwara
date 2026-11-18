@@ -227,6 +227,8 @@ common:
   disagree: Refuser
   agreeToRules: Accepter les règles
   tapToReread: 'Toucher pour relire'
+  rulesRequiredHint: 'Lisez et acceptez les règles de la communauté avant de publier'
+  readAndAgree: 'Lire et accepter'
   # Base Input Dialog
   markdownSyntaxHelp: Aide sur la syntaxe Markdown
   previewContent: Aperçu du contenu
@@ -1521,6 +1523,8 @@ videoDetail:
   thisIsAPrivateVideo: Ceci est une vidéo privée
   getVideoInfoFailed: 'Échec de l''obtention des informations de la vidéo, veuillez réessayer plus tard'
   noVideoSourceFound: Aucune source vidéo trouvée
+  sourceFileMissingOnServer: 'Le fichier vidéo est absent du serveur Iwara (HTTP 404) et ne se lit pas non plus sur le site. Le serveur rencontre peut-être un problème ; réessayez plus tard.'
+  playbackRetryExhausted: 'La vidéo n’a pas pu s’ouvrir plusieurs fois de suite, les nouvelles tentatives automatiques sont arrêtées. Réessayez plus tard.'
   tagCopiedToClipboard: 'Tag « ${tagId} » copié dans le presse-papiers'
   errorLoadingVideo: Erreur de chargement de la vidéo
   play: Lire
@@ -2877,6 +2881,7 @@ mediaPlayer:
     hardwareDecodeFellBack: "Passage au décodage logiciel ; consommation d'énergie accrue possible"
     videoDecodeProblem: "Essayez une autre qualité ; l'image peut présenter des artefacts"
     repeatedPlaybackProblems: "Exportez les journaux pour signaler des problèmes de lecture répétés"
+    qualityFileMissingSwitched: 'Cette qualité est absente du serveur, passage à une autre qualité'
     issuesSheetTitle: "Problèmes de lecture"
     issueOccurrences: "Survenu ${count} fois"
     issueAtPosition: "À ${position}"

@@ -227,6 +227,8 @@ common:
   disagree: Ablehnen
   agreeToRules: Den Regeln zustimmen
   tapToReread: 'Zum erneuten Lesen tippen'
+  rulesRequiredHint: 'Lies vor dem Posten die Community-Regeln und stimme ihnen zu'
+  readAndAgree: 'Lesen & zustimmen'
   # Base Input Dialog
   markdownSyntaxHelp: Markdown-Syntax-Hilfe
   previewContent: Inhalt vorschauen
@@ -1521,6 +1523,8 @@ videoDetail:
   thisIsAPrivateVideo: Dies ist ein privates Video
   getVideoInfoFailed: 'Videoinformationen konnten nicht abgerufen werden, bitte später erneut versuchen'
   noVideoSourceFound: Keine Videoquelle gefunden
+  sourceFileMissingOnServer: 'Die Videodatei fehlt auf dem Iwara-Server (HTTP 404) und lässt sich auch auf der Website nicht abspielen. Möglicherweise hat der Server Probleme; versuche es später erneut.'
+  playbackRetryExhausted: 'Das Video ließ sich mehrmals nacheinander nicht öffnen, automatische Wiederholungen wurden beendet. Versuche es später erneut.'
   tagCopiedToClipboard: 'Tag „${tagId}“ in die Zwischenablage kopiert'
   errorLoadingVideo: Fehler beim Laden des Videos
   play: Wiedergabe
@@ -2877,6 +2881,7 @@ mediaPlayer:
     hardwareDecodeFellBack: "Auf Software-Dekodierung umgeschaltet; kann mehr Energie verbrauchen"
     videoDecodeProblem: "Versuchen Sie eine andere Qualität; das Bild kann Störungen aufweisen"
     repeatedPlaybackProblems: "Exportieren Sie die Protokolle, um wiederkehrende Wiedergabeprobleme zu melden"
+    qualityFileMissingSwitched: 'Diese Qualität fehlt auf dem Server, zu einer anderen Qualität gewechselt'
     issuesSheetTitle: "Wiedergabeprobleme"
     issueOccurrences: "${count}-mal aufgetreten"
     issueAtPosition: "Bei ${position}"

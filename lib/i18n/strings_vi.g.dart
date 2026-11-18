@@ -354,6 +354,8 @@ class _TranslationsCommonVi extends TranslationsCommonEn {
 	@override String get disagree => 'Không đồng ý';
 	@override String get agreeToRules => 'Đồng ý với quy tắc';
 	@override String get tapToReread => 'Chạm để đọc lại';
+	@override String get rulesRequiredHint => 'Hãy đọc và đồng ý với quy tắc cộng đồng trước khi đăng';
+	@override String get readAndAgree => 'Đọc và đồng ý';
 	@override String get markdownSyntaxHelp => 'Trợ giúp cú pháp Markdown';
 	@override String get previewContent => 'Xem trước nội dung';
 	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
@@ -1311,6 +1313,8 @@ class _TranslationsVideoDetailVi extends TranslationsVideoDetailEn {
 	@override String get thisIsAPrivateVideo => 'Đây là video riêng tư';
 	@override String get getVideoInfoFailed => 'Lấy thông tin video thất bại, vui lòng thử lại sau';
 	@override String get noVideoSourceFound => 'Không tìm thấy nguồn video';
+	@override String get sourceFileMissingOnServer => 'Tệp video không tồn tại trên máy chủ Iwara (HTTP 404), nên trên web cũng không phát được. Máy chủ có thể đang gặp sự cố; hãy thử lại sau.';
+	@override String get playbackRetryExhausted => 'Video không mở được nhiều lần liên tiếp nên đã dừng tự động thử lại. Hãy thử lại sau.';
 	@override String tagCopiedToClipboard({required Object tagId}) => 'Đã sao chép thẻ "${tagId}" vào bộ nhớ tạm';
 	@override String get errorLoadingVideo => 'Lỗi khi tải video';
 	@override String get play => 'Phát';
@@ -4502,6 +4506,7 @@ class _TranslationsMediaPlayerNoticeVi extends TranslationsMediaPlayerNoticeEn {
 	@override String get hardwareDecodeFellBack => 'Đã chuyển sang giải mã phần mềm; có thể tốn pin hơn';
 	@override String get videoDecodeProblem => 'Hãy thử chất lượng khác; hình ảnh có thể bị lỗi';
 	@override String get repeatedPlaybackProblems => 'Xuất nhật ký để báo cáo các vấn đề phát lặp lại';
+	@override String get qualityFileMissingSwitched => 'Tệp chất lượng này không có trên máy chủ, đã chuyển sang chất lượng khác';
 	@override String get issuesSheetTitle => 'Vấn đề khi phát';
 	@override String issueOccurrences({required Object count}) => 'Đã xảy ra ${count} lần';
 	@override String issueAtPosition({required Object position}) => 'Tại ${position}';
@@ -5330,6 +5335,8 @@ extension on TranslationsVi {
 			'common.disagree' => 'Không đồng ý',
 			'common.agreeToRules' => 'Đồng ý với quy tắc',
 			'common.tapToReread' => 'Chạm để đọc lại',
+			'common.rulesRequiredHint' => 'Hãy đọc và đồng ý với quy tắc cộng đồng trước khi đăng',
+			'common.readAndAgree' => 'Đọc và đồng ý',
 			'common.markdownSyntaxHelp' => 'Trợ giúp cú pháp Markdown',
 			'common.previewContent' => 'Xem trước nội dung',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -5629,10 +5636,10 @@ extension on TranslationsVi {
 			'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain' => 'Cấu hình này quyết định cấu hình trước đó có được dùng lại khi phát video lần nữa hay không.',
 			'settings.playControl' => 'Điều khiển phát',
 			'settings.playbackSpeedSettings' => 'Phát và tốc độ',
-			'settings.playbackBehaviorSettings' => 'Hành vi phát',
-			'settings.enhancementSettings' => 'Rạp hát và nâng cao',
 			_ => null,
 		} ?? switch (path) {
+			'settings.playbackBehaviorSettings' => 'Hành vi phát',
+			'settings.enhancementSettings' => 'Rạp hát và nâng cao',
 			'settings.fastForwardTime' => 'Thời gian tua tới',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => 'Thời gian tua tới phải là số nguyên dương.',
 			'settings.rewindTime' => 'Thời gian tua lại',
@@ -6143,10 +6150,10 @@ extension on TranslationsVi {
 			'settings.leftDoubleTapRewind' => 'Nhấn đúp bên trái để tua lại',
 			'settings.rightDoubleTapFastForward' => 'Nhấn đúp bên phải để tua nhanh',
 			'settings.doubleTapPause' => 'Nhấn đúp để tạm dừng',
-			'settings.rightVerticalSwipeVolume' => 'Vuốt dọc bên phải để chỉnh âm lượng (có hiệu lực khi vào trang mới)',
-			'settings.leftVerticalSwipeBrightness' => 'Vuốt dọc bên trái để chỉnh độ sáng (có hiệu lực khi vào trang mới)',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rightVerticalSwipeVolume' => 'Vuốt dọc bên phải để chỉnh âm lượng (có hiệu lực khi vào trang mới)',
+			'settings.leftVerticalSwipeBrightness' => 'Vuốt dọc bên trái để chỉnh độ sáng (có hiệu lực khi vào trang mới)',
 			'settings.longPressFastForward' => 'Nhấn giữ để tua nhanh',
 			'settings.enableMouseHoverShowToolbar' => 'Hiện thanh công cụ khi di chuột',
 			'settings.enableMouseHoverShowToolbarInfo' => 'Khi bật, thanh công cụ video sẽ hiện khi con trỏ chuột ở trên trình phát. Thanh này sẽ tự động ẩn sau 3 giây không thao tác.',
@@ -6570,6 +6577,8 @@ extension on TranslationsVi {
 			'videoDetail.thisIsAPrivateVideo' => 'Đây là video riêng tư',
 			'videoDetail.getVideoInfoFailed' => 'Lấy thông tin video thất bại, vui lòng thử lại sau',
 			'videoDetail.noVideoSourceFound' => 'Không tìm thấy nguồn video',
+			'videoDetail.sourceFileMissingOnServer' => 'Tệp video không tồn tại trên máy chủ Iwara (HTTP 404), nên trên web cũng không phát được. Máy chủ có thể đang gặp sự cố; hãy thử lại sau.',
+			'videoDetail.playbackRetryExhausted' => 'Video không mở được nhiều lần liên tiếp nên đã dừng tự động thử lại. Hãy thử lại sau.',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'Đã sao chép thẻ "${tagId}" vào bộ nhớ tạm',
 			'videoDetail.errorLoadingVideo' => 'Lỗi khi tải video',
 			'videoDetail.play' => 'Phát',
@@ -6655,12 +6664,12 @@ extension on TranslationsVi {
 			'videoDetail.gestureGuide.quest.browseBody' => 'Đẩy cần gạt sang trái hoặc phải để chuyển mục trước hoặc sau; giữ để tiếp tục duyệt. Bạn cũng có thể chọn một ảnh thu nhỏ trong dải phim.',
 			'videoDetail.gestureGuide.quest.browseHint' => 'Video trong thư viện cũng là các mục. Chỉ vào bảng điều khiển sẽ khiến cần gạt cuộn bảng.',
 			'videoDetail.gestureGuide.quest.swipeTitle' => 'Kéo ngang để lật trang',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Hướng vào hình ảnh, giữ cò ngón trỏ và kéo sang trái. Thả ra sau tín hiệu lật trang để chuyển tiếp; kéo sang phải để lùi lại. Chụm và kéo cũng hoạt động.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Hình ảnh phải ở mức 1× để lật trang bằng cách kéo. Video trong thư viện cũng hỗ trợ. Sân khấu đứng yên cho đến khi bạn thả ra.',
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'Thu phóng vào hình ảnh',
 			'videoDetail.gestureGuide.quest.zoomBody' => 'Hướng vào một chi tiết trong hình ảnh, giữ cò ngón trỏ, rồi đẩy cần gạt lên để phóng to hoặc xuống để thu nhỏ. Thu phóng neo tại điểm bạn nhấn.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Thao tác này phóng to hình ảnh bên trong cửa sổ của nó. Nếu không giữ hình ảnh, lên/xuống sẽ điều chỉnh khoảng cách xem.',
 			'videoDetail.gestureGuide.quest.panTitle' => 'Di chuyển và khôi phục hình ảnh',
 			'videoDetail.gestureGuide.quest.panBody' => 'Sau khi đã thu phóng, giữ cò ngón trỏ và kéo để nhìn quanh. Nhấn đúp vào hình ảnh để thu phóng lên 2.5× hoặc khôi phục. Với bàn tay, chụm hai lần thật nhanh.',
@@ -7169,12 +7178,12 @@ extension on TranslationsVi {
 			'download.notice.retryAll' => 'Retry all',
 			'download.notice.view' => 'View',
 			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
+			_ => null,
+		} ?? switch (path) {
 			'download.notice.handle' => 'Handle…',
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
 			'download.notice.migrate' => 'Move',
 			'download.notice.dismiss' => 'Dismiss',
-			_ => null,
-		} ?? switch (path) {
 			'download.emptyTaskList' => 'Chưa có tác vụ tải xuống',
 			'download.noMatchingTasks' => 'Không có tác vụ nào khớp',
 			'download.deleteByDate.menuTitle' => 'Xóa theo ngày',
@@ -7683,12 +7692,12 @@ extension on TranslationsVi {
 			'translation.presetNames.gemini' => 'Google Gemini (gốc)',
 			'translation.presetNames.geminiReasoning' => 'Google Gemini Reasoning (suy nghĩ)',
 			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
+			_ => null,
+		} ?? switch (path) {
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek Reasoning (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
 			'translation.presetNames.zhipu' => 'Zhipu GLM',
 			'translation.fetchModelList' => 'Tải danh sách mô hình',
-			_ => null,
-		} ?? switch (path) {
 			'translation.fetchingModels' => 'Đang tải...',
 			'translation.selectModel' => 'Chọn mô hình',
 			'translation.searchModel' => 'Tìm kiếm mô hình',
@@ -7843,6 +7852,7 @@ extension on TranslationsVi {
 			'mediaPlayer.notice.hardwareDecodeFellBack' => 'Đã chuyển sang giải mã phần mềm; có thể tốn pin hơn',
 			'mediaPlayer.notice.videoDecodeProblem' => 'Hãy thử chất lượng khác; hình ảnh có thể bị lỗi',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => 'Xuất nhật ký để báo cáo các vấn đề phát lặp lại',
+			'mediaPlayer.notice.qualityFileMissingSwitched' => 'Tệp chất lượng này không có trên máy chủ, đã chuyển sang chất lượng khác',
 			'mediaPlayer.notice.issuesSheetTitle' => 'Vấn đề khi phát',
 			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => 'Đã xảy ra ${count} lần',
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'Tại ${position}',
@@ -8196,13 +8206,13 @@ extension on TranslationsVi {
 			'anime4k.presetGroups.fast' => 'Nhanh',
 			'anime4k.presetGroups.lite' => 'Nhẹ',
 			'anime4k.presetGroups.moreLite' => 'Nhẹ hơn',
+			_ => null,
+		} ?? switch (path) {
 			'anime4k.presetGroups.custom' => 'Tùy chỉnh',
 			'anime4k.presetDescriptions.mode_a_hq' => 'Phù hợp với hầu hết video hoạt hình 1080p, đặc biệt là các trường hợp bị mờ, lấy mẫu lại và nén. Mang lại chất lượng cảm nhận cao nhất.',
 			'anime4k.presetDescriptions.mode_b_hq' => 'Phù hợp với video hoạt hình bị mờ nhẹ hoặc có viền răng cưa do nâng tỉ lệ. Giảm hiệu quả viền răng cưa và hiện tượng răng cưa.',
 			'anime4k.presetDescriptions.mode_c_hq' => 'Phù hợp với nguồn chất lượng cao (như video hoạt hình hoặc phim 1080p gốc). Khử nhiễu và mang lại PSNR cao nhất.',
 			'anime4k.presetDescriptions.mode_a_a_hq' => 'Phiên bản nâng cao của Mode A, mang lại chất lượng cảm nhận tối đa và có thể tái tạo gần như toàn bộ đường nét bị suy giảm. Có thể gây quá sắc hoặc viền răng cưa.',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetDescriptions.mode_b_b_hq' => 'Phiên bản nâng cao của Mode B, mang lại chất lượng cảm nhận cao hơn, tối ưu đường nét và giảm lỗi hình.',
 			'anime4k.presetDescriptions.mode_c_a_hq' => 'Phiên bản nâng cao chất lượng cảm nhận của Mode C, duy trì PSNR cao đồng thời cố tái tạo một số chi tiết đường nét.',
 			'anime4k.presetDescriptions.mode_a_fast' => 'Phiên bản nhanh của Mode A, cân bằng giữa chất lượng và hiệu năng, phù hợp với hầu hết video hoạt hình 1080p.',
@@ -8710,13 +8720,13 @@ extension on TranslationsVi {
 			'localMedia.sourceContainsExisting' => ({required Object name}) => 'Đã chứa thư mục đã thêm "${name}"; chưa hỗ trợ thêm thư mục cha của nó',
 			'localMedia.addSourceFailed' => 'Không thể thêm thư mục đó',
 			'localMedia.fileMissing' => 'Tệp đó không còn trên đĩa',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.permissionDenied' => 'Chưa được cấp quyền truy cập tệp · nhấn để cấp',
 			'localMedia.noVideosFound' => 'Không có video trong thư mục này',
 			'localMedia.emptyTitle' => 'Thêm thư mục để xem các video đã có trên thiết bị này',
 			'localMedia.emptyPrivacyNote' => 'Tệp chỉ được đọc trên thiết bị này. Không có gì được tải lên.',
 			'localMedia.removeSourceTitle' => ({required Object name}) => 'Xóa "${name}"?',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.removeSourceBody' => 'Các tệp vẫn còn trên đĩa. Chỉ mục thư viện này bị xóa.',
 			'localMedia.remove' => 'Xóa',
 			'localMedia.removeFolder' => 'Xóa thư mục',

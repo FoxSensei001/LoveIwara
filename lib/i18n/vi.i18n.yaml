@@ -227,6 +227,8 @@ common:
   disagree: Không đồng ý
   agreeToRules: Đồng ý với quy tắc
   tapToReread: 'Chạm để đọc lại'
+  rulesRequiredHint: 'Hãy đọc và đồng ý với quy tắc cộng đồng trước khi đăng'
+  readAndAgree: 'Đọc và đồng ý'
   # Base Input Dialog
   markdownSyntaxHelp: Trợ giúp cú pháp Markdown
   previewContent: Xem trước nội dung
@@ -1521,6 +1523,8 @@ videoDetail:
   thisIsAPrivateVideo: Đây là video riêng tư
   getVideoInfoFailed: 'Lấy thông tin video thất bại, vui lòng thử lại sau'
   noVideoSourceFound: Không tìm thấy nguồn video
+  sourceFileMissingOnServer: 'Tệp video không tồn tại trên máy chủ Iwara (HTTP 404), nên trên web cũng không phát được. Máy chủ có thể đang gặp sự cố; hãy thử lại sau.'
+  playbackRetryExhausted: 'Video không mở được nhiều lần liên tiếp nên đã dừng tự động thử lại. Hãy thử lại sau.'
   tagCopiedToClipboard: 'Đã sao chép thẻ "${tagId}" vào bộ nhớ tạm'
   errorLoadingVideo: Lỗi khi tải video
   play: Phát
@@ -2877,6 +2881,7 @@ mediaPlayer:
     hardwareDecodeFellBack: "Đã chuyển sang giải mã phần mềm; có thể tốn pin hơn"
     videoDecodeProblem: "Hãy thử chất lượng khác; hình ảnh có thể bị lỗi"
     repeatedPlaybackProblems: "Xuất nhật ký để báo cáo các vấn đề phát lặp lại"
+    qualityFileMissingSwitched: 'Tệp chất lượng này không có trên máy chủ, đã chuyển sang chất lượng khác'
     issuesSheetTitle: "Vấn đề khi phát"
     issueOccurrences: "Đã xảy ra ${count} lần"
     issueAtPosition: "Tại ${position}"
