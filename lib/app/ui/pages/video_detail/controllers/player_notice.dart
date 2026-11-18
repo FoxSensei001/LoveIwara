@@ -19,6 +19,9 @@ enum PlayerNoticeKind {
   videoLoadFailed,
   repeatedProblems,
   noVideoSource,
+
+  /// 当前清晰度的文件在服务器上 404，已自动换到另一档还取得到的。
+  qualityFileMissingSwitched,
   castNotSupported,
   castUrlUnavailable,
   externalPlayerUnavailable,

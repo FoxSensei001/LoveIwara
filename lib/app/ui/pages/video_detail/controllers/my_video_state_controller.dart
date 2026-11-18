@@ -13,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/local_media/dav_path.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/app/services/webdav/webdav_gateway.dart';
+import 'package:i_iwara/app/services/http_client_factory.dart';
 import 'package:i_iwara/app/services/webdav/webdav_service.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/models/history_record.dart';
@@ -1210,6 +1211,17 @@ class MyVideoStateController extends GetxController
 
   /// 上一次判定「播放确实往前走了」时的位置基准，用于给 noticeCenter 报进展。
   Duration _lastPlaybackAdvanceMark = Duration.zero;
+
+  /// 在线源打开失败后已经自动重试了几次（见 [_scheduleOpenFailureRetry]）。
+  /// 播放真的往前走了、或用户在错误浮层上点了重试，才清零。
+  int _openFailureRetries = 0;
+  static const int _maxOpenFailureRetries = 3;
+
+  /// 已确认在服务器上 404 的清晰度，探测换档时跳过。清零时机同上。
+  final Set<String> _missingSourceLabels = <String>{};
+
+  /// 正在探测地址状态：mpv 一次失败可能连报好几条，只探一次。
+  bool _probingOpenFailure = false;
 
   // 添加倍速播放防抖定时器
   Timer? _speedChangeDebouncer;
@@ -4200,6 +4212,12 @@ class MyVideoStateController extends GetxController
 
     pageLoadingState.value = VideoDetailPageLoadingState.loadingVideoSource;
     videoErrorMessage.value = null;
+    // 从错误浮层回来（用户点了重试）：之前的判死和重试计数一笔勾销。
+    // 自动重试自己调进来时错误浮层还没出，计数照常累加。
+    if (videoSourceErrorMessage.value != null) {
+      _openFailureRetries = 0;
+      _missingSourceLabels.clear();
+    }
     videoSourceErrorMessage.value = null;
 
     final cacheKey = videoInfo.value!.fileUrl!;
@@ -4788,27 +4806,14 @@ class MyVideoStateController extends GetxController
         // 记录出错时的播放位置
         final Duration savedErrorPosition = currentPosition;
 
-        LogUtils.i(
-          '检测到网络/打开失败错误，开始节流重试，出错位置: $savedErrorPosition',
-          'MyVideoStateController',
-        );
-        EasyThrottle.throttle(
-          '${randomId}_player.stream.error.retry',
-          const Duration(milliseconds: 10000),
-          () async {
-            if (videoBuffering.value && buffers.isEmpty) {
-              LogUtils.i(
-                '开始重试刷新播放器，当前缓冲状态: buffering=${videoBuffering.value}, buffers=${buffers.length}',
-                'MyVideoStateController',
-              );
-              await fetchVideoSource(forceRefresh: true);
-              final bool ok = await refreshPlayer(seekTo: savedErrorPosition);
-              if (!ok) {
-                LogUtils.w('重试刷新播放器失败', 'MyVideoStateController');
-              }
-            }
-          },
-        );
+        // 「打不开地址」先问清楚地址本身怎么了：文件在服务器上 404 时，重取源、
+        // 重开播放器多少次都一样（2026-11-18 用户报：一直转圈）。
+        if (event.startsWith('Failed to open https://')) {
+          unawaited(_handleOnlineOpenFailure(savedErrorPosition));
+          return;
+        }
+
+        _scheduleOpenFailureRetry(savedErrorPosition);
         return;
       }
 
@@ -4835,6 +4840,148 @@ class MyVideoStateController extends GetxController
         tag: 'MyVideoStateController',
       );
     });
+  }
+
+  /// 在线源打开失败后的自动重试：重取源（链接可能过期）再重开播放器。
+  ///
+  /// ⛔ 有上限。早先没有上限：每 10 秒重取一次、重开一次，地址只要一直打不开，
+  /// 画面就永远停在转圈，用户看不到任何说法（2026-11-18 用户报障）。
+  void _scheduleOpenFailureRetry(Duration savedErrorPosition) {
+    LogUtils.i(
+      '检测到网络/打开失败错误，开始节流重试，出错位置: $savedErrorPosition',
+      'MyVideoStateController',
+    );
+    EasyThrottle.throttle(
+      '${randomId}_player.stream.error.retry',
+      const Duration(milliseconds: 10000),
+      () async {
+        if (_isDisposed) return;
+        // 已经判死（文件缺失 / 重试用完）就别再开播放器，否则错误页会被
+        // 下一次取源清掉，又回到转圈。
+        if (videoSourceErrorMessage.value != null) return;
+        if (!(videoBuffering.value && buffers.isEmpty)) return;
+        if (_openFailureRetries >= _maxOpenFailureRetries) {
+          _stopPlaybackWithError(slang.t.videoDetail.playbackRetryExhausted);
+          return;
+        }
+        _openFailureRetries++;
+        LogUtils.i(
+          '开始第 $_openFailureRetries 次重试刷新播放器，当前缓冲状态: '
+          'buffering=${videoBuffering.value}, buffers=${buffers.length}',
+          'MyVideoStateController',
+        );
+        await fetchVideoSource(forceRefresh: true);
+        final bool ok = await refreshPlayer(seekTo: savedErrorPosition);
+        if (!ok) {
+          LogUtils.w('重试刷新播放器失败', 'MyVideoStateController');
+        }
+      },
+    );
+  }
+
+  /// mpv 报「Failed to open https://…」：先探一下当前清晰度地址的 HTTP 状态。
+  ///
+  /// - 404 / 410：这一档的文件在服务器上没有。逐个探其余清晰度，换到第一档
+  ///   取得到的，并在播放器上提示；全都取不到就直接给错误，不再重试。
+  ///   （实例：An7kifYn7bMZS6 的 Source/540/360 只会分到 acheron / yuko，
+  ///   两台都回 404，只有 preview 还在。）
+  /// - 其他状态或探不通：照旧走 [_scheduleOpenFailureRetry]（链接过期、网络
+  ///   抖动这类重取源能救回来）。
+  Future<void> _handleOnlineOpenFailure(Duration savedErrorPosition) async {
+    if (_isDisposed || _probingOpenFailure) return;
+    if (videoSourceErrorMessage.value != null) return;
+    final String? label = currentResolutionTag.value;
+    final String? url = CommonUtils.findUrlByResolutionTag(
+      videoResolutions,
+      label,
+    );
+    if (url == null || !url.startsWith('https://')) {
+      _scheduleOpenFailureRetry(savedErrorPosition);
+      return;
+    }
+
+    _probingOpenFailure = true;
+    try {
+      final int? status = await _probeMediaUrlStatus(url);
+      if (_isDisposed) return;
+      if (!_isMissingStatus(status)) {
+        _scheduleOpenFailureRetry(savedErrorPosition);
+        return;
+      }
+      LogUtils.w(
+        '清晰度 [$label] 的文件在服务器上不存在 (HTTP $status)，探测其余清晰度',
+        'MyVideoStateController',
+      );
+      if (label != null) _missingSourceLabels.add(label);
+
+      var sawUnknown = false;
+      for (final resolution in videoResolutions.toList()) {
+        if (resolution.label == label ||
+            _missingSourceLabels.contains(resolution.label)) {
+          continue;
+        }
+        final int? other = await _probeMediaUrlStatus(resolution.url);
+        if (_isDisposed) return;
+        if (other != null && other >= 200 && other < 300) {
+          LogUtils.i(
+            '改用清晰度 [${resolution.label}] (HTTP $other)',
+            'MyVideoStateController',
+          );
+          await switchResolution(resolution.label);
+          if (_isDisposed) return;
+          // 换档会重开播放器并重置提示中枢，所以提示要放在换完之后。
+          noticeCenter.reportApp(PlayerNoticeKind.qualityFileMissingSwitched);
+          return;
+        }
+        if (_isMissingStatus(other)) {
+          _missingSourceLabels.add(resolution.label);
+        } else {
+          sawUnknown = true;
+        }
+      }
+
+      if (sawUnknown) {
+        // 有几档探不通，说不准是不是也没了：交给常规重试（有上限）。
+        _scheduleOpenFailureRetry(savedErrorPosition);
+        return;
+      }
+      _stopPlaybackWithError(slang.t.videoDetail.sourceFileMissingOnServer);
+    } finally {
+      _probingOpenFailure = false;
+    }
+  }
+
+  static bool _isMissingStatus(int? status) => status == 404 || status == 410;
+
+  /// 只取 1 个字节问状态码。不带额外请求头，和 mpv 发出去的请求保持一致。
+  /// 探不通（超时、断网）返回 null。
+  Future<int?> _probeMediaUrlStatus(String url) async {
+    try {
+      final client = HttpClientFactory.instance.createHttpClient();
+      final request = await client
+          .getUrl(Uri.parse(url))
+          .timeout(const Duration(seconds: 10));
+      request.headers.set(HttpHeaders.rangeHeader, 'bytes=0-0');
+      final response = await request.close().timeout(
+        const Duration(seconds: 10),
+      );
+      final status = response.statusCode;
+      // 服务器不认 Range 时会回整个文件：不读正文，直接断开。
+      await response.listen((_) {}).cancel();
+      return status;
+    } catch (e) {
+      LogUtils.w('探测视频地址失败: $e', 'MyVideoStateController');
+      return null;
+    }
+  }
+
+  /// 不再自动重试：收起转圈，播放器中央换成源错误浮层（带「重试」）。
+  void _stopPlaybackWithError(String message) {
+    if (_isDisposed) return;
+    LogUtils.w('停止自动重试: $message', 'MyVideoStateController');
+    videoBuffering.value = false;
+    videoSourceErrorMessage.value = message;
+    _abortImmersiveSwitchIfPending(message);
   }
 
   /// NAS 条目打开失败：向网关补一次 HEAD 问清原因（它会把上游 401/403 原样回传，
@@ -6241,6 +6388,8 @@ class MyVideoStateController extends GetxController
             const Duration(seconds: 5)) {
           _lastPlaybackAdvanceMark = position;
           noticeCenter.onPlaybackAdvanced();
+          _openFailureRetries = 0;
+          _missingSourceLabels.clear();
         }
 
         // 显示进度刚刚更新过了 —— 这才是「用户真的看到画面在这个位置上」的时刻，
