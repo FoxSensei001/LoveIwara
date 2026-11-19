@@ -4,6 +4,58 @@
 
 #include "flutter/generated_plugin_registrant.h"
 
+namespace {
+
+// The Flutter view's own window procedure, saved when it is subclassed.
+WNDPROC g_flutter_view_proc = nullptr;
+
+// Whether an assistive technology that actually needs the semantics tree is
+// running. SPI_GETSCREENREADER covers NVDA, JAWS and most others; Narrator
+// does not set it and is recognised by the mutex it holds while running.
+bool IsScreenReaderRunning() {
+  BOOL enabled = FALSE;
+  if (::SystemParametersInfoW(SPI_GETSCREENREADER, 0, &enabled, 0) &&
+      enabled) {
+    return true;
+  }
+  HANDLE narrator = ::OpenMutexW(SYNCHRONIZE, FALSE, L"NarratorRunning");
+  if (narrator) {
+    ::CloseHandle(narrator);
+    return true;
+  }
+  return false;
+}
+
+// Keeps accessibility queries away from the engine unless a screen reader is
+// running.
+//
+// The engine answers every WM_GETOBJECT by switching semantics on and handing
+// out its MSAA tree, and any process may ask - input methods, overlays,
+// automation tools - not only screen readers. Once a client holds that tree it
+// re-enumerates it whenever the window changes, and the engine can then crash
+// the whole process: AXPlatformNodeWin::get_accChild trusts a cached child
+// count, and FlutterPlatformNodeDelegate::ChildAtIndex dereferences the null it
+// gets for an index that is no longer there. Entering fullscreen (a style
+// change plus a resize while the page rebuilds) is where that was hit.
+//
+// Declining the query leaves such clients with the plain window object, which
+// is all they need, and keeps the semantics tree from being built at all.
+LRESULT CALLBACK FlutterViewProc(HWND hwnd, UINT message, WPARAM wparam,
+                                 LPARAM lparam) {
+  WNDPROC original = g_flutter_view_proc;
+  if (message == WM_GETOBJECT && !IsScreenReaderRunning()) {
+    return ::DefWindowProcW(hwnd, message, wparam, lparam);
+  }
+  if (message == WM_NCDESTROY) {
+    ::SetWindowLongPtrW(hwnd, GWLP_WNDPROC,
+                        reinterpret_cast<LONG_PTR>(original));
+    g_flutter_view_proc = nullptr;
+  }
+  return ::CallWindowProcW(original, hwnd, message, wparam, lparam);
+}
+
+} // namespace
+
 FlutterWindow::FlutterWindow(const flutter::DartProject &project)
     : project_(project) {}
 
@@ -25,7 +77,11 @@ bool FlutterWindow::OnCreate() {
     return false;
   }
   RegisterPlugins(flutter_controller_->engine());
-  SetChildContent(flutter_controller_->view()->GetNativeWindow());
+  HWND flutter_view = flutter_controller_->view()->GetNativeWindow();
+  g_flutter_view_proc = reinterpret_cast<WNDPROC>(::SetWindowLongPtrW(
+      flutter_view, GWLP_WNDPROC,
+      reinterpret_cast<LONG_PTR>(FlutterViewProc)));
+  SetChildContent(flutter_view);
 
   // Setup file handler method channel
   SetupFileHandlerChannel();
