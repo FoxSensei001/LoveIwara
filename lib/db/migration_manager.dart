@@ -45,6 +45,7 @@ import 'migrations/migration.dart';
 import 'migrations/migration_v1.dart';
 import 'migrations/migration_v2.dart';
 import 'migrations/migration_v6_config.dart';
+import 'migrations/migration_v49_frame_interp_tasks.dart';
 import 'migrations/migration_v7_config_storage.dart';
 
 /// 迁移管理器
@@ -95,8 +96,9 @@ class MigrationManager {
     MigrationV46AuthorFolderCache(),
     MigrationV47HistorySwitchOwnKey(),
     MigrationV48DownloadAskOwnKey(),
+    MigrationV49FrameInterpTasks(),
     // [TODO_PLACEHOLDER] 将来新增的迁移在这里添加。
-    // ⛔ 新迁移的版本号必须**大于当前最大值**（现在是 48，下一条就是 49）。
+    // ⛔ 新迁移的版本号必须**大于当前最大值**（现在是 49，下一条就是 50）。
     //    绝不要回填 23~29 那段空洞：runMigrations 只跑 version > user_version
     //    的迁移，回填的那条在版本号已经越过它的设备上永远不会执行，且不报错。
     //    MigrationManager 的构造函数里有 assert 会在开发期挡下重复版本号。
