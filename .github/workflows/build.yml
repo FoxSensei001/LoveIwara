@@ -1,7 +1,7 @@
 name: Flutter Build
 
 env:
-  FLUTTER_VERSION: '3.47.8'
+  FLUTTER_VERSION: '3.50.1'
   # CI 从官方 pub.dev 拉依赖。本机开发走国内镜像，所以 pubspec.lock 里 287 条依赖记的全是
   # https://pub.flutter-io.cn；.github/actions/pub-get 会先在 runner 的检出里把 lock 的地址
   # 换成这一项再装（不入库）。两边的压缩包字节一样，lock 里的 sha256 照旧逐包校验。
