@@ -22,9 +22,10 @@
 # ---- 2 用到的地址与哈希 ---------------------------------------------------
 
 # 我们自己的包：native/frame_interp/build_linux.sh 打出来的 zip。
-# 发布到 Release 之后，把地址和它打印出来的 SHA-256 一起填上。
-set(_fi_package_url "")
-set(_fi_package_sha256 "")
+# 重新发包时这两行和 Release 上的文件一起换。
+set(_fi_package_url
+    "https://github.com/FoxSensei001/LoveIwara/releases/download/frame-interp-1/frame_interp-linux-x64.zip")
+set(_fi_package_sha256 "8dafcb4c8139f81ef772496e312b39937075ea1e011f7ba12217f91a396ed72b")
 # 环境变量 FRAME_INTERP_PACKAGE_URL 只换下载地址（镜像），哈希照旧用上面这个；连同
 # FRAME_INTERP_PACKAGE_SHA256 一起给，就整个换成另一份包——CI 拿刚编出来、还没发布的
 # 包验打包时用（.github/workflows/frame-interp-component.yml）。

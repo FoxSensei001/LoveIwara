@@ -22,9 +22,9 @@ set -euo pipefail
 # ---- 2 用到的地址与哈希 -----------------------------------------------------
 
 # 我们自己的包：native/frame_interp/build_apple.sh 打出来的 zip。
-# 发布到 Release 之后，把地址和它打印出来的 SHA-256 一起填上。
-PACKAGE_URL=""
-PACKAGE_SHA256=""
+# 重新发包时这两行和 Release 上的文件一起换。
+PACKAGE_URL="https://github.com/FoxSensei001/LoveIwara/releases/download/frame-interp-1/frame_interp-apple.zip"
+PACKAGE_SHA256="4eb827fe299e96618e30f3d903504c5312103493d86a7f9b5bc7f9b107b0d921"
 # 环境变量 FRAME_INTERP_APPLE_PACKAGE_URL 只换下载地址（镜像），哈希照旧用上面这个；
 # 连同 FRAME_INTERP_APPLE_PACKAGE_SHA256 一起给，就整个换成另一份包——CI 拿刚编出来、
 # 还没发布的包验打包时用（.github/workflows/frame-interp-component.yml）。
