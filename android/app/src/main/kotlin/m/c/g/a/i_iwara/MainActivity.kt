@@ -59,6 +59,7 @@ class MainActivity : FlutterFragmentActivity() {
     private val EXTERNAL_PLAYER_CHANNEL = "i_iwara/external_player"
     private val DOWNLOAD_KEEP_ALIVE_CHANNEL = "i_iwara/download_keep_alive"
     private val EXIT_INFO_CHANNEL = "i_iwara/exit_info"
+    private val FRAME_INTERP_CHANNEL = "i_iwara/frame_interp"
 
     private var volumeKeyEnabled = false
     private var fileHandlerChannel: MethodChannel? = null
@@ -156,6 +157,16 @@ class MainActivity : FlutterFragmentActivity() {
                 .setMethodCallHandler { call, result ->
                     when (call.method) {
                         "getDeviceFormFactorInfo" -> result.success(getDeviceFormFactorInfo())
+                        else -> result.notImplemented()
+                    }
+                }
+
+        // 补帧组件：引擎和它的依赖跟着 APK 装在系统给的原生库目录里（只有 arm64-v8a
+        // 带），Dart 侧要按完整路径找到它们和一起打进去的模型文件。
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, FRAME_INTERP_CHANNEL)
+                .setMethodCallHandler { call, result ->
+                    when (call.method) {
+                        "nativeLibraryDir" -> result.success(applicationInfo.nativeLibraryDir)
                         else -> result.notImplemented()
                     }
                 }

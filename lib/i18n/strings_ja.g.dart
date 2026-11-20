@@ -101,6 +101,7 @@ class TranslationsJa extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsFollowSearchJa followSearch = _TranslationsFollowSearchJa._(_root);
 	@override late final _TranslationsPagedSearchJa pagedSearch = _TranslationsPagedSearchJa._(_root);
 	@override late final _TranslationsPollJa poll = _TranslationsPollJa._(_root);
+	@override late final _TranslationsFrameInterpJa frameInterp = _TranslationsFrameInterpJa._(_root);
 }
 
 // Path: personalProfile
@@ -860,6 +861,28 @@ class _TranslationsSettingsJa extends TranslationsSettingsEn {
 	@override String get defaultBrowserDesc => 'システム設定でデフォルトリンク設定項目を開き、iwara.tvサイトリンクを追加してください';
 	@override String get themeMode => 'テーマモード';
 	@override String get themeModeDesc => 'この設定はアプリのテーマモードを決定します';
+	@override String get glassQuality => 'Rendering quality';
+	@override String get glassQualityAuto => 'Automatic';
+	@override String get glassQualityAutoDesc => 'Adapts to frame time; refraction can change as quality adjusts';
+	@override String get glassQualityStandard => 'Smooth';
+	@override String get glassQualityStandardDesc => 'Lightweight glass with highlights and consistent frame pacing';
+	@override String get glassQualityPremium => 'Full refraction';
+	@override String get glassQualityPremiumDesc => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass';
+	@override String get glassQualityCurrent => 'Currently active';
+	@override String get glassChromeParametersDesc => 'Navigation glass parameters apply live to headers, buttons and the bottom bar';
+	@override String get glassOpacity => 'Opacity';
+	@override String get glassBlur => 'Background blur (sigma)';
+	@override String get glassBlurDesc => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness';
+	@override String get glassAdvancedParameters => 'Advanced navigation parameters';
+	@override String get glassThickness => 'Lens thickness';
+	@override String get glassRefractiveIndex => 'Refractive index';
+	@override String get glassLightIntensity => 'Highlight intensity';
+	@override String get glassSaturation => 'Background saturation';
+	@override String get glassChromaticAberration => 'Chromatic aberration';
+	@override String get glassShadows => 'Shadows';
+	@override String get glassPanelParameters => 'Menu panel parameters';
+	@override String get glassPanelParametersDesc => 'Applies to floating menus; panels use a separate lens renderer';
+	@override String get glassResetParameters => 'Restore glass defaults';
 	@override String get glassEffect => '画面のマテリアル';
 	@override String get glassEffectDesc => 'アプリ全体（ヘッダーのカプセル、メニュー、ダイアログのボタン、ボトムナビゲーション）に使う素材を決めます';
 	@override String get liquidGlassEffect => 'リキッドガラス';
@@ -3221,6 +3244,36 @@ class _TranslationsPollJa extends TranslationsPollEn {
 	@override String get translateFailed => '投票を翻訳できませんでした';
 }
 
+// Path: frameInterp
+class _TranslationsFrameInterpJa extends TranslationsFrameInterpEn {
+	_TranslationsFrameInterpJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'フレーム補間タスク';
+	@override String get action => 'フレーム補間（2倍のフレームレートで生成）';
+	@override String get playInterpolated => '補間版を再生';
+	@override String get viewTasks => '補間タスクを表示';
+	@override String get badge => '補間';
+	@override String fpsBadge({required Object fps}) => '${fps} FPS';
+	@override String specLine({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps';
+	@override String runningDetail({required Object percent, required Object speed}) => '${percent}% · ${speed} fps';
+	@override String get preparing => '準備中…';
+	@override String get outputMissing => '補間後のファイルが見つかりません';
+	@override String get empty => 'フレーム補間タスクはまだありません';
+	@override String get emptyHint => '「ローカルファイル」または「ダウンロード」で動画を選び、「フレーム補間」を実行してください。';
+	@override String get clearFinished => '完了した記録を消去';
+	@override late final _TranslationsFrameInterpStatusJa status = _TranslationsFrameInterpStatusJa._(_root);
+	@override late final _TranslationsFrameInterpActionsJa actions = _TranslationsFrameInterpActionsJa._(_root);
+	@override late final _TranslationsFrameInterpConfirmJa confirm = _TranslationsFrameInterpConfirmJa._(_root);
+	@override late final _TranslationsFrameInterpToastJa toast = _TranslationsFrameInterpToastJa._(_root);
+	@override late final _TranslationsFrameInterpRejectJa reject = _TranslationsFrameInterpRejectJa._(_root);
+	@override late final _TranslationsFrameInterpErrorJa error = _TranslationsFrameInterpErrorJa._(_root);
+	@override late final _TranslationsFrameInterpNotificationJa notification = _TranslationsFrameInterpNotificationJa._(_root);
+	@override late final _TranslationsFrameInterpComponentJa component = _TranslationsFrameInterpComponentJa._(_root);
+}
+
 // Path: common.pagination
 class _TranslationsCommonPaginationJa extends TranslationsCommonPaginationEn {
 	_TranslationsCommonPaginationJa._(TranslationsJa root) : this._root = root, super.internal(root);
@@ -4928,6 +4981,127 @@ class _TranslationsLocalMediaWebdavJa extends TranslationsLocalMediaWebdavEn {
 	@override String get bannerCredUnreadable => '保存したパスワードを読み取れませんでした。再ログインしてください';
 }
 
+// Path: frameInterp.status
+class _TranslationsFrameInterpStatusJa extends TranslationsFrameInterpStatusEn {
+	_TranslationsFrameInterpStatusJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get pending => '待機中';
+	@override String get running => '処理中';
+	@override String get completed => '完了';
+	@override String get failed => '失敗';
+	@override String get cancelled => 'キャンセルされました';
+}
+
+// Path: frameInterp.actions
+class _TranslationsFrameInterpActionsJa extends TranslationsFrameInterpActionsEn {
+	_TranslationsFrameInterpActionsJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get play => '再生';
+	@override String get cancel => 'キャンセル';
+	@override String get retry => '再試行';
+	@override String get delete => '記録を削除';
+	@override String get revealInFolder => 'フォルダーで表示';
+}
+
+// Path: frameInterp.confirm
+class _TranslationsFrameInterpConfirmJa extends TranslationsFrameInterpConfirmEn {
+	_TranslationsFrameInterpConfirmJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get cancelTitle => 'このタスクをキャンセルしますか？';
+	@override String get cancelContent => 'ここまでの進捗は失われます。後で最初からやり直せます。';
+	@override String get deleteTitle => 'この記録を削除しますか？';
+	@override String get deleteContent => '元の動画には影響しません。';
+	@override String get deleteOutput => '補間後のファイルも削除する';
+	@override String get clearTitle => '完了した記録を消去しますか？';
+	@override String get clearContent => '補間後のファイルはディスクに残り、記録だけが削除されます。';
+}
+
+// Path: frameInterp.toast
+class _TranslationsFrameInterpToastJa extends TranslationsFrameInterpToastEn {
+	_TranslationsFrameInterpToastJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get queued => 'フレーム補間キューに追加しました';
+	@override String completed({required Object title}) => 'フレーム補間が完了しました：${title}';
+	@override String failed({required Object title}) => 'フレーム補間に失敗しました：${title}';
+}
+
+// Path: frameInterp.reject
+class _TranslationsFrameInterpRejectJa extends TranslationsFrameInterpRejectEn {
+	_TranslationsFrameInterpRejectJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get sourceMissing => '動画ファイルが見つかりません';
+	@override String get alreadyInterpolated => 'この動画はすでに補間済みです';
+	@override String get alreadyQueued => 'この動画はすでにキューに入っています';
+	@override String get alreadyDone => 'この動画には補間版がすでにあります';
+	@override String get highFrameRate => 'この動画はすでにフレームレートが高いため、補間は不要です';
+	@override String get hdr => 'HDR 動画にはまだ対応していません';
+	@override String get resolutionTooLarge => '解像度が高すぎるため補間できません';
+	@override String get unreadable => 'この動画を読み込めませんでした';
+	@override String get noGpu => '使用可能なグラフィックスカードが見つかりません（Vulkan 対応が必要です）';
+}
+
+// Path: frameInterp.error
+class _TranslationsFrameInterpErrorJa extends TranslationsFrameInterpErrorEn {
+	_TranslationsFrameInterpErrorJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get unknown => '問題が発生しました';
+	@override String get openInput => '動画を開けませんでした';
+	@override String get noVideo => 'ファイルに映像トラックがありません';
+	@override String get decoder => '動画をデコードできませんでした';
+	@override String get hdrUnsupported => 'HDR 動画にはまだ対応していません';
+	@override String get noGpu => '使用可能なグラフィックスカードが見つかりません';
+	@override String get model => '補間モデルの読み込みに失敗しました。コンポーネントを再インストールしてみてください';
+	@override String get encoder => '使用可能な動画エンコーダーがありません';
+	@override String get openOutput => '出力ファイルを作成できませんでした';
+	@override String get write => '書き込みに失敗しました。ディスクの空き容量が不足している可能性があります';
+	@override String get interpolate => '処理に失敗しました。グラフィックスメモリが不足している可能性があります';
+	@override String get componentUnavailable => 'フレーム補間コンポーネントを利用できません';
+	@override String get interrupted => 'アプリが終了したため中断されました';
+	@override String get finalizeFailed => '完成したファイルを保存できませんでした';
+	@override String get sourceMissing => '動画ファイルが見つかりません';
+	@override String get backgrounded => 'アプリがバックグラウンドに移ったため中断しました。戻ると自動で再開します';
+}
+
+// Path: frameInterp.notification
+class _TranslationsFrameInterpNotificationJa extends TranslationsFrameInterpNotificationEn {
+	_TranslationsFrameInterpNotificationJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'フレーム補間中';
+	@override String titleWithQueue({required Object count}) => 'フレーム補間中 · 待機 ${count} 件';
+	@override String get waiting => '開始待ち';
+}
+
+// Path: frameInterp.component
+class _TranslationsFrameInterpComponentJa extends TranslationsFrameInterpComponentEn {
+	_TranslationsFrameInterpComponentJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get unsupported => 'このデバイスではフレーム補間を利用できません';
+}
+
 // Path: settings.downloadSettings.pathTemplateEditor
 class _TranslationsSettingsDownloadSettingsPathTemplateEditorJa extends TranslationsSettingsDownloadSettingsPathTemplateEditorEn {
 	_TranslationsSettingsDownloadSettingsPathTemplateEditorJa._(TranslationsJa root) : this._root = root, super.internal(root);
@@ -5796,6 +5970,28 @@ extension on TranslationsJa {
 			'settings.defaultBrowserDesc' => 'システム設定でデフォルトリンク設定項目を開き、iwara.tvサイトリンクを追加してください',
 			'settings.themeMode' => 'テーマモード',
 			'settings.themeModeDesc' => 'この設定はアプリのテーマモードを決定します',
+			'settings.glassQuality' => 'Rendering quality',
+			'settings.glassQualityAuto' => 'Automatic',
+			'settings.glassQualityAutoDesc' => 'Adapts to frame time; refraction can change as quality adjusts',
+			'settings.glassQualityStandard' => 'Smooth',
+			'settings.glassQualityStandardDesc' => 'Lightweight glass with highlights and consistent frame pacing',
+			'settings.glassQualityPremium' => 'Full refraction',
+			'settings.glassQualityPremiumDesc' => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass',
+			'settings.glassQualityCurrent' => 'Currently active',
+			'settings.glassChromeParametersDesc' => 'Navigation glass parameters apply live to headers, buttons and the bottom bar',
+			'settings.glassOpacity' => 'Opacity',
+			'settings.glassBlur' => 'Background blur (sigma)',
+			'settings.glassBlurDesc' => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness',
+			'settings.glassAdvancedParameters' => 'Advanced navigation parameters',
+			'settings.glassThickness' => 'Lens thickness',
+			'settings.glassRefractiveIndex' => 'Refractive index',
+			'settings.glassLightIntensity' => 'Highlight intensity',
+			'settings.glassSaturation' => 'Background saturation',
+			'settings.glassChromaticAberration' => 'Chromatic aberration',
+			'settings.glassShadows' => 'Shadows',
+			'settings.glassPanelParameters' => 'Menu panel parameters',
+			'settings.glassPanelParametersDesc' => 'Applies to floating menus; panels use a separate lens renderer',
+			'settings.glassResetParameters' => 'Restore glass defaults',
 			'settings.glassEffect' => '画面のマテリアル',
 			'settings.glassEffectDesc' => 'アプリ全体（ヘッダーのカプセル、メニュー、ダイアログのボタン、ボトムナビゲーション）に使う素材を決めます',
 			'settings.liquidGlassEffect' => 'リキッドガラス',
@@ -6128,6 +6324,8 @@ extension on TranslationsJa {
 			'settings.keybinding.actionGallerySeekBackward' => '巻き戻し',
 			'settings.keybinding.actionGallerySeekForward' => '早送り',
 			'settings.keybinding.actionGalleryToggleMute' => 'ミュート切替',
+			_ => null,
+		} ?? switch (path) {
 			'settings.keybinding.actionPlayPause' => '再生 / 一時停止',
 			'settings.keybinding.actionSpeedUp' => '再生速度を上げる',
 			'settings.keybinding.actionSpeedDown' => '再生速度を下げる',
@@ -6150,8 +6348,6 @@ extension on TranslationsJa {
 			'settings.leftDoubleTapRewind' => '左側ダブルタップリワインド',
 			'settings.rightDoubleTapFastForward' => '右側ダブルタップファストフォワード',
 			'settings.doubleTapPause' => 'ダブルタップポーズ',
-			_ => null,
-		} ?? switch (path) {
 			'settings.rightVerticalSwipeVolume' => '右側垂直スワイプボリューム（新ページに入った時に有効）',
 			'settings.leftVerticalSwipeBrightness' => '左側垂直スワイプブライトネス（新ページに入った時に有効）',
 			'settings.longPressFastForward' => '長押しファストフォワード',
@@ -6642,6 +6838,8 @@ extension on TranslationsJa {
 			'videoDetail.gestureGuide.quest.grip' => 'グリップボタン',
 			'videoDetail.gestureGuide.quest.bothGrips' => '両手のグリップ',
 			'videoDetail.gestureGuide.quest.stick' => 'スティック',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.handTracking' => 'ハンドトラッキング',
 			'videoDetail.gestureGuide.quest.ready' => '準備',
 			'videoDetail.gestureGuide.quest.press' => '押す',
@@ -6664,8 +6862,6 @@ extension on TranslationsJa {
 			'videoDetail.gestureGuide.quest.browseTitle' => 'スティックで画像を送る',
 			'videoDetail.gestureGuide.quest.browseBody' => '左右どちらのスティックでも、左・右で前後の項目へ移動し、倒し続けると連続で送れます。フィルムストリップのサムネイルも選べます。',
 			'videoDetail.gestureGuide.quest.browseHint' => 'ギャラリー内の動画も同じように送れます。レイが操作パネル上にあると、スティックはスクロールになります。',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.swipeTitle' => '横ドラッグでページを送る',
 			'videoDetail.gestureGuide.quest.swipeBody' => '画像にレイを合わせ、トリガーを押したまま左へドラッグします。ページ送りの表示が出たら離すと次へ、右へドラッグすると前へ戻ります。ピンチでも操作できます。',
 			'videoDetail.gestureGuide.quest.swipeHint' => '画像は 1× のときにページ送りできます。ギャラリー内の動画にも対応しています。ドラッグ中は画面が動かず、離してから切り替わります。',
@@ -7156,6 +7352,8 @@ extension on TranslationsJa {
 			'download.actions.redownloadStarted' => ({required Object count}) => '${count} 件の再ダウンロードを開始しました',
 			'download.actions.redownloadNone' => '再ダウンロードできる項目がありません',
 			'download.actions.deleteTitle' => ({required Object count}) => '${count} 件のダウンロードを削除しますか？',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '${count} 件 · ${size}',
 			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '${count} 件',
 			'download.actions.deleteGalleryNote' => ({required Object count}) => 'うち ${count} 件のギャラリーはサイズに含まれていません',
@@ -7178,8 +7376,6 @@ extension on TranslationsJa {
 			'download.notice.failed' => ({required Object count}) => '${count} 件のダウンロードが失敗しました',
 			'download.notice.retryAll' => 'すべて再試行',
 			'download.notice.view' => '表示',
-			_ => null,
-		} ?? switch (path) {
 			'download.notice.missing' => ({required Object count}) => 'ダウンロード済みの ${count} 件のファイルが見つかりません',
 			'download.notice.handle' => '対処…',
 			'download.notice.outside' => ({required Object count}) => '古いダウンロードフォルダに ${count} 件残っています',
@@ -7670,6 +7866,8 @@ extension on TranslationsJa {
 			'translation.reasoningModel' => '推論モデル',
 			'translation.reasoningModelDescription' => 'o1/o3、DeepSeek-R1、QwQ など向け：プロンプトをユーザーメッセージに統合し、temperature を送らず、max_completion_tokens を使用します',
 			'translation.useMaxCompletionTokens' => 'max_completion_tokens を使用',
+			_ => null,
+		} ?? switch (path) {
 			'translation.useMaxCompletionTokensDescription' => '新しい OpenAI エンドポイントでは非推奨の max_tokens ではなく max_completion_tokens が必要です',
 			'translation.sendTemperature' => 'temperature を送信',
 			'translation.sendTemperatureDescription' => 'temperature パラメータを受け付けないモデル(多くの推論モデル)ではオフにしてください',
@@ -7692,8 +7890,6 @@ extension on TranslationsJa {
 			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude 推論 (extended thinking)',
 			'translation.presetNames.gemini' => 'Google Gemini (ネイティブ)',
 			'translation.presetNames.geminiReasoning' => 'Google Gemini 推論 (thinking)',
-			_ => null,
-		} ?? switch (path) {
 			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek 推論 (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
@@ -8184,6 +8380,8 @@ extension on TranslationsJa {
 			'tagSelector.addTag' => 'タグを追加',
 			'tagSelector.removeTag' => 'タグを削除',
 			'tagSelector.deleteTag' => 'タグを削除',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.usageInstructions' => 'まずタグを追加してから、既存のタグからクリックして選択してください',
 			'tagSelector.usageInstructionsTooltip' => '使用方法',
 			'tagSelector.addTagTooltip' => 'タグを追加',
@@ -8206,8 +8404,6 @@ extension on TranslationsJa {
 			'anime4k.presetGroups.fast' => '高速',
 			'anime4k.presetGroups.lite' => '軽量',
 			'anime4k.presetGroups.moreLite' => 'より軽量',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetGroups.custom' => 'カスタム',
 			'anime4k.presetDescriptions.mode_a_hq' => 'ほとんどの1080pアニメ、特にぼかし、再サンプリング、圧縮アーティファクトを処理する場合に適しています。最高の知覚品質を提供します。',
 			'anime4k.presetDescriptions.mode_b_hq' => 'スケーリングによる軽度のぼかしやリンギング効果のあるアニメに適しています。リンギングとエイリアスを効果的に減らすことができます。',
@@ -8698,6 +8894,8 @@ extension on TranslationsJa {
 			'localMedia.webdav.stateCredUnreadable' => 'パスワードを読み込めません',
 			'localMedia.webdav.connected' => '接続済み',
 			'localMedia.webdav.errorForbidden' => 'このアカウントには WebDAV のアクセス権がありません。NAS の WebDAV 設定で許可してください',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.errorTls' => '安全な接続に失敗しました。アドレスの http:// / https:// が NAS の設定と一致しているか確認してください',
 			'localMedia.webdav.errorTryHttps' => 'NAS が HTTPS のみの場合は、アドレスの前に https:// を付けてください',
 			'localMedia.webdav.previousStep' => '戻る',
@@ -8720,8 +8918,6 @@ extension on TranslationsJa {
 			'localMedia.sourceContainsExisting' => ({required Object name}) => '追加済みのフォルダー「${name}」を含んでいるため、その親フォルダーはまだ追加できません',
 			'localMedia.addSourceFailed' => 'フォルダーを追加できませんでした',
 			'localMedia.fileMissing' => 'このファイルはディスク上にありません',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.permissionDenied' => 'ファイルアクセスが許可されていません。フォルダーを追加する前に許可してください',
 			'localMedia.noVideosFound' => 'このフォルダーに動画はありません',
 			'localMedia.emptyTitle' => 'フォルダーを追加するか NAS に接続して、手元の動画を見る',
@@ -8935,6 +9131,68 @@ extension on TranslationsJa {
 			'poll.voteFailed' => '投票を送信できませんでした',
 			'poll.copyLink' => '投票のリンクをコピー',
 			'poll.translateFailed' => '投票を翻訳できませんでした',
+			'frameInterp.title' => 'フレーム補間タスク',
+			'frameInterp.action' => 'フレーム補間（2倍のフレームレートで生成）',
+			'frameInterp.playInterpolated' => '補間版を再生',
+			'frameInterp.viewTasks' => '補間タスクを表示',
+			'frameInterp.badge' => '補間',
+			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',
+			'frameInterp.specLine' => ({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps',
+			'frameInterp.runningDetail' => ({required Object percent, required Object speed}) => '${percent}% · ${speed} fps',
+			'frameInterp.preparing' => '準備中…',
+			'frameInterp.outputMissing' => '補間後のファイルが見つかりません',
+			'frameInterp.empty' => 'フレーム補間タスクはまだありません',
+			'frameInterp.emptyHint' => '「ローカルファイル」または「ダウンロード」で動画を選び、「フレーム補間」を実行してください。',
+			'frameInterp.clearFinished' => '完了した記録を消去',
+			'frameInterp.status.pending' => '待機中',
+			'frameInterp.status.running' => '処理中',
+			'frameInterp.status.completed' => '完了',
+			'frameInterp.status.failed' => '失敗',
+			'frameInterp.status.cancelled' => 'キャンセルされました',
+			'frameInterp.actions.play' => '再生',
+			'frameInterp.actions.cancel' => 'キャンセル',
+			'frameInterp.actions.retry' => '再試行',
+			'frameInterp.actions.delete' => '記録を削除',
+			'frameInterp.actions.revealInFolder' => 'フォルダーで表示',
+			'frameInterp.confirm.cancelTitle' => 'このタスクをキャンセルしますか？',
+			'frameInterp.confirm.cancelContent' => 'ここまでの進捗は失われます。後で最初からやり直せます。',
+			'frameInterp.confirm.deleteTitle' => 'この記録を削除しますか？',
+			'frameInterp.confirm.deleteContent' => '元の動画には影響しません。',
+			'frameInterp.confirm.deleteOutput' => '補間後のファイルも削除する',
+			'frameInterp.confirm.clearTitle' => '完了した記録を消去しますか？',
+			'frameInterp.confirm.clearContent' => '補間後のファイルはディスクに残り、記録だけが削除されます。',
+			'frameInterp.toast.queued' => 'フレーム補間キューに追加しました',
+			'frameInterp.toast.completed' => ({required Object title}) => 'フレーム補間が完了しました：${title}',
+			'frameInterp.toast.failed' => ({required Object title}) => 'フレーム補間に失敗しました：${title}',
+			'frameInterp.reject.sourceMissing' => '動画ファイルが見つかりません',
+			'frameInterp.reject.alreadyInterpolated' => 'この動画はすでに補間済みです',
+			'frameInterp.reject.alreadyQueued' => 'この動画はすでにキューに入っています',
+			'frameInterp.reject.alreadyDone' => 'この動画には補間版がすでにあります',
+			'frameInterp.reject.highFrameRate' => 'この動画はすでにフレームレートが高いため、補間は不要です',
+			'frameInterp.reject.hdr' => 'HDR 動画にはまだ対応していません',
+			'frameInterp.reject.resolutionTooLarge' => '解像度が高すぎるため補間できません',
+			'frameInterp.reject.unreadable' => 'この動画を読み込めませんでした',
+			'frameInterp.reject.noGpu' => '使用可能なグラフィックスカードが見つかりません（Vulkan 対応が必要です）',
+			'frameInterp.error.unknown' => '問題が発生しました',
+			'frameInterp.error.openInput' => '動画を開けませんでした',
+			'frameInterp.error.noVideo' => 'ファイルに映像トラックがありません',
+			'frameInterp.error.decoder' => '動画をデコードできませんでした',
+			'frameInterp.error.hdrUnsupported' => 'HDR 動画にはまだ対応していません',
+			'frameInterp.error.noGpu' => '使用可能なグラフィックスカードが見つかりません',
+			'frameInterp.error.model' => '補間モデルの読み込みに失敗しました。コンポーネントを再インストールしてみてください',
+			'frameInterp.error.encoder' => '使用可能な動画エンコーダーがありません',
+			'frameInterp.error.openOutput' => '出力ファイルを作成できませんでした',
+			'frameInterp.error.write' => '書き込みに失敗しました。ディスクの空き容量が不足している可能性があります',
+			'frameInterp.error.interpolate' => '処理に失敗しました。グラフィックスメモリが不足している可能性があります',
+			'frameInterp.error.componentUnavailable' => 'フレーム補間コンポーネントを利用できません',
+			'frameInterp.error.interrupted' => 'アプリが終了したため中断されました',
+			'frameInterp.error.finalizeFailed' => '完成したファイルを保存できませんでした',
+			'frameInterp.error.sourceMissing' => '動画ファイルが見つかりません',
+			'frameInterp.error.backgrounded' => 'アプリがバックグラウンドに移ったため中断しました。戻ると自動で再開します',
+			'frameInterp.notification.title' => 'フレーム補間中',
+			'frameInterp.notification.titleWithQueue' => ({required Object count}) => 'フレーム補間中 · 待機 ${count} 件',
+			'frameInterp.notification.waiting' => '開始待ち',
+			'frameInterp.component.unsupported' => 'このデバイスではフレーム補間を利用できません',
 			_ => null,
 		};
 	}

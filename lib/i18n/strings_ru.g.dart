@@ -101,6 +101,7 @@ class TranslationsRu extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsFollowSearchRu followSearch = _TranslationsFollowSearchRu._(_root);
 	@override late final _TranslationsPagedSearchRu pagedSearch = _TranslationsPagedSearchRu._(_root);
 	@override late final _TranslationsPollRu poll = _TranslationsPollRu._(_root);
+	@override late final _TranslationsFrameInterpRu frameInterp = _TranslationsFrameInterpRu._(_root);
 }
 
 // Path: personalProfile
@@ -860,6 +861,28 @@ class _TranslationsSettingsRu extends TranslationsSettingsEn {
 	@override String get defaultBrowserDesc => 'Откройте параметры ссылок по умолчанию в системных настройках и добавьте сайт iwara.tv';
 	@override String get themeMode => 'Режим темы';
 	@override String get themeModeDesc => 'Определяет тему оформления приложения';
+	@override String get glassQuality => 'Rendering quality';
+	@override String get glassQualityAuto => 'Automatic';
+	@override String get glassQualityAutoDesc => 'Adapts to frame time; refraction can change as quality adjusts';
+	@override String get glassQualityStandard => 'Smooth';
+	@override String get glassQualityStandardDesc => 'Lightweight glass with highlights and consistent frame pacing';
+	@override String get glassQualityPremium => 'Full refraction';
+	@override String get glassQualityPremiumDesc => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass';
+	@override String get glassQualityCurrent => 'Currently active';
+	@override String get glassChromeParametersDesc => 'Navigation glass parameters apply live to headers, buttons and the bottom bar';
+	@override String get glassOpacity => 'Opacity';
+	@override String get glassBlur => 'Background blur (sigma)';
+	@override String get glassBlurDesc => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness';
+	@override String get glassAdvancedParameters => 'Advanced navigation parameters';
+	@override String get glassThickness => 'Lens thickness';
+	@override String get glassRefractiveIndex => 'Refractive index';
+	@override String get glassLightIntensity => 'Highlight intensity';
+	@override String get glassSaturation => 'Background saturation';
+	@override String get glassChromaticAberration => 'Chromatic aberration';
+	@override String get glassShadows => 'Shadows';
+	@override String get glassPanelParameters => 'Menu panel parameters';
+	@override String get glassPanelParametersDesc => 'Applies to floating menus; panels use a separate lens renderer';
+	@override String get glassResetParameters => 'Restore glass defaults';
 	@override String get glassEffect => 'Стиль интерфейса';
 	@override String get glassEffectDesc => 'Материал элементов интерфейса — заголовков, меню, кнопок и нижней панели';
 	@override String get liquidGlassEffect => 'Жидкое стекло';
@@ -3221,6 +3244,36 @@ class _TranslationsPollRu extends TranslationsPollEn {
 	@override String get translateFailed => 'Не удалось перевести опрос';
 }
 
+// Path: frameInterp
+class _TranslationsFrameInterpRu extends TranslationsFrameInterpEn {
+	_TranslationsFrameInterpRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Интерполяция кадров';
+	@override String get action => 'Увеличить частоту кадров в 2 раза';
+	@override String get playInterpolated => 'Воспроизвести версию с интерполяцией';
+	@override String get viewTasks => 'Задачи интерполяции';
+	@override String get badge => '2× FPS';
+	@override String fpsBadge({required Object fps}) => '${fps} FPS';
+	@override String specLine({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps';
+	@override String runningDetail({required Object percent, required Object speed}) => '${percent}% · ${speed} fps';
+	@override String get preparing => 'Подготовка…';
+	@override String get outputMissing => 'Файл с интерполяцией больше не существует';
+	@override String get empty => 'Задач интерполяции пока нет';
+	@override String get emptyHint => 'Выберите «Увеличить частоту кадров в 2 раза» для видео в разделе «Локальные файлы» или «Загрузки».';
+	@override String get clearFinished => 'Очистить завершённые записи';
+	@override late final _TranslationsFrameInterpStatusRu status = _TranslationsFrameInterpStatusRu._(_root);
+	@override late final _TranslationsFrameInterpActionsRu actions = _TranslationsFrameInterpActionsRu._(_root);
+	@override late final _TranslationsFrameInterpConfirmRu confirm = _TranslationsFrameInterpConfirmRu._(_root);
+	@override late final _TranslationsFrameInterpToastRu toast = _TranslationsFrameInterpToastRu._(_root);
+	@override late final _TranslationsFrameInterpRejectRu reject = _TranslationsFrameInterpRejectRu._(_root);
+	@override late final _TranslationsFrameInterpErrorRu error = _TranslationsFrameInterpErrorRu._(_root);
+	@override late final _TranslationsFrameInterpNotificationRu notification = _TranslationsFrameInterpNotificationRu._(_root);
+	@override late final _TranslationsFrameInterpComponentRu component = _TranslationsFrameInterpComponentRu._(_root);
+}
+
 // Path: common.pagination
 class _TranslationsCommonPaginationRu extends TranslationsCommonPaginationEn {
 	_TranslationsCommonPaginationRu._(TranslationsRu root) : this._root = root, super.internal(root);
@@ -4928,6 +4981,127 @@ class _TranslationsLocalMediaWebdavRu extends TranslationsLocalMediaWebdavEn {
 	@override String get bannerCredUnreadable => 'Couldn\'t read the saved password. Sign in again.';
 }
 
+// Path: frameInterp.status
+class _TranslationsFrameInterpStatusRu extends TranslationsFrameInterpStatusEn {
+	_TranslationsFrameInterpStatusRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get pending => 'В очереди';
+	@override String get running => 'Обработка';
+	@override String get completed => 'Завершено';
+	@override String get failed => 'Ошибка';
+	@override String get cancelled => 'Отменено';
+}
+
+// Path: frameInterp.actions
+class _TranslationsFrameInterpActionsRu extends TranslationsFrameInterpActionsEn {
+	_TranslationsFrameInterpActionsRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get play => 'Воспроизвести';
+	@override String get cancel => 'Отмена';
+	@override String get retry => 'Повторить';
+	@override String get delete => 'Удалить запись';
+	@override String get revealInFolder => 'Показать в папке';
+}
+
+// Path: frameInterp.confirm
+class _TranslationsFrameInterpConfirmRu extends TranslationsFrameInterpConfirmEn {
+	_TranslationsFrameInterpConfirmRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get cancelTitle => 'Отменить эту задачу?';
+	@override String get cancelContent => 'Текущий прогресс будет потерян. Позже можно повторить задачу с начала.';
+	@override String get deleteTitle => 'Удалить эту запись?';
+	@override String get deleteContent => 'Исходное видео не затрагивается.';
+	@override String get deleteOutput => 'Также удалить файл с интерполяцией';
+	@override String get clearTitle => 'Очистить завершённые записи?';
+	@override String get clearContent => 'Файлы с интерполяцией останутся на диске, будут удалены только записи.';
+}
+
+// Path: frameInterp.toast
+class _TranslationsFrameInterpToastRu extends TranslationsFrameInterpToastEn {
+	_TranslationsFrameInterpToastRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get queued => 'Добавлено в очередь интерполяции';
+	@override String completed({required Object title}) => 'Интерполяция завершена: ${title}';
+	@override String failed({required Object title}) => 'Ошибка интерполяции: ${title}';
+}
+
+// Path: frameInterp.reject
+class _TranslationsFrameInterpRejectRu extends TranslationsFrameInterpRejectEn {
+	_TranslationsFrameInterpRejectRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get sourceMissing => 'Видеофайл больше не существует';
+	@override String get alreadyInterpolated => 'Это видео уже обработано интерполяцией';
+	@override String get alreadyQueued => 'Это видео уже в очереди';
+	@override String get alreadyDone => 'У этого видео уже есть версия с интерполяцией';
+	@override String get highFrameRate => 'У этого видео уже высокая частота кадров';
+	@override String get hdr => 'Видео HDR пока не поддерживается';
+	@override String get resolutionTooLarge => 'Разрешение слишком высокое для интерполяции';
+	@override String get unreadable => 'Не удалось прочитать это видео';
+	@override String get noGpu => 'Не найдена подходящая видеокарта (требуется поддержка Vulkan)';
+}
+
+// Path: frameInterp.error
+class _TranslationsFrameInterpErrorRu extends TranslationsFrameInterpErrorEn {
+	_TranslationsFrameInterpErrorRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get unknown => 'Что-то пошло не так';
+	@override String get openInput => 'Не удалось открыть видео';
+	@override String get noVideo => 'В файле нет видеодорожки';
+	@override String get decoder => 'Не удалось декодировать видео';
+	@override String get hdrUnsupported => 'Видео HDR пока не поддерживается';
+	@override String get noGpu => 'Не найдена подходящая видеокарта';
+	@override String get model => 'Не удалось загрузить модель интерполяции. Попробуйте переустановить компонент';
+	@override String get encoder => 'Нет доступного видеокодера';
+	@override String get openOutput => 'Не удалось создать выходной файл';
+	@override String get write => 'Ошибка записи. Возможно, диск заполнен';
+	@override String get interpolate => 'Ошибка обработки. Возможно, не хватило памяти видеокарты';
+	@override String get componentUnavailable => 'Компонент интерполяции недоступен';
+	@override String get interrupted => 'Прервано, так как приложение было закрыто';
+	@override String get finalizeFailed => 'Не удалось сохранить готовый файл';
+	@override String get sourceMissing => 'Видеофайл больше не существует';
+	@override String get backgrounded => 'Прервано: приложение ушло в фон. Запустится заново, когда вы вернётесь';
+}
+
+// Path: frameInterp.notification
+class _TranslationsFrameInterpNotificationRu extends TranslationsFrameInterpNotificationEn {
+	_TranslationsFrameInterpNotificationRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Интерполяция кадров';
+	@override String titleWithQueue({required Object count}) => 'Интерполяция кадров · в очереди: ${count}';
+	@override String get waiting => 'Ожидание запуска';
+}
+
+// Path: frameInterp.component
+class _TranslationsFrameInterpComponentRu extends TranslationsFrameInterpComponentEn {
+	_TranslationsFrameInterpComponentRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get unsupported => 'Интерполяция кадров недоступна на этом устройстве';
+}
+
 // Path: settings.downloadSettings.pathTemplateEditor
 class _TranslationsSettingsDownloadSettingsPathTemplateEditorRu extends TranslationsSettingsDownloadSettingsPathTemplateEditorEn {
 	_TranslationsSettingsDownloadSettingsPathTemplateEditorRu._(TranslationsRu root) : this._root = root, super.internal(root);
@@ -5796,6 +5970,28 @@ extension on TranslationsRu {
 			'settings.defaultBrowserDesc' => 'Откройте параметры ссылок по умолчанию в системных настройках и добавьте сайт iwara.tv',
 			'settings.themeMode' => 'Режим темы',
 			'settings.themeModeDesc' => 'Определяет тему оформления приложения',
+			'settings.glassQuality' => 'Rendering quality',
+			'settings.glassQualityAuto' => 'Automatic',
+			'settings.glassQualityAutoDesc' => 'Adapts to frame time; refraction can change as quality adjusts',
+			'settings.glassQualityStandard' => 'Smooth',
+			'settings.glassQualityStandardDesc' => 'Lightweight glass with highlights and consistent frame pacing',
+			'settings.glassQualityPremium' => 'Full refraction',
+			'settings.glassQualityPremiumDesc' => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass',
+			'settings.glassQualityCurrent' => 'Currently active',
+			'settings.glassChromeParametersDesc' => 'Navigation glass parameters apply live to headers, buttons and the bottom bar',
+			'settings.glassOpacity' => 'Opacity',
+			'settings.glassBlur' => 'Background blur (sigma)',
+			'settings.glassBlurDesc' => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness',
+			'settings.glassAdvancedParameters' => 'Advanced navigation parameters',
+			'settings.glassThickness' => 'Lens thickness',
+			'settings.glassRefractiveIndex' => 'Refractive index',
+			'settings.glassLightIntensity' => 'Highlight intensity',
+			'settings.glassSaturation' => 'Background saturation',
+			'settings.glassChromaticAberration' => 'Chromatic aberration',
+			'settings.glassShadows' => 'Shadows',
+			'settings.glassPanelParameters' => 'Menu panel parameters',
+			'settings.glassPanelParametersDesc' => 'Applies to floating menus; panels use a separate lens renderer',
+			'settings.glassResetParameters' => 'Restore glass defaults',
 			'settings.glassEffect' => 'Стиль интерфейса',
 			'settings.glassEffectDesc' => 'Материал элементов интерфейса — заголовков, меню, кнопок и нижней панели',
 			'settings.liquidGlassEffect' => 'Жидкое стекло',
@@ -6128,6 +6324,8 @@ extension on TranslationsRu {
 			'settings.keybinding.actionGallerySeekBackward' => 'Назад',
 			'settings.keybinding.actionGallerySeekForward' => 'Вперед',
 			'settings.keybinding.actionGalleryToggleMute' => 'Вкл./Выкл. звук',
+			_ => null,
+		} ?? switch (path) {
 			'settings.keybinding.actionPlayPause' => 'Воспроизведение / Пауза',
 			'settings.keybinding.actionSpeedUp' => 'Увеличить скорость',
 			'settings.keybinding.actionSpeedDown' => 'Уменьшить скорость',
@@ -6150,8 +6348,6 @@ extension on TranslationsRu {
 			'settings.leftDoubleTapRewind' => 'Двойное нажатие слева: перемотка назад',
 			'settings.rightDoubleTapFastForward' => 'Двойное нажатие справа: перемотка вперед',
 			'settings.doubleTapPause' => 'Двойное нажатие: пауза',
-			_ => null,
-		} ?? switch (path) {
 			'settings.rightVerticalSwipeVolume' => 'Смахивание справа по вертикали: громкость (при входе на новую страницу)',
 			'settings.leftVerticalSwipeBrightness' => 'Смахивание слева по вертикали: яркость (при входе на новую страницу)',
 			'settings.longPressFastForward' => 'Долгое нажатие: ускорение',
@@ -6642,6 +6838,8 @@ extension on TranslationsRu {
 			'videoDetail.gestureGuide.quest.grip' => 'Боковая кнопка (хват)',
 			'videoDetail.gestureGuide.quest.bothGrips' => 'Обе боковые кнопки',
 			'videoDetail.gestureGuide.quest.stick' => 'Стик',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.handTracking' => 'Отслеживание рук',
 			'videoDetail.gestureGuide.quest.ready' => 'Готово',
 			'videoDetail.gestureGuide.quest.press' => 'Нажать',
@@ -6664,8 +6862,6 @@ extension on TranslationsRu {
 			'videoDetail.gestureGuide.quest.browseTitle' => 'Просмотр стиком',
 			'videoDetail.gestureGuide.quest.browseBody' => 'Отклоните стик влево/вправо для перехода к предыдущему или следующему элементу; удерживайте для непрерывного листания. Можно также выбрать миниатюру.',
 			'videoDetail.gestureGuide.quest.browseHint' => 'Видео в галерее также считаются элементами. Наведение на панель переключает стик на ее прокрутку.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.swipeTitle' => 'Перелистывание перетаскиванием',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Наведите на изображение, зажмите триггер и потяните влево. Отпустите после подсказки о смене страницы; потяните вправо для возврата. Щипок с перетаскиванием тоже работает.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Для перелистывания изображение должно быть в масштабе 1×. Поддерживаются и видео в галерее. Сцена остается на месте до отпускания.',
@@ -7156,6 +7352,8 @@ extension on TranslationsRu {
 			'download.actions.redownloadStarted' => ({required Object count}) => 'Started downloading ${count} items again',
 			'download.actions.redownloadNone' => 'Nothing to download again',
 			'download.actions.deleteTitle' => ({required Object count}) => 'Delete ${count} downloads?',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '${count} items · ${size}',
 			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '${count} items',
 			'download.actions.deleteGalleryNote' => ({required Object count}) => 'Size of ${count} galleries not included',
@@ -7178,8 +7376,6 @@ extension on TranslationsRu {
 			'download.notice.failed' => ({required Object count}) => '${count} downloads failed',
 			'download.notice.retryAll' => 'Retry all',
 			'download.notice.view' => 'View',
-			_ => null,
-		} ?? switch (path) {
 			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			'download.notice.handle' => 'Handle…',
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
@@ -7670,6 +7866,8 @@ extension on TranslationsRu {
 			'translation.reasoningModel' => 'Модель рассуждений',
 			'translation.reasoningModelDescription' => 'Для o1/o3, DeepSeek-R1, QwQ и др. Объединяет подсказку с сообщением пользователя, пропускает temperature и использует max_completion_tokens',
 			'translation.useMaxCompletionTokens' => 'Использовать max_completion_tokens',
+			_ => null,
+		} ?? switch (path) {
 			'translation.useMaxCompletionTokensDescription' => 'Новые конечные точки OpenAI требуют max_completion_tokens вместо устаревшего max_tokens',
 			'translation.sendTemperature' => 'Отправлять temperature',
 			'translation.sendTemperatureDescription' => 'Отключите для моделей, отвергающих параметр temperature (большинство моделей рассуждений)',
@@ -7692,8 +7890,6 @@ extension on TranslationsRu {
 			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude Рассуждение (расширенное мышление)',
 			'translation.presetNames.gemini' => 'Google Gemini (нативно)',
 			'translation.presetNames.geminiReasoning' => 'Google Gemini Рассуждение (мышление)',
-			_ => null,
-		} ?? switch (path) {
 			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek Рассуждение (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
@@ -8184,6 +8380,8 @@ extension on TranslationsRu {
 			'tagSelector.addTag' => 'Добавить тег',
 			'tagSelector.removeTag' => 'Убрать тег',
 			'tagSelector.deleteTag' => 'Удалить тег',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.usageInstructions' => 'Сначала добавьте теги, затем нажимайте, чтобы выбрать из существующих тегов',
 			'tagSelector.usageInstructionsTooltip' => 'Инструкция по использованию',
 			'tagSelector.addTagTooltip' => 'Добавить тег',
@@ -8206,8 +8404,6 @@ extension on TranslationsRu {
 			'anime4k.presetGroups.fast' => 'Быстрый',
 			'anime4k.presetGroups.lite' => 'Облегчённый',
 			'anime4k.presetGroups.moreLite' => 'Более облегчённый',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetGroups.custom' => 'Пользовательский',
 			'anime4k.presetDescriptions.mode_a_hq' => 'Подходит для большинства аниме в 1080p, особенно при наличии размытия, артефактов ресемплинга и сжатия. Обеспечивает наивысшее воспринимаемое качество.',
 			'anime4k.presetDescriptions.mode_b_hq' => 'Подходит для аниме с лёгким размытием или звоном, вызванным масштабированием. Эффективно снижает звон и алиасинг.',
@@ -8698,6 +8894,8 @@ extension on TranslationsRu {
 			'localMedia.webdav.stateCredUnreadable' => 'Couldn\'t read password',
 			'localMedia.webdav.connected' => 'Connected',
 			'localMedia.webdav.errorForbidden' => 'This account has no WebDAV access. Grant it WebDAV permission in the NAS settings.',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.errorTls' => 'Secure connection failed. Check that http:// or https:// matches the NAS settings.',
 			'localMedia.webdav.errorTryHttps' => 'If the NAS only serves HTTPS, add https:// in front of the address.',
 			'localMedia.webdav.previousStep' => 'Back',
@@ -8720,8 +8918,6 @@ extension on TranslationsRu {
 			'localMedia.sourceContainsExisting' => ({required Object name}) => 'Он уже содержит добавленную папку «${name}»; добавление её родительской папки пока не поддерживается',
 			'localMedia.addSourceFailed' => 'Не удалось добавить эту папку',
 			'localMedia.fileMissing' => 'Этот файл больше не находится на диске',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.permissionDenied' => 'Доступ к файлам не предоставлен · нажмите, чтобы предоставить',
 			'localMedia.noVideosFound' => 'В этой папке нет видео',
 			'localMedia.emptyTitle' => 'Добавьте папку, чтобы просматривать видео, уже имеющиеся на этом устройстве',
@@ -8935,6 +9131,68 @@ extension on TranslationsRu {
 			'poll.voteFailed' => 'Не удалось отправить голос',
 			'poll.copyLink' => 'Скопировать ссылку на опрос',
 			'poll.translateFailed' => 'Не удалось перевести опрос',
+			'frameInterp.title' => 'Интерполяция кадров',
+			'frameInterp.action' => 'Увеличить частоту кадров в 2 раза',
+			'frameInterp.playInterpolated' => 'Воспроизвести версию с интерполяцией',
+			'frameInterp.viewTasks' => 'Задачи интерполяции',
+			'frameInterp.badge' => '2× FPS',
+			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',
+			'frameInterp.specLine' => ({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps',
+			'frameInterp.runningDetail' => ({required Object percent, required Object speed}) => '${percent}% · ${speed} fps',
+			'frameInterp.preparing' => 'Подготовка…',
+			'frameInterp.outputMissing' => 'Файл с интерполяцией больше не существует',
+			'frameInterp.empty' => 'Задач интерполяции пока нет',
+			'frameInterp.emptyHint' => 'Выберите «Увеличить частоту кадров в 2 раза» для видео в разделе «Локальные файлы» или «Загрузки».',
+			'frameInterp.clearFinished' => 'Очистить завершённые записи',
+			'frameInterp.status.pending' => 'В очереди',
+			'frameInterp.status.running' => 'Обработка',
+			'frameInterp.status.completed' => 'Завершено',
+			'frameInterp.status.failed' => 'Ошибка',
+			'frameInterp.status.cancelled' => 'Отменено',
+			'frameInterp.actions.play' => 'Воспроизвести',
+			'frameInterp.actions.cancel' => 'Отмена',
+			'frameInterp.actions.retry' => 'Повторить',
+			'frameInterp.actions.delete' => 'Удалить запись',
+			'frameInterp.actions.revealInFolder' => 'Показать в папке',
+			'frameInterp.confirm.cancelTitle' => 'Отменить эту задачу?',
+			'frameInterp.confirm.cancelContent' => 'Текущий прогресс будет потерян. Позже можно повторить задачу с начала.',
+			'frameInterp.confirm.deleteTitle' => 'Удалить эту запись?',
+			'frameInterp.confirm.deleteContent' => 'Исходное видео не затрагивается.',
+			'frameInterp.confirm.deleteOutput' => 'Также удалить файл с интерполяцией',
+			'frameInterp.confirm.clearTitle' => 'Очистить завершённые записи?',
+			'frameInterp.confirm.clearContent' => 'Файлы с интерполяцией останутся на диске, будут удалены только записи.',
+			'frameInterp.toast.queued' => 'Добавлено в очередь интерполяции',
+			'frameInterp.toast.completed' => ({required Object title}) => 'Интерполяция завершена: ${title}',
+			'frameInterp.toast.failed' => ({required Object title}) => 'Ошибка интерполяции: ${title}',
+			'frameInterp.reject.sourceMissing' => 'Видеофайл больше не существует',
+			'frameInterp.reject.alreadyInterpolated' => 'Это видео уже обработано интерполяцией',
+			'frameInterp.reject.alreadyQueued' => 'Это видео уже в очереди',
+			'frameInterp.reject.alreadyDone' => 'У этого видео уже есть версия с интерполяцией',
+			'frameInterp.reject.highFrameRate' => 'У этого видео уже высокая частота кадров',
+			'frameInterp.reject.hdr' => 'Видео HDR пока не поддерживается',
+			'frameInterp.reject.resolutionTooLarge' => 'Разрешение слишком высокое для интерполяции',
+			'frameInterp.reject.unreadable' => 'Не удалось прочитать это видео',
+			'frameInterp.reject.noGpu' => 'Не найдена подходящая видеокарта (требуется поддержка Vulkan)',
+			'frameInterp.error.unknown' => 'Что-то пошло не так',
+			'frameInterp.error.openInput' => 'Не удалось открыть видео',
+			'frameInterp.error.noVideo' => 'В файле нет видеодорожки',
+			'frameInterp.error.decoder' => 'Не удалось декодировать видео',
+			'frameInterp.error.hdrUnsupported' => 'Видео HDR пока не поддерживается',
+			'frameInterp.error.noGpu' => 'Не найдена подходящая видеокарта',
+			'frameInterp.error.model' => 'Не удалось загрузить модель интерполяции. Попробуйте переустановить компонент',
+			'frameInterp.error.encoder' => 'Нет доступного видеокодера',
+			'frameInterp.error.openOutput' => 'Не удалось создать выходной файл',
+			'frameInterp.error.write' => 'Ошибка записи. Возможно, диск заполнен',
+			'frameInterp.error.interpolate' => 'Ошибка обработки. Возможно, не хватило памяти видеокарты',
+			'frameInterp.error.componentUnavailable' => 'Компонент интерполяции недоступен',
+			'frameInterp.error.interrupted' => 'Прервано, так как приложение было закрыто',
+			'frameInterp.error.finalizeFailed' => 'Не удалось сохранить готовый файл',
+			'frameInterp.error.sourceMissing' => 'Видеофайл больше не существует',
+			'frameInterp.error.backgrounded' => 'Прервано: приложение ушло в фон. Запустится заново, когда вы вернётесь',
+			'frameInterp.notification.title' => 'Интерполяция кадров',
+			'frameInterp.notification.titleWithQueue' => ({required Object count}) => 'Интерполяция кадров · в очереди: ${count}',
+			'frameInterp.notification.waiting' => 'Ожидание запуска',
+			'frameInterp.component.unsupported' => 'Интерполяция кадров недоступна на этом устройстве',
 			_ => null,
 		};
 	}

@@ -9,6 +9,7 @@ import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_relocation_flow.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/services/frame_interp/frame_interp_service.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_task_actions.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_task_tile.dart';
@@ -71,6 +72,19 @@ class VideoDownloadTaskItem extends StatelessWidget {
             ),
       // 只留时长：清晰度是同一部片子不同下载之间的区别，收在详情里。
       coverBadges: [
+        // 左上角被「文件不在」占着，补帧角标放右上。
+        if (FrameInterpService.maybe case final interp?)
+          Positioned(
+            top: 6,
+            right: 6,
+            // 补帧完成 / 成品被删时要在原地刷新，不能等用户离开再回来。
+            child: Obx(() {
+              interp.revision.value;
+              return interp.completedOutputFor(task.savePath) == null
+                  ? const SizedBox.shrink()
+                  : _CoverBadge(slang.t.frameInterp.badge);
+            }),
+          ),
         if (videoData.duration != null)
           Positioned(
             right: 6,

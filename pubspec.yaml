@@ -93,6 +93,9 @@ dependencies:
   media_kit: ^1.2.6
   media_kit_video: ^2.0.1
   media_kit_libs_video: ^1.0.7
+  # 补帧在 iOS 上跑着时让屏幕别自己熄（锁屏就是切到后台，系统不让后台用显卡）。
+  # 本来就在依赖树里（media_kit_video 带的），这里只是直接用上，版本跟着锁文件。
+  wakelock_plus: ^1.5.2
 
   # oreno3d 要拿 WebView 默认 UA 对齐过盾（cloudflare_interceptor 本就带着它）。
   flutter_inappwebview: ^6.1.5

@@ -102,6 +102,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsFollowSearchEn followSearch = TranslationsFollowSearchEn.internal(_root);
 	late final TranslationsPagedSearchEn pagedSearch = TranslationsPagedSearchEn.internal(_root);
 	late final TranslationsPollEn poll = TranslationsPollEn.internal(_root);
+	late final TranslationsFrameInterpEn frameInterp = TranslationsFrameInterpEn.internal(_root);
 }
 
 // Path: personalProfile
@@ -8277,6 +8278,63 @@ class TranslationsPollEn {
 	String get translateFailed => 'Couldn\'t translate this poll';
 }
 
+// Path: frameInterp
+class TranslationsFrameInterpEn {
+	TranslationsFrameInterpEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Frame interpolation'
+	String get title => 'Frame interpolation';
+
+	/// en: 'Interpolate to 2× frame rate'
+	String get action => 'Interpolate to 2× frame rate';
+
+	/// en: 'Play interpolated version'
+	String get playInterpolated => 'Play interpolated version';
+
+	/// en: 'View interpolation tasks'
+	String get viewTasks => 'View interpolation tasks';
+
+	/// en: '2× FPS'
+	String get badge => '2× FPS';
+
+	/// en: '${fps} FPS'
+	String fpsBadge({required Object fps}) => '${fps} FPS';
+
+	/// en: '${width}×${height} · ${from} → ${to} fps'
+	String specLine({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps';
+
+	/// en: '${percent}% · ${speed} fps'
+	String runningDetail({required Object percent, required Object speed}) => '${percent}% · ${speed} fps';
+
+	/// en: 'Preparing…'
+	String get preparing => 'Preparing…';
+
+	/// en: 'The interpolated file no longer exists'
+	String get outputMissing => 'The interpolated file no longer exists';
+
+	/// en: 'No interpolation tasks yet'
+	String get empty => 'No interpolation tasks yet';
+
+	/// en: 'Pick “Interpolate to 2× frame rate” on a video in Local files or Downloads.'
+	String get emptyHint => 'Pick “Interpolate to 2× frame rate” on a video in Local files or Downloads.';
+
+	/// en: 'Clear finished records'
+	String get clearFinished => 'Clear finished records';
+
+	late final TranslationsFrameInterpStatusEn status = TranslationsFrameInterpStatusEn.internal(_root);
+	late final TranslationsFrameInterpActionsEn actions = TranslationsFrameInterpActionsEn.internal(_root);
+	late final TranslationsFrameInterpConfirmEn confirm = TranslationsFrameInterpConfirmEn.internal(_root);
+	late final TranslationsFrameInterpToastEn toast = TranslationsFrameInterpToastEn.internal(_root);
+	late final TranslationsFrameInterpRejectEn reject = TranslationsFrameInterpRejectEn.internal(_root);
+	late final TranslationsFrameInterpErrorEn error = TranslationsFrameInterpErrorEn.internal(_root);
+	late final TranslationsFrameInterpNotificationEn notification = TranslationsFrameInterpNotificationEn.internal(_root);
+	late final TranslationsFrameInterpComponentEn component = TranslationsFrameInterpComponentEn.internal(_root);
+}
+
 // Path: common.pagination
 class TranslationsCommonPaginationEn {
 	TranslationsCommonPaginationEn.internal(this._root);
@@ -12330,6 +12388,225 @@ class TranslationsLocalMediaWebdavEn {
 
 	/// en: 'Couldn't read the saved password. Sign in again.'
 	String get bannerCredUnreadable => 'Couldn\'t read the saved password. Sign in again.';
+}
+
+// Path: frameInterp.status
+class TranslationsFrameInterpStatusEn {
+	TranslationsFrameInterpStatusEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Queued'
+	String get pending => 'Queued';
+
+	/// en: 'Processing'
+	String get running => 'Processing';
+
+	/// en: 'Done'
+	String get completed => 'Done';
+
+	/// en: 'Failed'
+	String get failed => 'Failed';
+
+	/// en: 'Cancelled'
+	String get cancelled => 'Cancelled';
+}
+
+// Path: frameInterp.actions
+class TranslationsFrameInterpActionsEn {
+	TranslationsFrameInterpActionsEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Play'
+	String get play => 'Play';
+
+	/// en: 'Cancel'
+	String get cancel => 'Cancel';
+
+	/// en: 'Retry'
+	String get retry => 'Retry';
+
+	/// en: 'Delete record'
+	String get delete => 'Delete record';
+
+	/// en: 'Show in folder'
+	String get revealInFolder => 'Show in folder';
+}
+
+// Path: frameInterp.confirm
+class TranslationsFrameInterpConfirmEn {
+	TranslationsFrameInterpConfirmEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Cancel this task?'
+	String get cancelTitle => 'Cancel this task?';
+
+	/// en: 'Progress so far will be lost. You can retry it later from the beginning.'
+	String get cancelContent => 'Progress so far will be lost. You can retry it later from the beginning.';
+
+	/// en: 'Delete this record?'
+	String get deleteTitle => 'Delete this record?';
+
+	/// en: 'The original video is not affected.'
+	String get deleteContent => 'The original video is not affected.';
+
+	/// en: 'Also delete the interpolated file'
+	String get deleteOutput => 'Also delete the interpolated file';
+
+	/// en: 'Clear finished records?'
+	String get clearTitle => 'Clear finished records?';
+
+	/// en: 'Interpolated files stay on disk; only the records are removed.'
+	String get clearContent => 'Interpolated files stay on disk; only the records are removed.';
+}
+
+// Path: frameInterp.toast
+class TranslationsFrameInterpToastEn {
+	TranslationsFrameInterpToastEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Added to the interpolation queue'
+	String get queued => 'Added to the interpolation queue';
+
+	/// en: 'Interpolation finished: ${title}'
+	String completed({required Object title}) => 'Interpolation finished: ${title}';
+
+	/// en: 'Interpolation failed: ${title}'
+	String failed({required Object title}) => 'Interpolation failed: ${title}';
+}
+
+// Path: frameInterp.reject
+class TranslationsFrameInterpRejectEn {
+	TranslationsFrameInterpRejectEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'The video file no longer exists'
+	String get sourceMissing => 'The video file no longer exists';
+
+	/// en: 'This video is already an interpolated one'
+	String get alreadyInterpolated => 'This video is already an interpolated one';
+
+	/// en: 'This video is already in the queue'
+	String get alreadyQueued => 'This video is already in the queue';
+
+	/// en: 'This video already has an interpolated version'
+	String get alreadyDone => 'This video already has an interpolated version';
+
+	/// en: 'This video already has a high frame rate'
+	String get highFrameRate => 'This video already has a high frame rate';
+
+	/// en: 'HDR videos are not supported yet'
+	String get hdr => 'HDR videos are not supported yet';
+
+	/// en: 'The resolution is too high to interpolate'
+	String get resolutionTooLarge => 'The resolution is too high to interpolate';
+
+	/// en: 'Couldn't read this video'
+	String get unreadable => 'Couldn\'t read this video';
+
+	/// en: 'No usable graphics card found (Vulkan support is required)'
+	String get noGpu => 'No usable graphics card found (Vulkan support is required)';
+}
+
+// Path: frameInterp.error
+class TranslationsFrameInterpErrorEn {
+	TranslationsFrameInterpErrorEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Something went wrong'
+	String get unknown => 'Something went wrong';
+
+	/// en: 'Couldn't open the video'
+	String get openInput => 'Couldn\'t open the video';
+
+	/// en: 'The file has no video track'
+	String get noVideo => 'The file has no video track';
+
+	/// en: 'Couldn't decode the video'
+	String get decoder => 'Couldn\'t decode the video';
+
+	/// en: 'HDR videos are not supported yet'
+	String get hdrUnsupported => 'HDR videos are not supported yet';
+
+	/// en: 'No usable graphics card found'
+	String get noGpu => 'No usable graphics card found';
+
+	/// en: 'The interpolation model failed to load. Try reinstalling the component'
+	String get model => 'The interpolation model failed to load. Try reinstalling the component';
+
+	/// en: 'No usable video encoder'
+	String get encoder => 'No usable video encoder';
+
+	/// en: 'Couldn't create the output file'
+	String get openOutput => 'Couldn\'t create the output file';
+
+	/// en: 'Writing failed. The disk may be full'
+	String get write => 'Writing failed. The disk may be full';
+
+	/// en: 'Processing failed. The graphics card may be out of memory'
+	String get interpolate => 'Processing failed. The graphics card may be out of memory';
+
+	/// en: 'The interpolation component is not available'
+	String get componentUnavailable => 'The interpolation component is not available';
+
+	/// en: 'Interrupted because the app was closed'
+	String get interrupted => 'Interrupted because the app was closed';
+
+	/// en: 'Couldn't save the finished file'
+	String get finalizeFailed => 'Couldn\'t save the finished file';
+
+	/// en: 'The video file no longer exists'
+	String get sourceMissing => 'The video file no longer exists';
+
+	/// en: 'Stopped because the app went to the background; restarts when you come back'
+	String get backgrounded => 'Stopped because the app went to the background; restarts when you come back';
+}
+
+// Path: frameInterp.notification
+class TranslationsFrameInterpNotificationEn {
+	TranslationsFrameInterpNotificationEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Interpolating frames'
+	String get title => 'Interpolating frames';
+
+	/// en: 'Interpolating frames · ${count} queued'
+	String titleWithQueue({required Object count}) => 'Interpolating frames · ${count} queued';
+
+	/// en: 'Waiting to start'
+	String get waiting => 'Waiting to start';
+}
+
+// Path: frameInterp.component
+class TranslationsFrameInterpComponentEn {
+	TranslationsFrameInterpComponentEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Frame interpolation is not available on this device'
+	String get unsupported => 'Frame interpolation is not available on this device';
 }
 
 // Path: settings.downloadSettings.pathTemplateEditor
@@ -16646,6 +16923,68 @@ extension on Translations {
 			'poll.voteFailed' => 'Couldn\'t submit your vote',
 			'poll.copyLink' => 'Copy poll link',
 			'poll.translateFailed' => 'Couldn\'t translate this poll',
+			'frameInterp.title' => 'Frame interpolation',
+			'frameInterp.action' => 'Interpolate to 2× frame rate',
+			'frameInterp.playInterpolated' => 'Play interpolated version',
+			'frameInterp.viewTasks' => 'View interpolation tasks',
+			'frameInterp.badge' => '2× FPS',
+			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',
+			'frameInterp.specLine' => ({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps',
+			'frameInterp.runningDetail' => ({required Object percent, required Object speed}) => '${percent}% · ${speed} fps',
+			'frameInterp.preparing' => 'Preparing…',
+			'frameInterp.outputMissing' => 'The interpolated file no longer exists',
+			'frameInterp.empty' => 'No interpolation tasks yet',
+			'frameInterp.emptyHint' => 'Pick “Interpolate to 2× frame rate” on a video in Local files or Downloads.',
+			'frameInterp.clearFinished' => 'Clear finished records',
+			'frameInterp.status.pending' => 'Queued',
+			'frameInterp.status.running' => 'Processing',
+			'frameInterp.status.completed' => 'Done',
+			'frameInterp.status.failed' => 'Failed',
+			'frameInterp.status.cancelled' => 'Cancelled',
+			'frameInterp.actions.play' => 'Play',
+			'frameInterp.actions.cancel' => 'Cancel',
+			'frameInterp.actions.retry' => 'Retry',
+			'frameInterp.actions.delete' => 'Delete record',
+			'frameInterp.actions.revealInFolder' => 'Show in folder',
+			'frameInterp.confirm.cancelTitle' => 'Cancel this task?',
+			'frameInterp.confirm.cancelContent' => 'Progress so far will be lost. You can retry it later from the beginning.',
+			'frameInterp.confirm.deleteTitle' => 'Delete this record?',
+			'frameInterp.confirm.deleteContent' => 'The original video is not affected.',
+			'frameInterp.confirm.deleteOutput' => 'Also delete the interpolated file',
+			'frameInterp.confirm.clearTitle' => 'Clear finished records?',
+			'frameInterp.confirm.clearContent' => 'Interpolated files stay on disk; only the records are removed.',
+			'frameInterp.toast.queued' => 'Added to the interpolation queue',
+			'frameInterp.toast.completed' => ({required Object title}) => 'Interpolation finished: ${title}',
+			'frameInterp.toast.failed' => ({required Object title}) => 'Interpolation failed: ${title}',
+			'frameInterp.reject.sourceMissing' => 'The video file no longer exists',
+			'frameInterp.reject.alreadyInterpolated' => 'This video is already an interpolated one',
+			'frameInterp.reject.alreadyQueued' => 'This video is already in the queue',
+			'frameInterp.reject.alreadyDone' => 'This video already has an interpolated version',
+			'frameInterp.reject.highFrameRate' => 'This video already has a high frame rate',
+			'frameInterp.reject.hdr' => 'HDR videos are not supported yet',
+			'frameInterp.reject.resolutionTooLarge' => 'The resolution is too high to interpolate',
+			'frameInterp.reject.unreadable' => 'Couldn\'t read this video',
+			'frameInterp.reject.noGpu' => 'No usable graphics card found (Vulkan support is required)',
+			'frameInterp.error.unknown' => 'Something went wrong',
+			'frameInterp.error.openInput' => 'Couldn\'t open the video',
+			'frameInterp.error.noVideo' => 'The file has no video track',
+			'frameInterp.error.decoder' => 'Couldn\'t decode the video',
+			'frameInterp.error.hdrUnsupported' => 'HDR videos are not supported yet',
+			'frameInterp.error.noGpu' => 'No usable graphics card found',
+			'frameInterp.error.model' => 'The interpolation model failed to load. Try reinstalling the component',
+			'frameInterp.error.encoder' => 'No usable video encoder',
+			'frameInterp.error.openOutput' => 'Couldn\'t create the output file',
+			'frameInterp.error.write' => 'Writing failed. The disk may be full',
+			'frameInterp.error.interpolate' => 'Processing failed. The graphics card may be out of memory',
+			'frameInterp.error.componentUnavailable' => 'The interpolation component is not available',
+			'frameInterp.error.interrupted' => 'Interrupted because the app was closed',
+			'frameInterp.error.finalizeFailed' => 'Couldn\'t save the finished file',
+			'frameInterp.error.sourceMissing' => 'The video file no longer exists',
+			'frameInterp.error.backgrounded' => 'Stopped because the app went to the background; restarts when you come back',
+			'frameInterp.notification.title' => 'Interpolating frames',
+			'frameInterp.notification.titleWithQueue' => ({required Object count}) => 'Interpolating frames · ${count} queued',
+			'frameInterp.notification.waiting' => 'Waiting to start',
+			'frameInterp.component.unsupported' => 'Frame interpolation is not available on this device',
 			_ => null,
 		};
 	}

@@ -13,6 +13,7 @@ import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/downloads_library_sync_service.dart';
@@ -22,6 +23,8 @@ import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/services/webdav/webdav_service.dart';
 import 'package:i_iwara/app/services/xr_immersive_service.dart';
+import 'package:i_iwara/app/ui/pages/frame_interp/frame_interp_launcher.dart'
+    show isFrameInterpSupported;
 import 'package:i_iwara/app/ui/pages/home_page.dart';
 import 'package:i_iwara/app/ui/pages/local_media/local_folder_route.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/downloaded_gallery_wall.dart';
@@ -1673,10 +1676,18 @@ class _LocalHomePageState extends State<LocalHomePage>
                     label: t.clearProgress,
                     icon: Icons.history_toggle_off,
                   ),
+                  if (isFrameInterpSupported)
+                    GlassMenuOption<String>(
+                      value: 'frameInterpTasks',
+                      label: slang.t.frameInterp.title,
+                      icon: Icons.slow_motion_video_outlined,
+                    ),
                 ],
               );
               if (!mounted || !anchorContext.mounted || action == null) return;
-              if (action == 'removeFolder') {
+              if (action == 'frameInterpTasks') {
+                NaviService.navigateToFrameInterpTaskListPage();
+              } else if (action == 'removeFolder') {
                 unawaited(
                   _handleRemoveFolderAction(anchorContext, removableSources),
                 );

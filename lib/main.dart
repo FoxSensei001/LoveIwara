@@ -10,6 +10,7 @@ import 'package:flutter/scheduler.dart' show FrameTiming, TimingsCallback;
 import 'package:material_ui/material_ui.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/frame_interp/frame_interp_service.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/app/services/logging/log_models.dart';
 import 'package:i_iwara/app/services/logging/log_service.dart';
@@ -545,6 +546,10 @@ class DesktopWindowListener extends WindowListener {
     try {
       await hiding;
     } catch (_) {}
+    // 2.6 停掉并销毁正在跑的补帧作业。它握着一个进程级的 Vulkan 实例，带着
+    //     活的实例走到进程退出，显卡驱动的清理代码会崩。同步、最多阻塞两秒半
+    //     ——窗口此时已经藏起来了，用户感知不到。
+    FrameInterpService.maybe?.shutdownSync();
     // 3. 后台限时清理（flush / 停 watchdog / 关库）：正常很快，但日志 flush
     //    偶发偏慢。给 1.5s 上限，超时直接退出，不让用户干等——此时标记已删，
     //    超时退出也不会误报崩溃。

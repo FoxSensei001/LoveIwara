@@ -5,6 +5,9 @@ import 'package:i_iwara/app/models/local_media/dav_path.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
+import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/frame_interp/frame_interp_service.dart';
+import 'package:i_iwara/app/ui/pages/frame_interp/frame_interp_launcher.dart';
 import 'package:i_iwara/app/ui/pages/local_media/local_folder_route.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_media_item_info_dialog.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_cover_picker_dialog.dart';
@@ -50,6 +53,20 @@ Future<void> showLocalMediaItemMenu({
       ? _folderRelPathOf(repo, item)
       : null;
 
+  // 补帧只认本机普通视频文件（判据同 [_canDeleteFile]）；成品自己不再补帧，
+  // 片源帧率已够高的也不给——点了只会被拒，不如不露。
+  final interp = FrameInterpService.maybe;
+  final interpolatedPath = interp?.completedOutputFor(item.path);
+  final fps = item.fps;
+  final canInterpolate =
+      interp != null &&
+      interpolatedPath == null &&
+      item.kind == LocalMediaItemKind.video &&
+      _canDeleteFile(item) &&
+      isFrameInterpSupported &&
+      !interp.isInterpolatedOutput(item.path) &&
+      !(fps != null && fps >= FrameInterpService.maxSourceFps);
+
   final action = await showGlassMenu<String>(
     anchorContext: anchorContext,
     entries: <GlassMenuEntry>[
@@ -72,6 +89,18 @@ Future<void> showLocalMediaItemMenu({
           value: 'folderCover',
           label: slang.t.localMedia.browse.setAsFolderCover,
           icon: Icons.folder_special_outlined,
+        ),
+      if (interpolatedPath != null)
+        GlassMenuOption<String>(
+          value: 'playInterpolated',
+          label: slang.t.frameInterp.playInterpolated,
+          icon: Icons.slow_motion_video,
+        ),
+      if (canInterpolate)
+        GlassMenuOption<String>(
+          value: 'interpolate',
+          label: slang.t.frameInterp.action,
+          icon: Icons.auto_awesome_motion_outlined,
         ),
       const GlassMenuSeparator(),
       if (folderRelPath != null)
@@ -108,6 +137,20 @@ Future<void> showLocalMediaItemMenu({
       );
       onChanged?.call();
     }
+    return;
+  }
+
+  if (action == 'playInterpolated' && interpolatedPath != null) {
+    NaviService.navigateToLocalVideoPlayerPageFromPath(interpolatedPath);
+    return;
+  }
+
+  if (action == 'interpolate') {
+    await requestFrameInterpolation(
+      sourcePath: item.path,
+      title: item.name,
+      thumbnail: item.coverImagePath,
+    );
     return;
   }
 

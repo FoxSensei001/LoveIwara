@@ -39,6 +39,7 @@ import 'package:i_iwara/app/services/light_service.dart';
 import 'package:i_iwara/app/services/logging/log_service.dart';
 import 'package:i_iwara/app/services/message_service.dart';
 import 'package:i_iwara/app/services/downloads_library_sync_service.dart';
+import 'package:i_iwara/app/services/frame_interp/frame_interp_service.dart';
 import 'package:i_iwara/app/services/download_relocation_service.dart';
 import 'package:i_iwara/app/services/download_file_health.dart';
 import 'package:i_iwara/app/services/local_media_derivation_service.dart';
@@ -521,6 +522,13 @@ class AppStartupCoordinator implements AppStartupRunner {
     // 所以要排在下载服务与「已下载」同步之后。
     _registerDeferredSingleton<DownloadRelocationService>(
       DownloadRelocationService(),
+      permanent: true,
+    );
+    // 离线补帧。⛔ permanent：它持有正在跑的原生作业（一个指针 + 一个轮询
+    // 定时器）。启动重试时被 `Get.delete` 换掉的话，旧实例手里的作业没人销毁，
+    // 新实例又不知道它存在，任务页上的进度也跟着失聪。
+    _registerDeferredSingleton<FrameInterpService>(
+      FrameInterpService(),
       permanent: true,
     );
     // 已完成下载「文件还在不在」的会话缓存（下载列表的横幅 / 需处理筛选读它）。

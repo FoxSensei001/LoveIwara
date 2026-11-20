@@ -23,6 +23,8 @@ import 'package:i_iwara/app/ui/pages/download/widgets/download_notice_banner.dar
 import 'package:i_iwara/app/ui/pages/download/widgets/download_relocation_flow.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_task_actions.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_task_tile.dart';
+import 'package:i_iwara/app/ui/pages/frame_interp/frame_interp_launcher.dart'
+    show isFrameInterpSupported;
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_grid_metrics.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_dropdown_pill.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/default_download_task_item_widget.dart';
@@ -94,6 +96,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   static const String _menuActionDeleteByDate = 'deleteByDate';
   static const String _menuActionCheckIntegrity = 'checkIntegrity';
   static const String _menuActionMigrate = 'migrateToCurrent';
+  static const String _menuActionFrameInterp = 'frameInterp';
 
   final DownloadTaskRepository _downloadTaskRepository =
       DownloadTaskRepository();
@@ -817,6 +820,12 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
           icon: Icons.folder_outlined,
           label: t.download.category.manageTitle,
         ),
+        if (isFrameInterpSupported)
+          GlassMenuOption(
+            value: _menuActionFrameInterp,
+            icon: Icons.slow_motion_video_outlined,
+            label: t.frameInterp.title,
+          ),
         // 「整理」一组：磁盘上的文件与列表记录对不上时从这里收拾。
         GlassMenuSectionHeader(t.download.actions.organize),
         GlassMenuOption(
@@ -844,6 +853,8 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     switch (picked) {
       case _menuActionManageCategory:
         _openCategoryManagePage();
+      case _menuActionFrameInterp:
+        NaviService.navigateToFrameInterpTaskListPage();
       case _menuActionDeleteByDate:
         _showDeleteByDateDialog();
       case _menuActionCheckIntegrity:

@@ -101,6 +101,7 @@ class TranslationsZhCn extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsFollowSearchZhCn followSearch = _TranslationsFollowSearchZhCn._(_root);
 	@override late final _TranslationsPagedSearchZhCn pagedSearch = _TranslationsPagedSearchZhCn._(_root);
 	@override late final _TranslationsPollZhCn poll = _TranslationsPollZhCn._(_root);
+	@override late final _TranslationsFrameInterpZhCn frameInterp = _TranslationsFrameInterpZhCn._(_root);
 }
 
 // Path: personalProfile
@@ -3243,6 +3244,36 @@ class _TranslationsPollZhCn extends TranslationsPollEn {
 	@override String get translateFailed => '投票翻译失败';
 }
 
+// Path: frameInterp
+class _TranslationsFrameInterpZhCn extends TranslationsFrameInterpEn {
+	_TranslationsFrameInterpZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '补帧任务';
+	@override String get action => '补帧（生成 2 倍帧率版本）';
+	@override String get playInterpolated => '播放补帧版本';
+	@override String get viewTasks => '查看补帧任务';
+	@override String get badge => '补帧';
+	@override String fpsBadge({required Object fps}) => '${fps}帧';
+	@override String specLine({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} 帧/秒';
+	@override String runningDetail({required Object percent, required Object speed}) => '${percent}% · ${speed} 帧/秒';
+	@override String get preparing => '准备中…';
+	@override String get outputMissing => '补帧文件已不存在';
+	@override String get empty => '还没有补帧任务';
+	@override String get emptyHint => '在「本机文件」或「下载列表」里对视频选择「补帧」。';
+	@override String get clearFinished => '清除已结束的记录';
+	@override late final _TranslationsFrameInterpStatusZhCn status = _TranslationsFrameInterpStatusZhCn._(_root);
+	@override late final _TranslationsFrameInterpActionsZhCn actions = _TranslationsFrameInterpActionsZhCn._(_root);
+	@override late final _TranslationsFrameInterpConfirmZhCn confirm = _TranslationsFrameInterpConfirmZhCn._(_root);
+	@override late final _TranslationsFrameInterpToastZhCn toast = _TranslationsFrameInterpToastZhCn._(_root);
+	@override late final _TranslationsFrameInterpRejectZhCn reject = _TranslationsFrameInterpRejectZhCn._(_root);
+	@override late final _TranslationsFrameInterpErrorZhCn error = _TranslationsFrameInterpErrorZhCn._(_root);
+	@override late final _TranslationsFrameInterpNotificationZhCn notification = _TranslationsFrameInterpNotificationZhCn._(_root);
+	@override late final _TranslationsFrameInterpComponentZhCn component = _TranslationsFrameInterpComponentZhCn._(_root);
+}
+
 // Path: common.pagination
 class _TranslationsCommonPaginationZhCn extends TranslationsCommonPaginationEn {
 	_TranslationsCommonPaginationZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
@@ -4948,6 +4979,127 @@ class _TranslationsLocalMediaWebdavZhCn extends TranslationsLocalMediaWebdavEn {
 	@override String get bannerAuthFailed => '登录已失效，重新登录后才能看到最新内容';
 	@override String get bannerCertUntrusted => 'NAS 的证书变了，确认之后才能继续';
 	@override String get bannerCredUnreadable => '读取保存的密码失败，重新登录一次即可';
+}
+
+// Path: frameInterp.status
+class _TranslationsFrameInterpStatusZhCn extends TranslationsFrameInterpStatusEn {
+	_TranslationsFrameInterpStatusZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get pending => '排队中';
+	@override String get running => '处理中';
+	@override String get completed => '已完成';
+	@override String get failed => '失败';
+	@override String get cancelled => '已取消';
+}
+
+// Path: frameInterp.actions
+class _TranslationsFrameInterpActionsZhCn extends TranslationsFrameInterpActionsEn {
+	_TranslationsFrameInterpActionsZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get play => '播放';
+	@override String get cancel => '取消';
+	@override String get retry => '重试';
+	@override String get delete => '删除记录';
+	@override String get revealInFolder => '在文件夹中显示';
+}
+
+// Path: frameInterp.confirm
+class _TranslationsFrameInterpConfirmZhCn extends TranslationsFrameInterpConfirmEn {
+	_TranslationsFrameInterpConfirmZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get cancelTitle => '取消这个任务？';
+	@override String get cancelContent => '已处理的进度会丢失，之后可以从头重试。';
+	@override String get deleteTitle => '删除这条记录？';
+	@override String get deleteContent => '原视频不受影响。';
+	@override String get deleteOutput => '同时删除补帧文件';
+	@override String get clearTitle => '清除已结束的记录？';
+	@override String get clearContent => '补帧文件保留在磁盘上，只移除记录。';
+}
+
+// Path: frameInterp.toast
+class _TranslationsFrameInterpToastZhCn extends TranslationsFrameInterpToastEn {
+	_TranslationsFrameInterpToastZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get queued => '已加入补帧队列';
+	@override String completed({required Object title}) => '补帧完成：${title}';
+	@override String failed({required Object title}) => '补帧失败：${title}';
+}
+
+// Path: frameInterp.reject
+class _TranslationsFrameInterpRejectZhCn extends TranslationsFrameInterpRejectEn {
+	_TranslationsFrameInterpRejectZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get sourceMissing => '视频文件已不存在';
+	@override String get alreadyInterpolated => '这已经是补帧后的视频';
+	@override String get alreadyQueued => '该视频已在补帧队列中';
+	@override String get alreadyDone => '该视频已有补帧版本';
+	@override String get highFrameRate => '该视频帧率已经很高，无需补帧';
+	@override String get hdr => '暂不支持 HDR 视频';
+	@override String get resolutionTooLarge => '分辨率过高，无法补帧';
+	@override String get unreadable => '无法读取该视频';
+	@override String get noGpu => '未检测到可用的显卡（需要支持 Vulkan）';
+}
+
+// Path: frameInterp.error
+class _TranslationsFrameInterpErrorZhCn extends TranslationsFrameInterpErrorEn {
+	_TranslationsFrameInterpErrorZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get unknown => '出了点问题';
+	@override String get openInput => '无法打开视频';
+	@override String get noVideo => '文件里没有视频轨';
+	@override String get decoder => '视频解码失败';
+	@override String get hdrUnsupported => '暂不支持 HDR 视频';
+	@override String get noGpu => '未检测到可用的显卡';
+	@override String get model => '补帧模型加载失败，可尝试重新安装组件';
+	@override String get encoder => '没有可用的视频编码器';
+	@override String get openOutput => '无法创建输出文件';
+	@override String get write => '写入失败，可能是磁盘空间不足';
+	@override String get interpolate => '处理失败，可能是显存不足';
+	@override String get componentUnavailable => '补帧组件不可用';
+	@override String get interrupted => '应用关闭导致任务中断';
+	@override String get finalizeFailed => '成品文件保存失败';
+	@override String get sourceMissing => '视频文件已不存在';
+	@override String get backgrounded => '应用切到了后台，回到前台后会自动重新开始';
+}
+
+// Path: frameInterp.notification
+class _TranslationsFrameInterpNotificationZhCn extends TranslationsFrameInterpNotificationEn {
+	_TranslationsFrameInterpNotificationZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '正在补帧';
+	@override String titleWithQueue({required Object count}) => '正在补帧 · ${count} 个排队';
+	@override String get waiting => '等待开始';
+}
+
+// Path: frameInterp.component
+class _TranslationsFrameInterpComponentZhCn extends TranslationsFrameInterpComponentEn {
+	_TranslationsFrameInterpComponentZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get unsupported => '此设备暂不支持补帧';
 }
 
 // Path: settings.downloadSettings.pathTemplateEditor
@@ -8979,6 +9131,68 @@ extension on TranslationsZhCn {
 			'poll.voteFailed' => '投票没有提交成功',
 			'poll.copyLink' => '复制投票链接',
 			'poll.translateFailed' => '投票翻译失败',
+			'frameInterp.title' => '补帧任务',
+			'frameInterp.action' => '补帧（生成 2 倍帧率版本）',
+			'frameInterp.playInterpolated' => '播放补帧版本',
+			'frameInterp.viewTasks' => '查看补帧任务',
+			'frameInterp.badge' => '补帧',
+			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps}帧',
+			'frameInterp.specLine' => ({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} 帧/秒',
+			'frameInterp.runningDetail' => ({required Object percent, required Object speed}) => '${percent}% · ${speed} 帧/秒',
+			'frameInterp.preparing' => '准备中…',
+			'frameInterp.outputMissing' => '补帧文件已不存在',
+			'frameInterp.empty' => '还没有补帧任务',
+			'frameInterp.emptyHint' => '在「本机文件」或「下载列表」里对视频选择「补帧」。',
+			'frameInterp.clearFinished' => '清除已结束的记录',
+			'frameInterp.status.pending' => '排队中',
+			'frameInterp.status.running' => '处理中',
+			'frameInterp.status.completed' => '已完成',
+			'frameInterp.status.failed' => '失败',
+			'frameInterp.status.cancelled' => '已取消',
+			'frameInterp.actions.play' => '播放',
+			'frameInterp.actions.cancel' => '取消',
+			'frameInterp.actions.retry' => '重试',
+			'frameInterp.actions.delete' => '删除记录',
+			'frameInterp.actions.revealInFolder' => '在文件夹中显示',
+			'frameInterp.confirm.cancelTitle' => '取消这个任务？',
+			'frameInterp.confirm.cancelContent' => '已处理的进度会丢失，之后可以从头重试。',
+			'frameInterp.confirm.deleteTitle' => '删除这条记录？',
+			'frameInterp.confirm.deleteContent' => '原视频不受影响。',
+			'frameInterp.confirm.deleteOutput' => '同时删除补帧文件',
+			'frameInterp.confirm.clearTitle' => '清除已结束的记录？',
+			'frameInterp.confirm.clearContent' => '补帧文件保留在磁盘上，只移除记录。',
+			'frameInterp.toast.queued' => '已加入补帧队列',
+			'frameInterp.toast.completed' => ({required Object title}) => '补帧完成：${title}',
+			'frameInterp.toast.failed' => ({required Object title}) => '补帧失败：${title}',
+			'frameInterp.reject.sourceMissing' => '视频文件已不存在',
+			'frameInterp.reject.alreadyInterpolated' => '这已经是补帧后的视频',
+			'frameInterp.reject.alreadyQueued' => '该视频已在补帧队列中',
+			'frameInterp.reject.alreadyDone' => '该视频已有补帧版本',
+			'frameInterp.reject.highFrameRate' => '该视频帧率已经很高，无需补帧',
+			'frameInterp.reject.hdr' => '暂不支持 HDR 视频',
+			'frameInterp.reject.resolutionTooLarge' => '分辨率过高，无法补帧',
+			'frameInterp.reject.unreadable' => '无法读取该视频',
+			'frameInterp.reject.noGpu' => '未检测到可用的显卡（需要支持 Vulkan）',
+			'frameInterp.error.unknown' => '出了点问题',
+			'frameInterp.error.openInput' => '无法打开视频',
+			'frameInterp.error.noVideo' => '文件里没有视频轨',
+			'frameInterp.error.decoder' => '视频解码失败',
+			'frameInterp.error.hdrUnsupported' => '暂不支持 HDR 视频',
+			'frameInterp.error.noGpu' => '未检测到可用的显卡',
+			'frameInterp.error.model' => '补帧模型加载失败，可尝试重新安装组件',
+			'frameInterp.error.encoder' => '没有可用的视频编码器',
+			'frameInterp.error.openOutput' => '无法创建输出文件',
+			'frameInterp.error.write' => '写入失败，可能是磁盘空间不足',
+			'frameInterp.error.interpolate' => '处理失败，可能是显存不足',
+			'frameInterp.error.componentUnavailable' => '补帧组件不可用',
+			'frameInterp.error.interrupted' => '应用关闭导致任务中断',
+			'frameInterp.error.finalizeFailed' => '成品文件保存失败',
+			'frameInterp.error.sourceMissing' => '视频文件已不存在',
+			'frameInterp.error.backgrounded' => '应用切到了后台，回到前台后会自动重新开始',
+			'frameInterp.notification.title' => '正在补帧',
+			'frameInterp.notification.titleWithQueue' => ({required Object count}) => '正在补帧 · ${count} 个排队',
+			'frameInterp.notification.waiting' => '等待开始',
+			'frameInterp.component.unsupported' => '此设备暂不支持补帧',
 			_ => null,
 		};
 	}

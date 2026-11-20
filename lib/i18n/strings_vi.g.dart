@@ -101,6 +101,7 @@ class TranslationsVi extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsFollowSearchVi followSearch = _TranslationsFollowSearchVi._(_root);
 	@override late final _TranslationsPagedSearchVi pagedSearch = _TranslationsPagedSearchVi._(_root);
 	@override late final _TranslationsPollVi poll = _TranslationsPollVi._(_root);
+	@override late final _TranslationsFrameInterpVi frameInterp = _TranslationsFrameInterpVi._(_root);
 }
 
 // Path: personalProfile
@@ -860,6 +861,28 @@ class _TranslationsSettingsVi extends TranslationsSettingsEn {
 	@override String get defaultBrowserDesc => 'Vui lòng mở mục cấu hình liên kết mặc định trong cài đặt hệ thống và thêm liên kết trang web iwara.tv';
 	@override String get themeMode => 'Chế độ giao diện';
 	@override String get themeModeDesc => 'Cấu hình này quyết định chế độ giao diện của ứng dụng';
+	@override String get glassQuality => 'Rendering quality';
+	@override String get glassQualityAuto => 'Automatic';
+	@override String get glassQualityAutoDesc => 'Adapts to frame time; refraction can change as quality adjusts';
+	@override String get glassQualityStandard => 'Smooth';
+	@override String get glassQualityStandardDesc => 'Lightweight glass with highlights and consistent frame pacing';
+	@override String get glassQualityPremium => 'Full refraction';
+	@override String get glassQualityPremiumDesc => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass';
+	@override String get glassQualityCurrent => 'Currently active';
+	@override String get glassChromeParametersDesc => 'Navigation glass parameters apply live to headers, buttons and the bottom bar';
+	@override String get glassOpacity => 'Opacity';
+	@override String get glassBlur => 'Background blur (sigma)';
+	@override String get glassBlurDesc => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness';
+	@override String get glassAdvancedParameters => 'Advanced navigation parameters';
+	@override String get glassThickness => 'Lens thickness';
+	@override String get glassRefractiveIndex => 'Refractive index';
+	@override String get glassLightIntensity => 'Highlight intensity';
+	@override String get glassSaturation => 'Background saturation';
+	@override String get glassChromaticAberration => 'Chromatic aberration';
+	@override String get glassShadows => 'Shadows';
+	@override String get glassPanelParameters => 'Menu panel parameters';
+	@override String get glassPanelParametersDesc => 'Applies to floating menus; panels use a separate lens renderer';
+	@override String get glassResetParameters => 'Restore glass defaults';
 	@override String get glassEffect => 'Vật liệu giao diện';
 	@override String get glassEffectDesc => 'Chọn vật liệu dùng xuyên suốt ứng dụng — thanh tiêu đề, menu, nút hộp thoại và thanh điều hướng dưới';
 	@override String get liquidGlassEffect => 'Kính lỏng';
@@ -3221,6 +3244,36 @@ class _TranslationsPollVi extends TranslationsPollEn {
 	@override String get translateFailed => 'Không dịch được cuộc bình chọn';
 }
 
+// Path: frameInterp
+class _TranslationsFrameInterpVi extends TranslationsFrameInterpEn {
+	_TranslationsFrameInterpVi._(TranslationsVi root) : this._root = root, super.internal(root);
+
+	final TranslationsVi _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Tác vụ nội suy khung hình';
+	@override String get action => 'Nội suy lên gấp 2 tốc độ khung hình';
+	@override String get playInterpolated => 'Phát bản đã nội suy';
+	@override String get viewTasks => 'Xem tác vụ nội suy';
+	@override String get badge => '2× FPS';
+	@override String fpsBadge({required Object fps}) => '${fps} FPS';
+	@override String specLine({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps';
+	@override String runningDetail({required Object percent, required Object speed}) => '${percent}% · ${speed} fps';
+	@override String get preparing => 'Đang chuẩn bị…';
+	@override String get outputMissing => 'Tệp đã nội suy không còn tồn tại';
+	@override String get empty => 'Chưa có tác vụ nội suy nào';
+	@override String get emptyHint => 'Chọn “Nội suy lên gấp 2 tốc độ khung hình” cho video trong Tệp cục bộ hoặc Tải xuống.';
+	@override String get clearFinished => 'Xóa các bản ghi đã xong';
+	@override late final _TranslationsFrameInterpStatusVi status = _TranslationsFrameInterpStatusVi._(_root);
+	@override late final _TranslationsFrameInterpActionsVi actions = _TranslationsFrameInterpActionsVi._(_root);
+	@override late final _TranslationsFrameInterpConfirmVi confirm = _TranslationsFrameInterpConfirmVi._(_root);
+	@override late final _TranslationsFrameInterpToastVi toast = _TranslationsFrameInterpToastVi._(_root);
+	@override late final _TranslationsFrameInterpRejectVi reject = _TranslationsFrameInterpRejectVi._(_root);
+	@override late final _TranslationsFrameInterpErrorVi error = _TranslationsFrameInterpErrorVi._(_root);
+	@override late final _TranslationsFrameInterpNotificationVi notification = _TranslationsFrameInterpNotificationVi._(_root);
+	@override late final _TranslationsFrameInterpComponentVi component = _TranslationsFrameInterpComponentVi._(_root);
+}
+
 // Path: common.pagination
 class _TranslationsCommonPaginationVi extends TranslationsCommonPaginationEn {
 	_TranslationsCommonPaginationVi._(TranslationsVi root) : this._root = root, super.internal(root);
@@ -4928,6 +4981,127 @@ class _TranslationsLocalMediaWebdavVi extends TranslationsLocalMediaWebdavEn {
 	@override String get bannerCredUnreadable => 'Couldn\'t read the saved password. Sign in again.';
 }
 
+// Path: frameInterp.status
+class _TranslationsFrameInterpStatusVi extends TranslationsFrameInterpStatusEn {
+	_TranslationsFrameInterpStatusVi._(TranslationsVi root) : this._root = root, super.internal(root);
+
+	final TranslationsVi _root; // ignore: unused_field
+
+	// Translations
+	@override String get pending => 'Đang chờ';
+	@override String get running => 'Đang xử lý';
+	@override String get completed => 'Đã hoàn thành';
+	@override String get failed => 'Thất bại';
+	@override String get cancelled => 'Đã hủy';
+}
+
+// Path: frameInterp.actions
+class _TranslationsFrameInterpActionsVi extends TranslationsFrameInterpActionsEn {
+	_TranslationsFrameInterpActionsVi._(TranslationsVi root) : this._root = root, super.internal(root);
+
+	final TranslationsVi _root; // ignore: unused_field
+
+	// Translations
+	@override String get play => 'Phát';
+	@override String get cancel => 'Hủy';
+	@override String get retry => 'Thử lại';
+	@override String get delete => 'Xóa bản ghi';
+	@override String get revealInFolder => 'Hiện trong thư mục';
+}
+
+// Path: frameInterp.confirm
+class _TranslationsFrameInterpConfirmVi extends TranslationsFrameInterpConfirmEn {
+	_TranslationsFrameInterpConfirmVi._(TranslationsVi root) : this._root = root, super.internal(root);
+
+	final TranslationsVi _root; // ignore: unused_field
+
+	// Translations
+	@override String get cancelTitle => 'Hủy tác vụ này?';
+	@override String get cancelContent => 'Tiến độ đã xử lý sẽ bị mất. Bạn có thể thử lại từ đầu sau.';
+	@override String get deleteTitle => 'Xóa bản ghi này?';
+	@override String get deleteContent => 'Video gốc không bị ảnh hưởng.';
+	@override String get deleteOutput => 'Xóa luôn tệp đã nội suy';
+	@override String get clearTitle => 'Xóa các bản ghi đã xong?';
+	@override String get clearContent => 'Các tệp đã nội suy vẫn nằm trên ổ đĩa; chỉ xóa bản ghi.';
+}
+
+// Path: frameInterp.toast
+class _TranslationsFrameInterpToastVi extends TranslationsFrameInterpToastEn {
+	_TranslationsFrameInterpToastVi._(TranslationsVi root) : this._root = root, super.internal(root);
+
+	final TranslationsVi _root; // ignore: unused_field
+
+	// Translations
+	@override String get queued => 'Đã thêm vào hàng đợi nội suy';
+	@override String completed({required Object title}) => 'Nội suy xong: ${title}';
+	@override String failed({required Object title}) => 'Nội suy thất bại: ${title}';
+}
+
+// Path: frameInterp.reject
+class _TranslationsFrameInterpRejectVi extends TranslationsFrameInterpRejectEn {
+	_TranslationsFrameInterpRejectVi._(TranslationsVi root) : this._root = root, super.internal(root);
+
+	final TranslationsVi _root; // ignore: unused_field
+
+	// Translations
+	@override String get sourceMissing => 'Tệp video không còn tồn tại';
+	@override String get alreadyInterpolated => 'Đây đã là video được nội suy';
+	@override String get alreadyQueued => 'Video này đã có trong hàng đợi';
+	@override String get alreadyDone => 'Video này đã có bản nội suy';
+	@override String get highFrameRate => 'Video này đã có tốc độ khung hình cao';
+	@override String get hdr => 'Chưa hỗ trợ video HDR';
+	@override String get resolutionTooLarge => 'Độ phân giải quá cao để nội suy';
+	@override String get unreadable => 'Không đọc được video này';
+	@override String get noGpu => 'Không tìm thấy card đồ họa khả dụng (cần hỗ trợ Vulkan)';
+}
+
+// Path: frameInterp.error
+class _TranslationsFrameInterpErrorVi extends TranslationsFrameInterpErrorEn {
+	_TranslationsFrameInterpErrorVi._(TranslationsVi root) : this._root = root, super.internal(root);
+
+	final TranslationsVi _root; // ignore: unused_field
+
+	// Translations
+	@override String get unknown => 'Đã xảy ra sự cố';
+	@override String get openInput => 'Không mở được video';
+	@override String get noVideo => 'Tệp không có luồng video';
+	@override String get decoder => 'Không giải mã được video';
+	@override String get hdrUnsupported => 'Chưa hỗ trợ video HDR';
+	@override String get noGpu => 'Không tìm thấy card đồ họa khả dụng';
+	@override String get model => 'Không tải được mô hình nội suy. Hãy thử cài lại thành phần';
+	@override String get encoder => 'Không có bộ mã hóa video khả dụng';
+	@override String get openOutput => 'Không tạo được tệp đầu ra';
+	@override String get write => 'Ghi tệp thất bại. Ổ đĩa có thể đã đầy';
+	@override String get interpolate => 'Xử lý thất bại. Card đồ họa có thể thiếu bộ nhớ';
+	@override String get componentUnavailable => 'Thành phần nội suy không khả dụng';
+	@override String get interrupted => 'Bị gián đoạn do ứng dụng đã đóng';
+	@override String get finalizeFailed => 'Không lưu được tệp thành phẩm';
+	@override String get sourceMissing => 'Tệp video không còn tồn tại';
+	@override String get backgrounded => 'Bị dừng vì ứng dụng chuyển sang nền; sẽ chạy lại khi bạn quay lại';
+}
+
+// Path: frameInterp.notification
+class _TranslationsFrameInterpNotificationVi extends TranslationsFrameInterpNotificationEn {
+	_TranslationsFrameInterpNotificationVi._(TranslationsVi root) : this._root = root, super.internal(root);
+
+	final TranslationsVi _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Đang nội suy khung hình';
+	@override String titleWithQueue({required Object count}) => 'Đang nội suy khung hình · ${count} đang chờ';
+	@override String get waiting => 'Đang chờ bắt đầu';
+}
+
+// Path: frameInterp.component
+class _TranslationsFrameInterpComponentVi extends TranslationsFrameInterpComponentEn {
+	_TranslationsFrameInterpComponentVi._(TranslationsVi root) : this._root = root, super.internal(root);
+
+	final TranslationsVi _root; // ignore: unused_field
+
+	// Translations
+	@override String get unsupported => 'Thiết bị này không hỗ trợ nội suy khung hình';
+}
+
 // Path: settings.downloadSettings.pathTemplateEditor
 class _TranslationsSettingsDownloadSettingsPathTemplateEditorVi extends TranslationsSettingsDownloadSettingsPathTemplateEditorEn {
 	_TranslationsSettingsDownloadSettingsPathTemplateEditorVi._(TranslationsVi root) : this._root = root, super.internal(root);
@@ -5796,6 +5970,28 @@ extension on TranslationsVi {
 			'settings.defaultBrowserDesc' => 'Vui lòng mở mục cấu hình liên kết mặc định trong cài đặt hệ thống và thêm liên kết trang web iwara.tv',
 			'settings.themeMode' => 'Chế độ giao diện',
 			'settings.themeModeDesc' => 'Cấu hình này quyết định chế độ giao diện của ứng dụng',
+			'settings.glassQuality' => 'Rendering quality',
+			'settings.glassQualityAuto' => 'Automatic',
+			'settings.glassQualityAutoDesc' => 'Adapts to frame time; refraction can change as quality adjusts',
+			'settings.glassQualityStandard' => 'Smooth',
+			'settings.glassQualityStandardDesc' => 'Lightweight glass with highlights and consistent frame pacing',
+			'settings.glassQualityPremium' => 'Full refraction',
+			'settings.glassQualityPremiumDesc' => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass',
+			'settings.glassQualityCurrent' => 'Currently active',
+			'settings.glassChromeParametersDesc' => 'Navigation glass parameters apply live to headers, buttons and the bottom bar',
+			'settings.glassOpacity' => 'Opacity',
+			'settings.glassBlur' => 'Background blur (sigma)',
+			'settings.glassBlurDesc' => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness',
+			'settings.glassAdvancedParameters' => 'Advanced navigation parameters',
+			'settings.glassThickness' => 'Lens thickness',
+			'settings.glassRefractiveIndex' => 'Refractive index',
+			'settings.glassLightIntensity' => 'Highlight intensity',
+			'settings.glassSaturation' => 'Background saturation',
+			'settings.glassChromaticAberration' => 'Chromatic aberration',
+			'settings.glassShadows' => 'Shadows',
+			'settings.glassPanelParameters' => 'Menu panel parameters',
+			'settings.glassPanelParametersDesc' => 'Applies to floating menus; panels use a separate lens renderer',
+			'settings.glassResetParameters' => 'Restore glass defaults',
 			'settings.glassEffect' => 'Vật liệu giao diện',
 			'settings.glassEffectDesc' => 'Chọn vật liệu dùng xuyên suốt ứng dụng — thanh tiêu đề, menu, nút hộp thoại và thanh điều hướng dưới',
 			'settings.liquidGlassEffect' => 'Kính lỏng',
@@ -6128,6 +6324,8 @@ extension on TranslationsVi {
 			'settings.keybinding.actionGallerySeekBackward' => 'Tua lại',
 			'settings.keybinding.actionGallerySeekForward' => 'Tua tới',
 			'settings.keybinding.actionGalleryToggleMute' => 'Bật/tắt tiếng',
+			_ => null,
+		} ?? switch (path) {
 			'settings.keybinding.actionPlayPause' => 'Phát / Tạm dừng',
 			'settings.keybinding.actionSpeedUp' => 'Tăng tốc độ',
 			'settings.keybinding.actionSpeedDown' => 'Giảm tốc độ',
@@ -6150,8 +6348,6 @@ extension on TranslationsVi {
 			'settings.leftDoubleTapRewind' => 'Nhấn đúp bên trái để tua lại',
 			'settings.rightDoubleTapFastForward' => 'Nhấn đúp bên phải để tua nhanh',
 			'settings.doubleTapPause' => 'Nhấn đúp để tạm dừng',
-			_ => null,
-		} ?? switch (path) {
 			'settings.rightVerticalSwipeVolume' => 'Vuốt dọc bên phải để chỉnh âm lượng (có hiệu lực khi vào trang mới)',
 			'settings.leftVerticalSwipeBrightness' => 'Vuốt dọc bên trái để chỉnh độ sáng (có hiệu lực khi vào trang mới)',
 			'settings.longPressFastForward' => 'Nhấn giữ để tua nhanh',
@@ -6642,6 +6838,8 @@ extension on TranslationsVi {
 			'videoDetail.gestureGuide.quest.grip' => 'Nút cầm',
 			'videoDetail.gestureGuide.quest.bothGrips' => 'Cả hai nút cầm',
 			'videoDetail.gestureGuide.quest.stick' => 'Cần điều khiển',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.handTracking' => 'Theo dõi bàn tay',
 			'videoDetail.gestureGuide.quest.ready' => 'Sẵn sàng',
 			'videoDetail.gestureGuide.quest.press' => 'Nhấn',
@@ -6664,8 +6862,6 @@ extension on TranslationsVi {
 			'videoDetail.gestureGuide.quest.browseTitle' => 'Duyệt bằng cần gạt',
 			'videoDetail.gestureGuide.quest.browseBody' => 'Đẩy cần gạt sang trái hoặc phải để chuyển mục trước hoặc sau; giữ để tiếp tục duyệt. Bạn cũng có thể chọn một ảnh thu nhỏ trong dải phim.',
 			'videoDetail.gestureGuide.quest.browseHint' => 'Video trong thư viện cũng là các mục. Chỉ vào bảng điều khiển sẽ khiến cần gạt cuộn bảng.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.swipeTitle' => 'Kéo ngang để lật trang',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Hướng vào hình ảnh, giữ cò ngón trỏ và kéo sang trái. Thả ra sau tín hiệu lật trang để chuyển tiếp; kéo sang phải để lùi lại. Chụm và kéo cũng hoạt động.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Hình ảnh phải ở mức 1× để lật trang bằng cách kéo. Video trong thư viện cũng hỗ trợ. Sân khấu đứng yên cho đến khi bạn thả ra.',
@@ -7156,6 +7352,8 @@ extension on TranslationsVi {
 			'download.actions.redownloadStarted' => ({required Object count}) => 'Started downloading ${count} items again',
 			'download.actions.redownloadNone' => 'Nothing to download again',
 			'download.actions.deleteTitle' => ({required Object count}) => 'Delete ${count} downloads?',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '${count} items · ${size}',
 			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '${count} items',
 			'download.actions.deleteGalleryNote' => ({required Object count}) => 'Size of ${count} galleries not included',
@@ -7178,8 +7376,6 @@ extension on TranslationsVi {
 			'download.notice.failed' => ({required Object count}) => '${count} downloads failed',
 			'download.notice.retryAll' => 'Retry all',
 			'download.notice.view' => 'View',
-			_ => null,
-		} ?? switch (path) {
 			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			'download.notice.handle' => 'Handle…',
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
@@ -7670,6 +7866,8 @@ extension on TranslationsVi {
 			'translation.reasoningModel' => 'Mô hình suy luận',
 			'translation.reasoningModelDescription' => 'Cho o1/o3, DeepSeek-R1, QwQ, v.v. Gộp câu lệnh vào tin nhắn người dùng, bỏ temperature và dùng max_completion_tokens',
 			'translation.useMaxCompletionTokens' => 'Dùng max_completion_tokens',
+			_ => null,
+		} ?? switch (path) {
 			'translation.useMaxCompletionTokensDescription' => 'Các điểm cuối OpenAI mới hơn yêu cầu max_completion_tokens thay cho max_tokens đã lỗi thời',
 			'translation.sendTemperature' => 'Gửi temperature',
 			'translation.sendTemperatureDescription' => 'Tắt cho các mô hình từ chối tham số temperature (hầu hết mô hình suy luận)',
@@ -7692,8 +7890,6 @@ extension on TranslationsVi {
 			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude Reasoning (suy luận mở rộng)',
 			'translation.presetNames.gemini' => 'Google Gemini (gốc)',
 			'translation.presetNames.geminiReasoning' => 'Google Gemini Reasoning (suy nghĩ)',
-			_ => null,
-		} ?? switch (path) {
 			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek Reasoning (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
@@ -8184,6 +8380,8 @@ extension on TranslationsVi {
 			'tagSelector.addTag' => 'Thêm thẻ',
 			'tagSelector.removeTag' => 'Bỏ thẻ',
 			'tagSelector.deleteTag' => 'Xóa thẻ',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.usageInstructions' => 'Trước tiên thêm thẻ, sau đó nhấn để chọn từ các thẻ hiện có',
 			'tagSelector.usageInstructionsTooltip' => 'Hướng dẫn sử dụng',
 			'tagSelector.addTagTooltip' => 'Thêm thẻ',
@@ -8206,8 +8404,6 @@ extension on TranslationsVi {
 			'anime4k.presetGroups.fast' => 'Nhanh',
 			'anime4k.presetGroups.lite' => 'Nhẹ',
 			'anime4k.presetGroups.moreLite' => 'Nhẹ hơn',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetGroups.custom' => 'Tùy chỉnh',
 			'anime4k.presetDescriptions.mode_a_hq' => 'Phù hợp với hầu hết video hoạt hình 1080p, đặc biệt là các trường hợp bị mờ, lấy mẫu lại và nén. Mang lại chất lượng cảm nhận cao nhất.',
 			'anime4k.presetDescriptions.mode_b_hq' => 'Phù hợp với video hoạt hình bị mờ nhẹ hoặc có viền răng cưa do nâng tỉ lệ. Giảm hiệu quả viền răng cưa và hiện tượng răng cưa.',
@@ -8698,6 +8894,8 @@ extension on TranslationsVi {
 			'localMedia.webdav.stateCredUnreadable' => 'Couldn\'t read password',
 			'localMedia.webdav.connected' => 'Connected',
 			'localMedia.webdav.errorForbidden' => 'This account has no WebDAV access. Grant it WebDAV permission in the NAS settings.',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.errorTls' => 'Secure connection failed. Check that http:// or https:// matches the NAS settings.',
 			'localMedia.webdav.errorTryHttps' => 'If the NAS only serves HTTPS, add https:// in front of the address.',
 			'localMedia.webdav.previousStep' => 'Back',
@@ -8720,8 +8918,6 @@ extension on TranslationsVi {
 			'localMedia.sourceContainsExisting' => ({required Object name}) => 'Đã chứa thư mục đã thêm "${name}"; chưa hỗ trợ thêm thư mục cha của nó',
 			'localMedia.addSourceFailed' => 'Không thể thêm thư mục đó',
 			'localMedia.fileMissing' => 'Tệp đó không còn trên đĩa',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.permissionDenied' => 'Chưa được cấp quyền truy cập tệp · nhấn để cấp',
 			'localMedia.noVideosFound' => 'Không có video trong thư mục này',
 			'localMedia.emptyTitle' => 'Thêm thư mục để xem các video đã có trên thiết bị này',
@@ -8935,6 +9131,68 @@ extension on TranslationsVi {
 			'poll.voteFailed' => 'Không gửi được phiếu bầu',
 			'poll.copyLink' => 'Sao chép liên kết bình chọn',
 			'poll.translateFailed' => 'Không dịch được cuộc bình chọn',
+			'frameInterp.title' => 'Tác vụ nội suy khung hình',
+			'frameInterp.action' => 'Nội suy lên gấp 2 tốc độ khung hình',
+			'frameInterp.playInterpolated' => 'Phát bản đã nội suy',
+			'frameInterp.viewTasks' => 'Xem tác vụ nội suy',
+			'frameInterp.badge' => '2× FPS',
+			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',
+			'frameInterp.specLine' => ({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps',
+			'frameInterp.runningDetail' => ({required Object percent, required Object speed}) => '${percent}% · ${speed} fps',
+			'frameInterp.preparing' => 'Đang chuẩn bị…',
+			'frameInterp.outputMissing' => 'Tệp đã nội suy không còn tồn tại',
+			'frameInterp.empty' => 'Chưa có tác vụ nội suy nào',
+			'frameInterp.emptyHint' => 'Chọn “Nội suy lên gấp 2 tốc độ khung hình” cho video trong Tệp cục bộ hoặc Tải xuống.',
+			'frameInterp.clearFinished' => 'Xóa các bản ghi đã xong',
+			'frameInterp.status.pending' => 'Đang chờ',
+			'frameInterp.status.running' => 'Đang xử lý',
+			'frameInterp.status.completed' => 'Đã hoàn thành',
+			'frameInterp.status.failed' => 'Thất bại',
+			'frameInterp.status.cancelled' => 'Đã hủy',
+			'frameInterp.actions.play' => 'Phát',
+			'frameInterp.actions.cancel' => 'Hủy',
+			'frameInterp.actions.retry' => 'Thử lại',
+			'frameInterp.actions.delete' => 'Xóa bản ghi',
+			'frameInterp.actions.revealInFolder' => 'Hiện trong thư mục',
+			'frameInterp.confirm.cancelTitle' => 'Hủy tác vụ này?',
+			'frameInterp.confirm.cancelContent' => 'Tiến độ đã xử lý sẽ bị mất. Bạn có thể thử lại từ đầu sau.',
+			'frameInterp.confirm.deleteTitle' => 'Xóa bản ghi này?',
+			'frameInterp.confirm.deleteContent' => 'Video gốc không bị ảnh hưởng.',
+			'frameInterp.confirm.deleteOutput' => 'Xóa luôn tệp đã nội suy',
+			'frameInterp.confirm.clearTitle' => 'Xóa các bản ghi đã xong?',
+			'frameInterp.confirm.clearContent' => 'Các tệp đã nội suy vẫn nằm trên ổ đĩa; chỉ xóa bản ghi.',
+			'frameInterp.toast.queued' => 'Đã thêm vào hàng đợi nội suy',
+			'frameInterp.toast.completed' => ({required Object title}) => 'Nội suy xong: ${title}',
+			'frameInterp.toast.failed' => ({required Object title}) => 'Nội suy thất bại: ${title}',
+			'frameInterp.reject.sourceMissing' => 'Tệp video không còn tồn tại',
+			'frameInterp.reject.alreadyInterpolated' => 'Đây đã là video được nội suy',
+			'frameInterp.reject.alreadyQueued' => 'Video này đã có trong hàng đợi',
+			'frameInterp.reject.alreadyDone' => 'Video này đã có bản nội suy',
+			'frameInterp.reject.highFrameRate' => 'Video này đã có tốc độ khung hình cao',
+			'frameInterp.reject.hdr' => 'Chưa hỗ trợ video HDR',
+			'frameInterp.reject.resolutionTooLarge' => 'Độ phân giải quá cao để nội suy',
+			'frameInterp.reject.unreadable' => 'Không đọc được video này',
+			'frameInterp.reject.noGpu' => 'Không tìm thấy card đồ họa khả dụng (cần hỗ trợ Vulkan)',
+			'frameInterp.error.unknown' => 'Đã xảy ra sự cố',
+			'frameInterp.error.openInput' => 'Không mở được video',
+			'frameInterp.error.noVideo' => 'Tệp không có luồng video',
+			'frameInterp.error.decoder' => 'Không giải mã được video',
+			'frameInterp.error.hdrUnsupported' => 'Chưa hỗ trợ video HDR',
+			'frameInterp.error.noGpu' => 'Không tìm thấy card đồ họa khả dụng',
+			'frameInterp.error.model' => 'Không tải được mô hình nội suy. Hãy thử cài lại thành phần',
+			'frameInterp.error.encoder' => 'Không có bộ mã hóa video khả dụng',
+			'frameInterp.error.openOutput' => 'Không tạo được tệp đầu ra',
+			'frameInterp.error.write' => 'Ghi tệp thất bại. Ổ đĩa có thể đã đầy',
+			'frameInterp.error.interpolate' => 'Xử lý thất bại. Card đồ họa có thể thiếu bộ nhớ',
+			'frameInterp.error.componentUnavailable' => 'Thành phần nội suy không khả dụng',
+			'frameInterp.error.interrupted' => 'Bị gián đoạn do ứng dụng đã đóng',
+			'frameInterp.error.finalizeFailed' => 'Không lưu được tệp thành phẩm',
+			'frameInterp.error.sourceMissing' => 'Tệp video không còn tồn tại',
+			'frameInterp.error.backgrounded' => 'Bị dừng vì ứng dụng chuyển sang nền; sẽ chạy lại khi bạn quay lại',
+			'frameInterp.notification.title' => 'Đang nội suy khung hình',
+			'frameInterp.notification.titleWithQueue' => ({required Object count}) => 'Đang nội suy khung hình · ${count} đang chờ',
+			'frameInterp.notification.waiting' => 'Đang chờ bắt đầu',
+			'frameInterp.component.unsupported' => 'Thiết bị này không hỗ trợ nội suy khung hình',
 			_ => null,
 		};
 	}

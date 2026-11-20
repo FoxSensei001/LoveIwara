@@ -101,6 +101,7 @@ class TranslationsEs extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsFollowSearchEs followSearch = _TranslationsFollowSearchEs._(_root);
 	@override late final _TranslationsPagedSearchEs pagedSearch = _TranslationsPagedSearchEs._(_root);
 	@override late final _TranslationsPollEs poll = _TranslationsPollEs._(_root);
+	@override late final _TranslationsFrameInterpEs frameInterp = _TranslationsFrameInterpEs._(_root);
 }
 
 // Path: personalProfile
@@ -860,6 +861,28 @@ class _TranslationsSettingsEs extends TranslationsSettingsEn {
 	@override String get defaultBrowserDesc => 'Abra el elemento de configuración de enlace predeterminado en los ajustes del sistema y añada el enlace del sitio web iwara.tv';
 	@override String get themeMode => 'Modo de tema';
 	@override String get themeModeDesc => 'Esta configuración determina el modo de tema de la aplicación';
+	@override String get glassQuality => 'Rendering quality';
+	@override String get glassQualityAuto => 'Automatic';
+	@override String get glassQualityAutoDesc => 'Adapts to frame time; refraction can change as quality adjusts';
+	@override String get glassQualityStandard => 'Smooth';
+	@override String get glassQualityStandardDesc => 'Lightweight glass with highlights and consistent frame pacing';
+	@override String get glassQualityPremium => 'Full refraction';
+	@override String get glassQualityPremiumDesc => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass';
+	@override String get glassQualityCurrent => 'Currently active';
+	@override String get glassChromeParametersDesc => 'Navigation glass parameters apply live to headers, buttons and the bottom bar';
+	@override String get glassOpacity => 'Opacity';
+	@override String get glassBlur => 'Background blur (sigma)';
+	@override String get glassBlurDesc => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness';
+	@override String get glassAdvancedParameters => 'Advanced navigation parameters';
+	@override String get glassThickness => 'Lens thickness';
+	@override String get glassRefractiveIndex => 'Refractive index';
+	@override String get glassLightIntensity => 'Highlight intensity';
+	@override String get glassSaturation => 'Background saturation';
+	@override String get glassChromaticAberration => 'Chromatic aberration';
+	@override String get glassShadows => 'Shadows';
+	@override String get glassPanelParameters => 'Menu panel parameters';
+	@override String get glassPanelParametersDesc => 'Applies to floating menus; panels use a separate lens renderer';
+	@override String get glassResetParameters => 'Restore glass defaults';
 	@override String get glassEffect => 'Material de la interfaz';
 	@override String get glassEffectDesc => 'Elige el material usado en toda la aplicación: cápsulas de encabezado, menús, botones de diálogo y la barra de navegación inferior';
 	@override String get liquidGlassEffect => 'Vidrio líquido';
@@ -3221,6 +3244,36 @@ class _TranslationsPollEs extends TranslationsPollEn {
 	@override String get translateFailed => 'No se pudo traducir la encuesta';
 }
 
+// Path: frameInterp
+class _TranslationsFrameInterpEs extends TranslationsFrameInterpEn {
+	_TranslationsFrameInterpEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Interpolación de fotogramas';
+	@override String get action => 'Interpolar al doble de fotogramas';
+	@override String get playInterpolated => 'Reproducir versión interpolada';
+	@override String get viewTasks => 'Ver tareas de interpolación';
+	@override String get badge => '2× FPS';
+	@override String fpsBadge({required Object fps}) => '${fps} FPS';
+	@override String specLine({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps';
+	@override String runningDetail({required Object percent, required Object speed}) => '${percent}% · ${speed} fps';
+	@override String get preparing => 'Preparando…';
+	@override String get outputMissing => 'El archivo interpolado ya no existe';
+	@override String get empty => 'Aún no hay tareas de interpolación';
+	@override String get emptyHint => 'Elige «Interpolar al doble de fotogramas» en un vídeo de Archivos locales o Descargas.';
+	@override String get clearFinished => 'Borrar registros finalizados';
+	@override late final _TranslationsFrameInterpStatusEs status = _TranslationsFrameInterpStatusEs._(_root);
+	@override late final _TranslationsFrameInterpActionsEs actions = _TranslationsFrameInterpActionsEs._(_root);
+	@override late final _TranslationsFrameInterpConfirmEs confirm = _TranslationsFrameInterpConfirmEs._(_root);
+	@override late final _TranslationsFrameInterpToastEs toast = _TranslationsFrameInterpToastEs._(_root);
+	@override late final _TranslationsFrameInterpRejectEs reject = _TranslationsFrameInterpRejectEs._(_root);
+	@override late final _TranslationsFrameInterpErrorEs error = _TranslationsFrameInterpErrorEs._(_root);
+	@override late final _TranslationsFrameInterpNotificationEs notification = _TranslationsFrameInterpNotificationEs._(_root);
+	@override late final _TranslationsFrameInterpComponentEs component = _TranslationsFrameInterpComponentEs._(_root);
+}
+
 // Path: common.pagination
 class _TranslationsCommonPaginationEs extends TranslationsCommonPaginationEn {
 	_TranslationsCommonPaginationEs._(TranslationsEs root) : this._root = root, super.internal(root);
@@ -4928,6 +4981,127 @@ class _TranslationsLocalMediaWebdavEs extends TranslationsLocalMediaWebdavEn {
 	@override String get bannerCredUnreadable => 'Couldn\'t read the saved password. Sign in again.';
 }
 
+// Path: frameInterp.status
+class _TranslationsFrameInterpStatusEs extends TranslationsFrameInterpStatusEn {
+	_TranslationsFrameInterpStatusEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get pending => 'En cola';
+	@override String get running => 'Procesando';
+	@override String get completed => 'Completado';
+	@override String get failed => 'Fallido';
+	@override String get cancelled => 'Cancelado';
+}
+
+// Path: frameInterp.actions
+class _TranslationsFrameInterpActionsEs extends TranslationsFrameInterpActionsEn {
+	_TranslationsFrameInterpActionsEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get play => 'Reproducir';
+	@override String get cancel => 'Cancelar';
+	@override String get retry => 'Reintentar';
+	@override String get delete => 'Eliminar registro';
+	@override String get revealInFolder => 'Mostrar en la carpeta';
+}
+
+// Path: frameInterp.confirm
+class _TranslationsFrameInterpConfirmEs extends TranslationsFrameInterpConfirmEn {
+	_TranslationsFrameInterpConfirmEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get cancelTitle => '¿Cancelar esta tarea?';
+	@override String get cancelContent => 'Se perderá el progreso actual. Podrá reintentarla más tarde desde el principio.';
+	@override String get deleteTitle => '¿Eliminar este registro?';
+	@override String get deleteContent => 'El vídeo original no se verá afectado.';
+	@override String get deleteOutput => 'Eliminar también el archivo interpolado';
+	@override String get clearTitle => '¿Borrar los registros finalizados?';
+	@override String get clearContent => 'Los archivos interpolados se conservan en el disco; solo se eliminan los registros.';
+}
+
+// Path: frameInterp.toast
+class _TranslationsFrameInterpToastEs extends TranslationsFrameInterpToastEn {
+	_TranslationsFrameInterpToastEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get queued => 'Añadido a la cola de interpolación';
+	@override String completed({required Object title}) => 'Interpolación finalizada: ${title}';
+	@override String failed({required Object title}) => 'Error de interpolación: ${title}';
+}
+
+// Path: frameInterp.reject
+class _TranslationsFrameInterpRejectEs extends TranslationsFrameInterpRejectEn {
+	_TranslationsFrameInterpRejectEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get sourceMissing => 'El archivo de vídeo ya no existe';
+	@override String get alreadyInterpolated => 'Este vídeo ya está interpolado';
+	@override String get alreadyQueued => 'Este vídeo ya está en la cola';
+	@override String get alreadyDone => 'Este vídeo ya tiene una versión interpolada';
+	@override String get highFrameRate => 'Este vídeo ya tiene una tasa de fotogramas alta';
+	@override String get hdr => 'Los vídeos HDR aún no son compatibles';
+	@override String get resolutionTooLarge => 'La resolución es demasiado alta para interpolar';
+	@override String get unreadable => 'No se pudo leer este vídeo';
+	@override String get noGpu => 'No se encontró ninguna tarjeta gráfica utilizable (se requiere compatibilidad con Vulkan)';
+}
+
+// Path: frameInterp.error
+class _TranslationsFrameInterpErrorEs extends TranslationsFrameInterpErrorEn {
+	_TranslationsFrameInterpErrorEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get unknown => 'Algo salió mal';
+	@override String get openInput => 'No se pudo abrir el vídeo';
+	@override String get noVideo => 'El archivo no tiene pista de vídeo';
+	@override String get decoder => 'No se pudo decodificar el vídeo';
+	@override String get hdrUnsupported => 'Los vídeos HDR aún no son compatibles';
+	@override String get noGpu => 'No se encontró ninguna tarjeta gráfica utilizable';
+	@override String get model => 'No se pudo cargar el modelo de interpolación. Pruebe a reinstalar el componente';
+	@override String get encoder => 'No hay ningún codificador de vídeo utilizable';
+	@override String get openOutput => 'No se pudo crear el archivo de salida';
+	@override String get write => 'Error de escritura. Puede que el disco esté lleno';
+	@override String get interpolate => 'Error de procesamiento. Puede que la tarjeta gráfica se haya quedado sin memoria';
+	@override String get componentUnavailable => 'El componente de interpolación no está disponible';
+	@override String get interrupted => 'Interrumpido porque se cerró la aplicación';
+	@override String get finalizeFailed => 'No se pudo guardar el archivo terminado';
+	@override String get sourceMissing => 'El archivo de vídeo ya no existe';
+	@override String get backgrounded => 'Detenido porque la app pasó a segundo plano; se reinicia al volver';
+}
+
+// Path: frameInterp.notification
+class _TranslationsFrameInterpNotificationEs extends TranslationsFrameInterpNotificationEn {
+	_TranslationsFrameInterpNotificationEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Interpolando fotogramas';
+	@override String titleWithQueue({required Object count}) => 'Interpolando fotogramas · ${count} en cola';
+	@override String get waiting => 'Esperando para empezar';
+}
+
+// Path: frameInterp.component
+class _TranslationsFrameInterpComponentEs extends TranslationsFrameInterpComponentEn {
+	_TranslationsFrameInterpComponentEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get unsupported => 'La interpolación de fotogramas no está disponible en este dispositivo';
+}
+
 // Path: settings.downloadSettings.pathTemplateEditor
 class _TranslationsSettingsDownloadSettingsPathTemplateEditorEs extends TranslationsSettingsDownloadSettingsPathTemplateEditorEn {
 	_TranslationsSettingsDownloadSettingsPathTemplateEditorEs._(TranslationsEs root) : this._root = root, super.internal(root);
@@ -5796,6 +5970,28 @@ extension on TranslationsEs {
 			'settings.defaultBrowserDesc' => 'Abra el elemento de configuración de enlace predeterminado en los ajustes del sistema y añada el enlace del sitio web iwara.tv',
 			'settings.themeMode' => 'Modo de tema',
 			'settings.themeModeDesc' => 'Esta configuración determina el modo de tema de la aplicación',
+			'settings.glassQuality' => 'Rendering quality',
+			'settings.glassQualityAuto' => 'Automatic',
+			'settings.glassQualityAutoDesc' => 'Adapts to frame time; refraction can change as quality adjusts',
+			'settings.glassQualityStandard' => 'Smooth',
+			'settings.glassQualityStandardDesc' => 'Lightweight glass with highlights and consistent frame pacing',
+			'settings.glassQualityPremium' => 'Full refraction',
+			'settings.glassQualityPremiumDesc' => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass',
+			'settings.glassQualityCurrent' => 'Currently active',
+			'settings.glassChromeParametersDesc' => 'Navigation glass parameters apply live to headers, buttons and the bottom bar',
+			'settings.glassOpacity' => 'Opacity',
+			'settings.glassBlur' => 'Background blur (sigma)',
+			'settings.glassBlurDesc' => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness',
+			'settings.glassAdvancedParameters' => 'Advanced navigation parameters',
+			'settings.glassThickness' => 'Lens thickness',
+			'settings.glassRefractiveIndex' => 'Refractive index',
+			'settings.glassLightIntensity' => 'Highlight intensity',
+			'settings.glassSaturation' => 'Background saturation',
+			'settings.glassChromaticAberration' => 'Chromatic aberration',
+			'settings.glassShadows' => 'Shadows',
+			'settings.glassPanelParameters' => 'Menu panel parameters',
+			'settings.glassPanelParametersDesc' => 'Applies to floating menus; panels use a separate lens renderer',
+			'settings.glassResetParameters' => 'Restore glass defaults',
 			'settings.glassEffect' => 'Material de la interfaz',
 			'settings.glassEffectDesc' => 'Elige el material usado en toda la aplicación: cápsulas de encabezado, menús, botones de diálogo y la barra de navegación inferior',
 			'settings.liquidGlassEffect' => 'Vidrio líquido',
@@ -6128,6 +6324,8 @@ extension on TranslationsEs {
 			'settings.keybinding.actionGallerySeekBackward' => 'Retroceder',
 			'settings.keybinding.actionGallerySeekForward' => 'Avanzar rápido',
 			'settings.keybinding.actionGalleryToggleMute' => 'Activar o desactivar el silencio',
+			_ => null,
+		} ?? switch (path) {
 			'settings.keybinding.actionPlayPause' => 'Reproducir / Pausar',
 			'settings.keybinding.actionSpeedUp' => 'Aumentar la velocidad',
 			'settings.keybinding.actionSpeedDown' => 'Reducir la velocidad',
@@ -6150,8 +6348,6 @@ extension on TranslationsEs {
 			'settings.leftDoubleTapRewind' => 'Doble toque a la izquierda para retroceder',
 			'settings.rightDoubleTapFastForward' => 'Doble toque a la derecha para avanzar rápido',
 			'settings.doubleTapPause' => 'Pausa con doble toque',
-			_ => null,
-		} ?? switch (path) {
 			'settings.rightVerticalSwipeVolume' => 'Volumen con deslizamiento vertical a la derecha (efectivo al entrar en una página nueva)',
 			'settings.leftVerticalSwipeBrightness' => 'Brillo con deslizamiento vertical a la izquierda (efectivo al entrar en una página nueva)',
 			'settings.longPressFastForward' => 'Avance rápido con pulsación larga',
@@ -6642,6 +6838,8 @@ extension on TranslationsEs {
 			'videoDetail.gestureGuide.quest.grip' => 'Botón de agarre',
 			'videoDetail.gestureGuide.quest.bothGrips' => 'Ambos botones de agarre',
 			'videoDetail.gestureGuide.quest.stick' => 'Joystick',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.handTracking' => 'Seguimiento de manos',
 			'videoDetail.gestureGuide.quest.ready' => 'Listo',
 			'videoDetail.gestureGuide.quest.press' => 'Pulsar',
@@ -6664,8 +6862,6 @@ extension on TranslationsEs {
 			'videoDetail.gestureGuide.quest.browseTitle' => 'Navegar con el joystick',
 			'videoDetail.gestureGuide.quest.browseBody' => 'Mueva cualquiera de los joysticks a izquierda o derecha para el elemento anterior o siguiente; mantenga para seguir navegando. También puede seleccionar una miniatura en la tira de película.',
 			'videoDetail.gestureGuide.quest.browseHint' => 'Los videos de una galería también son elementos. Apuntar al panel de control hace que el joystick desplace el panel.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.swipeTitle' => 'Arrastrar a lo ancho para pasar de página',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Apunte a la imagen, mantenga el gatillo índice y arrastre a la izquierda. Suelte tras la señal de cambio de página para avanzar; arrastre a la derecha para retroceder. También funciona pellizcar y arrastrar.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Las imágenes deben estar a 1× para pasar páginas arrastrando. Los videos de galería también lo admiten. El escenario permanece inmóvil hasta que suelte.',
@@ -7156,6 +7352,8 @@ extension on TranslationsEs {
 			'download.actions.redownloadStarted' => ({required Object count}) => 'Started downloading ${count} items again',
 			'download.actions.redownloadNone' => 'Nothing to download again',
 			'download.actions.deleteTitle' => ({required Object count}) => 'Delete ${count} downloads?',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '${count} items · ${size}',
 			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '${count} items',
 			'download.actions.deleteGalleryNote' => ({required Object count}) => 'Size of ${count} galleries not included',
@@ -7178,8 +7376,6 @@ extension on TranslationsEs {
 			'download.notice.failed' => ({required Object count}) => '${count} downloads failed',
 			'download.notice.retryAll' => 'Retry all',
 			'download.notice.view' => 'View',
-			_ => null,
-		} ?? switch (path) {
 			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			'download.notice.handle' => 'Handle…',
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
@@ -7670,6 +7866,8 @@ extension on TranslationsEs {
 			'translation.reasoningModel' => 'Modelo de razonamiento',
 			'translation.reasoningModelDescription' => 'Para o1/o3, DeepSeek-R1, QwQ, etc. Integra el mensaje en el mensaje del usuario, omite la temperatura y usa max_completion_tokens',
 			'translation.useMaxCompletionTokens' => 'Usar max_completion_tokens',
+			_ => null,
+		} ?? switch (path) {
 			'translation.useMaxCompletionTokensDescription' => 'Los puntos de conexión más recientes de OpenAI requieren max_completion_tokens en lugar del obsoleto max_tokens',
 			'translation.sendTemperature' => 'Enviar temperatura',
 			'translation.sendTemperatureDescription' => 'Desactívelo para los modelos que rechazan el parámetro de temperatura (la mayoría de los modelos de razonamiento)',
@@ -7692,8 +7890,6 @@ extension on TranslationsEs {
 			'translation.presetNames.anthropicReasoning' => 'Razonamiento de Anthropic Claude (pensamiento extendido)',
 			'translation.presetNames.gemini' => 'Google Gemini (nativo)',
 			'translation.presetNames.geminiReasoning' => 'Razonamiento de Google Gemini (pensamiento)',
-			_ => null,
-		} ?? switch (path) {
 			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			'translation.presetNames.deepseekReasoner' => 'Razonamiento de DeepSeek (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
@@ -8184,6 +8380,8 @@ extension on TranslationsEs {
 			'tagSelector.addTag' => 'Añadir etiqueta',
 			'tagSelector.removeTag' => 'Quitar etiqueta',
 			'tagSelector.deleteTag' => 'Eliminar etiqueta',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.usageInstructions' => 'Primero añada etiquetas y luego pulse para seleccionar entre las etiquetas existentes',
 			'tagSelector.usageInstructionsTooltip' => 'Instrucciones de uso',
 			'tagSelector.addTagTooltip' => 'Añadir etiqueta',
@@ -8206,8 +8404,6 @@ extension on TranslationsEs {
 			'anime4k.presetGroups.fast' => 'Rápido',
 			'anime4k.presetGroups.lite' => 'Ligero',
 			'anime4k.presetGroups.moreLite' => 'Más ligero',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetGroups.custom' => 'Personalizado',
 			'anime4k.presetDescriptions.mode_a_hq' => 'Adecuado para la mayoría de animaciones en 1080p, sobre todo las que presentan desenfoque, remuestreo y artefactos de compresión. Ofrece la mayor calidad percibida.',
 			'anime4k.presetDescriptions.mode_b_hq' => 'Adecuado para animaciones con un ligero desenfoque o efecto de anillo causado por el escalado. Reduce eficazmente el efecto de anillo y el aliasing.',
@@ -8698,6 +8894,8 @@ extension on TranslationsEs {
 			'localMedia.webdav.stateCredUnreadable' => 'Couldn\'t read password',
 			'localMedia.webdav.connected' => 'Connected',
 			'localMedia.webdav.errorForbidden' => 'This account has no WebDAV access. Grant it WebDAV permission in the NAS settings.',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.errorTls' => 'Secure connection failed. Check that http:// or https:// matches the NAS settings.',
 			'localMedia.webdav.errorTryHttps' => 'If the NAS only serves HTTPS, add https:// in front of the address.',
 			'localMedia.webdav.previousStep' => 'Back',
@@ -8720,8 +8918,6 @@ extension on TranslationsEs {
 			'localMedia.sourceContainsExisting' => ({required Object name}) => 'Ya contiene la carpeta añadida "${name}"; aún no se admite añadir su carpeta superior',
 			'localMedia.addSourceFailed' => 'No se pudo añadir esa carpeta',
 			'localMedia.fileMissing' => 'Ese archivo ya no está en el disco',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.permissionDenied' => 'Acceso a archivos no concedido · toque para concederlo',
 			'localMedia.noVideosFound' => 'No hay vídeos en esta carpeta',
 			'localMedia.emptyTitle' => 'Añada una carpeta para ver los vídeos que ya están en este dispositivo',
@@ -8935,6 +9131,68 @@ extension on TranslationsEs {
 			'poll.voteFailed' => 'No se pudo enviar el voto',
 			'poll.copyLink' => 'Copiar enlace de la encuesta',
 			'poll.translateFailed' => 'No se pudo traducir la encuesta',
+			'frameInterp.title' => 'Interpolación de fotogramas',
+			'frameInterp.action' => 'Interpolar al doble de fotogramas',
+			'frameInterp.playInterpolated' => 'Reproducir versión interpolada',
+			'frameInterp.viewTasks' => 'Ver tareas de interpolación',
+			'frameInterp.badge' => '2× FPS',
+			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',
+			'frameInterp.specLine' => ({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps',
+			'frameInterp.runningDetail' => ({required Object percent, required Object speed}) => '${percent}% · ${speed} fps',
+			'frameInterp.preparing' => 'Preparando…',
+			'frameInterp.outputMissing' => 'El archivo interpolado ya no existe',
+			'frameInterp.empty' => 'Aún no hay tareas de interpolación',
+			'frameInterp.emptyHint' => 'Elige «Interpolar al doble de fotogramas» en un vídeo de Archivos locales o Descargas.',
+			'frameInterp.clearFinished' => 'Borrar registros finalizados',
+			'frameInterp.status.pending' => 'En cola',
+			'frameInterp.status.running' => 'Procesando',
+			'frameInterp.status.completed' => 'Completado',
+			'frameInterp.status.failed' => 'Fallido',
+			'frameInterp.status.cancelled' => 'Cancelado',
+			'frameInterp.actions.play' => 'Reproducir',
+			'frameInterp.actions.cancel' => 'Cancelar',
+			'frameInterp.actions.retry' => 'Reintentar',
+			'frameInterp.actions.delete' => 'Eliminar registro',
+			'frameInterp.actions.revealInFolder' => 'Mostrar en la carpeta',
+			'frameInterp.confirm.cancelTitle' => '¿Cancelar esta tarea?',
+			'frameInterp.confirm.cancelContent' => 'Se perderá el progreso actual. Podrá reintentarla más tarde desde el principio.',
+			'frameInterp.confirm.deleteTitle' => '¿Eliminar este registro?',
+			'frameInterp.confirm.deleteContent' => 'El vídeo original no se verá afectado.',
+			'frameInterp.confirm.deleteOutput' => 'Eliminar también el archivo interpolado',
+			'frameInterp.confirm.clearTitle' => '¿Borrar los registros finalizados?',
+			'frameInterp.confirm.clearContent' => 'Los archivos interpolados se conservan en el disco; solo se eliminan los registros.',
+			'frameInterp.toast.queued' => 'Añadido a la cola de interpolación',
+			'frameInterp.toast.completed' => ({required Object title}) => 'Interpolación finalizada: ${title}',
+			'frameInterp.toast.failed' => ({required Object title}) => 'Error de interpolación: ${title}',
+			'frameInterp.reject.sourceMissing' => 'El archivo de vídeo ya no existe',
+			'frameInterp.reject.alreadyInterpolated' => 'Este vídeo ya está interpolado',
+			'frameInterp.reject.alreadyQueued' => 'Este vídeo ya está en la cola',
+			'frameInterp.reject.alreadyDone' => 'Este vídeo ya tiene una versión interpolada',
+			'frameInterp.reject.highFrameRate' => 'Este vídeo ya tiene una tasa de fotogramas alta',
+			'frameInterp.reject.hdr' => 'Los vídeos HDR aún no son compatibles',
+			'frameInterp.reject.resolutionTooLarge' => 'La resolución es demasiado alta para interpolar',
+			'frameInterp.reject.unreadable' => 'No se pudo leer este vídeo',
+			'frameInterp.reject.noGpu' => 'No se encontró ninguna tarjeta gráfica utilizable (se requiere compatibilidad con Vulkan)',
+			'frameInterp.error.unknown' => 'Algo salió mal',
+			'frameInterp.error.openInput' => 'No se pudo abrir el vídeo',
+			'frameInterp.error.noVideo' => 'El archivo no tiene pista de vídeo',
+			'frameInterp.error.decoder' => 'No se pudo decodificar el vídeo',
+			'frameInterp.error.hdrUnsupported' => 'Los vídeos HDR aún no son compatibles',
+			'frameInterp.error.noGpu' => 'No se encontró ninguna tarjeta gráfica utilizable',
+			'frameInterp.error.model' => 'No se pudo cargar el modelo de interpolación. Pruebe a reinstalar el componente',
+			'frameInterp.error.encoder' => 'No hay ningún codificador de vídeo utilizable',
+			'frameInterp.error.openOutput' => 'No se pudo crear el archivo de salida',
+			'frameInterp.error.write' => 'Error de escritura. Puede que el disco esté lleno',
+			'frameInterp.error.interpolate' => 'Error de procesamiento. Puede que la tarjeta gráfica se haya quedado sin memoria',
+			'frameInterp.error.componentUnavailable' => 'El componente de interpolación no está disponible',
+			'frameInterp.error.interrupted' => 'Interrumpido porque se cerró la aplicación',
+			'frameInterp.error.finalizeFailed' => 'No se pudo guardar el archivo terminado',
+			'frameInterp.error.sourceMissing' => 'El archivo de vídeo ya no existe',
+			'frameInterp.error.backgrounded' => 'Detenido porque la app pasó a segundo plano; se reinicia al volver',
+			'frameInterp.notification.title' => 'Interpolando fotogramas',
+			'frameInterp.notification.titleWithQueue' => ({required Object count}) => 'Interpolando fotogramas · ${count} en cola',
+			'frameInterp.notification.waiting' => 'Esperando para empezar',
+			'frameInterp.component.unsupported' => 'La interpolación de fotogramas no está disponible en este dispositivo',
 			_ => null,
 		};
 	}

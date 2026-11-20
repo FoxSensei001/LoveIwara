@@ -101,6 +101,7 @@ class TranslationsKo extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsFollowSearchKo followSearch = _TranslationsFollowSearchKo._(_root);
 	@override late final _TranslationsPagedSearchKo pagedSearch = _TranslationsPagedSearchKo._(_root);
 	@override late final _TranslationsPollKo poll = _TranslationsPollKo._(_root);
+	@override late final _TranslationsFrameInterpKo frameInterp = _TranslationsFrameInterpKo._(_root);
 }
 
 // Path: personalProfile
@@ -860,6 +861,28 @@ class _TranslationsSettingsKo extends TranslationsSettingsEn {
 	@override String get defaultBrowserDesc => '시스템 설정에서 기본 링크 설정 항목을 열고 iwara.tv 웹사이트 링크를 추가해 주세요';
 	@override String get themeMode => '테마 모드';
 	@override String get themeModeDesc => '이 설정은 앱의 테마 모드를 결정합니다';
+	@override String get glassQuality => 'Rendering quality';
+	@override String get glassQualityAuto => 'Automatic';
+	@override String get glassQualityAutoDesc => 'Adapts to frame time; refraction can change as quality adjusts';
+	@override String get glassQualityStandard => 'Smooth';
+	@override String get glassQualityStandardDesc => 'Lightweight glass with highlights and consistent frame pacing';
+	@override String get glassQualityPremium => 'Full refraction';
+	@override String get glassQualityPremiumDesc => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass';
+	@override String get glassQualityCurrent => 'Currently active';
+	@override String get glassChromeParametersDesc => 'Navigation glass parameters apply live to headers, buttons and the bottom bar';
+	@override String get glassOpacity => 'Opacity';
+	@override String get glassBlur => 'Background blur (sigma)';
+	@override String get glassBlurDesc => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness';
+	@override String get glassAdvancedParameters => 'Advanced navigation parameters';
+	@override String get glassThickness => 'Lens thickness';
+	@override String get glassRefractiveIndex => 'Refractive index';
+	@override String get glassLightIntensity => 'Highlight intensity';
+	@override String get glassSaturation => 'Background saturation';
+	@override String get glassChromaticAberration => 'Chromatic aberration';
+	@override String get glassShadows => 'Shadows';
+	@override String get glassPanelParameters => 'Menu panel parameters';
+	@override String get glassPanelParametersDesc => 'Applies to floating menus; panels use a separate lens renderer';
+	@override String get glassResetParameters => 'Restore glass defaults';
 	@override String get glassEffect => '인터페이스 재질';
 	@override String get glassEffectDesc => '앱 전반에 사용할 재질을 선택합니다 — 헤더 캡슐, 메뉴, 대화 상자 버튼, 하단 내비게이션 바';
 	@override String get liquidGlassEffect => '리퀴드 글래스';
@@ -3221,6 +3244,36 @@ class _TranslationsPollKo extends TranslationsPollEn {
 	@override String get translateFailed => '투표를 번역하지 못했습니다';
 }
 
+// Path: frameInterp
+class _TranslationsFrameInterpKo extends TranslationsFrameInterpEn {
+	_TranslationsFrameInterpKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '프레임 보간 작업';
+	@override String get action => '프레임 보간(2배 프레임 레이트로 생성)';
+	@override String get playInterpolated => '보간된 버전 재생';
+	@override String get viewTasks => '보간 작업 보기';
+	@override String get badge => '보간';
+	@override String fpsBadge({required Object fps}) => '${fps} FPS';
+	@override String specLine({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps';
+	@override String runningDetail({required Object percent, required Object speed}) => '${percent}% · ${speed} fps';
+	@override String get preparing => '준비 중…';
+	@override String get outputMissing => '보간된 파일이 더 이상 없습니다';
+	@override String get empty => '아직 보간 작업이 없습니다';
+	@override String get emptyHint => '「로컬 파일」 또는 「다운로드」에서 동영상을 선택해 「프레임 보간」을 실행하세요.';
+	@override String get clearFinished => '완료된 기록 지우기';
+	@override late final _TranslationsFrameInterpStatusKo status = _TranslationsFrameInterpStatusKo._(_root);
+	@override late final _TranslationsFrameInterpActionsKo actions = _TranslationsFrameInterpActionsKo._(_root);
+	@override late final _TranslationsFrameInterpConfirmKo confirm = _TranslationsFrameInterpConfirmKo._(_root);
+	@override late final _TranslationsFrameInterpToastKo toast = _TranslationsFrameInterpToastKo._(_root);
+	@override late final _TranslationsFrameInterpRejectKo reject = _TranslationsFrameInterpRejectKo._(_root);
+	@override late final _TranslationsFrameInterpErrorKo error = _TranslationsFrameInterpErrorKo._(_root);
+	@override late final _TranslationsFrameInterpNotificationKo notification = _TranslationsFrameInterpNotificationKo._(_root);
+	@override late final _TranslationsFrameInterpComponentKo component = _TranslationsFrameInterpComponentKo._(_root);
+}
+
 // Path: common.pagination
 class _TranslationsCommonPaginationKo extends TranslationsCommonPaginationEn {
 	_TranslationsCommonPaginationKo._(TranslationsKo root) : this._root = root, super.internal(root);
@@ -4928,6 +4981,127 @@ class _TranslationsLocalMediaWebdavKo extends TranslationsLocalMediaWebdavEn {
 	@override String get bannerCredUnreadable => 'Couldn\'t read the saved password. Sign in again.';
 }
 
+// Path: frameInterp.status
+class _TranslationsFrameInterpStatusKo extends TranslationsFrameInterpStatusEn {
+	_TranslationsFrameInterpStatusKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get pending => '대기 중';
+	@override String get running => '처리 중';
+	@override String get completed => '완료됨';
+	@override String get failed => '실패';
+	@override String get cancelled => '취소됨';
+}
+
+// Path: frameInterp.actions
+class _TranslationsFrameInterpActionsKo extends TranslationsFrameInterpActionsEn {
+	_TranslationsFrameInterpActionsKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get play => '재생';
+	@override String get cancel => '취소';
+	@override String get retry => '재시도';
+	@override String get delete => '기록 삭제';
+	@override String get revealInFolder => '폴더에서 보기';
+}
+
+// Path: frameInterp.confirm
+class _TranslationsFrameInterpConfirmKo extends TranslationsFrameInterpConfirmEn {
+	_TranslationsFrameInterpConfirmKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get cancelTitle => '이 작업을 취소하시겠습니까?';
+	@override String get cancelContent => '지금까지의 진행 상황은 사라집니다. 나중에 처음부터 다시 시도할 수 있습니다.';
+	@override String get deleteTitle => '이 기록을 삭제하시겠습니까?';
+	@override String get deleteContent => '원본 동영상에는 영향이 없습니다.';
+	@override String get deleteOutput => '보간된 파일도 함께 삭제';
+	@override String get clearTitle => '완료된 기록을 지우시겠습니까?';
+	@override String get clearContent => '보간된 파일은 디스크에 그대로 남고 기록만 삭제됩니다.';
+}
+
+// Path: frameInterp.toast
+class _TranslationsFrameInterpToastKo extends TranslationsFrameInterpToastEn {
+	_TranslationsFrameInterpToastKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get queued => '보간 대기열에 추가했습니다';
+	@override String completed({required Object title}) => '프레임 보간 완료: ${title}';
+	@override String failed({required Object title}) => '프레임 보간 실패: ${title}';
+}
+
+// Path: frameInterp.reject
+class _TranslationsFrameInterpRejectKo extends TranslationsFrameInterpRejectEn {
+	_TranslationsFrameInterpRejectKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get sourceMissing => '동영상 파일이 더 이상 없습니다';
+	@override String get alreadyInterpolated => '이미 보간된 동영상입니다';
+	@override String get alreadyQueued => '이 동영상은 이미 대기열에 있습니다';
+	@override String get alreadyDone => '이 동영상에는 이미 보간된 버전이 있습니다';
+	@override String get highFrameRate => '이 동영상은 이미 프레임 레이트가 높습니다';
+	@override String get hdr => 'HDR 동영상은 아직 지원하지 않습니다';
+	@override String get resolutionTooLarge => '해상도가 너무 높아 보간할 수 없습니다';
+	@override String get unreadable => '이 동영상을 읽을 수 없습니다';
+	@override String get noGpu => '사용 가능한 그래픽 카드를 찾을 수 없습니다(Vulkan 지원 필요)';
+}
+
+// Path: frameInterp.error
+class _TranslationsFrameInterpErrorKo extends TranslationsFrameInterpErrorEn {
+	_TranslationsFrameInterpErrorKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get unknown => '문제가 발생했습니다';
+	@override String get openInput => '동영상을 열 수 없습니다';
+	@override String get noVideo => '파일에 비디오 트랙이 없습니다';
+	@override String get decoder => '동영상을 디코딩할 수 없습니다';
+	@override String get hdrUnsupported => 'HDR 동영상은 아직 지원하지 않습니다';
+	@override String get noGpu => '사용 가능한 그래픽 카드를 찾을 수 없습니다';
+	@override String get model => '보간 모델을 불러오지 못했습니다. 구성 요소를 다시 설치해 보세요';
+	@override String get encoder => '사용 가능한 비디오 인코더가 없습니다';
+	@override String get openOutput => '출력 파일을 만들 수 없습니다';
+	@override String get write => '쓰기에 실패했습니다. 디스크가 가득 찼을 수 있습니다';
+	@override String get interpolate => '처리에 실패했습니다. 그래픽 메모리가 부족할 수 있습니다';
+	@override String get componentUnavailable => '프레임 보간 구성 요소를 사용할 수 없습니다';
+	@override String get interrupted => '앱이 종료되어 중단되었습니다';
+	@override String get finalizeFailed => '완성된 파일을 저장하지 못했습니다';
+	@override String get sourceMissing => '동영상 파일이 더 이상 없습니다';
+	@override String get backgrounded => '앱이 백그라운드로 전환되어 중단되었습니다. 돌아오면 자동으로 다시 시작합니다';
+}
+
+// Path: frameInterp.notification
+class _TranslationsFrameInterpNotificationKo extends TranslationsFrameInterpNotificationEn {
+	_TranslationsFrameInterpNotificationKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '프레임 보간 중';
+	@override String titleWithQueue({required Object count}) => '프레임 보간 중 · 대기 ${count}개';
+	@override String get waiting => '시작 대기 중';
+}
+
+// Path: frameInterp.component
+class _TranslationsFrameInterpComponentKo extends TranslationsFrameInterpComponentEn {
+	_TranslationsFrameInterpComponentKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get unsupported => '이 기기에서는 프레임 보간을 사용할 수 없습니다';
+}
+
 // Path: settings.downloadSettings.pathTemplateEditor
 class _TranslationsSettingsDownloadSettingsPathTemplateEditorKo extends TranslationsSettingsDownloadSettingsPathTemplateEditorEn {
 	_TranslationsSettingsDownloadSettingsPathTemplateEditorKo._(TranslationsKo root) : this._root = root, super.internal(root);
@@ -5796,6 +5970,28 @@ extension on TranslationsKo {
 			'settings.defaultBrowserDesc' => '시스템 설정에서 기본 링크 설정 항목을 열고 iwara.tv 웹사이트 링크를 추가해 주세요',
 			'settings.themeMode' => '테마 모드',
 			'settings.themeModeDesc' => '이 설정은 앱의 테마 모드를 결정합니다',
+			'settings.glassQuality' => 'Rendering quality',
+			'settings.glassQualityAuto' => 'Automatic',
+			'settings.glassQualityAutoDesc' => 'Adapts to frame time; refraction can change as quality adjusts',
+			'settings.glassQualityStandard' => 'Smooth',
+			'settings.glassQualityStandardDesc' => 'Lightweight glass with highlights and consistent frame pacing',
+			'settings.glassQualityPremium' => 'Full refraction',
+			'settings.glassQualityPremiumDesc' => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass',
+			'settings.glassQualityCurrent' => 'Currently active',
+			'settings.glassChromeParametersDesc' => 'Navigation glass parameters apply live to headers, buttons and the bottom bar',
+			'settings.glassOpacity' => 'Opacity',
+			'settings.glassBlur' => 'Background blur (sigma)',
+			'settings.glassBlurDesc' => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness',
+			'settings.glassAdvancedParameters' => 'Advanced navigation parameters',
+			'settings.glassThickness' => 'Lens thickness',
+			'settings.glassRefractiveIndex' => 'Refractive index',
+			'settings.glassLightIntensity' => 'Highlight intensity',
+			'settings.glassSaturation' => 'Background saturation',
+			'settings.glassChromaticAberration' => 'Chromatic aberration',
+			'settings.glassShadows' => 'Shadows',
+			'settings.glassPanelParameters' => 'Menu panel parameters',
+			'settings.glassPanelParametersDesc' => 'Applies to floating menus; panels use a separate lens renderer',
+			'settings.glassResetParameters' => 'Restore glass defaults',
 			'settings.glassEffect' => '인터페이스 재질',
 			'settings.glassEffectDesc' => '앱 전반에 사용할 재질을 선택합니다 — 헤더 캡슐, 메뉴, 대화 상자 버튼, 하단 내비게이션 바',
 			'settings.liquidGlassEffect' => '리퀴드 글래스',
@@ -6128,6 +6324,8 @@ extension on TranslationsKo {
 			'settings.keybinding.actionGallerySeekBackward' => '되감기',
 			'settings.keybinding.actionGallerySeekForward' => '빨리 감기',
 			'settings.keybinding.actionGalleryToggleMute' => '음소거 전환',
+			_ => null,
+		} ?? switch (path) {
 			'settings.keybinding.actionPlayPause' => '재생 / 일시정지',
 			'settings.keybinding.actionSpeedUp' => '속도 증가',
 			'settings.keybinding.actionSpeedDown' => '속도 감소',
@@ -6150,8 +6348,6 @@ extension on TranslationsKo {
 			'settings.leftDoubleTapRewind' => '왼쪽 두 번 탭 되감기',
 			'settings.rightDoubleTapFastForward' => '오른쪽 두 번 탭 빨리 감기',
 			'settings.doubleTapPause' => '두 번 탭하여 일시정지',
-			_ => null,
-		} ?? switch (path) {
 			'settings.rightVerticalSwipeVolume' => '오른쪽 세로 스와이프 볼륨 (새 페이지 진입 시 적용)',
 			'settings.leftVerticalSwipeBrightness' => '왼쪽 세로 스와이프 밝기 (새 페이지 진입 시 적용)',
 			'settings.longPressFastForward' => '길게 눌러 빨리 감기',
@@ -6642,6 +6838,8 @@ extension on TranslationsKo {
 			'videoDetail.gestureGuide.quest.grip' => '그립 버튼',
 			'videoDetail.gestureGuide.quest.bothGrips' => '양쪽 그립 버튼',
 			'videoDetail.gestureGuide.quest.stick' => '썸스틱',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.handTracking' => '핸드 트래킹',
 			'videoDetail.gestureGuide.quest.ready' => '준비',
 			'videoDetail.gestureGuide.quest.press' => '누르기',
@@ -6664,8 +6862,6 @@ extension on TranslationsKo {
 			'videoDetail.gestureGuide.quest.browseTitle' => '스틱으로 탐색',
 			'videoDetail.gestureGuide.quest.browseBody' => '어느 한 스틱을 좌우로 움직여 이전/다음 항목으로 이동합니다. 계속 누르면 계속 탐색합니다. 필름스트립에서 썸네일을 선택할 수도 있습니다.',
 			'videoDetail.gestureGuide.quest.browseHint' => '갤러리의 동영상도 항목입니다. 컨트롤 패널을 가리키면 스틱이 패널을 스크롤합니다.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.swipeTitle' => '옆으로 끌어 페이지 넘기기',
 			'videoDetail.gestureGuide.quest.swipeBody' => '이미지에 광선을 맞추고 검지 트리거를 누른 채 왼쪽으로 끄세요. 페이지 넘김 신호 후 놓으면 넘어가고, 오른쪽으로 끌면 뒤로 갑니다. 집어서 끌어도 됩니다.',
 			'videoDetail.gestureGuide.quest.swipeHint' => '이미지를 끌어 페이지를 넘기려면 1배 상태여야 합니다. 갤러리 동영상도 지원합니다. 놓을 때까지 스테이지는 그대로 유지됩니다.',
@@ -7156,6 +7352,8 @@ extension on TranslationsKo {
 			'download.actions.redownloadStarted' => ({required Object count}) => 'Started downloading ${count} items again',
 			'download.actions.redownloadNone' => 'Nothing to download again',
 			'download.actions.deleteTitle' => ({required Object count}) => 'Delete ${count} downloads?',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '${count} items · ${size}',
 			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '${count} items',
 			'download.actions.deleteGalleryNote' => ({required Object count}) => 'Size of ${count} galleries not included',
@@ -7178,8 +7376,6 @@ extension on TranslationsKo {
 			'download.notice.failed' => ({required Object count}) => '${count} downloads failed',
 			'download.notice.retryAll' => 'Retry all',
 			'download.notice.view' => 'View',
-			_ => null,
-		} ?? switch (path) {
 			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
 			'download.notice.handle' => 'Handle…',
 			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
@@ -7670,6 +7866,8 @@ extension on TranslationsKo {
 			'translation.reasoningModel' => '추론 모델',
 			'translation.reasoningModelDescription' => 'o1/o3, DeepSeek-R1, QwQ 등에 사용합니다. 프롬프트를 사용자 메시지에 합치고, 온도를 생략하며, max_completion_tokens를 사용합니다',
 			'translation.useMaxCompletionTokens' => 'max_completion_tokens 사용',
+			_ => null,
+		} ?? switch (path) {
 			'translation.useMaxCompletionTokensDescription' => '최신 OpenAI 엔드포인트는 더 이상 사용되지 않는 max_tokens 대신 max_completion_tokens를 요구합니다',
 			'translation.sendTemperature' => '온도 전송',
 			'translation.sendTemperatureDescription' => '온도 매개변수를 거부하는 모델(대부분의 추론 모델)의 경우 끄세요',
@@ -7692,8 +7890,6 @@ extension on TranslationsKo {
 			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude 추론 (확장 사고)',
 			'translation.presetNames.gemini' => 'Google Gemini (네이티브)',
 			'translation.presetNames.geminiReasoning' => 'Google Gemini 추론 (사고)',
-			_ => null,
-		} ?? switch (path) {
 			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek 추론 (deepseek-reasoner / R1)',
 			'translation.presetNames.siliconflow' => 'SiliconFlow',
@@ -8184,6 +8380,8 @@ extension on TranslationsKo {
 			'tagSelector.addTag' => '태그 추가',
 			'tagSelector.removeTag' => '태그 제거',
 			'tagSelector.deleteTag' => '태그 삭제',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.usageInstructions' => '먼저 태그를 추가한 다음 기존 태그에서 클릭하여 선택하세요',
 			'tagSelector.usageInstructionsTooltip' => '사용 방법',
 			'tagSelector.addTagTooltip' => '태그 추가',
@@ -8206,8 +8404,6 @@ extension on TranslationsKo {
 			'anime4k.presetGroups.fast' => '고속',
 			'anime4k.presetGroups.lite' => '경량',
 			'anime4k.presetGroups.moreLite' => '초경량',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetGroups.custom' => '사용자 지정',
 			'anime4k.presetDescriptions.mode_a_hq' => '대부분의 1080p 애니메이션, 특히 블러, 리샘플링 및 압축 아티팩트를 처리하는 영상에 적합합니다. 가장 높은 체감 화질을 제공합니다.',
 			'anime4k.presetDescriptions.mode_b_hq' => '스케일링으로 인한 약간의 블러나 링잉이 있는 애니메이션에 적합합니다. 링잉과 계단 현상을 효과적으로 줄일 수 있습니다.',
@@ -8698,6 +8894,8 @@ extension on TranslationsKo {
 			'localMedia.webdav.stateCredUnreadable' => 'Couldn\'t read password',
 			'localMedia.webdav.connected' => 'Connected',
 			'localMedia.webdav.errorForbidden' => 'This account has no WebDAV access. Grant it WebDAV permission in the NAS settings.',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.errorTls' => 'Secure connection failed. Check that http:// or https:// matches the NAS settings.',
 			'localMedia.webdav.errorTryHttps' => 'If the NAS only serves HTTPS, add https:// in front of the address.',
 			'localMedia.webdav.previousStep' => 'Back',
@@ -8720,8 +8918,6 @@ extension on TranslationsKo {
 			'localMedia.sourceContainsExisting' => ({required Object name}) => '이미 추가된 폴더 "${name}"을(를) 포함하고 있어 상위 폴더 추가는 아직 지원되지 않습니다',
 			'localMedia.addSourceFailed' => '해당 폴더를 추가할 수 없습니다',
 			'localMedia.fileMissing' => '해당 파일이 더 이상 디스크에 없습니다',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.permissionDenied' => '파일 접근 권한 없음 · 탭하여 허용',
 			'localMedia.noVideosFound' => '이 폴더에 동영상이 없습니다',
 			'localMedia.emptyTitle' => '폴더를 추가하여 이 기기에 이미 있는 동영상을 시청하세요',
@@ -8935,6 +9131,68 @@ extension on TranslationsKo {
 			'poll.voteFailed' => '투표를 제출하지 못했습니다',
 			'poll.copyLink' => '투표 링크 복사',
 			'poll.translateFailed' => '투표를 번역하지 못했습니다',
+			'frameInterp.title' => '프레임 보간 작업',
+			'frameInterp.action' => '프레임 보간(2배 프레임 레이트로 생성)',
+			'frameInterp.playInterpolated' => '보간된 버전 재생',
+			'frameInterp.viewTasks' => '보간 작업 보기',
+			'frameInterp.badge' => '보간',
+			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',
+			'frameInterp.specLine' => ({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps',
+			'frameInterp.runningDetail' => ({required Object percent, required Object speed}) => '${percent}% · ${speed} fps',
+			'frameInterp.preparing' => '준비 중…',
+			'frameInterp.outputMissing' => '보간된 파일이 더 이상 없습니다',
+			'frameInterp.empty' => '아직 보간 작업이 없습니다',
+			'frameInterp.emptyHint' => '「로컬 파일」 또는 「다운로드」에서 동영상을 선택해 「프레임 보간」을 실행하세요.',
+			'frameInterp.clearFinished' => '완료된 기록 지우기',
+			'frameInterp.status.pending' => '대기 중',
+			'frameInterp.status.running' => '처리 중',
+			'frameInterp.status.completed' => '완료됨',
+			'frameInterp.status.failed' => '실패',
+			'frameInterp.status.cancelled' => '취소됨',
+			'frameInterp.actions.play' => '재생',
+			'frameInterp.actions.cancel' => '취소',
+			'frameInterp.actions.retry' => '재시도',
+			'frameInterp.actions.delete' => '기록 삭제',
+			'frameInterp.actions.revealInFolder' => '폴더에서 보기',
+			'frameInterp.confirm.cancelTitle' => '이 작업을 취소하시겠습니까?',
+			'frameInterp.confirm.cancelContent' => '지금까지의 진행 상황은 사라집니다. 나중에 처음부터 다시 시도할 수 있습니다.',
+			'frameInterp.confirm.deleteTitle' => '이 기록을 삭제하시겠습니까?',
+			'frameInterp.confirm.deleteContent' => '원본 동영상에는 영향이 없습니다.',
+			'frameInterp.confirm.deleteOutput' => '보간된 파일도 함께 삭제',
+			'frameInterp.confirm.clearTitle' => '완료된 기록을 지우시겠습니까?',
+			'frameInterp.confirm.clearContent' => '보간된 파일은 디스크에 그대로 남고 기록만 삭제됩니다.',
+			'frameInterp.toast.queued' => '보간 대기열에 추가했습니다',
+			'frameInterp.toast.completed' => ({required Object title}) => '프레임 보간 완료: ${title}',
+			'frameInterp.toast.failed' => ({required Object title}) => '프레임 보간 실패: ${title}',
+			'frameInterp.reject.sourceMissing' => '동영상 파일이 더 이상 없습니다',
+			'frameInterp.reject.alreadyInterpolated' => '이미 보간된 동영상입니다',
+			'frameInterp.reject.alreadyQueued' => '이 동영상은 이미 대기열에 있습니다',
+			'frameInterp.reject.alreadyDone' => '이 동영상에는 이미 보간된 버전이 있습니다',
+			'frameInterp.reject.highFrameRate' => '이 동영상은 이미 프레임 레이트가 높습니다',
+			'frameInterp.reject.hdr' => 'HDR 동영상은 아직 지원하지 않습니다',
+			'frameInterp.reject.resolutionTooLarge' => '해상도가 너무 높아 보간할 수 없습니다',
+			'frameInterp.reject.unreadable' => '이 동영상을 읽을 수 없습니다',
+			'frameInterp.reject.noGpu' => '사용 가능한 그래픽 카드를 찾을 수 없습니다(Vulkan 지원 필요)',
+			'frameInterp.error.unknown' => '문제가 발생했습니다',
+			'frameInterp.error.openInput' => '동영상을 열 수 없습니다',
+			'frameInterp.error.noVideo' => '파일에 비디오 트랙이 없습니다',
+			'frameInterp.error.decoder' => '동영상을 디코딩할 수 없습니다',
+			'frameInterp.error.hdrUnsupported' => 'HDR 동영상은 아직 지원하지 않습니다',
+			'frameInterp.error.noGpu' => '사용 가능한 그래픽 카드를 찾을 수 없습니다',
+			'frameInterp.error.model' => '보간 모델을 불러오지 못했습니다. 구성 요소를 다시 설치해 보세요',
+			'frameInterp.error.encoder' => '사용 가능한 비디오 인코더가 없습니다',
+			'frameInterp.error.openOutput' => '출력 파일을 만들 수 없습니다',
+			'frameInterp.error.write' => '쓰기에 실패했습니다. 디스크가 가득 찼을 수 있습니다',
+			'frameInterp.error.interpolate' => '처리에 실패했습니다. 그래픽 메모리가 부족할 수 있습니다',
+			'frameInterp.error.componentUnavailable' => '프레임 보간 구성 요소를 사용할 수 없습니다',
+			'frameInterp.error.interrupted' => '앱이 종료되어 중단되었습니다',
+			'frameInterp.error.finalizeFailed' => '완성된 파일을 저장하지 못했습니다',
+			'frameInterp.error.sourceMissing' => '동영상 파일이 더 이상 없습니다',
+			'frameInterp.error.backgrounded' => '앱이 백그라운드로 전환되어 중단되었습니다. 돌아오면 자동으로 다시 시작합니다',
+			'frameInterp.notification.title' => '프레임 보간 중',
+			'frameInterp.notification.titleWithQueue' => ({required Object count}) => '프레임 보간 중 · 대기 ${count}개',
+			'frameInterp.notification.waiting' => '시작 대기 중',
+			'frameInterp.component.unsupported' => '이 기기에서는 프레임 보간을 사용할 수 없습니다',
 			_ => null,
 		};
 	}

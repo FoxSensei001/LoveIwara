@@ -786,6 +786,11 @@ class NaviService {
     appRouter.push('/download_task_list');
   }
 
+  // 跳转到补帧任务列表页
+  static void navigateToFrameInterpTaskListPage() {
+    appRouter.push('/frame_interp_task_list');
+  }
+
   // 跳转到图库下载任务详情页
   static void navigateToGalleryDownloadTaskDetailPage(String taskId) {
     appRouter.push('/gallery_download_task_detail/$taskId');

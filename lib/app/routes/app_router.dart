@@ -56,6 +56,7 @@ import 'package:i_iwara/app/ui/pages/settings/history_update_logs_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/log_viewer_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/deeplx_translation_setting_widget.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
+import 'package:i_iwara/app/ui/pages/frame_interp/frame_interp_task_list_page.dart';
 import 'package:i_iwara/app/ui/pages/local_media/downloaded_gallery_browse_page.dart';
 import 'package:i_iwara/app/ui/pages/local_media/local_folder_browse_page.dart';
 import 'package:i_iwara/app/ui/pages/local_media/local_folder_route.dart';
@@ -784,6 +785,13 @@ final GoRouter appRouter = GoRouter(
           path: '/download_task_list',
           name: 'download_task_list',
           builder: (context, state) => const DownloadTaskListPage(),
+        ),
+
+        // 补帧任务列表
+        GoRoute(
+          path: '/frame_interp_task_list',
+          name: 'frame_interp_task_list',
+          builder: (context, state) => const FrameInterpTaskListPage(),
         ),
 
         // 图集下载任务详情

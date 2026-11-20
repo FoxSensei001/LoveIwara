@@ -101,6 +101,7 @@ class TranslationsZhTw extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsFollowSearchZhTw followSearch = _TranslationsFollowSearchZhTw._(_root);
 	@override late final _TranslationsPagedSearchZhTw pagedSearch = _TranslationsPagedSearchZhTw._(_root);
 	@override late final _TranslationsPollZhTw poll = _TranslationsPollZhTw._(_root);
+	@override late final _TranslationsFrameInterpZhTw frameInterp = _TranslationsFrameInterpZhTw._(_root);
 }
 
 // Path: personalProfile
@@ -3243,6 +3244,36 @@ class _TranslationsPollZhTw extends TranslationsPollEn {
 	@override String get translateFailed => '投票翻譯失敗';
 }
 
+// Path: frameInterp
+class _TranslationsFrameInterpZhTw extends TranslationsFrameInterpEn {
+	_TranslationsFrameInterpZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '補幀任務';
+	@override String get action => '補幀（產生 2 倍幀率版本）';
+	@override String get playInterpolated => '播放補幀版本';
+	@override String get viewTasks => '查看補幀任務';
+	@override String get badge => '補幀';
+	@override String fpsBadge({required Object fps}) => '${fps} 幀';
+	@override String specLine({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps';
+	@override String runningDetail({required Object percent, required Object speed}) => '${percent}% · ${speed} fps';
+	@override String get preparing => '準備中…';
+	@override String get outputMissing => '補幀檔案已不存在';
+	@override String get empty => '還沒有補幀任務';
+	@override String get emptyHint => '在「本機檔案」或「下載列表」中對影片選擇「補幀」。';
+	@override String get clearFinished => '清除已結束的記錄';
+	@override late final _TranslationsFrameInterpStatusZhTw status = _TranslationsFrameInterpStatusZhTw._(_root);
+	@override late final _TranslationsFrameInterpActionsZhTw actions = _TranslationsFrameInterpActionsZhTw._(_root);
+	@override late final _TranslationsFrameInterpConfirmZhTw confirm = _TranslationsFrameInterpConfirmZhTw._(_root);
+	@override late final _TranslationsFrameInterpToastZhTw toast = _TranslationsFrameInterpToastZhTw._(_root);
+	@override late final _TranslationsFrameInterpRejectZhTw reject = _TranslationsFrameInterpRejectZhTw._(_root);
+	@override late final _TranslationsFrameInterpErrorZhTw error = _TranslationsFrameInterpErrorZhTw._(_root);
+	@override late final _TranslationsFrameInterpNotificationZhTw notification = _TranslationsFrameInterpNotificationZhTw._(_root);
+	@override late final _TranslationsFrameInterpComponentZhTw component = _TranslationsFrameInterpComponentZhTw._(_root);
+}
+
 // Path: common.pagination
 class _TranslationsCommonPaginationZhTw extends TranslationsCommonPaginationEn {
 	_TranslationsCommonPaginationZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
@@ -4948,6 +4979,127 @@ class _TranslationsLocalMediaWebdavZhTw extends TranslationsLocalMediaWebdavEn {
 	@override String get bannerAuthFailed => '登入已失效，重新登入後才能看到最新內容';
 	@override String get bannerCertUntrusted => 'NAS 的憑證變了，確認之後才能繼續';
 	@override String get bannerCredUnreadable => '讀取儲存的密碼失敗，重新登入一次即可';
+}
+
+// Path: frameInterp.status
+class _TranslationsFrameInterpStatusZhTw extends TranslationsFrameInterpStatusEn {
+	_TranslationsFrameInterpStatusZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get pending => '排隊中';
+	@override String get running => '處理中';
+	@override String get completed => '已完成';
+	@override String get failed => '失敗';
+	@override String get cancelled => '已取消';
+}
+
+// Path: frameInterp.actions
+class _TranslationsFrameInterpActionsZhTw extends TranslationsFrameInterpActionsEn {
+	_TranslationsFrameInterpActionsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get play => '播放';
+	@override String get cancel => '取消';
+	@override String get retry => '重試';
+	@override String get delete => '刪除記錄';
+	@override String get revealInFolder => '在資料夾中顯示';
+}
+
+// Path: frameInterp.confirm
+class _TranslationsFrameInterpConfirmZhTw extends TranslationsFrameInterpConfirmEn {
+	_TranslationsFrameInterpConfirmZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get cancelTitle => '取消這個任務？';
+	@override String get cancelContent => '已處理的進度會遺失，之後可以從頭重試。';
+	@override String get deleteTitle => '刪除這筆記錄？';
+	@override String get deleteContent => '原始影片不會受到影響。';
+	@override String get deleteOutput => '同時刪除補幀檔案';
+	@override String get clearTitle => '清除已結束的記錄？';
+	@override String get clearContent => '補幀檔案會保留在磁碟上，只會移除記錄。';
+}
+
+// Path: frameInterp.toast
+class _TranslationsFrameInterpToastZhTw extends TranslationsFrameInterpToastEn {
+	_TranslationsFrameInterpToastZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get queued => '已加入補幀佇列';
+	@override String completed({required Object title}) => '補幀完成：${title}';
+	@override String failed({required Object title}) => '補幀失敗：${title}';
+}
+
+// Path: frameInterp.reject
+class _TranslationsFrameInterpRejectZhTw extends TranslationsFrameInterpRejectEn {
+	_TranslationsFrameInterpRejectZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get sourceMissing => '影片檔案已不存在';
+	@override String get alreadyInterpolated => '這已經是補幀後的影片';
+	@override String get alreadyQueued => '此影片已在補幀佇列中';
+	@override String get alreadyDone => '此影片已有補幀版本';
+	@override String get highFrameRate => '此影片幀率已經很高，無需補幀';
+	@override String get hdr => '目前不支援 HDR 影片';
+	@override String get resolutionTooLarge => '解析度過高，無法補幀';
+	@override String get unreadable => '無法讀取此影片';
+	@override String get noGpu => '找不到可用的顯示卡（需要支援 Vulkan）';
+}
+
+// Path: frameInterp.error
+class _TranslationsFrameInterpErrorZhTw extends TranslationsFrameInterpErrorEn {
+	_TranslationsFrameInterpErrorZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get unknown => '發生了一點問題';
+	@override String get openInput => '無法開啟影片';
+	@override String get noVideo => '檔案中沒有影片軌';
+	@override String get decoder => '影片解碼失敗';
+	@override String get hdrUnsupported => '目前不支援 HDR 影片';
+	@override String get noGpu => '找不到可用的顯示卡';
+	@override String get model => '補幀模型載入失敗，可嘗試重新安裝元件';
+	@override String get encoder => '沒有可用的影片編碼器';
+	@override String get openOutput => '無法建立輸出檔案';
+	@override String get write => '寫入失敗，可能是磁碟空間不足';
+	@override String get interpolate => '處理失敗，可能是顯示記憶體不足';
+	@override String get componentUnavailable => '補幀元件無法使用';
+	@override String get interrupted => '應用程式關閉導致任務中斷';
+	@override String get finalizeFailed => '成品檔案儲存失敗';
+	@override String get sourceMissing => '影片檔案已不存在';
+	@override String get backgrounded => '應用程式切到了背景，回到前景後會自動重新開始';
+}
+
+// Path: frameInterp.notification
+class _TranslationsFrameInterpNotificationZhTw extends TranslationsFrameInterpNotificationEn {
+	_TranslationsFrameInterpNotificationZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '正在補幀';
+	@override String titleWithQueue({required Object count}) => '正在補幀 · ${count} 個排隊';
+	@override String get waiting => '等待開始';
+}
+
+// Path: frameInterp.component
+class _TranslationsFrameInterpComponentZhTw extends TranslationsFrameInterpComponentEn {
+	_TranslationsFrameInterpComponentZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get unsupported => '此裝置暫不支援補幀';
 }
 
 // Path: settings.downloadSettings.pathTemplateEditor
@@ -8979,6 +9131,68 @@ extension on TranslationsZhTw {
 			'poll.voteFailed' => '投票未能送出',
 			'poll.copyLink' => '複製投票連結',
 			'poll.translateFailed' => '投票翻譯失敗',
+			'frameInterp.title' => '補幀任務',
+			'frameInterp.action' => '補幀（產生 2 倍幀率版本）',
+			'frameInterp.playInterpolated' => '播放補幀版本',
+			'frameInterp.viewTasks' => '查看補幀任務',
+			'frameInterp.badge' => '補幀',
+			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} 幀',
+			'frameInterp.specLine' => ({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps',
+			'frameInterp.runningDetail' => ({required Object percent, required Object speed}) => '${percent}% · ${speed} fps',
+			'frameInterp.preparing' => '準備中…',
+			'frameInterp.outputMissing' => '補幀檔案已不存在',
+			'frameInterp.empty' => '還沒有補幀任務',
+			'frameInterp.emptyHint' => '在「本機檔案」或「下載列表」中對影片選擇「補幀」。',
+			'frameInterp.clearFinished' => '清除已結束的記錄',
+			'frameInterp.status.pending' => '排隊中',
+			'frameInterp.status.running' => '處理中',
+			'frameInterp.status.completed' => '已完成',
+			'frameInterp.status.failed' => '失敗',
+			'frameInterp.status.cancelled' => '已取消',
+			'frameInterp.actions.play' => '播放',
+			'frameInterp.actions.cancel' => '取消',
+			'frameInterp.actions.retry' => '重試',
+			'frameInterp.actions.delete' => '刪除記錄',
+			'frameInterp.actions.revealInFolder' => '在資料夾中顯示',
+			'frameInterp.confirm.cancelTitle' => '取消這個任務？',
+			'frameInterp.confirm.cancelContent' => '已處理的進度會遺失，之後可以從頭重試。',
+			'frameInterp.confirm.deleteTitle' => '刪除這筆記錄？',
+			'frameInterp.confirm.deleteContent' => '原始影片不會受到影響。',
+			'frameInterp.confirm.deleteOutput' => '同時刪除補幀檔案',
+			'frameInterp.confirm.clearTitle' => '清除已結束的記錄？',
+			'frameInterp.confirm.clearContent' => '補幀檔案會保留在磁碟上，只會移除記錄。',
+			'frameInterp.toast.queued' => '已加入補幀佇列',
+			'frameInterp.toast.completed' => ({required Object title}) => '補幀完成：${title}',
+			'frameInterp.toast.failed' => ({required Object title}) => '補幀失敗：${title}',
+			'frameInterp.reject.sourceMissing' => '影片檔案已不存在',
+			'frameInterp.reject.alreadyInterpolated' => '這已經是補幀後的影片',
+			'frameInterp.reject.alreadyQueued' => '此影片已在補幀佇列中',
+			'frameInterp.reject.alreadyDone' => '此影片已有補幀版本',
+			'frameInterp.reject.highFrameRate' => '此影片幀率已經很高，無需補幀',
+			'frameInterp.reject.hdr' => '目前不支援 HDR 影片',
+			'frameInterp.reject.resolutionTooLarge' => '解析度過高，無法補幀',
+			'frameInterp.reject.unreadable' => '無法讀取此影片',
+			'frameInterp.reject.noGpu' => '找不到可用的顯示卡（需要支援 Vulkan）',
+			'frameInterp.error.unknown' => '發生了一點問題',
+			'frameInterp.error.openInput' => '無法開啟影片',
+			'frameInterp.error.noVideo' => '檔案中沒有影片軌',
+			'frameInterp.error.decoder' => '影片解碼失敗',
+			'frameInterp.error.hdrUnsupported' => '目前不支援 HDR 影片',
+			'frameInterp.error.noGpu' => '找不到可用的顯示卡',
+			'frameInterp.error.model' => '補幀模型載入失敗，可嘗試重新安裝元件',
+			'frameInterp.error.encoder' => '沒有可用的影片編碼器',
+			'frameInterp.error.openOutput' => '無法建立輸出檔案',
+			'frameInterp.error.write' => '寫入失敗，可能是磁碟空間不足',
+			'frameInterp.error.interpolate' => '處理失敗，可能是顯示記憶體不足',
+			'frameInterp.error.componentUnavailable' => '補幀元件無法使用',
+			'frameInterp.error.interrupted' => '應用程式關閉導致任務中斷',
+			'frameInterp.error.finalizeFailed' => '成品檔案儲存失敗',
+			'frameInterp.error.sourceMissing' => '影片檔案已不存在',
+			'frameInterp.error.backgrounded' => '應用程式切到了背景，回到前景後會自動重新開始',
+			'frameInterp.notification.title' => '正在補幀',
+			'frameInterp.notification.titleWithQueue' => ({required Object count}) => '正在補幀 · ${count} 個排隊',
+			'frameInterp.notification.waiting' => '等待開始',
+			'frameInterp.component.unsupported' => '此裝置暫不支援補幀',
 			_ => null,
 		};
 	}

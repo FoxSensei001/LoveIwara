@@ -8,10 +8,11 @@ DownloadTask _task(
   DownloadStatus status, {
   DownloadTaskExtDataType? type,
   Map<String, dynamic>? data,
+  String? savePath,
 }) => DownloadTask(
   id: id,
   url: 'https://example.test/$id',
-  savePath: '/tmp/$id',
+  savePath: savePath ?? '/tmp/$id',
   fileName: id,
   status: status,
   extData: type == null
@@ -23,10 +24,14 @@ List<DownloadAction> _resolve(
   Set<DownloadTask> tasks, {
   bool desktop = false,
   Set<String> missing = const {},
+  bool interpSupported = false,
+  Map<String, String> interpOutputs = const {},
 }) => DownloadActionResolver.resolve(
   tasks,
   isDesktop: desktop,
   isFileMissing: (t) => missing.contains(t.id),
+  frameInterpSupported: interpSupported,
+  interpolatedOutputOf: (t) => interpOutputs[t.id],
 );
 
 void main() {
@@ -141,5 +146,57 @@ void main() {
       ]),
     );
     expect(actions.last, DownloadAction.delete);
+  });
+
+  group('补帧', () {
+    DownloadTask video(String id, {String? savePath}) {
+      return _task(
+        id,
+        DownloadStatus.completed,
+        type: DownloadTaskExtDataType.video,
+        data: {'id': 'vid'},
+        savePath: savePath,
+      );
+    }
+
+    test('支持且尚无成品：给补帧；批量与非视频不给', () {
+      final v = video('v');
+      expect(
+        _resolve({v}, interpSupported: true),
+        contains(DownloadAction.interpolate),
+      );
+      expect(_resolve({v}), isNot(contains(DownloadAction.interpolate)));
+      expect(
+        _resolve({v, video('w')}, interpSupported: true),
+        isNot(contains(DownloadAction.interpolate)),
+      );
+      expect(
+        _resolve({_task('a', DownloadStatus.completed)}, interpSupported: true),
+        isNot(contains(DownloadAction.interpolate)),
+      );
+      expect(
+        DownloadActionResolver.batchCapable,
+        isNot(contains(DownloadAction.interpolate)),
+      );
+    });
+
+    test('已有成品：换成播放补帧版本', () {
+      final actions = _resolve(
+        {video('v')},
+        interpSupported: true,
+        interpOutputs: {'v': '/tmp/v.fi2x.mp4'},
+      );
+      expect(actions, contains(DownloadAction.playInterpolated));
+      expect(actions, isNot(contains(DownloadAction.interpolate)));
+    });
+
+    test('NAS / content:// 路径不给补帧', () {
+      expect(
+        _resolve({
+          video('v', savePath: 'content://media/1'),
+        }, interpSupported: true),
+        isNot(contains(DownloadAction.interpolate)),
+      );
+    });
   });
 }
