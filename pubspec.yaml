@@ -201,5 +201,10 @@ dependency_overrides:
   # 桌面端本来不调亮度。原因详见包内注释。
   screen_brightness_windows:
     path: packages/screen_brightness_windows
+  # flutter_inappwebview_android 1.1.3（最新正式版）的 build.gradle 用了
+  # getDefaultProguardFile('proguard-android.txt')，AGP 9（Flutter 3.50 的下限）
+  # 求值时直接报错。本地拷一份只改这一行，上游发了修好的正式版就删掉这条。
+  flutter_inappwebview_android:
+    path: packages/flutter_inappwebview_android
 
 license: MIT

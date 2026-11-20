@@ -26,10 +26,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_21
-    }
-
     defaultConfig {
         applicationId = "m.c.g.a.i_iwara"
         minSdk = 24
@@ -122,7 +118,7 @@ android {
         }
     }
 
-    packagingOptions {
+    packaging {
         jniLibs {
             useLegacyPackaging = true
         }
@@ -134,9 +130,16 @@ android {
     }
     
     // 减少构建输出
-    lintOptions {
+    lint {
         checkReleaseBuilds false
         abortOnError false
+    }
+}
+
+// android { kotlinOptions } 在 Kotlin 2.x 已废弃，改用 kotlin { compilerOptions }（同 Flutter 模板）。
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
     }
 }
 

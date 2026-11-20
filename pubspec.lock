@@ -687,13 +687,12 @@ packages:
     source: hosted
     version: "6.1.5"
   flutter_inappwebview_android:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: flutter_inappwebview_android
-      sha256: "62557c15a5c2db5d195cb3892aab74fcaec266d7b86d59a6f0027abd672cddba"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.1.3"
+      path: "packages/flutter_inappwebview_android"
+      relative: true
+    source: path
+    version: "1.1.3+agp9"
   flutter_inappwebview_internal_annotations:
     dependency: transitive
     description:

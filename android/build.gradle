@@ -1,7 +1,7 @@
 // ⛔ 这个 buildscript 块只为一件事存在：Meta Spatial SDK 的 gradle 插件。
 //
 // 它会把 `kotlin-compiler-embeddable`（2.1.x）拖进**构建类路径**，和本项目的
-// KGP（settings.gradle 里锁的 2.3.20）自带的编译器打架 ——
+// KGP（settings.gradle 里锁的版本）自带的编译器打架 ——
 // 症状是 K2JVMCompilerArguments 的方法签名对不上，Kotlin 编译整个起不来。
 // 唯一稳妥的修法是在 classpath 上直接排除它（spike 里已验证过这条）。
 //
@@ -40,13 +40,15 @@ allprojects {
     }
 }
 
-rootProject.buildDir = "../build"
+// Project.buildDir 在 Gradle 9 里已废弃，改走 layout.buildDirectory（和 Flutter 模板一致）。
+def newBuildDir = rootProject.layout.projectDirectory.dir("../build")
+rootProject.layout.buildDirectory.set(newBuildDir)
 
 subprojects {
-    project.buildDir = "${rootProject.buildDir}/${project.name}"
+    project.layout.buildDirectory.set(newBuildDir.dir(project.name))
 
     // 部分插件仍写死较低的 compileSdk（如 irondash_engine_context 0.5.5 写死 31），
-    // 但其 AndroidX 传递依赖要求 34+，AGP 8.13 的 AAR 元数据校验会直接判失败。
+    // 但其 AndroidX 传递依赖要求 34+，AGP 的 AAR 元数据校验会直接判失败。
     // 这里把过低的插件抬到与 app 一致；compileSdk 只影响编译期可用 API，
     // 不改变 minSdk/targetSdk 的运行时行为。
     // 只抬升、不降级：permission_handler_android 14 自己要求 compileSdk 37，
@@ -66,5 +68,5 @@ subprojects {
 }
 
 tasks.register("clean", Delete) {
-    delete rootProject.buildDir
+    delete rootProject.layout.buildDirectory
 }

@@ -63,7 +63,7 @@ def fiCache = layout.buildDirectory.dir("frame_interp/cache").get().asFile
 
 android {
     sourceSets.main.jniLibs.srcDir(fiJniRoot)
-    packagingOptions {
+    packaging {
         jniLibs {
             // 清单和模型不是 ELF，别让打包时的 strip 去碰它们（碰了只会报一串警告）。
             keepDebugSymbols.add("**/libfi_manifest.so")
