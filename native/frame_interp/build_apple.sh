@@ -228,10 +228,12 @@ EOF
     done
 
     # -- ncnn（静态，Vulkan 走它自带的加载器 + 静态链进来的 MoltenVK）
+    # ⛔ 可能为空的数组一律写成 ${arr[@]+"${arr[@]}"}：macOS 自带 bash 3.2，在 set -u 下
+    # 展开空数组 "${arr[@]}" 会报 unbound variable（2026-11-20 CI 上 apple job 就挂在这）。
     local system_args=()
     [[ "$system" == iOS ]] && system_args=(-DCMAKE_SYSTEM_NAME=iOS)
     cmake -S "$NCNN_SRC" -B "$dir/ncnn-build" -G Ninja \
-        -DCMAKE_BUILD_TYPE=Release "${system_args[@]}" \
+        -DCMAKE_BUILD_TYPE=Release ${system_args[@]+"${system_args[@]}"} \
         -DCMAKE_OSX_SYSROOT="$sdk" -DCMAKE_OSX_ARCHITECTURES="$arch" \
         -DCMAKE_OSX_DEPLOYMENT_TARGET="$minver" \
         -DCMAKE_INSTALL_PREFIX="$dir/ncnn" \
@@ -248,11 +250,11 @@ EOF
     local model_args=()
     [[ -n "$MODEL_DIR" ]] && model_args=(-DFI_MODEL_DIR="$MODEL_DIR")
     cmake -S "$HERE" -B "$dir/engine-build" -G Ninja \
-        -DCMAKE_BUILD_TYPE=Release "${system_args[@]}" \
+        -DCMAKE_BUILD_TYPE=Release ${system_args[@]+"${system_args[@]}"} \
         -DCMAKE_OSX_SYSROOT="$sdk" -DCMAKE_OSX_ARCHITECTURES="$arch" \
         -DCMAKE_OSX_DEPLOYMENT_TARGET="$minver" \
         -DFI_NCNN_DIR="$dir/ncnn" -DFI_FFMPEG_DIR="$dir/frameworks" \
-        -DFI_MOLTENVK_LIB="$moltenvk" "${model_args[@]}" \
+        -DFI_MOLTENVK_LIB="$moltenvk" ${model_args[@]+"${model_args[@]}"} \
         -DFI_BUILD_CLI=OFF
     cmake --build "$dir/engine-build"
     cmake --install "$dir/engine-build" --prefix "$dir/engine" --strip

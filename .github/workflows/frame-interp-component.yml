@@ -152,8 +152,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             build-essential nasm pkg-config ninja-build libva-dev zip python3-pip
-          # 22.04 自带的 meson 太老，编不了 dav1d 1.5。
-          pip3 install --user 'meson>=1.3'
+          # 22.04 自带的 meson 太老，编不了 dav1d 1.5。⛔ 版本钉死：不钉时
+          # 2026-11-20 装到的 1.12.1 就和脚本里一个参数不合，配置阶段直接失败。
+          pip3 install --user 'meson==1.12.1'
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
       - name: Sources
         run: |

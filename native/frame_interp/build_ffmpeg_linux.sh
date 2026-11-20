@@ -45,8 +45,10 @@ make -C "$NVHEADERS" install PREFIX="$DEPS" >/dev/null
 # ---- dav1d：静态库，链进 avcodec ------------------------------------------
 DAV1D_BUILD="$OUT/dav1d-build"
 rm -rf "$DAV1D_BUILD"
+# 不传 -Db_pic=true：meson 在 Linux 上 b_pic 默认就是开的，而新版 meson（CI 上 1.12.1、
+# 本机 1.6.1 都如此）在 project() 阶段不认命令行上的这个选项，配置直接报 Unknown option。
 meson setup "$DAV1D_BUILD" "$DAV1D_SRC" \
-    --buildtype=release --default-library=static -Db_pic=true \
+    --buildtype=release --default-library=static \
     -Denable_tools=false -Denable_tests=false \
     --prefix="$DEPS" --libdir=lib
 meson compile -C "$DAV1D_BUILD"
