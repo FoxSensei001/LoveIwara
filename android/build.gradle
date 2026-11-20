@@ -44,8 +44,36 @@ allprojects {
 def newBuildDir = rootProject.layout.projectDirectory.dir("../build")
 rootProject.layout.buildDirectory.set(newBuildDir)
 
+// Gradle 9 删掉了 Project.exec()。irondash_engine_context / super_native_extensions 带的 cargokit
+// （plugin.gradle 里的 CargoKitBuildTask）还在调 project.exec { ... }，上游最新版（0.5.5 / 0.9.1）没修，
+// 编 release 时 :irondash_engine_context:cargokitCargoBuild… 直接报 "Could not find method exec()"。
+// 这里给每个子项目补一个同名的 ext 闭包，转交给公开的 ExecOperations；闭包的 delegate 设成 ExecSpec，
+// 所以 commandLine / environment 这些写法照旧生效。等上游换成 ExecOperations 后可以删掉这段。
+abstract class ExecOpsHolder {
+    @javax.inject.Inject
+    abstract org.gradle.process.ExecOperations getExecOps()
+}
+
 subprojects {
     project.layout.buildDirectory.set(newBuildDir.dir(project.name))
+
+    def execOps = project.objects.newInstance(ExecOpsHolder).execOps
+    project.ext.exec = { Closure cl -> execOps.exec { spec -> project.configure(spec, cl) } }
+
+    // Meta Spatial UI Set 0.13.2 的 POM 写着 androidx.core:core:1.13.1-patched，这个版本在任何公开仓库都不存在。
+    // 以前能过，是因为 compose foundation 1.7.8 在 runtime scope 里要 core 1.13.1（比 "1.13.1-patched" 高），
+    // 而 AGP 8 默认 android.dependency.useConstraints=true，会让编译类路径跟着运行时类路径的版本走，patched 就没被下载过。
+    // AGP 9 把这个默认值改成了 false，编译类路径上只剩 patched，Quest 包（:questui 和 :app 的 quest 变体）报找不到。
+    // 把这个请求改成 1.13.1，最终选哪个版本仍按正常冲突解析取最高的；不把 useConstraints 全局开回来，影响面更小。
+    configurations.configureEach {
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == "androidx.core" && details.requested.name == "core"
+                    && details.requested.version == "1.13.1-patched") {
+                details.useVersion("1.13.1")
+                details.because("1.13.1-patched 不在任何公开仓库；AGP 9 下编译类路径不再被运行时版本约束盖掉")
+            }
+        }
+    }
 
     // 部分插件仍写死较低的 compileSdk（如 irondash_engine_context 0.5.5 写死 31），
     // 但其 AndroidX 传递依赖要求 34+，AGP 的 AAR 元数据校验会直接判失败。
