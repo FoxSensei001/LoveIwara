@@ -1,8 +1,9 @@
 name: Frame Interpolation Component
 
 # 编各平台的补帧组件包（native/frame_interp）。它不随应用每次构建：引擎、FFmpeg、
-# ncnn 改了才需要重编。产物是 Release 用的 zip，手动发到 Release 后，把每个 job
-# 最后打印的 SHA-256 填进对应平台的打包脚本：
+# ncnn 改了才需要重编。产物是 Release 用的 zip：三个 *-app job 全绿后，publish job
+# 把它们传到 Release frame-interp-1（已有同名文件就不覆盖，沿用旧的），并在运行摘要
+# 里列出地址和 SHA-256。把它们填进对应平台的打包脚本：
 #   Android  android/app/frame_interp.gradle         （fiPackageUrl / fiPackageSha256）
 #   Linux    linux/frame_interp.cmake                 （_fi_package_url / _fi_package_sha256）
 #   Apple    native/frame_interp/apple/prepare_component.sh （PACKAGE_URL / PACKAGE_SHA256）
@@ -16,7 +17,16 @@ name: Frame Interpolation Component
 # ⛔ 下面每一样外部源码 / 预编译包都钉死版本和哈希：编出来的东西要被加载进用户的
 # 应用进程。
 
+# ⛔ 手动触发（workflow_dispatch）要求这个文件在默认分支 master 上，否则网页上没有
+# 按钮、API 返回 404。这个文件只在 build 分支上时，补帧组件就一次都没编过（2026-11-20
+# 发现 iOS / Android / Linux 包全都不带补帧）。所以在 build 分支上，补帧相关文件一改、
+# 一推送就自动跑全平台。
 on:
+  push:
+    branches: [build]
+    paths:
+      - 'native/frame_interp/**'
+      - '.github/workflows/frame-interp-component.yml'
   workflow_dispatch:
     inputs:
       build_android:
@@ -47,7 +57,7 @@ env:
 
 jobs:
   android:
-    if: inputs.build_android
+    if: github.event_name == 'push' || inputs.build_android
     runs-on: ubuntu-24.04
     env:
       NCNN_URL: https://github.com/Tencent/ncnn/releases/download/20261020/ncnn-20261020-android-vulkan-shared.zip
@@ -128,7 +138,7 @@ jobs:
         run: python3 native/frame_interp/ci/check_app.py android build/app/outputs
 
   linux:
-    if: inputs.build_linux
+    if: github.event_name == 'push' || inputs.build_linux
     # 22.04（glibc 2.35）：出来的库在更新的发行版上都能用。
     runs-on: ubuntu-22.04
     env:
@@ -217,7 +227,7 @@ jobs:
             --loader "$RUNNER_TEMP/fi_load_check"
 
   apple:
-    if: inputs.build_apple
+    if: github.event_name == 'push' || inputs.build_apple
     # 和 build.yml 出 iOS 包的是同一代机器和 Xcode（26+），组件和应用用同一套工具链。
     runs-on: macos-26
     env:
@@ -311,3 +321,51 @@ jobs:
           test -n "$APP"
           python3 native/frame_interp/ci/check_app.py macos "$APP" --loader "$RUNNER_TEMP/fi_load_check"
           python3 native/frame_interp/ci/check_app.py ios build/ios/iphoneos/Runner.app
+
+  # 三个平台的包都通过了打进应用的验收，才传到 Release。某个平台这次没编（手动触发
+  # 时取消了勾选）就跳过它；编了但没过验收，整个 publish 不跑。
+  publish:
+    needs: [android-app, linux-app, apple-app]
+    if: >-
+      always() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: frame-interp-1
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: frame_interp-*
+          path: ${{ runner.temp }}/packages
+          merge-multiple: true
+      - name: Upload to release
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          cd "$RUNNER_TEMP/packages"
+          existing=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets -q '.assets[].name')
+          {
+            echo "## 补帧组件包（Release \`$TAG\`）"
+            echo
+            echo "| 文件 | 地址 | SHA-256 |"
+            echo "|---|---|---|"
+          } >> "$GITHUB_STEP_SUMMARY"
+          for zip in *.zip; do
+            # ⛔ 不覆盖：打包脚本里钉着的是旧文件的哈希，换掉文件会让所有构建校验失败。
+            # 要换新包就先在 Release 上删掉旧文件，再改脚本里的哈希。
+            if grep -qx "$zip" <<<"$existing"; then
+              echo "$zip already on $TAG, keeping the published one"
+              rm -f "$zip"
+              gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "$zip"
+            else
+              gh release upload "$TAG" "$zip" --repo "$GITHUB_REPOSITORY"
+            fi
+            sha=$(sha256sum "$zip" | cut -d' ' -f1)
+            url="https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG/$zip"
+            echo "$zip $url $sha"
+            echo "| $zip | $url | \`$sha\` |" >> "$GITHUB_STEP_SUMMARY"
+          done
