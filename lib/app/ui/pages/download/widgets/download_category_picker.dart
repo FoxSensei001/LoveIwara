@@ -4,6 +4,7 @@ import 'package:i_iwara/app/models/download/download_category.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/download/download_category_manage_page.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_manager_shortcut_button.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_dropdown_field.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
@@ -131,6 +132,7 @@ Future<({bool confirmed, String? categoryId})> showDownloadCategoryDialog(
     builder: (dialogContext) => StatefulBuilder(
       builder: (context, setState) => GlassAlertDialog(
         title: t.download.category.label,
+        titleActions: const [DownloadManagerShortcutButton()],
         content: SizedBox(
           width: double.maxFinite,
           child: Column(

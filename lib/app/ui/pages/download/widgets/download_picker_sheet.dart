@@ -15,6 +15,7 @@ import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constan
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_manager_shortcut_button.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 
 /// [showDownloadPickerSheet] 确认下载后的返回结果：选中的清晰度与分类。
@@ -211,9 +212,19 @@ class _DownloadPickerSheetState extends State<_DownloadPickerSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            t.download.selectDownloadTitle,
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  t.download.selectDownloadTitle,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              const DownloadManagerShortcutButton(),
+            ],
           ),
           const SizedBox(height: UIConstants.sectionSpacing),
           // 清晰度网格固定 2-3 行、分类胶囊行数不定（分类可以建很多个）——

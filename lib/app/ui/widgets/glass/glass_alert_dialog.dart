@@ -121,6 +121,7 @@ class GlassAlertDialog extends StatelessWidget {
     this.floatingActions = false,
     this.floatingHeader = false,
     this.headerRows = const <Widget>[],
+    this.titleActions = const <Widget>[],
   });
 
   /// 标题行（连同 [headerRows]）浮在正文之上：正文铺到面板顶，从标题背后滚
@@ -182,6 +183,11 @@ class GlassAlertDialog extends StatelessWidget {
   /// （`standalone: true`），不要在调用点各写各的关闭图标。[title] 为 null
   /// 时本项被忽略（整个标题行都不建）。
   final bool showCloseButton;
+
+  /// 标题行里夹在标题与关闭钮之间的额外动作钮（如「去下载管理」）。
+  /// 调用方自己保证它们是 `GlassIconButton(standalone: true)`；默认空，
+  /// 不影响既有弹窗的标题行。[title] 为 null 时同样被忽略。
+  final List<Widget> titleActions;
 
   /// 正文过长时是否允许内部滚动（对齐 `AlertDialog(scrollable: true)`）。
   final bool scrollable;
@@ -262,6 +268,10 @@ class GlassAlertDialog extends StatelessWidget {
         : Row(
             children: [
               Expanded(child: Text(title!, style: theme.textTheme.titleLarge)),
+              for (final action in titleActions) ...[
+                const SizedBox(width: 8),
+                action,
+              ],
               if (closeButton != null) ...[
                 const SizedBox(width: 8),
                 closeButton,
