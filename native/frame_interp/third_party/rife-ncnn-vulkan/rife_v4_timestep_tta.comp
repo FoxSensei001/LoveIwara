@@ -1,0 +1,32 @@
+// rife implemented with ncnn library
+
+#version 450
+
+#if NCNN_fp16_storage
+#extension GL_EXT_shader_16bit_storage: require
+#endif
+
+layout (binding = 0) writeonly buffer top_blob0 { sfp top_blob0_data[]; };
+layout (binding = 1) writeonly buffer top_blob1 { sfp top_blob1_data[]; };
+
+layout (push_constant) uniform parameter
+{
+    int w;
+    int h;
+    int cstep;
+
+    float timestamp;
+} p;
+
+void main()
+{
+    int gx = int(gl_GlobalInvocationID.x);
+    int gy = int(gl_GlobalInvocationID.y);
+    int gz = int(gl_GlobalInvocationID.z);
+
+    if (gx >= p.w || gy >= p.h || gz >= 1)
+        return;
+
+    top_blob0_data[gz * p.cstep + gy * p.w + gx] = sfp(p.timestamp);
+    top_blob1_data[gz * p.cstep + gx * p.h + gy] = sfp(p.timestamp);
+}

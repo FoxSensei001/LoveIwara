@@ -1,0 +1,2 @@
+# 这些脚本在 MSYS2 / Linux / macOS 的 bash 里跑，CRLF 会让 bash 报 $'\r'。
+*.sh text eol=lf

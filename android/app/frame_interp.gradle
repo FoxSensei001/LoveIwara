@@ -1,0 +1,209 @@
+// 把补帧组件（引擎库 + 裁剪过的 FFmpeg + ncnn + 模型）打进 APK 的 arm64-v8a。
+//
+// 和 windows/frame_interp.cmake 是同一套做法，只是落点换成了 jniLibs：
+//
+//   - 组件里的 *.so 原样放进 lib/arm64-v8a/，系统装应用时把它们拆进原生库目录，
+//     引擎按 soname 就能找到彼此；
+//   - 清单 manifest.json 和两个模型文件也塞进同一个目录，改名成 libfi_*.so——
+//     原生库目录只收 lib*.so，而只有原生库能按 ABI 拆进各自的 APK：放进 assets
+//     的话，32 位设备的安装包也得背着这十几兆，可那上面补帧根本不露出来。
+//     应用启动时再按原名给模型建链接（frame_interp_component.dart 的
+//     _locateAndroid）。
+//
+// 只有 arm64-v8a 带组件。其余 ABI 的安装包里什么都没有，应用在那上面直接把补帧
+// 入口藏掉。
+//
+// 组件从哪来，按下面的顺序找：
+//
+//   1. 环境变量 FRAME_INTERP_ANDROID_COMPONENT_DIR —— native/frame_interp/
+//      build_android.sh 出的完整组件目录。改引擎的时候用它。
+//   2. 否则按下面写死的地址和哈希下载、拼出来：
+//        - 引擎库和裁剪过的 FFmpeg：我们自己构建的，挂在本仓库的 Release 上；
+//        - libncnn.so：直接取 ncnn 官方发布的预编译包（引擎就是对着这一份链的，
+//          换版本必须连引擎一起重新构建）；
+//        - RIFE 模型：直接取上游仓库某一次提交里的文件（和 Windows 同一份）。
+//      我们自己的包还没发布（下面的地址为空）时，这次构建不带补帧，只打一行提示。
+//   3. 环境变量 FRAME_INTERP_DISABLE 非空 —— 这次构建不带补帧。
+//
+// ⛔ 下载来的东西是要被加载进应用进程的原生代码，每一样都必须带哈希校验。
+
+import java.security.MessageDigest
+import java.util.zip.ZipFile
+
+// ---- 2 用到的地址与哈希 -----------------------------------------------------
+
+// 我们自己的包：native/frame_interp/build_android.sh 打出来的 zip。
+// 发布到 Release 之后，把地址和它打印出来的 SHA-256 一起填上。
+def fiPackageUrl = ""
+def fiPackageSha256 = ""
+// 环境变量 FRAME_INTERP_ANDROID_PACKAGE_URL 只换下载地址（镜像），哈希照旧用上面这个；
+// 连同 FRAME_INTERP_ANDROID_PACKAGE_SHA256 一起给，就整个换成另一份包——CI 拿刚编出来、
+// 还没发布的包验打包时用（.github/workflows/frame-interp-component.yml）。
+if (System.getenv("FRAME_INTERP_ANDROID_PACKAGE_URL")) {
+    fiPackageUrl = System.getenv("FRAME_INTERP_ANDROID_PACKAGE_URL")
+    if (System.getenv("FRAME_INTERP_ANDROID_PACKAGE_SHA256")) {
+        fiPackageSha256 = System.getenv("FRAME_INTERP_ANDROID_PACKAGE_SHA256").toLowerCase()
+    }
+}
+
+def fiNcnnUrl = "https://github.com/Tencent/ncnn/releases/download/20261020/ncnn-20261020-android-vulkan-shared.zip"
+def fiNcnnSha256 = "1b01048590564bae1c3d2d2a2b37ff101d50ad86c2cd2dc862bce7087905444d"
+def fiNcnnEntry = "ncnn-20261020-android-vulkan-shared/arm64-v8a/lib/libncnn.so"
+
+def fiModelName = "rife-v4.6"
+def fiModelBase = "https://raw.githubusercontent.com/nihui/rife-ncnn-vulkan/a7532fc3f9f8f008cd6eecd6f2ffe2a9698e0cf7/models/rife-v4.6"
+def fiModelBinSha256 = "f334ed2260149ce0188a6dcf049844e8b0cdd912e01cbcfb63553157d2508958"
+def fiModelParamSha256 = "724569596bcd1e7b9fa50455c604777ebed99746d2ef40aa86e31b5725f1053c"
+
+// ---- 落点 -------------------------------------------------------------------
+
+def fiJniRoot = layout.buildDirectory.dir("frame_interp/jniLibs").get().asFile
+def fiAbiDir = new File(fiJniRoot, "arm64-v8a")
+def fiCache = layout.buildDirectory.dir("frame_interp/cache").get().asFile
+
+android {
+    sourceSets.main.jniLibs.srcDir(fiJniRoot)
+    packagingOptions {
+        jniLibs {
+            // 清单和模型不是 ELF，别让打包时的 strip 去碰它们（碰了只会报一串警告）。
+            keepDebugSymbols.add("**/libfi_manifest.so")
+            keepDebugSymbols.add("**/libfi_model_*.so")
+        }
+    }
+}
+
+def fiSha256 = { File file ->
+    def digest = MessageDigest.getInstance("SHA-256")
+    file.withInputStream { input ->
+        byte[] buffer = new byte[1 << 16]
+        int n
+        while ((n = input.read(buffer)) > 0) digest.update(buffer, 0, n)
+    }
+    digest.digest().encodeHex().toString()
+}
+
+// 下载并校验，网络失败重试几次；内容对不上不重试（那不是网络抖动）。
+def fiDownload = { String url, File destination, String sha256 ->
+    if (destination.exists() && fiSha256(destination) == sha256) return
+    destination.parentFile.mkdirs()
+    def temp = new File(destination.path + ".tmp")
+    Exception last = null
+    for (int attempt = 1; attempt <= 4; attempt++) {
+        try {
+            temp.delete()
+            new URL(url).withInputStream { input -> temp.withOutputStream { it << input } }
+        } catch (Exception e) {
+            last = e
+            logger.warn("frame_interp: download failed (attempt ${attempt}): ${url}: ${e}")
+            continue
+        }
+        def got = fiSha256(temp)
+        if (got != sha256) {
+            temp.delete()
+            throw new GradleException("Checksum mismatch for ${url}\n  expected ${sha256}\n  got      ${got}")
+        }
+        destination.delete()
+        if (!temp.renameTo(destination)) {
+            throw new GradleException("Could not move ${temp} to ${destination}")
+        }
+        return
+    }
+    temp.delete()
+    throw new GradleException(
+        "Could not download ${url}. Check the network, set FRAME_INTERP_ANDROID_COMPONENT_DIR " +
+        "to a locally built component, or FRAME_INTERP_DISABLE=1 to build without it.", last)
+}
+
+// 拼出一个完整的组件目录（和 build_android.sh 出的那个长得一样），返回它。
+def fiAssemble = {
+    def keyA = fiPackageSha256.take(12)
+    def keyB = fiNcnnSha256.take(12)
+    def keyC = fiModelBinSha256.take(12)
+    def assembled = new File(fiCache, "${keyA}-${keyB}-${keyC}")
+    def done = new File(assembled, ".assembled")
+    if (done.exists()) return assembled
+
+    logger.lifecycle("frame_interp: fetching Android component")
+    project.delete(assembled)
+    def modelDir = new File(assembled, "models/${fiModelName}")
+    modelDir.mkdirs()
+
+    def packageZip = new File(fiCache, "package-${keyA}.zip")
+    fiDownload(fiPackageUrl, packageZip, fiPackageSha256)
+    project.copy { from project.zipTree(packageZip); into assembled }
+
+    def ncnnZip = new File(fiCache, "ncnn-${keyB}.zip")
+    fiDownload(fiNcnnUrl, ncnnZip, fiNcnnSha256)
+    new ZipFile(ncnnZip).withCloseable { zip ->
+        def entry = zip.getEntry(fiNcnnEntry)
+        if (entry == null) throw new GradleException("${fiNcnnEntry} not found in ${ncnnZip}")
+        new File(assembled, "libncnn.so").withOutputStream { out ->
+            zip.getInputStream(entry).withCloseable { out << it }
+        }
+    }
+
+    fiDownload("${fiModelBase}/flownet.bin", new File(modelDir, "flownet.bin"), fiModelBinSha256)
+    fiDownload("${fiModelBase}/flownet.param", new File(modelDir, "flownet.param"), fiModelParamSha256)
+
+    if (!new File(assembled, "manifest.json").exists()) {
+        throw new GradleException("Frame interpolation package has no manifest.json")
+    }
+    done.text = ""
+    assembled
+}
+
+def prepareFrameInterp = tasks.register("prepareFrameInterpComponent") {
+    description = "Puts the frame interpolation component into the arm64-v8a jniLibs."
+    outputs.dir(fiJniRoot)
+    // 来源（环境变量、要下载的包）随时可能换，每次都重新判断；真正耗时的下载有
+    // 缓存目录兜着。
+    outputs.upToDateWhen { false }
+    doLast {
+        // 先清掉上一次放进去的：组件换了版本、或者这次不带了，旧文件都不该留着。
+        project.delete(fiJniRoot)
+
+        File source = null
+        if (System.getenv("FRAME_INTERP_DISABLE")) {
+            logger.lifecycle("frame_interp: disabled for this build")
+        } else if (System.getenv("FRAME_INTERP_ANDROID_COMPONENT_DIR")) {
+            source = new File(System.getenv("FRAME_INTERP_ANDROID_COMPONENT_DIR"))
+            if (!new File(source, "manifest.json").exists()) {
+                throw new GradleException("FRAME_INTERP_ANDROID_COMPONENT_DIR has no manifest.json: ${source}")
+            }
+        } else if (!fiPackageUrl || !fiPackageSha256) {
+            logger.lifecycle("frame_interp: no Android package configured yet; building without frame interpolation")
+        } else {
+            source = fiAssemble()
+        }
+        if (source == null) return
+
+        def manifest = new File(source, "manifest.json")
+        if (!manifest.text.contains('"android-arm64"')) {
+            throw new GradleException("Not an android-arm64 frame interpolation component: ${source}")
+        }
+        logger.lifecycle("frame_interp: bundling Android component from ${source}")
+        fiAbiDir.mkdirs()
+        project.copy {
+            from(source) { include "*.so" }
+            into fiAbiDir
+        }
+        project.copy {
+            from(manifest)
+            into fiAbiDir
+            rename { "libfi_manifest.so" }
+        }
+        def modelDir = new File(source, "models/${fiModelName}")
+        ["flownet.param": "libfi_model_flownet_param.so",
+         "flownet.bin": "libfi_model_flownet_bin.so"].each { name, packed ->
+            def file = new File(modelDir, name)
+            if (!file.exists()) throw new GradleException("Model file missing: ${file}")
+            project.copy {
+                from(file)
+                into fiAbiDir
+                rename { packed }
+            }
+        }
+    }
+}
+
+tasks.named("preBuild") { dependsOn(prepareFrameInterp) }

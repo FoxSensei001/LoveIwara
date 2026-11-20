@@ -140,6 +140,9 @@ android {
     }
 }
 
+// 补帧组件（native/frame_interp）只打进 arm64-v8a，来源与校验见这个文件的头注释。
+apply from: "frame_interp.gradle"
+
 // ⛔ 掐掉 quest 变体里那两个**注定装上就崩**的 ABI 产物。
 //
 // 实测（2026-08-29）：光在 productFlavor 里写 `ndk { abiFilters 'arm64-v8a' }`

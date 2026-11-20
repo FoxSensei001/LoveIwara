@@ -1,0 +1,313 @@
+name: Frame Interpolation Component
+
+# 编各平台的补帧组件包（native/frame_interp）。它不随应用每次构建：引擎、FFmpeg、
+# ncnn 改了才需要重编。产物是 Release 用的 zip，手动发到 Release 后，把每个 job
+# 最后打印的 SHA-256 填进对应平台的打包脚本：
+#   Android  android/app/frame_interp.gradle         （fiPackageUrl / fiPackageSha256）
+#   Linux    linux/frame_interp.cmake                 （_fi_package_url / _fi_package_sha256）
+#   Apple    native/frame_interp/apple/prepare_component.sh （PACKAGE_URL / PACKAGE_SHA256）
+# Windows 的包在本机用 native/frame_interp/build_windows.ps1 编（要 MSVC），不在这里。
+#
+# 每个平台编完组件，后面跟一个 *-app job：拿刚编出来的包，走发布后一模一样的那条路
+# （按地址下载 → 校验哈希 → 和 ncnn、模型拼装 → 打进应用）真的构建一次应用，再用
+# native/frame_interp/ci/check_app.py 检查产物（Linux / macOS 还会真的把引擎加载
+# 一次）。这几个 job 全绿，才说明这份包发出去以后能用；挂了就别发。
+#
+# ⛔ 下面每一样外部源码 / 预编译包都钉死版本和哈希：编出来的东西要被加载进用户的
+# 应用进程。
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_android:
+        description: 'Android arm64-v8a'
+        type: boolean
+        default: true
+      build_linux:
+        description: 'Linux x86_64'
+        type: boolean
+        default: true
+      build_apple:
+        description: 'iOS + macOS'
+        type: boolean
+        default: true
+
+env:
+  FFMPEG_URL: https://ffmpeg.org/releases/ffmpeg-8.1.tar.xz
+  FFMPEG_SHA256: b072aed6871998cce9b36e7774033105ca29e33632be5b6347f3206898e0756a
+  DAV1D_URL: https://downloads.videolan.org/pub/videolan/dav1d/1.5.5/dav1d-1.5.5.tar.xz
+  DAV1D_SHA256: ca96b1d0ba3f01f55de7231d775892b64994ba061aaeeaaa4f662a390b3abf9e
+  MODEL_BASE: https://raw.githubusercontent.com/nihui/rife-ncnn-vulkan/a7532fc3f9f8f008cd6eecd6f2ffe2a9698e0cf7/models/rife-v4.6
+  MODEL_BIN_SHA256: f334ed2260149ce0188a6dcf049844e8b0cdd912e01cbcfb63553157d2508958
+  MODEL_PARAM_SHA256: 724569596bcd1e7b9fa50455c604777ebed99746d2ef40aa86e31b5725f1053c
+  # *-app job 构建应用用的 Flutter 和依赖来源。⛔ 和 build.yml 保持一致（那边的注释
+  # 说明了为什么依赖要从 pub.dev 拉、为什么要先过 .github/actions/pub-get）。
+  FLUTTER_VERSION: '3.50.1'
+  PUB_HOSTED_URL: 'https://pub.dev'
+
+jobs:
+  android:
+    if: inputs.build_android
+    runs-on: ubuntu-24.04
+    env:
+      NCNN_URL: https://github.com/Tencent/ncnn/releases/download/20261020/ncnn-20261020-android-vulkan-shared.zip
+      NCNN_SHA256: 1b01048590564bae1c3d2d2a2b37ff101d50ad86c2cd2dc862bce7087905444d
+    steps:
+      - uses: actions/checkout@v6
+      - name: Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends meson ninja-build nasm pkg-config
+      - name: Sources
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/dl" "$RUNNER_TEMP/src" "$RUNNER_TEMP/model"
+          fetch() { curl -fL --retry 4 -o "$2" "$1"; echo "$3  $2" | sha256sum -c -; }
+          fetch "$FFMPEG_URL" "$RUNNER_TEMP/dl/ffmpeg.tar.xz" "$FFMPEG_SHA256"
+          fetch "$DAV1D_URL" "$RUNNER_TEMP/dl/dav1d.tar.xz" "$DAV1D_SHA256"
+          fetch "$NCNN_URL" "$RUNNER_TEMP/dl/ncnn.zip" "$NCNN_SHA256"
+          fetch "$MODEL_BASE/flownet.bin" "$RUNNER_TEMP/model/flownet.bin" "$MODEL_BIN_SHA256"
+          fetch "$MODEL_BASE/flownet.param" "$RUNNER_TEMP/model/flownet.param" "$MODEL_PARAM_SHA256"
+          tar -xf "$RUNNER_TEMP/dl/ffmpeg.tar.xz" -C "$RUNNER_TEMP/src"
+          tar -xf "$RUNNER_TEMP/dl/dav1d.tar.xz" -C "$RUNNER_TEMP/src"
+          unzip -q "$RUNNER_TEMP/dl/ncnn.zip" -d "$RUNNER_TEMP/src"
+      - name: FFmpeg
+        run: |
+          # runner 自带的最新 NDK（r27 起）。
+          export ANDROID_NDK="$ANDROID_NDK_LATEST_HOME"
+          bash native/frame_interp/build_ffmpeg_android.sh \
+            "$RUNNER_TEMP/src/ffmpeg-8.1" "$RUNNER_TEMP/src/dav1d-1.5.5" "$RUNNER_TEMP/ffmpeg"
+      - name: Component
+        run: |
+          export ANDROID_NDK="$ANDROID_NDK_LATEST_HOME"
+          NCNN_DIR="$RUNNER_TEMP/src/ncnn-20261020-android-vulkan-shared/arm64-v8a" \
+          FFMPEG_DIR="$RUNNER_TEMP/ffmpeg/install" \
+          MODEL_DIR="$RUNNER_TEMP/model" \
+            bash native/frame_interp/build_android.sh "$RUNNER_TEMP/out"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: frame_interp-android-arm64
+          path: ${{ runner.temp }}/out/frame_interp-android-arm64.zip
+          if-no-files-found: error
+
+  android-app:
+    needs: android
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v7
+        with:
+          name: frame_interp-android-arm64
+          path: ${{ runner.temp }}/package
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+          pub-cache-key: 'flutter-pub-pubdev-:os:-:channel:-:version:-:arch:-:hash:'
+      - name: Get dependencies
+        uses: ./.github/actions/pub-get
+      - name: Build APK with this package
+        run: |
+          PKG="$RUNNER_TEMP/package/frame_interp-android-arm64.zip"
+          export FRAME_INTERP_ANDROID_PACKAGE_URL="file://$PKG"
+          export FRAME_INTERP_ANDROID_PACKAGE_SHA256=$(sha256sum "$PKG" | cut -d' ' -f1)
+          # debug 包就够：组件怎么打进 APK 和 release 是同一套（同一个 jniLibs、同一套
+          # 打包选项），release 还要签名密钥。各 ABI 的分包照样都出，正好验「只有
+          # arm64-v8a 带组件」。
+          flutter build apk --debug --flavor standard --target-platform android-arm64
+      - name: Check APK
+        run: python3 native/frame_interp/ci/check_app.py android build/app/outputs
+
+  linux:
+    if: inputs.build_linux
+    # 22.04（glibc 2.35）：出来的库在更新的发行版上都能用。
+    runs-on: ubuntu-22.04
+    env:
+      NCNN_URL: https://github.com/Tencent/ncnn/releases/download/20261020/ncnn-20261020-ubuntu-2204-shared.zip
+      NCNN_SHA256: d3152bf1bc0003b41f7cc8f50636df4fa28c87e63afaa21122e5f4bf759f50ca
+      NV_CODEC_HEADERS_TAG: n12.2.72.0
+    steps:
+      - uses: actions/checkout@v6
+      - name: Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential nasm pkg-config ninja-build libva-dev zip python3-pip
+          # 22.04 自带的 meson 太老，编不了 dav1d 1.5。
+          pip3 install --user 'meson>=1.3'
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Sources
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/dl" "$RUNNER_TEMP/src" "$RUNNER_TEMP/model"
+          fetch() { curl -fL --retry 4 -o "$2" "$1"; echo "$3  $2" | sha256sum -c -; }
+          fetch "$FFMPEG_URL" "$RUNNER_TEMP/dl/ffmpeg.tar.xz" "$FFMPEG_SHA256"
+          fetch "$DAV1D_URL" "$RUNNER_TEMP/dl/dav1d.tar.xz" "$DAV1D_SHA256"
+          fetch "$NCNN_URL" "$RUNNER_TEMP/dl/ncnn.zip" "$NCNN_SHA256"
+          fetch "$MODEL_BASE/flownet.bin" "$RUNNER_TEMP/model/flownet.bin" "$MODEL_BIN_SHA256"
+          fetch "$MODEL_BASE/flownet.param" "$RUNNER_TEMP/model/flownet.param" "$MODEL_PARAM_SHA256"
+          tar -xf "$RUNNER_TEMP/dl/ffmpeg.tar.xz" -C "$RUNNER_TEMP/src"
+          tar -xf "$RUNNER_TEMP/dl/dav1d.tar.xz" -C "$RUNNER_TEMP/src"
+          unzip -q "$RUNNER_TEMP/dl/ncnn.zip" -d "$RUNNER_TEMP/src"
+          git clone --depth 1 --branch "$NV_CODEC_HEADERS_TAG" \
+            https://github.com/FFmpeg/nv-codec-headers "$RUNNER_TEMP/src/nv-codec-headers"
+      - name: FFmpeg
+        run: |
+          bash native/frame_interp/build_ffmpeg_linux.sh \
+            "$RUNNER_TEMP/src/ffmpeg-8.1" "$RUNNER_TEMP/src/dav1d-1.5.5" \
+            "$RUNNER_TEMP/src/nv-codec-headers" "$RUNNER_TEMP/ffmpeg"
+      - name: Component
+        run: |
+          NCNN_DIR="$RUNNER_TEMP/src/ncnn-20261020-ubuntu-2204-shared" \
+          FFMPEG_DIR="$RUNNER_TEMP/ffmpeg/install" \
+          MODEL_DIR="$RUNNER_TEMP/model" \
+            bash native/frame_interp/build_linux.sh "$RUNNER_TEMP/out"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: frame_interp-linux-x64
+          path: ${{ runner.temp }}/out/frame_interp-linux-x64.zip
+          if-no-files-found: error
+
+  linux-app:
+    needs: linux
+    # 和 build.yml 出 Linux 包的机器一样（比编组件的 22.04 新），顺带验了向上兼容。
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v7
+        with:
+          name: frame_interp-linux-x64
+          path: ${{ runner.temp }}/package
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libsecret-1-dev libasound2-dev libmpv-dev mpv libnotify-dev
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+          pub-cache-key: 'flutter-pub-pubdev-:os:-:channel:-:version:-:arch:-:hash:'
+      - name: Get dependencies
+        uses: ./.github/actions/pub-get
+      - name: Enable Linux
+        run: flutter config --enable-linux-desktop
+      - name: Build Linux with this package
+        run: |
+          PKG="$RUNNER_TEMP/package/frame_interp-linux-x64.zip"
+          export FRAME_INTERP_PACKAGE_URL="file://$PKG"
+          export FRAME_INTERP_PACKAGE_SHA256=$(sha256sum "$PKG" | cut -d' ' -f1)
+          flutter build linux --release
+      - name: Check bundle
+        run: |
+          cc -O2 -o "$RUNNER_TEMP/fi_load_check" native/frame_interp/ci/fi_load_check.c -ldl
+          python3 native/frame_interp/ci/check_app.py linux build/linux/x64/release/bundle \
+            --loader "$RUNNER_TEMP/fi_load_check"
+
+  apple:
+    if: inputs.build_apple
+    # 和 build.yml 出 iOS 包的是同一代机器和 Xcode（26+），组件和应用用同一套工具链。
+    runs-on: macos-26
+    env:
+      NCNN_TAG: '20261020'
+      # git tag 20261020 指向的提交：tag 可以被挪，提交不行。
+      NCNN_COMMIT: 7e36d25cb153092ba87a60530455c7376fedf452
+      MOLTENVK_URL: https://github.com/KhronosGroup/MoltenVK/releases/download/v1.4.2/MoltenVK-all.tar
+      MOLTENVK_SHA256: 562a15a29bc358446a56a4091c5f7e08f604184187c1d34f712148b61ef17276
+    steps:
+      - uses: actions/checkout@v6
+      - name: Select Xcode (26+)
+        run: |
+          shopt -s nullglob
+          XCODE_APP=$(ls -d /Applications/Xcode_*.app | grep -v -i -E 'beta|release_candidate' | sort -V | tail -n 1)
+          test -n "$XCODE_APP"
+          sudo xcode-select -s "$XCODE_APP/Contents/Developer"
+          xcodebuild -version
+      - name: Tools
+        run: brew install meson ninja nasm
+      - name: Sources
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/dl" "$RUNNER_TEMP/src" "$RUNNER_TEMP/moltenvk"
+          fetch() { curl -fL --retry 4 -o "$2" "$1"; echo "$3  $2" | shasum -a 256 -c -; }
+          fetch "$FFMPEG_URL" "$RUNNER_TEMP/dl/ffmpeg.tar.xz" "$FFMPEG_SHA256"
+          fetch "$DAV1D_URL" "$RUNNER_TEMP/dl/dav1d.tar.xz" "$DAV1D_SHA256"
+          fetch "$MOLTENVK_URL" "$RUNNER_TEMP/dl/moltenvk.tar" "$MOLTENVK_SHA256"
+          tar -xf "$RUNNER_TEMP/dl/ffmpeg.tar.xz" -C "$RUNNER_TEMP/src"
+          tar -xf "$RUNNER_TEMP/dl/dav1d.tar.xz" -C "$RUNNER_TEMP/src"
+          tar -xf "$RUNNER_TEMP/dl/moltenvk.tar" -C "$RUNNER_TEMP/moltenvk"
+          git clone --depth 1 --branch "$NCNN_TAG" https://github.com/Tencent/ncnn "$RUNNER_TEMP/src/ncnn"
+          test "$(git -C "$RUNNER_TEMP/src/ncnn" rev-parse HEAD)" = "$NCNN_COMMIT"
+          git -C "$RUNNER_TEMP/src/ncnn" submodule update --init --depth 1 glslang
+          XCF=$(find "$RUNNER_TEMP/moltenvk" -type d -path '*static/MoltenVK.xcframework' | head -1)
+          test -n "$XCF"
+          echo "MOLTENVK_XCFRAMEWORK=$XCF" >> "$GITHUB_ENV"
+      - name: Component
+        run: |
+          FFMPEG_SRC="$RUNNER_TEMP/src/ffmpeg-8.1" \
+          DAV1D_SRC="$RUNNER_TEMP/src/dav1d-1.5.5" \
+          NCNN_SRC="$RUNNER_TEMP/src/ncnn" \
+            bash native/frame_interp/build_apple.sh "$RUNNER_TEMP/out"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: frame_interp-apple
+          path: ${{ runner.temp }}/out/frame_interp-apple.zip
+          if-no-files-found: error
+
+  apple-app:
+    needs: apple
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v6
+      - name: Select Xcode (26+)
+        run: |
+          shopt -s nullglob
+          XCODE_APP=$(ls -d /Applications/Xcode_*.app | grep -v -i -E 'beta|release_candidate' | sort -V | tail -n 1)
+          test -n "$XCODE_APP"
+          sudo xcode-select -s "$XCODE_APP/Contents/Developer"
+          xcodebuild -version
+      - uses: actions/download-artifact@v7
+        with:
+          name: frame_interp-apple
+          path: ${{ runner.temp }}/package
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+          pub-cache-key: 'flutter-pub-pubdev-:os:-:channel:-:version:-:arch:-:hash:'
+      - name: Get dependencies
+        uses: ./.github/actions/pub-get
+      - name: Enable macOS
+        run: flutter config --enable-macos-desktop
+      - name: Build macOS and iOS with this package
+        run: |
+          PKG="$RUNNER_TEMP/package/frame_interp-apple.zip"
+          # pod install 时 Podfile 调 prepare_component.sh，它读这两个变量。
+          export FRAME_INTERP_APPLE_PACKAGE_URL="file://$PKG"
+          export FRAME_INTERP_APPLE_PACKAGE_SHA256=$(shasum -a 256 "$PKG" | cut -d' ' -f1)
+          flutter build macos --release
+          flutter build ios --release --no-codesign
+      - name: Check apps
+        run: |
+          set -euo pipefail
+          clang -O2 -o "$RUNNER_TEMP/fi_load_check" native/frame_interp/ci/fi_load_check.c
+          APP=$(find build/macos/Build/Products/Release -maxdepth 1 -name '*.app' | head -1)
+          test -n "$APP"
+          python3 native/frame_interp/ci/check_app.py macos "$APP" --loader "$RUNNER_TEMP/fi_load_check"
+          python3 native/frame_interp/ci/check_app.py ios build/ios/iphoneos/Runner.app
