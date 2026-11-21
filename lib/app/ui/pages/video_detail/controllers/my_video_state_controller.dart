@@ -90,6 +90,7 @@ import '../widgets/player/vr/vr_gyro_tracker.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import '../widgets/private_or_deleted_video_widget.dart';
 import '../services/video_cache_manager.dart';
+import '../services/video_detail_prefetcher.dart';
 import 'package:i_iwara/app/services/cast/cast_service.dart';
 import 'package:i_iwara/utils/proxy/app_proxy_tunnel.dart';
 
@@ -1201,6 +1202,15 @@ class MyVideoStateController extends GetxController
   final CancelToken _cancelToken = CancelToken();
   // 添加 disposed 标志位
   bool _isDisposed = false;
+
+  /// onInit 已经把代理（`http-proxy`）和 mpv 网络参数（超时、重连、缓冲上限）
+  /// 设到播放器上了。[resetVideoInfo] 打开前等它，理由见那里。
+  final Completer<void> _playerConfigApplied = Completer<void>();
+
+  void _markPlayerConfigApplied() {
+    if (!_playerConfigApplied.isCompleted) _playerConfigApplied.complete();
+  }
+
   bool _isRouteCovered = false;
   // 添加随机ID用于节流key，避免与其他视频实例冲突
   late final String randomId;
@@ -2069,6 +2079,7 @@ class MyVideoStateController extends GetxController
 
       // 应用音视频配置
       await _applyPlayerConfiguration();
+      _markPlayerConfigApplied();
 
       // 自动全屏：监听「详情页信息就位 / 这个视频播不了」的三个来源
       _setupAutoFullscreenWatchers();
@@ -2092,6 +2103,9 @@ class MyVideoStateController extends GetxController
           ],
         );
       }
+    } finally {
+      // 半路失败、提前 return 也要放行：不然等着打开的那一路会永远挂住。
+      _markPlayerConfigApplied();
     }
   }
 
@@ -3833,6 +3847,24 @@ class MyVideoStateController extends GetxController
     ]);
   }
 
+  /// 进页面时等预取最多等多久。正常情况下详情约 0.4–0.9 s、视频源约
+  /// 1.2–1.7 s，而且预取早就出发了；超过这个数多半是那条请求卡住了
+  /// （预取不重试、超时 15 s），不如自己发一份（自己的请求带重试）。预取那份
+  /// 照样跑完，结果进缓存不浪费。
+  static const Duration _prefetchGateTimeout = Duration(seconds: 3);
+
+  /// 等预取的闸门；按时等到返回 true，超时返回 false。闸门本身只会正常完成。
+  Future<bool> _awaitPrefetchGate(Future<void> gate) async {
+    var arrived = true;
+    await gate.timeout(
+      _prefetchGateTimeout,
+      onTimeout: () {
+        arrived = false;
+      },
+    );
+    return arrived;
+  }
+
   /// 获取视频详情信息
   void fetchVideoDetail(String videoId) async {
     if (_isDisposed) return;
@@ -3843,47 +3875,41 @@ class MyVideoStateController extends GetxController
     videoErrorMessage.value = null;
     mainErrorWidget.value = null;
 
+    // 卡片悬停 / 长按预览时发起的预取还在路上：接着等它，不另发一份。
+    // 闸门只会正常完成；预取失败时下面照常查缓存、不中就自己请求，错误页由这里给。
+    if (_cacheManager.getVideoInfo(videoId) == null) {
+      final pendingPrefetch = VideoDetailPrefetcher.instance.pendingDetail(
+        videoId,
+      );
+      if (pendingPrefetch != null) {
+        _markStartup(
+          await _awaitPrefetchGate(pendingPrefetch)
+              ? '等到预取的详情'
+              : '预取详情没及时回来，自己请求',
+        );
+        if (_isDisposed) return;
+      }
+    }
+
     // 检查视频信息缓存
     final cachedVideoInfo = _cacheManager.getVideoInfo(videoId);
     if (cachedVideoInfo != null) {
       final bool cachedHasPlayableDetail =
           cachedVideoInfo.fileUrl != null || cachedVideoInfo.isExternalVideo;
 
+      // 刚预取回来的详情（一分钟内、卡片上没点过赞）点赞态是新鲜的，不必再
+      // 补拉一次 `/video/<id>`（见下方 `_refreshVideoLikeInfo`）。
+      final bool cachedIsFresh = VideoDetailPrefetcher.instance.consumeFresh(
+        videoId,
+        cachedVideoInfo,
+      );
       // 缓存命中时，先将 liked 和 numLikes 设置为 null 表示 loading 状态
+      // （注：`copyWith` 是 `?? this.x` 写法，传 null 实际保留缓存值）
       videoInfo.value = cachedVideoInfo.copyWith(liked: null, numLikes: null);
       _showInitialToolbarsAfterVideoInfoReadyIfNeeded();
 
       if (cachedHasPlayableDetail) {
-        // 缓存命中时，立即开始并行任务
-        final List<Future<void>> parallelTasks = [];
-
-        // 1. 添加历史记录（可以并行执行）
-        parallelTasks.add(_addHistoryRecord());
-
-        // 2. 获取作者其他视频（可以并行执行）
-        String? authorId = cachedVideoInfo.user?.id;
-        if (authorId != null) {
-          parallelTasks.add(_initializeAuthorVideosController(authorId));
-        }
-
-        // 3. Oreno3D匹配（可以并行执行，但只在没有extData的情况下）
-        if (oreno3dVideoDetail.value == null &&
-            (extData == null ||
-                !extData!.containsKey('oreno3dVideoDetailInfo'))) {
-          parallelTasks.add(_tryMatchOreno3dVideo());
-        }
-
-        // 4. 异步请求最新视频信息（不阻塞UI渲染）
-        parallelTasks.add(_refreshVideoLikeInfo(videoId, cachedVideoInfo));
-
-        // 5. 检查收藏和播放列表状态（不阻塞UI渲染）
-        _clearWatchLaterInvalid();
-        parallelTasks.add(checkFavoriteAndPlaylistStatus());
-
-        // 6. 检查下载任务状态（不阻塞UI渲染）
-        parallelTasks.add(checkDownloadTaskStatus());
-
-        // 继续获取视频源 - 仅对站内视频
+        // 视频源是起播的关键路径，第一个发（理由同下方网络分支）。
         if (cachedVideoInfo.fileUrl != null &&
             !cachedVideoInfo.isExternalVideo) {
           fetchVideoSource();
@@ -3897,15 +3923,33 @@ class MyVideoStateController extends GetxController
           LogUtils.d('站外视频（缓存命中），直接设置为idle状态', 'MyVideoStateController');
         }
 
-        // 并行执行其他任务，但不等待
-        if (parallelTasks.isNotEmpty) {
-          Future.wait(parallelTasks).catchError((e) {
-            if (!_isDisposed) {
-              LogUtils.w('并行任务执行失败: $e', 'MyVideoStateController');
-            }
-            return <void>[];
-          });
-        }
+        // 让出一拍，等视频源请求真正发出去（理由同下方网络分支）。
+        await Future<void>.delayed(Duration.zero);
+        if (_isDisposed) return;
+
+        // 收藏 / 播放列表 / 下载状态（不阻塞UI渲染）
+        _clearWatchLaterInvalid();
+        unawaited(checkFavoriteAndPlaylistStatus());
+        unawaited(checkDownloadTaskStatus());
+
+        // 附带任务并行执行，但不等待
+        Future.wait(<Future<void>>[
+          _addHistoryRecord(),
+          if (cachedVideoInfo.user?.id case final String authorId)
+            _initializeAuthorVideosController(authorId),
+          // Oreno3D 匹配只在没有 extData 的情况下做
+          if (oreno3dVideoDetail.value == null &&
+              (extData == null ||
+                  !extData!.containsKey('oreno3dVideoDetailInfo')))
+            _tryMatchOreno3dVideo(),
+          // 异步请求最新点赞信息
+          if (!cachedIsFresh) _refreshVideoLikeInfo(videoId, cachedVideoInfo),
+        ]).catchError((e) {
+          if (!_isDisposed) {
+            LogUtils.w('并行任务执行失败: $e', 'MyVideoStateController');
+          }
+          return <void>[];
+        });
 
         return;
       }
@@ -3952,30 +3996,11 @@ class MyVideoStateController extends GetxController
         // 获取作者ID用于后续操作
         String? authorId = videoInfo.value!.user?.id;
 
-        // 并行执行以下操作（不需要等待的）
-        final List<Future<void>> parallelTasks = [];
-
-        // 1. 添加历史记录（可以并行执行）
-        if (videoInfo.value != null) {
-          parallelTasks.add(_addHistoryRecord());
-        }
-
-        // 2. 获取作者其他视频（可以并行执行）
-        if (authorId != null) {
-          parallelTasks.add(_initializeAuthorVideosController(authorId));
-        }
-
-        // 3. Oreno3D匹配（可以并行执行，但只在没有extData的情况下）
-        if (oreno3dVideoDetail.value == null &&
-            (extData == null ||
-                !extData!.containsKey('oreno3dVideoDetailInfo'))) {
-          parallelTasks.add(_tryMatchOreno3dVideo());
-        }
-
-        // 4. 获取视频源（关键路径，需要等待）- 仅对站内视频
+        // 1. 视频源是起播的关键路径，第一个发。下面的附带任务各自在第一个
+        //    await 之前都有同步工作（写历史、建作者列表控制器、oreno3d 打分），
+        //    排在它前面就是让起播干等。
         if (videoInfo.value!.fileUrl != null &&
             !videoInfo.value!.isExternalVideo) {
-          // 立即开始获取视频源，不等待其他任务
           fetchVideoSource();
         } else if (videoInfo.value!.isExternalVideo) {
           // 对于站外视频，直接设置为idle状态
@@ -3987,17 +4012,31 @@ class MyVideoStateController extends GetxController
           LogUtils.d('站外视频，跳过视频源获取，直接设置为idle状态', 'MyVideoStateController');
         }
 
-        // 等待所有任务完成，但设置超时
-        if (parallelTasks.isNotEmpty) {
-          await Future.wait(parallelTasks);
-        }
+        // 让出一拍：视频源请求的微任务链先走到真正的网络发送，再发别的。
+        // 详情接口刚用完的那条连接（已握过手）正空闲在池里，谁先走到
+        // `_getConnection` 谁拿到；其余请求要各自重新握手（经代理约 0.65–1.5 s）。
+        // 下面的状态查询链路比视频源短，同一拍发出去会抢在它前面。
+        await Future<void>.delayed(Duration.zero);
+        if (_isDisposed) return;
 
-        // 检查收藏和播放列表状态
+        // 2. 收藏 / 播放列表 / 下载状态只依赖 videoId，紧接着查。
+        //    ⛔ 以前排在 `await Future.wait(附带任务)` 之后，而 oreno3d 匹配最多要
+        //    3 次搜索 + 3 次详情（还要过代理），按钮状态因此晚好几秒才对。
         _clearWatchLaterInvalid();
-        checkFavoriteAndPlaylistStatus();
+        unawaited(checkFavoriteAndPlaylistStatus());
+        unawaited(checkDownloadTaskStatus());
 
-        // 检查下载任务状态
-        checkDownloadTaskStatus();
+        // 3. 附带任务，互不依赖，并行跑；各自内部已吞掉异常。
+        final List<Future<void>> parallelTasks = [
+          _addHistoryRecord(),
+          if (authorId != null) _initializeAuthorVideosController(authorId),
+          // Oreno3D 匹配只在没有 extData 的情况下做
+          if (oreno3dVideoDetail.value == null &&
+              (extData == null ||
+                  !extData!.containsKey('oreno3dVideoDetailInfo')))
+            _tryMatchOreno3dVideo(),
+        ];
+        await Future.wait(parallelTasks);
       } on DioException catch (e) {
         if (_isDisposed || e.type == DioExceptionType.cancel) {
           LogUtils.w('请求被取消或Controller已销毁', 'MyVideoStateController');
@@ -4220,12 +4259,34 @@ class MyVideoStateController extends GetxController
     videoSourceErrorMessage.value = null;
 
     final cacheKey = videoInfo.value!.fileUrl!;
-    final cachedSources = _cacheManager.getVideoSources(cacheKey);
     final logVideoUrl = videoInfo.value!.fileUrl!;
 
     // 历史进度和视频源互不依赖：先把查库发出去，网络请求同时进行，
     // 两边都回来再用——原来是查完库才发请求，白白串行。
     final Future<Duration> resumePositionFuture = _loadInitialResumePosition();
+
+    // 预取的视频源还在路上：接着等它（同 fetchVideoDetail 开头那段）。
+    if (!forceRefresh && _cacheManager.getVideoSources(cacheKey) == null) {
+      final pendingPrefetch = VideoDetailPrefetcher.instance.pendingSources(
+        cacheKey,
+      );
+      if (pendingPrefetch != null) {
+        _markStartup(
+          await _awaitPrefetchGate(pendingPrefetch)
+              ? '等到预取的视频源'
+              : '预取视频源没及时回来，自己请求',
+        );
+        if (_isDisposed) return;
+      }
+    }
+    var cachedSources = _cacheManager.getVideoSources(cacheKey);
+    // 缓存里的链接快到期（与刷新定时器同一个 5 分钟提前量）：拿它开播只会
+    // 半路 403，直接当没缓存，重新要一份。
+    if (cachedSources != null && _videoSourcesExpireSoon(cachedSources)) {
+      LogUtils.d('缓存视频源快过期，重新获取: $logVideoUrl', 'MyVideoStateController');
+      _cacheManager.removeVideoSources(cacheKey);
+      cachedSources = null;
+    }
 
     if (cachedSources != null && !forceRefresh) {
       _deferredInitialPlaybackPosition = await resumePositionFuture;
@@ -4252,6 +4313,9 @@ class MyVideoStateController extends GetxController
         filterPreview: true,
       );
       videoInfo.value = videoInfo.value!.copyWith(videoSources: cachedSources);
+      // ⛔ 缓存分支以前不记过期时间、不起刷新定时器：缓存最多放 30 分钟，
+      // 链接可能已经快到期，看到一半就 403。现在悬停预取让这条分支成了常态。
+      _updateVideoSourceExpireTime(cachedSources);
 
       if (_isDisposed) return;
 
@@ -4260,13 +4324,24 @@ class MyVideoStateController extends GetxController
             openPlayerAfterFetch: openPlayerAfterFetch,
           );
 
-      if (shouldOpenPlayerWhenReady) {
-        await _startDeferredInitialPlayback(
-          playOnOpen:
-              _resolvePlayStateForInitialEntry() ||
-              hasRequestedInitialPlayback.value,
-        );
+      // 与网络分支一样在 finally 里置 idle。以前缓存分支不置：不立刻打开、或
+      // 打开提前返回（清晰度列表为空等）时会停在 loadingVideoSource，清晰度 /
+      // 下载按钮看它判「加载中」而一直置灰。悬停预取让这条分支成了常态。
+      try {
+        if (shouldOpenPlayerWhenReady) {
+          await _startDeferredInitialPlayback(
+            playOnOpen:
+                _resolvePlayStateForInitialEntry() ||
+                hasRequestedInitialPlayback.value,
+          );
+        }
+      } finally {
+        if (!_isDisposed) {
+          pageLoadingState.value = VideoDetailPageLoadingState.idle;
+        }
       }
+      if (_isDisposed) return;
+      _setupVideoSourceExpirationTimer();
       return;
     }
 
@@ -4327,17 +4402,7 @@ class MyVideoStateController extends GetxController
         filterPreview: true,
       );
 
-      _currentVideoSourceExpireTime = null;
-      for (final source in sources) {
-        if (source.view != null) {
-          final expireTime = CommonUtils.getVideoLinkExpireTime(source.view!);
-          if (expireTime != null) {
-            _currentVideoSourceExpireTime = expireTime;
-            LogUtils.d('视频源过期时间: $expireTime', 'MyVideoStateController');
-            break;
-          }
-        }
-      }
+      _updateVideoSourceExpireTime(sources);
 
       videoInfo.value = videoInfo.value!.copyWith(videoSources: sources);
 
@@ -4371,6 +4436,36 @@ class MyVideoStateController extends GetxController
       if (!_isDisposed) {
         pageLoadingState.value = VideoDetailPageLoadingState.idle;
       }
+    }
+  }
+
+  /// 刷新定时器在过期前多久动手；缓存里的链接离过期不到这么久也不再拿来开播。
+  static const Duration _videoSourceRefreshLead = Duration(minutes: 5);
+
+  static DateTime? _videoSourcesExpireTime(List<VideoSource> sources) {
+    for (final source in sources) {
+      final view = source.view;
+      if (view == null) continue;
+      final expireTime = CommonUtils.getVideoLinkExpireTime(view);
+      if (expireTime != null) return expireTime;
+    }
+    return null;
+  }
+
+  static bool _videoSourcesExpireSoon(List<VideoSource> sources) {
+    final expireTime = _videoSourcesExpireTime(sources);
+    if (expireTime == null) return false;
+    return DateTime.now().isAfter(expireTime.subtract(_videoSourceRefreshLead));
+  }
+
+  /// 从清单里取链接的过期时间（所有清晰度共用一个，取到第一个即可）。
+  void _updateVideoSourceExpireTime(List<VideoSource> sources) {
+    _currentVideoSourceExpireTime = _videoSourcesExpireTime(sources);
+    if (_currentVideoSourceExpireTime != null) {
+      LogUtils.d(
+        '视频源过期时间: $_currentVideoSourceExpireTime',
+        'MyVideoStateController',
+      );
     }
   }
 
@@ -4579,6 +4674,14 @@ class MyVideoStateController extends GetxController
       }
     }
 
+    // ⛔ 先等 onInit 把代理和 mpv 网络参数设好再打开。详情 + 视频源都命中缓存
+    // （预取过）时，从 fetchVideoDetail 走到这里只隔几个微任务，而 onInit 在
+    // 手机上还停在取系统音量的平台通道上、桌面上停在逐条 setProperty 的 await
+    // 之间——不等的话第一次打开不走应用代理、超时还是 media_kit 的 5 秒
+    // （Opus 审查 2026-11-21）。网络分支隔着一整次请求，原本就赶得上。
+    if (!_playerConfigApplied.isCompleted) {
+      await _playerConfigApplied.future;
+    }
     if (_isDisposed) return;
     int? mediaSourceGeneration;
     try {
@@ -5157,7 +5260,7 @@ class MyVideoStateController extends GetxController
     final expireTime = _currentVideoSourceExpireTime!;
 
     // 计算刷新时间：在过期前5分钟刷新
-    final refreshTime = expireTime.subtract(const Duration(minutes: 5));
+    final refreshTime = expireTime.subtract(_videoSourceRefreshLead);
     final now = DateTime.now();
 
     if (now.isAfter(refreshTime)) {
@@ -7089,10 +7192,13 @@ class MyVideoStateController extends GetxController
       final favoriteService = Get.find<FavoriteService>();
       final playListService = Get.find<PlayListService>();
 
-      final favoriteFolders = await favoriteService.getItemFolders(videoId!);
-      final playlistsResult = await playListService.getLightPlaylists(
-        videoId: videoId!,
-      );
+      // 两个请求互不依赖：一起发，等时只算较慢的那一个（原来是一个等完再发另一个）。
+      // 用 record 的 `.wait`：任一个失败都会被下面的 catch 接住，不会漏成
+      // 未处理的异步异常。
+      final (favoriteFolders, playlistsResult) = await (
+        favoriteService.getItemFolders(videoId!),
+        playListService.getLightPlaylists(videoId: videoId!),
+      ).wait;
 
       if (_isDisposed) return;
 

@@ -325,8 +325,18 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget>
     return SizedBox(
       width: widget.width,
       child: MouseRegion(
-        onEnter: enableHover ? (_) => setState(() => _isHovering = true) : null,
-        onExit: enableHover ? (_) => setState(() => _isHovering = false) : null,
+        onEnter: enableHover
+            ? (_) {
+                setState(() => _isHovering = true);
+                onCardHoverChanged(true);
+              }
+            : null,
+        onExit: enableHover
+            ? (_) {
+                setState(() => _isHovering = false);
+                onCardHoverChanged(false);
+              }
+            : null,
         child: HeroMode(
           enabled: previewHeroEnabled,
           child: Hero(

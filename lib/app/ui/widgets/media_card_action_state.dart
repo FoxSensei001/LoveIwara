@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_like_override_utils.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/services/video_detail_prefetcher.dart';
 import 'package:i_iwara/app/ui/widgets/media_preview_dialog.dart';
 
 /// 媒体卡片 / 列表行共用的那套「本地点赞覆盖 + 预览弹窗」状态。
@@ -139,9 +142,45 @@ mixin MediaCardActionState<T extends StatefulWidget> on State<T> {
   ///   16:9——飞行途中画的那份要照着这个摆，否则起飞第一帧就和卡片对不上。
   bool get previewHeroBoxIsAllCover => true;
 
+  /// 鼠标停在卡片上多久才预取。滚轮滚动时卡片从光标下一张张扫过，每张只停
+  /// 一两百毫秒，不该每张都发请求；真停下来看的那张才值得。
+  static const Duration _hoverPrefetchDwell = Duration(milliseconds: 350);
+
+  Timer? _hoverPrefetchTimer;
+
+  /// 预取这条视频的详情 + 视频源，点进去直接命中缓存（不是视频卡片就什么都不做）。
+  /// 见 [VideoDetailPrefetcher]。
+  void prefetchVideoDetail() {
+    final video = actionVideo;
+    if (!mounted || video == null || video.id.isEmpty) return;
+    VideoDetailPrefetcher.instance.prefetch(video.id);
+  }
+
+  /// 卡片的 `MouseRegion` 进出时调：停够 [_hoverPrefetchDwell] 才预取。
+  /// 触屏不会触发 hover，这条只在有鼠标的设备上起作用。
+  void onCardHoverChanged(bool hovering) {
+    _hoverPrefetchTimer?.cancel();
+    _hoverPrefetchTimer = null;
+    if (!hovering || actionVideo == null) return;
+    _hoverPrefetchTimer = Timer(_hoverPrefetchDwell, prefetchVideoDetail);
+  }
+
+  // ⛔ 不在按下（onTapDown）时预取：桌面上按下与抬手只差几十毫秒、手机上也只
+  // 早 0.1 s，却会让「用户真点进来」的那次详情请求变成后台请求（不重试、不过
+  // 盾），出错时错误页要晚一整跳；详情页还会走缓存分支。Opus 审查 2026-11-21。
+
+  @override
+  void dispose() {
+    _hoverPrefetchTimer?.cancel();
+    super.dispose();
+  }
+
   /// 打开预览弹窗（长按 / 右键 / 操作菜单里的「预览」共用）。
+  ///
+  /// 视频卡片顺带预取：看预览的这几秒，正好把进详情页那两跳等掉。
   Future<void> openPreview() async {
     if (!mounted || _previewOpen) return;
+    prefetchVideoDetail();
     // 先让卡片带着 Hero 重建一帧：Hero 飞行是在 push 之后的 post-frame 里才去
     // 收集两侧 Hero 的，那时这一帧已经建完，正好收得到。
     setState(() => _previewOpen = true);
@@ -173,6 +212,9 @@ mixin MediaCardActionState<T extends StatefulWidget> on State<T> {
 
   /// 菜单里点赞/取消点赞之后，把卡片自己那份显示态跟上（卡片不一定重建）。
   void applyLikeToggle(bool liked) {
+    // 预取回来的详情里那份点赞态作废：详情页别拿它当新鲜数据直接显示。
+    final videoId = actionVideo?.id;
+    if (videoId != null) VideoDetailPrefetcher.instance.markStale(videoId);
     if (!mounted) return;
     setState(() {
       _likedOverride = liked;

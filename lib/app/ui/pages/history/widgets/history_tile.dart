@@ -384,25 +384,30 @@ class _HistoryTileState extends State<HistoryTile>
         ? _buildGrid(context)
         : _buildRow(context);
     return RepaintBoundary(
-      child: Builder(
-        builder: (anchorContext) => GestureDetector(
-          onSecondaryTapUp: _isDesktop
-              ? (d) => _onSecondaryTap(anchorContext, d)
-              : null,
-          child: Stack(
-            children: [
-              body,
-              // 选择态：角标勾选片 + 选中描边（全站统一）。常驻挂载以获得进出过渡。
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: GlassSelectableOverlay(
-                    selectionMode: widget.selectionMode,
-                    selected: widget.selected,
-                    borderRadius: BorderRadius.circular(HistoryTile.radius),
+      child: MouseRegion(
+        // 停够一会儿就预取详情 + 视频源；选择态下点一下是勾选，不预取。
+        onEnter: (_) => onCardHoverChanged(!widget.selectionMode),
+        onExit: (_) => onCardHoverChanged(false),
+        child: Builder(
+          builder: (anchorContext) => GestureDetector(
+            onSecondaryTapUp: _isDesktop
+                ? (d) => _onSecondaryTap(anchorContext, d)
+                : null,
+            child: Stack(
+              children: [
+                body,
+                // 选择态：角标勾选片 + 选中描边（全站统一）。常驻挂载以获得进出过渡。
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: GlassSelectableOverlay(
+                      selectionMode: widget.selectionMode,
+                      selected: widget.selected,
+                      borderRadius: BorderRadius.circular(HistoryTile.radius),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
