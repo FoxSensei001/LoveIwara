@@ -99,6 +99,42 @@ void main() {
     expect(repo.pendingRelocations(), isEmpty);
   });
 
+  test('iOS 更新后沙盒容器换了路径：本机文件的目录封面跟着改指，新容器里没有的不动', () async {
+    const app = 'Containers/Data/Application';
+    await writeFile('$app/NEW/Library/Caches/thumbs/a.png', 'png');
+    final local = LocalMediaRepository(db);
+    local.ensureSourceRootFolder(
+      sourceId: 'downloads',
+      displayName: 'D',
+      videoCount: 1,
+      imageCount: 0,
+    );
+    local.setFolderCover(
+      sourceId: 'downloads',
+      relPath: '',
+      coverPath: at('$app/OLD/Library/Caches/thumbs/a.png'),
+    );
+
+    final fixed = await service.repairLocalMediaImagePaths(
+      anchorForTesting: at('$app/NEW/Documents'),
+      repository: local,
+    );
+
+    expect(fixed, 1);
+    expect(
+      local.getFolder(sourceId: 'downloads', relPath: '')?.coverPath,
+      at('$app/NEW/Library/Caches/thumbs/a.png'),
+    );
+    // 再跑一次：已经在当前容器里了，什么都不改。
+    expect(
+      await service.repairLocalMediaImagePaths(
+        anchorForTesting: at('$app/NEW/Documents'),
+        repository: local,
+      ),
+      0,
+    );
+  });
+
   test('iOS 更新后沙盒容器换了路径：记录改指到新容器，原路径还在的不动', () async {
     const app = 'Containers/Data/Application';
     await writeFile('$app/NEW/Documents/dl/a.mp4', 'video-bytes');

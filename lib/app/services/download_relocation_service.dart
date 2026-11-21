@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
+import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart'
     hide FileSystemException;
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
@@ -309,7 +310,41 @@ class DownloadRelocationService extends GetxService {
     Future.microtask(() async {
       await recoverJournal();
       await repairSandboxContainerPaths();
+      await repairLocalMediaImagePaths();
     });
+  }
+
+  /// 同 [repairSandboxContainerPaths]，管的是本机文件库里的缩略图、同名图与
+  /// 目录封面（见 [LocalMediaRepository.rebaseContainerImagePaths]）。
+  Future<int> repairLocalMediaImagePaths({
+    String? anchorForTesting,
+    LocalMediaRepository? repository,
+  }) async {
+    if (anchorForTesting == null && !Platform.isIOS) return 0;
+    try {
+      final anchor =
+          anchorForTesting ??
+          (await DownloadPathService.currentContainerAnchor());
+      final fixed = (repository ?? LocalMediaRepository())
+          .rebaseContainerImagePaths((stored) {
+            final rebased = DownloadPathService.rebaseSandboxPath(
+              stored,
+              anchor,
+            );
+            if (rebased == null) return null;
+            // 只改「原路径不在、新路径在」的：别的应用容器里的图（从文件 App
+            // 选来的）不该被误改进本应用容器。
+            if (File(stored).existsSync()) return null;
+            return File(rebased).existsSync() ? p.normalize(rebased) : null;
+          });
+      if (fixed > 0) {
+        LogUtils.i('沙盒容器换了路径，已把 $fixed 处本机文件图片路径改指到新容器', _tag);
+      }
+      return fixed;
+    } catch (e, s) {
+      LogUtils.e('修正本机文件图片路径失败', tag: _tag, error: e, stackTrace: s);
+      return 0;
+    }
   }
 
   /// iOS 更新应用后，沙盒容器会换一个路径（`…/Containers/Data/Application/<UUID>`
@@ -327,7 +362,8 @@ class DownloadRelocationService extends GetxService {
     var fixed = 0;
     try {
       final anchor =
-          anchorForTesting ?? (await DownloadPathService.currentContainerAnchor());
+          anchorForTesting ??
+          (await DownloadPathService.currentContainerAnchor());
       for (final row in _repository.completedTaskPaths()) {
         final rebased = DownloadPathService.rebaseSandboxPath(
           row.savePath,
@@ -342,8 +378,7 @@ class DownloadRelocationService extends GetxService {
         if (type == FileSystemEntityType.notFound) continue;
         final task = await _repository.getTaskById(row.id);
         if (task == null) continue;
-        final isGallery =
-            task.extData?.type == DownloadTaskExtDataType.gallery;
+        final isGallery = task.extData?.type == DownloadTaskExtDataType.gallery;
         if (isGallery != (type == FileSystemEntityType.directory)) continue;
         FileStat? stat;
         if (!isGallery) {

@@ -487,15 +487,24 @@ class _LocalHomePageState extends State<LocalHomePage>
       String? cover = _repository
           .getFolder(sourceId: source.id, relPath: '')
           ?.coverPath;
-      if (cover == null || cover.isEmpty) {
+      // ⛔ 库里记着封面不等于文件还在：iOS 随时会清 `Library/Caches`（缩略图就
+      // 放在那儿），更新应用后容器路径也会变。记着的那张读不出来时，来源卡没有
+      // 在线封面可退，只剩一张空夹子（2026-11-21 用户报「已下载」点进去再出来
+      // 还是没图）。所以本机路径要现问一次在不在，不在就往下找。
+      if (!_coverFileUsable(cover)) {
         // ⛔ 兜底必须问「最新的**有图的**那一条」，不是「最新那一条」。
         // 缩略图是滚进视野才生成的，最新那条十有八九还没有——按它判，一个装着
         // 几十个视频的来源会一直是一张空夹子（2026-09-11 用户报的）。
-        final candidates = _repository.sourceCoverCandidates(
+        cover = null;
+        for (final candidate in _repository.sourceCoverCandidates(
           sourceId: source.id,
-          limit: 1,
-        );
-        if (candidates.isNotEmpty) cover = candidates.first;
+          limit: 8,
+        )) {
+          if (_coverFileUsable(candidate)) {
+            cover = candidate;
+            break;
+          }
+        }
       }
       // 根下的子目录数：以前来源卡对非内建源恒传 0，一个只有子文件夹、根下
       // 没有直属媒体的来源（NAS 尤其常见）就被写成「这个文件夹是空的」。
@@ -516,6 +525,20 @@ class _LocalHomePageState extends State<LocalHomePage>
       _sourceStats = stats;
     });
     unawaited(_reloadDownloadedGalleryCount());
+  }
+
+  /// 这条封面路径现在能不能画。NAS 的缓存图与本机图一样是本地文件；`content://`
+  /// 之类不是文件路径的交给图片组件自己判。
+  static bool _coverFileUsable(String? path) {
+    if (path == null || path.isEmpty) return false;
+    if (!path.startsWith('/') && !RegExp(r'^[A-Za-z]:[\\/]').hasMatch(path)) {
+      return true;
+    }
+    try {
+      return File(path).existsSync();
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<void> _reloadDownloadedGalleryCount() async {

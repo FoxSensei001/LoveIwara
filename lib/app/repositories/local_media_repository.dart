@@ -2336,6 +2336,47 @@ class LocalMediaRepository {
   ///
   /// 反过来「文件删了、库行没删掉」是可以自愈的：那一行会在下一次扫这一层时被
   /// 收敛成 missing。所以顺序只有一种是对的。
+  /// iOS 更新应用后沙盒容器换了路径：把库里**图片类**路径（缩略图、同名图、
+  /// 目录封面）改指到新容器。
+  ///
+  /// 「已下载」源的条目路径由下载那边的修正连带搬（`relocateTaskPath`），但
+  /// 缩略图缓存在 `Library/Caches` 里，路径同样带旧容器的 UUID——文件其实原样
+  /// 搬过来了，库里那串却指向一个不存在的目录。媒体卡读不出来还能退回在线封面，
+  /// 来源卡没有退路，于是「已下载」那张卡永远是空夹子（2026-11-21 用户报：
+  /// 点进去再出来还是没有预览图；真机库里实证 cover_path 指向旧容器）。
+  ///
+  /// [rebase] 给出这条路径在当前容器里的位置；只有「原路径不在、新路径在」时
+  /// 它才返回非 null，判断交给调用方（这里不碰文件系统以外的平台细节）。
+  /// 返回改了几处。
+  int rebaseContainerImagePaths(String? Function(String path) rebase) {
+    const pattern = '%/Containers/Data/Application/%';
+    var changed = 0;
+    var foldersChanged = false;
+    void fix(String table, String column) {
+      final rows = _db.select(
+        'SELECT id, $column AS v FROM $table WHERE $column LIKE ?',
+        [pattern],
+      );
+      for (final row in rows) {
+        final next = rebase(row['v'] as String);
+        if (next == null) continue;
+        _db.execute('UPDATE $table SET $column = ? WHERE id = ?', [
+          next,
+          row['id'],
+        ]);
+        changed++;
+        if (table == 'local_media_folders') foldersChanged = true;
+      }
+    }
+
+    fix('local_media_items', 'thumb_path');
+    fix('local_media_items', 'sidecar_image_path');
+    fix('local_media_folders', 'cover_path');
+    // 首页来源卡、置顶目录卡的封面都挂在这条信号上。
+    if (foldersChanged) notifyFolderChanged();
+    return changed;
+  }
+
   /// 按路径删条目（连同进度），给「文件已经被应用自己删掉」的场合用，例如
   /// 补帧成品随记录一起删除。同 [deleteItems]：调用方必须先删掉文件。
   int deleteItemsByPath(String path) {
