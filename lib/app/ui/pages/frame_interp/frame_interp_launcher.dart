@@ -66,7 +66,6 @@ String frameInterpRejectText(FrameInterpReject reject) {
     FrameInterpReject.alreadyInterpolated => t.alreadyInterpolated,
     FrameInterpReject.alreadyQueued => t.alreadyQueued,
     FrameInterpReject.alreadyDone => t.alreadyDone,
-    FrameInterpReject.highFrameRate => t.highFrameRate,
     FrameInterpReject.hdr => t.hdr,
     FrameInterpReject.resolutionTooLarge => t.resolutionTooLarge,
     FrameInterpReject.unreadable => t.unreadable,

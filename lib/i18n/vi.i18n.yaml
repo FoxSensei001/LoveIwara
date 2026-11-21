@@ -4115,7 +4115,6 @@ frameInterp:
     alreadyInterpolated: "Đây đã là video được nội suy"
     alreadyQueued: "Video này đã có trong hàng đợi"
     alreadyDone: "Video này đã có bản nội suy"
-    highFrameRate: "Video này đã có tốc độ khung hình cao"
     hdr: "Chưa hỗ trợ video HDR"
     resolutionTooLarge: "Độ phân giải quá cao để nội suy"
     unreadable: "Không đọc được video này"

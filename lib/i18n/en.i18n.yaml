@@ -4117,7 +4117,6 @@ frameInterp:
     alreadyInterpolated: "This video is already an interpolated one"
     alreadyQueued: "This video is already in the queue"
     alreadyDone: "This video already has an interpolated version"
-    highFrameRate: "This video already has a high frame rate"
     hdr: "HDR videos are not supported yet"
     resolutionTooLarge: "The resolution is too high to interpolate"
     unreadable: "Couldn't read this video"

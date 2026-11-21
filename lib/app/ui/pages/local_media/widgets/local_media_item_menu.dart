@@ -53,19 +53,17 @@ Future<void> showLocalMediaItemMenu({
       ? _folderRelPathOf(repo, item)
       : null;
 
-  // 补帧只认本机普通视频文件（判据同 [_canDeleteFile]）；成品自己不再补帧，
-  // 片源帧率已够高的也不给——点了只会被拒，不如不露。
+  // 补帧只认本机普通视频文件（判据同 [_canDeleteFile]）；成品自己不再补帧。
+  // 不按片源帧率拦：用户要的就是无条件翻倍（2026-11-21 用户要求去掉帧率上限）。
   final interp = FrameInterpService.maybe;
   final interpolatedPath = interp?.completedOutputFor(item.path);
-  final fps = item.fps;
   final canInterpolate =
       interp != null &&
       interpolatedPath == null &&
       item.kind == LocalMediaItemKind.video &&
       _canDeleteFile(item) &&
       isFrameInterpSupported &&
-      !interp.isInterpolatedOutput(item.path) &&
-      !(fps != null && fps >= FrameInterpService.maxSourceFps);
+      !interp.isInterpolatedOutput(item.path);
 
   final action = await showGlassMenu<String>(
     anchorContext: anchorContext,

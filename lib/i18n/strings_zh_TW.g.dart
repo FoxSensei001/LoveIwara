@@ -5048,7 +5048,6 @@ class _TranslationsFrameInterpRejectZhTw extends TranslationsFrameInterpRejectEn
 	@override String get alreadyInterpolated => '這已經是補幀後的影片';
 	@override String get alreadyQueued => '此影片已在補幀佇列中';
 	@override String get alreadyDone => '此影片已有補幀版本';
-	@override String get highFrameRate => '此影片幀率已經很高，無需補幀';
 	@override String get hdr => '目前不支援 HDR 影片';
 	@override String get resolutionTooLarge => '解析度過高，無法補幀';
 	@override String get unreadable => '無法讀取此影片';
@@ -9168,7 +9167,6 @@ extension on TranslationsZhTw {
 			'frameInterp.reject.alreadyInterpolated' => '這已經是補幀後的影片',
 			'frameInterp.reject.alreadyQueued' => '此影片已在補幀佇列中',
 			'frameInterp.reject.alreadyDone' => '此影片已有補幀版本',
-			'frameInterp.reject.highFrameRate' => '此影片幀率已經很高，無需補幀',
 			'frameInterp.reject.hdr' => '目前不支援 HDR 影片',
 			'frameInterp.reject.resolutionTooLarge' => '解析度過高，無法補幀',
 			'frameInterp.reject.unreadable' => '無法讀取此影片',

@@ -4115,7 +4115,6 @@ frameInterp:
     alreadyInterpolated: "Este vídeo ya está interpolado"
     alreadyQueued: "Este vídeo ya está en la cola"
     alreadyDone: "Este vídeo ya tiene una versión interpolada"
-    highFrameRate: "Este vídeo ya tiene una tasa de fotogramas alta"
     hdr: "Los vídeos HDR aún no son compatibles"
     resolutionTooLarge: "La resolución es demasiado alta para interpolar"
     unreadable: "No se pudo leer este vídeo"

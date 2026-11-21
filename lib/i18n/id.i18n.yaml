@@ -4115,7 +4115,6 @@ frameInterp:
     alreadyInterpolated: "Video ini sudah hasil interpolasi"
     alreadyQueued: "Video ini sudah ada di antrean"
     alreadyDone: "Video ini sudah memiliki versi interpolasi"
-    highFrameRate: "Video ini sudah memiliki frame rate tinggi"
     hdr: "Video HDR belum didukung"
     resolutionTooLarge: "Resolusi terlalu tinggi untuk diinterpolasi"
     unreadable: "Tidak dapat membaca video ini"

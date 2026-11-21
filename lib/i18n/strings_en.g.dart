@@ -12506,9 +12506,6 @@ class TranslationsFrameInterpRejectEn {
 	/// en: 'This video already has an interpolated version'
 	String get alreadyDone => 'This video already has an interpolated version';
 
-	/// en: 'This video already has a high frame rate'
-	String get highFrameRate => 'This video already has a high frame rate';
-
 	/// en: 'HDR videos are not supported yet'
 	String get hdr => 'HDR videos are not supported yet';
 
@@ -16960,7 +16957,6 @@ extension on Translations {
 			'frameInterp.reject.alreadyInterpolated' => 'This video is already an interpolated one',
 			'frameInterp.reject.alreadyQueued' => 'This video is already in the queue',
 			'frameInterp.reject.alreadyDone' => 'This video already has an interpolated version',
-			'frameInterp.reject.highFrameRate' => 'This video already has a high frame rate',
 			'frameInterp.reject.hdr' => 'HDR videos are not supported yet',
 			'frameInterp.reject.resolutionTooLarge' => 'The resolution is too high to interpolate',
 			'frameInterp.reject.unreadable' => 'Couldn\'t read this video',

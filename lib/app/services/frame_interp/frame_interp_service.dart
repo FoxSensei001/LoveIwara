@@ -33,9 +33,6 @@ enum FrameInterpReject {
 
   /// 已经有一份现成的补帧版本。
   alreadyDone,
-
-  /// 片源帧率已经够高，再翻倍没有意义。
-  highFrameRate,
   hdr,
   resolutionTooLarge,
   unreadable,
@@ -234,9 +231,6 @@ class FrameInterpService extends GetxService {
   }
 
   static const String _tag = 'FrameInterpService';
-
-  /// 帧率不低于它的片源不收：再翻倍，绝大多数屏幕也显示不出来。
-  static const double maxSourceFps = 50;
 
   /// 长边上限。再大的画面显存吃不消，而且这类片源本身就罕见。
   static const int maxLongSide = 4096;
@@ -559,11 +553,6 @@ class FrameInterpService extends GetxService {
     }
     if (probe.isHdr) {
       return const FrameInterpEnqueueResult.rejected(FrameInterpReject.hdr);
-    }
-    if (probe.fps >= maxSourceFps) {
-      return const FrameInterpEnqueueResult.rejected(
-        FrameInterpReject.highFrameRate,
-      );
     }
     if (probe.width > maxLongSide || probe.height > maxLongSide) {
       return const FrameInterpEnqueueResult.rejected(

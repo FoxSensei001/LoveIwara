@@ -4115,7 +4115,6 @@ frameInterp:
     alreadyInterpolated: "이미 보간된 동영상입니다"
     alreadyQueued: "이 동영상은 이미 대기열에 있습니다"
     alreadyDone: "이 동영상에는 이미 보간된 버전이 있습니다"
-    highFrameRate: "이 동영상은 이미 프레임 레이트가 높습니다"
     hdr: "HDR 동영상은 아직 지원하지 않습니다"
     resolutionTooLarge: "해상도가 너무 높아 보간할 수 없습니다"
     unreadable: "이 동영상을 읽을 수 없습니다"

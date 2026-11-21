@@ -4119,7 +4119,6 @@ frameInterp:
     alreadyInterpolated: "這已經是補幀後的影片"
     alreadyQueued: "此影片已在補幀佇列中"
     alreadyDone: "此影片已有補幀版本"
-    highFrameRate: "此影片幀率已經很高，無需補幀"
     hdr: "目前不支援 HDR 影片"
     resolutionTooLarge: "解析度過高，無法補幀"
     unreadable: "無法讀取此影片"

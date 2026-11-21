@@ -5048,7 +5048,6 @@ class _TranslationsFrameInterpRejectId extends TranslationsFrameInterpRejectEn {
 	@override String get alreadyInterpolated => 'Video ini sudah hasil interpolasi';
 	@override String get alreadyQueued => 'Video ini sudah ada di antrean';
 	@override String get alreadyDone => 'Video ini sudah memiliki versi interpolasi';
-	@override String get highFrameRate => 'Video ini sudah memiliki frame rate tinggi';
 	@override String get hdr => 'Video HDR belum didukung';
 	@override String get resolutionTooLarge => 'Resolusi terlalu tinggi untuk diinterpolasi';
 	@override String get unreadable => 'Tidak dapat membaca video ini';
@@ -9168,7 +9167,6 @@ extension on TranslationsId {
 			'frameInterp.reject.alreadyInterpolated' => 'Video ini sudah hasil interpolasi',
 			'frameInterp.reject.alreadyQueued' => 'Video ini sudah ada di antrean',
 			'frameInterp.reject.alreadyDone' => 'Video ini sudah memiliki versi interpolasi',
-			'frameInterp.reject.highFrameRate' => 'Video ini sudah memiliki frame rate tinggi',
 			'frameInterp.reject.hdr' => 'Video HDR belum didukung',
 			'frameInterp.reject.resolutionTooLarge' => 'Resolusi terlalu tinggi untuk diinterpolasi',
 			'frameInterp.reject.unreadable' => 'Tidak dapat membaca video ini',

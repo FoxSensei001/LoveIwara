@@ -5048,7 +5048,6 @@ class _TranslationsFrameInterpRejectVi extends TranslationsFrameInterpRejectEn {
 	@override String get alreadyInterpolated => 'Đây đã là video được nội suy';
 	@override String get alreadyQueued => 'Video này đã có trong hàng đợi';
 	@override String get alreadyDone => 'Video này đã có bản nội suy';
-	@override String get highFrameRate => 'Video này đã có tốc độ khung hình cao';
 	@override String get hdr => 'Chưa hỗ trợ video HDR';
 	@override String get resolutionTooLarge => 'Độ phân giải quá cao để nội suy';
 	@override String get unreadable => 'Không đọc được video này';
@@ -9168,7 +9167,6 @@ extension on TranslationsVi {
 			'frameInterp.reject.alreadyInterpolated' => 'Đây đã là video được nội suy',
 			'frameInterp.reject.alreadyQueued' => 'Video này đã có trong hàng đợi',
 			'frameInterp.reject.alreadyDone' => 'Video này đã có bản nội suy',
-			'frameInterp.reject.highFrameRate' => 'Video này đã có tốc độ khung hình cao',
 			'frameInterp.reject.hdr' => 'Chưa hỗ trợ video HDR',
 			'frameInterp.reject.resolutionTooLarge' => 'Độ phân giải quá cao để nội suy',
 			'frameInterp.reject.unreadable' => 'Không đọc được video này',

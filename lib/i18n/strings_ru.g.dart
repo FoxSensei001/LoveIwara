@@ -5048,7 +5048,6 @@ class _TranslationsFrameInterpRejectRu extends TranslationsFrameInterpRejectEn {
 	@override String get alreadyInterpolated => 'Это видео уже обработано интерполяцией';
 	@override String get alreadyQueued => 'Это видео уже в очереди';
 	@override String get alreadyDone => 'У этого видео уже есть версия с интерполяцией';
-	@override String get highFrameRate => 'У этого видео уже высокая частота кадров';
 	@override String get hdr => 'Видео HDR пока не поддерживается';
 	@override String get resolutionTooLarge => 'Разрешение слишком высокое для интерполяции';
 	@override String get unreadable => 'Не удалось прочитать это видео';
@@ -9168,7 +9167,6 @@ extension on TranslationsRu {
 			'frameInterp.reject.alreadyInterpolated' => 'Это видео уже обработано интерполяцией',
 			'frameInterp.reject.alreadyQueued' => 'Это видео уже в очереди',
 			'frameInterp.reject.alreadyDone' => 'У этого видео уже есть версия с интерполяцией',
-			'frameInterp.reject.highFrameRate' => 'У этого видео уже высокая частота кадров',
 			'frameInterp.reject.hdr' => 'Видео HDR пока не поддерживается',
 			'frameInterp.reject.resolutionTooLarge' => 'Разрешение слишком высокое для интерполяции',
 			'frameInterp.reject.unreadable' => 'Не удалось прочитать это видео',

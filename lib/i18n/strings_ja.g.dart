@@ -5048,7 +5048,6 @@ class _TranslationsFrameInterpRejectJa extends TranslationsFrameInterpRejectEn {
 	@override String get alreadyInterpolated => 'この動画はすでに補間済みです';
 	@override String get alreadyQueued => 'この動画はすでにキューに入っています';
 	@override String get alreadyDone => 'この動画には補間版がすでにあります';
-	@override String get highFrameRate => 'この動画はすでにフレームレートが高いため、補間は不要です';
 	@override String get hdr => 'HDR 動画にはまだ対応していません';
 	@override String get resolutionTooLarge => '解像度が高すぎるため補間できません';
 	@override String get unreadable => 'この動画を読み込めませんでした';
@@ -9168,7 +9167,6 @@ extension on TranslationsJa {
 			'frameInterp.reject.alreadyInterpolated' => 'この動画はすでに補間済みです',
 			'frameInterp.reject.alreadyQueued' => 'この動画はすでにキューに入っています',
 			'frameInterp.reject.alreadyDone' => 'この動画には補間版がすでにあります',
-			'frameInterp.reject.highFrameRate' => 'この動画はすでにフレームレートが高いため、補間は不要です',
 			'frameInterp.reject.hdr' => 'HDR 動画にはまだ対応していません',
 			'frameInterp.reject.resolutionTooLarge' => '解像度が高すぎるため補間できません',
 			'frameInterp.reject.unreadable' => 'この動画を読み込めませんでした',

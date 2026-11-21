@@ -4116,7 +4116,6 @@ frameInterp:
     alreadyInterpolated: "この動画はすでに補間済みです"
     alreadyQueued: "この動画はすでにキューに入っています"
     alreadyDone: "この動画には補間版がすでにあります"
-    highFrameRate: "この動画はすでにフレームレートが高いため、補間は不要です"
     hdr: "HDR 動画にはまだ対応していません"
     resolutionTooLarge: "解像度が高すぎるため補間できません"
     unreadable: "この動画を読み込めませんでした"

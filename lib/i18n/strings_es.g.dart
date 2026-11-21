@@ -5048,7 +5048,6 @@ class _TranslationsFrameInterpRejectEs extends TranslationsFrameInterpRejectEn {
 	@override String get alreadyInterpolated => 'Este vídeo ya está interpolado';
 	@override String get alreadyQueued => 'Este vídeo ya está en la cola';
 	@override String get alreadyDone => 'Este vídeo ya tiene una versión interpolada';
-	@override String get highFrameRate => 'Este vídeo ya tiene una tasa de fotogramas alta';
 	@override String get hdr => 'Los vídeos HDR aún no son compatibles';
 	@override String get resolutionTooLarge => 'La resolución es demasiado alta para interpolar';
 	@override String get unreadable => 'No se pudo leer este vídeo';
@@ -9168,7 +9167,6 @@ extension on TranslationsEs {
 			'frameInterp.reject.alreadyInterpolated' => 'Este vídeo ya está interpolado',
 			'frameInterp.reject.alreadyQueued' => 'Este vídeo ya está en la cola',
 			'frameInterp.reject.alreadyDone' => 'Este vídeo ya tiene una versión interpolada',
-			'frameInterp.reject.highFrameRate' => 'Este vídeo ya tiene una tasa de fotogramas alta',
 			'frameInterp.reject.hdr' => 'Los vídeos HDR aún no son compatibles',
 			'frameInterp.reject.resolutionTooLarge' => 'La resolución es demasiado alta para interpolar',
 			'frameInterp.reject.unreadable' => 'No se pudo leer este vídeo',

@@ -5048,7 +5048,6 @@ class _TranslationsFrameInterpRejectTh extends TranslationsFrameInterpRejectEn {
 	@override String get alreadyInterpolated => 'วิดีโอนี้ผ่านการเพิ่มเฟรมแล้ว';
 	@override String get alreadyQueued => 'วิดีโอนี้อยู่ในคิวแล้ว';
 	@override String get alreadyDone => 'วิดีโอนี้มีเวอร์ชันที่เพิ่มเฟรมแล้ว';
-	@override String get highFrameRate => 'วิดีโอนี้มีเฟรมเรตสูงอยู่แล้ว';
 	@override String get hdr => 'ยังไม่รองรับวิดีโอ HDR';
 	@override String get resolutionTooLarge => 'ความละเอียดสูงเกินไปที่จะเพิ่มเฟรมได้';
 	@override String get unreadable => 'อ่านวิดีโอนี้ไม่ได้';
@@ -9168,7 +9167,6 @@ extension on TranslationsTh {
 			'frameInterp.reject.alreadyInterpolated' => 'วิดีโอนี้ผ่านการเพิ่มเฟรมแล้ว',
 			'frameInterp.reject.alreadyQueued' => 'วิดีโอนี้อยู่ในคิวแล้ว',
 			'frameInterp.reject.alreadyDone' => 'วิดีโอนี้มีเวอร์ชันที่เพิ่มเฟรมแล้ว',
-			'frameInterp.reject.highFrameRate' => 'วิดีโอนี้มีเฟรมเรตสูงอยู่แล้ว',
 			'frameInterp.reject.hdr' => 'ยังไม่รองรับวิดีโอ HDR',
 			'frameInterp.reject.resolutionTooLarge' => 'ความละเอียดสูงเกินไปที่จะเพิ่มเฟรมได้',
 			'frameInterp.reject.unreadable' => 'อ่านวิดีโอนี้ไม่ได้',

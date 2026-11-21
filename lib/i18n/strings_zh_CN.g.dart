@@ -5048,7 +5048,6 @@ class _TranslationsFrameInterpRejectZhCn extends TranslationsFrameInterpRejectEn
 	@override String get alreadyInterpolated => '这已经是补帧后的视频';
 	@override String get alreadyQueued => '该视频已在补帧队列中';
 	@override String get alreadyDone => '该视频已有补帧版本';
-	@override String get highFrameRate => '该视频帧率已经很高，无需补帧';
 	@override String get hdr => '暂不支持 HDR 视频';
 	@override String get resolutionTooLarge => '分辨率过高，无法补帧';
 	@override String get unreadable => '无法读取该视频';
@@ -9168,7 +9167,6 @@ extension on TranslationsZhCn {
 			'frameInterp.reject.alreadyInterpolated' => '这已经是补帧后的视频',
 			'frameInterp.reject.alreadyQueued' => '该视频已在补帧队列中',
 			'frameInterp.reject.alreadyDone' => '该视频已有补帧版本',
-			'frameInterp.reject.highFrameRate' => '该视频帧率已经很高，无需补帧',
 			'frameInterp.reject.hdr' => '暂不支持 HDR 视频',
 			'frameInterp.reject.resolutionTooLarge' => '分辨率过高，无法补帧',
 			'frameInterp.reject.unreadable' => '无法读取该视频',

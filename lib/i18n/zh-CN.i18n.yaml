@@ -4117,7 +4117,6 @@ frameInterp:
     alreadyInterpolated: "这已经是补帧后的视频"
     alreadyQueued: "该视频已在补帧队列中"
     alreadyDone: "该视频已有补帧版本"
-    highFrameRate: "该视频帧率已经很高，无需补帧"
     hdr: "暂不支持 HDR 视频"
     resolutionTooLarge: "分辨率过高，无法补帧"
     unreadable: "无法读取该视频"

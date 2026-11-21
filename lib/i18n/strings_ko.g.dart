@@ -5048,7 +5048,6 @@ class _TranslationsFrameInterpRejectKo extends TranslationsFrameInterpRejectEn {
 	@override String get alreadyInterpolated => '이미 보간된 동영상입니다';
 	@override String get alreadyQueued => '이 동영상은 이미 대기열에 있습니다';
 	@override String get alreadyDone => '이 동영상에는 이미 보간된 버전이 있습니다';
-	@override String get highFrameRate => '이 동영상은 이미 프레임 레이트가 높습니다';
 	@override String get hdr => 'HDR 동영상은 아직 지원하지 않습니다';
 	@override String get resolutionTooLarge => '해상도가 너무 높아 보간할 수 없습니다';
 	@override String get unreadable => '이 동영상을 읽을 수 없습니다';
@@ -9168,7 +9167,6 @@ extension on TranslationsKo {
 			'frameInterp.reject.alreadyInterpolated' => '이미 보간된 동영상입니다',
 			'frameInterp.reject.alreadyQueued' => '이 동영상은 이미 대기열에 있습니다',
 			'frameInterp.reject.alreadyDone' => '이 동영상에는 이미 보간된 버전이 있습니다',
-			'frameInterp.reject.highFrameRate' => '이 동영상은 이미 프레임 레이트가 높습니다',
 			'frameInterp.reject.hdr' => 'HDR 동영상은 아직 지원하지 않습니다',
 			'frameInterp.reject.resolutionTooLarge' => '해상도가 너무 높아 보간할 수 없습니다',
 			'frameInterp.reject.unreadable' => '이 동영상을 읽을 수 없습니다',

@@ -4115,7 +4115,6 @@ frameInterp:
     alreadyInterpolated: "วิดีโอนี้ผ่านการเพิ่มเฟรมแล้ว"
     alreadyQueued: "วิดีโอนี้อยู่ในคิวแล้ว"
     alreadyDone: "วิดีโอนี้มีเวอร์ชันที่เพิ่มเฟรมแล้ว"
-    highFrameRate: "วิดีโอนี้มีเฟรมเรตสูงอยู่แล้ว"
     hdr: "ยังไม่รองรับวิดีโอ HDR"
     resolutionTooLarge: "ความละเอียดสูงเกินไปที่จะเพิ่มเฟรมได้"
     unreadable: "อ่านวิดีโอนี้ไม่ได้"
