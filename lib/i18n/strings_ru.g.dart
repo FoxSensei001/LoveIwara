@@ -1184,7 +1184,7 @@ class _TranslationsSettingsRu extends TranslationsSettingsEn {
 	@override String get showCenterPlayPauseButtonDesc => 'Показывать крупную кнопку воспроизведения/паузы в центре плеера.';
 	@override String get audioVideoConfig => 'Аудио и видео';
 	@override String get expandBuffer => 'Увеличенный буфер';
-	@override String get expandBufferInfo => 'Увеличивает размер буфера: загрузка длится дольше, но воспроизведение плавнее';
+	@override String get expandBufferInfo => 'Больше видео загружается заранее: при нестабильной сети воспроизведение реже прерывается, но расходуется больше памяти';
 	@override String get videoSyncMode => 'Режим синхронизации видео';
 	@override String get videoSyncModeSubtitle => 'Стратегия синхронизации звука и видео';
 	@override String get hardwareDecodingMode => 'Режим аппаратного декодирования';
@@ -6375,7 +6375,7 @@ extension on TranslationsRu {
 			'settings.showCenterPlayPauseButtonDesc' => 'Показывать крупную кнопку воспроизведения/паузы в центре плеера.',
 			'settings.audioVideoConfig' => 'Аудио и видео',
 			'settings.expandBuffer' => 'Увеличенный буфер',
-			'settings.expandBufferInfo' => 'Увеличивает размер буфера: загрузка длится дольше, но воспроизведение плавнее',
+			'settings.expandBufferInfo' => 'Больше видео загружается заранее: при нестабильной сети воспроизведение реже прерывается, но расходуется больше памяти',
 			'settings.videoSyncMode' => 'Режим синхронизации видео',
 			'settings.videoSyncModeSubtitle' => 'Стратегия синхронизации звука и видео',
 			'settings.hardwareDecodingMode' => 'Режим аппаратного декодирования',

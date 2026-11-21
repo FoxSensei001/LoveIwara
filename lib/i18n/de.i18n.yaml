@@ -1099,7 +1099,7 @@ settings:
   # Audio Video Configuration
   audioVideoConfig: Audio-Video-Konfiguration
   expandBuffer: Puffer erweitern
-  expandBufferInfo: Wenn aktiviert, wird die Puffergröße erhöht; die Ladezeit wird länger, aber die Wiedergabe ist flüssiger
+  expandBufferInfo: Wenn aktiviert, wird mehr Video vorgepuffert; bei instabiler Verbindung stockt die Wiedergabe seltener, dafür wird mehr Arbeitsspeicher belegt
   videoSyncMode: Video-Synchronisierungsmodus
   videoSyncModeSubtitle: Strategie zur Audio-Video-Synchronisierung
   hardwareDecodingMode: Hardware-Dekodierungsmodus

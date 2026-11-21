@@ -1184,7 +1184,7 @@ class _TranslationsSettingsFr extends TranslationsSettingsEn {
 	@override String get showCenterPlayPauseButtonDesc => 'Afficher le grand bouton lecture/pause au centre du lecteur.';
 	@override String get audioVideoConfig => 'Configuration audio et vidéo';
 	@override String get expandBuffer => 'Étendre le tampon';
-	@override String get expandBufferInfo => 'Une fois activé, la taille du tampon augmente : le chargement est plus long, mais la lecture plus fluide';
+	@override String get expandBufferInfo => 'Une fois activé, davantage de vidéo est mise en mémoire tampon à l\'avance : moins de coupures sur un réseau instable, mais plus de mémoire utilisée';
 	@override String get videoSyncMode => 'Mode de synchro A/V';
 	@override String get videoSyncModeSubtitle => 'Stratégie de synchronisation audio-vidéo';
 	@override String get hardwareDecodingMode => 'Mode de décodage matériel';
@@ -6375,7 +6375,7 @@ extension on TranslationsFr {
 			'settings.showCenterPlayPauseButtonDesc' => 'Afficher le grand bouton lecture/pause au centre du lecteur.',
 			'settings.audioVideoConfig' => 'Configuration audio et vidéo',
 			'settings.expandBuffer' => 'Étendre le tampon',
-			'settings.expandBufferInfo' => 'Une fois activé, la taille du tampon augmente : le chargement est plus long, mais la lecture plus fluide',
+			'settings.expandBufferInfo' => 'Une fois activé, davantage de vidéo est mise en mémoire tampon à l\'avance : moins de coupures sur un réseau instable, mais plus de mémoire utilisée',
 			'settings.videoSyncMode' => 'Mode de synchro A/V',
 			'settings.videoSyncModeSubtitle' => 'Stratégie de synchronisation audio-vidéo',
 			'settings.hardwareDecodingMode' => 'Mode de décodage matériel',

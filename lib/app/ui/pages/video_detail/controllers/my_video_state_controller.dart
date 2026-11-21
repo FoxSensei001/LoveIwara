@@ -2623,8 +2623,8 @@ class MyVideoStateController extends GetxController
 
   /// 预热时 mpv 最多往前攒几秒（`cache-secs`）。
   ///
-  /// 暂停状态下 mpv 照样会把缓存灌满到 `demuxer-max-bytes`（默认 20MB、扩大
-  /// 缓冲时 64MB）。用户可能只是进来看评论、根本不播，所以预热只攒够「一点
+  /// 暂停状态下 mpv 照样会把缓存灌满到 `demuxer-max-bytes`（默认 40MB、扩大
+  /// 缓冲时 64MB，见 [_getBufferSize]）。用户可能只是进来看评论、根本不播，所以预热只攒够「一点
   /// 播放就能出画面」的量：1080p Source 约 10Mbps，8 秒 ≈ 10MB，540p 只有
   /// 两三 MB。用户一按播放就恢复原值（见 [_releasePrewarmReadaheadLimit]）。
   ///
@@ -3542,14 +3542,31 @@ class MyVideoStateController extends GetxController
   }
 
   // 获取缓冲区大小（针对 1080p Source ~10Mbps：默认约 16s，扩大约 50s）
-  int _getBufferSize() {
-    bool expandBuffer = _configService[ConfigKey.EXPAND_BUFFER];
-    if (expandBuffer) {
-      return 64 * 1024 * 1024; // 64MB 扩大缓冲区
-    } else {
-      return 20 * 1024 * 1024; // 20MB 默认缓冲区
-    }
-  }
+  /// 默认前向缓冲（`demuxer-max-bytes`）。
+  ///
+  /// 2026-11-21 由 20 MB 加到 40 MB（用户拍板，FEEDBACK_LOG 决定表）。实测：
+  /// 1080p60 的 Source 约 9.2 Mbit/s，20 MB 只够约 18 秒；播放中网速降到
+  /// 4 Mbit/s 持续 50 秒，20 MB 卡 2 次共 10.1 秒，40 MB 不卡。起播时间与缓冲
+  /// 大小无关（mpv 有数据就开播，不等缓冲攒满）。代价只是内存，攒满才占满。
+  static const int _defaultForwardBufferBytes = 40 * 1024 * 1024;
+
+  /// 默认后向缓冲（`demuxer-max-back-bytes`）：往回跳时不用重新连服务器。
+  /// 16 MB 在 Source 码率下约 14 秒，够「后退 10 秒」那一下。比前向小，是把
+  /// 内存让给更要紧的前向：峰值比原来（前后各 20 MB）只多约 16 MB。
+  static const int _defaultBackBufferBytes = 16 * 1024 * 1024;
+
+  /// 「扩大缓冲区」开着时前后都用它（与改动前一致）。
+  static const int _expandedBufferBytes = 64 * 1024 * 1024;
+
+  bool get _expandBuffer => _configService[ConfigKey.EXPAND_BUFFER] == true;
+
+  /// 交给 `PlayerConfiguration.bufferSize`。⛔ media_kit 拿它**同时**设前向和
+  /// 后向两个上限，后向要在 [_applyPlayerConfigurationInner] 里单独改回来。
+  int _getBufferSize() =>
+      _expandBuffer ? _expandedBufferBytes : _defaultForwardBufferBytes;
+
+  int _getBackBufferSize() =>
+      _expandBuffer ? _expandedBufferBytes : _defaultBackBufferBytes;
 
   // 应用播放器配置
   Future<void> _applyPlayerConfiguration() =>
@@ -3568,6 +3585,19 @@ class MyVideoStateController extends GetxController
     // 过短的超时会让 mpv 频繁自我重连，而重连时的 TLS close_notify 正是那条
     // `tcp: ffurl_write returned 0xffffd8ba`。详见 MpvTuning 的注释。
     await MpvTuning.apply(player);
+
+    // 后向缓冲单独设：media_kit 建播放器时把它和前向设成了同一个 bufferSize。
+    // 失败只记日志——退回的是前后同大，播放照常。
+    try {
+      final backBytes = _getBackBufferSize().toString();
+      await platform.setProperty('demuxer-max-back-bytes', backBytes);
+      LogUtils.d(
+        '缓冲上限: 前向 ${_getBufferSize() >> 20} MB, 后向 ${_getBackBufferSize() >> 20} MB',
+        'MyVideoStateController',
+      );
+    } catch (e) {
+      LogUtils.w('设置 demuxer-max-back-bytes 失败: $e', 'MyVideoStateController');
+    }
 
     try {
       // 设置视频同步模式
@@ -6844,7 +6874,9 @@ class MyVideoStateController extends GetxController
       previewPlayer = LivePlayers.create(
         label: '进度条预览',
         configuration: PlayerConfiguration(
-          bufferSize: 20 * 1024 * 1024, // 20MB 与主播放器默认一致
+          // 进度条预览只播低码率的 preview 源、来回跳帧，不跟主播放器的
+          // 40 MB（2026-11-21 起）走：缓冲大了只占内存，预览用不上。
+          bufferSize: 20 * 1024 * 1024,
           title: 'i_iwara Preview Player',
           // 注意：在 macOS 上开启 async: true 可能会导致热重启时崩溃，因此在调试模式下关闭
           async: !kDebugMode,

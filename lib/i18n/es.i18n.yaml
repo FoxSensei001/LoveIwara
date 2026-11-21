@@ -1099,7 +1099,7 @@ settings:
   # Audio Video Configuration
   audioVideoConfig: Configuración de audio y video
   expandBuffer: Ampliar el búfer
-  expandBufferInfo: "Cuando está activado, el tamaño del búfer aumenta: el tiempo de carga se alarga, pero la reproducción es más fluida"
+  expandBufferInfo: "Al activarlo se almacena más vídeo por adelantado: la reproducción se corta menos con redes inestables, pero usa más memoria"
   videoSyncMode: Modo de sincronización de video
   videoSyncModeSubtitle: Estrategia de sincronización de audio y video
   hardwareDecodingMode: Modo de decodificación por hardware

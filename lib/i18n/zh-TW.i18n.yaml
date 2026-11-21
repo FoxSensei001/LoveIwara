@@ -1100,7 +1100,7 @@ settings:
   # 影音配置相關
   audioVideoConfig: 影音配置
   expandBuffer: 擴大緩衝區
-  expandBufferInfo: 開啟後緩衝區增大，載入時間變長但播放更流暢
+  expandBufferInfo: 開啟後預先載入更多影片，網路不穩時較少卡頓，但會佔用更多記憶體
   videoSyncMode: 影片同步模式
   videoSyncModeSubtitle: 影音同步策略
   hardwareDecodingMode: 硬解模式

@@ -1184,7 +1184,7 @@ class _TranslationsSettingsJa extends TranslationsSettingsEn {
 	@override String get showCenterPlayPauseButtonDesc => 'プレーヤー中央の大きな再生/一時停止ボタンを表示します。';
 	@override String get audioVideoConfig => 'オーディオビデオ設定';
 	@override String get expandBuffer => 'バッファ拡張';
-	@override String get expandBufferInfo => '有効にすると、バッファサイズが増加し、読み込み時間が長くなりますが、再生がスムーズになります';
+	@override String get expandBufferInfo => '有効にすると、より多くの動画を先読みし、不安定な回線でも途切れにくくなりますが、メモリ使用量が増えます';
 	@override String get videoSyncMode => 'ビデオ同期モード';
 	@override String get videoSyncModeSubtitle => 'オーディオビデオ同期戦略';
 	@override String get hardwareDecodingMode => 'ハードウェアデコードモード';
@@ -6375,7 +6375,7 @@ extension on TranslationsJa {
 			'settings.showCenterPlayPauseButtonDesc' => 'プレーヤー中央の大きな再生/一時停止ボタンを表示します。',
 			'settings.audioVideoConfig' => 'オーディオビデオ設定',
 			'settings.expandBuffer' => 'バッファ拡張',
-			'settings.expandBufferInfo' => '有効にすると、バッファサイズが増加し、読み込み時間が長くなりますが、再生がスムーズになります',
+			'settings.expandBufferInfo' => '有効にすると、より多くの動画を先読みし、不安定な回線でも途切れにくくなりますが、メモリ使用量が増えます',
 			'settings.videoSyncMode' => 'ビデオ同期モード',
 			'settings.videoSyncModeSubtitle' => 'オーディオビデオ同期戦略',
 			'settings.hardwareDecodingMode' => 'ハードウェアデコードモード',

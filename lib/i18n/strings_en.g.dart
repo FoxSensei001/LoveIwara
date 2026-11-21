@@ -3082,8 +3082,8 @@ class TranslationsSettingsEn {
 	/// en: 'Expand Buffer'
 	String get expandBuffer => 'Expand Buffer';
 
-	/// en: 'When enabled, the buffer size increases, loading time becomes longer but playback is smoother'
-	String get expandBufferInfo => 'When enabled, the buffer size increases, loading time becomes longer but playback is smoother';
+	/// en: 'When enabled, more video is buffered ahead, so playback stalls less on unstable networks, but it uses more memory'
+	String get expandBufferInfo => 'When enabled, more video is buffered ahead, so playback stalls less on unstable networks, but it uses more memory';
 
 	/// en: 'Video Sync Mode'
 	String get videoSyncMode => 'Video Sync Mode';
@@ -14195,7 +14195,7 @@ extension on Translations {
 			'settings.showCenterPlayPauseButtonDesc' => 'Show the large play/pause button in the center of the player.',
 			'settings.audioVideoConfig' => 'Audio Video Configuration',
 			'settings.expandBuffer' => 'Expand Buffer',
-			'settings.expandBufferInfo' => 'When enabled, the buffer size increases, loading time becomes longer but playback is smoother',
+			'settings.expandBufferInfo' => 'When enabled, more video is buffered ahead, so playback stalls less on unstable networks, but it uses more memory',
 			'settings.videoSyncMode' => 'Video Sync Mode',
 			'settings.videoSyncModeSubtitle' => 'Audio-video synchronization strategy',
 			'settings.hardwareDecodingMode' => 'Hardware Decoding Mode',

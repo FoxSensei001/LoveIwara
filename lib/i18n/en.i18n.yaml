@@ -1099,7 +1099,7 @@ settings:
   # Audio Video Configuration
   audioVideoConfig: Audio Video Configuration
   expandBuffer: Expand Buffer
-  expandBufferInfo: When enabled, the buffer size increases, loading time becomes longer but playback is smoother
+  expandBufferInfo: When enabled, more video is buffered ahead, so playback stalls less on unstable networks, but it uses more memory
   videoSyncMode: Video Sync Mode
   videoSyncModeSubtitle: Audio-video synchronization strategy
   hardwareDecodingMode: Hardware Decoding Mode

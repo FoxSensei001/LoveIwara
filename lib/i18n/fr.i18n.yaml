@@ -1099,7 +1099,7 @@ settings:
   # Audio Video Configuration
   audioVideoConfig: Configuration audio et vidéo
   expandBuffer: Étendre le tampon
-  expandBufferInfo: "Une fois activé, la taille du tampon augmente : le chargement est plus long, mais la lecture plus fluide"
+  expandBufferInfo: "Une fois activé, davantage de vidéo est mise en mémoire tampon à l'avance : moins de coupures sur un réseau instable, mais plus de mémoire utilisée"
   videoSyncMode: Mode de synchro A/V
   videoSyncModeSubtitle: Stratégie de synchronisation audio-vidéo
   hardwareDecodingMode: Mode de décodage matériel

@@ -1184,7 +1184,7 @@ class _TranslationsSettingsEs extends TranslationsSettingsEn {
 	@override String get showCenterPlayPauseButtonDesc => 'Mostrar el botón grande de reproducir/pausar en el centro del reproductor.';
 	@override String get audioVideoConfig => 'Configuración de audio y video';
 	@override String get expandBuffer => 'Ampliar el búfer';
-	@override String get expandBufferInfo => 'Cuando está activado, el tamaño del búfer aumenta: el tiempo de carga se alarga, pero la reproducción es más fluida';
+	@override String get expandBufferInfo => 'Al activarlo se almacena más vídeo por adelantado: la reproducción se corta menos con redes inestables, pero usa más memoria';
 	@override String get videoSyncMode => 'Modo de sincronización de video';
 	@override String get videoSyncModeSubtitle => 'Estrategia de sincronización de audio y video';
 	@override String get hardwareDecodingMode => 'Modo de decodificación por hardware';
@@ -6375,7 +6375,7 @@ extension on TranslationsEs {
 			'settings.showCenterPlayPauseButtonDesc' => 'Mostrar el botón grande de reproducir/pausar en el centro del reproductor.',
 			'settings.audioVideoConfig' => 'Configuración de audio y video',
 			'settings.expandBuffer' => 'Ampliar el búfer',
-			'settings.expandBufferInfo' => 'Cuando está activado, el tamaño del búfer aumenta: el tiempo de carga se alarga, pero la reproducción es más fluida',
+			'settings.expandBufferInfo' => 'Al activarlo se almacena más vídeo por adelantado: la reproducción se corta menos con redes inestables, pero usa más memoria',
 			'settings.videoSyncMode' => 'Modo de sincronización de video',
 			'settings.videoSyncModeSubtitle' => 'Estrategia de sincronización de audio y video',
 			'settings.hardwareDecodingMode' => 'Modo de decodificación por hardware',

@@ -1099,7 +1099,7 @@ settings:
   # Audio Video Configuration
   audioVideoConfig: Konfigurasi Audio Video
   expandBuffer: Perluas Buffer
-  expandBufferInfo: Saat diaktifkan, ukuran buffer bertambah, waktu pemuatan menjadi lebih lama tetapi pemutaran lebih lancar
+  expandBufferInfo: Saat diaktifkan, lebih banyak video dimuat lebih dulu sehingga pemutaran lebih jarang tersendat di jaringan yang tidak stabil, tetapi memakai lebih banyak memori
   videoSyncMode: Mode Sinkron Video
   videoSyncModeSubtitle: Strategi sinkronisasi audio-video
   hardwareDecodingMode: Mode Dekode Perangkat Keras

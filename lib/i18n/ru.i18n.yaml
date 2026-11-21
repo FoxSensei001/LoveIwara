@@ -1099,7 +1099,7 @@ settings:
   # Audio Video Configuration
   audioVideoConfig: Аудио и видео
   expandBuffer: Увеличенный буфер
-  expandBufferInfo: "Увеличивает размер буфера: загрузка длится дольше, но воспроизведение плавнее"
+  expandBufferInfo: "Больше видео загружается заранее: при нестабильной сети воспроизведение реже прерывается, но расходуется больше памяти"
   videoSyncMode: Режим синхронизации видео
   videoSyncModeSubtitle: Стратегия синхронизации звука и видео
   hardwareDecodingMode: Режим аппаратного декодирования

@@ -1099,7 +1099,7 @@ settings:
   # Audio Video Configuration
   audioVideoConfig: การกำหนดค่าเสียงและวิดีโอ
   expandBuffer: ขยายบัฟเฟอร์
-  expandBufferInfo: เมื่อเปิดใช้งาน ขนาดบัฟเฟอร์จะเพิ่มขึ้น เวลาในการโหลดจะนานขึ้น แต่การเล่นจะราบรื่นยิ่งขึ้น
+  expandBufferInfo: เมื่อเปิดใช้งาน จะโหลดวิดีโอล่วงหน้ามากขึ้น ทำให้สะดุดน้อยลงเมื่อเครือข่ายไม่เสถียร แต่จะใช้หน่วยความจำมากขึ้น
   videoSyncMode: โหมดการซิงค์วิดีโอ
   videoSyncModeSubtitle: กลยุทธ์การซิงโครไนซ์เสียงและวิดีโอ
   hardwareDecodingMode: โหมดการถอดรหัสฮาร์ดแวร์

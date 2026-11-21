@@ -1184,7 +1184,7 @@ class _TranslationsSettingsDe extends TranslationsSettingsEn {
 	@override String get showCenterPlayPauseButtonDesc => 'Die große Wiedergabe-/Pause-Schaltfläche in der Mitte des Players anzeigen.';
 	@override String get audioVideoConfig => 'Audio-Video-Konfiguration';
 	@override String get expandBuffer => 'Puffer erweitern';
-	@override String get expandBufferInfo => 'Wenn aktiviert, wird die Puffergröße erhöht; die Ladezeit wird länger, aber die Wiedergabe ist flüssiger';
+	@override String get expandBufferInfo => 'Wenn aktiviert, wird mehr Video vorgepuffert; bei instabiler Verbindung stockt die Wiedergabe seltener, dafür wird mehr Arbeitsspeicher belegt';
 	@override String get videoSyncMode => 'Video-Synchronisierungsmodus';
 	@override String get videoSyncModeSubtitle => 'Strategie zur Audio-Video-Synchronisierung';
 	@override String get hardwareDecodingMode => 'Hardware-Dekodierungsmodus';
@@ -6375,7 +6375,7 @@ extension on TranslationsDe {
 			'settings.showCenterPlayPauseButtonDesc' => 'Die große Wiedergabe-/Pause-Schaltfläche in der Mitte des Players anzeigen.',
 			'settings.audioVideoConfig' => 'Audio-Video-Konfiguration',
 			'settings.expandBuffer' => 'Puffer erweitern',
-			'settings.expandBufferInfo' => 'Wenn aktiviert, wird die Puffergröße erhöht; die Ladezeit wird länger, aber die Wiedergabe ist flüssiger',
+			'settings.expandBufferInfo' => 'Wenn aktiviert, wird mehr Video vorgepuffert; bei instabiler Verbindung stockt die Wiedergabe seltener, dafür wird mehr Arbeitsspeicher belegt',
 			'settings.videoSyncMode' => 'Video-Synchronisierungsmodus',
 			'settings.videoSyncModeSubtitle' => 'Strategie zur Audio-Video-Synchronisierung',
 			'settings.hardwareDecodingMode' => 'Hardware-Dekodierungsmodus',

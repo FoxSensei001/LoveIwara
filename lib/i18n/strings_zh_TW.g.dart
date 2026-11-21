@@ -1184,7 +1184,7 @@ class _TranslationsSettingsZhTw extends TranslationsSettingsEn {
 	@override String get showCenterPlayPauseButtonDesc => '顯示播放器中央的大號播放/暫停按鈕。';
 	@override String get audioVideoConfig => '影音配置';
 	@override String get expandBuffer => '擴大緩衝區';
-	@override String get expandBufferInfo => '開啟後緩衝區增大，載入時間變長但播放更流暢';
+	@override String get expandBufferInfo => '開啟後預先載入更多影片，網路不穩時較少卡頓，但會佔用更多記憶體';
 	@override String get videoSyncMode => '影片同步模式';
 	@override String get videoSyncModeSubtitle => '影音同步策略';
 	@override String get hardwareDecodingMode => '硬解模式';
@@ -6375,7 +6375,7 @@ extension on TranslationsZhTw {
 			'settings.showCenterPlayPauseButtonDesc' => '顯示播放器中央的大號播放/暫停按鈕。',
 			'settings.audioVideoConfig' => '影音配置',
 			'settings.expandBuffer' => '擴大緩衝區',
-			'settings.expandBufferInfo' => '開啟後緩衝區增大，載入時間變長但播放更流暢',
+			'settings.expandBufferInfo' => '開啟後預先載入更多影片，網路不穩時較少卡頓，但會佔用更多記憶體',
 			'settings.videoSyncMode' => '影片同步模式',
 			'settings.videoSyncModeSubtitle' => '影音同步策略',
 			'settings.hardwareDecodingMode' => '硬解模式',

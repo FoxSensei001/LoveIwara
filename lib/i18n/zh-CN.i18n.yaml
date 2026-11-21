@@ -1101,7 +1101,7 @@ settings:
   # 音视频配置相关
   audioVideoConfig: 音视频配置
   expandBuffer: 扩大缓冲区
-  expandBufferInfo: 开启后缓冲区增大，加载时间变长但播放更流畅
+  expandBufferInfo: 开启后预读更多视频，网络不稳时更少卡顿，但会多占用内存
   videoSyncMode: 视频同步模式
   videoSyncModeSubtitle: 音视频同步策略
   hardwareDecodingMode: 硬解模式

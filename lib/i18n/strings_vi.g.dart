@@ -1184,7 +1184,7 @@ class _TranslationsSettingsVi extends TranslationsSettingsEn {
 	@override String get showCenterPlayPauseButtonDesc => 'Hiển thị nút phát/tạm dừng lớn ở giữa trình phát.';
 	@override String get audioVideoConfig => 'Cấu hình âm thanh và video';
 	@override String get expandBuffer => 'Mở rộng bộ đệm';
-	@override String get expandBufferInfo => 'Khi bật, kích thước bộ đệm tăng lên, thời gian tải lâu hơn nhưng phát mượt hơn';
+	@override String get expandBufferInfo => 'Khi bật, ứng dụng tải trước nhiều video hơn nên ít bị giật khi mạng không ổn định, nhưng tốn thêm bộ nhớ';
 	@override String get videoSyncMode => 'Chế độ đồng bộ video';
 	@override String get videoSyncModeSubtitle => 'Chiến lược đồng bộ âm thanh - video';
 	@override String get hardwareDecodingMode => 'Chế độ giải mã phần cứng';
@@ -6375,7 +6375,7 @@ extension on TranslationsVi {
 			'settings.showCenterPlayPauseButtonDesc' => 'Hiển thị nút phát/tạm dừng lớn ở giữa trình phát.',
 			'settings.audioVideoConfig' => 'Cấu hình âm thanh và video',
 			'settings.expandBuffer' => 'Mở rộng bộ đệm',
-			'settings.expandBufferInfo' => 'Khi bật, kích thước bộ đệm tăng lên, thời gian tải lâu hơn nhưng phát mượt hơn',
+			'settings.expandBufferInfo' => 'Khi bật, ứng dụng tải trước nhiều video hơn nên ít bị giật khi mạng không ổn định, nhưng tốn thêm bộ nhớ',
 			'settings.videoSyncMode' => 'Chế độ đồng bộ video',
 			'settings.videoSyncModeSubtitle' => 'Chiến lược đồng bộ âm thanh - video',
 			'settings.hardwareDecodingMode' => 'Chế độ giải mã phần cứng',

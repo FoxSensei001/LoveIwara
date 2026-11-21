@@ -1184,7 +1184,7 @@ class _TranslationsSettingsZhCn extends TranslationsSettingsEn {
 	@override String get showCenterPlayPauseButtonDesc => '显示播放器中央的大号播放/暂停按钮。';
 	@override String get audioVideoConfig => '音视频配置';
 	@override String get expandBuffer => '扩大缓冲区';
-	@override String get expandBufferInfo => '开启后缓冲区增大，加载时间变长但播放更流畅';
+	@override String get expandBufferInfo => '开启后预读更多视频，网络不稳时更少卡顿，但会多占用内存';
 	@override String get videoSyncMode => '视频同步模式';
 	@override String get videoSyncModeSubtitle => '音视频同步策略';
 	@override String get hardwareDecodingMode => '硬解模式';
@@ -6375,7 +6375,7 @@ extension on TranslationsZhCn {
 			'settings.showCenterPlayPauseButtonDesc' => '显示播放器中央的大号播放/暂停按钮。',
 			'settings.audioVideoConfig' => '音视频配置',
 			'settings.expandBuffer' => '扩大缓冲区',
-			'settings.expandBufferInfo' => '开启后缓冲区增大，加载时间变长但播放更流畅',
+			'settings.expandBufferInfo' => '开启后预读更多视频，网络不稳时更少卡顿，但会多占用内存',
 			'settings.videoSyncMode' => '视频同步模式',
 			'settings.videoSyncModeSubtitle' => '音视频同步策略',
 			'settings.hardwareDecodingMode' => '硬解模式',

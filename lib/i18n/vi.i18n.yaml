@@ -1099,7 +1099,7 @@ settings:
   # Audio Video Configuration
   audioVideoConfig: Cấu hình âm thanh và video
   expandBuffer: Mở rộng bộ đệm
-  expandBufferInfo: Khi bật, kích thước bộ đệm tăng lên, thời gian tải lâu hơn nhưng phát mượt hơn
+  expandBufferInfo: Khi bật, ứng dụng tải trước nhiều video hơn nên ít bị giật khi mạng không ổn định, nhưng tốn thêm bộ nhớ
   videoSyncMode: Chế độ đồng bộ video
   videoSyncModeSubtitle: Chiến lược đồng bộ âm thanh - video
   hardwareDecodingMode: Chế độ giải mã phần cứng

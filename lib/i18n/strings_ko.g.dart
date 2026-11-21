@@ -1184,7 +1184,7 @@ class _TranslationsSettingsKo extends TranslationsSettingsEn {
 	@override String get showCenterPlayPauseButtonDesc => '플레이어 중앙에 큰 재생/일시정지 버튼을 표시합니다.';
 	@override String get audioVideoConfig => '오디오·비디오 설정';
 	@override String get expandBuffer => '버퍼 확장';
-	@override String get expandBufferInfo => '활성화하면 버퍼 크기가 커져 로딩 시간은 길어지지만 재생이 더 부드러워집니다';
+	@override String get expandBufferInfo => '활성화하면 영상을 더 많이 미리 받아 두어 네트워크가 불안정할 때 끊김이 줄어들지만 메모리를 더 사용합니다';
 	@override String get videoSyncMode => '동영상 동기화 모드';
 	@override String get videoSyncModeSubtitle => '오디오-비디오 동기화 전략';
 	@override String get hardwareDecodingMode => '하드웨어 디코딩 모드';
@@ -6375,7 +6375,7 @@ extension on TranslationsKo {
 			'settings.showCenterPlayPauseButtonDesc' => '플레이어 중앙에 큰 재생/일시정지 버튼을 표시합니다.',
 			'settings.audioVideoConfig' => '오디오·비디오 설정',
 			'settings.expandBuffer' => '버퍼 확장',
-			'settings.expandBufferInfo' => '활성화하면 버퍼 크기가 커져 로딩 시간은 길어지지만 재생이 더 부드러워집니다',
+			'settings.expandBufferInfo' => '활성화하면 영상을 더 많이 미리 받아 두어 네트워크가 불안정할 때 끊김이 줄어들지만 메모리를 더 사용합니다',
 			'settings.videoSyncMode' => '동영상 동기화 모드',
 			'settings.videoSyncModeSubtitle' => '오디오-비디오 동기화 전략',
 			'settings.hardwareDecodingMode' => '하드웨어 디코딩 모드',

@@ -1184,7 +1184,7 @@ class _TranslationsSettingsId extends TranslationsSettingsEn {
 	@override String get showCenterPlayPauseButtonDesc => 'Tampilkan tombol putar/jeda besar di tengah pemutar.';
 	@override String get audioVideoConfig => 'Konfigurasi Audio Video';
 	@override String get expandBuffer => 'Perluas Buffer';
-	@override String get expandBufferInfo => 'Saat diaktifkan, ukuran buffer bertambah, waktu pemuatan menjadi lebih lama tetapi pemutaran lebih lancar';
+	@override String get expandBufferInfo => 'Saat diaktifkan, lebih banyak video dimuat lebih dulu sehingga pemutaran lebih jarang tersendat di jaringan yang tidak stabil, tetapi memakai lebih banyak memori';
 	@override String get videoSyncMode => 'Mode Sinkron Video';
 	@override String get videoSyncModeSubtitle => 'Strategi sinkronisasi audio-video';
 	@override String get hardwareDecodingMode => 'Mode Dekode Perangkat Keras';
@@ -6375,7 +6375,7 @@ extension on TranslationsId {
 			'settings.showCenterPlayPauseButtonDesc' => 'Tampilkan tombol putar/jeda besar di tengah pemutar.',
 			'settings.audioVideoConfig' => 'Konfigurasi Audio Video',
 			'settings.expandBuffer' => 'Perluas Buffer',
-			'settings.expandBufferInfo' => 'Saat diaktifkan, ukuran buffer bertambah, waktu pemuatan menjadi lebih lama tetapi pemutaran lebih lancar',
+			'settings.expandBufferInfo' => 'Saat diaktifkan, lebih banyak video dimuat lebih dulu sehingga pemutaran lebih jarang tersendat di jaringan yang tidak stabil, tetapi memakai lebih banyak memori',
 			'settings.videoSyncMode' => 'Mode Sinkron Video',
 			'settings.videoSyncModeSubtitle' => 'Strategi sinkronisasi audio-video',
 			'settings.hardwareDecodingMode' => 'Mode Dekode Perangkat Keras',

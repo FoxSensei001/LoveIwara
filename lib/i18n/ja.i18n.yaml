@@ -1100,7 +1100,7 @@ settings:
   # オーディオビデオ設定
   audioVideoConfig: オーディオビデオ設定
   expandBuffer: バッファ拡張
-  expandBufferInfo: 有効にすると、バッファサイズが増加し、読み込み時間が長くなりますが、再生がスムーズになります
+  expandBufferInfo: 有効にすると、より多くの動画を先読みし、不安定な回線でも途切れにくくなりますが、メモリ使用量が増えます
   videoSyncMode: ビデオ同期モード
   videoSyncModeSubtitle: オーディオビデオ同期戦略
   hardwareDecodingMode: ハードウェアデコードモード

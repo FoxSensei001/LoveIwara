@@ -1184,7 +1184,7 @@ class _TranslationsSettingsTh extends TranslationsSettingsEn {
 	@override String get showCenterPlayPauseButtonDesc => 'แสดงปุ่มเล่น/หยุดชั่วคราวขนาดใหญ่ตรงกลางเครื่องเล่น';
 	@override String get audioVideoConfig => 'การกำหนดค่าเสียงและวิดีโอ';
 	@override String get expandBuffer => 'ขยายบัฟเฟอร์';
-	@override String get expandBufferInfo => 'เมื่อเปิดใช้งาน ขนาดบัฟเฟอร์จะเพิ่มขึ้น เวลาในการโหลดจะนานขึ้น แต่การเล่นจะราบรื่นยิ่งขึ้น';
+	@override String get expandBufferInfo => 'เมื่อเปิดใช้งาน จะโหลดวิดีโอล่วงหน้ามากขึ้น ทำให้สะดุดน้อยลงเมื่อเครือข่ายไม่เสถียร แต่จะใช้หน่วยความจำมากขึ้น';
 	@override String get videoSyncMode => 'โหมดการซิงค์วิดีโอ';
 	@override String get videoSyncModeSubtitle => 'กลยุทธ์การซิงโครไนซ์เสียงและวิดีโอ';
 	@override String get hardwareDecodingMode => 'โหมดการถอดรหัสฮาร์ดแวร์';
@@ -6375,7 +6375,7 @@ extension on TranslationsTh {
 			'settings.showCenterPlayPauseButtonDesc' => 'แสดงปุ่มเล่น/หยุดชั่วคราวขนาดใหญ่ตรงกลางเครื่องเล่น',
 			'settings.audioVideoConfig' => 'การกำหนดค่าเสียงและวิดีโอ',
 			'settings.expandBuffer' => 'ขยายบัฟเฟอร์',
-			'settings.expandBufferInfo' => 'เมื่อเปิดใช้งาน ขนาดบัฟเฟอร์จะเพิ่มขึ้น เวลาในการโหลดจะนานขึ้น แต่การเล่นจะราบรื่นยิ่งขึ้น',
+			'settings.expandBufferInfo' => 'เมื่อเปิดใช้งาน จะโหลดวิดีโอล่วงหน้ามากขึ้น ทำให้สะดุดน้อยลงเมื่อเครือข่ายไม่เสถียร แต่จะใช้หน่วยความจำมากขึ้น',
 			'settings.videoSyncMode' => 'โหมดการซิงค์วิดีโอ',
 			'settings.videoSyncModeSubtitle' => 'กลยุทธ์การซิงโครไนซ์เสียงและวิดีโอ',
 			'settings.hardwareDecodingMode' => 'โหมดการถอดรหัสฮาร์ดแวร์',
