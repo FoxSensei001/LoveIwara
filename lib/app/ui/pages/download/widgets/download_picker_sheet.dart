@@ -223,7 +223,11 @@ class _DownloadPickerSheetState extends State<_DownloadPickerSheet> {
                   ),
                 ),
               ),
-              const DownloadManagerShortcutButton(),
+              for (final (i, button)
+                  in downloadDialogShortcutButtons.indexed) ...[
+                if (i > 0) const SizedBox(width: 8),
+                button,
+              ],
             ],
           ),
           const SizedBox(height: UIConstants.sectionSpacing),

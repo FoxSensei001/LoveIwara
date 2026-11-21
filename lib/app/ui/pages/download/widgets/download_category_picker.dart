@@ -132,7 +132,7 @@ Future<({bool confirmed, String? categoryId})> showDownloadCategoryDialog(
     builder: (dialogContext) => StatefulBuilder(
       builder: (context, setState) => GlassAlertDialog(
         title: t.download.category.label,
-        titleActions: const [DownloadManagerShortcutButton()],
+        titleActions: downloadDialogShortcutButtons,
         content: SizedBox(
           width: double.maxFinite,
           child: Column(

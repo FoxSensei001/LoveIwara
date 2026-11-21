@@ -115,7 +115,7 @@ class _BatchDownloadDialogState<T> extends State<BatchDownloadDialog<T>> {
       // 上面。两头都不安全，这一阶段只留「取消」。
       titleActions: _phase == _DialogPhase.downloading
           ? const []
-          : const [DownloadManagerShortcutButton()],
+          : downloadDialogShortcutButtons,
       content: SizedBox(
         width: 400, // 给予一个基础宽度，防止 layout 问题
         child: SingleChildScrollView(child: _buildContent(context, t)),
