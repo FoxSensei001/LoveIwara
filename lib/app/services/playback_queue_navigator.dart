@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:i_iwara/app/services/frame_interp/frame_interp_service.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_item_missing_dialog.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
@@ -282,7 +283,9 @@ class PlaybackQueueNavigator {
     VoidCallback? onRelinquishFullscreen,
   }) {
     final extra = VideoDetailExtra(
-      localPath: local.localPath,
+      // 池里切到下一条时同样默认看补帧版（「默认补帧」是永久的，见
+      // FrameInterpService.preferredPlaybackPath）。
+      localPath: FrameInterpService.preferredPlaybackPath(local.localPath),
       localTask: local.task,
       localAllQualityTasks: local.allQualityTasks,
       // 本机文件那一路带得出稳定 id，详情页拿它记进度。

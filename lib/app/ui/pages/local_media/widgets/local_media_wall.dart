@@ -334,7 +334,8 @@ class _LocalMediaWallState extends State<LocalMediaWall>
     }
   }
 
-  Future<void> _openItem(LocalMediaItem item) async {
+  /// [original]：有补帧成品时也播原片（菜单里的「播放原视频」）。
+  Future<void> _openItem(LocalMediaItem item, {bool original = false}) async {
     if (item.kind == LocalMediaItemKind.video) {
       if (!item.isPlayableNow) {
         // 同 `LocalFolderBrowsePage._openVideo`：诊断 + 出路，找回了就打开找回的。
@@ -369,6 +370,7 @@ class _LocalMediaWallState extends State<LocalMediaWall>
         localPath: item.resolvePlaybackTarget(),
         localLibraryItemId: item.id,
         playbackQueueRef: queueRef,
+        original: original,
       );
     } else {
       // ⛔ 不能只拿 [_items]：那只是已经翻出来的几页（每页 [_pageSize]），
@@ -413,6 +415,7 @@ class _LocalMediaWallState extends State<LocalMediaWall>
     await showLocalMediaItemMenu(
       anchorContext: anchorContext,
       item: item,
+      onPlay: ({required bool original}) => _openItem(item, original: original),
       onChanged: () {
         if (!mounted) return;
         // ⛔ 这里**不再**分「精选 / 非精选」：精选那一路已经由

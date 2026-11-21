@@ -40,6 +40,10 @@ Future<void> showLocalMediaItemMenu({
   VoidCallback? onChanged,
   void Function(LocalMediaItem item)? onDeleted,
   bool showRevealInFolder = true,
+
+  /// 卡片自己的「打开」（带着这一栏的播放池与进度 id）。有补帧成品时菜单里
+  /// 的「播放补帧版本 / 播放原视频」走它；不给就退回只带路径打开。
+  Future<void> Function({required bool original})? onPlay,
 }) async {
   final repo = LocalMediaRepository();
   // 图片没有精选（见 [LocalMediaItem.supportsFavorite]），连这一次查库都省掉。
@@ -88,11 +92,16 @@ Future<void> showLocalMediaItemMenu({
           label: slang.t.localMedia.browse.setAsFolderCover,
           icon: Icons.folder_special_outlined,
         ),
+      // 原片和补帧成品是同一张卡（2026-11-21 用户要求），点卡片默认就播补帧版，
+      // 菜单里只给「另一个版本」。⛔ 别再把「播放补帧版本」也列进来：用户点开
+      // ⋮ 看到的头一条是默认已经在做的事，会以为默认播的是原片（用户原话：
+      // 「既然默认是用补帧版本去观看的，为什么……出现的选项是播放补帧视频，
+      // 而不是播放原视频？」）。
       if (interpolatedPath != null)
         GlassMenuOption<String>(
-          value: 'playInterpolated',
-          label: slang.t.frameInterp.playInterpolated,
-          icon: Icons.slow_motion_video,
+          value: 'playOriginal',
+          label: slang.t.frameInterp.playOriginal,
+          icon: Icons.movie_outlined,
         ),
       if (canInterpolate)
         GlassMenuOption<String>(
@@ -138,8 +147,14 @@ Future<void> showLocalMediaItemMenu({
     return;
   }
 
-  if (action == 'playInterpolated' && interpolatedPath != null) {
-    NaviService.navigateToLocalVideoPlayerPageFromPath(interpolatedPath);
+  if (action == 'playOriginal') {
+    if (onPlay != null) {
+      await onPlay(original: true);
+    } else {
+      NaviService.navigateToLocalVideoPlayerPageFromPath(
+        item.resolvePlaybackTarget(),
+      );
+    }
     return;
   }
 
@@ -184,9 +199,33 @@ Future<void> showLocalMediaItemMenu({
   }
 
   if (action == 'delete') {
+    // 有补帧成品时一并问一句：卡片是一张，用户眼里删的是「这部片子」。
+    final interpTask = interpolatedPath == null
+        ? null
+        : interp?.taskForSource(item.path);
+    final deleteInterpolated = ValueNotifier<bool>(true);
     final confirmed = await showGlassAlertDialog<bool>(
       title: slang.t.localMedia.browse.deleteFileTitle,
-      content: Text(slang.t.localMedia.browse.deleteFileBody(name: item.name)),
+      content: interpTask == null
+          ? Text(slang.t.localMedia.browse.deleteFileBody(name: item.name))
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(slang.t.localMedia.browse.deleteFileBody(name: item.name)),
+                const SizedBox(height: 8),
+                ValueListenableBuilder<bool>(
+                  valueListenable: deleteInterpolated,
+                  builder: (context, value, _) => SwitchListTile.adaptive(
+                    contentPadding: EdgeInsets.zero,
+                    value: value,
+                    onChanged: (v) => deleteInterpolated.value = v,
+                    title: Text(slang.t.frameInterp.deleteInterpolated),
+                    subtitle: Text(slang.t.frameInterp.deleteInterpolatedDesc),
+                  ),
+                ),
+              ],
+            ),
       actions: <GlassDialogAction>[
         GlassDialogAction(
           label: slang.t.common.cancel,
@@ -203,6 +242,7 @@ Future<void> showLocalMediaItemMenu({
       ],
     );
     if (confirmed != true || !anchorContext.mounted) return;
+    final withInterpolated = interpTask != null && deleteInterpolated.value;
 
     // ⛔ 顺序不能反：先删磁盘，成功了再删库行。
     //
@@ -247,6 +287,12 @@ Future<void> showLocalMediaItemMenu({
         type: AppToastType.error,
       );
       return;
+    }
+
+    // 补帧成品排在原片**删成功之后**：原片删不掉（权限、卷没挂上）时上面已经
+    // return，用户看到「删除失败」，补帧版不该已经先没了。
+    if (withInterpolated) {
+      await interp!.delete(interpTask.id, deleteOutput: true);
     }
 
     try {

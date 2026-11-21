@@ -9,6 +9,7 @@ import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart'
     show ExtendedNestedScrollViewState;
 import 'package:material_ui/material_ui.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/services/frame_interp/frame_interp_service.dart';
 import 'package:i_iwara/app/models/local_media/dav_path.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/app/services/webdav/webdav_gateway.dart';
@@ -1584,6 +1585,19 @@ class MyVideoStateController extends GetxController
   /// 在线各档来自 [videoResolutions]；本地那份查下载库里**这条视频**完成了的任务，
   /// 逐个 stat 文件（下载页删过、系统清过缓存都可能让记录还在文件没了）。同一档有本地
   /// 文件就用本地地址顶掉在线地址；只有本地没有在线的档（本地模式）也列进去。
+  /// 本地多清晰度时，某一档该打开的文件。
+  ///
+  /// 正在播的是补帧成品（默认就是它，见 FrameInterpService.preferredPlaybackPath）
+  /// 时，各档也换成各自的补帧成品——否则清晰度面板标着原片那档、刷新 / 出错重试
+  /// / 切档 / 进沉浸都会悄悄退回原片。用户点的是「播放原视频」时不换。
+  String _qualityPlaybackPath(String savePath) {
+    final playing = localVideoPath;
+    final interp = FrameInterpService.maybe;
+    if (playing == null || interp == null) return savePath;
+    if (!interp.isInterpolatedOutput(playing)) return savePath;
+    return FrameInterpService.preferredPlaybackPath(savePath);
+  }
+
   Future<List<XrMediaSource>> _immersiveSources() async {
     final byLabel = <String, XrMediaSource>{};
     for (final r in videoResolutions) {
@@ -1614,7 +1628,7 @@ class MyVideoStateController extends GetxController
           final ext = VideoDownloadExtData.fromJson(task.extData!.data);
           final quality = ext.quality?.trim();
           if (quality == null || quality.isEmpty) continue;
-          final path = task.savePath;
+          final path = _qualityPlaybackPath(task.savePath);
           if (path.isEmpty || !File(path).existsSync()) continue;
           byLabel[quality] = XrMediaSource(
             label: quality,
@@ -3093,9 +3107,10 @@ class MyVideoStateController extends GetxController
         if (task.status == DownloadStatus.completed) {
           final extData = VideoDownloadExtData.fromJson(task.extData!.data);
           final quality = extData.quality ?? slang.t.mediaPlayer.unknown;
-          final path = task.savePath.startsWith('file://')
-              ? task.savePath
-              : 'file://${task.savePath}';
+          final savePath = _qualityPlaybackPath(task.savePath);
+          final path = savePath.startsWith('file://')
+              ? savePath
+              : 'file://$savePath';
           videoResolutions.add(VideoResolution(label: quality, url: path));
         }
       }

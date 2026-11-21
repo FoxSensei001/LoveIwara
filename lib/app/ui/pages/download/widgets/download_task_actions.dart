@@ -39,11 +39,15 @@ enum DownloadAction {
   /// 视频：交给系统里别的应用打开。
   openWith,
 
-  /// 视频：生成 2 倍帧率的补帧版本。已有成品时换成 [playInterpolated]。
+  /// 视频：生成 2 倍帧率的补帧版本。已有成品时换成 [playOriginal]。
   interpolate,
 
-  /// 视频：播放已生成好的补帧版本。
-  playInterpolated,
+  /// 视频：已有补帧成品时，绕开「默认看补帧版」去看原片。
+  ///
+  /// 有成品时 [open]（「播放」）本身就播成品，所以菜单里只多这一条「另一个
+  /// 版本」。⛔ 别把 [open] 的标签换成「播放补帧版本」：用户点开 ⋮ 看到的
+  /// 头一条写着补帧，会以为默认播的是原片（2026-11-21 用户报）。
+  playOriginal,
   pause,
   resume,
   retry,
@@ -135,7 +139,7 @@ class DownloadActionResolver {
           DownloadAction.openWith,
         if (downloadTaskKind(single) == DownloadTaskKind.video)
           if (interpOutput(single) != null)
-            DownloadAction.playInterpolated
+            DownloadAction.playOriginal
           else if (interpSupported &&
               _isPlainLocalPath(single.savePath) &&
               !missing(single))
@@ -210,9 +214,16 @@ bool isDownloadFileKnownMissing(DownloadTask task) {
 /// 卡片自己才知道怎么做的那几件事（例如视频要带上列表页的分类池去播放）。
 /// 不给就走通用实现。
 class DownloadTaskActionHandlers {
-  const DownloadTaskActionHandlers({this.onOpen, this.onViewOnline});
+  const DownloadTaskActionHandlers({
+    this.onOpen,
+    this.onOpenOriginal,
+    this.onViewOnline,
+  });
 
   final Future<void> Function()? onOpen;
+
+  /// 「播放原视频」：同 [onOpen]，只是不换成补帧成品。
+  final Future<void> Function()? onOpenOriginal;
   final Future<void> Function()? onViewOnline;
 }
 
@@ -232,7 +243,7 @@ IconData downloadActionIcon(DownloadAction action, {DownloadTask? task}) {
     },
     DownloadAction.openWith => Icons.open_in_new,
     DownloadAction.interpolate => Icons.auto_awesome_motion_outlined,
-    DownloadAction.playInterpolated => Icons.slow_motion_video,
+    DownloadAction.playOriginal => Icons.movie_outlined,
     DownloadAction.pause => Icons.pause,
     DownloadAction.resume => Icons.play_arrow,
     DownloadAction.retry => Icons.refresh,
@@ -256,7 +267,7 @@ String downloadActionLabel(DownloadAction action, {DownloadTask? task}) {
           : t.actions.open,
     DownloadAction.openWith => t.actions.openWith,
     DownloadAction.interpolate => slang.t.frameInterp.action,
-    DownloadAction.playInterpolated => slang.t.frameInterp.playInterpolated,
+    DownloadAction.playOriginal => slang.t.frameInterp.playOriginal,
     DownloadAction.pause => t.pause,
     DownloadAction.resume => t.resume,
     DownloadAction.retry => slang.t.common.retry,
@@ -281,7 +292,7 @@ int _groupOf(DownloadAction action) => switch (action) {
   DownloadAction.open ||
   DownloadAction.openWith ||
   DownloadAction.interpolate ||
-  DownloadAction.playInterpolated ||
+  DownloadAction.playOriginal ||
   DownloadAction.pause ||
   DownloadAction.resume ||
   DownloadAction.retry ||
@@ -412,13 +423,18 @@ Future<bool> runDownloadAction(
         thumbnail: thumbnail,
       );
       return true;
-    case DownloadAction.playInterpolated:
+    case DownloadAction.playOriginal:
       if (single == null) return false;
-      final output = FrameInterpService.maybe?.completedOutputFor(
-        single.savePath,
-      );
-      if (output == null) return false;
-      NaviService.navigateToLocalVideoPlayerPageFromPath(output);
+      final onOpenOriginal = handlers.onOpenOriginal;
+      if (onOpenOriginal != null) {
+        await onOpenOriginal();
+      } else {
+        await NaviService.openLocalVideo(
+          localPath: _normalizedSavePath(single),
+          task: single,
+          original: true,
+        );
+      }
       return true;
     case DownloadAction.pause:
       for (final t in tasks) {
@@ -571,6 +587,16 @@ Future<bool> showDeleteDownloadTasksDialog(List<DownloadTask> tasks) async {
 
   final allMissing = tasks.every(_isFileGone);
   final deleteFiles = ValueNotifier<bool>(!allMissing);
+  // 带补帧成品的那几条：只有它们才露「同时删除补帧版本」。原片和成品在列表
+  // 里是一张卡，默认跟着一起删。
+  final interp = FrameInterpService.maybe;
+  final interpTasks = [
+    if (interp != null)
+      for (final task in tasks)
+        if (interp.completedOutputFor(task.savePath) != null)
+          interp.taskForSource(task.savePath)!,
+  ];
+  final deleteInterpolated = ValueNotifier<bool>(true);
 
   final confirmed = await showGlassAlertDialog<bool>(
     title: t.deleteTitle(count: tasks.length),
@@ -578,6 +604,7 @@ Future<bool> showDeleteDownloadTasksDialog(List<DownloadTask> tasks) async {
       tasks: tasks,
       deleteFiles: deleteFiles,
       filesGone: allMissing,
+      deleteInterpolated: interpTasks.isEmpty ? null : deleteInterpolated,
     ),
     actions: [
       GlassDialogAction(
@@ -596,7 +623,15 @@ Future<bool> showDeleteDownloadTasksDialog(List<DownloadTask> tasks) async {
   // 开关的 ValueListenableBuilder 此时仍挂着它。它没有外部资源，交给 GC；
   // 监听者随弹窗子树卸载自己摘掉。
   final withFiles = deleteFiles.value;
+  final withInterpolated = deleteInterpolated.value;
   if (confirmed != true) return false;
+
+  // 补帧成品先删：它和下载任务互不依赖，不该因为下面哪条下载删失败就留下。
+  if (withInterpolated && interp != null) {
+    for (final interpTask in interpTasks) {
+      await interp.delete(interpTask.id, deleteOutput: true);
+    }
+  }
 
   final ids = [for (final task in tasks) task.id];
   DeleteTasksResult? result;
@@ -675,11 +710,15 @@ class _DeleteDownloadsContent extends StatelessWidget {
     required this.tasks,
     required this.deleteFiles,
     required this.filesGone,
+    this.deleteInterpolated,
   });
 
   final List<DownloadTask> tasks;
   final ValueNotifier<bool> deleteFiles;
   final bool filesGone;
+
+  /// 为 null 表示这批里没有带补帧成品的，不露那一行开关。
+  final ValueNotifier<bool>? deleteInterpolated;
 
   @override
   Widget build(BuildContext context) {
@@ -739,6 +778,24 @@ class _DeleteDownloadsContent extends StatelessWidget {
             ),
           ),
         ),
+        if (deleteInterpolated case final interpolated?)
+          ValueListenableBuilder<bool>(
+            valueListenable: interpolated,
+            builder: (context, value, _) => SwitchListTile.adaptive(
+              contentPadding: EdgeInsets.zero,
+              value: value,
+              onChanged: (v) => interpolated.value = v,
+              title: Text(
+                slang.Translations.of(context).frameInterp.deleteInterpolated,
+              ),
+              subtitle: Text(
+                slang.Translations.of(
+                  context,
+                ).frameInterp.deleteInterpolatedDesc,
+                style: muted,
+              ),
+            ),
+          ),
       ],
     );
   }

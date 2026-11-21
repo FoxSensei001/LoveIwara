@@ -469,7 +469,12 @@ class _LocalMediaItemCardState extends State<LocalMediaItemCard> {
     if (interp == null) return _tagRow(specTags);
     return Obx(() {
       interp.revision.value;
-      final task = interp.taskForOutput(_item.path);
+      // 原片那张卡就代表了它的补帧成品（成品自己那行被藏掉了，见
+      // LocalMediaRepository._itemFilter），角标标在原片上；原片不在了、
+      // 成品自己单独露出来时，仍标在成品上。
+      final task = interp.completedOutputFor(_item.path) != null
+          ? interp.taskForSource(_item.path)
+          : interp.taskForOutput(_item.path);
       final String? interpTag = task == null
           ? null
           : task.outputFps > 0

@@ -862,7 +862,8 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage>
   static bool _defaultAscending(LocalMediaSortField field) =>
       field == LocalMediaSortField.name;
 
-  Future<void> _openVideo(LocalMediaItem item) async {
+  /// [original]：有补帧成品时也播原片（菜单里的「播放原视频」）。
+  Future<void> _openVideo(LocalMediaItem item, {bool original = false}) async {
     if (!item.isPlayableNow) {
       // 不许只丢一句「不在磁盘上了」：说清是哪种找不到、给出路（重扫 / 认领
       // 改名件 / 移除记录）。找回来了就直接打开找回的那一条。
@@ -912,6 +913,7 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage>
       localPath: item.resolvePlaybackTarget(),
       localLibraryItemId: item.id,
       playbackQueueRef: queueRef,
+      original: original,
     );
   }
 
@@ -975,6 +977,8 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage>
       anchorContext: anchorContext,
       item: item,
       folderCoverSource: folderCoverSource,
+      onPlay: ({required bool original}) =>
+          _openVideo(item, original: original),
       // 就站在这个目录里，「在文件夹中显示」是原地踏步。
       showRevealInFolder: false,
       onSetAsFolderCover: folderCoverSource != null

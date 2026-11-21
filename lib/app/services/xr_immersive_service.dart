@@ -5,6 +5,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' show AppLifecycleState;
 import 'package:get/get.dart';
+import 'package:i_iwara/app/services/frame_interp/frame_interp_service.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/vr_format.model.dart';
@@ -946,7 +947,15 @@ class XrImmersiveService extends GetxService {
         final local = await queue.localTargetFor(videoId);
         if (local != null) {
           return await presentLocalTarget(
-                local,
+                // 池里换下一条同样默认看补帧版（同 PlaybackQueueNavigator._pushLocal）。
+                LocalPlaybackTarget(
+                  localPath: FrameInterpService.preferredPlaybackPath(
+                    local.localPath,
+                  ),
+                  task: local.task,
+                  localLibraryItemId: local.localLibraryItemId,
+                  allQualityTasks: local.allQualityTasks,
+                ),
                 queue: queue,
                 queueItemId: videoId,
               ) ==

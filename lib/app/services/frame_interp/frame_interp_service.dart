@@ -4,10 +4,12 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:ffi/ffi.dart';
-import 'package:flutter/widgets.dart' show AppLifecycleListener, AppLifecycleState;
+import 'package:flutter/widgets.dart'
+    show AppLifecycleListener, AppLifecycleState;
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/frame_interp/frame_interp_task.model.dart';
 import 'package:i_iwara/app/repositories/frame_interp_task_repository.dart';
+import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/services/download/download_keep_alive.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/frame_interp/frame_interp_bindings.dart';
@@ -40,20 +42,37 @@ enum FrameInterpReject {
   noGpu,
 }
 
+/// 入队前交给调用方确认的那几样：片源探测出来的规格，和补完会是多少帧。
+typedef FrameInterpPlan = ({
+  int width,
+  int height,
+  double sourceFps,
+  double outputFps,
+  int durationMs,
+});
+
 class FrameInterpEnqueueResult {
   const FrameInterpEnqueueResult.queued(FrameInterpTask this.task)
-    : reject = null;
+    : reject = null,
+      declined = false;
   const FrameInterpEnqueueResult.rejected(
     FrameInterpReject this.reject, {
     this.task,
-  });
+  }) : declined = false;
+
+  /// 检查都过了，用户在确认那一步自己取消了。不是错误，不用提示。
+  const FrameInterpEnqueueResult.declined()
+    : task = null,
+      reject = null,
+      declined = true;
 
   /// 入队成功时是新建的任务；被 [FrameInterpReject.alreadyQueued] /
   /// [FrameInterpReject.alreadyDone] 挡下时是已有的那一条。
   final FrameInterpTask? task;
   final FrameInterpReject? reject;
+  final bool declined;
 
-  bool get ok => reject == null;
+  bool get ok => reject == null && !declined;
 }
 
 /// 正在跑的那条任务的实时进度。只在内存里，不落库。
@@ -543,10 +562,15 @@ class FrameInterpService extends GetxService {
   /// 把一个本地视频加入补帧队列。
   ///
   /// [title] / [thumbnail] 只用于任务页的展示，取发起补帧的那张卡片上的即可。
+  ///
+  /// [confirm] 在所有检查都通过、片源帧率已经探测出来之后才调用：用户看到
+  /// 的「X 帧 → Y 帧」是真实值，被拒的视频也不会先弹一次确认。返回 false
+  /// 得到 [FrameInterpEnqueueResult.declined]。
   Future<FrameInterpEnqueueResult> enqueue({
     required String sourcePath,
     String? title,
     String? thumbnail,
+    Future<bool> Function(FrameInterpPlan plan)? confirm,
   }) async {
     await _restored;
     if (_shuttingDown || !component.isReady) {
@@ -636,7 +660,25 @@ class FrameInterpService extends GetxService {
       return const FrameInterpEnqueueResult.rejected(FrameInterpReject.noGpu);
     }
 
-    // 上面几步都是 await，期间同一个片源可能已经被另一次点击排进去了。
+    if (confirm != null) {
+      final accepted = await confirm((
+        width: probe.width,
+        height: probe.height,
+        sourceFps: probe.fps,
+        outputFps: probe.fps * 2,
+        durationMs: probe.durationMs,
+      ));
+      if (!accepted) return const FrameInterpEnqueueResult.declined();
+      // 弹窗开着的时候用户可能去把片源删了。
+      if (!await source.exists()) {
+        return const FrameInterpEnqueueResult.rejected(
+          FrameInterpReject.sourceMissing,
+        );
+      }
+    }
+
+    // 上面几步都是 await（含等用户确认），期间同一个片源可能已经被另一次
+    // 点击排进去了。
     final raced = _bySourceKey[key];
     if (raced != null && raced.status.isActive) {
       return FrameInterpEnqueueResult.rejected(
@@ -764,8 +806,46 @@ class FrameInterpService extends GetxService {
     if (task == null) return;
     if (deleteOutput && task.status == FrameInterpStatus.completed) {
       await _deleteQuietly(task.outputPath);
+      // 本机文件库里那一行也要一起去掉：记录删了以后成品不再被原片那张卡
+      // 代表（见 LocalMediaRepository._itemFilter），留着就是一张指向已删
+      // 文件的空卡，要等下次扫描才消失。
+      // ⛔ 「文件不在」不等于「删掉了」：卷没挂上时 exists 一样是 false，文件
+      // 其实还在。用父目录可达来分辨（同本机文件删除那套判据），读不到就别动库行。
+      if (!await File(task.outputPath).exists() &&
+          await File(task.outputPath).parent.exists()) {
+        try {
+          LocalMediaRepository().deleteItemsByPath(task.outputPath);
+        } catch (e) {
+          LogUtils.w('清理补帧成品的本机文件条目失败: $e', _tag);
+        }
+      }
     }
     _remove(task);
+  }
+
+  /// 播放一个本地视频时实际该打开的文件：有现成的补帧成品就用成品。
+  ///
+  /// 「默认看补帧版」是永久的（2026-11-21 用户定）：不记「上次看的是原片」，
+  /// 每次都从这里重新判；只有菜单里的「播放原视频」会绕开它。
+  ///
+  /// ⛔ 成品在不在要现问一次：[_missingOutputs] 只在启动恢复时填，运行期间成品
+  /// 被用户在文件管理器里删了 / 外置卷没挂上，内存里还当它在。这里是**默认**
+  /// 播放路径，不问的话点卡片就是一个「文件不存在」，而原片明明还在。发现没了
+  /// 就记下来（角标、菜单、详情页跟着刷新），这一次退回原片。
+  static String preferredPlaybackPath(String path) {
+    final service = maybe;
+    final output = service?.completedOutputFor(path);
+    if (service == null || output == null) return path;
+    try {
+      if (File(output).existsSync()) return output;
+    } catch (_) {}
+    final task = service.taskForSource(path);
+    if (task != null && service._missingOutputs.add(task.id)) {
+      // 推迟一拍：调用方可能正处在某次 build / 初始化里，同步改 revision 会让
+      // 订阅它的 Obx 在 build 中途被标脏。
+      scheduleMicrotask(service._rebuildIndexes);
+    }
+    return path;
   }
 
   /// 清掉所有已结束的任务记录（成品文件不动）。

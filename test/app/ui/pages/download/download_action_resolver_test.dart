@@ -180,13 +180,13 @@ void main() {
       );
     });
 
-    test('已有成品：换成播放补帧版本', () {
+    test('已有成品：给「播放原视频」（播放本身默认就是补帧版）', () {
       final actions = _resolve(
         {video('v')},
         interpSupported: true,
         interpOutputs: {'v': '/tmp/v.fi2x.mp4'},
       );
-      expect(actions, contains(DownloadAction.playInterpolated));
+      expect(actions, contains(DownloadAction.playOriginal));
       expect(actions, isNot(contains(DownloadAction.interpolate)));
     });
 

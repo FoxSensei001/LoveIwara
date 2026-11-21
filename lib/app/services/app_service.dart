@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/services/frame_interp/frame_interp_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
@@ -907,13 +908,20 @@ class NaviService {
   ///
   /// ⛔ 只给「用户在列表上点」用。沉浸结束后的回页（`XrImmersiveService._navigateToPlayback`）
   /// 必须直接开页面，走这里会又交回空间，退不出来。
+  ///
+  /// 有补帧成品时默认打开成品（见 [FrameInterpService.preferredPlaybackPath]）；
+  /// [original] 为 true 时照原样打开片源，只有菜单里的「播放原视频」传它。
   static Future<void> openLocalVideo({
     required String localPath,
     DownloadTask? task,
     List<DownloadTask>? allQualityTasks,
     String? localLibraryItemId,
     PlaybackQueueRef? playbackQueueRef,
+    bool original = false,
   }) async {
+    if (!original) {
+      localPath = FrameInterpService.preferredPlaybackPath(localPath);
+    }
     if (Get.isRegistered<XrImmersiveService>()) {
       final xr = Get.find<XrImmersiveService>();
       if (xr.available.value) {

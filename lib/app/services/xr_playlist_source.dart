@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:get/get.dart';
+import 'package:i_iwara/app/services/frame_interp/frame_interp_service.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/models/local_media/local_vr_hints.dart';
@@ -233,7 +234,10 @@ class XrPlaylistSource {
     if (item == null) return null;
     return resolveLocalTarget(
       LocalPlaybackTarget(
-        localPath: item.resolvePlaybackTarget(),
+        // 沉浸态里换片同样默认看补帧版（同 PlaybackQueueNavigator._pushLocal）。
+        localPath: FrameInterpService.preferredPlaybackPath(
+          item.resolvePlaybackTarget(),
+        ),
         localLibraryItemId: itemId,
       ),
     );
@@ -306,13 +310,22 @@ class XrPlaylistSource {
           ? ext!.quality!.trim()
           : slang.t.mediaPlayer.local;
       final byLabel = <String, ({String label, String url})>{};
+      final playingInterpolated =
+          FrameInterpService.maybe?.isInterpolatedOutput(path) ?? false;
       for (final other in target.allQualityTasks) {
         if (other.status != DownloadStatus.completed) continue;
         final quality = _videoExtOf(other)?.quality?.trim();
         if (quality == null || quality.isEmpty) continue;
-        final otherPath = other.savePath;
+        // 正在播的是补帧成品时，其它档也换成各自的补帧成品（同详情页
+        // `_qualityPlaybackPath` 的口径），否则切档就悄悄退回原片。
+        final otherPath = playingInterpolated
+            ? FrameInterpService.preferredPlaybackPath(other.savePath)
+            : other.savePath;
         if (otherPath.isEmpty || !await File(otherPath).exists()) continue;
-        byLabel[quality] = (label: quality, url: Uri.file(otherPath).toString());
+        byLabel[quality] = (
+          label: quality,
+          url: Uri.file(otherPath).toString(),
+        );
       }
       // 点的那一档必在：清单查不到它（任务表与磁盘对不上）也照样能播。
       byLabel[clickedLabel] = (label: clickedLabel, url: url);
@@ -351,7 +364,10 @@ class XrPlaylistSource {
         format: _inferLocalFormat(item, title),
         width: item?.width ?? 0,
         height: item?.height ?? 0,
-        positionMs: (await _localResumePosition(itemId, videoId)).inMilliseconds,
+        positionMs: (await _localResumePosition(
+          itemId,
+          videoId,
+        )).inMilliseconds,
       );
     } catch (e) {
       LogUtils.w('沉浸态：解析本地文件失败: $e', _tag);
@@ -375,7 +391,8 @@ class XrPlaylistSource {
   /// 之后不再按标题重算），没有才按标题推断；宽高都取库里那份。
   static VrSourceFormat _inferLocalFormat(LocalMediaItem? item, String title) {
     final hints = LocalVrHints.fromJson(item?.vrFormatJson);
-    final suspicion = hints != null && hints.strength != LocalVrSignalStrength.none
+    final suspicion =
+        hints != null && hints.strength != LocalVrSignalStrength.none
         ? VrSuspicion(
             suspected: true,
             negated: false,
@@ -400,7 +417,8 @@ class XrPlaylistSource {
     String? videoId,
   ) async {
     if (!Get.isRegistered<ConfigService>() ||
-        Get.find<ConfigService>()[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS] !=
+        Get.find<ConfigService>()[ConfigKey
+                .RECORD_AND_RESTORE_VIDEO_PROGRESS] !=
             true) {
       return Duration.zero;
     }

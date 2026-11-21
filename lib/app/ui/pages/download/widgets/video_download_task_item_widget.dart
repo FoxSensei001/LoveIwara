@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/ui/pages/frame_interp/frame_interp_launcher.dart'
+    show formatFrameRate;
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
@@ -43,6 +45,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
     final videoId = VideoDownloadExtData.fromJson(task.extData!.data).id;
     return DownloadTaskActionHandlers(
       onOpen: () => _playLocalVideo(context),
+      onOpenOriginal: () => _playLocalVideo(context, original: true),
       onViewOnline: videoId == null ? null : () => _openVideoDetail(videoId),
     );
   }
@@ -80,9 +83,16 @@ class VideoDownloadTaskItem extends StatelessWidget {
             // 补帧完成 / 成品被删时要在原地刷新，不能等用户离开再回来。
             child: Obx(() {
               interp.revision.value;
-              return interp.completedOutputFor(task.savePath) == null
-                  ? const SizedBox.shrink()
-                  : _CoverBadge(slang.t.frameInterp.badge);
+              if (interp.completedOutputFor(task.savePath) == null) {
+                return const SizedBox.shrink();
+              }
+              // 与本机文件卡片同一写法：知道帧率就写「60帧」，不知道写「补帧」。
+              final fps = interp.taskForSource(task.savePath)?.outputFps ?? 0;
+              return _CoverBadge(
+                fps > 0
+                    ? slang.t.frameInterp.fpsBadge(fps: formatFrameRate(fps))
+                    : slang.t.frameInterp.badge,
+              );
             }),
           ),
         if (videoData.duration != null)
@@ -111,8 +121,12 @@ class VideoDownloadTaskItem extends StatelessWidget {
     return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
-  /// 本地播放视频
-  Future<void> _playLocalVideo(BuildContext context) async {
+  /// 本地播放视频。有补帧成品时默认播成品（换路径在 [NaviService.openLocalVideo]
+  /// 里做）；[original] 为 true 时播原片。
+  Future<void> _playLocalVideo(
+    BuildContext context, {
+    bool original = false,
+  }) async {
     final t = slang.Translations.of(context);
     try {
       final filePath = path.normalize(task.savePath);
@@ -154,6 +168,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
         allQualityTasks: allQualityTasks,
         localLibraryItemId: _resolveLocalLibraryItemId(),
         playbackQueueRef: await _openDownloadsQueueRef(videoData.id),
+        original: original,
       );
     } catch (e) {
       LogUtils.e('本地播放失败', tag: 'DownloadTaskItem', error: e);
