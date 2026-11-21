@@ -780,10 +780,13 @@ Future<void> _closeServices() async {
 
 // 在应用启动时配置图片缓存
 void configureImageCache() {
-  // 适当调整图片缓存大小，平衡内存使用和性能
-  PaintingBinding.instance.imageCache.maximumSize = 100; // 减少到100张图片
-  PaintingBinding.instance.imageCache.maximumSizeBytes =
-      50 * 1024 * 1024; // 限制内存占用为50MB
+  // 内存上限只由字节数决定（50MB 不变），条数上限放宽到不先于它触发。
+  //
+  // 原来条数限 100：列表一张卡是缩略图（按 1.5× 卡宽解码，约 0.45MB）+ 头像
+  // （按 2× 尺寸，约 25KB）两条，约 50 张卡就满了，此时才用掉二十几 MB，
+  // 往回滑就要从磁盘重新读取、解码，期间先露出占位。放宽条数不抬高内存峰值。
+  PaintingBinding.instance.imageCache.maximumSize = 1000;
+  PaintingBinding.instance.imageCache.maximumSizeBytes = 50 * 1024 * 1024;
 
   // 预热渲染管道
   WidgetsBinding.instance.addPostFrameCallback((_) {

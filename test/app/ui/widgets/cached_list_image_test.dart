@@ -16,12 +16,7 @@ Future<void> _mount(WidgetTester tester, Completer<ImageInfo> pending) async {
   // Intercept the real resize/cache key so the test can drive an asynchronous
   // decode without network, platform plugins or a substitute image widget.
   final provider = ResizeImage(
-    const CachedNetworkImageProvider(
-      _url,
-      headers: _headers,
-      maxWidth: 400,
-      maxHeight: 400,
-    ),
+    const CachedNetworkImageProvider(_url, headers: _headers),
     width: 160,
   );
   final key = await provider.obtainKey(ImageConfiguration.empty);
@@ -43,8 +38,6 @@ Future<void> _mount(WidgetTester tester, Completer<ImageInfo> pending) async {
               imageUrl: _url,
               httpHeaders: _headers,
               memCacheWidth: 160,
-              maxWidthDiskCache: 400,
-              maxHeightDiskCache: 400,
               placeholder: (_, _) => const SizedBox.expand(key: _placeholder),
               errorWidget: (_, _, _) => const SizedBox.expand(key: _error),
             ),
@@ -67,8 +60,9 @@ void main() {
       final cached = resize.imageProvider as CachedNetworkImageProvider;
       expect(resize.width, 160);
       expect(cached.headers, _headers);
-      expect(cached.maxWidth, 400);
-      expect(cached.maxHeight, 400);
+      // 不走磁盘缓存缩图（会另存一份 PNG、缓存条数翻倍），见 CachedListImage。
+      expect(cached.maxWidth, isNull);
+      expect(cached.maxHeight, isNull);
 
       final recorder = ui.PictureRecorder();
       ui.Canvas(recorder).drawColor(const Color(0xFF22AA33), ui.BlendMode.src);

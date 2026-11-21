@@ -441,8 +441,6 @@ class _Thumbnail extends StatelessWidget {
               imageUrl: video.thumbnailUrl,
               fit: BoxFit.cover,
               memCacheWidth: (width * 1.5).toInt(),
-              maxWidthDiskCache: 400,
-              maxHeightDiskCache: 400,
               placeholder: (context, url) => const _ThumbnailPlaceholder(),
               errorWidget: (context, url, error) =>
                   const _ThumbnailPlaceholder(failed: true),

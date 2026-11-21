@@ -94,8 +94,6 @@ class PlaylistItemWidget extends StatelessWidget {
                       memCacheWidth: width != null && width! > 0
                           ? (width! * 1.5).toInt()
                           : null,
-                      maxWidthDiskCache: 500,
-                      maxHeightDiskCache: 500,
                       placeholder: _buildPlaceholder,
                       errorWidget: (context, url, error) =>
                           _buildErrorPlaceholder(),

@@ -401,8 +401,6 @@ class _Thumbnail extends StatelessWidget {
               imageUrl: imageModel.thumbnailUrl,
               fit: BoxFit.cover,
               memCacheWidth: (width * 1.5).toInt(),
-              maxWidthDiskCache: 400,
-              maxHeightDiskCache: 400,
               placeholder: _buildPlaceholder,
               errorWidget: (context, url, error) => _buildErrorPlaceholder(),
             ),

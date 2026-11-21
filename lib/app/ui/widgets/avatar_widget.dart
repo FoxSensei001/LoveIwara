@@ -101,8 +101,6 @@ class AvatarWidget extends StatelessWidget {
                   httpHeaders: headers ?? {},
                   fit: BoxFit.cover,
                   memCacheWidth: (size! * 2).toInt(),
-                  maxWidthDiskCache: 200,
-                  maxHeightDiskCache: 200,
                   placeholder: _buildPlaceholder,
                   errorWidget: (context, url, error) => CachedListImage(
                     imageUrl: CommonConstants.defaultAvatarUrl,
