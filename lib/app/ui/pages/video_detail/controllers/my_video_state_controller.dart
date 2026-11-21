@@ -1595,6 +1595,21 @@ class MyVideoStateController extends GetxController
   /// 在线各档来自 [videoResolutions]；本地那份查下载库里**这条视频**完成了的任务，
   /// 逐个 stat 文件（下载页删过、系统清过缓存都可能让记录还在文件没了）。同一档有本地
   /// 文件就用本地地址顶掉在线地址；只有本地没有在线的档（本地模式）也列进去。
+  /// 在线视频的 [quality] 档已经下载好时，实际该打开的本地文件；没下载 / 原片
+  /// 不在时为 null（调用方照旧走在线直链）。
+  ///
+  /// 这一档有现成的补帧版就用补帧版，与本机播放「默认看补帧版」同一口径
+  /// （[FrameInterpService.preferredPlaybackPath]）。补帧版被用户在外面删掉时，
+  /// 那边现问一次文件在不在、不在就退回原下载文件。
+  Future<String?> _downloadedPlaybackPath(String quality) async {
+    final id = videoId;
+    if (id == null) return null;
+    final savePath = await Get.find<DownloadService>()
+        .getCompletedVideoLocalPath(id, quality);
+    if (savePath == null) return null;
+    return FrameInterpService.preferredPlaybackPath(savePath);
+  }
+
   /// 本地多清晰度时，某一档该打开的文件。
   ///
   /// 正在播的是补帧成品（默认就是它，见 FrameInterpService.preferredPlaybackPath）
@@ -4560,11 +4575,7 @@ class MyVideoStateController extends GetxController
     String finalUrl = url;
     if (videoId != null) {
       try {
-        final downloadService = Get.find<DownloadService>();
-        final localPath = await downloadService.getCompletedVideoLocalPath(
-          videoId!,
-          resolutionTag,
-        );
+        final localPath = await _downloadedPlaybackPath(resolutionTag);
 
         if (localPath != null && !_isDisposed) {
           // 使用本地文件路径
@@ -4685,11 +4696,7 @@ class MyVideoStateController extends GetxController
     String finalUrl = url;
     if (videoId != null) {
       try {
-        final downloadService = Get.find<DownloadService>();
-        final localPath = await downloadService.getCompletedVideoLocalPath(
-          videoId!,
-          resolutionTag,
-        );
+        final localPath = await _downloadedPlaybackPath(resolutionTag);
 
         if (localPath != null && !_isDisposed) {
           // 使用本地文件路径
@@ -7124,11 +7131,7 @@ class MyVideoStateController extends GetxController
     String? downloadedPath;
     if (!isLocalVideoMode && videoId != null && tag != null) {
       try {
-        final downloadService = Get.find<DownloadService>();
-        downloadedPath = await downloadService.getCompletedVideoLocalPath(
-          videoId!,
-          tag,
-        );
+        downloadedPath = await _downloadedPlaybackPath(tag);
       } catch (e) {
         LogUtils.w('查询本地下载文件失败，回退在线直链: $e', 'MyVideoStateController');
       }

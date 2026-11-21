@@ -3258,6 +3258,11 @@ class _TranslationsFrameInterpId extends TranslationsFrameInterpEn {
 	@override String get playOriginal => 'Putar asli';
 	@override String get deleteInterpolated => 'Hapus juga versi interpolasi';
 	@override String get deleteInterpolatedDesc => 'Menghapus file video hasil interpolasi beserta catatan tugasnya';
+	@override String get deleteInterpolatedOnly => 'Hapus versi interpolasi';
+	@override String get deleteInterpolatedOnlyTitle => 'Hapus versi interpolasi?';
+	@override String get deleteInterpolatedOnlyBody => 'Hanya file video hasil interpolasi dan catatan tugasnya yang dihapus. Video asli tetap disimpan dan bisa diinterpolasi lagi nanti.';
+	@override String get interpolatedDeleted => 'Versi interpolasi dihapus';
+	@override String get deleteInterpolatedFailed => 'Versi interpolasi gagal dihapus. File mungkin sedang dipakai atau tidak ada izin';
 	@override String get viewTasks => 'Lihat tugas interpolasi';
 	@override String get badge => '2× FPS';
 	@override String fpsBadge({required Object fps}) => '${fps} FPS';
@@ -9156,6 +9161,11 @@ extension on TranslationsId {
 			'frameInterp.playOriginal' => 'Putar asli',
 			'frameInterp.deleteInterpolated' => 'Hapus juga versi interpolasi',
 			'frameInterp.deleteInterpolatedDesc' => 'Menghapus file video hasil interpolasi beserta catatan tugasnya',
+			'frameInterp.deleteInterpolatedOnly' => 'Hapus versi interpolasi',
+			'frameInterp.deleteInterpolatedOnlyTitle' => 'Hapus versi interpolasi?',
+			'frameInterp.deleteInterpolatedOnlyBody' => 'Hanya file video hasil interpolasi dan catatan tugasnya yang dihapus. Video asli tetap disimpan dan bisa diinterpolasi lagi nanti.',
+			'frameInterp.interpolatedDeleted' => 'Versi interpolasi dihapus',
+			'frameInterp.deleteInterpolatedFailed' => 'Versi interpolasi gagal dihapus. File mungkin sedang dipakai atau tidak ada izin',
 			'frameInterp.viewTasks' => 'Lihat tugas interpolasi',
 			'frameInterp.badge' => '2× FPS',
 			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',

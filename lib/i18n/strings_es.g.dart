@@ -3258,6 +3258,11 @@ class _TranslationsFrameInterpEs extends TranslationsFrameInterpEn {
 	@override String get playOriginal => 'Reproducir original';
 	@override String get deleteInterpolated => 'Eliminar también la versión interpolada';
 	@override String get deleteInterpolatedDesc => 'Elimina el archivo de vídeo interpolado y su tarea';
+	@override String get deleteInterpolatedOnly => 'Eliminar versión interpolada';
+	@override String get deleteInterpolatedOnlyTitle => '¿Eliminar la versión interpolada?';
+	@override String get deleteInterpolatedOnlyBody => 'Solo se eliminan el archivo de vídeo interpolado y su tarea. El vídeo original se conserva y puedes volver a interpolarlo más tarde.';
+	@override String get interpolatedDeleted => 'Versión interpolada eliminada';
+	@override String get deleteInterpolatedFailed => 'No se pudo eliminar la versión interpolada. Puede que el archivo esté en uso o no haya permiso';
 	@override String get viewTasks => 'Ver tareas de interpolación';
 	@override String get badge => '2× FPS';
 	@override String fpsBadge({required Object fps}) => '${fps} FPS';
@@ -9156,6 +9161,11 @@ extension on TranslationsEs {
 			'frameInterp.playOriginal' => 'Reproducir original',
 			'frameInterp.deleteInterpolated' => 'Eliminar también la versión interpolada',
 			'frameInterp.deleteInterpolatedDesc' => 'Elimina el archivo de vídeo interpolado y su tarea',
+			'frameInterp.deleteInterpolatedOnly' => 'Eliminar versión interpolada',
+			'frameInterp.deleteInterpolatedOnlyTitle' => '¿Eliminar la versión interpolada?',
+			'frameInterp.deleteInterpolatedOnlyBody' => 'Solo se eliminan el archivo de vídeo interpolado y su tarea. El vídeo original se conserva y puedes volver a interpolarlo más tarde.',
+			'frameInterp.interpolatedDeleted' => 'Versión interpolada eliminada',
+			'frameInterp.deleteInterpolatedFailed' => 'No se pudo eliminar la versión interpolada. Puede que el archivo esté en uso o no haya permiso',
 			'frameInterp.viewTasks' => 'Ver tareas de interpolación',
 			'frameInterp.badge' => '2× FPS',
 			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',

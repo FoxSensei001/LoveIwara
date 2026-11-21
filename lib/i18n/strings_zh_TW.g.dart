@@ -3258,6 +3258,11 @@ class _TranslationsFrameInterpZhTw extends TranslationsFrameInterpEn {
 	@override String get playOriginal => '播放原影片';
 	@override String get deleteInterpolated => '同時刪除補幀版本';
 	@override String get deleteInterpolatedDesc => '補幀後的影片檔案和它的任務紀錄一起刪除';
+	@override String get deleteInterpolatedOnly => '刪除補幀版本';
+	@override String get deleteInterpolatedOnlyTitle => '刪除補幀版本？';
+	@override String get deleteInterpolatedOnlyBody => '只刪除補幀後的影片檔案和它的任務紀錄，原影片保留不動。之後還可以重新補幀。';
+	@override String get interpolatedDeleted => '已刪除補幀版本';
+	@override String get deleteInterpolatedFailed => '補幀版本沒有刪掉，檔案可能正被佔用或沒有權限';
 	@override String get viewTasks => '查看補幀任務';
 	@override String get badge => '補幀';
 	@override String fpsBadge({required Object fps}) => '${fps} 幀';
@@ -9156,6 +9161,11 @@ extension on TranslationsZhTw {
 			'frameInterp.playOriginal' => '播放原影片',
 			'frameInterp.deleteInterpolated' => '同時刪除補幀版本',
 			'frameInterp.deleteInterpolatedDesc' => '補幀後的影片檔案和它的任務紀錄一起刪除',
+			'frameInterp.deleteInterpolatedOnly' => '刪除補幀版本',
+			'frameInterp.deleteInterpolatedOnlyTitle' => '刪除補幀版本？',
+			'frameInterp.deleteInterpolatedOnlyBody' => '只刪除補幀後的影片檔案和它的任務紀錄，原影片保留不動。之後還可以重新補幀。',
+			'frameInterp.interpolatedDeleted' => '已刪除補幀版本',
+			'frameInterp.deleteInterpolatedFailed' => '補幀版本沒有刪掉，檔案可能正被佔用或沒有權限',
 			'frameInterp.viewTasks' => '查看補幀任務',
 			'frameInterp.badge' => '補幀',
 			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} 幀',

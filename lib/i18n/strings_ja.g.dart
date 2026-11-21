@@ -3258,6 +3258,11 @@ class _TranslationsFrameInterpJa extends TranslationsFrameInterpEn {
 	@override String get playOriginal => 'オリジナルを再生';
 	@override String get deleteInterpolated => '補間版も削除する';
 	@override String get deleteInterpolatedDesc => '補間した動画ファイルとそのタスク記録を削除します';
+	@override String get deleteInterpolatedOnly => '補間版を削除';
+	@override String get deleteInterpolatedOnlyTitle => '補間版を削除しますか？';
+	@override String get deleteInterpolatedOnlyBody => '補間した動画ファイルとそのタスク記録だけを削除します。元の動画はそのまま残り、後でもう一度補間できます。';
+	@override String get interpolatedDeleted => '補間版を削除しました';
+	@override String get deleteInterpolatedFailed => '補間版を削除できませんでした。ファイルが使用中か、権限がない可能性があります';
 	@override String get viewTasks => '補間タスクを表示';
 	@override String get badge => '補間';
 	@override String fpsBadge({required Object fps}) => '${fps} FPS';
@@ -9156,6 +9161,11 @@ extension on TranslationsJa {
 			'frameInterp.playOriginal' => 'オリジナルを再生',
 			'frameInterp.deleteInterpolated' => '補間版も削除する',
 			'frameInterp.deleteInterpolatedDesc' => '補間した動画ファイルとそのタスク記録を削除します',
+			'frameInterp.deleteInterpolatedOnly' => '補間版を削除',
+			'frameInterp.deleteInterpolatedOnlyTitle' => '補間版を削除しますか？',
+			'frameInterp.deleteInterpolatedOnlyBody' => '補間した動画ファイルとそのタスク記録だけを削除します。元の動画はそのまま残り、後でもう一度補間できます。',
+			'frameInterp.interpolatedDeleted' => '補間版を削除しました',
+			'frameInterp.deleteInterpolatedFailed' => '補間版を削除できませんでした。ファイルが使用中か、権限がない可能性があります',
 			'frameInterp.viewTasks' => '補間タスクを表示',
 			'frameInterp.badge' => '補間',
 			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',

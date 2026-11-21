@@ -63,6 +63,41 @@ Future<void> requestFrameInterpolation({
   );
 }
 
+/// 卡片 ⋮ 菜单里的「删除补帧版本」：确认后只删 [sourcePath] 的补帧成品（文件 +
+/// 任务记录），原片不动。下载列表与本机文件两处共用这一份。
+///
+/// 删除本身走 [FrameInterpService.delete]（与「删除原片时连带补帧版」同一条
+/// 路，库里成品那一行也由它清）。返回 true 表示确实删掉了。
+Future<bool> confirmAndDeleteInterpolated(String sourcePath) async {
+  final service = FrameInterpService.maybe;
+  if (service == null || service.completedOutputFor(sourcePath) == null) {
+    return false;
+  }
+  final t = slang.t.frameInterp;
+  final confirmed = await showGlassAlertDialog<bool>(
+    title: t.deleteInterpolatedOnlyTitle,
+    content: Text(t.deleteInterpolatedOnlyBody),
+    actions: [
+      GlassDialogAction.pop(label: slang.t.common.cancel, emphasized: false),
+      GlassDialogAction.pop(
+        label: slang.t.common.delete,
+        result: true,
+        destructive: true,
+      ),
+    ],
+  );
+  if (confirmed != true) return false;
+  // 弹窗开着时成品可能已经被别处删掉 / 换了一条任务：按现在的状态重新取。
+  final task = service.taskForSource(sourcePath);
+  if (task == null || task.status != FrameInterpStatus.completed) return false;
+  final ok = await service.delete(task.id, deleteOutput: true);
+  showAppToast(
+    ok ? t.interpolatedDeleted : t.deleteInterpolatedFailed,
+    type: ok ? AppToastType.success : AppToastType.error,
+  );
+  return ok;
+}
+
 /// 入队前的确认：这一份会从多少帧补到多少帧，以及哪些情况会让它从头来。
 Future<bool> _confirmFrameInterpPlan(FrameInterpPlan plan) async {
   final t = slang.t.frameInterp.confirm;

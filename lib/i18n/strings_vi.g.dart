@@ -3258,6 +3258,11 @@ class _TranslationsFrameInterpVi extends TranslationsFrameInterpEn {
 	@override String get playOriginal => 'Phát bản gốc';
 	@override String get deleteInterpolated => 'Xóa cả bản nội suy';
 	@override String get deleteInterpolatedDesc => 'Xóa tệp video đã nội suy cùng bản ghi tác vụ';
+	@override String get deleteInterpolatedOnly => 'Xóa bản nội suy';
+	@override String get deleteInterpolatedOnlyTitle => 'Xóa bản nội suy?';
+	@override String get deleteInterpolatedOnlyBody => 'Chỉ xóa tệp video đã nội suy và bản ghi tác vụ. Video gốc được giữ nguyên và có thể nội suy lại sau.';
+	@override String get interpolatedDeleted => 'Đã xóa bản nội suy';
+	@override String get deleteInterpolatedFailed => 'Không xóa được bản nội suy. Tệp có thể đang được dùng hoặc không có quyền';
 	@override String get viewTasks => 'Xem tác vụ nội suy';
 	@override String get badge => '2× FPS';
 	@override String fpsBadge({required Object fps}) => '${fps} FPS';
@@ -9156,6 +9161,11 @@ extension on TranslationsVi {
 			'frameInterp.playOriginal' => 'Phát bản gốc',
 			'frameInterp.deleteInterpolated' => 'Xóa cả bản nội suy',
 			'frameInterp.deleteInterpolatedDesc' => 'Xóa tệp video đã nội suy cùng bản ghi tác vụ',
+			'frameInterp.deleteInterpolatedOnly' => 'Xóa bản nội suy',
+			'frameInterp.deleteInterpolatedOnlyTitle' => 'Xóa bản nội suy?',
+			'frameInterp.deleteInterpolatedOnlyBody' => 'Chỉ xóa tệp video đã nội suy và bản ghi tác vụ. Video gốc được giữ nguyên và có thể nội suy lại sau.',
+			'frameInterp.interpolatedDeleted' => 'Đã xóa bản nội suy',
+			'frameInterp.deleteInterpolatedFailed' => 'Không xóa được bản nội suy. Tệp có thể đang được dùng hoặc không có quyền',
 			'frameInterp.viewTasks' => 'Xem tác vụ nội suy',
 			'frameInterp.badge' => '2× FPS',
 			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',

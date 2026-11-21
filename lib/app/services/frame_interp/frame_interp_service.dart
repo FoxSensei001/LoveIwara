@@ -791,28 +791,37 @@ class FrameInterpService extends GetxService {
   /// 删掉一条任务记录。[deleteOutput] 为 true 时连成品文件一起删。
   ///
   /// 正在跑的任务会先被取消，等引擎停下来之后记录才真正消失。
-  Future<void> delete(String taskId, {bool deleteOutput = false}) async {
+  ///
+  /// 返回 false 表示要删的成品删了之后**还在**（权限、被占用）：这时记录留着
+  /// ——记录一删，成品就不再藏在原片那张卡后面，变成一张单独的卡，用户看到的
+  /// 是「删了反而多出一张」。成品本来就读不到（已被删 / 卷没挂上）时照旧删记录、
+  /// 返回 true，否则任务页里一条成品早没了的记录就永远删不掉。
+  Future<bool> delete(String taskId, {bool deleteOutput = false}) async {
     final active = _active;
     if (active != null && active.taskId == taskId) {
       if (!active.finishing) {
         active.deleteWhenStopped = true;
         component.load().bindings.jobCancel(active.job);
-        return;
+        return true;
       }
       // 正好撞上收尾：指针不能再碰，等它收完，再按一条普通的已结束任务删。
       await active.done.future;
     }
     final task = _find(taskId);
-    if (task == null) return;
+    if (task == null) return true;
     if (deleteOutput && task.status == FrameInterpStatus.completed) {
       await _deleteQuietly(task.outputPath);
+      final output = File(task.outputPath);
+      if (await output.exists()) {
+        LogUtils.w('补帧成品没删掉，保留任务记录: ${task.outputPath}', _tag);
+        return false;
+      }
       // 本机文件库里那一行也要一起去掉：记录删了以后成品不再被原片那张卡
       // 代表（见 LocalMediaRepository._itemFilter），留着就是一张指向已删
       // 文件的空卡，要等下次扫描才消失。
       // ⛔ 「文件不在」不等于「删掉了」：卷没挂上时 exists 一样是 false，文件
       // 其实还在。用父目录可达来分辨（同本机文件删除那套判据），读不到就别动库行。
-      if (!await File(task.outputPath).exists() &&
-          await File(task.outputPath).parent.exists()) {
+      if (await output.parent.exists()) {
         try {
           LocalMediaRepository().deleteItemsByPath(task.outputPath);
         } catch (e) {
@@ -821,6 +830,7 @@ class FrameInterpService extends GetxService {
       }
     }
     _remove(task);
+    return true;
   }
 
   /// 播放一个本地视频时实际该打开的文件：有现成的补帧成品就用成品。

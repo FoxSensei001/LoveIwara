@@ -3258,6 +3258,11 @@ class _TranslationsFrameInterpRu extends TranslationsFrameInterpEn {
 	@override String get playOriginal => 'Смотреть оригинал';
 	@override String get deleteInterpolated => 'Удалить и интерполированную версию';
 	@override String get deleteInterpolatedDesc => 'Удаляет интерполированный файл и запись о задаче';
+	@override String get deleteInterpolatedOnly => 'Удалить интерполированную версию';
+	@override String get deleteInterpolatedOnlyTitle => 'Удалить интерполированную версию?';
+	@override String get deleteInterpolatedOnlyBody => 'Удаляются только интерполированный файл и запись о задаче. Оригинал остаётся, его можно интерполировать снова.';
+	@override String get interpolatedDeleted => 'Интерполированная версия удалена';
+	@override String get deleteInterpolatedFailed => 'Не удалось удалить интерполированную версию. Файл может быть занят или нет доступа';
 	@override String get viewTasks => 'Задачи интерполяции';
 	@override String get badge => '2× FPS';
 	@override String fpsBadge({required Object fps}) => '${fps} FPS';
@@ -9156,6 +9161,11 @@ extension on TranslationsRu {
 			'frameInterp.playOriginal' => 'Смотреть оригинал',
 			'frameInterp.deleteInterpolated' => 'Удалить и интерполированную версию',
 			'frameInterp.deleteInterpolatedDesc' => 'Удаляет интерполированный файл и запись о задаче',
+			'frameInterp.deleteInterpolatedOnly' => 'Удалить интерполированную версию',
+			'frameInterp.deleteInterpolatedOnlyTitle' => 'Удалить интерполированную версию?',
+			'frameInterp.deleteInterpolatedOnlyBody' => 'Удаляются только интерполированный файл и запись о задаче. Оригинал остаётся, его можно интерполировать снова.',
+			'frameInterp.interpolatedDeleted' => 'Интерполированная версия удалена',
+			'frameInterp.deleteInterpolatedFailed' => 'Не удалось удалить интерполированную версию. Файл может быть занят или нет доступа',
 			'frameInterp.viewTasks' => 'Задачи интерполяции',
 			'frameInterp.badge' => '2× FPS',
 			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',

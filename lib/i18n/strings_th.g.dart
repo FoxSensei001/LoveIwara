@@ -3258,6 +3258,11 @@ class _TranslationsFrameInterpTh extends TranslationsFrameInterpEn {
 	@override String get playOriginal => 'เล่นต้นฉบับ';
 	@override String get deleteInterpolated => 'ลบเวอร์ชันเติมเฟรมด้วย';
 	@override String get deleteInterpolatedDesc => 'ลบไฟล์วิดีโอที่เติมเฟรมพร้อมบันทึกงาน';
+	@override String get deleteInterpolatedOnly => 'ลบเวอร์ชันเติมเฟรม';
+	@override String get deleteInterpolatedOnlyTitle => 'ลบเวอร์ชันเติมเฟรมไหม?';
+	@override String get deleteInterpolatedOnlyBody => 'ลบเฉพาะไฟล์วิดีโอที่เติมเฟรมและบันทึกงานเท่านั้น วิดีโอต้นฉบับยังอยู่ และเติมเฟรมใหม่ได้ภายหลัง';
+	@override String get interpolatedDeleted => 'ลบเวอร์ชันเติมเฟรมแล้ว';
+	@override String get deleteInterpolatedFailed => 'ลบเวอร์ชันเติมเฟรมไม่สำเร็จ ไฟล์อาจกำลังถูกใช้งานหรือไม่มีสิทธิ์';
 	@override String get viewTasks => 'ดูงานเพิ่มเฟรม';
 	@override String get badge => 'เพิ่มเฟรม';
 	@override String fpsBadge({required Object fps}) => '${fps} FPS';
@@ -9156,6 +9161,11 @@ extension on TranslationsTh {
 			'frameInterp.playOriginal' => 'เล่นต้นฉบับ',
 			'frameInterp.deleteInterpolated' => 'ลบเวอร์ชันเติมเฟรมด้วย',
 			'frameInterp.deleteInterpolatedDesc' => 'ลบไฟล์วิดีโอที่เติมเฟรมพร้อมบันทึกงาน',
+			'frameInterp.deleteInterpolatedOnly' => 'ลบเวอร์ชันเติมเฟรม',
+			'frameInterp.deleteInterpolatedOnlyTitle' => 'ลบเวอร์ชันเติมเฟรมไหม?',
+			'frameInterp.deleteInterpolatedOnlyBody' => 'ลบเฉพาะไฟล์วิดีโอที่เติมเฟรมและบันทึกงานเท่านั้น วิดีโอต้นฉบับยังอยู่ และเติมเฟรมใหม่ได้ภายหลัง',
+			'frameInterp.interpolatedDeleted' => 'ลบเวอร์ชันเติมเฟรมแล้ว',
+			'frameInterp.deleteInterpolatedFailed' => 'ลบเวอร์ชันเติมเฟรมไม่สำเร็จ ไฟล์อาจกำลังถูกใช้งานหรือไม่มีสิทธิ์',
 			'frameInterp.viewTasks' => 'ดูงานเพิ่มเฟรม',
 			'frameInterp.badge' => 'เพิ่มเฟรม',
 			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',

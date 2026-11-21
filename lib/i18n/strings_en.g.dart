@@ -8307,6 +8307,21 @@ class TranslationsFrameInterpEn {
 	/// en: 'Deletes the interpolated video file and its task record'
 	String get deleteInterpolatedDesc => 'Deletes the interpolated video file and its task record';
 
+	/// en: 'Delete interpolated version'
+	String get deleteInterpolatedOnly => 'Delete interpolated version';
+
+	/// en: 'Delete interpolated version?'
+	String get deleteInterpolatedOnlyTitle => 'Delete interpolated version?';
+
+	/// en: 'Only the interpolated video file and its task record are deleted. The original video is kept, and you can interpolate it again later.'
+	String get deleteInterpolatedOnlyBody => 'Only the interpolated video file and its task record are deleted. The original video is kept, and you can interpolate it again later.';
+
+	/// en: 'Interpolated version deleted'
+	String get interpolatedDeleted => 'Interpolated version deleted';
+
+	/// en: 'Couldn't delete the interpolated version. The file may be in use or access was denied'
+	String get deleteInterpolatedFailed => 'Couldn\'t delete the interpolated version. The file may be in use or access was denied';
+
 	/// en: 'View interpolation tasks'
 	String get viewTasks => 'View interpolation tasks';
 
@@ -16976,6 +16991,11 @@ extension on Translations {
 			'frameInterp.playOriginal' => 'Play original',
 			'frameInterp.deleteInterpolated' => 'Also delete the interpolated version',
 			'frameInterp.deleteInterpolatedDesc' => 'Deletes the interpolated video file and its task record',
+			'frameInterp.deleteInterpolatedOnly' => 'Delete interpolated version',
+			'frameInterp.deleteInterpolatedOnlyTitle' => 'Delete interpolated version?',
+			'frameInterp.deleteInterpolatedOnlyBody' => 'Only the interpolated video file and its task record are deleted. The original video is kept, and you can interpolate it again later.',
+			'frameInterp.interpolatedDeleted' => 'Interpolated version deleted',
+			'frameInterp.deleteInterpolatedFailed' => 'Couldn\'t delete the interpolated version. The file may be in use or access was denied',
 			'frameInterp.viewTasks' => 'View interpolation tasks',
 			'frameInterp.badge' => '2× FPS',
 			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',

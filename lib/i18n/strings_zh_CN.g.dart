@@ -3258,6 +3258,11 @@ class _TranslationsFrameInterpZhCn extends TranslationsFrameInterpEn {
 	@override String get playOriginal => '播放原视频';
 	@override String get deleteInterpolated => '同时删除补帧版本';
 	@override String get deleteInterpolatedDesc => '补帧后的视频文件和它的任务记录一起删除';
+	@override String get deleteInterpolatedOnly => '删除补帧版本';
+	@override String get deleteInterpolatedOnlyTitle => '删除补帧版本？';
+	@override String get deleteInterpolatedOnlyBody => '只删除补帧后的视频文件和它的任务记录，原视频保留不动。之后还可以重新补帧。';
+	@override String get interpolatedDeleted => '已删除补帧版本';
+	@override String get deleteInterpolatedFailed => '补帧版本没有删掉，文件可能正被占用或没有权限';
 	@override String get viewTasks => '查看补帧任务';
 	@override String get badge => '补帧';
 	@override String fpsBadge({required Object fps}) => '${fps}帧';
@@ -9156,6 +9161,11 @@ extension on TranslationsZhCn {
 			'frameInterp.playOriginal' => '播放原视频',
 			'frameInterp.deleteInterpolated' => '同时删除补帧版本',
 			'frameInterp.deleteInterpolatedDesc' => '补帧后的视频文件和它的任务记录一起删除',
+			'frameInterp.deleteInterpolatedOnly' => '删除补帧版本',
+			'frameInterp.deleteInterpolatedOnlyTitle' => '删除补帧版本？',
+			'frameInterp.deleteInterpolatedOnlyBody' => '只删除补帧后的视频文件和它的任务记录，原视频保留不动。之后还可以重新补帧。',
+			'frameInterp.interpolatedDeleted' => '已删除补帧版本',
+			'frameInterp.deleteInterpolatedFailed' => '补帧版本没有删掉，文件可能正被占用或没有权限',
 			'frameInterp.viewTasks' => '查看补帧任务',
 			'frameInterp.badge' => '补帧',
 			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps}帧',

@@ -68,6 +68,10 @@ enum DownloadAction {
   /// 在线详情页（视频详情 / 图库详情）。
   viewOnline,
   detail,
+
+  /// 视频：只删补帧成品（文件 + 任务记录），原片与下载任务都留着。只在有现成
+  /// 成品时出现，排在 [delete] 前面同一组里。
+  deleteInterpolated,
   delete,
 }
 
@@ -160,6 +164,11 @@ class DownloadActionResolver {
       if (single != null && onlineMediaIdOf(single) != null)
         DownloadAction.viewOnline,
       if (single != null) DownloadAction.detail,
+      if (single != null &&
+          single.status == DownloadStatus.completed &&
+          downloadTaskKind(single) == DownloadTaskKind.video &&
+          interpOutput(single) != null)
+        DownloadAction.deleteInterpolated,
       DownloadAction.delete,
     ];
   }
@@ -254,6 +263,7 @@ IconData downloadActionIcon(DownloadAction action, {DownloadTask? task}) {
     DownloadAction.copyLink => Icons.link,
     DownloadAction.viewOnline => Icons.public,
     DownloadAction.detail => Icons.info_outline,
+    DownloadAction.deleteInterpolated => Icons.auto_delete_outlined,
     DownloadAction.delete => Icons.delete_outline,
   };
 }
@@ -283,6 +293,8 @@ String downloadActionLabel(DownloadAction action, {DownloadTask? task}) {
           ? t.viewVideoDetail
           : t.actions.viewOnline,
     DownloadAction.detail => t.downloadDetail,
+    DownloadAction.deleteInterpolated =>
+      slang.t.frameInterp.deleteInterpolatedOnly,
     DownloadAction.delete => t.actions.delete,
   };
 }
@@ -303,7 +315,7 @@ int _groupOf(DownloadAction action) => switch (action) {
   DownloadAction.copyLink ||
   DownloadAction.viewOnline ||
   DownloadAction.detail => 2,
-  DownloadAction.delete => 3,
+  DownloadAction.deleteInterpolated || DownloadAction.delete => 3,
 };
 
 /// 把 [actions] 排成玻璃菜单条目。
@@ -324,7 +336,9 @@ List<GlassMenuEntry> buildDownloadActionMenuEntries(
         value: action,
         icon: downloadActionIcon(action, task: task),
         label: downloadActionLabel(action, task: task),
-        destructive: action == DownloadAction.delete,
+        destructive:
+            action == DownloadAction.delete ||
+            action == DownloadAction.deleteInterpolated,
       ),
     );
   }
@@ -499,6 +513,9 @@ Future<bool> runDownloadAction(
       if (single == null) return false;
       showDownloadDetailDialog(context, single);
       return true;
+    case DownloadAction.deleteInterpolated:
+      if (single == null) return false;
+      return confirmAndDeleteInterpolated(single.savePath);
     case DownloadAction.delete:
       return showDeleteDownloadTasksDialog(tasks);
   }

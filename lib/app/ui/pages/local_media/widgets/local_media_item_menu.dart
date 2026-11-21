@@ -121,6 +121,15 @@ Future<void> showLocalMediaItemMenu({
         label: slang.t.localMedia.itemInfo,
         icon: Icons.info_outline,
       ),
+      // 只删补帧版、留原片。原片删不了的条目（NAS / 设备视频）本来也补不了帧，
+      // 所以这里只看有没有现成成品。
+      if (interpolatedPath != null)
+        GlassMenuOption<String>(
+          value: 'deleteInterpolated',
+          label: slang.t.frameInterp.deleteInterpolatedOnly,
+          icon: Icons.auto_delete_outlined,
+          destructive: true,
+        ),
       if (_canDeleteFile(item))
         GlassMenuOption<String>(
           value: 'delete',
@@ -155,6 +164,11 @@ Future<void> showLocalMediaItemMenu({
         item.resolvePlaybackTarget(),
       );
     }
+    return;
+  }
+
+  if (action == 'deleteInterpolated') {
+    if (await confirmAndDeleteInterpolated(item.path)) onChanged?.call();
     return;
   }
 

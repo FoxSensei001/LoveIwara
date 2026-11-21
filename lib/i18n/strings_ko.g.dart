@@ -3258,6 +3258,11 @@ class _TranslationsFrameInterpKo extends TranslationsFrameInterpEn {
 	@override String get playOriginal => '원본 재생';
 	@override String get deleteInterpolated => '보간 버전도 삭제';
 	@override String get deleteInterpolatedDesc => '보간된 영상 파일과 작업 기록을 함께 삭제합니다';
+	@override String get deleteInterpolatedOnly => '보간 버전 삭제';
+	@override String get deleteInterpolatedOnlyTitle => '보간 버전을 삭제할까요?';
+	@override String get deleteInterpolatedOnlyBody => '보간된 영상 파일과 작업 기록만 삭제합니다. 원본 영상은 그대로 남고, 나중에 다시 보간할 수 있습니다.';
+	@override String get interpolatedDeleted => '보간 버전을 삭제했습니다';
+	@override String get deleteInterpolatedFailed => '보간 버전을 삭제하지 못했습니다. 파일이 사용 중이거나 권한이 없을 수 있습니다';
 	@override String get viewTasks => '보간 작업 보기';
 	@override String get badge => '보간';
 	@override String fpsBadge({required Object fps}) => '${fps} FPS';
@@ -9156,6 +9161,11 @@ extension on TranslationsKo {
 			'frameInterp.playOriginal' => '원본 재생',
 			'frameInterp.deleteInterpolated' => '보간 버전도 삭제',
 			'frameInterp.deleteInterpolatedDesc' => '보간된 영상 파일과 작업 기록을 함께 삭제합니다',
+			'frameInterp.deleteInterpolatedOnly' => '보간 버전 삭제',
+			'frameInterp.deleteInterpolatedOnlyTitle' => '보간 버전을 삭제할까요?',
+			'frameInterp.deleteInterpolatedOnlyBody' => '보간된 영상 파일과 작업 기록만 삭제합니다. 원본 영상은 그대로 남고, 나중에 다시 보간할 수 있습니다.',
+			'frameInterp.interpolatedDeleted' => '보간 버전을 삭제했습니다',
+			'frameInterp.deleteInterpolatedFailed' => '보간 버전을 삭제하지 못했습니다. 파일이 사용 중이거나 권한이 없을 수 있습니다',
 			'frameInterp.viewTasks' => '보간 작업 보기',
 			'frameInterp.badge' => '보간',
 			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',
