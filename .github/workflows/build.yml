@@ -247,8 +247,20 @@ jobs:
 
       # 只出 arm64：quest flavor 的 abiFilters + androidComponents 已经把 v7a / x86_64
       # 关掉了（那些包里没有 Spatial 的 .so，装上即崩），这里再显式限定一次。
+      # ⛔ 失败重试一次：Gradle 9 / AGP 9 起，全新缓存的第一次构建偶发「meta-spatial-sdk
+      # 的 aar 还没下载就被拿去用」（CI 报 JetifyTransform 的 input file does not
+      # exist，2026-11-20 连续两次）。本机三次全新缓存构建里出现过一次，第二次总能过：
+      # 那时 aar 已经在缓存里了。Flutter 自己只在认出「网络错误」时重试，认不出这一句。
+      # 根因没找到，找到后去掉这层重试。
       - name: Build Quest APK
-        run: flutter build apk --release --flavor quest --target-platform android-arm64 ${{ env.BUILD_DEFINES }}
+        run: |
+          for attempt in 1 2; do
+            if flutter build apk --release --flavor quest --target-platform android-arm64 ${{ env.BUILD_DEFINES }}; then
+              exit 0
+            fi
+            echo "::warning::Quest build attempt $attempt failed"
+          done
+          exit 1
 
       - name: Rename Quest APK with version
         id: quest
