@@ -1368,6 +1368,10 @@ class DownloadPathService extends GetxService {
     return '${current.group(1)}${stored.group(2) ?? ''}';
   }
 
+  /// 当前沙盒容器里的一个路径，给 [rebaseSandboxPath] 当锚点。
+  static Future<String> currentContainerAnchor() async =>
+      (await CommonUtils.getAppDirectory()).path;
+
   /// 自定义路径指向旧沙盒容器时，就地搬到当前容器并写回配置。
   ///
   /// 只管 iOS：macOS 的沙盒容器是 `~/Library/Containers/<bundle-id>/Data/…`，

@@ -306,7 +306,72 @@ class DownloadRelocationService extends GetxService {
   @override
   void onInit() {
     super.onInit();
-    Future.microtask(recoverJournal);
+    Future.microtask(() async {
+      await recoverJournal();
+      await repairSandboxContainerPaths();
+    });
+  }
+
+  /// iOS 更新应用后，沙盒容器会换一个路径（`…/Containers/Data/Application/<UUID>`
+  /// 里的 UUID 变了），文件原样搬进了新容器，库里记的却还是旧容器的绝对路径，
+  /// 于是整个下载列表都成了「文件找不到」。启动时把这些记录改指到新容器。
+  ///
+  /// 只认这一种情况：原路径确实不在、换成当前容器后确实在、大小也对得上。
+  /// 走 [DownloadTaskRepository.relocateTaskPath]，所以「已下载」源里的那一行
+  /// 连同观看进度、VR 覆盖会一起搬过去。
+  ///
+  /// 只管已完成的任务：未完成的任务在下载服务的内存里另有一份，改库改不到它。
+  /// 返回改了几条。
+  Future<int> repairSandboxContainerPaths({String? anchorForTesting}) async {
+    if (anchorForTesting == null && !Platform.isIOS) return 0;
+    var fixed = 0;
+    try {
+      final anchor =
+          anchorForTesting ?? (await DownloadPathService.currentContainerAnchor());
+      for (final row in _repository.completedTaskPaths()) {
+        final rebased = DownloadPathService.rebaseSandboxPath(
+          row.savePath,
+          anchor,
+        );
+        if (rebased == null) continue;
+        if (await FileSystemEntity.type(row.savePath) !=
+            FileSystemEntityType.notFound) {
+          continue;
+        }
+        final type = await FileSystemEntity.type(rebased);
+        if (type == FileSystemEntityType.notFound) continue;
+        final task = await _repository.getTaskById(row.id);
+        if (task == null) continue;
+        final isGallery =
+            task.extData?.type == DownloadTaskExtDataType.gallery;
+        if (isGallery != (type == FileSystemEntityType.directory)) continue;
+        FileStat? stat;
+        if (!isGallery) {
+          stat = await File(rebased).stat();
+          if (task.totalBytes > 0 && stat.size != task.totalBytes) continue;
+        }
+        try {
+          _repository.relocateTaskPath(
+            taskId: task.id,
+            oldPath: task.savePath,
+            newPath: p.normalize(rebased),
+            newSizeBytes: stat?.size,
+            newModifiedAt: stat?.modified.millisecondsSinceEpoch,
+            clearJournal: false,
+          );
+          fixed++;
+        } on DuplicateDownloadTaskException catch (e) {
+          LogUtils.w('改指新容器时撞上别的任务，跳过: ${task.id} $e', _tag);
+        }
+      }
+    } catch (e, s) {
+      LogUtils.e('修正沙盒容器路径失败', tag: _tag, error: e, stackTrace: s);
+    }
+    if (fixed > 0) {
+      LogUtils.i('沙盒容器换了路径，已把 $fixed 条下载记录改指到新容器', _tag);
+      _afterPathsChanged();
+    }
+    return fixed;
   }
 
   // ---------------------------------------------------------------------------

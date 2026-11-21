@@ -99,6 +99,27 @@ void main() {
     expect(repo.pendingRelocations(), isEmpty);
   });
 
+  test('iOS 更新后沙盒容器换了路径：记录改指到新容器，原路径还在的不动', () async {
+    const app = 'Containers/Data/Application';
+    await writeFile('$app/NEW/Documents/dl/a.mp4', 'video-bytes');
+    await writeFile('$app/NEW/Documents/dl/stay.mp4', 'x');
+    insertTask('moved', at('$app/OLD/Documents/dl/a.mp4'));
+    // 旧容器里还在（没换容器的情形）：不动。
+    await writeFile('$app/OLD/Documents/dl/stay.mp4', 'x');
+    insertTask('stay', at('$app/OLD/Documents/dl/stay.mp4'));
+    // 新容器里也没有：不动，留给「找不到文件」去处理。
+    insertTask('gone', at('$app/OLD/Documents/dl/gone.mp4'));
+
+    final fixed = await service.repairSandboxContainerPaths(
+      anchorForTesting: at('$app/NEW/Documents'),
+    );
+
+    expect(fixed, 1);
+    expect(savePathOf('moved'), at('$app/NEW/Documents/dl/a.mp4'));
+    expect(savePathOf('stay'), at('$app/OLD/Documents/dl/stay.mp4'));
+    expect(savePathOf('gone'), at('$app/OLD/Documents/dl/gone.mp4'));
+  });
+
   String galleryExt(Map<String, String> localPaths) => jsonEncode({
     'type': 'gallery',
     'data': {'local_paths': localPaths},

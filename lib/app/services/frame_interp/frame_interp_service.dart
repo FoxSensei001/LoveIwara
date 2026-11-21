@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/frame_interp/frame_interp_task.model.dart';
 import 'package:i_iwara/app/repositories/frame_interp_task_repository.dart';
 import 'package:i_iwara/app/services/download/download_keep_alive.dart';
+import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/frame_interp/frame_interp_bindings.dart';
 import 'package:i_iwara/app/services/frame_interp/frame_interp_component.dart';
 import 'package:i_iwara/app/services/frame_interp/system_vulkan_loader.dart';
@@ -346,7 +347,7 @@ class FrameInterpService extends GetxService {
       await component.refresh();
       if (!isSupported) return;
 
-      final loaded = _repository.loadAll();
+      final loaded = await _rebaseStaleContainerPaths(_repository.loadAll());
       final now = DateTime.now().millisecondsSinceEpoch;
       final restored = <FrameInterpTask>[];
       for (final task in loaded) {
@@ -379,6 +380,64 @@ class FrameInterpService extends GetxService {
       _rebuildIndexes();
     } catch (e, stack) {
       LogUtils.e('恢复补帧任务失败: $e', tag: _tag, error: e, stackTrace: stack);
+    }
+  }
+
+  /// iOS 更新应用后沙盒容器换了路径，库里记的片源 / 成品 / 本地封面还指着旧
+  /// 容器。和下载记录的修正是同一件事，见
+  /// `DownloadRelocationService.repairSandboxContainerPaths`。
+  ///
+  /// 只在原路径不在、换到当前容器后**确实有**东西时才改：片源、封面、已完成的
+  /// 成品要求文件在；还没生成的成品要求它的文件夹在。别的应用容器里的路径
+  /// （用户从文件 App 选来的）形状一样，这条核对挡住把它们误改进本应用容器。
+  ///
+  /// 出任何错都原样返回 [loaded]：修不了路径不该连任务列表一起丢掉。
+  Future<List<FrameInterpTask>> _rebaseStaleContainerPaths(
+    List<FrameInterpTask> loaded,
+  ) async {
+    if (!Platform.isIOS || loaded.isEmpty) return loaded;
+    try {
+      final anchor = await DownloadPathService.currentContainerAnchor();
+      Future<bool> exists(String path) async =>
+          await FileSystemEntity.type(path) != FileSystemEntityType.notFound;
+      Future<String?> rebase(String? path, {bool parentOnly = false}) async {
+        if (path == null || !p.isAbsolute(path)) return null;
+        final rebased = DownloadPathService.rebaseSandboxPath(path, anchor);
+        if (rebased == null || await exists(path)) return null;
+        final normalized = p.normalize(rebased);
+        final probe = parentOnly ? p.dirname(normalized) : normalized;
+        return await exists(probe) ? normalized : null;
+      }
+
+      final result = <FrameInterpTask>[];
+      var fixed = 0;
+      for (final task in loaded) {
+        final source = await rebase(task.sourcePath);
+        final output = await rebase(
+          task.outputPath,
+          parentOnly: task.status != FrameInterpStatus.completed,
+        );
+        final thumbnail = await rebase(task.thumbnail);
+        if (source == null && output == null && thumbnail == null) {
+          result.add(task);
+          continue;
+        }
+        final moved = task.copyWith(
+          sourcePath: source,
+          outputPath: output,
+          thumbnail: thumbnail,
+        );
+        _repository.updatePaths(moved);
+        result.add(moved);
+        fixed++;
+      }
+      if (fixed > 0) {
+        LogUtils.i('沙盒容器换了路径，已把 $fixed 条补帧任务改指到新容器', _tag);
+      }
+      return result;
+    } catch (e, stack) {
+      LogUtils.e('修正补帧任务路径失败，按原样恢复', tag: _tag, error: e, stackTrace: stack);
+      return loaded;
     }
   }
 

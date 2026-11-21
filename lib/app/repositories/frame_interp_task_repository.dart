@@ -79,6 +79,26 @@ class FrameInterpTaskRepository {
     );
   }
 
+  /// 片源 / 成品 / 本地封面被挪了地方（iOS 更新后沙盒容器换了路径）时改指过去。
+  void updatePaths(FrameInterpTask task) {
+    _db.execute(
+      '''
+      UPDATE frame_interp_tasks
+      SET source_path = ?, source_key = ?, output_path = ?, output_key = ?,
+          thumbnail = ?
+      WHERE id = ?
+      ''',
+      [
+        task.sourcePath,
+        task.sourceKey,
+        task.outputPath,
+        task.outputKey,
+        task.thumbnail,
+        task.id,
+      ],
+    );
+  }
+
   void delete(String id) {
     _db.execute('DELETE FROM frame_interp_tasks WHERE id = ?', [id]);
   }

@@ -147,6 +147,9 @@ class FrameInterpTask {
   }
 
   FrameInterpTask copyWith({
+    String? sourcePath,
+    String? outputPath,
+    String? thumbnail,
     FrameInterpStatus? status,
     double? progress,
     int? errorCode,
@@ -160,10 +163,10 @@ class FrameInterpTask {
   }) {
     return FrameInterpTask(
       id: id,
-      sourcePath: sourcePath,
-      outputPath: outputPath,
+      sourcePath: sourcePath ?? this.sourcePath,
+      outputPath: outputPath ?? this.outputPath,
       title: title,
-      thumbnail: thumbnail,
+      thumbnail: thumbnail ?? this.thumbnail,
       status: status ?? this.status,
       progress: progress ?? this.progress,
       errorCode: clearError ? FrameInterpError.none : errorCode ?? this.errorCode,
