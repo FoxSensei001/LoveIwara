@@ -870,6 +870,9 @@ class _TranslationsSettingsVi extends TranslationsSettingsEn {
 	@override String get glassQualityPremiumDesc => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass';
 	@override String get glassQualityCurrent => 'Currently active';
 	@override String get glassChromeParametersDesc => 'Navigation glass parameters apply live to headers, buttons and the bottom bar';
+	@override String get glassPreview => 'Preview';
+	@override String get glassPremiumOnly => 'Only takes effect with the full refraction quality';
+	@override String get glassSaturationNeedsBlur => 'With the smooth quality, only takes effect when background blur is above 0';
 	@override String get glassOpacity => 'Opacity';
 	@override String get glassBlur => 'Background blur (sigma)';
 	@override String get glassBlurDesc => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness';
@@ -880,8 +883,6 @@ class _TranslationsSettingsVi extends TranslationsSettingsEn {
 	@override String get glassSaturation => 'Background saturation';
 	@override String get glassChromaticAberration => 'Chromatic aberration';
 	@override String get glassShadows => 'Shadows';
-	@override String get glassPanelParameters => 'Menu panel parameters';
-	@override String get glassPanelParametersDesc => 'Applies to floating menus; panels use a separate lens renderer';
 	@override String get glassResetParameters => 'Restore glass defaults';
 	@override String get glassEffect => 'Vật liệu giao diện';
 	@override String get glassEffectDesc => 'Chọn vật liệu dùng xuyên suốt ứng dụng — thanh tiêu đề, menu, nút hộp thoại và thanh điều hướng dưới';
@@ -3254,6 +3255,9 @@ class _TranslationsFrameInterpVi extends TranslationsFrameInterpEn {
 	@override String get title => 'Tác vụ nội suy khung hình';
 	@override String get action => 'Nội suy lên gấp 2 tốc độ khung hình';
 	@override String get playInterpolated => 'Phát bản đã nội suy';
+	@override String get playOriginal => 'Phát bản gốc';
+	@override String get deleteInterpolated => 'Xóa cả bản nội suy';
+	@override String get deleteInterpolatedDesc => 'Xóa tệp video đã nội suy cùng bản ghi tác vụ';
 	@override String get viewTasks => 'Xem tác vụ nội suy';
 	@override String get badge => '2× FPS';
 	@override String fpsBadge({required Object fps}) => '${fps} FPS';
@@ -3792,6 +3796,10 @@ class _TranslationsVideoDetailLocalInfoVi extends TranslationsVideoDetailLocalIn
 	@override String get currentQuality => 'Chất lượng hiện tại';
 	@override String get duration => 'Thời lượng';
 	@override String get resolution => 'Độ phân giải';
+	@override String get frameRate => 'Tốc độ khung hình';
+	@override String frameRateValue({required Object fps}) => '${fps} fps';
+	@override String frameRateInterpolated({required Object fps, required Object from}) => '${fps} fps (bản nội suy, gốc ${from} fps)';
+	@override String frameRateHasInterpolated({required Object fps, required Object to}) => '${fps} fps (bản gốc, đã có bản ${to} fps)';
 	@override String get fileInfo => 'Thông tin tệp';
 	@override String get fileName => 'Tên tệp';
 	@override String get fileSize => 'Kích thước tệp';
@@ -5023,6 +5031,13 @@ class _TranslationsFrameInterpConfirmVi extends TranslationsFrameInterpConfirmEn
 	@override String get deleteOutput => 'Xóa luôn tệp đã nội suy';
 	@override String get clearTitle => 'Xóa các bản ghi đã xong?';
 	@override String get clearContent => 'Các tệp đã nội suy vẫn nằm trên ổ đĩa; chỉ xóa bản ghi.';
+	@override String get enqueueTitle => 'Nội suy khung hình cho video này?';
+	@override String get enqueueAction => 'Bắt đầu';
+	@override String get fpsUnit => 'fps';
+	@override String get saveNote => 'Lưu thành tệp mới; video gốc giữ nguyên';
+	@override String get resetTitle => 'Không thể tiếp tục giữa chừng. Sẽ bắt đầu lại nếu:';
+	@override String get resetBackground => 'Chuyển sang ứng dụng khác hoặc khóa màn hình';
+	@override String get resetClosed => 'Đóng ứng dụng, hoặc hệ thống đóng nó';
 }
 
 // Path: frameInterp.toast
@@ -5978,6 +5993,9 @@ extension on TranslationsVi {
 			'settings.glassQualityPremiumDesc' => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass',
 			'settings.glassQualityCurrent' => 'Currently active',
 			'settings.glassChromeParametersDesc' => 'Navigation glass parameters apply live to headers, buttons and the bottom bar',
+			'settings.glassPreview' => 'Preview',
+			'settings.glassPremiumOnly' => 'Only takes effect with the full refraction quality',
+			'settings.glassSaturationNeedsBlur' => 'With the smooth quality, only takes effect when background blur is above 0',
 			'settings.glassOpacity' => 'Opacity',
 			'settings.glassBlur' => 'Background blur (sigma)',
 			'settings.glassBlurDesc' => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness',
@@ -5988,8 +6006,6 @@ extension on TranslationsVi {
 			'settings.glassSaturation' => 'Background saturation',
 			'settings.glassChromaticAberration' => 'Chromatic aberration',
 			'settings.glassShadows' => 'Shadows',
-			'settings.glassPanelParameters' => 'Menu panel parameters',
-			'settings.glassPanelParametersDesc' => 'Applies to floating menus; panels use a separate lens renderer',
 			'settings.glassResetParameters' => 'Restore glass defaults',
 			'settings.glassEffect' => 'Vật liệu giao diện',
 			'settings.glassEffectDesc' => 'Chọn vật liệu dùng xuyên suốt ứng dụng — thanh tiêu đề, menu, nút hộp thoại và thanh điều hướng dưới',
@@ -6322,9 +6338,9 @@ extension on TranslationsVi {
 			'settings.keybinding.actionGalleryPlayPause' => 'Phát / Tạm dừng',
 			'settings.keybinding.actionGallerySeekBackward' => 'Tua lại',
 			'settings.keybinding.actionGallerySeekForward' => 'Tua tới',
-			'settings.keybinding.actionGalleryToggleMute' => 'Bật/tắt tiếng',
 			_ => null,
 		} ?? switch (path) {
+			'settings.keybinding.actionGalleryToggleMute' => 'Bật/tắt tiếng',
 			'settings.keybinding.actionPlayPause' => 'Phát / Tạm dừng',
 			'settings.keybinding.actionSpeedUp' => 'Tăng tốc độ',
 			'settings.keybinding.actionSpeedDown' => 'Giảm tốc độ',
@@ -6759,6 +6775,10 @@ extension on TranslationsVi {
 			'videoDetail.localInfo.currentQuality' => 'Chất lượng hiện tại',
 			'videoDetail.localInfo.duration' => 'Thời lượng',
 			'videoDetail.localInfo.resolution' => 'Độ phân giải',
+			'videoDetail.localInfo.frameRate' => 'Tốc độ khung hình',
+			'videoDetail.localInfo.frameRateValue' => ({required Object fps}) => '${fps} fps',
+			'videoDetail.localInfo.frameRateInterpolated' => ({required Object fps, required Object from}) => '${fps} fps (bản nội suy, gốc ${from} fps)',
+			'videoDetail.localInfo.frameRateHasInterpolated' => ({required Object fps, required Object to}) => '${fps} fps (bản gốc, đã có bản ${to} fps)',
 			'videoDetail.localInfo.fileInfo' => 'Thông tin tệp',
 			'videoDetail.localInfo.fileName' => 'Tên tệp',
 			'videoDetail.localInfo.fileSize' => 'Kích thước tệp',
@@ -6832,13 +6852,13 @@ extension on TranslationsVi {
 			'videoDetail.gestureGuide.quest.still' => 'Ảnh minh họa tĩnh',
 			'videoDetail.gestureGuide.quest.done' => 'Đã hiểu, tiếp tục',
 			'videoDetail.gestureGuide.quest.leftController' => 'Tay trái',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.rightController' => 'Tay phải',
 			'videoDetail.gestureGuide.quest.trigger' => 'Cò ngón trỏ',
 			'videoDetail.gestureGuide.quest.grip' => 'Nút cầm',
 			'videoDetail.gestureGuide.quest.bothGrips' => 'Cả hai nút cầm',
 			'videoDetail.gestureGuide.quest.stick' => 'Cần điều khiển',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.handTracking' => 'Theo dõi bàn tay',
 			'videoDetail.gestureGuide.quest.ready' => 'Sẵn sàng',
 			'videoDetail.gestureGuide.quest.press' => 'Nhấn',
@@ -7346,13 +7366,13 @@ extension on TranslationsVi {
 			'download.actions.redownload' => 'Download again',
 			'download.actions.relocate' => 'Move files to…',
 			'download.actions.categorize' => 'Categorize…',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.viewOnline' => 'View online page',
 			'download.actions.delete' => 'Delete…',
 			'download.actions.redownloadStarted' => ({required Object count}) => 'Started downloading ${count} items again',
 			'download.actions.redownloadNone' => 'Nothing to download again',
 			'download.actions.deleteTitle' => ({required Object count}) => 'Delete ${count} downloads?',
-			_ => null,
-		} ?? switch (path) {
 			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '${count} items · ${size}',
 			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '${count} items',
 			'download.actions.deleteGalleryNote' => ({required Object count}) => 'Size of ${count} galleries not included',
@@ -7860,13 +7880,13 @@ extension on TranslationsVi {
 			'translation.enableGoogleTranslation' => 'Bật dịch Google',
 			'translation.thinking' => 'Đang suy nghĩ...',
 			'translation.thoughtProcess' => 'Quá trình suy nghĩ',
+			_ => null,
+		} ?? switch (path) {
 			'translation.modelCompatibility' => 'Tương thích mô hình',
 			'translation.modelCompatibilityDescription' => 'Điều chỉnh tham số yêu cầu cho các mô hình hiện đại như mô hình suy luận (o1/o3, DeepSeek-R1, QwQ)',
 			'translation.reasoningModel' => 'Mô hình suy luận',
 			'translation.reasoningModelDescription' => 'Cho o1/o3, DeepSeek-R1, QwQ, v.v. Gộp câu lệnh vào tin nhắn người dùng, bỏ temperature và dùng max_completion_tokens',
 			'translation.useMaxCompletionTokens' => 'Dùng max_completion_tokens',
-			_ => null,
-		} ?? switch (path) {
 			'translation.useMaxCompletionTokensDescription' => 'Các điểm cuối OpenAI mới hơn yêu cầu max_completion_tokens thay cho max_tokens đã lỗi thời',
 			'translation.sendTemperature' => 'Gửi temperature',
 			'translation.sendTemperatureDescription' => 'Tắt cho các mô hình từ chối tham số temperature (hầu hết mô hình suy luận)',
@@ -8374,13 +8394,13 @@ extension on TranslationsVi {
 			'proxyHelper.systemProxyDetected' => 'Đã phát hiện proxy hệ thống',
 			'proxyHelper.copied' => 'Đã sao chép',
 			'proxyHelper.copy' => 'Sao chép',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.selectTags' => 'Chọn thẻ',
 			'tagSelector.clickToSelectTags' => 'Nhấn để chọn thẻ',
 			'tagSelector.addTag' => 'Thêm thẻ',
 			'tagSelector.removeTag' => 'Bỏ thẻ',
 			'tagSelector.deleteTag' => 'Xóa thẻ',
-			_ => null,
-		} ?? switch (path) {
 			'tagSelector.usageInstructions' => 'Trước tiên thêm thẻ, sau đó nhấn để chọn từ các thẻ hiện có',
 			'tagSelector.usageInstructionsTooltip' => 'Hướng dẫn sử dụng',
 			'tagSelector.addTagTooltip' => 'Thêm thẻ',
@@ -8888,13 +8908,13 @@ extension on TranslationsVi {
 			'localMedia.webdav.alreadyAdded' => 'This NAS folder has already been added',
 			'localMedia.webdav.relogin' => 'Sign in again',
 			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.stateCertUntrusted' => 'Server certificate changed',
 			'localMedia.webdav.stateUnreachable' => 'Can\'t reach NAS',
 			'localMedia.webdav.stateCredUnreadable' => 'Couldn\'t read password',
 			'localMedia.webdav.connected' => 'Connected',
 			'localMedia.webdav.errorForbidden' => 'This account has no WebDAV access. Grant it WebDAV permission in the NAS settings.',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.webdav.errorTls' => 'Secure connection failed. Check that http:// or https:// matches the NAS settings.',
 			'localMedia.webdav.errorTryHttps' => 'If the NAS only serves HTTPS, add https:// in front of the address.',
 			'localMedia.webdav.previousStep' => 'Back',
@@ -9133,6 +9153,9 @@ extension on TranslationsVi {
 			'frameInterp.title' => 'Tác vụ nội suy khung hình',
 			'frameInterp.action' => 'Nội suy lên gấp 2 tốc độ khung hình',
 			'frameInterp.playInterpolated' => 'Phát bản đã nội suy',
+			'frameInterp.playOriginal' => 'Phát bản gốc',
+			'frameInterp.deleteInterpolated' => 'Xóa cả bản nội suy',
+			'frameInterp.deleteInterpolatedDesc' => 'Xóa tệp video đã nội suy cùng bản ghi tác vụ',
 			'frameInterp.viewTasks' => 'Xem tác vụ nội suy',
 			'frameInterp.badge' => '2× FPS',
 			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',
@@ -9160,6 +9183,13 @@ extension on TranslationsVi {
 			'frameInterp.confirm.deleteOutput' => 'Xóa luôn tệp đã nội suy',
 			'frameInterp.confirm.clearTitle' => 'Xóa các bản ghi đã xong?',
 			'frameInterp.confirm.clearContent' => 'Các tệp đã nội suy vẫn nằm trên ổ đĩa; chỉ xóa bản ghi.',
+			'frameInterp.confirm.enqueueTitle' => 'Nội suy khung hình cho video này?',
+			'frameInterp.confirm.enqueueAction' => 'Bắt đầu',
+			'frameInterp.confirm.fpsUnit' => 'fps',
+			'frameInterp.confirm.saveNote' => 'Lưu thành tệp mới; video gốc giữ nguyên',
+			'frameInterp.confirm.resetTitle' => 'Không thể tiếp tục giữa chừng. Sẽ bắt đầu lại nếu:',
+			'frameInterp.confirm.resetBackground' => 'Chuyển sang ứng dụng khác hoặc khóa màn hình',
+			'frameInterp.confirm.resetClosed' => 'Đóng ứng dụng, hoặc hệ thống đóng nó',
 			'frameInterp.toast.queued' => 'Đã thêm vào hàng đợi nội suy',
 			'frameInterp.toast.completed' => ({required Object title}) => 'Nội suy xong: ${title}',
 			'frameInterp.toast.failed' => ({required Object title}) => 'Nội suy thất bại: ${title}',

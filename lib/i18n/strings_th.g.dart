@@ -870,6 +870,9 @@ class _TranslationsSettingsTh extends TranslationsSettingsEn {
 	@override String get glassQualityPremiumDesc => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass';
 	@override String get glassQualityCurrent => 'Currently active';
 	@override String get glassChromeParametersDesc => 'Navigation glass parameters apply live to headers, buttons and the bottom bar';
+	@override String get glassPreview => 'Preview';
+	@override String get glassPremiumOnly => 'Only takes effect with the full refraction quality';
+	@override String get glassSaturationNeedsBlur => 'With the smooth quality, only takes effect when background blur is above 0';
 	@override String get glassOpacity => 'Opacity';
 	@override String get glassBlur => 'Background blur (sigma)';
 	@override String get glassBlurDesc => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness';
@@ -880,8 +883,6 @@ class _TranslationsSettingsTh extends TranslationsSettingsEn {
 	@override String get glassSaturation => 'Background saturation';
 	@override String get glassChromaticAberration => 'Chromatic aberration';
 	@override String get glassShadows => 'Shadows';
-	@override String get glassPanelParameters => 'Menu panel parameters';
-	@override String get glassPanelParametersDesc => 'Applies to floating menus; panels use a separate lens renderer';
 	@override String get glassResetParameters => 'Restore glass defaults';
 	@override String get glassEffect => 'วัสดุอินเทอร์เฟซ';
 	@override String get glassEffectDesc => 'เลือกวัสดุที่ใช้ทั่วทั้งแอป — แคปซูลส่วนหัว เมนู ปุ่มกล่องโต้ตอบ และแถบนำทางด้านล่าง';
@@ -3254,6 +3255,9 @@ class _TranslationsFrameInterpTh extends TranslationsFrameInterpEn {
 	@override String get title => 'งานเพิ่มเฟรม';
 	@override String get action => 'เพิ่มเฟรม (สร้างเวอร์ชันเฟรมเรตเป็น 2 เท่า)';
 	@override String get playInterpolated => 'เล่นเวอร์ชันที่เพิ่มเฟรม';
+	@override String get playOriginal => 'เล่นต้นฉบับ';
+	@override String get deleteInterpolated => 'ลบเวอร์ชันเติมเฟรมด้วย';
+	@override String get deleteInterpolatedDesc => 'ลบไฟล์วิดีโอที่เติมเฟรมพร้อมบันทึกงาน';
 	@override String get viewTasks => 'ดูงานเพิ่มเฟรม';
 	@override String get badge => 'เพิ่มเฟรม';
 	@override String fpsBadge({required Object fps}) => '${fps} FPS';
@@ -3792,6 +3796,10 @@ class _TranslationsVideoDetailLocalInfoTh extends TranslationsVideoDetailLocalIn
 	@override String get currentQuality => 'คุณภาพปัจจุบัน';
 	@override String get duration => 'ความยาว';
 	@override String get resolution => 'ความละเอียด';
+	@override String get frameRate => 'อัตราเฟรม';
+	@override String frameRateValue({required Object fps}) => '${fps} fps';
+	@override String frameRateInterpolated({required Object fps, required Object from}) => '${fps} fps (เวอร์ชันเติมเฟรม ต้นฉบับ ${from} fps)';
+	@override String frameRateHasInterpolated({required Object fps, required Object to}) => '${fps} fps (ต้นฉบับ มีเวอร์ชัน ${to} fps แล้ว)';
 	@override String get fileInfo => 'ข้อมูลไฟล์';
 	@override String get fileName => 'ชื่อไฟล์';
 	@override String get fileSize => 'ขนาดไฟล์';
@@ -5023,6 +5031,13 @@ class _TranslationsFrameInterpConfirmTh extends TranslationsFrameInterpConfirmEn
 	@override String get deleteOutput => 'ลบไฟล์ที่เพิ่มเฟรมด้วย';
 	@override String get clearTitle => 'ล้างบันทึกที่เสร็จสิ้นแล้วหรือไม่?';
 	@override String get clearContent => 'ไฟล์ที่เพิ่มเฟรมแล้วจะยังอยู่ในดิสก์ จะลบเฉพาะบันทึก';
+	@override String get enqueueTitle => 'เติมเฟรมวิดีโอนี้?';
+	@override String get enqueueAction => 'เริ่มเติมเฟรม';
+	@override String get fpsUnit => 'fps';
+	@override String get saveNote => 'บันทึกเป็นไฟล์ใหม่ วิดีโอต้นฉบับไม่ถูกแก้ไข';
+	@override String get resetTitle => 'ไม่รองรับการทำต่อ จะเริ่มใหม่ตั้งแต่ต้นเมื่อ:';
+	@override String get resetBackground => 'สลับไปแอปอื่นหรือล็อกหน้าจอ';
+	@override String get resetClosed => 'ปิดแอป หรือระบบปิดแอป';
 }
 
 // Path: frameInterp.toast
@@ -5978,6 +5993,9 @@ extension on TranslationsTh {
 			'settings.glassQualityPremiumDesc' => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass',
 			'settings.glassQualityCurrent' => 'Currently active',
 			'settings.glassChromeParametersDesc' => 'Navigation glass parameters apply live to headers, buttons and the bottom bar',
+			'settings.glassPreview' => 'Preview',
+			'settings.glassPremiumOnly' => 'Only takes effect with the full refraction quality',
+			'settings.glassSaturationNeedsBlur' => 'With the smooth quality, only takes effect when background blur is above 0',
 			'settings.glassOpacity' => 'Opacity',
 			'settings.glassBlur' => 'Background blur (sigma)',
 			'settings.glassBlurDesc' => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness',
@@ -5988,8 +6006,6 @@ extension on TranslationsTh {
 			'settings.glassSaturation' => 'Background saturation',
 			'settings.glassChromaticAberration' => 'Chromatic aberration',
 			'settings.glassShadows' => 'Shadows',
-			'settings.glassPanelParameters' => 'Menu panel parameters',
-			'settings.glassPanelParametersDesc' => 'Applies to floating menus; panels use a separate lens renderer',
 			'settings.glassResetParameters' => 'Restore glass defaults',
 			'settings.glassEffect' => 'วัสดุอินเทอร์เฟซ',
 			'settings.glassEffectDesc' => 'เลือกวัสดุที่ใช้ทั่วทั้งแอป — แคปซูลส่วนหัว เมนู ปุ่มกล่องโต้ตอบ และแถบนำทางด้านล่าง',
@@ -6322,9 +6338,9 @@ extension on TranslationsTh {
 			'settings.keybinding.actionGalleryPlayPause' => 'เล่น / หยุดชั่วคราว',
 			'settings.keybinding.actionGallerySeekBackward' => 'ย้อนกลับ',
 			'settings.keybinding.actionGallerySeekForward' => 'เดินหน้าอย่างเร็ว',
-			'settings.keybinding.actionGalleryToggleMute' => 'สลับปิด/เปิดเสียง',
 			_ => null,
 		} ?? switch (path) {
+			'settings.keybinding.actionGalleryToggleMute' => 'สลับปิด/เปิดเสียง',
 			'settings.keybinding.actionPlayPause' => 'เล่น / หยุดชั่วคราว',
 			'settings.keybinding.actionSpeedUp' => 'เพิ่มความเร็ว',
 			'settings.keybinding.actionSpeedDown' => 'ลดความเร็ว',
@@ -6759,6 +6775,10 @@ extension on TranslationsTh {
 			'videoDetail.localInfo.currentQuality' => 'คุณภาพปัจจุบัน',
 			'videoDetail.localInfo.duration' => 'ความยาว',
 			'videoDetail.localInfo.resolution' => 'ความละเอียด',
+			'videoDetail.localInfo.frameRate' => 'อัตราเฟรม',
+			'videoDetail.localInfo.frameRateValue' => ({required Object fps}) => '${fps} fps',
+			'videoDetail.localInfo.frameRateInterpolated' => ({required Object fps, required Object from}) => '${fps} fps (เวอร์ชันเติมเฟรม ต้นฉบับ ${from} fps)',
+			'videoDetail.localInfo.frameRateHasInterpolated' => ({required Object fps, required Object to}) => '${fps} fps (ต้นฉบับ มีเวอร์ชัน ${to} fps แล้ว)',
 			'videoDetail.localInfo.fileInfo' => 'ข้อมูลไฟล์',
 			'videoDetail.localInfo.fileName' => 'ชื่อไฟล์',
 			'videoDetail.localInfo.fileSize' => 'ขนาดไฟล์',
@@ -6832,13 +6852,13 @@ extension on TranslationsTh {
 			'videoDetail.gestureGuide.quest.still' => 'ภาพประกอบนิ่ง',
 			'videoDetail.gestureGuide.quest.done' => 'เข้าใจแล้ว ดำเนินการต่อ',
 			'videoDetail.gestureGuide.quest.leftController' => 'มือซ้าย',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.rightController' => 'มือขวา',
 			'videoDetail.gestureGuide.quest.trigger' => 'ไกชี้',
 			'videoDetail.gestureGuide.quest.grip' => 'ปุ่มกริป',
 			'videoDetail.gestureGuide.quest.bothGrips' => 'ปุ่มกริปทั้งสองข้าง',
 			'videoDetail.gestureGuide.quest.stick' => 'ก้านอนาล็อก',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.handTracking' => 'การติดตามมือ',
 			'videoDetail.gestureGuide.quest.ready' => 'พร้อม',
 			'videoDetail.gestureGuide.quest.press' => 'กด',
@@ -7346,13 +7366,13 @@ extension on TranslationsTh {
 			'download.actions.redownload' => 'Download again',
 			'download.actions.relocate' => 'Move files to…',
 			'download.actions.categorize' => 'Categorize…',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.viewOnline' => 'View online page',
 			'download.actions.delete' => 'Delete…',
 			'download.actions.redownloadStarted' => ({required Object count}) => 'Started downloading ${count} items again',
 			'download.actions.redownloadNone' => 'Nothing to download again',
 			'download.actions.deleteTitle' => ({required Object count}) => 'Delete ${count} downloads?',
-			_ => null,
-		} ?? switch (path) {
 			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '${count} items · ${size}',
 			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '${count} items',
 			'download.actions.deleteGalleryNote' => ({required Object count}) => 'Size of ${count} galleries not included',
@@ -7860,13 +7880,13 @@ extension on TranslationsTh {
 			'translation.enableGoogleTranslation' => 'เปิดใช้งาน Google Translation',
 			'translation.thinking' => 'กำลังคิด…',
 			'translation.thoughtProcess' => 'กระบวนการคิด',
+			_ => null,
+		} ?? switch (path) {
 			'translation.modelCompatibility' => 'ความเข้ากันได้ของโมเดล',
 			'translation.modelCompatibilityDescription' => 'ปรับพารามิเตอร์คำขอสำหรับโมเดลสมัยใหม่ เช่น โมเดลการให้เหตุผล (o1/o3, DeepSeek-R1, QwQ)',
 			'translation.reasoningModel' => 'โมเดลการให้เหตุผล (Reasoning Model)',
 			'translation.reasoningModelDescription' => 'สำหรับ o1/o3, DeepSeek-R1, QwQ ฯลฯ รวมพรอมต์เข้ากับข้อความของผู้ใช้ ละเว้น temperature และใช้ max_completion_tokens แทน',
 			'translation.useMaxCompletionTokens' => 'ใช้ max_completion_tokens',
-			_ => null,
-		} ?? switch (path) {
 			'translation.useMaxCompletionTokensDescription' => 'ปลายทาง OpenAI รุ่นใหม่ต้องการ max_completion_tokens แทน max_tokens ที่เลิกใช้แล้ว',
 			'translation.sendTemperature' => 'ส่ง temperature',
 			'translation.sendTemperatureDescription' => 'ปิดสำหรับโมเดลที่ปฏิเสธพารามิเตอร์ temperature (โมเดลการให้เหตุผลส่วนใหญ่)',
@@ -8374,13 +8394,13 @@ extension on TranslationsTh {
 			'proxyHelper.systemProxyDetected' => 'ตรวจพบพร็อกซีของระบบ',
 			'proxyHelper.copied' => 'คัดลอกแล้ว',
 			'proxyHelper.copy' => 'คัดลอก',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.selectTags' => 'เลือกแท็ก',
 			'tagSelector.clickToSelectTags' => 'คลิกเพื่อเลือกแท็ก',
 			'tagSelector.addTag' => 'เพิ่มแท็ก',
 			'tagSelector.removeTag' => 'เอาแท็กออก',
 			'tagSelector.deleteTag' => 'ลบแท็ก',
-			_ => null,
-		} ?? switch (path) {
 			'tagSelector.usageInstructions' => 'เพิ่มแท็กก่อน จากนั้นจึงคลิกเลือกจากแท็กที่มีอยู่',
 			'tagSelector.usageInstructionsTooltip' => 'คำแนะนำการใช้งาน',
 			'tagSelector.addTagTooltip' => 'เพิ่มแท็ก',
@@ -8888,13 +8908,13 @@ extension on TranslationsTh {
 			'localMedia.webdav.alreadyAdded' => 'This NAS folder has already been added',
 			'localMedia.webdav.relogin' => 'Sign in again',
 			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.stateCertUntrusted' => 'Server certificate changed',
 			'localMedia.webdav.stateUnreachable' => 'Can\'t reach NAS',
 			'localMedia.webdav.stateCredUnreadable' => 'Couldn\'t read password',
 			'localMedia.webdav.connected' => 'Connected',
 			'localMedia.webdav.errorForbidden' => 'This account has no WebDAV access. Grant it WebDAV permission in the NAS settings.',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.webdav.errorTls' => 'Secure connection failed. Check that http:// or https:// matches the NAS settings.',
 			'localMedia.webdav.errorTryHttps' => 'If the NAS only serves HTTPS, add https:// in front of the address.',
 			'localMedia.webdav.previousStep' => 'Back',
@@ -9133,6 +9153,9 @@ extension on TranslationsTh {
 			'frameInterp.title' => 'งานเพิ่มเฟรม',
 			'frameInterp.action' => 'เพิ่มเฟรม (สร้างเวอร์ชันเฟรมเรตเป็น 2 เท่า)',
 			'frameInterp.playInterpolated' => 'เล่นเวอร์ชันที่เพิ่มเฟรม',
+			'frameInterp.playOriginal' => 'เล่นต้นฉบับ',
+			'frameInterp.deleteInterpolated' => 'ลบเวอร์ชันเติมเฟรมด้วย',
+			'frameInterp.deleteInterpolatedDesc' => 'ลบไฟล์วิดีโอที่เติมเฟรมพร้อมบันทึกงาน',
 			'frameInterp.viewTasks' => 'ดูงานเพิ่มเฟรม',
 			'frameInterp.badge' => 'เพิ่มเฟรม',
 			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',
@@ -9160,6 +9183,13 @@ extension on TranslationsTh {
 			'frameInterp.confirm.deleteOutput' => 'ลบไฟล์ที่เพิ่มเฟรมด้วย',
 			'frameInterp.confirm.clearTitle' => 'ล้างบันทึกที่เสร็จสิ้นแล้วหรือไม่?',
 			'frameInterp.confirm.clearContent' => 'ไฟล์ที่เพิ่มเฟรมแล้วจะยังอยู่ในดิสก์ จะลบเฉพาะบันทึก',
+			'frameInterp.confirm.enqueueTitle' => 'เติมเฟรมวิดีโอนี้?',
+			'frameInterp.confirm.enqueueAction' => 'เริ่มเติมเฟรม',
+			'frameInterp.confirm.fpsUnit' => 'fps',
+			'frameInterp.confirm.saveNote' => 'บันทึกเป็นไฟล์ใหม่ วิดีโอต้นฉบับไม่ถูกแก้ไข',
+			'frameInterp.confirm.resetTitle' => 'ไม่รองรับการทำต่อ จะเริ่มใหม่ตั้งแต่ต้นเมื่อ:',
+			'frameInterp.confirm.resetBackground' => 'สลับไปแอปอื่นหรือล็อกหน้าจอ',
+			'frameInterp.confirm.resetClosed' => 'ปิดแอป หรือระบบปิดแอป',
 			'frameInterp.toast.queued' => 'เพิ่มเข้าคิวเพิ่มเฟรมแล้ว',
 			'frameInterp.toast.completed' => ({required Object title}) => 'เพิ่มเฟรมเสร็จแล้ว: ${title}',
 			'frameInterp.toast.failed' => ({required Object title}) => 'เพิ่มเฟรมไม่สำเร็จ: ${title}',

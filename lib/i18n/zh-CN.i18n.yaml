@@ -719,6 +719,9 @@ settings:
   glassQualityPremiumDesc: "固定使用完整透镜，GPU 开销更高；桌面平台使用轻量效果"
   glassQualityCurrent: "当前生效"
   glassChromeParametersDesc: "导航玻璃参数实时应用至顶部胶囊、按钮和底栏"
+  glassPreview: "预览"
+  glassPremiumOnly: "仅在「完整折射」画质下生效"
+  glassSaturationNeedsBlur: "「流畅」画质下需背景模糊大于 0 才生效"
   glassOpacity: "不透明度"
   glassBlur: "背景模糊（sigma）"
   glassBlurDesc: "0 保持背景清晰；模糊会增加一次渲染，可能降低流畅度"
@@ -729,8 +732,6 @@ settings:
   glassSaturation: "背景饱和度"
   glassChromaticAberration: "色散强度"
   glassShadows: "投影"
-  glassPanelParameters: "菜单面板参数"
-  glassPanelParametersDesc: "应用至浮出菜单，面板使用独立的透镜渲染器"
   glassResetParameters: "恢复玻璃默认参数"
   glassEffect: 界面材质
   glassEffectDesc: 决定全局界面材质（顶栏胶囊、菜单、弹窗按钮、底部导航栏）
@@ -1535,6 +1536,10 @@ videoDetail:
     currentQuality: 当前清晰度
     duration: 时长
     resolution: 分辨率
+    frameRate: "帧率"
+    frameRateValue: "${fps} 帧/秒"
+    frameRateInterpolated: "${fps} 帧/秒（补帧版，原片 ${from} 帧/秒）"
+    frameRateHasInterpolated: "${fps} 帧/秒（原片，已有 ${to} 帧/秒补帧版）"
     fileInfo: 文件信息
     fileName: 文件名
     fileSize: 文件大小
@@ -4078,6 +4083,9 @@ frameInterp:
   title: "补帧任务"
   action: "补帧（生成 2 倍帧率版本）"
   playInterpolated: "播放补帧版本"
+  playOriginal: "播放原视频"
+  deleteInterpolated: "同时删除补帧版本"
+  deleteInterpolatedDesc: "补帧后的视频文件和它的任务记录一起删除"
   viewTasks: "查看补帧任务"
   badge: "补帧"
   fpsBadge: "${fps}帧"
@@ -4108,6 +4116,13 @@ frameInterp:
     deleteOutput: "同时删除补帧文件"
     clearTitle: "清除已结束的记录？"
     clearContent: "补帧文件保留在磁盘上，只移除记录。"
+    enqueueTitle: "加入补帧？"
+    enqueueAction: "开始补帧"
+    fpsUnit: "帧/秒"
+    saveNote: "另存为新文件，原视频保留不动"
+    resetTitle: "暂不支持断点续传，以下情况会从头开始："
+    resetBackground: "切到其他应用或锁屏"
+    resetClosed: "关闭应用，或应用被系统清理"
   toast:
     queued: "已加入补帧队列"
     completed: "补帧完成：${title}"

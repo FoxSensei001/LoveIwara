@@ -717,6 +717,9 @@ settings:
   glassQualityPremiumDesc: "Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass"
   glassQualityCurrent: "Currently active"
   glassChromeParametersDesc: "Navigation glass parameters apply live to headers, buttons and the bottom bar"
+  glassPreview: "Preview"
+  glassPremiumOnly: "Only takes effect with the full refraction quality"
+  glassSaturationNeedsBlur: "With the smooth quality, only takes effect when background blur is above 0"
   glassOpacity: "Opacity"
   glassBlur: "Background blur (sigma)"
   glassBlurDesc: "0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness"
@@ -727,8 +730,6 @@ settings:
   glassSaturation: "Background saturation"
   glassChromaticAberration: "Chromatic aberration"
   glassShadows: "Shadows"
-  glassPanelParameters: "Menu panel parameters"
-  glassPanelParametersDesc: "Applies to floating menus; panels use a separate lens renderer"
   glassResetParameters: "Restore glass defaults"
   glassEffect: วัสดุอินเทอร์เฟซ
   glassEffectDesc: เลือกวัสดุที่ใช้ทั่วทั้งแอป — แคปซูลส่วนหัว เมนู ปุ่มกล่องโต้ตอบ และแถบนำทางด้านล่าง
@@ -1532,6 +1533,10 @@ videoDetail:
     currentQuality: คุณภาพปัจจุบัน
     duration: ความยาว
     resolution: ความละเอียด
+    frameRate: "อัตราเฟรม"
+    frameRateValue: "${fps} fps"
+    frameRateInterpolated: "${fps} fps (เวอร์ชันเติมเฟรม ต้นฉบับ ${from} fps)"
+    frameRateHasInterpolated: "${fps} fps (ต้นฉบับ มีเวอร์ชัน ${to} fps แล้ว)"
     fileInfo: ข้อมูลไฟล์
     fileName: ชื่อไฟล์
     fileSize: ขนาดไฟล์
@@ -4076,6 +4081,9 @@ frameInterp:
   title: "งานเพิ่มเฟรม"
   action: "เพิ่มเฟรม (สร้างเวอร์ชันเฟรมเรตเป็น 2 เท่า)"
   playInterpolated: "เล่นเวอร์ชันที่เพิ่มเฟรม"
+  playOriginal: "เล่นต้นฉบับ"
+  deleteInterpolated: "ลบเวอร์ชันเติมเฟรมด้วย"
+  deleteInterpolatedDesc: "ลบไฟล์วิดีโอที่เติมเฟรมพร้อมบันทึกงาน"
   viewTasks: "ดูงานเพิ่มเฟรม"
   badge: "เพิ่มเฟรม"
   fpsBadge: "${fps} FPS"
@@ -4106,6 +4114,13 @@ frameInterp:
     deleteOutput: "ลบไฟล์ที่เพิ่มเฟรมด้วย"
     clearTitle: "ล้างบันทึกที่เสร็จสิ้นแล้วหรือไม่?"
     clearContent: "ไฟล์ที่เพิ่มเฟรมแล้วจะยังอยู่ในดิสก์ จะลบเฉพาะบันทึก"
+    enqueueTitle: "เติมเฟรมวิดีโอนี้?"
+    enqueueAction: "เริ่มเติมเฟรม"
+    fpsUnit: "fps"
+    saveNote: "บันทึกเป็นไฟล์ใหม่ วิดีโอต้นฉบับไม่ถูกแก้ไข"
+    resetTitle: "ไม่รองรับการทำต่อ จะเริ่มใหม่ตั้งแต่ต้นเมื่อ:"
+    resetBackground: "สลับไปแอปอื่นหรือล็อกหน้าจอ"
+    resetClosed: "ปิดแอป หรือระบบปิดแอป"
   toast:
     queued: "เพิ่มเข้าคิวเพิ่มเฟรมแล้ว"
     completed: "เพิ่มเฟรมเสร็จแล้ว: ${title}"

@@ -717,6 +717,9 @@ settings:
   glassQualityPremiumDesc: "Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass"
   glassQualityCurrent: "Currently active"
   glassChromeParametersDesc: "Navigation glass parameters apply live to headers, buttons and the bottom bar"
+  glassPreview: "Preview"
+  glassPremiumOnly: "Only takes effect with the full refraction quality"
+  glassSaturationNeedsBlur: "With the smooth quality, only takes effect when background blur is above 0"
   glassOpacity: "Opacity"
   glassBlur: "Background blur (sigma)"
   glassBlurDesc: "0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness"
@@ -727,8 +730,6 @@ settings:
   glassSaturation: "Background saturation"
   glassChromaticAberration: "Chromatic aberration"
   glassShadows: "Shadows"
-  glassPanelParameters: "Menu panel parameters"
-  glassPanelParametersDesc: "Applies to floating menus; panels use a separate lens renderer"
   glassResetParameters: "Restore glass defaults"
   glassEffect: Oberflächenmaterial
   glassEffectDesc: Wählt das in der gesamten App verwendete Material — Kopfbereich-Kapseln, Menüs, Dialogschaltflächen und die untere Navigationsleiste
@@ -1532,6 +1533,10 @@ videoDetail:
     currentQuality: Aktuelle Qualität
     duration: Dauer
     resolution: Auflösung
+    frameRate: "Bildrate"
+    frameRateValue: "${fps} fps"
+    frameRateInterpolated: "${fps} fps (interpoliert, Original ${from} fps)"
+    frameRateHasInterpolated: "${fps} fps (Original, ${to}-fps-Version vorhanden)"
     fileInfo: Dateiinfo
     fileName: Dateiname
     fileSize: Dateigröße
@@ -4076,6 +4081,9 @@ frameInterp:
   title: "Frame-Interpolation"
   action: "Auf doppelte Bildrate interpolieren"
   playInterpolated: "Interpolierte Version abspielen"
+  playOriginal: "Original abspielen"
+  deleteInterpolated: "Interpolierte Version ebenfalls löschen"
+  deleteInterpolatedDesc: "Löscht die interpolierte Videodatei und ihren Auftrag"
   viewTasks: "Interpolationsaufgaben anzeigen"
   badge: "2× FPS"
   fpsBadge: "${fps} FPS"
@@ -4106,6 +4114,13 @@ frameInterp:
     deleteOutput: "Interpolierte Datei ebenfalls löschen"
     clearTitle: "Abgeschlossene Einträge löschen?"
     clearContent: "Interpolierte Dateien bleiben auf dem Datenträger; nur die Einträge werden entfernt."
+    enqueueTitle: "Video interpolieren?"
+    enqueueAction: "Starten"
+    fpsUnit: "fps"
+    saveNote: "Wird als neue Datei gespeichert, das Original bleibt unverändert"
+    resetTitle: "Fortsetzen ist nicht möglich. Es beginnt von vorn, wenn du:"
+    resetBackground: "zu einer anderen App wechselst oder den Bildschirm sperrst"
+    resetClosed: "die App schließt oder das System sie beendet"
   toast:
     queued: "Zur Interpolationswarteschlange hinzugefügt"
     completed: "Interpolation abgeschlossen: ${title}"

@@ -870,6 +870,9 @@ class _TranslationsSettingsZhCn extends TranslationsSettingsEn {
 	@override String get glassQualityPremiumDesc => '固定使用完整透镜，GPU 开销更高；桌面平台使用轻量效果';
 	@override String get glassQualityCurrent => '当前生效';
 	@override String get glassChromeParametersDesc => '导航玻璃参数实时应用至顶部胶囊、按钮和底栏';
+	@override String get glassPreview => '预览';
+	@override String get glassPremiumOnly => '仅在「完整折射」画质下生效';
+	@override String get glassSaturationNeedsBlur => '「流畅」画质下需背景模糊大于 0 才生效';
 	@override String get glassOpacity => '不透明度';
 	@override String get glassBlur => '背景模糊（sigma）';
 	@override String get glassBlurDesc => '0 保持背景清晰；模糊会增加一次渲染，可能降低流畅度';
@@ -880,8 +883,6 @@ class _TranslationsSettingsZhCn extends TranslationsSettingsEn {
 	@override String get glassSaturation => '背景饱和度';
 	@override String get glassChromaticAberration => '色散强度';
 	@override String get glassShadows => '投影';
-	@override String get glassPanelParameters => '菜单面板参数';
-	@override String get glassPanelParametersDesc => '应用至浮出菜单，面板使用独立的透镜渲染器';
 	@override String get glassResetParameters => '恢复玻璃默认参数';
 	@override String get glassEffect => '界面材质';
 	@override String get glassEffectDesc => '决定全局界面材质（顶栏胶囊、菜单、弹窗按钮、底部导航栏）';
@@ -3254,6 +3255,9 @@ class _TranslationsFrameInterpZhCn extends TranslationsFrameInterpEn {
 	@override String get title => '补帧任务';
 	@override String get action => '补帧（生成 2 倍帧率版本）';
 	@override String get playInterpolated => '播放补帧版本';
+	@override String get playOriginal => '播放原视频';
+	@override String get deleteInterpolated => '同时删除补帧版本';
+	@override String get deleteInterpolatedDesc => '补帧后的视频文件和它的任务记录一起删除';
 	@override String get viewTasks => '查看补帧任务';
 	@override String get badge => '补帧';
 	@override String fpsBadge({required Object fps}) => '${fps}帧';
@@ -3792,6 +3796,10 @@ class _TranslationsVideoDetailLocalInfoZhCn extends TranslationsVideoDetailLocal
 	@override String get currentQuality => '当前清晰度';
 	@override String get duration => '时长';
 	@override String get resolution => '分辨率';
+	@override String get frameRate => '帧率';
+	@override String frameRateValue({required Object fps}) => '${fps} 帧/秒';
+	@override String frameRateInterpolated({required Object fps, required Object from}) => '${fps} 帧/秒（补帧版，原片 ${from} 帧/秒）';
+	@override String frameRateHasInterpolated({required Object fps, required Object to}) => '${fps} 帧/秒（原片，已有 ${to} 帧/秒补帧版）';
 	@override String get fileInfo => '文件信息';
 	@override String get fileName => '文件名';
 	@override String get fileSize => '文件大小';
@@ -5023,6 +5031,13 @@ class _TranslationsFrameInterpConfirmZhCn extends TranslationsFrameInterpConfirm
 	@override String get deleteOutput => '同时删除补帧文件';
 	@override String get clearTitle => '清除已结束的记录？';
 	@override String get clearContent => '补帧文件保留在磁盘上，只移除记录。';
+	@override String get enqueueTitle => '加入补帧？';
+	@override String get enqueueAction => '开始补帧';
+	@override String get fpsUnit => '帧/秒';
+	@override String get saveNote => '另存为新文件，原视频保留不动';
+	@override String get resetTitle => '暂不支持断点续传，以下情况会从头开始：';
+	@override String get resetBackground => '切到其他应用或锁屏';
+	@override String get resetClosed => '关闭应用，或应用被系统清理';
 }
 
 // Path: frameInterp.toast
@@ -5978,6 +5993,9 @@ extension on TranslationsZhCn {
 			'settings.glassQualityPremiumDesc' => '固定使用完整透镜，GPU 开销更高；桌面平台使用轻量效果',
 			'settings.glassQualityCurrent' => '当前生效',
 			'settings.glassChromeParametersDesc' => '导航玻璃参数实时应用至顶部胶囊、按钮和底栏',
+			'settings.glassPreview' => '预览',
+			'settings.glassPremiumOnly' => '仅在「完整折射」画质下生效',
+			'settings.glassSaturationNeedsBlur' => '「流畅」画质下需背景模糊大于 0 才生效',
 			'settings.glassOpacity' => '不透明度',
 			'settings.glassBlur' => '背景模糊（sigma）',
 			'settings.glassBlurDesc' => '0 保持背景清晰；模糊会增加一次渲染，可能降低流畅度',
@@ -5988,8 +6006,6 @@ extension on TranslationsZhCn {
 			'settings.glassSaturation' => '背景饱和度',
 			'settings.glassChromaticAberration' => '色散强度',
 			'settings.glassShadows' => '投影',
-			'settings.glassPanelParameters' => '菜单面板参数',
-			'settings.glassPanelParametersDesc' => '应用至浮出菜单，面板使用独立的透镜渲染器',
 			'settings.glassResetParameters' => '恢复玻璃默认参数',
 			'settings.glassEffect' => '界面材质',
 			'settings.glassEffectDesc' => '决定全局界面材质（顶栏胶囊、菜单、弹窗按钮、底部导航栏）',
@@ -6322,9 +6338,9 @@ extension on TranslationsZhCn {
 			'settings.keybinding.actionGalleryPlayPause' => '播放 / 暂停',
 			'settings.keybinding.actionGallerySeekBackward' => '快退',
 			'settings.keybinding.actionGallerySeekForward' => '快进',
-			'settings.keybinding.actionGalleryToggleMute' => '静音切换',
 			_ => null,
 		} ?? switch (path) {
+			'settings.keybinding.actionGalleryToggleMute' => '静音切换',
 			'settings.keybinding.actionPlayPause' => '播放 / 暂停',
 			'settings.keybinding.actionSpeedUp' => '加快倍速',
 			'settings.keybinding.actionSpeedDown' => '减慢倍速',
@@ -6759,6 +6775,10 @@ extension on TranslationsZhCn {
 			'videoDetail.localInfo.currentQuality' => '当前清晰度',
 			'videoDetail.localInfo.duration' => '时长',
 			'videoDetail.localInfo.resolution' => '分辨率',
+			'videoDetail.localInfo.frameRate' => '帧率',
+			'videoDetail.localInfo.frameRateValue' => ({required Object fps}) => '${fps} 帧/秒',
+			'videoDetail.localInfo.frameRateInterpolated' => ({required Object fps, required Object from}) => '${fps} 帧/秒（补帧版，原片 ${from} 帧/秒）',
+			'videoDetail.localInfo.frameRateHasInterpolated' => ({required Object fps, required Object to}) => '${fps} 帧/秒（原片，已有 ${to} 帧/秒补帧版）',
 			'videoDetail.localInfo.fileInfo' => '文件信息',
 			'videoDetail.localInfo.fileName' => '文件名',
 			'videoDetail.localInfo.fileSize' => '文件大小',
@@ -6832,13 +6852,13 @@ extension on TranslationsZhCn {
 			'videoDetail.gestureGuide.quest.still' => '静态示意',
 			'videoDetail.gestureGuide.quest.done' => '知道了，继续',
 			'videoDetail.gestureGuide.quest.leftController' => '左手',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.rightController' => '右手',
 			'videoDetail.gestureGuide.quest.trigger' => '食指扳机',
 			'videoDetail.gestureGuide.quest.grip' => '侧握键',
 			'videoDetail.gestureGuide.quest.bothGrips' => '双手侧握键',
 			'videoDetail.gestureGuide.quest.stick' => '摇杆',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.handTracking' => '手势追踪',
 			'videoDetail.gestureGuide.quest.ready' => '准备',
 			'videoDetail.gestureGuide.quest.press' => '按下',
@@ -7346,13 +7366,13 @@ extension on TranslationsZhCn {
 			'download.actions.relocate' => '移动文件到…',
 			'download.actions.categorize' => '归类到…',
 			'download.actions.viewOnline' => '查看在线页面',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.delete' => '删除…',
 			'download.actions.redownloadStarted' => ({required Object count}) => '已开始重新下载 ${count} 项',
 			'download.actions.redownloadNone' => '没有可重新下载的项目',
 			'download.actions.deleteTitle' => ({required Object count}) => '删除 ${count} 项下载？',
 			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '共 ${count} 项 · ${size}',
-			_ => null,
-		} ?? switch (path) {
 			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '共 ${count} 项',
 			'download.actions.deleteGalleryNote' => ({required Object count}) => '其中 ${count} 个图库的大小未计入',
 			'download.actions.deleteFiles' => '同时删除磁盘文件',
@@ -7860,13 +7880,13 @@ extension on TranslationsZhCn {
 			'translation.enableGoogleTranslation' => '启用 Google 翻译',
 			'translation.thinking' => '思考中…',
 			'translation.thoughtProcess' => '思考过程',
+			_ => null,
+		} ?? switch (path) {
 			'translation.modelCompatibility' => '模型兼容性',
 			'translation.modelCompatibilityDescription' => '为推理模型(o1/o3、DeepSeek-R1、QwQ 等)等当代模型适配请求参数',
 			'translation.reasoningModel' => '推理模型',
 			'translation.reasoningModelDescription' => '适用于 o1/o3、DeepSeek-R1、QwQ 等：将提示词并入用户消息、不下发 temperature、改用 max_completion_tokens',
 			'translation.useMaxCompletionTokens' => '使用 max_completion_tokens',
-			_ => null,
-		} ?? switch (path) {
 			'translation.useMaxCompletionTokensDescription' => '新版 OpenAI 端点已弃用 max_tokens，需改用 max_completion_tokens',
 			'translation.sendTemperature' => '下发 temperature',
 			'translation.sendTemperatureDescription' => '对于拒绝 temperature 参数的模型(多数推理模型)请关闭',
@@ -8374,13 +8394,13 @@ extension on TranslationsZhCn {
 			'proxyHelper.systemProxyDetected' => '检测到系统代理',
 			'proxyHelper.copied' => '已复制',
 			'proxyHelper.copy' => '复制',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.selectTags' => '选择标签',
 			'tagSelector.clickToSelectTags' => '点击选择标签',
 			'tagSelector.addTag' => '添加标签',
 			'tagSelector.removeTag' => '移除标签',
 			'tagSelector.deleteTag' => '删除标签',
-			_ => null,
-		} ?? switch (path) {
 			'tagSelector.usageInstructions' => '需先添加标签，然后再从已有的标签中点击选中',
 			'tagSelector.usageInstructionsTooltip' => '使用说明',
 			'tagSelector.addTagTooltip' => '添加标签',
@@ -8888,13 +8908,13 @@ extension on TranslationsZhCn {
 			'localMedia.webdav.alreadyAdded' => '这个 NAS 文件夹已经添加过了',
 			'localMedia.webdav.relogin' => '重新登录',
 			'localMedia.webdav.stateAuthFailed' => '需要重新登录',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.stateCertUntrusted' => '服务器证书已变化',
 			'localMedia.webdav.stateUnreachable' => '连不上 NAS',
 			'localMedia.webdav.stateCredUnreadable' => '读取密码失败',
 			'localMedia.webdav.connected' => '已连接',
 			'localMedia.webdav.errorForbidden' => '这个账号没有 WebDAV 访问权限：请在 NAS 的 WebDAV 设置里给它开权限',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.webdav.errorTls' => '安全连接失败：检查地址开头的 http:// 或 https:// 与 NAS 设置是否一致',
 			'localMedia.webdav.errorTryHttps' => '如果 NAS 只开了 HTTPS，请在地址前加上 https://',
 			'localMedia.webdav.previousStep' => '上一步',
@@ -9133,6 +9153,9 @@ extension on TranslationsZhCn {
 			'frameInterp.title' => '补帧任务',
 			'frameInterp.action' => '补帧（生成 2 倍帧率版本）',
 			'frameInterp.playInterpolated' => '播放补帧版本',
+			'frameInterp.playOriginal' => '播放原视频',
+			'frameInterp.deleteInterpolated' => '同时删除补帧版本',
+			'frameInterp.deleteInterpolatedDesc' => '补帧后的视频文件和它的任务记录一起删除',
 			'frameInterp.viewTasks' => '查看补帧任务',
 			'frameInterp.badge' => '补帧',
 			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps}帧',
@@ -9160,6 +9183,13 @@ extension on TranslationsZhCn {
 			'frameInterp.confirm.deleteOutput' => '同时删除补帧文件',
 			'frameInterp.confirm.clearTitle' => '清除已结束的记录？',
 			'frameInterp.confirm.clearContent' => '补帧文件保留在磁盘上，只移除记录。',
+			'frameInterp.confirm.enqueueTitle' => '加入补帧？',
+			'frameInterp.confirm.enqueueAction' => '开始补帧',
+			'frameInterp.confirm.fpsUnit' => '帧/秒',
+			'frameInterp.confirm.saveNote' => '另存为新文件，原视频保留不动',
+			'frameInterp.confirm.resetTitle' => '暂不支持断点续传，以下情况会从头开始：',
+			'frameInterp.confirm.resetBackground' => '切到其他应用或锁屏',
+			'frameInterp.confirm.resetClosed' => '关闭应用，或应用被系统清理',
 			'frameInterp.toast.queued' => '已加入补帧队列',
 			'frameInterp.toast.completed' => ({required Object title}) => '补帧完成：${title}',
 			'frameInterp.toast.failed' => ({required Object title}) => '补帧失败：${title}',

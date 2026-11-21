@@ -718,6 +718,9 @@ settings:
   glassQualityPremiumDesc: "Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass"
   glassQualityCurrent: "Currently active"
   glassChromeParametersDesc: "Navigation glass parameters apply live to headers, buttons and the bottom bar"
+  glassPreview: "Preview"
+  glassPremiumOnly: "Only takes effect with the full refraction quality"
+  glassSaturationNeedsBlur: "With the smooth quality, only takes effect when background blur is above 0"
   glassOpacity: "Opacity"
   glassBlur: "Background blur (sigma)"
   glassBlurDesc: "0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness"
@@ -728,8 +731,6 @@ settings:
   glassSaturation: "Background saturation"
   glassChromaticAberration: "Chromatic aberration"
   glassShadows: "Shadows"
-  glassPanelParameters: "Menu panel parameters"
-  glassPanelParametersDesc: "Applies to floating menus; panels use a separate lens renderer"
   glassResetParameters: "Restore glass defaults"
   glassEffect: 画面のマテリアル
   glassEffectDesc: アプリ全体（ヘッダーのカプセル、メニュー、ダイアログのボタン、ボトムナビゲーション）に使う素材を決めます
@@ -1533,6 +1534,10 @@ videoDetail:
     currentQuality: 現在の品質
     duration: 再生時間
     resolution: 解像度
+    frameRate: "フレームレート"
+    frameRateValue: "${fps} fps"
+    frameRateInterpolated: "${fps} fps（補間版、元 ${from} fps）"
+    frameRateHasInterpolated: "${fps} fps（オリジナル、${to} fps 補間版あり）"
     fileInfo: ファイル情報
     fileName: ファイル名
     fileSize: ファイルサイズ
@@ -4077,6 +4082,9 @@ frameInterp:
   title: "フレーム補間タスク"
   action: "フレーム補間（2倍のフレームレートで生成）"
   playInterpolated: "補間版を再生"
+  playOriginal: "オリジナルを再生"
+  deleteInterpolated: "補間版も削除する"
+  deleteInterpolatedDesc: "補間した動画ファイルとそのタスク記録を削除します"
   viewTasks: "補間タスクを表示"
   badge: "補間"
   fpsBadge: "${fps} FPS"
@@ -4107,6 +4115,13 @@ frameInterp:
     deleteOutput: "補間後のファイルも削除する"
     clearTitle: "完了した記録を消去しますか？"
     clearContent: "補間後のファイルはディスクに残り、記録だけが削除されます。"
+    enqueueTitle: "フレーム補間しますか？"
+    enqueueAction: "補間を開始"
+    fpsUnit: "fps"
+    saveNote: "新しいファイルとして保存され、元の動画はそのまま残ります"
+    resetTitle: "途中再開には未対応です。次の場合は最初からやり直しになります："
+    resetBackground: "他のアプリに切り替える、または画面をロックする"
+    resetClosed: "アプリを閉じる、またはシステムに終了される"
   toast:
     queued: "フレーム補間キューに追加しました"
     completed: "フレーム補間が完了しました：${title}"

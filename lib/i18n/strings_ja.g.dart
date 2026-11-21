@@ -870,6 +870,9 @@ class _TranslationsSettingsJa extends TranslationsSettingsEn {
 	@override String get glassQualityPremiumDesc => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass';
 	@override String get glassQualityCurrent => 'Currently active';
 	@override String get glassChromeParametersDesc => 'Navigation glass parameters apply live to headers, buttons and the bottom bar';
+	@override String get glassPreview => 'Preview';
+	@override String get glassPremiumOnly => 'Only takes effect with the full refraction quality';
+	@override String get glassSaturationNeedsBlur => 'With the smooth quality, only takes effect when background blur is above 0';
 	@override String get glassOpacity => 'Opacity';
 	@override String get glassBlur => 'Background blur (sigma)';
 	@override String get glassBlurDesc => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness';
@@ -880,8 +883,6 @@ class _TranslationsSettingsJa extends TranslationsSettingsEn {
 	@override String get glassSaturation => 'Background saturation';
 	@override String get glassChromaticAberration => 'Chromatic aberration';
 	@override String get glassShadows => 'Shadows';
-	@override String get glassPanelParameters => 'Menu panel parameters';
-	@override String get glassPanelParametersDesc => 'Applies to floating menus; panels use a separate lens renderer';
 	@override String get glassResetParameters => 'Restore glass defaults';
 	@override String get glassEffect => '画面のマテリアル';
 	@override String get glassEffectDesc => 'アプリ全体（ヘッダーのカプセル、メニュー、ダイアログのボタン、ボトムナビゲーション）に使う素材を決めます';
@@ -3254,6 +3255,9 @@ class _TranslationsFrameInterpJa extends TranslationsFrameInterpEn {
 	@override String get title => 'フレーム補間タスク';
 	@override String get action => 'フレーム補間（2倍のフレームレートで生成）';
 	@override String get playInterpolated => '補間版を再生';
+	@override String get playOriginal => 'オリジナルを再生';
+	@override String get deleteInterpolated => '補間版も削除する';
+	@override String get deleteInterpolatedDesc => '補間した動画ファイルとそのタスク記録を削除します';
 	@override String get viewTasks => '補間タスクを表示';
 	@override String get badge => '補間';
 	@override String fpsBadge({required Object fps}) => '${fps} FPS';
@@ -3792,6 +3796,10 @@ class _TranslationsVideoDetailLocalInfoJa extends TranslationsVideoDetailLocalIn
 	@override String get currentQuality => '現在の品質';
 	@override String get duration => '再生時間';
 	@override String get resolution => '解像度';
+	@override String get frameRate => 'フレームレート';
+	@override String frameRateValue({required Object fps}) => '${fps} fps';
+	@override String frameRateInterpolated({required Object fps, required Object from}) => '${fps} fps（補間版、元 ${from} fps）';
+	@override String frameRateHasInterpolated({required Object fps, required Object to}) => '${fps} fps（オリジナル、${to} fps 補間版あり）';
 	@override String get fileInfo => 'ファイル情報';
 	@override String get fileName => 'ファイル名';
 	@override String get fileSize => 'ファイルサイズ';
@@ -5023,6 +5031,13 @@ class _TranslationsFrameInterpConfirmJa extends TranslationsFrameInterpConfirmEn
 	@override String get deleteOutput => '補間後のファイルも削除する';
 	@override String get clearTitle => '完了した記録を消去しますか？';
 	@override String get clearContent => '補間後のファイルはディスクに残り、記録だけが削除されます。';
+	@override String get enqueueTitle => 'フレーム補間しますか？';
+	@override String get enqueueAction => '補間を開始';
+	@override String get fpsUnit => 'fps';
+	@override String get saveNote => '新しいファイルとして保存され、元の動画はそのまま残ります';
+	@override String get resetTitle => '途中再開には未対応です。次の場合は最初からやり直しになります：';
+	@override String get resetBackground => '他のアプリに切り替える、または画面をロックする';
+	@override String get resetClosed => 'アプリを閉じる、またはシステムに終了される';
 }
 
 // Path: frameInterp.toast
@@ -5978,6 +5993,9 @@ extension on TranslationsJa {
 			'settings.glassQualityPremiumDesc' => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass',
 			'settings.glassQualityCurrent' => 'Currently active',
 			'settings.glassChromeParametersDesc' => 'Navigation glass parameters apply live to headers, buttons and the bottom bar',
+			'settings.glassPreview' => 'Preview',
+			'settings.glassPremiumOnly' => 'Only takes effect with the full refraction quality',
+			'settings.glassSaturationNeedsBlur' => 'With the smooth quality, only takes effect when background blur is above 0',
 			'settings.glassOpacity' => 'Opacity',
 			'settings.glassBlur' => 'Background blur (sigma)',
 			'settings.glassBlurDesc' => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness',
@@ -5988,8 +6006,6 @@ extension on TranslationsJa {
 			'settings.glassSaturation' => 'Background saturation',
 			'settings.glassChromaticAberration' => 'Chromatic aberration',
 			'settings.glassShadows' => 'Shadows',
-			'settings.glassPanelParameters' => 'Menu panel parameters',
-			'settings.glassPanelParametersDesc' => 'Applies to floating menus; panels use a separate lens renderer',
 			'settings.glassResetParameters' => 'Restore glass defaults',
 			'settings.glassEffect' => '画面のマテリアル',
 			'settings.glassEffectDesc' => 'アプリ全体（ヘッダーのカプセル、メニュー、ダイアログのボタン、ボトムナビゲーション）に使う素材を決めます',
@@ -6322,9 +6338,9 @@ extension on TranslationsJa {
 			'settings.keybinding.actionGalleryPlayPause' => '再生 / 一時停止',
 			'settings.keybinding.actionGallerySeekBackward' => '巻き戻し',
 			'settings.keybinding.actionGallerySeekForward' => '早送り',
-			'settings.keybinding.actionGalleryToggleMute' => 'ミュート切替',
 			_ => null,
 		} ?? switch (path) {
+			'settings.keybinding.actionGalleryToggleMute' => 'ミュート切替',
 			'settings.keybinding.actionPlayPause' => '再生 / 一時停止',
 			'settings.keybinding.actionSpeedUp' => '再生速度を上げる',
 			'settings.keybinding.actionSpeedDown' => '再生速度を下げる',
@@ -6759,6 +6775,10 @@ extension on TranslationsJa {
 			'videoDetail.localInfo.currentQuality' => '現在の品質',
 			'videoDetail.localInfo.duration' => '再生時間',
 			'videoDetail.localInfo.resolution' => '解像度',
+			'videoDetail.localInfo.frameRate' => 'フレームレート',
+			'videoDetail.localInfo.frameRateValue' => ({required Object fps}) => '${fps} fps',
+			'videoDetail.localInfo.frameRateInterpolated' => ({required Object fps, required Object from}) => '${fps} fps（補間版、元 ${from} fps）',
+			'videoDetail.localInfo.frameRateHasInterpolated' => ({required Object fps, required Object to}) => '${fps} fps（オリジナル、${to} fps 補間版あり）',
 			'videoDetail.localInfo.fileInfo' => 'ファイル情報',
 			'videoDetail.localInfo.fileName' => 'ファイル名',
 			'videoDetail.localInfo.fileSize' => 'ファイルサイズ',
@@ -6832,13 +6852,13 @@ extension on TranslationsJa {
 			'videoDetail.gestureGuide.quest.still' => '静止図',
 			'videoDetail.gestureGuide.quest.done' => '確認して続ける',
 			'videoDetail.gestureGuide.quest.leftController' => '左手',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.rightController' => '右手',
 			'videoDetail.gestureGuide.quest.trigger' => '人差し指トリガー',
 			'videoDetail.gestureGuide.quest.grip' => 'グリップボタン',
 			'videoDetail.gestureGuide.quest.bothGrips' => '両手のグリップ',
 			'videoDetail.gestureGuide.quest.stick' => 'スティック',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.handTracking' => 'ハンドトラッキング',
 			'videoDetail.gestureGuide.quest.ready' => '準備',
 			'videoDetail.gestureGuide.quest.press' => '押す',
@@ -7346,13 +7366,13 @@ extension on TranslationsJa {
 			'download.actions.redownload' => '再ダウンロード',
 			'download.actions.relocate' => 'ファイルを移動…',
 			'download.actions.categorize' => '分類…',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.viewOnline' => 'オンラインページを見る',
 			'download.actions.delete' => '削除…',
 			'download.actions.redownloadStarted' => ({required Object count}) => '${count} 件の再ダウンロードを開始しました',
 			'download.actions.redownloadNone' => '再ダウンロードできる項目がありません',
 			'download.actions.deleteTitle' => ({required Object count}) => '${count} 件のダウンロードを削除しますか？',
-			_ => null,
-		} ?? switch (path) {
 			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '${count} 件 · ${size}',
 			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '${count} 件',
 			'download.actions.deleteGalleryNote' => ({required Object count}) => 'うち ${count} 件のギャラリーはサイズに含まれていません',
@@ -7860,13 +7880,13 @@ extension on TranslationsJa {
 			'translation.enableGoogleTranslation' => 'Google翻訳を有効にする',
 			'translation.thinking' => '思考中…',
 			'translation.thoughtProcess' => '思考過程',
+			_ => null,
+		} ?? switch (path) {
 			'translation.modelCompatibility' => 'モデル互換性',
 			'translation.modelCompatibilityDescription' => '推論モデル(o1/o3、DeepSeek-R1、QwQ など)など最新モデルにリクエストパラメータを適合させます',
 			'translation.reasoningModel' => '推論モデル',
 			'translation.reasoningModelDescription' => 'o1/o3、DeepSeek-R1、QwQ など向け：プロンプトをユーザーメッセージに統合し、temperature を送らず、max_completion_tokens を使用します',
 			'translation.useMaxCompletionTokens' => 'max_completion_tokens を使用',
-			_ => null,
-		} ?? switch (path) {
 			'translation.useMaxCompletionTokensDescription' => '新しい OpenAI エンドポイントでは非推奨の max_tokens ではなく max_completion_tokens が必要です',
 			'translation.sendTemperature' => 'temperature を送信',
 			'translation.sendTemperatureDescription' => 'temperature パラメータを受け付けないモデル(多くの推論モデル)ではオフにしてください',
@@ -8374,13 +8394,13 @@ extension on TranslationsJa {
 			'proxyHelper.systemProxyDetected' => 'システムプロキシを検出',
 			'proxyHelper.copied' => 'コピーしました',
 			'proxyHelper.copy' => 'コピー',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.selectTags' => 'タグを選択',
 			'tagSelector.clickToSelectTags' => 'タグを選択するにはクリック',
 			'tagSelector.addTag' => 'タグを追加',
 			'tagSelector.removeTag' => 'タグを削除',
 			'tagSelector.deleteTag' => 'タグを削除',
-			_ => null,
-		} ?? switch (path) {
 			'tagSelector.usageInstructions' => 'まずタグを追加してから、既存のタグからクリックして選択してください',
 			'tagSelector.usageInstructionsTooltip' => '使用方法',
 			'tagSelector.addTagTooltip' => 'タグを追加',
@@ -8888,13 +8908,13 @@ extension on TranslationsJa {
 			'localMedia.webdav.alreadyAdded' => 'この NAS フォルダーは追加済みです',
 			'localMedia.webdav.relogin' => '再ログイン',
 			'localMedia.webdav.stateAuthFailed' => '再ログインが必要',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.stateCertUntrusted' => 'サーバー証明書が変更されました',
 			'localMedia.webdav.stateUnreachable' => 'NAS に接続できません',
 			'localMedia.webdav.stateCredUnreadable' => 'パスワードを読み込めません',
 			'localMedia.webdav.connected' => '接続済み',
 			'localMedia.webdav.errorForbidden' => 'このアカウントには WebDAV のアクセス権がありません。NAS の WebDAV 設定で許可してください',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.webdav.errorTls' => '安全な接続に失敗しました。アドレスの http:// / https:// が NAS の設定と一致しているか確認してください',
 			'localMedia.webdav.errorTryHttps' => 'NAS が HTTPS のみの場合は、アドレスの前に https:// を付けてください',
 			'localMedia.webdav.previousStep' => '戻る',
@@ -9133,6 +9153,9 @@ extension on TranslationsJa {
 			'frameInterp.title' => 'フレーム補間タスク',
 			'frameInterp.action' => 'フレーム補間（2倍のフレームレートで生成）',
 			'frameInterp.playInterpolated' => '補間版を再生',
+			'frameInterp.playOriginal' => 'オリジナルを再生',
+			'frameInterp.deleteInterpolated' => '補間版も削除する',
+			'frameInterp.deleteInterpolatedDesc' => '補間した動画ファイルとそのタスク記録を削除します',
 			'frameInterp.viewTasks' => '補間タスクを表示',
 			'frameInterp.badge' => '補間',
 			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',
@@ -9160,6 +9183,13 @@ extension on TranslationsJa {
 			'frameInterp.confirm.deleteOutput' => '補間後のファイルも削除する',
 			'frameInterp.confirm.clearTitle' => '完了した記録を消去しますか？',
 			'frameInterp.confirm.clearContent' => '補間後のファイルはディスクに残り、記録だけが削除されます。',
+			'frameInterp.confirm.enqueueTitle' => 'フレーム補間しますか？',
+			'frameInterp.confirm.enqueueAction' => '補間を開始',
+			'frameInterp.confirm.fpsUnit' => 'fps',
+			'frameInterp.confirm.saveNote' => '新しいファイルとして保存され、元の動画はそのまま残ります',
+			'frameInterp.confirm.resetTitle' => '途中再開には未対応です。次の場合は最初からやり直しになります：',
+			'frameInterp.confirm.resetBackground' => '他のアプリに切り替える、または画面をロックする',
+			'frameInterp.confirm.resetClosed' => 'アプリを閉じる、またはシステムに終了される',
 			'frameInterp.toast.queued' => 'フレーム補間キューに追加しました',
 			'frameInterp.toast.completed' => ({required Object title}) => 'フレーム補間が完了しました：${title}',
 			'frameInterp.toast.failed' => ({required Object title}) => 'フレーム補間に失敗しました：${title}',

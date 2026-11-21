@@ -870,6 +870,9 @@ class _TranslationsSettingsZhTw extends TranslationsSettingsEn {
 	@override String get glassQualityPremiumDesc => '固定使用完整透鏡，GPU 開銷較高；桌面平台使用輕量效果';
 	@override String get glassQualityCurrent => '目前生效';
 	@override String get glassChromeParametersDesc => '導覽玻璃參數即時套用至頂部膠囊、按鈕與底欄';
+	@override String get glassPreview => '預覽';
+	@override String get glassPremiumOnly => '僅在「完整折射」畫質下生效';
+	@override String get glassSaturationNeedsBlur => '「流暢」畫質下需背景模糊大於 0 才生效';
 	@override String get glassOpacity => '不透明度';
 	@override String get glassBlur => '背景模糊（sigma）';
 	@override String get glassBlurDesc => '0 保持背景清晰；模糊會增加一次渲染，可能降低流暢度';
@@ -880,8 +883,6 @@ class _TranslationsSettingsZhTw extends TranslationsSettingsEn {
 	@override String get glassSaturation => '背景飽和度';
 	@override String get glassChromaticAberration => '色散強度';
 	@override String get glassShadows => '投影';
-	@override String get glassPanelParameters => '選單面板參數';
-	@override String get glassPanelParametersDesc => '套用至浮出選單，面板使用獨立的透鏡渲染器';
 	@override String get glassResetParameters => '還原玻璃預設參數';
 	@override String get glassEffect => '介面材質';
 	@override String get glassEffectDesc => '決定全域介面材質（頂欄膠囊、選單、彈窗按鈕、底部導覽列）';
@@ -3254,6 +3255,9 @@ class _TranslationsFrameInterpZhTw extends TranslationsFrameInterpEn {
 	@override String get title => '補幀任務';
 	@override String get action => '補幀（產生 2 倍幀率版本）';
 	@override String get playInterpolated => '播放補幀版本';
+	@override String get playOriginal => '播放原影片';
+	@override String get deleteInterpolated => '同時刪除補幀版本';
+	@override String get deleteInterpolatedDesc => '補幀後的影片檔案和它的任務紀錄一起刪除';
 	@override String get viewTasks => '查看補幀任務';
 	@override String get badge => '補幀';
 	@override String fpsBadge({required Object fps}) => '${fps} 幀';
@@ -3895,6 +3899,10 @@ class _TranslationsVideoDetailLocalInfoZhTw extends TranslationsVideoDetailLocal
 	@override String get currentQuality => '目前清晰度';
 	@override String get duration => '時長';
 	@override String get resolution => '解析度';
+	@override String get frameRate => '影格率';
+	@override String frameRateValue({required Object fps}) => '${fps} 幀/秒';
+	@override String frameRateInterpolated({required Object fps, required Object from}) => '${fps} 幀/秒（補幀版，原片 ${from} 幀/秒）';
+	@override String frameRateHasInterpolated({required Object fps, required Object to}) => '${fps} 幀/秒（原片，已有 ${to} 幀/秒補幀版）';
 	@override String get fileInfo => '檔案資訊';
 	@override String get fileName => '檔案名稱';
 	@override String get fileSize => '檔案大小';
@@ -5023,6 +5031,13 @@ class _TranslationsFrameInterpConfirmZhTw extends TranslationsFrameInterpConfirm
 	@override String get deleteOutput => '同時刪除補幀檔案';
 	@override String get clearTitle => '清除已結束的記錄？';
 	@override String get clearContent => '補幀檔案會保留在磁碟上，只會移除記錄。';
+	@override String get enqueueTitle => '加入補幀？';
+	@override String get enqueueAction => '開始補幀';
+	@override String get fpsUnit => '幀/秒';
+	@override String get saveNote => '另存為新檔案，原影片保留不動';
+	@override String get resetTitle => '暫不支援斷點續傳，以下情況會從頭開始：';
+	@override String get resetBackground => '切到其他 App 或鎖定螢幕';
+	@override String get resetClosed => '關閉 App，或 App 被系統清理';
 }
 
 // Path: frameInterp.toast
@@ -5978,6 +5993,9 @@ extension on TranslationsZhTw {
 			'settings.glassQualityPremiumDesc' => '固定使用完整透鏡，GPU 開銷較高；桌面平台使用輕量效果',
 			'settings.glassQualityCurrent' => '目前生效',
 			'settings.glassChromeParametersDesc' => '導覽玻璃參數即時套用至頂部膠囊、按鈕與底欄',
+			'settings.glassPreview' => '預覽',
+			'settings.glassPremiumOnly' => '僅在「完整折射」畫質下生效',
+			'settings.glassSaturationNeedsBlur' => '「流暢」畫質下需背景模糊大於 0 才生效',
 			'settings.glassOpacity' => '不透明度',
 			'settings.glassBlur' => '背景模糊（sigma）',
 			'settings.glassBlurDesc' => '0 保持背景清晰；模糊會增加一次渲染，可能降低流暢度',
@@ -5988,8 +6006,6 @@ extension on TranslationsZhTw {
 			'settings.glassSaturation' => '背景飽和度',
 			'settings.glassChromaticAberration' => '色散強度',
 			'settings.glassShadows' => '投影',
-			'settings.glassPanelParameters' => '選單面板參數',
-			'settings.glassPanelParametersDesc' => '套用至浮出選單，面板使用獨立的透鏡渲染器',
 			'settings.glassResetParameters' => '還原玻璃預設參數',
 			'settings.glassEffect' => '介面材質',
 			'settings.glassEffectDesc' => '決定全域介面材質（頂欄膠囊、選單、彈窗按鈕、底部導覽列）',
@@ -6322,9 +6338,9 @@ extension on TranslationsZhTw {
 			'settings.keybinding.actionGalleryPlayPause' => '播放 / 暫停',
 			'settings.keybinding.actionGallerySeekBackward' => '快退',
 			'settings.keybinding.actionGallerySeekForward' => '快進',
-			'settings.keybinding.actionGalleryToggleMute' => '靜音切換',
 			_ => null,
 		} ?? switch (path) {
+			'settings.keybinding.actionGalleryToggleMute' => '靜音切換',
 			'settings.keybinding.actionPlayPause' => '播放 / 暫停',
 			'settings.keybinding.actionSpeedUp' => '加快倍速',
 			'settings.keybinding.actionSpeedDown' => '減慢倍速',
@@ -6793,6 +6809,10 @@ extension on TranslationsZhTw {
 			'videoDetail.localInfo.currentQuality' => '目前清晰度',
 			'videoDetail.localInfo.duration' => '時長',
 			'videoDetail.localInfo.resolution' => '解析度',
+			'videoDetail.localInfo.frameRate' => '影格率',
+			'videoDetail.localInfo.frameRateValue' => ({required Object fps}) => '${fps} 幀/秒',
+			'videoDetail.localInfo.frameRateInterpolated' => ({required Object fps, required Object from}) => '${fps} 幀/秒（補幀版，原片 ${from} 幀/秒）',
+			'videoDetail.localInfo.frameRateHasInterpolated' => ({required Object fps, required Object to}) => '${fps} 幀/秒（原片，已有 ${to} 幀/秒補幀版）',
 			'videoDetail.localInfo.fileInfo' => '檔案資訊',
 			'videoDetail.localInfo.fileName' => '檔案名稱',
 			'videoDetail.localInfo.fileSize' => '檔案大小',
@@ -6832,13 +6852,13 @@ extension on TranslationsZhTw {
 			'videoDetail.gestureGuide.title' => '手勢與互動指引',
 			'videoDetail.gestureGuide.viewGuide' => '檢視手勢與互動指引',
 			'videoDetail.gestureGuide.firstTimeIntro' => '花幾秒了解播放器手勢，之後可隨時在播放器設定裡再次檢視。',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.startWatching' => '知道了，開始觀看',
 			'videoDetail.gestureGuide.basicTitle' => '基礎操作',
 			'videoDetail.gestureGuide.zoomTitle' => '縮放 / 旋轉 / 平移',
 			'videoDetail.gestureGuide.restoreTip' => '點擊右下角「還原」按鈕可復位縮放、旋轉與位置。',
 			'videoDetail.gestureGuide.mTap' => '單擊：顯示 / 隱藏控制列',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.mDoubleTap' => '雙擊：左側後退 / 中央暫停 / 右側快進',
 			'videoDetail.gestureGuide.mHorizontalDrag' => '橫向滑動：調整進度',
 			'videoDetail.gestureGuide.mVerticalDrag' => '垂直滑動：左側亮度 / 右側音量',
@@ -7346,13 +7366,13 @@ extension on TranslationsZhTw {
 			'download.downloadCompletedWithName' => ({required Object fileName}) => '下載完成: ${fileName}',
 			'download.searchTasks' => '搜尋下載任務...',
 			'download.statusLabel' => ({required Object label}) => '狀態: ${label}',
+			_ => null,
+		} ?? switch (path) {
 			'download.allStatus' => '所有狀態',
 			'download.typeLabel' => ({required Object label}) => '類型: ${label}',
 			'download.allTypes' => '所有類型',
 			'download.taskType' => '類型',
 			'download.video' => '影片',
-			_ => null,
-		} ?? switch (path) {
 			'download.gallery' => '圖庫',
 			'download.other' => '其他',
 			'download.clearFilters' => '清除篩選',
@@ -7860,13 +7880,13 @@ extension on TranslationsZhTw {
 			'translation.endpointType' => '端點類型',
 			'translation.freeEndpoint' => 'Free - 免費端點，可能有頻率限制',
 			'translation.proEndpoint' => 'Pro - 需要 dl_session，更穩定',
+			_ => null,
+		} ?? switch (path) {
 			'translation.officialEndpoint' => 'Official - 官方 API 格式',
 			'translation.finalRequestUrl' => '最終請求URL',
 			'translation.apiKeyOptional' => 'API Key (可選)',
 			'translation.apiKeyOptionalHint' => '用於訪問受保護的 DeepLX 服務',
 			'translation.apiKeyOptionalHelperText' => '某些 DeepLX 服務需要 API Key 進行身份驗證',
-			_ => null,
-		} ?? switch (path) {
 			'translation.dlSession' => 'DL Session',
 			'translation.dlSessionHint' => 'Pro 模式需要的 dl_session 參數',
 			'translation.dlSessionHelperText' => 'Pro 端點必需的工作階段參數，從 DeepL Pro 帳戶獲取',
@@ -8374,13 +8394,13 @@ extension on TranslationsZhTw {
 			'searchFilter.sortTypes.views' => '觀看次數',
 			'searchFilter.sortTypes.likes' => '按讚數',
 			'searchFilter.drawerSubtitle' => '變更即時生效',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.selectTags' => '選擇標籤',
 			'tagSelector.clickToSelectTags' => '點擊選擇標籤',
 			'tagSelector.addTag' => '新增標籤',
 			'tagSelector.removeTag' => '移除標籤',
 			'tagSelector.deleteTag' => '刪除標籤',
-			_ => null,
-		} ?? switch (path) {
 			'tagSelector.usageInstructions' => '需先新增標籤，然後再從已有的標籤中點擊選中',
 			'tagSelector.usageInstructionsTooltip' => '使用說明',
 			'tagSelector.addTagTooltip' => '新增標籤',
@@ -8888,13 +8908,13 @@ extension on TranslationsZhTw {
 			'localMedia.webdav.alreadyAdded' => '這個 NAS 資料夾已經加入過了',
 			'localMedia.webdav.relogin' => '重新登入',
 			'localMedia.webdav.stateAuthFailed' => '需要重新登入',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.stateCertUntrusted' => '伺服器憑證已變更',
 			'localMedia.webdav.stateUnreachable' => '連不上 NAS',
 			'localMedia.webdav.stateCredUnreadable' => '讀取密碼失敗',
 			'localMedia.webdav.connected' => '已連接',
 			'localMedia.webdav.errorForbidden' => '這個帳號沒有 WebDAV 存取權限：請在 NAS 的 WebDAV 設定裡為它開啟權限',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.webdav.errorTls' => '安全連線失敗：檢查位址開頭的 http:// 或 https:// 是否與 NAS 設定一致',
 			'localMedia.webdav.errorTryHttps' => '如果 NAS 只開了 HTTPS，請在位址前加上 https://',
 			'localMedia.webdav.previousStep' => '上一步',
@@ -9133,6 +9153,9 @@ extension on TranslationsZhTw {
 			'frameInterp.title' => '補幀任務',
 			'frameInterp.action' => '補幀（產生 2 倍幀率版本）',
 			'frameInterp.playInterpolated' => '播放補幀版本',
+			'frameInterp.playOriginal' => '播放原影片',
+			'frameInterp.deleteInterpolated' => '同時刪除補幀版本',
+			'frameInterp.deleteInterpolatedDesc' => '補幀後的影片檔案和它的任務紀錄一起刪除',
 			'frameInterp.viewTasks' => '查看補幀任務',
 			'frameInterp.badge' => '補幀',
 			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} 幀',
@@ -9160,6 +9183,13 @@ extension on TranslationsZhTw {
 			'frameInterp.confirm.deleteOutput' => '同時刪除補幀檔案',
 			'frameInterp.confirm.clearTitle' => '清除已結束的記錄？',
 			'frameInterp.confirm.clearContent' => '補幀檔案會保留在磁碟上，只會移除記錄。',
+			'frameInterp.confirm.enqueueTitle' => '加入補幀？',
+			'frameInterp.confirm.enqueueAction' => '開始補幀',
+			'frameInterp.confirm.fpsUnit' => '幀/秒',
+			'frameInterp.confirm.saveNote' => '另存為新檔案，原影片保留不動',
+			'frameInterp.confirm.resetTitle' => '暫不支援斷點續傳，以下情況會從頭開始：',
+			'frameInterp.confirm.resetBackground' => '切到其他 App 或鎖定螢幕',
+			'frameInterp.confirm.resetClosed' => '關閉 App，或 App 被系統清理',
 			'frameInterp.toast.queued' => '已加入補幀佇列',
 			'frameInterp.toast.completed' => ({required Object title}) => '補幀完成：${title}',
 			'frameInterp.toast.failed' => ({required Object title}) => '補幀失敗：${title}',

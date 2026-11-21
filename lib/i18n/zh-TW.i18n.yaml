@@ -718,6 +718,9 @@ settings:
   glassQualityPremiumDesc: "固定使用完整透鏡，GPU 開銷較高；桌面平台使用輕量效果"
   glassQualityCurrent: "目前生效"
   glassChromeParametersDesc: "導覽玻璃參數即時套用至頂部膠囊、按鈕與底欄"
+  glassPreview: "預覽"
+  glassPremiumOnly: "僅在「完整折射」畫質下生效"
+  glassSaturationNeedsBlur: "「流暢」畫質下需背景模糊大於 0 才生效"
   glassOpacity: "不透明度"
   glassBlur: "背景模糊（sigma）"
   glassBlurDesc: "0 保持背景清晰；模糊會增加一次渲染，可能降低流暢度"
@@ -728,8 +731,6 @@ settings:
   glassSaturation: "背景飽和度"
   glassChromaticAberration: "色散強度"
   glassShadows: "投影"
-  glassPanelParameters: "選單面板參數"
-  glassPanelParametersDesc: "套用至浮出選單，面板使用獨立的透鏡渲染器"
   glassResetParameters: "還原玻璃預設參數"
   glassEffect: 介面材質
   glassEffectDesc: 決定全域介面材質（頂欄膠囊、選單、彈窗按鈕、底部導覽列）
@@ -1582,6 +1583,10 @@ videoDetail:
     currentQuality: 目前清晰度
     duration: 時長
     resolution: 解析度
+    frameRate: "影格率"
+    frameRateValue: "${fps} 幀/秒"
+    frameRateInterpolated: "${fps} 幀/秒（補幀版，原片 ${from} 幀/秒）"
+    frameRateHasInterpolated: "${fps} 幀/秒（原片，已有 ${to} 幀/秒補幀版）"
     fileInfo: 檔案資訊
     fileName: 檔案名稱
     fileSize: 檔案大小
@@ -4080,6 +4085,9 @@ frameInterp:
   title: "補幀任務"
   action: "補幀（產生 2 倍幀率版本）"
   playInterpolated: "播放補幀版本"
+  playOriginal: "播放原影片"
+  deleteInterpolated: "同時刪除補幀版本"
+  deleteInterpolatedDesc: "補幀後的影片檔案和它的任務紀錄一起刪除"
   viewTasks: "查看補幀任務"
   badge: "補幀"
   fpsBadge: "${fps} 幀"
@@ -4110,6 +4118,13 @@ frameInterp:
     deleteOutput: "同時刪除補幀檔案"
     clearTitle: "清除已結束的記錄？"
     clearContent: "補幀檔案會保留在磁碟上，只會移除記錄。"
+    enqueueTitle: "加入補幀？"
+    enqueueAction: "開始補幀"
+    fpsUnit: "幀/秒"
+    saveNote: "另存為新檔案，原影片保留不動"
+    resetTitle: "暫不支援斷點續傳，以下情況會從頭開始："
+    resetBackground: "切到其他 App 或鎖定螢幕"
+    resetClosed: "關閉 App，或 App 被系統清理"
   toast:
     queued: "已加入補幀佇列"
     completed: "補幀完成：${title}"

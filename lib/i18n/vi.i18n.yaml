@@ -717,6 +717,9 @@ settings:
   glassQualityPremiumDesc: "Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass"
   glassQualityCurrent: "Currently active"
   glassChromeParametersDesc: "Navigation glass parameters apply live to headers, buttons and the bottom bar"
+  glassPreview: "Preview"
+  glassPremiumOnly: "Only takes effect with the full refraction quality"
+  glassSaturationNeedsBlur: "With the smooth quality, only takes effect when background blur is above 0"
   glassOpacity: "Opacity"
   glassBlur: "Background blur (sigma)"
   glassBlurDesc: "0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness"
@@ -727,8 +730,6 @@ settings:
   glassSaturation: "Background saturation"
   glassChromaticAberration: "Chromatic aberration"
   glassShadows: "Shadows"
-  glassPanelParameters: "Menu panel parameters"
-  glassPanelParametersDesc: "Applies to floating menus; panels use a separate lens renderer"
   glassResetParameters: "Restore glass defaults"
   glassEffect: Vật liệu giao diện
   glassEffectDesc: Chọn vật liệu dùng xuyên suốt ứng dụng — thanh tiêu đề, menu, nút hộp thoại và thanh điều hướng dưới
@@ -1532,6 +1533,10 @@ videoDetail:
     currentQuality: Chất lượng hiện tại
     duration: Thời lượng
     resolution: Độ phân giải
+    frameRate: "Tốc độ khung hình"
+    frameRateValue: "${fps} fps"
+    frameRateInterpolated: "${fps} fps (bản nội suy, gốc ${from} fps)"
+    frameRateHasInterpolated: "${fps} fps (bản gốc, đã có bản ${to} fps)"
     fileInfo: Thông tin tệp
     fileName: Tên tệp
     fileSize: Kích thước tệp
@@ -4076,6 +4081,9 @@ frameInterp:
   title: "Tác vụ nội suy khung hình"
   action: "Nội suy lên gấp 2 tốc độ khung hình"
   playInterpolated: "Phát bản đã nội suy"
+  playOriginal: "Phát bản gốc"
+  deleteInterpolated: "Xóa cả bản nội suy"
+  deleteInterpolatedDesc: "Xóa tệp video đã nội suy cùng bản ghi tác vụ"
   viewTasks: "Xem tác vụ nội suy"
   badge: "2× FPS"
   fpsBadge: "${fps} FPS"
@@ -4106,6 +4114,13 @@ frameInterp:
     deleteOutput: "Xóa luôn tệp đã nội suy"
     clearTitle: "Xóa các bản ghi đã xong?"
     clearContent: "Các tệp đã nội suy vẫn nằm trên ổ đĩa; chỉ xóa bản ghi."
+    enqueueTitle: "Nội suy khung hình cho video này?"
+    enqueueAction: "Bắt đầu"
+    fpsUnit: "fps"
+    saveNote: "Lưu thành tệp mới; video gốc giữ nguyên"
+    resetTitle: "Không thể tiếp tục giữa chừng. Sẽ bắt đầu lại nếu:"
+    resetBackground: "Chuyển sang ứng dụng khác hoặc khóa màn hình"
+    resetClosed: "Đóng ứng dụng, hoặc hệ thống đóng nó"
   toast:
     queued: "Đã thêm vào hàng đợi nội suy"
     completed: "Nội suy xong: ${title}"

@@ -717,6 +717,9 @@ settings:
   glassQualityPremiumDesc: "Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass"
   glassQualityCurrent: "Currently active"
   glassChromeParametersDesc: "Navigation glass parameters apply live to headers, buttons and the bottom bar"
+  glassPreview: "Preview"
+  glassPremiumOnly: "Only takes effect with the full refraction quality"
+  glassSaturationNeedsBlur: "With the smooth quality, only takes effect when background blur is above 0"
   glassOpacity: "Opacity"
   glassBlur: "Background blur (sigma)"
   glassBlurDesc: "0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness"
@@ -727,8 +730,6 @@ settings:
   glassSaturation: "Background saturation"
   glassChromaticAberration: "Chromatic aberration"
   glassShadows: "Shadows"
-  glassPanelParameters: "Menu panel parameters"
-  glassPanelParametersDesc: "Applies to floating menus; panels use a separate lens renderer"
   glassResetParameters: "Restore glass defaults"
   glassEffect: Material Antarmuka
   glassEffectDesc: Memilih material yang digunakan di seluruh aplikasi — kapsul header, menu, tombol dialog, dan bilah navigasi bawah
@@ -1532,6 +1533,10 @@ videoDetail:
     currentQuality: Kualitas Saat Ini
     duration: Durasi
     resolution: Resolusi
+    frameRate: "Frame rate"
+    frameRateValue: "${fps} fps"
+    frameRateInterpolated: "${fps} fps (hasil interpolasi, asli ${from} fps)"
+    frameRateHasInterpolated: "${fps} fps (asli, versi ${to} fps tersedia)"
     fileInfo: Info File
     fileName: Nama File
     fileSize: Ukuran File
@@ -4076,6 +4081,9 @@ frameInterp:
   title: "Tugas interpolasi frame"
   action: "Interpolasi ke 2× frame rate"
   playInterpolated: "Putar versi interpolasi"
+  playOriginal: "Putar asli"
+  deleteInterpolated: "Hapus juga versi interpolasi"
+  deleteInterpolatedDesc: "Menghapus file video hasil interpolasi beserta catatan tugasnya"
   viewTasks: "Lihat tugas interpolasi"
   badge: "2× FPS"
   fpsBadge: "${fps} FPS"
@@ -4106,6 +4114,13 @@ frameInterp:
     deleteOutput: "Hapus juga berkas hasil interpolasi"
     clearTitle: "Hapus catatan yang selesai?"
     clearContent: "Berkas hasil interpolasi tetap ada di disk; hanya catatannya yang dihapus."
+    enqueueTitle: "Interpolasi video ini?"
+    enqueueAction: "Mulai"
+    fpsUnit: "fps"
+    saveNote: "Disimpan sebagai file baru; video asli tidak diubah"
+    resetTitle: "Tidak bisa dilanjutkan. Proses mulai dari awal jika:"
+    resetBackground: "Beralih ke aplikasi lain atau mengunci layar"
+    resetClosed: "Menutup aplikasi, atau sistem menutupnya"
   toast:
     queued: "Ditambahkan ke antrean interpolasi"
     completed: "Interpolasi selesai: ${title}"

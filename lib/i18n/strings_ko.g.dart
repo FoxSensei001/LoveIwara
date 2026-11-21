@@ -870,6 +870,9 @@ class _TranslationsSettingsKo extends TranslationsSettingsEn {
 	@override String get glassQualityPremiumDesc => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass';
 	@override String get glassQualityCurrent => 'Currently active';
 	@override String get glassChromeParametersDesc => 'Navigation glass parameters apply live to headers, buttons and the bottom bar';
+	@override String get glassPreview => 'Preview';
+	@override String get glassPremiumOnly => 'Only takes effect with the full refraction quality';
+	@override String get glassSaturationNeedsBlur => 'With the smooth quality, only takes effect when background blur is above 0';
 	@override String get glassOpacity => 'Opacity';
 	@override String get glassBlur => 'Background blur (sigma)';
 	@override String get glassBlurDesc => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness';
@@ -880,8 +883,6 @@ class _TranslationsSettingsKo extends TranslationsSettingsEn {
 	@override String get glassSaturation => 'Background saturation';
 	@override String get glassChromaticAberration => 'Chromatic aberration';
 	@override String get glassShadows => 'Shadows';
-	@override String get glassPanelParameters => 'Menu panel parameters';
-	@override String get glassPanelParametersDesc => 'Applies to floating menus; panels use a separate lens renderer';
 	@override String get glassResetParameters => 'Restore glass defaults';
 	@override String get glassEffect => '인터페이스 재질';
 	@override String get glassEffectDesc => '앱 전반에 사용할 재질을 선택합니다 — 헤더 캡슐, 메뉴, 대화 상자 버튼, 하단 내비게이션 바';
@@ -3254,6 +3255,9 @@ class _TranslationsFrameInterpKo extends TranslationsFrameInterpEn {
 	@override String get title => '프레임 보간 작업';
 	@override String get action => '프레임 보간(2배 프레임 레이트로 생성)';
 	@override String get playInterpolated => '보간된 버전 재생';
+	@override String get playOriginal => '원본 재생';
+	@override String get deleteInterpolated => '보간 버전도 삭제';
+	@override String get deleteInterpolatedDesc => '보간된 영상 파일과 작업 기록을 함께 삭제합니다';
 	@override String get viewTasks => '보간 작업 보기';
 	@override String get badge => '보간';
 	@override String fpsBadge({required Object fps}) => '${fps} FPS';
@@ -3792,6 +3796,10 @@ class _TranslationsVideoDetailLocalInfoKo extends TranslationsVideoDetailLocalIn
 	@override String get currentQuality => '현재 화질';
 	@override String get duration => '길이';
 	@override String get resolution => '해상도';
+	@override String get frameRate => '프레임 레이트';
+	@override String frameRateValue({required Object fps}) => '${fps} fps';
+	@override String frameRateInterpolated({required Object fps, required Object from}) => '${fps} fps (보간 버전, 원본 ${from} fps)';
+	@override String frameRateHasInterpolated({required Object fps, required Object to}) => '${fps} fps (원본, ${to} fps 보간 버전 있음)';
 	@override String get fileInfo => '파일 정보';
 	@override String get fileName => '파일 이름';
 	@override String get fileSize => '파일 크기';
@@ -5023,6 +5031,13 @@ class _TranslationsFrameInterpConfirmKo extends TranslationsFrameInterpConfirmEn
 	@override String get deleteOutput => '보간된 파일도 함께 삭제';
 	@override String get clearTitle => '완료된 기록을 지우시겠습니까?';
 	@override String get clearContent => '보간된 파일은 디스크에 그대로 남고 기록만 삭제됩니다.';
+	@override String get enqueueTitle => '프레임 보간을 할까요?';
+	@override String get enqueueAction => '보간 시작';
+	@override String get fpsUnit => 'fps';
+	@override String get saveNote => '새 파일로 저장되며 원본 영상은 그대로 유지됩니다';
+	@override String get resetTitle => '이어서 처리할 수 없어 다음 경우 처음부터 다시 시작합니다:';
+	@override String get resetBackground => '다른 앱으로 전환하거나 화면을 잠글 때';
+	@override String get resetClosed => '앱을 닫거나 시스템이 앱을 종료할 때';
 }
 
 // Path: frameInterp.toast
@@ -5978,6 +5993,9 @@ extension on TranslationsKo {
 			'settings.glassQualityPremiumDesc' => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass',
 			'settings.glassQualityCurrent' => 'Currently active',
 			'settings.glassChromeParametersDesc' => 'Navigation glass parameters apply live to headers, buttons and the bottom bar',
+			'settings.glassPreview' => 'Preview',
+			'settings.glassPremiumOnly' => 'Only takes effect with the full refraction quality',
+			'settings.glassSaturationNeedsBlur' => 'With the smooth quality, only takes effect when background blur is above 0',
 			'settings.glassOpacity' => 'Opacity',
 			'settings.glassBlur' => 'Background blur (sigma)',
 			'settings.glassBlurDesc' => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness',
@@ -5988,8 +6006,6 @@ extension on TranslationsKo {
 			'settings.glassSaturation' => 'Background saturation',
 			'settings.glassChromaticAberration' => 'Chromatic aberration',
 			'settings.glassShadows' => 'Shadows',
-			'settings.glassPanelParameters' => 'Menu panel parameters',
-			'settings.glassPanelParametersDesc' => 'Applies to floating menus; panels use a separate lens renderer',
 			'settings.glassResetParameters' => 'Restore glass defaults',
 			'settings.glassEffect' => '인터페이스 재질',
 			'settings.glassEffectDesc' => '앱 전반에 사용할 재질을 선택합니다 — 헤더 캡슐, 메뉴, 대화 상자 버튼, 하단 내비게이션 바',
@@ -6322,9 +6338,9 @@ extension on TranslationsKo {
 			'settings.keybinding.actionGalleryPlayPause' => '재생 / 일시정지',
 			'settings.keybinding.actionGallerySeekBackward' => '되감기',
 			'settings.keybinding.actionGallerySeekForward' => '빨리 감기',
-			'settings.keybinding.actionGalleryToggleMute' => '음소거 전환',
 			_ => null,
 		} ?? switch (path) {
+			'settings.keybinding.actionGalleryToggleMute' => '음소거 전환',
 			'settings.keybinding.actionPlayPause' => '재생 / 일시정지',
 			'settings.keybinding.actionSpeedUp' => '속도 증가',
 			'settings.keybinding.actionSpeedDown' => '속도 감소',
@@ -6759,6 +6775,10 @@ extension on TranslationsKo {
 			'videoDetail.localInfo.currentQuality' => '현재 화질',
 			'videoDetail.localInfo.duration' => '길이',
 			'videoDetail.localInfo.resolution' => '해상도',
+			'videoDetail.localInfo.frameRate' => '프레임 레이트',
+			'videoDetail.localInfo.frameRateValue' => ({required Object fps}) => '${fps} fps',
+			'videoDetail.localInfo.frameRateInterpolated' => ({required Object fps, required Object from}) => '${fps} fps (보간 버전, 원본 ${from} fps)',
+			'videoDetail.localInfo.frameRateHasInterpolated' => ({required Object fps, required Object to}) => '${fps} fps (원본, ${to} fps 보간 버전 있음)',
 			'videoDetail.localInfo.fileInfo' => '파일 정보',
 			'videoDetail.localInfo.fileName' => '파일 이름',
 			'videoDetail.localInfo.fileSize' => '파일 크기',
@@ -6832,13 +6852,13 @@ extension on TranslationsKo {
 			'videoDetail.gestureGuide.quest.still' => '정지 일러스트',
 			'videoDetail.gestureGuide.quest.done' => '알겠습니다, 계속',
 			'videoDetail.gestureGuide.quest.leftController' => '왼손',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.rightController' => '오른손',
 			'videoDetail.gestureGuide.quest.trigger' => '검지 트리거',
 			'videoDetail.gestureGuide.quest.grip' => '그립 버튼',
 			'videoDetail.gestureGuide.quest.bothGrips' => '양쪽 그립 버튼',
 			'videoDetail.gestureGuide.quest.stick' => '썸스틱',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.handTracking' => '핸드 트래킹',
 			'videoDetail.gestureGuide.quest.ready' => '준비',
 			'videoDetail.gestureGuide.quest.press' => '누르기',
@@ -7346,13 +7366,13 @@ extension on TranslationsKo {
 			'download.actions.redownload' => 'Download again',
 			'download.actions.relocate' => 'Move files to…',
 			'download.actions.categorize' => 'Categorize…',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.viewOnline' => 'View online page',
 			'download.actions.delete' => 'Delete…',
 			'download.actions.redownloadStarted' => ({required Object count}) => 'Started downloading ${count} items again',
 			'download.actions.redownloadNone' => 'Nothing to download again',
 			'download.actions.deleteTitle' => ({required Object count}) => 'Delete ${count} downloads?',
-			_ => null,
-		} ?? switch (path) {
 			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '${count} items · ${size}',
 			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '${count} items',
 			'download.actions.deleteGalleryNote' => ({required Object count}) => 'Size of ${count} galleries not included',
@@ -7860,13 +7880,13 @@ extension on TranslationsKo {
 			'translation.enableGoogleTranslation' => 'Google 번역 사용',
 			'translation.thinking' => '생각 중...',
 			'translation.thoughtProcess' => '사고 과정',
+			_ => null,
+		} ?? switch (path) {
 			'translation.modelCompatibility' => '모델 호환성',
 			'translation.modelCompatibilityDescription' => '추론 모델(o1/o3, DeepSeek-R1, QwQ) 등 최신 모델에 맞게 요청 매개변수를 조정합니다',
 			'translation.reasoningModel' => '추론 모델',
 			'translation.reasoningModelDescription' => 'o1/o3, DeepSeek-R1, QwQ 등에 사용합니다. 프롬프트를 사용자 메시지에 합치고, 온도를 생략하며, max_completion_tokens를 사용합니다',
 			'translation.useMaxCompletionTokens' => 'max_completion_tokens 사용',
-			_ => null,
-		} ?? switch (path) {
 			'translation.useMaxCompletionTokensDescription' => '최신 OpenAI 엔드포인트는 더 이상 사용되지 않는 max_tokens 대신 max_completion_tokens를 요구합니다',
 			'translation.sendTemperature' => '온도 전송',
 			'translation.sendTemperatureDescription' => '온도 매개변수를 거부하는 모델(대부분의 추론 모델)의 경우 끄세요',
@@ -8374,13 +8394,13 @@ extension on TranslationsKo {
 			'proxyHelper.systemProxyDetected' => '시스템 프록시 감지됨',
 			'proxyHelper.copied' => '복사됨',
 			'proxyHelper.copy' => '복사',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.selectTags' => '태그 선택',
 			'tagSelector.clickToSelectTags' => '클릭하여 태그 선택',
 			'tagSelector.addTag' => '태그 추가',
 			'tagSelector.removeTag' => '태그 제거',
 			'tagSelector.deleteTag' => '태그 삭제',
-			_ => null,
-		} ?? switch (path) {
 			'tagSelector.usageInstructions' => '먼저 태그를 추가한 다음 기존 태그에서 클릭하여 선택하세요',
 			'tagSelector.usageInstructionsTooltip' => '사용 방법',
 			'tagSelector.addTagTooltip' => '태그 추가',
@@ -8888,13 +8908,13 @@ extension on TranslationsKo {
 			'localMedia.webdav.alreadyAdded' => 'This NAS folder has already been added',
 			'localMedia.webdav.relogin' => 'Sign in again',
 			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.stateCertUntrusted' => 'Server certificate changed',
 			'localMedia.webdav.stateUnreachable' => 'Can\'t reach NAS',
 			'localMedia.webdav.stateCredUnreadable' => 'Couldn\'t read password',
 			'localMedia.webdav.connected' => 'Connected',
 			'localMedia.webdav.errorForbidden' => 'This account has no WebDAV access. Grant it WebDAV permission in the NAS settings.',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.webdav.errorTls' => 'Secure connection failed. Check that http:// or https:// matches the NAS settings.',
 			'localMedia.webdav.errorTryHttps' => 'If the NAS only serves HTTPS, add https:// in front of the address.',
 			'localMedia.webdav.previousStep' => 'Back',
@@ -9133,6 +9153,9 @@ extension on TranslationsKo {
 			'frameInterp.title' => '프레임 보간 작업',
 			'frameInterp.action' => '프레임 보간(2배 프레임 레이트로 생성)',
 			'frameInterp.playInterpolated' => '보간된 버전 재생',
+			'frameInterp.playOriginal' => '원본 재생',
+			'frameInterp.deleteInterpolated' => '보간 버전도 삭제',
+			'frameInterp.deleteInterpolatedDesc' => '보간된 영상 파일과 작업 기록을 함께 삭제합니다',
 			'frameInterp.viewTasks' => '보간 작업 보기',
 			'frameInterp.badge' => '보간',
 			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',
@@ -9160,6 +9183,13 @@ extension on TranslationsKo {
 			'frameInterp.confirm.deleteOutput' => '보간된 파일도 함께 삭제',
 			'frameInterp.confirm.clearTitle' => '완료된 기록을 지우시겠습니까?',
 			'frameInterp.confirm.clearContent' => '보간된 파일은 디스크에 그대로 남고 기록만 삭제됩니다.',
+			'frameInterp.confirm.enqueueTitle' => '프레임 보간을 할까요?',
+			'frameInterp.confirm.enqueueAction' => '보간 시작',
+			'frameInterp.confirm.fpsUnit' => 'fps',
+			'frameInterp.confirm.saveNote' => '새 파일로 저장되며 원본 영상은 그대로 유지됩니다',
+			'frameInterp.confirm.resetTitle' => '이어서 처리할 수 없어 다음 경우 처음부터 다시 시작합니다:',
+			'frameInterp.confirm.resetBackground' => '다른 앱으로 전환하거나 화면을 잠글 때',
+			'frameInterp.confirm.resetClosed' => '앱을 닫거나 시스템이 앱을 종료할 때',
 			'frameInterp.toast.queued' => '보간 대기열에 추가했습니다',
 			'frameInterp.toast.completed' => ({required Object title}) => '프레임 보간 완료: ${title}',
 			'frameInterp.toast.failed' => ({required Object title}) => '프레임 보간 실패: ${title}',

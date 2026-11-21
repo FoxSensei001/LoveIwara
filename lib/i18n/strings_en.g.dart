@@ -2141,6 +2141,15 @@ class TranslationsSettingsEn {
 	/// en: 'Navigation glass parameters apply live to headers, buttons and the bottom bar'
 	String get glassChromeParametersDesc => 'Navigation glass parameters apply live to headers, buttons and the bottom bar';
 
+	/// en: 'Preview'
+	String get glassPreview => 'Preview';
+
+	/// en: 'Only takes effect with the full refraction quality'
+	String get glassPremiumOnly => 'Only takes effect with the full refraction quality';
+
+	/// en: 'With the smooth quality, only takes effect when background blur is above 0'
+	String get glassSaturationNeedsBlur => 'With the smooth quality, only takes effect when background blur is above 0';
+
 	/// en: 'Opacity'
 	String get glassOpacity => 'Opacity';
 
@@ -2170,12 +2179,6 @@ class TranslationsSettingsEn {
 
 	/// en: 'Shadows'
 	String get glassShadows => 'Shadows';
-
-	/// en: 'Menu panel parameters'
-	String get glassPanelParameters => 'Menu panel parameters';
-
-	/// en: 'Applies to floating menus; panels use a separate lens renderer'
-	String get glassPanelParametersDesc => 'Applies to floating menus; panels use a separate lens renderer';
 
 	/// en: 'Restore glass defaults'
 	String get glassResetParameters => 'Restore glass defaults';
@@ -8295,6 +8298,15 @@ class TranslationsFrameInterpEn {
 	/// en: 'Play interpolated version'
 	String get playInterpolated => 'Play interpolated version';
 
+	/// en: 'Play original'
+	String get playOriginal => 'Play original';
+
+	/// en: 'Also delete the interpolated version'
+	String get deleteInterpolated => 'Also delete the interpolated version';
+
+	/// en: 'Deletes the interpolated video file and its task record'
+	String get deleteInterpolatedDesc => 'Deletes the interpolated video file and its task record';
+
 	/// en: 'View interpolation tasks'
 	String get viewTasks => 'View interpolation tasks';
 
@@ -9640,6 +9652,18 @@ class TranslationsVideoDetailLocalInfoEn {
 
 	/// en: 'Resolution'
 	String get resolution => 'Resolution';
+
+	/// en: 'Frame rate'
+	String get frameRate => 'Frame rate';
+
+	/// en: '${fps} fps'
+	String frameRateValue({required Object fps}) => '${fps} fps';
+
+	/// en: '${fps} fps (interpolated, original ${from} fps)'
+	String frameRateInterpolated({required Object fps, required Object from}) => '${fps} fps (interpolated, original ${from} fps)';
+
+	/// en: '${fps} fps (original, ${to} fps version available)'
+	String frameRateHasInterpolated({required Object fps, required Object to}) => '${fps} fps (original, ${to} fps version available)';
 
 	/// en: 'File Info'
 	String get fileInfo => 'File Info';
@@ -12466,6 +12490,27 @@ class TranslationsFrameInterpConfirmEn {
 
 	/// en: 'Interpolated files stay on disk; only the records are removed.'
 	String get clearContent => 'Interpolated files stay on disk; only the records are removed.';
+
+	/// en: 'Interpolate this video?'
+	String get enqueueTitle => 'Interpolate this video?';
+
+	/// en: 'Start'
+	String get enqueueAction => 'Start';
+
+	/// en: 'fps'
+	String get fpsUnit => 'fps';
+
+	/// en: 'Saved as a new file; the original stays untouched'
+	String get saveNote => 'Saved as a new file; the original stays untouched';
+
+	/// en: 'Progress can't be resumed. It starts over if you:'
+	String get resetTitle => 'Progress can\'t be resumed. It starts over if you:';
+
+	/// en: 'Switch to another app or lock the screen'
+	String get resetBackground => 'Switch to another app or lock the screen';
+
+	/// en: 'Close the app, or the system closes it'
+	String get resetClosed => 'Close the app, or the system closes it';
 }
 
 // Path: frameInterp.toast
@@ -13768,6 +13813,9 @@ extension on Translations {
 			'settings.glassQualityPremiumDesc' => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass',
 			'settings.glassQualityCurrent' => 'Currently active',
 			'settings.glassChromeParametersDesc' => 'Navigation glass parameters apply live to headers, buttons and the bottom bar',
+			'settings.glassPreview' => 'Preview',
+			'settings.glassPremiumOnly' => 'Only takes effect with the full refraction quality',
+			'settings.glassSaturationNeedsBlur' => 'With the smooth quality, only takes effect when background blur is above 0',
 			'settings.glassOpacity' => 'Opacity',
 			'settings.glassBlur' => 'Background blur (sigma)',
 			'settings.glassBlurDesc' => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness',
@@ -13778,8 +13826,6 @@ extension on Translations {
 			'settings.glassSaturation' => 'Background saturation',
 			'settings.glassChromaticAberration' => 'Chromatic aberration',
 			'settings.glassShadows' => 'Shadows',
-			'settings.glassPanelParameters' => 'Menu panel parameters',
-			'settings.glassPanelParametersDesc' => 'Applies to floating menus; panels use a separate lens renderer',
 			'settings.glassResetParameters' => 'Restore glass defaults',
 			'settings.glassEffect' => 'Interface Material',
 			'settings.glassEffectDesc' => 'Chooses the material used across the app — header capsules, menus, dialog buttons and the bottom navigation bar',
@@ -14112,9 +14158,9 @@ extension on Translations {
 			'settings.keybinding.actionGalleryPlayPause' => 'Play / Pause',
 			'settings.keybinding.actionGallerySeekBackward' => 'Rewind',
 			'settings.keybinding.actionGallerySeekForward' => 'Fast Forward',
-			'settings.keybinding.actionGalleryToggleMute' => 'Toggle Mute',
 			_ => null,
 		} ?? switch (path) {
+			'settings.keybinding.actionGalleryToggleMute' => 'Toggle Mute',
 			'settings.keybinding.actionPlayPause' => 'Play / Pause',
 			'settings.keybinding.actionSpeedUp' => 'Increase Speed',
 			'settings.keybinding.actionSpeedDown' => 'Decrease Speed',
@@ -14549,6 +14595,10 @@ extension on Translations {
 			'videoDetail.localInfo.currentQuality' => 'Current Quality',
 			'videoDetail.localInfo.duration' => 'Duration',
 			'videoDetail.localInfo.resolution' => 'Resolution',
+			'videoDetail.localInfo.frameRate' => 'Frame rate',
+			'videoDetail.localInfo.frameRateValue' => ({required Object fps}) => '${fps} fps',
+			'videoDetail.localInfo.frameRateInterpolated' => ({required Object fps, required Object from}) => '${fps} fps (interpolated, original ${from} fps)',
+			'videoDetail.localInfo.frameRateHasInterpolated' => ({required Object fps, required Object to}) => '${fps} fps (original, ${to} fps version available)',
 			'videoDetail.localInfo.fileInfo' => 'File Info',
 			'videoDetail.localInfo.fileName' => 'File Name',
 			'videoDetail.localInfo.fileSize' => 'File Size',
@@ -14622,13 +14672,13 @@ extension on Translations {
 			'videoDetail.gestureGuide.quest.still' => 'Still illustration',
 			'videoDetail.gestureGuide.quest.done' => 'Got it, continue',
 			'videoDetail.gestureGuide.quest.leftController' => 'Left hand',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.rightController' => 'Right hand',
 			'videoDetail.gestureGuide.quest.trigger' => 'Index trigger',
 			'videoDetail.gestureGuide.quest.grip' => 'Grip button',
 			'videoDetail.gestureGuide.quest.bothGrips' => 'Both grip buttons',
 			'videoDetail.gestureGuide.quest.stick' => 'Thumbstick',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.handTracking' => 'Hand tracking',
 			'videoDetail.gestureGuide.quest.ready' => 'Ready',
 			'videoDetail.gestureGuide.quest.press' => 'Press',
@@ -15136,13 +15186,13 @@ extension on Translations {
 			'download.actions.redownload' => 'Download again',
 			'download.actions.relocate' => 'Move files to…',
 			'download.actions.categorize' => 'Categorize…',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.viewOnline' => 'View online page',
 			'download.actions.delete' => 'Delete…',
 			'download.actions.redownloadStarted' => ({required Object count}) => 'Started downloading ${count} items again',
 			'download.actions.redownloadNone' => 'Nothing to download again',
 			'download.actions.deleteTitle' => ({required Object count}) => 'Delete ${count} downloads?',
-			_ => null,
-		} ?? switch (path) {
 			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '${count} items · ${size}',
 			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '${count} items',
 			'download.actions.deleteGalleryNote' => ({required Object count}) => 'Size of ${count} galleries not included',
@@ -15650,13 +15700,13 @@ extension on Translations {
 			'translation.enableGoogleTranslation' => 'Enable Google Translation',
 			'translation.thinking' => 'Thinking...',
 			'translation.thoughtProcess' => 'Thought Process',
+			_ => null,
+		} ?? switch (path) {
 			'translation.modelCompatibility' => 'Model Compatibility',
 			'translation.modelCompatibilityDescription' => 'Adapt request parameters for modern models such as reasoning models (o1/o3, DeepSeek-R1, QwQ)',
 			'translation.reasoningModel' => 'Reasoning Model',
 			'translation.reasoningModelDescription' => 'For o1/o3, DeepSeek-R1, QwQ, etc. Folds the prompt into the user message, omits temperature, and uses max_completion_tokens',
 			'translation.useMaxCompletionTokens' => 'Use max_completion_tokens',
-			_ => null,
-		} ?? switch (path) {
 			'translation.useMaxCompletionTokensDescription' => 'Newer OpenAI endpoints require max_completion_tokens instead of the deprecated max_tokens',
 			'translation.sendTemperature' => 'Send temperature',
 			'translation.sendTemperatureDescription' => 'Turn off for models that reject the temperature parameter (most reasoning models)',
@@ -16164,13 +16214,13 @@ extension on Translations {
 			'proxyHelper.systemProxyDetected' => 'System proxy detected',
 			'proxyHelper.copied' => 'Copied',
 			'proxyHelper.copy' => 'Copy',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.selectTags' => 'Select Tags',
 			'tagSelector.clickToSelectTags' => 'Click to select tags',
 			'tagSelector.addTag' => 'Add Tag',
 			'tagSelector.removeTag' => 'Remove Tag',
 			'tagSelector.deleteTag' => 'Delete Tag',
-			_ => null,
-		} ?? switch (path) {
 			'tagSelector.usageInstructions' => 'First add tags, then click to select from existing tags',
 			'tagSelector.usageInstructionsTooltip' => 'Usage Instructions',
 			'tagSelector.addTagTooltip' => 'Add Tag',
@@ -16678,13 +16728,13 @@ extension on Translations {
 			'localMedia.webdav.alreadyAdded' => 'This NAS folder has already been added',
 			'localMedia.webdav.relogin' => 'Sign in again',
 			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.stateCertUntrusted' => 'Server certificate changed',
 			'localMedia.webdav.stateUnreachable' => 'Can\'t reach NAS',
 			'localMedia.webdav.stateCredUnreadable' => 'Couldn\'t read password',
 			'localMedia.webdav.connected' => 'Connected',
 			'localMedia.webdav.errorForbidden' => 'This account has no WebDAV access. Grant it WebDAV permission in the NAS settings.',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.webdav.errorTls' => 'Secure connection failed. Check that http:// or https:// matches the NAS settings.',
 			'localMedia.webdav.errorTryHttps' => 'If the NAS only serves HTTPS, add https:// in front of the address.',
 			'localMedia.webdav.previousStep' => 'Back',
@@ -16923,6 +16973,9 @@ extension on Translations {
 			'frameInterp.title' => 'Frame interpolation',
 			'frameInterp.action' => 'Interpolate to 2× frame rate',
 			'frameInterp.playInterpolated' => 'Play interpolated version',
+			'frameInterp.playOriginal' => 'Play original',
+			'frameInterp.deleteInterpolated' => 'Also delete the interpolated version',
+			'frameInterp.deleteInterpolatedDesc' => 'Deletes the interpolated video file and its task record',
 			'frameInterp.viewTasks' => 'View interpolation tasks',
 			'frameInterp.badge' => '2× FPS',
 			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',
@@ -16950,6 +17003,13 @@ extension on Translations {
 			'frameInterp.confirm.deleteOutput' => 'Also delete the interpolated file',
 			'frameInterp.confirm.clearTitle' => 'Clear finished records?',
 			'frameInterp.confirm.clearContent' => 'Interpolated files stay on disk; only the records are removed.',
+			'frameInterp.confirm.enqueueTitle' => 'Interpolate this video?',
+			'frameInterp.confirm.enqueueAction' => 'Start',
+			'frameInterp.confirm.fpsUnit' => 'fps',
+			'frameInterp.confirm.saveNote' => 'Saved as a new file; the original stays untouched',
+			'frameInterp.confirm.resetTitle' => 'Progress can\'t be resumed. It starts over if you:',
+			'frameInterp.confirm.resetBackground' => 'Switch to another app or lock the screen',
+			'frameInterp.confirm.resetClosed' => 'Close the app, or the system closes it',
 			'frameInterp.toast.queued' => 'Added to the interpolation queue',
 			'frameInterp.toast.completed' => ({required Object title}) => 'Interpolation finished: ${title}',
 			'frameInterp.toast.failed' => ({required Object title}) => 'Interpolation failed: ${title}',

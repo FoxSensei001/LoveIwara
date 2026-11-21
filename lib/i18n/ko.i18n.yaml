@@ -717,6 +717,9 @@ settings:
   glassQualityPremiumDesc: "Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass"
   glassQualityCurrent: "Currently active"
   glassChromeParametersDesc: "Navigation glass parameters apply live to headers, buttons and the bottom bar"
+  glassPreview: "Preview"
+  glassPremiumOnly: "Only takes effect with the full refraction quality"
+  glassSaturationNeedsBlur: "With the smooth quality, only takes effect when background blur is above 0"
   glassOpacity: "Opacity"
   glassBlur: "Background blur (sigma)"
   glassBlurDesc: "0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness"
@@ -727,8 +730,6 @@ settings:
   glassSaturation: "Background saturation"
   glassChromaticAberration: "Chromatic aberration"
   glassShadows: "Shadows"
-  glassPanelParameters: "Menu panel parameters"
-  glassPanelParametersDesc: "Applies to floating menus; panels use a separate lens renderer"
   glassResetParameters: "Restore glass defaults"
   glassEffect: 인터페이스 재질
   glassEffectDesc: 앱 전반에 사용할 재질을 선택합니다 — 헤더 캡슐, 메뉴, 대화 상자 버튼, 하단 내비게이션 바
@@ -1532,6 +1533,10 @@ videoDetail:
     currentQuality: 현재 화질
     duration: 길이
     resolution: 해상도
+    frameRate: "프레임 레이트"
+    frameRateValue: "${fps} fps"
+    frameRateInterpolated: "${fps} fps (보간 버전, 원본 ${from} fps)"
+    frameRateHasInterpolated: "${fps} fps (원본, ${to} fps 보간 버전 있음)"
     fileInfo: 파일 정보
     fileName: 파일 이름
     fileSize: 파일 크기
@@ -4076,6 +4081,9 @@ frameInterp:
   title: "프레임 보간 작업"
   action: "프레임 보간(2배 프레임 레이트로 생성)"
   playInterpolated: "보간된 버전 재생"
+  playOriginal: "원본 재생"
+  deleteInterpolated: "보간 버전도 삭제"
+  deleteInterpolatedDesc: "보간된 영상 파일과 작업 기록을 함께 삭제합니다"
   viewTasks: "보간 작업 보기"
   badge: "보간"
   fpsBadge: "${fps} FPS"
@@ -4106,6 +4114,13 @@ frameInterp:
     deleteOutput: "보간된 파일도 함께 삭제"
     clearTitle: "완료된 기록을 지우시겠습니까?"
     clearContent: "보간된 파일은 디스크에 그대로 남고 기록만 삭제됩니다."
+    enqueueTitle: "프레임 보간을 할까요?"
+    enqueueAction: "보간 시작"
+    fpsUnit: "fps"
+    saveNote: "새 파일로 저장되며 원본 영상은 그대로 유지됩니다"
+    resetTitle: "이어서 처리할 수 없어 다음 경우 처음부터 다시 시작합니다:"
+    resetBackground: "다른 앱으로 전환하거나 화면을 잠글 때"
+    resetClosed: "앱을 닫거나 시스템이 앱을 종료할 때"
   toast:
     queued: "보간 대기열에 추가했습니다"
     completed: "프레임 보간 완료: ${title}"

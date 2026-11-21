@@ -870,6 +870,9 @@ class _TranslationsSettingsFr extends TranslationsSettingsEn {
 	@override String get glassQualityPremiumDesc => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass';
 	@override String get glassQualityCurrent => 'Currently active';
 	@override String get glassChromeParametersDesc => 'Navigation glass parameters apply live to headers, buttons and the bottom bar';
+	@override String get glassPreview => 'Preview';
+	@override String get glassPremiumOnly => 'Only takes effect with the full refraction quality';
+	@override String get glassSaturationNeedsBlur => 'With the smooth quality, only takes effect when background blur is above 0';
 	@override String get glassOpacity => 'Opacity';
 	@override String get glassBlur => 'Background blur (sigma)';
 	@override String get glassBlurDesc => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness';
@@ -880,8 +883,6 @@ class _TranslationsSettingsFr extends TranslationsSettingsEn {
 	@override String get glassSaturation => 'Background saturation';
 	@override String get glassChromaticAberration => 'Chromatic aberration';
 	@override String get glassShadows => 'Shadows';
-	@override String get glassPanelParameters => 'Menu panel parameters';
-	@override String get glassPanelParametersDesc => 'Applies to floating menus; panels use a separate lens renderer';
 	@override String get glassResetParameters => 'Restore glass defaults';
 	@override String get glassEffect => 'Matériau de l\'interface';
 	@override String get glassEffectDesc => 'Choisit le matériau utilisé dans toute l\'app — capsules d\'en-tête, menus, boutons de dialogue et barre de navigation inférieure';
@@ -3254,6 +3255,9 @@ class _TranslationsFrameInterpFr extends TranslationsFrameInterpEn {
 	@override String get title => 'Interpolation d\'images';
 	@override String get action => 'Interpoler au double de fréquence d\'images';
 	@override String get playInterpolated => 'Lire la version interpolée';
+	@override String get playOriginal => 'Lire l\'original';
+	@override String get deleteInterpolated => 'Supprimer aussi la version interpolée';
+	@override String get deleteInterpolatedDesc => 'Supprime le fichier vidéo interpolé et sa tâche';
 	@override String get viewTasks => 'Voir les tâches d\'interpolation';
 	@override String get badge => '2× FPS';
 	@override String fpsBadge({required Object fps}) => '${fps} FPS';
@@ -3792,6 +3796,10 @@ class _TranslationsVideoDetailLocalInfoFr extends TranslationsVideoDetailLocalIn
 	@override String get currentQuality => 'Qualité actuelle';
 	@override String get duration => 'Durée';
 	@override String get resolution => 'Résolution';
+	@override String get frameRate => 'Fréquence d\'images';
+	@override String frameRateValue({required Object fps}) => '${fps} i/s';
+	@override String frameRateInterpolated({required Object fps, required Object from}) => '${fps} i/s (interpolée, originale ${from} i/s)';
+	@override String frameRateHasInterpolated({required Object fps, required Object to}) => '${fps} i/s (originale, version ${to} i/s disponible)';
 	@override String get fileInfo => 'Infos du fichier';
 	@override String get fileName => 'Nom du fichier';
 	@override String get fileSize => 'Taille du fichier';
@@ -5023,6 +5031,13 @@ class _TranslationsFrameInterpConfirmFr extends TranslationsFrameInterpConfirmEn
 	@override String get deleteOutput => 'Supprimer aussi le fichier interpolé';
 	@override String get clearTitle => 'Effacer les enregistrements terminés ?';
 	@override String get clearContent => 'Les fichiers interpolés restent sur le disque ; seuls les enregistrements sont supprimés.';
+	@override String get enqueueTitle => 'Interpoler cette vidéo ?';
+	@override String get enqueueAction => 'Démarrer';
+	@override String get fpsUnit => 'i/s';
+	@override String get saveNote => 'Enregistré dans un nouveau fichier ; l\'original reste intact';
+	@override String get resetTitle => 'Impossible de reprendre en cours. Tout recommence si vous :';
+	@override String get resetBackground => 'passez à une autre app ou verrouillez l\'écran';
+	@override String get resetClosed => 'fermez l\'app, ou si le système la ferme';
 }
 
 // Path: frameInterp.toast
@@ -5978,6 +5993,9 @@ extension on TranslationsFr {
 			'settings.glassQualityPremiumDesc' => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass',
 			'settings.glassQualityCurrent' => 'Currently active',
 			'settings.glassChromeParametersDesc' => 'Navigation glass parameters apply live to headers, buttons and the bottom bar',
+			'settings.glassPreview' => 'Preview',
+			'settings.glassPremiumOnly' => 'Only takes effect with the full refraction quality',
+			'settings.glassSaturationNeedsBlur' => 'With the smooth quality, only takes effect when background blur is above 0',
 			'settings.glassOpacity' => 'Opacity',
 			'settings.glassBlur' => 'Background blur (sigma)',
 			'settings.glassBlurDesc' => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness',
@@ -5988,8 +6006,6 @@ extension on TranslationsFr {
 			'settings.glassSaturation' => 'Background saturation',
 			'settings.glassChromaticAberration' => 'Chromatic aberration',
 			'settings.glassShadows' => 'Shadows',
-			'settings.glassPanelParameters' => 'Menu panel parameters',
-			'settings.glassPanelParametersDesc' => 'Applies to floating menus; panels use a separate lens renderer',
 			'settings.glassResetParameters' => 'Restore glass defaults',
 			'settings.glassEffect' => 'Matériau de l\'interface',
 			'settings.glassEffectDesc' => 'Choisit le matériau utilisé dans toute l\'app — capsules d\'en-tête, menus, boutons de dialogue et barre de navigation inférieure',
@@ -6322,9 +6338,9 @@ extension on TranslationsFr {
 			'settings.keybinding.actionGalleryPlayPause' => 'Lecture / Pause',
 			'settings.keybinding.actionGallerySeekBackward' => 'Rembobiner',
 			'settings.keybinding.actionGallerySeekForward' => 'Avance rapide',
-			'settings.keybinding.actionGalleryToggleMute' => 'Activer/couper le son',
 			_ => null,
 		} ?? switch (path) {
+			'settings.keybinding.actionGalleryToggleMute' => 'Activer/couper le son',
 			'settings.keybinding.actionPlayPause' => 'Lecture / Pause',
 			'settings.keybinding.actionSpeedUp' => 'Augmenter la vitesse',
 			'settings.keybinding.actionSpeedDown' => 'Réduire la vitesse',
@@ -6759,6 +6775,10 @@ extension on TranslationsFr {
 			'videoDetail.localInfo.currentQuality' => 'Qualité actuelle',
 			'videoDetail.localInfo.duration' => 'Durée',
 			'videoDetail.localInfo.resolution' => 'Résolution',
+			'videoDetail.localInfo.frameRate' => 'Fréquence d\'images',
+			'videoDetail.localInfo.frameRateValue' => ({required Object fps}) => '${fps} i/s',
+			'videoDetail.localInfo.frameRateInterpolated' => ({required Object fps, required Object from}) => '${fps} i/s (interpolée, originale ${from} i/s)',
+			'videoDetail.localInfo.frameRateHasInterpolated' => ({required Object fps, required Object to}) => '${fps} i/s (originale, version ${to} i/s disponible)',
 			'videoDetail.localInfo.fileInfo' => 'Infos du fichier',
 			'videoDetail.localInfo.fileName' => 'Nom du fichier',
 			'videoDetail.localInfo.fileSize' => 'Taille du fichier',
@@ -6832,13 +6852,13 @@ extension on TranslationsFr {
 			'videoDetail.gestureGuide.quest.still' => 'Illustration fixe',
 			'videoDetail.gestureGuide.quest.done' => 'Compris, continuer',
 			'videoDetail.gestureGuide.quest.leftController' => 'Main gauche',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.rightController' => 'Main droite',
 			'videoDetail.gestureGuide.quest.trigger' => 'Gâchette d\'index',
 			'videoDetail.gestureGuide.quest.grip' => 'Bouton de préhension',
 			'videoDetail.gestureGuide.quest.bothGrips' => 'Les deux boutons de préhension',
 			'videoDetail.gestureGuide.quest.stick' => 'Stick',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.handTracking' => 'Suivi des mains',
 			'videoDetail.gestureGuide.quest.ready' => 'Prêt',
 			'videoDetail.gestureGuide.quest.press' => 'Appuyer',
@@ -7346,13 +7366,13 @@ extension on TranslationsFr {
 			'download.actions.redownload' => 'Download again',
 			'download.actions.relocate' => 'Move files to…',
 			'download.actions.categorize' => 'Categorize…',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.viewOnline' => 'View online page',
 			'download.actions.delete' => 'Delete…',
 			'download.actions.redownloadStarted' => ({required Object count}) => 'Started downloading ${count} items again',
 			'download.actions.redownloadNone' => 'Nothing to download again',
 			'download.actions.deleteTitle' => ({required Object count}) => 'Delete ${count} downloads?',
-			_ => null,
-		} ?? switch (path) {
 			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '${count} items · ${size}',
 			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '${count} items',
 			'download.actions.deleteGalleryNote' => ({required Object count}) => 'Size of ${count} galleries not included',
@@ -7860,13 +7880,13 @@ extension on TranslationsFr {
 			'translation.enableGoogleTranslation' => 'Activer la traduction Google',
 			'translation.thinking' => 'Réflexion...',
 			'translation.thoughtProcess' => 'Processus de réflexion',
+			_ => null,
+		} ?? switch (path) {
 			'translation.modelCompatibility' => 'Compatibilité des modèles',
 			'translation.modelCompatibilityDescription' => 'Adapter les paramètres de requête aux modèles récents tels que les modèles de raisonnement (o1/o3, DeepSeek-R1, QwQ)',
 			'translation.reasoningModel' => 'Modèle de raisonnement',
 			'translation.reasoningModelDescription' => 'Pour o1/o3, DeepSeek-R1, QwQ, etc. Intègre le prompt dans le message utilisateur, omet la température et utilise max_completion_tokens',
 			'translation.useMaxCompletionTokens' => 'Utiliser max_completion_tokens',
-			_ => null,
-		} ?? switch (path) {
 			'translation.useMaxCompletionTokensDescription' => 'Les points de terminaison OpenAI récents exigent max_completion_tokens au lieu du max_tokens obsolète',
 			'translation.sendTemperature' => 'Envoyer la température',
 			'translation.sendTemperatureDescription' => 'À désactiver pour les modèles qui rejettent le paramètre temperature (la plupart des modèles de raisonnement)',
@@ -8374,13 +8394,13 @@ extension on TranslationsFr {
 			'proxyHelper.systemProxyDetected' => 'Proxy système détecté',
 			'proxyHelper.copied' => 'Copié',
 			'proxyHelper.copy' => 'Copier',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.selectTags' => 'Sélectionner des tags',
 			'tagSelector.clickToSelectTags' => 'Cliquez pour sélectionner des tags',
 			'tagSelector.addTag' => 'Ajouter un tag',
 			'tagSelector.removeTag' => 'Retirer le tag',
 			'tagSelector.deleteTag' => 'Supprimer le tag',
-			_ => null,
-		} ?? switch (path) {
 			'tagSelector.usageInstructions' => 'Ajoutez d\'abord des tags, puis cliquez pour en sélectionner parmi les tags existants',
 			'tagSelector.usageInstructionsTooltip' => 'Mode d\'emploi',
 			'tagSelector.addTagTooltip' => 'Ajouter un tag',
@@ -8888,13 +8908,13 @@ extension on TranslationsFr {
 			'localMedia.webdav.alreadyAdded' => 'This NAS folder has already been added',
 			'localMedia.webdav.relogin' => 'Sign in again',
 			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.stateCertUntrusted' => 'Server certificate changed',
 			'localMedia.webdav.stateUnreachable' => 'Can\'t reach NAS',
 			'localMedia.webdav.stateCredUnreadable' => 'Couldn\'t read password',
 			'localMedia.webdav.connected' => 'Connected',
 			'localMedia.webdav.errorForbidden' => 'This account has no WebDAV access. Grant it WebDAV permission in the NAS settings.',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.webdav.errorTls' => 'Secure connection failed. Check that http:// or https:// matches the NAS settings.',
 			'localMedia.webdav.errorTryHttps' => 'If the NAS only serves HTTPS, add https:// in front of the address.',
 			'localMedia.webdav.previousStep' => 'Back',
@@ -9133,6 +9153,9 @@ extension on TranslationsFr {
 			'frameInterp.title' => 'Interpolation d\'images',
 			'frameInterp.action' => 'Interpoler au double de fréquence d\'images',
 			'frameInterp.playInterpolated' => 'Lire la version interpolée',
+			'frameInterp.playOriginal' => 'Lire l\'original',
+			'frameInterp.deleteInterpolated' => 'Supprimer aussi la version interpolée',
+			'frameInterp.deleteInterpolatedDesc' => 'Supprime le fichier vidéo interpolé et sa tâche',
 			'frameInterp.viewTasks' => 'Voir les tâches d\'interpolation',
 			'frameInterp.badge' => '2× FPS',
 			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',
@@ -9160,6 +9183,13 @@ extension on TranslationsFr {
 			'frameInterp.confirm.deleteOutput' => 'Supprimer aussi le fichier interpolé',
 			'frameInterp.confirm.clearTitle' => 'Effacer les enregistrements terminés ?',
 			'frameInterp.confirm.clearContent' => 'Les fichiers interpolés restent sur le disque ; seuls les enregistrements sont supprimés.',
+			'frameInterp.confirm.enqueueTitle' => 'Interpoler cette vidéo ?',
+			'frameInterp.confirm.enqueueAction' => 'Démarrer',
+			'frameInterp.confirm.fpsUnit' => 'i/s',
+			'frameInterp.confirm.saveNote' => 'Enregistré dans un nouveau fichier ; l\'original reste intact',
+			'frameInterp.confirm.resetTitle' => 'Impossible de reprendre en cours. Tout recommence si vous :',
+			'frameInterp.confirm.resetBackground' => 'passez à une autre app ou verrouillez l\'écran',
+			'frameInterp.confirm.resetClosed' => 'fermez l\'app, ou si le système la ferme',
 			'frameInterp.toast.queued' => 'Ajouté à la file d\'interpolation',
 			'frameInterp.toast.completed' => ({required Object title}) => 'Interpolation terminée : ${title}',
 			'frameInterp.toast.failed' => ({required Object title}) => 'Échec de l\'interpolation : ${title}',

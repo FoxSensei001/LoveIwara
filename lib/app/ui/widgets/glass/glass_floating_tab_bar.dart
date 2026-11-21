@@ -6,6 +6,7 @@ import 'package:i_iwara/utils/glass_perf_knobs.dart';
 // 带前缀：两个玻璃包的公开面与本仓库自己的组件大面积重名（见
 // `liquid_glass_material.dart` 顶部那段说明），不加前缀会一片 ambiguous_import。
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lgw;
+import 'package:i_iwara/app/ui/widgets/glass/glass_appearance_scope.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -355,6 +356,9 @@ class _GlassFloatingTabBarState extends State<GlassFloatingTabBar> {
   }
 
   Widget _build(BuildContext context, {required double barWidth}) {
+    // 登记为外观参数的依赖：主题设置里改了参数，底栏要跟着重建，不能等到
+    // 下次别的原因触发重建才变（单块玻璃 / 融合层都已登记，只漏了这里）。
+    GlassAppearanceScope.of(context);
     final cs = Theme.of(context).colorScheme;
     final GlassFloatingBarAction? action = widget.action;
     final List<GlassTabItem> items = widget.items;

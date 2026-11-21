@@ -717,6 +717,9 @@ settings:
   glassQualityPremiumDesc: "Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass"
   glassQualityCurrent: "Currently active"
   glassChromeParametersDesc: "Navigation glass parameters apply live to headers, buttons and the bottom bar"
+  glassPreview: "Preview"
+  glassPremiumOnly: "Only takes effect with the full refraction quality"
+  glassSaturationNeedsBlur: "With the smooth quality, only takes effect when background blur is above 0"
   glassOpacity: "Opacity"
   glassBlur: "Background blur (sigma)"
   glassBlurDesc: "0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness"
@@ -727,8 +730,6 @@ settings:
   glassSaturation: "Background saturation"
   glassChromaticAberration: "Chromatic aberration"
   glassShadows: "Shadows"
-  glassPanelParameters: "Menu panel parameters"
-  glassPanelParametersDesc: "Applies to floating menus; panels use a separate lens renderer"
   glassResetParameters: "Restore glass defaults"
   glassEffect: Стиль интерфейса
   glassEffectDesc: Материал элементов интерфейса — заголовков, меню, кнопок и нижней панели
@@ -1532,6 +1533,10 @@ videoDetail:
     currentQuality: Текущее качество
     duration: Длительность
     resolution: Разрешение
+    frameRate: "Частота кадров"
+    frameRateValue: "${fps} к/с"
+    frameRateInterpolated: "${fps} к/с (интерполяция, исходник ${from} к/с)"
+    frameRateHasInterpolated: "${fps} к/с (исходник, есть версия ${to} к/с)"
     fileInfo: О файле
     fileName: Имя файла
     fileSize: Размер файла
@@ -4076,6 +4081,9 @@ frameInterp:
   title: "Интерполяция кадров"
   action: "Увеличить частоту кадров в 2 раза"
   playInterpolated: "Воспроизвести версию с интерполяцией"
+  playOriginal: "Смотреть оригинал"
+  deleteInterpolated: "Удалить и интерполированную версию"
+  deleteInterpolatedDesc: "Удаляет интерполированный файл и запись о задаче"
   viewTasks: "Задачи интерполяции"
   badge: "2× FPS"
   fpsBadge: "${fps} FPS"
@@ -4106,6 +4114,13 @@ frameInterp:
     deleteOutput: "Также удалить файл с интерполяцией"
     clearTitle: "Очистить завершённые записи?"
     clearContent: "Файлы с интерполяцией останутся на диске, будут удалены только записи."
+    enqueueTitle: "Интерполировать видео?"
+    enqueueAction: "Начать"
+    fpsUnit: "к/с"
+    saveNote: "Сохраняется в новый файл, исходное видео не меняется"
+    resetTitle: "Продолжить с места остановки нельзя. Всё начнётся заново, если:"
+    resetBackground: "переключиться на другое приложение или заблокировать экран"
+    resetClosed: "закрыть приложение, или его закроет система"
   toast:
     queued: "Добавлено в очередь интерполяции"
     completed: "Интерполяция завершена: ${title}"

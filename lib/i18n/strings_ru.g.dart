@@ -870,6 +870,9 @@ class _TranslationsSettingsRu extends TranslationsSettingsEn {
 	@override String get glassQualityPremiumDesc => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass';
 	@override String get glassQualityCurrent => 'Currently active';
 	@override String get glassChromeParametersDesc => 'Navigation glass parameters apply live to headers, buttons and the bottom bar';
+	@override String get glassPreview => 'Preview';
+	@override String get glassPremiumOnly => 'Only takes effect with the full refraction quality';
+	@override String get glassSaturationNeedsBlur => 'With the smooth quality, only takes effect when background blur is above 0';
 	@override String get glassOpacity => 'Opacity';
 	@override String get glassBlur => 'Background blur (sigma)';
 	@override String get glassBlurDesc => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness';
@@ -880,8 +883,6 @@ class _TranslationsSettingsRu extends TranslationsSettingsEn {
 	@override String get glassSaturation => 'Background saturation';
 	@override String get glassChromaticAberration => 'Chromatic aberration';
 	@override String get glassShadows => 'Shadows';
-	@override String get glassPanelParameters => 'Menu panel parameters';
-	@override String get glassPanelParametersDesc => 'Applies to floating menus; panels use a separate lens renderer';
 	@override String get glassResetParameters => 'Restore glass defaults';
 	@override String get glassEffect => 'Стиль интерфейса';
 	@override String get glassEffectDesc => 'Материал элементов интерфейса — заголовков, меню, кнопок и нижней панели';
@@ -3254,6 +3255,9 @@ class _TranslationsFrameInterpRu extends TranslationsFrameInterpEn {
 	@override String get title => 'Интерполяция кадров';
 	@override String get action => 'Увеличить частоту кадров в 2 раза';
 	@override String get playInterpolated => 'Воспроизвести версию с интерполяцией';
+	@override String get playOriginal => 'Смотреть оригинал';
+	@override String get deleteInterpolated => 'Удалить и интерполированную версию';
+	@override String get deleteInterpolatedDesc => 'Удаляет интерполированный файл и запись о задаче';
 	@override String get viewTasks => 'Задачи интерполяции';
 	@override String get badge => '2× FPS';
 	@override String fpsBadge({required Object fps}) => '${fps} FPS';
@@ -3792,6 +3796,10 @@ class _TranslationsVideoDetailLocalInfoRu extends TranslationsVideoDetailLocalIn
 	@override String get currentQuality => 'Текущее качество';
 	@override String get duration => 'Длительность';
 	@override String get resolution => 'Разрешение';
+	@override String get frameRate => 'Частота кадров';
+	@override String frameRateValue({required Object fps}) => '${fps} к/с';
+	@override String frameRateInterpolated({required Object fps, required Object from}) => '${fps} к/с (интерполяция, исходник ${from} к/с)';
+	@override String frameRateHasInterpolated({required Object fps, required Object to}) => '${fps} к/с (исходник, есть версия ${to} к/с)';
 	@override String get fileInfo => 'О файле';
 	@override String get fileName => 'Имя файла';
 	@override String get fileSize => 'Размер файла';
@@ -5023,6 +5031,13 @@ class _TranslationsFrameInterpConfirmRu extends TranslationsFrameInterpConfirmEn
 	@override String get deleteOutput => 'Также удалить файл с интерполяцией';
 	@override String get clearTitle => 'Очистить завершённые записи?';
 	@override String get clearContent => 'Файлы с интерполяцией останутся на диске, будут удалены только записи.';
+	@override String get enqueueTitle => 'Интерполировать видео?';
+	@override String get enqueueAction => 'Начать';
+	@override String get fpsUnit => 'к/с';
+	@override String get saveNote => 'Сохраняется в новый файл, исходное видео не меняется';
+	@override String get resetTitle => 'Продолжить с места остановки нельзя. Всё начнётся заново, если:';
+	@override String get resetBackground => 'переключиться на другое приложение или заблокировать экран';
+	@override String get resetClosed => 'закрыть приложение, или его закроет система';
 }
 
 // Path: frameInterp.toast
@@ -5978,6 +5993,9 @@ extension on TranslationsRu {
 			'settings.glassQualityPremiumDesc' => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass',
 			'settings.glassQualityCurrent' => 'Currently active',
 			'settings.glassChromeParametersDesc' => 'Navigation glass parameters apply live to headers, buttons and the bottom bar',
+			'settings.glassPreview' => 'Preview',
+			'settings.glassPremiumOnly' => 'Only takes effect with the full refraction quality',
+			'settings.glassSaturationNeedsBlur' => 'With the smooth quality, only takes effect when background blur is above 0',
 			'settings.glassOpacity' => 'Opacity',
 			'settings.glassBlur' => 'Background blur (sigma)',
 			'settings.glassBlurDesc' => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness',
@@ -5988,8 +6006,6 @@ extension on TranslationsRu {
 			'settings.glassSaturation' => 'Background saturation',
 			'settings.glassChromaticAberration' => 'Chromatic aberration',
 			'settings.glassShadows' => 'Shadows',
-			'settings.glassPanelParameters' => 'Menu panel parameters',
-			'settings.glassPanelParametersDesc' => 'Applies to floating menus; panels use a separate lens renderer',
 			'settings.glassResetParameters' => 'Restore glass defaults',
 			'settings.glassEffect' => 'Стиль интерфейса',
 			'settings.glassEffectDesc' => 'Материал элементов интерфейса — заголовков, меню, кнопок и нижней панели',
@@ -6322,9 +6338,9 @@ extension on TranslationsRu {
 			'settings.keybinding.actionGalleryPlayPause' => 'Воспроизведение / Пауза',
 			'settings.keybinding.actionGallerySeekBackward' => 'Назад',
 			'settings.keybinding.actionGallerySeekForward' => 'Вперед',
-			'settings.keybinding.actionGalleryToggleMute' => 'Вкл./Выкл. звук',
 			_ => null,
 		} ?? switch (path) {
+			'settings.keybinding.actionGalleryToggleMute' => 'Вкл./Выкл. звук',
 			'settings.keybinding.actionPlayPause' => 'Воспроизведение / Пауза',
 			'settings.keybinding.actionSpeedUp' => 'Увеличить скорость',
 			'settings.keybinding.actionSpeedDown' => 'Уменьшить скорость',
@@ -6759,6 +6775,10 @@ extension on TranslationsRu {
 			'videoDetail.localInfo.currentQuality' => 'Текущее качество',
 			'videoDetail.localInfo.duration' => 'Длительность',
 			'videoDetail.localInfo.resolution' => 'Разрешение',
+			'videoDetail.localInfo.frameRate' => 'Частота кадров',
+			'videoDetail.localInfo.frameRateValue' => ({required Object fps}) => '${fps} к/с',
+			'videoDetail.localInfo.frameRateInterpolated' => ({required Object fps, required Object from}) => '${fps} к/с (интерполяция, исходник ${from} к/с)',
+			'videoDetail.localInfo.frameRateHasInterpolated' => ({required Object fps, required Object to}) => '${fps} к/с (исходник, есть версия ${to} к/с)',
 			'videoDetail.localInfo.fileInfo' => 'О файле',
 			'videoDetail.localInfo.fileName' => 'Имя файла',
 			'videoDetail.localInfo.fileSize' => 'Размер файла',
@@ -6832,13 +6852,13 @@ extension on TranslationsRu {
 			'videoDetail.gestureGuide.quest.still' => 'Иллюстрация',
 			'videoDetail.gestureGuide.quest.done' => 'Понятно, продолжить',
 			'videoDetail.gestureGuide.quest.leftController' => 'Левая рука',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.rightController' => 'Правая рука',
 			'videoDetail.gestureGuide.quest.trigger' => 'Триггер (курок)',
 			'videoDetail.gestureGuide.quest.grip' => 'Боковая кнопка (хват)',
 			'videoDetail.gestureGuide.quest.bothGrips' => 'Обе боковые кнопки',
 			'videoDetail.gestureGuide.quest.stick' => 'Стик',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.handTracking' => 'Отслеживание рук',
 			'videoDetail.gestureGuide.quest.ready' => 'Готово',
 			'videoDetail.gestureGuide.quest.press' => 'Нажать',
@@ -7346,13 +7366,13 @@ extension on TranslationsRu {
 			'download.actions.redownload' => 'Download again',
 			'download.actions.relocate' => 'Move files to…',
 			'download.actions.categorize' => 'Categorize…',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.viewOnline' => 'View online page',
 			'download.actions.delete' => 'Delete…',
 			'download.actions.redownloadStarted' => ({required Object count}) => 'Started downloading ${count} items again',
 			'download.actions.redownloadNone' => 'Nothing to download again',
 			'download.actions.deleteTitle' => ({required Object count}) => 'Delete ${count} downloads?',
-			_ => null,
-		} ?? switch (path) {
 			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '${count} items · ${size}',
 			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '${count} items',
 			'download.actions.deleteGalleryNote' => ({required Object count}) => 'Size of ${count} galleries not included',
@@ -7860,13 +7880,13 @@ extension on TranslationsRu {
 			'translation.enableGoogleTranslation' => 'Включить перевод Google',
 			'translation.thinking' => 'Размышление...',
 			'translation.thoughtProcess' => 'Процесс рассуждения',
+			_ => null,
+		} ?? switch (path) {
 			'translation.modelCompatibility' => 'Совместимость моделей',
 			'translation.modelCompatibilityDescription' => 'Адаптирует параметры запроса для современных моделей, таких как модели рассуждения (o1/o3, DeepSeek-R1, QwQ)',
 			'translation.reasoningModel' => 'Модель рассуждений',
 			'translation.reasoningModelDescription' => 'Для o1/o3, DeepSeek-R1, QwQ и др. Объединяет подсказку с сообщением пользователя, пропускает temperature и использует max_completion_tokens',
 			'translation.useMaxCompletionTokens' => 'Использовать max_completion_tokens',
-			_ => null,
-		} ?? switch (path) {
 			'translation.useMaxCompletionTokensDescription' => 'Новые конечные точки OpenAI требуют max_completion_tokens вместо устаревшего max_tokens',
 			'translation.sendTemperature' => 'Отправлять temperature',
 			'translation.sendTemperatureDescription' => 'Отключите для моделей, отвергающих параметр temperature (большинство моделей рассуждений)',
@@ -8374,13 +8394,13 @@ extension on TranslationsRu {
 			'proxyHelper.systemProxyDetected' => 'Обнаружен системный прокси',
 			'proxyHelper.copied' => 'Скопировано',
 			'proxyHelper.copy' => 'Копировать',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.selectTags' => 'Выбрать теги',
 			'tagSelector.clickToSelectTags' => 'Нажмите, чтобы выбрать теги',
 			'tagSelector.addTag' => 'Добавить тег',
 			'tagSelector.removeTag' => 'Убрать тег',
 			'tagSelector.deleteTag' => 'Удалить тег',
-			_ => null,
-		} ?? switch (path) {
 			'tagSelector.usageInstructions' => 'Сначала добавьте теги, затем нажимайте, чтобы выбрать из существующих тегов',
 			'tagSelector.usageInstructionsTooltip' => 'Инструкция по использованию',
 			'tagSelector.addTagTooltip' => 'Добавить тег',
@@ -8888,13 +8908,13 @@ extension on TranslationsRu {
 			'localMedia.webdav.alreadyAdded' => 'This NAS folder has already been added',
 			'localMedia.webdav.relogin' => 'Sign in again',
 			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.stateCertUntrusted' => 'Server certificate changed',
 			'localMedia.webdav.stateUnreachable' => 'Can\'t reach NAS',
 			'localMedia.webdav.stateCredUnreadable' => 'Couldn\'t read password',
 			'localMedia.webdav.connected' => 'Connected',
 			'localMedia.webdav.errorForbidden' => 'This account has no WebDAV access. Grant it WebDAV permission in the NAS settings.',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.webdav.errorTls' => 'Secure connection failed. Check that http:// or https:// matches the NAS settings.',
 			'localMedia.webdav.errorTryHttps' => 'If the NAS only serves HTTPS, add https:// in front of the address.',
 			'localMedia.webdav.previousStep' => 'Back',
@@ -9133,6 +9153,9 @@ extension on TranslationsRu {
 			'frameInterp.title' => 'Интерполяция кадров',
 			'frameInterp.action' => 'Увеличить частоту кадров в 2 раза',
 			'frameInterp.playInterpolated' => 'Воспроизвести версию с интерполяцией',
+			'frameInterp.playOriginal' => 'Смотреть оригинал',
+			'frameInterp.deleteInterpolated' => 'Удалить и интерполированную версию',
+			'frameInterp.deleteInterpolatedDesc' => 'Удаляет интерполированный файл и запись о задаче',
 			'frameInterp.viewTasks' => 'Задачи интерполяции',
 			'frameInterp.badge' => '2× FPS',
 			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',
@@ -9160,6 +9183,13 @@ extension on TranslationsRu {
 			'frameInterp.confirm.deleteOutput' => 'Также удалить файл с интерполяцией',
 			'frameInterp.confirm.clearTitle' => 'Очистить завершённые записи?',
 			'frameInterp.confirm.clearContent' => 'Файлы с интерполяцией останутся на диске, будут удалены только записи.',
+			'frameInterp.confirm.enqueueTitle' => 'Интерполировать видео?',
+			'frameInterp.confirm.enqueueAction' => 'Начать',
+			'frameInterp.confirm.fpsUnit' => 'к/с',
+			'frameInterp.confirm.saveNote' => 'Сохраняется в новый файл, исходное видео не меняется',
+			'frameInterp.confirm.resetTitle' => 'Продолжить с места остановки нельзя. Всё начнётся заново, если:',
+			'frameInterp.confirm.resetBackground' => 'переключиться на другое приложение или заблокировать экран',
+			'frameInterp.confirm.resetClosed' => 'закрыть приложение, или его закроет система',
 			'frameInterp.toast.queued' => 'Добавлено в очередь интерполяции',
 			'frameInterp.toast.completed' => ({required Object title}) => 'Интерполяция завершена: ${title}',
 			'frameInterp.toast.failed' => ({required Object title}) => 'Ошибка интерполяции: ${title}',

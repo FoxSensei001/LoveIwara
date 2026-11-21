@@ -870,6 +870,9 @@ class _TranslationsSettingsId extends TranslationsSettingsEn {
 	@override String get glassQualityPremiumDesc => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass';
 	@override String get glassQualityCurrent => 'Currently active';
 	@override String get glassChromeParametersDesc => 'Navigation glass parameters apply live to headers, buttons and the bottom bar';
+	@override String get glassPreview => 'Preview';
+	@override String get glassPremiumOnly => 'Only takes effect with the full refraction quality';
+	@override String get glassSaturationNeedsBlur => 'With the smooth quality, only takes effect when background blur is above 0';
 	@override String get glassOpacity => 'Opacity';
 	@override String get glassBlur => 'Background blur (sigma)';
 	@override String get glassBlurDesc => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness';
@@ -880,8 +883,6 @@ class _TranslationsSettingsId extends TranslationsSettingsEn {
 	@override String get glassSaturation => 'Background saturation';
 	@override String get glassChromaticAberration => 'Chromatic aberration';
 	@override String get glassShadows => 'Shadows';
-	@override String get glassPanelParameters => 'Menu panel parameters';
-	@override String get glassPanelParametersDesc => 'Applies to floating menus; panels use a separate lens renderer';
 	@override String get glassResetParameters => 'Restore glass defaults';
 	@override String get glassEffect => 'Material Antarmuka';
 	@override String get glassEffectDesc => 'Memilih material yang digunakan di seluruh aplikasi — kapsul header, menu, tombol dialog, dan bilah navigasi bawah';
@@ -3254,6 +3255,9 @@ class _TranslationsFrameInterpId extends TranslationsFrameInterpEn {
 	@override String get title => 'Tugas interpolasi frame';
 	@override String get action => 'Interpolasi ke 2× frame rate';
 	@override String get playInterpolated => 'Putar versi interpolasi';
+	@override String get playOriginal => 'Putar asli';
+	@override String get deleteInterpolated => 'Hapus juga versi interpolasi';
+	@override String get deleteInterpolatedDesc => 'Menghapus file video hasil interpolasi beserta catatan tugasnya';
 	@override String get viewTasks => 'Lihat tugas interpolasi';
 	@override String get badge => '2× FPS';
 	@override String fpsBadge({required Object fps}) => '${fps} FPS';
@@ -3792,6 +3796,10 @@ class _TranslationsVideoDetailLocalInfoId extends TranslationsVideoDetailLocalIn
 	@override String get currentQuality => 'Kualitas Saat Ini';
 	@override String get duration => 'Durasi';
 	@override String get resolution => 'Resolusi';
+	@override String get frameRate => 'Frame rate';
+	@override String frameRateValue({required Object fps}) => '${fps} fps';
+	@override String frameRateInterpolated({required Object fps, required Object from}) => '${fps} fps (hasil interpolasi, asli ${from} fps)';
+	@override String frameRateHasInterpolated({required Object fps, required Object to}) => '${fps} fps (asli, versi ${to} fps tersedia)';
 	@override String get fileInfo => 'Info File';
 	@override String get fileName => 'Nama File';
 	@override String get fileSize => 'Ukuran File';
@@ -5023,6 +5031,13 @@ class _TranslationsFrameInterpConfirmId extends TranslationsFrameInterpConfirmEn
 	@override String get deleteOutput => 'Hapus juga berkas hasil interpolasi';
 	@override String get clearTitle => 'Hapus catatan yang selesai?';
 	@override String get clearContent => 'Berkas hasil interpolasi tetap ada di disk; hanya catatannya yang dihapus.';
+	@override String get enqueueTitle => 'Interpolasi video ini?';
+	@override String get enqueueAction => 'Mulai';
+	@override String get fpsUnit => 'fps';
+	@override String get saveNote => 'Disimpan sebagai file baru; video asli tidak diubah';
+	@override String get resetTitle => 'Tidak bisa dilanjutkan. Proses mulai dari awal jika:';
+	@override String get resetBackground => 'Beralih ke aplikasi lain atau mengunci layar';
+	@override String get resetClosed => 'Menutup aplikasi, atau sistem menutupnya';
 }
 
 // Path: frameInterp.toast
@@ -5978,6 +5993,9 @@ extension on TranslationsId {
 			'settings.glassQualityPremiumDesc' => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass',
 			'settings.glassQualityCurrent' => 'Currently active',
 			'settings.glassChromeParametersDesc' => 'Navigation glass parameters apply live to headers, buttons and the bottom bar',
+			'settings.glassPreview' => 'Preview',
+			'settings.glassPremiumOnly' => 'Only takes effect with the full refraction quality',
+			'settings.glassSaturationNeedsBlur' => 'With the smooth quality, only takes effect when background blur is above 0',
 			'settings.glassOpacity' => 'Opacity',
 			'settings.glassBlur' => 'Background blur (sigma)',
 			'settings.glassBlurDesc' => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness',
@@ -5988,8 +6006,6 @@ extension on TranslationsId {
 			'settings.glassSaturation' => 'Background saturation',
 			'settings.glassChromaticAberration' => 'Chromatic aberration',
 			'settings.glassShadows' => 'Shadows',
-			'settings.glassPanelParameters' => 'Menu panel parameters',
-			'settings.glassPanelParametersDesc' => 'Applies to floating menus; panels use a separate lens renderer',
 			'settings.glassResetParameters' => 'Restore glass defaults',
 			'settings.glassEffect' => 'Material Antarmuka',
 			'settings.glassEffectDesc' => 'Memilih material yang digunakan di seluruh aplikasi — kapsul header, menu, tombol dialog, dan bilah navigasi bawah',
@@ -6322,9 +6338,9 @@ extension on TranslationsId {
 			'settings.keybinding.actionGalleryPlayPause' => 'Putar / Jeda',
 			'settings.keybinding.actionGallerySeekBackward' => 'Mundur',
 			'settings.keybinding.actionGallerySeekForward' => 'Maju Cepat',
-			'settings.keybinding.actionGalleryToggleMute' => 'Alihkan Bisu',
 			_ => null,
 		} ?? switch (path) {
+			'settings.keybinding.actionGalleryToggleMute' => 'Alihkan Bisu',
 			'settings.keybinding.actionPlayPause' => 'Putar / Jeda',
 			'settings.keybinding.actionSpeedUp' => 'Tingkatkan Kecepatan',
 			'settings.keybinding.actionSpeedDown' => 'Kurangi Kecepatan',
@@ -6759,6 +6775,10 @@ extension on TranslationsId {
 			'videoDetail.localInfo.currentQuality' => 'Kualitas Saat Ini',
 			'videoDetail.localInfo.duration' => 'Durasi',
 			'videoDetail.localInfo.resolution' => 'Resolusi',
+			'videoDetail.localInfo.frameRate' => 'Frame rate',
+			'videoDetail.localInfo.frameRateValue' => ({required Object fps}) => '${fps} fps',
+			'videoDetail.localInfo.frameRateInterpolated' => ({required Object fps, required Object from}) => '${fps} fps (hasil interpolasi, asli ${from} fps)',
+			'videoDetail.localInfo.frameRateHasInterpolated' => ({required Object fps, required Object to}) => '${fps} fps (asli, versi ${to} fps tersedia)',
 			'videoDetail.localInfo.fileInfo' => 'Info File',
 			'videoDetail.localInfo.fileName' => 'Nama File',
 			'videoDetail.localInfo.fileSize' => 'Ukuran File',
@@ -6832,13 +6852,13 @@ extension on TranslationsId {
 			'videoDetail.gestureGuide.quest.still' => 'Ilustrasi diam',
 			'videoDetail.gestureGuide.quest.done' => 'Mengerti, lanjutkan',
 			'videoDetail.gestureGuide.quest.leftController' => 'Tangan kiri',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.rightController' => 'Tangan kanan',
 			'videoDetail.gestureGuide.quest.trigger' => 'Pemicu telunjuk',
 			'videoDetail.gestureGuide.quest.grip' => 'Tombol pegangan',
 			'videoDetail.gestureGuide.quest.bothGrips' => 'Kedua tombol pegangan',
 			'videoDetail.gestureGuide.quest.stick' => 'Stik analog',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.handTracking' => 'Pelacakan tangan',
 			'videoDetail.gestureGuide.quest.ready' => 'Siap',
 			'videoDetail.gestureGuide.quest.press' => 'Tekan',
@@ -7346,13 +7366,13 @@ extension on TranslationsId {
 			'download.actions.redownload' => 'Download again',
 			'download.actions.relocate' => 'Move files to…',
 			'download.actions.categorize' => 'Categorize…',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.viewOnline' => 'View online page',
 			'download.actions.delete' => 'Delete…',
 			'download.actions.redownloadStarted' => ({required Object count}) => 'Started downloading ${count} items again',
 			'download.actions.redownloadNone' => 'Nothing to download again',
 			'download.actions.deleteTitle' => ({required Object count}) => 'Delete ${count} downloads?',
-			_ => null,
-		} ?? switch (path) {
 			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '${count} items · ${size}',
 			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '${count} items',
 			'download.actions.deleteGalleryNote' => ({required Object count}) => 'Size of ${count} galleries not included',
@@ -7860,13 +7880,13 @@ extension on TranslationsId {
 			'translation.enableGoogleTranslation' => 'Aktifkan Terjemahan Google',
 			'translation.thinking' => 'Berpikir...',
 			'translation.thoughtProcess' => 'Proses Pemikiran',
+			_ => null,
+		} ?? switch (path) {
 			'translation.modelCompatibility' => 'Kompatibilitas Model',
 			'translation.modelCompatibilityDescription' => 'Sesuaikan parameter permintaan untuk model modern seperti model penalaran (o1/o3, DeepSeek-R1, QwQ)',
 			'translation.reasoningModel' => 'Model Penalaran',
 			'translation.reasoningModelDescription' => 'Untuk o1/o3, DeepSeek-R1, QwQ, dll. Melipat prompt ke dalam pesan pengguna, menghilangkan temperature, dan menggunakan max_completion_tokens',
 			'translation.useMaxCompletionTokens' => 'Gunakan max_completion_tokens',
-			_ => null,
-		} ?? switch (path) {
 			'translation.useMaxCompletionTokensDescription' => 'Endpoint OpenAI yang lebih baru memerlukan max_completion_tokens alih-alih max_tokens yang sudah usang',
 			'translation.sendTemperature' => 'Kirim temperature',
 			'translation.sendTemperatureDescription' => 'Nonaktifkan untuk model yang menolak parameter temperature (sebagian besar model penalaran)',
@@ -8374,13 +8394,13 @@ extension on TranslationsId {
 			'proxyHelper.systemProxyDetected' => 'Proksi sistem terdeteksi',
 			'proxyHelper.copied' => 'Disalin',
 			'proxyHelper.copy' => 'Salin',
+			_ => null,
+		} ?? switch (path) {
 			'tagSelector.selectTags' => 'Pilih Tag',
 			'tagSelector.clickToSelectTags' => 'Klik untuk memilih tag',
 			'tagSelector.addTag' => 'Tambah Tag',
 			'tagSelector.removeTag' => 'Hapus Tag',
 			'tagSelector.deleteTag' => 'Hapus Tag',
-			_ => null,
-		} ?? switch (path) {
 			'tagSelector.usageInstructions' => 'Tambahkan tag terlebih dahulu, lalu klik untuk memilih dari tag yang ada',
 			'tagSelector.usageInstructionsTooltip' => 'Petunjuk Penggunaan',
 			'tagSelector.addTagTooltip' => 'Tambah Tag',
@@ -8888,13 +8908,13 @@ extension on TranslationsId {
 			'localMedia.webdav.alreadyAdded' => 'This NAS folder has already been added',
 			'localMedia.webdav.relogin' => 'Sign in again',
 			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.stateCertUntrusted' => 'Server certificate changed',
 			'localMedia.webdav.stateUnreachable' => 'Can\'t reach NAS',
 			'localMedia.webdav.stateCredUnreadable' => 'Couldn\'t read password',
 			'localMedia.webdav.connected' => 'Connected',
 			'localMedia.webdav.errorForbidden' => 'This account has no WebDAV access. Grant it WebDAV permission in the NAS settings.',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.webdav.errorTls' => 'Secure connection failed. Check that http:// or https:// matches the NAS settings.',
 			'localMedia.webdav.errorTryHttps' => 'If the NAS only serves HTTPS, add https:// in front of the address.',
 			'localMedia.webdav.previousStep' => 'Back',
@@ -9133,6 +9153,9 @@ extension on TranslationsId {
 			'frameInterp.title' => 'Tugas interpolasi frame',
 			'frameInterp.action' => 'Interpolasi ke 2× frame rate',
 			'frameInterp.playInterpolated' => 'Putar versi interpolasi',
+			'frameInterp.playOriginal' => 'Putar asli',
+			'frameInterp.deleteInterpolated' => 'Hapus juga versi interpolasi',
+			'frameInterp.deleteInterpolatedDesc' => 'Menghapus file video hasil interpolasi beserta catatan tugasnya',
 			'frameInterp.viewTasks' => 'Lihat tugas interpolasi',
 			'frameInterp.badge' => '2× FPS',
 			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',
@@ -9160,6 +9183,13 @@ extension on TranslationsId {
 			'frameInterp.confirm.deleteOutput' => 'Hapus juga berkas hasil interpolasi',
 			'frameInterp.confirm.clearTitle' => 'Hapus catatan yang selesai?',
 			'frameInterp.confirm.clearContent' => 'Berkas hasil interpolasi tetap ada di disk; hanya catatannya yang dihapus.',
+			'frameInterp.confirm.enqueueTitle' => 'Interpolasi video ini?',
+			'frameInterp.confirm.enqueueAction' => 'Mulai',
+			'frameInterp.confirm.fpsUnit' => 'fps',
+			'frameInterp.confirm.saveNote' => 'Disimpan sebagai file baru; video asli tidak diubah',
+			'frameInterp.confirm.resetTitle' => 'Tidak bisa dilanjutkan. Proses mulai dari awal jika:',
+			'frameInterp.confirm.resetBackground' => 'Beralih ke aplikasi lain atau mengunci layar',
+			'frameInterp.confirm.resetClosed' => 'Menutup aplikasi, atau sistem menutupnya',
 			'frameInterp.toast.queued' => 'Ditambahkan ke antrean interpolasi',
 			'frameInterp.toast.completed' => ({required Object title}) => 'Interpolasi selesai: ${title}',
 			'frameInterp.toast.failed' => ({required Object title}) => 'Interpolasi gagal: ${title}',
