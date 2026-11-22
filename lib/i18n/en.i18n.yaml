@@ -1966,6 +1966,8 @@ notifications:
   kApprovedPost: Post approved
   kApprovedForumPost: Forum post approved
   kRejectedContent: Content review rejected
+  kWarning: "Warning from the site"
+  kWarningHint: "The moderators issued a warning on your account. Please follow the community rules. See the website for details."
   kUnknownType: Unknown notification type
 
 conversation:

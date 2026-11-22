@@ -1965,6 +1965,8 @@ notifications:
   kApprovedPost: อนุมัติโพสต์แล้ว
   kApprovedForumPost: อนุมัติโพสต์ฟอรัมแล้ว
   kRejectedContent: การตรวจสอบเนื้อหาถูกปฏิเสธ
+  kWarning: "คำเตือนจากเว็บไซต์"
+  kWarningHint: "ผู้ดูแลได้ออกคำเตือนให้บัญชีของคุณ โปรดปฏิบัติตามกฎของชุมชน ดูรายละเอียดได้บนเว็บไซต์"
   kUnknownType: ประเภทการแจ้งเตือนที่ไม่รู้จัก
 
 conversation:

@@ -1965,6 +1965,8 @@ notifications:
   kApprovedPost: Postingan disetujui
   kApprovedForumPost: Postingan forum disetujui
   kRejectedContent: Peninjauan konten ditolak
+  kWarning: "Peringatan dari situs"
+  kWarningHint: "Moderator memberi peringatan pada akunmu. Harap patuhi aturan komunitas. Lihat detailnya di situs web."
   kUnknownType: Jenis notifikasi tidak dikenal
 
 conversation:

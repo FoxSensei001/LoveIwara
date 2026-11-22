@@ -1564,6 +1564,8 @@ class _TranslationsNotificationsJa extends TranslationsNotificationsEn {
 	@override String get kApprovedPost => '投稿が承認されました';
 	@override String get kApprovedForumPost => 'フォーラム投稿が承認されました';
 	@override String get kRejectedContent => 'コンテンツ審査が拒否されました';
+	@override String get kWarning => 'サイトからの警告';
+	@override String get kWarningHint => '運営からアカウントに警告が出されました。コミュニティルールをご確認ください。詳細はウェブ版でご覧ください。';
 	@override String get kUnknownType => '不明な通知タイプ';
 }
 
@@ -7190,6 +7192,8 @@ extension on TranslationsJa {
 			'notifications.kApprovedPost' => '投稿が承認されました',
 			'notifications.kApprovedForumPost' => 'フォーラム投稿が承認されました',
 			'notifications.kRejectedContent' => 'コンテンツ審査が拒否されました',
+			'notifications.kWarning' => 'サイトからの警告',
+			'notifications.kWarningHint' => '運営からアカウントに警告が出されました。コミュニティルールをご確認ください。詳細はウェブ版でご覧ください。',
 			'notifications.kUnknownType' => '不明な通知タイプ',
 			'conversation.errors.pleaseSelectAUser' => 'ユーザーを選択してください',
 			'conversation.errors.pleaseEnterATitle' => 'タイトルを入力してください',
@@ -7369,10 +7373,10 @@ extension on TranslationsJa {
 			'download.actions.play' => '再生',
 			'download.actions.openWith' => '他のアプリで開く',
 			'download.actions.redownload' => '再ダウンロード',
-			'download.actions.relocate' => 'ファイルを移動…',
-			'download.actions.categorize' => '分類…',
 			_ => null,
 		} ?? switch (path) {
+			'download.actions.relocate' => 'ファイルを移動…',
+			'download.actions.categorize' => '分類…',
 			'download.actions.viewOnline' => 'オンラインページを見る',
 			'download.actions.delete' => '削除…',
 			'download.actions.redownloadStarted' => ({required Object count}) => '${count} 件の再ダウンロードを開始しました',
@@ -7883,10 +7887,10 @@ extension on TranslationsJa {
 			'translation.fallbackTranslationFailed' => '通常翻訳へのフォールバックも失敗',
 			'translation.translationSettings' => '翻訳設定',
 			'translation.enableGoogleTranslation' => 'Google翻訳を有効にする',
-			'translation.thinking' => '思考中…',
-			'translation.thoughtProcess' => '思考過程',
 			_ => null,
 		} ?? switch (path) {
+			'translation.thinking' => '思考中…',
+			'translation.thoughtProcess' => '思考過程',
 			'translation.modelCompatibility' => 'モデル互換性',
 			'translation.modelCompatibilityDescription' => '推論モデル(o1/o3、DeepSeek-R1、QwQ など)など最新モデルにリクエストパラメータを適合させます',
 			'translation.reasoningModel' => '推論モデル',
@@ -8397,10 +8401,10 @@ extension on TranslationsJa {
 			'firstTimeSetup.common.finishSetup' => '設定を完了',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => 'まず利用規約とコミュニティルールに同意してください',
 			'proxyHelper.systemProxyDetected' => 'システムプロキシを検出',
-			'proxyHelper.copied' => 'コピーしました',
-			'proxyHelper.copy' => 'コピー',
 			_ => null,
 		} ?? switch (path) {
+			'proxyHelper.copied' => 'コピーしました',
+			'proxyHelper.copy' => 'コピー',
 			'tagSelector.selectTags' => 'タグを選択',
 			'tagSelector.clickToSelectTags' => 'タグを選択するにはクリック',
 			'tagSelector.addTag' => 'タグを追加',
@@ -8911,10 +8915,10 @@ extension on TranslationsJa {
 			'localMedia.webdav.pickRootTitle' => '追加するフォルダーを選択',
 			'localMedia.webdav.serverRoot' => 'ルート',
 			'localMedia.webdav.alreadyAdded' => 'この NAS フォルダーは追加済みです',
-			'localMedia.webdav.relogin' => '再ログイン',
-			'localMedia.webdav.stateAuthFailed' => '再ログインが必要',
 			_ => null,
 		} ?? switch (path) {
+			'localMedia.webdav.relogin' => '再ログイン',
+			'localMedia.webdav.stateAuthFailed' => '再ログインが必要',
 			'localMedia.webdav.stateCertUntrusted' => 'サーバー証明書が変更されました',
 			'localMedia.webdav.stateUnreachable' => 'NAS に接続できません',
 			'localMedia.webdav.stateCredUnreadable' => 'パスワードを読み込めません',

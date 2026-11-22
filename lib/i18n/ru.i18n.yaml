@@ -1965,6 +1965,8 @@ notifications:
   kApprovedPost: Публикация одобрена
   kApprovedForumPost: Публикация на форуме одобрена
   kRejectedContent: Контент отклонён модерацией
+  kWarning: "Предупреждение от сайта"
+  kWarningHint: "Модераторы вынесли предупреждение вашему аккаунту. Соблюдайте правила сообщества. Подробности — на сайте."
   kUnknownType: Неизвестный тип уведомления
 
 conversation:

@@ -1968,6 +1968,8 @@ notifications:
   kApprovedPost: 投稿が承認されました
   kApprovedForumPost: フォーラム投稿が承認されました
   kRejectedContent: コンテンツ審査が拒否されました
+  kWarning: "サイトからの警告"
+  kWarningHint: "運営からアカウントに警告が出されました。コミュニティルールをご確認ください。詳細はウェブ版でご覧ください。"
   kUnknownType: 不明な通知タイプ
 
 conversation:

@@ -1965,6 +1965,8 @@ notifications:
   kApprovedPost: Beitrag genehmigt
   kApprovedForumPost: Forumsbeitrag genehmigt
   kRejectedContent: Inhaltsprüfung abgelehnt
+  kWarning: "Verwarnung der Seite"
+  kWarningHint: "Die Moderation hat eine Verwarnung für dein Konto ausgesprochen. Bitte beachte die Community-Regeln. Details findest du auf der Website."
   kUnknownType: Unbekannter Benachrichtigungstyp
 
 conversation:

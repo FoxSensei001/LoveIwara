@@ -1564,6 +1564,8 @@ class _TranslationsNotificationsZhCn extends TranslationsNotificationsEn {
 	@override String get kApprovedPost => '投稿审核通过';
 	@override String get kApprovedForumPost => '论坛发言审核通过';
 	@override String get kRejectedContent => '内容审核被拒绝';
+	@override String get kWarning => '收到站点警告';
+	@override String get kWarningHint => '站方对你的账号发出了警告，请留意社区规范。详情请在网页端查看。';
 	@override String get kUnknownType => '未知通知类型';
 }
 
@@ -7190,6 +7192,8 @@ extension on TranslationsZhCn {
 			'notifications.kApprovedPost' => '投稿审核通过',
 			'notifications.kApprovedForumPost' => '论坛发言审核通过',
 			'notifications.kRejectedContent' => '内容审核被拒绝',
+			'notifications.kWarning' => '收到站点警告',
+			'notifications.kWarningHint' => '站方对你的账号发出了警告，请留意社区规范。详情请在网页端查看。',
 			'notifications.kUnknownType' => '未知通知类型',
 			'conversation.errors.pleaseSelectAUser' => '请选择一个用户',
 			'conversation.errors.pleaseEnterATitle' => '请输入标题',
@@ -7369,10 +7373,10 @@ extension on TranslationsZhCn {
 			'download.actions.openWith' => '用其他应用打开',
 			'download.actions.redownload' => '重新下载',
 			'download.actions.relocate' => '移动文件到…',
-			'download.actions.categorize' => '归类到…',
-			'download.actions.viewOnline' => '查看在线页面',
 			_ => null,
 		} ?? switch (path) {
+			'download.actions.categorize' => '归类到…',
+			'download.actions.viewOnline' => '查看在线页面',
 			'download.actions.delete' => '删除…',
 			'download.actions.redownloadStarted' => ({required Object count}) => '已开始重新下载 ${count} 项',
 			'download.actions.redownloadNone' => '没有可重新下载的项目',
@@ -7883,10 +7887,10 @@ extension on TranslationsZhCn {
 			'translation.fallbackTranslationFailed' => '降级到普通翻译也失败',
 			'translation.translationSettings' => '翻译设置',
 			'translation.enableGoogleTranslation' => '启用 Google 翻译',
-			'translation.thinking' => '思考中…',
-			'translation.thoughtProcess' => '思考过程',
 			_ => null,
 		} ?? switch (path) {
+			'translation.thinking' => '思考中…',
+			'translation.thoughtProcess' => '思考过程',
 			'translation.modelCompatibility' => '模型兼容性',
 			'translation.modelCompatibilityDescription' => '为推理模型(o1/o3、DeepSeek-R1、QwQ 等)等当代模型适配请求参数',
 			'translation.reasoningModel' => '推理模型',
@@ -8397,10 +8401,10 @@ extension on TranslationsZhCn {
 			'firstTimeSetup.common.finishSetup' => '完成设置',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => '请先同意用户协议和社区规则',
 			'proxyHelper.systemProxyDetected' => '检测到系统代理',
-			'proxyHelper.copied' => '已复制',
-			'proxyHelper.copy' => '复制',
 			_ => null,
 		} ?? switch (path) {
+			'proxyHelper.copied' => '已复制',
+			'proxyHelper.copy' => '复制',
 			'tagSelector.selectTags' => '选择标签',
 			'tagSelector.clickToSelectTags' => '点击选择标签',
 			'tagSelector.addTag' => '添加标签',
@@ -8911,10 +8915,10 @@ extension on TranslationsZhCn {
 			'localMedia.webdav.pickRootTitle' => '选择要添加的文件夹',
 			'localMedia.webdav.serverRoot' => '根目录',
 			'localMedia.webdav.alreadyAdded' => '这个 NAS 文件夹已经添加过了',
-			'localMedia.webdav.relogin' => '重新登录',
-			'localMedia.webdav.stateAuthFailed' => '需要重新登录',
 			_ => null,
 		} ?? switch (path) {
+			'localMedia.webdav.relogin' => '重新登录',
+			'localMedia.webdav.stateAuthFailed' => '需要重新登录',
 			'localMedia.webdav.stateCertUntrusted' => '服务器证书已变化',
 			'localMedia.webdav.stateUnreachable' => '连不上 NAS',
 			'localMedia.webdav.stateCredUnreadable' => '读取密码失败',

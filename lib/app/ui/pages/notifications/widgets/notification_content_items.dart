@@ -269,6 +269,57 @@ class NotificationContentItems {
     return Text(t.notifications.kUnknownType);
   }
 
+  /// 构建站点警告通知内容。
+  /// 这类通知没有任何载荷（只有 id / type / 时间），所以只能给固定文案。
+  static Widget buildWarningNotification(
+    BuildContext context,
+    Map<String, dynamic> notification,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.warning_amber_rounded,
+              size: 16,
+              color: colorScheme.error,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                t.notifications.kWarning,
+                style: TextStyle(
+                  color: colorScheme.error,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: colorScheme.errorContainer.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: colorScheme.error.withValues(alpha: 0.3)),
+          ),
+          child: Text(
+            t.notifications.kWarningHint,
+            style: TextStyle(
+              color: colorScheme.onErrorContainer,
+              fontSize: 13,
+              height: 1.3,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   /// 构建审核被拒绝通知内容
   static Widget buildReviewRejectedNotification(
     BuildContext context,

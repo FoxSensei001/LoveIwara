@@ -4020,6 +4020,12 @@ class TranslationsNotificationsEn {
 	/// en: 'Content review rejected'
 	String get kRejectedContent => 'Content review rejected';
 
+	/// en: 'Warning from the site'
+	String get kWarning => 'Warning from the site';
+
+	/// en: 'The moderators issued a warning on your account. Please follow the community rules. See the website for details.'
+	String get kWarningHint => 'The moderators issued a warning on your account. Please follow the community rules. See the website for details.';
+
 	/// en: 'Unknown notification type'
 	String get kUnknownType => 'Unknown notification type';
 }
@@ -15020,6 +15026,8 @@ extension on Translations {
 			'notifications.kApprovedPost' => 'Post approved',
 			'notifications.kApprovedForumPost' => 'Forum post approved',
 			'notifications.kRejectedContent' => 'Content review rejected',
+			'notifications.kWarning' => 'Warning from the site',
+			'notifications.kWarningHint' => 'The moderators issued a warning on your account. Please follow the community rules. See the website for details.',
 			'notifications.kUnknownType' => 'Unknown notification type',
 			'conversation.errors.pleaseSelectAUser' => 'Please select a user',
 			'conversation.errors.pleaseEnterATitle' => 'Please enter a title',
@@ -15199,10 +15207,10 @@ extension on Translations {
 			'download.actions.play' => 'Play',
 			'download.actions.openWith' => 'Open with another app',
 			'download.actions.redownload' => 'Download again',
-			'download.actions.relocate' => 'Move files to…',
-			'download.actions.categorize' => 'Categorize…',
 			_ => null,
 		} ?? switch (path) {
+			'download.actions.relocate' => 'Move files to…',
+			'download.actions.categorize' => 'Categorize…',
 			'download.actions.viewOnline' => 'View online page',
 			'download.actions.delete' => 'Delete…',
 			'download.actions.redownloadStarted' => ({required Object count}) => 'Started downloading ${count} items again',
@@ -15713,10 +15721,10 @@ extension on Translations {
 			'translation.fallbackTranslationFailed' => 'Fallback to normal translation also failed',
 			'translation.translationSettings' => 'Translation Settings',
 			'translation.enableGoogleTranslation' => 'Enable Google Translation',
-			'translation.thinking' => 'Thinking...',
-			'translation.thoughtProcess' => 'Thought Process',
 			_ => null,
 		} ?? switch (path) {
+			'translation.thinking' => 'Thinking...',
+			'translation.thoughtProcess' => 'Thought Process',
 			'translation.modelCompatibility' => 'Model Compatibility',
 			'translation.modelCompatibilityDescription' => 'Adapt request parameters for modern models such as reasoning models (o1/o3, DeepSeek-R1, QwQ)',
 			'translation.reasoningModel' => 'Reasoning Model',
@@ -16227,10 +16235,10 @@ extension on Translations {
 			'firstTimeSetup.common.finishSetup' => 'Finish setup',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => 'Please agree to the user agreement and community rules first',
 			'proxyHelper.systemProxyDetected' => 'System proxy detected',
-			'proxyHelper.copied' => 'Copied',
-			'proxyHelper.copy' => 'Copy',
 			_ => null,
 		} ?? switch (path) {
+			'proxyHelper.copied' => 'Copied',
+			'proxyHelper.copy' => 'Copy',
 			'tagSelector.selectTags' => 'Select Tags',
 			'tagSelector.clickToSelectTags' => 'Click to select tags',
 			'tagSelector.addTag' => 'Add Tag',
@@ -16741,10 +16749,10 @@ extension on Translations {
 			'localMedia.webdav.pickRootTitle' => 'Choose a folder to add',
 			'localMedia.webdav.serverRoot' => 'Root',
 			'localMedia.webdav.alreadyAdded' => 'This NAS folder has already been added',
-			'localMedia.webdav.relogin' => 'Sign in again',
-			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
 			_ => null,
 		} ?? switch (path) {
+			'localMedia.webdav.relogin' => 'Sign in again',
+			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
 			'localMedia.webdav.stateCertUntrusted' => 'Server certificate changed',
 			'localMedia.webdav.stateUnreachable' => 'Can\'t reach NAS',
 			'localMedia.webdav.stateCredUnreadable' => 'Couldn\'t read password',

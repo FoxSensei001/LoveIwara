@@ -1965,6 +1965,8 @@ notifications:
   kApprovedPost: Bài viết đã được duyệt
   kApprovedForumPost: Bài viết diễn đàn đã được duyệt
   kRejectedContent: Nội dung bị từ chối phê duyệt
+  kWarning: "Cảnh báo từ trang web"
+  kWarningHint: "Quản trị viên đã gửi cảnh báo cho tài khoản của bạn. Vui lòng tuân thủ quy tắc cộng đồng. Xem chi tiết trên trang web."
   kUnknownType: Loại thông báo không xác định
 
 conversation:

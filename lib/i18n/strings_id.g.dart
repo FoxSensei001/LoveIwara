@@ -1564,6 +1564,8 @@ class _TranslationsNotificationsId extends TranslationsNotificationsEn {
 	@override String get kApprovedPost => 'Postingan disetujui';
 	@override String get kApprovedForumPost => 'Postingan forum disetujui';
 	@override String get kRejectedContent => 'Peninjauan konten ditolak';
+	@override String get kWarning => 'Peringatan dari situs';
+	@override String get kWarningHint => 'Moderator memberi peringatan pada akunmu. Harap patuhi aturan komunitas. Lihat detailnya di situs web.';
 	@override String get kUnknownType => 'Jenis notifikasi tidak dikenal';
 }
 
@@ -7190,6 +7192,8 @@ extension on TranslationsId {
 			'notifications.kApprovedPost' => 'Postingan disetujui',
 			'notifications.kApprovedForumPost' => 'Postingan forum disetujui',
 			'notifications.kRejectedContent' => 'Peninjauan konten ditolak',
+			'notifications.kWarning' => 'Peringatan dari situs',
+			'notifications.kWarningHint' => 'Moderator memberi peringatan pada akunmu. Harap patuhi aturan komunitas. Lihat detailnya di situs web.',
 			'notifications.kUnknownType' => 'Jenis notifikasi tidak dikenal',
 			'conversation.errors.pleaseSelectAUser' => 'Silakan pilih pengguna',
 			'conversation.errors.pleaseEnterATitle' => 'Silakan masukkan judul',
@@ -7369,10 +7373,10 @@ extension on TranslationsId {
 			'download.actions.play' => 'Play',
 			'download.actions.openWith' => 'Open with another app',
 			'download.actions.redownload' => 'Download again',
-			'download.actions.relocate' => 'Move files to…',
-			'download.actions.categorize' => 'Categorize…',
 			_ => null,
 		} ?? switch (path) {
+			'download.actions.relocate' => 'Move files to…',
+			'download.actions.categorize' => 'Categorize…',
 			'download.actions.viewOnline' => 'View online page',
 			'download.actions.delete' => 'Delete…',
 			'download.actions.redownloadStarted' => ({required Object count}) => 'Started downloading ${count} items again',
@@ -7883,10 +7887,10 @@ extension on TranslationsId {
 			'translation.fallbackTranslationFailed' => 'Terjemahan cadangan ke terjemahan normal juga gagal',
 			'translation.translationSettings' => 'Pengaturan Terjemahan',
 			'translation.enableGoogleTranslation' => 'Aktifkan Terjemahan Google',
-			'translation.thinking' => 'Berpikir...',
-			'translation.thoughtProcess' => 'Proses Pemikiran',
 			_ => null,
 		} ?? switch (path) {
+			'translation.thinking' => 'Berpikir...',
+			'translation.thoughtProcess' => 'Proses Pemikiran',
 			'translation.modelCompatibility' => 'Kompatibilitas Model',
 			'translation.modelCompatibilityDescription' => 'Sesuaikan parameter permintaan untuk model modern seperti model penalaran (o1/o3, DeepSeek-R1, QwQ)',
 			'translation.reasoningModel' => 'Model Penalaran',
@@ -8397,10 +8401,10 @@ extension on TranslationsId {
 			'firstTimeSetup.common.finishSetup' => 'Selesaikan penyiapan',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => 'Silakan setujui perjanjian pengguna dan aturan komunitas terlebih dahulu',
 			'proxyHelper.systemProxyDetected' => 'Proksi sistem terdeteksi',
-			'proxyHelper.copied' => 'Disalin',
-			'proxyHelper.copy' => 'Salin',
 			_ => null,
 		} ?? switch (path) {
+			'proxyHelper.copied' => 'Disalin',
+			'proxyHelper.copy' => 'Salin',
 			'tagSelector.selectTags' => 'Pilih Tag',
 			'tagSelector.clickToSelectTags' => 'Klik untuk memilih tag',
 			'tagSelector.addTag' => 'Tambah Tag',
@@ -8911,10 +8915,10 @@ extension on TranslationsId {
 			'localMedia.webdav.pickRootTitle' => 'Choose a folder to add',
 			'localMedia.webdav.serverRoot' => 'Root',
 			'localMedia.webdav.alreadyAdded' => 'This NAS folder has already been added',
-			'localMedia.webdav.relogin' => 'Sign in again',
-			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
 			_ => null,
 		} ?? switch (path) {
+			'localMedia.webdav.relogin' => 'Sign in again',
+			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
 			'localMedia.webdav.stateCertUntrusted' => 'Server certificate changed',
 			'localMedia.webdav.stateUnreachable' => 'Can\'t reach NAS',
 			'localMedia.webdav.stateCredUnreadable' => 'Couldn\'t read password',

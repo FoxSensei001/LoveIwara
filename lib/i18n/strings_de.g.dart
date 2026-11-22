@@ -1564,6 +1564,8 @@ class _TranslationsNotificationsDe extends TranslationsNotificationsEn {
 	@override String get kApprovedPost => 'Beitrag genehmigt';
 	@override String get kApprovedForumPost => 'Forumsbeitrag genehmigt';
 	@override String get kRejectedContent => 'Inhaltsprüfung abgelehnt';
+	@override String get kWarning => 'Verwarnung der Seite';
+	@override String get kWarningHint => 'Die Moderation hat eine Verwarnung für dein Konto ausgesprochen. Bitte beachte die Community-Regeln. Details findest du auf der Website.';
 	@override String get kUnknownType => 'Unbekannter Benachrichtigungstyp';
 }
 
@@ -7190,6 +7192,8 @@ extension on TranslationsDe {
 			'notifications.kApprovedPost' => 'Beitrag genehmigt',
 			'notifications.kApprovedForumPost' => 'Forumsbeitrag genehmigt',
 			'notifications.kRejectedContent' => 'Inhaltsprüfung abgelehnt',
+			'notifications.kWarning' => 'Verwarnung der Seite',
+			'notifications.kWarningHint' => 'Die Moderation hat eine Verwarnung für dein Konto ausgesprochen. Bitte beachte die Community-Regeln. Details findest du auf der Website.',
 			'notifications.kUnknownType' => 'Unbekannter Benachrichtigungstyp',
 			'conversation.errors.pleaseSelectAUser' => 'Bitte einen Benutzer auswählen',
 			'conversation.errors.pleaseEnterATitle' => 'Bitte einen Titel eingeben',
@@ -7369,10 +7373,10 @@ extension on TranslationsDe {
 			'download.actions.play' => 'Play',
 			'download.actions.openWith' => 'Open with another app',
 			'download.actions.redownload' => 'Download again',
-			'download.actions.relocate' => 'Move files to…',
-			'download.actions.categorize' => 'Categorize…',
 			_ => null,
 		} ?? switch (path) {
+			'download.actions.relocate' => 'Move files to…',
+			'download.actions.categorize' => 'Categorize…',
 			'download.actions.viewOnline' => 'View online page',
 			'download.actions.delete' => 'Delete…',
 			'download.actions.redownloadStarted' => ({required Object count}) => 'Started downloading ${count} items again',
@@ -7883,10 +7887,10 @@ extension on TranslationsDe {
 			'translation.fallbackTranslationFailed' => 'Rückfall auf die normale Übersetzung ist ebenfalls fehlgeschlagen',
 			'translation.translationSettings' => 'Übersetzungseinstellungen',
 			'translation.enableGoogleTranslation' => 'Google-Übersetzung aktivieren',
-			'translation.thinking' => 'Denkt nach...',
-			'translation.thoughtProcess' => 'Denkprozess',
 			_ => null,
 		} ?? switch (path) {
+			'translation.thinking' => 'Denkt nach...',
+			'translation.thoughtProcess' => 'Denkprozess',
 			'translation.modelCompatibility' => 'Modellkompatibilität',
 			'translation.modelCompatibilityDescription' => 'Anfrageparameter für moderne Modelle wie Reasoning-Modelle (o1/o3, DeepSeek-R1, QwQ) anpassen',
 			'translation.reasoningModel' => 'Reasoning-Modell',
@@ -8397,10 +8401,10 @@ extension on TranslationsDe {
 			'firstTimeSetup.common.finishSetup' => 'Einrichtung abschließen',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => 'Bitte stimmen Sie zuerst der Nutzungsvereinbarung und den Community-Regeln zu',
 			'proxyHelper.systemProxyDetected' => 'Systemproxy erkannt',
-			'proxyHelper.copied' => 'Kopiert',
-			'proxyHelper.copy' => 'Kopieren',
 			_ => null,
 		} ?? switch (path) {
+			'proxyHelper.copied' => 'Kopiert',
+			'proxyHelper.copy' => 'Kopieren',
 			'tagSelector.selectTags' => 'Tags auswählen',
 			'tagSelector.clickToSelectTags' => 'Klicken Sie, um Tags auszuwählen',
 			'tagSelector.addTag' => 'Tag hinzufügen',
@@ -8911,10 +8915,10 @@ extension on TranslationsDe {
 			'localMedia.webdav.pickRootTitle' => 'Choose a folder to add',
 			'localMedia.webdav.serverRoot' => 'Root',
 			'localMedia.webdav.alreadyAdded' => 'This NAS folder has already been added',
-			'localMedia.webdav.relogin' => 'Sign in again',
-			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
 			_ => null,
 		} ?? switch (path) {
+			'localMedia.webdav.relogin' => 'Sign in again',
+			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
 			'localMedia.webdav.stateCertUntrusted' => 'Server certificate changed',
 			'localMedia.webdav.stateUnreachable' => 'Can\'t reach NAS',
 			'localMedia.webdav.stateCredUnreadable' => 'Couldn\'t read password',

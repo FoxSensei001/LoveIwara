@@ -1970,6 +1970,8 @@ notifications:
   kApprovedPost: 投稿审核通过
   kApprovedForumPost: 论坛发言审核通过
   kRejectedContent: 内容审核被拒绝
+  kWarning: "收到站点警告"
+  kWarningHint: "站方对你的账号发出了警告，请留意社区规范。详情请在网页端查看。"
   kUnknownType: 未知通知类型
 
 conversation:

@@ -1593,6 +1593,8 @@ class _TranslationsNotificationsZhTw extends TranslationsNotificationsEn {
 	@override String get kApprovedPost => '投稿已審核';
 	@override String get kApprovedForumPost => '論壇發言審核透過';
 	@override String get kRejectedContent => '內容審核被拒絕';
+	@override String get kWarning => '收到站點警告';
+	@override String get kWarningHint => '站方對你的帳號發出了警告，請留意社群規範。詳情請在網頁端查看。';
 	@override String get kUnknownType => '未知通知類型';
 }
 
@@ -7224,6 +7226,8 @@ extension on TranslationsZhTw {
 			'notifications.kApprovedPost' => '投稿已審核',
 			'notifications.kApprovedForumPost' => '論壇發言審核透過',
 			'notifications.kRejectedContent' => '內容審核被拒絕',
+			'notifications.kWarning' => '收到站點警告',
+			'notifications.kWarningHint' => '站方對你的帳號發出了警告，請留意社群規範。詳情請在網頁端查看。',
 			'notifications.kUnknownType' => '未知通知類型',
 			'conversation.errors.pleaseSelectAUser' => '請選擇一個使用者',
 			'conversation.errors.pleaseEnterATitle' => '請輸入標題',
@@ -7369,10 +7373,10 @@ extension on TranslationsZhTw {
 			'download.downloadingOnlyDownloaded' => ({required Object downloaded}) => '下載中 ${downloaded}',
 			'download.galleryDownloadCompletedWithName' => ({required Object galleryName}) => '圖庫下載完成: ${galleryName}',
 			'download.downloadCompletedWithName' => ({required Object fileName}) => '下載完成: ${fileName}',
-			'download.searchTasks' => '搜尋下載任務...',
-			'download.statusLabel' => ({required Object label}) => '狀態: ${label}',
 			_ => null,
 		} ?? switch (path) {
+			'download.searchTasks' => '搜尋下載任務...',
+			'download.statusLabel' => ({required Object label}) => '狀態: ${label}',
 			'download.allStatus' => '所有狀態',
 			'download.typeLabel' => ({required Object label}) => '類型: ${label}',
 			'download.allTypes' => '所有類型',
@@ -7883,10 +7887,10 @@ extension on TranslationsZhTw {
 			'translation.serverAddressHint' => 'https://api.deeplx.org',
 			'translation.serverAddressHelperText' => 'DeepLX 伺服器的基礎地址',
 			'translation.endpointType' => '端點類型',
-			'translation.freeEndpoint' => 'Free - 免費端點，可能有頻率限制',
-			'translation.proEndpoint' => 'Pro - 需要 dl_session，更穩定',
 			_ => null,
 		} ?? switch (path) {
+			'translation.freeEndpoint' => 'Free - 免費端點，可能有頻率限制',
+			'translation.proEndpoint' => 'Pro - 需要 dl_session，更穩定',
 			'translation.officialEndpoint' => 'Official - 官方 API 格式',
 			'translation.finalRequestUrl' => '最終請求URL',
 			'translation.apiKeyOptional' => 'API Key (可選)',
@@ -8397,10 +8401,10 @@ extension on TranslationsZhTw {
 			'searchFilter.sortTypes.relevance' => '相關性',
 			'searchFilter.sortTypes.latest' => '最新',
 			'searchFilter.sortTypes.views' => '觀看次數',
-			'searchFilter.sortTypes.likes' => '按讚數',
-			'searchFilter.drawerSubtitle' => '變更即時生效',
 			_ => null,
 		} ?? switch (path) {
+			'searchFilter.sortTypes.likes' => '按讚數',
+			'searchFilter.drawerSubtitle' => '變更即時生效',
 			'tagSelector.selectTags' => '選擇標籤',
 			'tagSelector.clickToSelectTags' => '點擊選擇標籤',
 			'tagSelector.addTag' => '新增標籤',
@@ -8911,10 +8915,10 @@ extension on TranslationsZhTw {
 			'localMedia.webdav.pickRootTitle' => '選擇要加入的資料夾',
 			'localMedia.webdav.serverRoot' => '根目錄',
 			'localMedia.webdav.alreadyAdded' => '這個 NAS 資料夾已經加入過了',
-			'localMedia.webdav.relogin' => '重新登入',
-			'localMedia.webdav.stateAuthFailed' => '需要重新登入',
 			_ => null,
 		} ?? switch (path) {
+			'localMedia.webdav.relogin' => '重新登入',
+			'localMedia.webdav.stateAuthFailed' => '需要重新登入',
 			'localMedia.webdav.stateCertUntrusted' => '伺服器憑證已變更',
 			'localMedia.webdav.stateUnreachable' => '連不上 NAS',
 			'localMedia.webdav.stateCredUnreadable' => '讀取密碼失敗',

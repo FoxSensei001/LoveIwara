@@ -1564,6 +1564,8 @@ class _TranslationsNotificationsKo extends TranslationsNotificationsEn {
 	@override String get kApprovedPost => '게시물 승인됨';
 	@override String get kApprovedForumPost => '포럼 게시물 승인됨';
 	@override String get kRejectedContent => '콘텐츠 검토가 거부되었습니다';
+	@override String get kWarning => '사이트 경고';
+	@override String get kWarningHint => '운영진이 계정에 경고를 보냈습니다. 커뮤니티 규칙을 확인해 주세요. 자세한 내용은 웹에서 확인할 수 있습니다.';
 	@override String get kUnknownType => '알 수 없는 알림 유형';
 }
 
@@ -7190,6 +7192,8 @@ extension on TranslationsKo {
 			'notifications.kApprovedPost' => '게시물 승인됨',
 			'notifications.kApprovedForumPost' => '포럼 게시물 승인됨',
 			'notifications.kRejectedContent' => '콘텐츠 검토가 거부되었습니다',
+			'notifications.kWarning' => '사이트 경고',
+			'notifications.kWarningHint' => '운영진이 계정에 경고를 보냈습니다. 커뮤니티 규칙을 확인해 주세요. 자세한 내용은 웹에서 확인할 수 있습니다.',
 			'notifications.kUnknownType' => '알 수 없는 알림 유형',
 			'conversation.errors.pleaseSelectAUser' => '사용자를 선택해 주세요',
 			'conversation.errors.pleaseEnterATitle' => '제목을 입력해 주세요',
@@ -7369,10 +7373,10 @@ extension on TranslationsKo {
 			'download.actions.play' => 'Play',
 			'download.actions.openWith' => 'Open with another app',
 			'download.actions.redownload' => 'Download again',
-			'download.actions.relocate' => 'Move files to…',
-			'download.actions.categorize' => 'Categorize…',
 			_ => null,
 		} ?? switch (path) {
+			'download.actions.relocate' => 'Move files to…',
+			'download.actions.categorize' => 'Categorize…',
 			'download.actions.viewOnline' => 'View online page',
 			'download.actions.delete' => 'Delete…',
 			'download.actions.redownloadStarted' => ({required Object count}) => 'Started downloading ${count} items again',
@@ -7883,10 +7887,10 @@ extension on TranslationsKo {
 			'translation.fallbackTranslationFailed' => '일반 번역으로의 대체도 실패했습니다',
 			'translation.translationSettings' => '번역 설정',
 			'translation.enableGoogleTranslation' => 'Google 번역 사용',
-			'translation.thinking' => '생각 중...',
-			'translation.thoughtProcess' => '사고 과정',
 			_ => null,
 		} ?? switch (path) {
+			'translation.thinking' => '생각 중...',
+			'translation.thoughtProcess' => '사고 과정',
 			'translation.modelCompatibility' => '모델 호환성',
 			'translation.modelCompatibilityDescription' => '추론 모델(o1/o3, DeepSeek-R1, QwQ) 등 최신 모델에 맞게 요청 매개변수를 조정합니다',
 			'translation.reasoningModel' => '추론 모델',
@@ -8397,10 +8401,10 @@ extension on TranslationsKo {
 			'firstTimeSetup.common.finishSetup' => '설정 완료',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => '먼저 사용자 약관과 커뮤니티 규칙에 동의해 주세요',
 			'proxyHelper.systemProxyDetected' => '시스템 프록시 감지됨',
-			'proxyHelper.copied' => '복사됨',
-			'proxyHelper.copy' => '복사',
 			_ => null,
 		} ?? switch (path) {
+			'proxyHelper.copied' => '복사됨',
+			'proxyHelper.copy' => '복사',
 			'tagSelector.selectTags' => '태그 선택',
 			'tagSelector.clickToSelectTags' => '클릭하여 태그 선택',
 			'tagSelector.addTag' => '태그 추가',
@@ -8911,10 +8915,10 @@ extension on TranslationsKo {
 			'localMedia.webdav.pickRootTitle' => 'Choose a folder to add',
 			'localMedia.webdav.serverRoot' => 'Root',
 			'localMedia.webdav.alreadyAdded' => 'This NAS folder has already been added',
-			'localMedia.webdav.relogin' => 'Sign in again',
-			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
 			_ => null,
 		} ?? switch (path) {
+			'localMedia.webdav.relogin' => 'Sign in again',
+			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
 			'localMedia.webdav.stateCertUntrusted' => 'Server certificate changed',
 			'localMedia.webdav.stateUnreachable' => 'Can\'t reach NAS',
 			'localMedia.webdav.stateCredUnreadable' => 'Couldn\'t read password',

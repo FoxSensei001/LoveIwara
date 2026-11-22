@@ -1564,6 +1564,8 @@ class _TranslationsNotificationsRu extends TranslationsNotificationsEn {
 	@override String get kApprovedPost => 'Публикация одобрена';
 	@override String get kApprovedForumPost => 'Публикация на форуме одобрена';
 	@override String get kRejectedContent => 'Контент отклонён модерацией';
+	@override String get kWarning => 'Предупреждение от сайта';
+	@override String get kWarningHint => 'Модераторы вынесли предупреждение вашему аккаунту. Соблюдайте правила сообщества. Подробности — на сайте.';
 	@override String get kUnknownType => 'Неизвестный тип уведомления';
 }
 
@@ -7190,6 +7192,8 @@ extension on TranslationsRu {
 			'notifications.kApprovedPost' => 'Публикация одобрена',
 			'notifications.kApprovedForumPost' => 'Публикация на форуме одобрена',
 			'notifications.kRejectedContent' => 'Контент отклонён модерацией',
+			'notifications.kWarning' => 'Предупреждение от сайта',
+			'notifications.kWarningHint' => 'Модераторы вынесли предупреждение вашему аккаунту. Соблюдайте правила сообщества. Подробности — на сайте.',
 			'notifications.kUnknownType' => 'Неизвестный тип уведомления',
 			'conversation.errors.pleaseSelectAUser' => 'Выберите пользователя',
 			'conversation.errors.pleaseEnterATitle' => 'Введите заголовок',
@@ -7369,10 +7373,10 @@ extension on TranslationsRu {
 			'download.actions.play' => 'Play',
 			'download.actions.openWith' => 'Open with another app',
 			'download.actions.redownload' => 'Download again',
-			'download.actions.relocate' => 'Move files to…',
-			'download.actions.categorize' => 'Categorize…',
 			_ => null,
 		} ?? switch (path) {
+			'download.actions.relocate' => 'Move files to…',
+			'download.actions.categorize' => 'Categorize…',
 			'download.actions.viewOnline' => 'View online page',
 			'download.actions.delete' => 'Delete…',
 			'download.actions.redownloadStarted' => ({required Object count}) => 'Started downloading ${count} items again',
@@ -7883,10 +7887,10 @@ extension on TranslationsRu {
 			'translation.fallbackTranslationFailed' => 'Резервный обычный перевод также не удался',
 			'translation.translationSettings' => 'Настройки перевода',
 			'translation.enableGoogleTranslation' => 'Включить перевод Google',
-			'translation.thinking' => 'Размышление...',
-			'translation.thoughtProcess' => 'Процесс рассуждения',
 			_ => null,
 		} ?? switch (path) {
+			'translation.thinking' => 'Размышление...',
+			'translation.thoughtProcess' => 'Процесс рассуждения',
 			'translation.modelCompatibility' => 'Совместимость моделей',
 			'translation.modelCompatibilityDescription' => 'Адаптирует параметры запроса для современных моделей, таких как модели рассуждения (o1/o3, DeepSeek-R1, QwQ)',
 			'translation.reasoningModel' => 'Модель рассуждений',
@@ -8397,10 +8401,10 @@ extension on TranslationsRu {
 			'firstTimeSetup.common.finishSetup' => 'Завершить настройку',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => 'Сначала примите пользовательское соглашение и правила сообщества',
 			'proxyHelper.systemProxyDetected' => 'Обнаружен системный прокси',
-			'proxyHelper.copied' => 'Скопировано',
-			'proxyHelper.copy' => 'Копировать',
 			_ => null,
 		} ?? switch (path) {
+			'proxyHelper.copied' => 'Скопировано',
+			'proxyHelper.copy' => 'Копировать',
 			'tagSelector.selectTags' => 'Выбрать теги',
 			'tagSelector.clickToSelectTags' => 'Нажмите, чтобы выбрать теги',
 			'tagSelector.addTag' => 'Добавить тег',
@@ -8911,10 +8915,10 @@ extension on TranslationsRu {
 			'localMedia.webdav.pickRootTitle' => 'Choose a folder to add',
 			'localMedia.webdav.serverRoot' => 'Root',
 			'localMedia.webdav.alreadyAdded' => 'This NAS folder has already been added',
-			'localMedia.webdav.relogin' => 'Sign in again',
-			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
 			_ => null,
 		} ?? switch (path) {
+			'localMedia.webdav.relogin' => 'Sign in again',
+			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
 			'localMedia.webdav.stateCertUntrusted' => 'Server certificate changed',
 			'localMedia.webdav.stateUnreachable' => 'Can\'t reach NAS',
 			'localMedia.webdav.stateCredUnreadable' => 'Couldn\'t read password',

@@ -2016,6 +2016,8 @@ notifications:
   kApprovedPost: 投稿已審核
   kApprovedForumPost: 論壇發言審核透過
   kRejectedContent: 內容審核被拒絕
+  kWarning: "收到站點警告"
+  kWarningHint: "站方對你的帳號發出了警告，請留意社群規範。詳情請在網頁端查看。"
   kUnknownType: 未知通知類型
 
 conversation:

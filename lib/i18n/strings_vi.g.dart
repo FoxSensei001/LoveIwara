@@ -1564,6 +1564,8 @@ class _TranslationsNotificationsVi extends TranslationsNotificationsEn {
 	@override String get kApprovedPost => 'Bài viết đã được duyệt';
 	@override String get kApprovedForumPost => 'Bài viết diễn đàn đã được duyệt';
 	@override String get kRejectedContent => 'Nội dung bị từ chối phê duyệt';
+	@override String get kWarning => 'Cảnh báo từ trang web';
+	@override String get kWarningHint => 'Quản trị viên đã gửi cảnh báo cho tài khoản của bạn. Vui lòng tuân thủ quy tắc cộng đồng. Xem chi tiết trên trang web.';
 	@override String get kUnknownType => 'Loại thông báo không xác định';
 }
 
@@ -7190,6 +7192,8 @@ extension on TranslationsVi {
 			'notifications.kApprovedPost' => 'Bài viết đã được duyệt',
 			'notifications.kApprovedForumPost' => 'Bài viết diễn đàn đã được duyệt',
 			'notifications.kRejectedContent' => 'Nội dung bị từ chối phê duyệt',
+			'notifications.kWarning' => 'Cảnh báo từ trang web',
+			'notifications.kWarningHint' => 'Quản trị viên đã gửi cảnh báo cho tài khoản của bạn. Vui lòng tuân thủ quy tắc cộng đồng. Xem chi tiết trên trang web.',
 			'notifications.kUnknownType' => 'Loại thông báo không xác định',
 			'conversation.errors.pleaseSelectAUser' => 'Vui lòng chọn một người dùng',
 			'conversation.errors.pleaseEnterATitle' => 'Vui lòng nhập tiêu đề',
@@ -7369,10 +7373,10 @@ extension on TranslationsVi {
 			'download.actions.play' => 'Play',
 			'download.actions.openWith' => 'Open with another app',
 			'download.actions.redownload' => 'Download again',
-			'download.actions.relocate' => 'Move files to…',
-			'download.actions.categorize' => 'Categorize…',
 			_ => null,
 		} ?? switch (path) {
+			'download.actions.relocate' => 'Move files to…',
+			'download.actions.categorize' => 'Categorize…',
 			'download.actions.viewOnline' => 'View online page',
 			'download.actions.delete' => 'Delete…',
 			'download.actions.redownloadStarted' => ({required Object count}) => 'Started downloading ${count} items again',
@@ -7883,10 +7887,10 @@ extension on TranslationsVi {
 			'translation.fallbackTranslationFailed' => 'Dịch dự phòng thông thường cũng thất bại',
 			'translation.translationSettings' => 'Cài đặt dịch',
 			'translation.enableGoogleTranslation' => 'Bật dịch Google',
-			'translation.thinking' => 'Đang suy nghĩ...',
-			'translation.thoughtProcess' => 'Quá trình suy nghĩ',
 			_ => null,
 		} ?? switch (path) {
+			'translation.thinking' => 'Đang suy nghĩ...',
+			'translation.thoughtProcess' => 'Quá trình suy nghĩ',
 			'translation.modelCompatibility' => 'Tương thích mô hình',
 			'translation.modelCompatibilityDescription' => 'Điều chỉnh tham số yêu cầu cho các mô hình hiện đại như mô hình suy luận (o1/o3, DeepSeek-R1, QwQ)',
 			'translation.reasoningModel' => 'Mô hình suy luận',
@@ -8397,10 +8401,10 @@ extension on TranslationsVi {
 			'firstTimeSetup.common.finishSetup' => 'Hoàn tất thiết lập',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => 'Vui lòng đồng ý với thỏa thuận người dùng và quy tắc cộng đồng trước',
 			'proxyHelper.systemProxyDetected' => 'Đã phát hiện proxy hệ thống',
-			'proxyHelper.copied' => 'Đã sao chép',
-			'proxyHelper.copy' => 'Sao chép',
 			_ => null,
 		} ?? switch (path) {
+			'proxyHelper.copied' => 'Đã sao chép',
+			'proxyHelper.copy' => 'Sao chép',
 			'tagSelector.selectTags' => 'Chọn thẻ',
 			'tagSelector.clickToSelectTags' => 'Nhấn để chọn thẻ',
 			'tagSelector.addTag' => 'Thêm thẻ',
@@ -8911,10 +8915,10 @@ extension on TranslationsVi {
 			'localMedia.webdav.pickRootTitle' => 'Choose a folder to add',
 			'localMedia.webdav.serverRoot' => 'Root',
 			'localMedia.webdav.alreadyAdded' => 'This NAS folder has already been added',
-			'localMedia.webdav.relogin' => 'Sign in again',
-			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
 			_ => null,
 		} ?? switch (path) {
+			'localMedia.webdav.relogin' => 'Sign in again',
+			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
 			'localMedia.webdav.stateCertUntrusted' => 'Server certificate changed',
 			'localMedia.webdav.stateUnreachable' => 'Can\'t reach NAS',
 			'localMedia.webdav.stateCredUnreadable' => 'Couldn\'t read password',

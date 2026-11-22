@@ -1965,6 +1965,8 @@ notifications:
   kApprovedPost: 게시물 승인됨
   kApprovedForumPost: 포럼 게시물 승인됨
   kRejectedContent: 콘텐츠 검토가 거부되었습니다
+  kWarning: "사이트 경고"
+  kWarningHint: "운영진이 계정에 경고를 보냈습니다. 커뮤니티 규칙을 확인해 주세요. 자세한 내용은 웹에서 확인할 수 있습니다."
   kUnknownType: 알 수 없는 알림 유형
 
 conversation:

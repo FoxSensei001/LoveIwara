@@ -1564,6 +1564,8 @@ class _TranslationsNotificationsTh extends TranslationsNotificationsEn {
 	@override String get kApprovedPost => 'อนุมัติโพสต์แล้ว';
 	@override String get kApprovedForumPost => 'อนุมัติโพสต์ฟอรัมแล้ว';
 	@override String get kRejectedContent => 'การตรวจสอบเนื้อหาถูกปฏิเสธ';
+	@override String get kWarning => 'คำเตือนจากเว็บไซต์';
+	@override String get kWarningHint => 'ผู้ดูแลได้ออกคำเตือนให้บัญชีของคุณ โปรดปฏิบัติตามกฎของชุมชน ดูรายละเอียดได้บนเว็บไซต์';
 	@override String get kUnknownType => 'ประเภทการแจ้งเตือนที่ไม่รู้จัก';
 }
 
@@ -7190,6 +7192,8 @@ extension on TranslationsTh {
 			'notifications.kApprovedPost' => 'อนุมัติโพสต์แล้ว',
 			'notifications.kApprovedForumPost' => 'อนุมัติโพสต์ฟอรัมแล้ว',
 			'notifications.kRejectedContent' => 'การตรวจสอบเนื้อหาถูกปฏิเสธ',
+			'notifications.kWarning' => 'คำเตือนจากเว็บไซต์',
+			'notifications.kWarningHint' => 'ผู้ดูแลได้ออกคำเตือนให้บัญชีของคุณ โปรดปฏิบัติตามกฎของชุมชน ดูรายละเอียดได้บนเว็บไซต์',
 			'notifications.kUnknownType' => 'ประเภทการแจ้งเตือนที่ไม่รู้จัก',
 			'conversation.errors.pleaseSelectAUser' => 'โปรดเลือกผู้ใช้',
 			'conversation.errors.pleaseEnterATitle' => 'โปรดป้อนชื่อเรื่อง',
@@ -7369,10 +7373,10 @@ extension on TranslationsTh {
 			'download.actions.play' => 'Play',
 			'download.actions.openWith' => 'Open with another app',
 			'download.actions.redownload' => 'Download again',
-			'download.actions.relocate' => 'Move files to…',
-			'download.actions.categorize' => 'Categorize…',
 			_ => null,
 		} ?? switch (path) {
+			'download.actions.relocate' => 'Move files to…',
+			'download.actions.categorize' => 'Categorize…',
 			'download.actions.viewOnline' => 'View online page',
 			'download.actions.delete' => 'Delete…',
 			'download.actions.redownloadStarted' => ({required Object count}) => 'Started downloading ${count} items again',
@@ -7883,10 +7887,10 @@ extension on TranslationsTh {
 			'translation.fallbackTranslationFailed' => 'การเปลี่ยนกลับไปใช้การแปลแบบปกติก็ล้มเหลวเช่นกัน',
 			'translation.translationSettings' => 'การตั้งค่าการแปลภาษา',
 			'translation.enableGoogleTranslation' => 'เปิดใช้งาน Google Translation',
-			'translation.thinking' => 'กำลังคิด…',
-			'translation.thoughtProcess' => 'กระบวนการคิด',
 			_ => null,
 		} ?? switch (path) {
+			'translation.thinking' => 'กำลังคิด…',
+			'translation.thoughtProcess' => 'กระบวนการคิด',
 			'translation.modelCompatibility' => 'ความเข้ากันได้ของโมเดล',
 			'translation.modelCompatibilityDescription' => 'ปรับพารามิเตอร์คำขอสำหรับโมเดลสมัยใหม่ เช่น โมเดลการให้เหตุผล (o1/o3, DeepSeek-R1, QwQ)',
 			'translation.reasoningModel' => 'โมเดลการให้เหตุผล (Reasoning Model)',
@@ -8397,10 +8401,10 @@ extension on TranslationsTh {
 			'firstTimeSetup.common.finishSetup' => 'เสร็จสิ้นการตั้งค่า',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => 'โปรดยอมรับข้อตกลงผู้ใช้และกฎของชุมชนก่อน',
 			'proxyHelper.systemProxyDetected' => 'ตรวจพบพร็อกซีของระบบ',
-			'proxyHelper.copied' => 'คัดลอกแล้ว',
-			'proxyHelper.copy' => 'คัดลอก',
 			_ => null,
 		} ?? switch (path) {
+			'proxyHelper.copied' => 'คัดลอกแล้ว',
+			'proxyHelper.copy' => 'คัดลอก',
 			'tagSelector.selectTags' => 'เลือกแท็ก',
 			'tagSelector.clickToSelectTags' => 'คลิกเพื่อเลือกแท็ก',
 			'tagSelector.addTag' => 'เพิ่มแท็ก',
@@ -8911,10 +8915,10 @@ extension on TranslationsTh {
 			'localMedia.webdav.pickRootTitle' => 'Choose a folder to add',
 			'localMedia.webdav.serverRoot' => 'Root',
 			'localMedia.webdav.alreadyAdded' => 'This NAS folder has already been added',
-			'localMedia.webdav.relogin' => 'Sign in again',
-			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
 			_ => null,
 		} ?? switch (path) {
+			'localMedia.webdav.relogin' => 'Sign in again',
+			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
 			'localMedia.webdav.stateCertUntrusted' => 'Server certificate changed',
 			'localMedia.webdav.stateUnreachable' => 'Can\'t reach NAS',
 			'localMedia.webdav.stateCredUnreadable' => 'Couldn\'t read password',

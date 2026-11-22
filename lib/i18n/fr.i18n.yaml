@@ -1965,6 +1965,8 @@ notifications:
   kApprovedPost: Publication approuvée
   kApprovedForumPost: Message de forum approuvé
   kRejectedContent: Contenu rejeté par la modération
+  kWarning: "Avertissement du site"
+  kWarningHint: "L'équipe de modération a émis un avertissement sur votre compte. Merci de respecter les règles de la communauté. Détails sur le site web."
   kUnknownType: Type de notification inconnu
 
 conversation:
