@@ -320,66 +320,87 @@ class NotificationContentItems {
     );
   }
 
-  /// 构建审核被拒绝通知内容
+  /// 构建审核被拒绝通知内容：顶部红色「被拒绝」横幅 + 被拒内容的摘要。
+  /// 被拒的内容多半已不可见，所以摘要不做跳转。
   static Widget buildReviewRejectedNotification(
     BuildContext context,
     Map<String, dynamic> notification,
   ) {
     final colorScheme = Theme.of(context).colorScheme;
+
+    String? text;
+    IconData icon = Icons.info_outline;
+    if (notification['comment'] != null) {
+      text = Comment.fromJson(notification['comment']).body;
+      icon = Icons.format_quote;
+    } else if (notification['forumPost'] != null) {
+      text = notification['forumPost']['body'] as String?;
+      icon = Icons.format_quote;
+    } else if (notification['video'] != null) {
+      text = notification['video']['title'] as String?;
+      icon = Icons.play_circle_outline;
+    } else if (notification['image'] != null) {
+      text = notification['image']['title'] as String?;
+      icon = Icons.photo_library_outlined;
+    } else if (notification['thread'] != null) {
+      text = notification['thread']['title'] as String?;
+      icon = Icons.forum_outlined;
+    } else if (notification['post'] != null) {
+      text = notification['post']['title'] as String?;
+      icon = Icons.article_outlined;
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 顶部提醒
         Row(
           children: [
-            Icon(
-              Icons.cancel_outlined,
-              size: 16,
-              color: colorScheme.error,
-            ),
+            Icon(Icons.cancel_outlined, size: 16, color: colorScheme.error),
             const SizedBox(width: 8),
-            Text(
-              t.notifications.kRejectedContent,
-              style: TextStyle(
-                color: colorScheme.error,
-                fontWeight: FontWeight.w500,
+            Expanded(
+              child: Text(
+                t.notifications.kRejectedContent,
+                style: TextStyle(
+                  color: colorScheme.error,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ],
         ),
-        // 说明文本
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: colorScheme.errorContainer.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: colorScheme.error.withValues(alpha: 0.3),
-            ),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                Icons.info_outline,
-                size: 16,
-                color: colorScheme.error,
+        if (text != null && text.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: colorScheme.errorContainer.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: colorScheme.error.withValues(alpha: 0.3),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  t.notifications.errors.unsupportedNotificationType,
-                  style: TextStyle(
-                    color: colorScheme.onErrorContainer,
-                    fontSize: 13,
-                    height: 1.2,
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(icon, size: 16, color: colorScheme.error),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    text,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: colorScheme.onErrorContainer,
+                      fontSize: 13,
+                      height: 1.2,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+        ],
       ],
     );
   }
