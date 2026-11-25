@@ -34,7 +34,6 @@
 library;
 
 import 'package:i_iwara/app/utils/signature_template.dart';
-import 'package:i_iwara/common/constants.dart';
 
 /// 一条回复所指向的楼层。
 class ReplyQuote {
@@ -498,6 +497,5 @@ class CommentMarkup {
   ///
   /// 这里**不再**带前导 `'\n\n---'`：分隔线由 [compose] 统一补，设置项里存的
   /// 就是用户眼里那句话本身。旧配置里带分隔线的值也能用，[compose] 会剥掉。
-  static String get defaultSignature =>
-      'Sent from ${CommonConstants.applicationNickname}';
+  static String get defaultSignature => '{date}';
 }

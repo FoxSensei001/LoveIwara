@@ -1119,7 +1119,8 @@ extension ConfigKeyExtension on ConfigKey {
         // 只存「那句话」本身。分隔线与前面的空行由 CommentMarkup.compose 统一
         // 补——让它跟在用户能编辑的内容里，正是旧版语法被改坏的入口。
         // 老用户配置里带 '\n\n---' 的值照常能用，compose 与编辑器都会剥掉。
-        return 'Sent from ${CommonConstants.applicationNickname}';
+        // 出厂值不写应用名：默认就带官方署名等于替用户给应用打广告。
+        return '{date}';
       case ConfigKey.SIGNATURE_AI_SETTINGS_KEY:
         // 空串＝没配过，全用出厂值（见 SignatureAiSettings）。老用户改过的那份
         // 英文提示词还躺在 SIGNATURE_CUSTOM_SOURCES_KEY 里，读的时候迁过来。
