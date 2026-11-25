@@ -1,0 +1,38 @@
+// rife implemented with ncnn library
+
+#version 450
+
+#if NCNN_fp16_storage
+#extension GL_EXT_shader_16bit_storage: require
+#endif
+
+layout (binding = 0) buffer flow_blob { sfpvec4 flow_blob_data[]; };
+layout (binding = 1) buffer flow_reversed_blob { sfpvec4 flow_reversed_blob_data[]; };
+
+layout (push_constant) uniform parameter
+{
+    int w;
+    int h;
+    int cstep;
+} p;
+
+void main()
+{
+    int gx = int(gl_GlobalInvocationID.x);
+    int gy = int(gl_GlobalInvocationID.y);
+    int gz = int(gl_GlobalInvocationID.z);
+
+    if (gx >= p.w || gy >= p.h || gz >= 1)
+        return;
+
+    afpvec4 xyzw = buffer_ld4(flow_blob_data, gy * p.w + gx);
+    afpvec4 xyzw_reversed = buffer_ld4(flow_reversed_blob_data, gy * p.w + gx);
+
+    afp x = (xyzw.x + xyzw_reversed.z) * afp(0.5f);
+    afp y = (xyzw.y + xyzw_reversed.w) * afp(0.5f);
+    afp z = (xyzw.z + xyzw_reversed.x) * afp(0.5f);
+    afp w = (xyzw.w + xyzw_reversed.y) * afp(0.5f);
+
+    buffer_st4(flow_blob_data, gy * p.w + gx, afpvec4(x, y, z, w));
+    buffer_st4(flow_reversed_blob_data, gy * p.w + gx, afpvec4(z, w, x, y));
+}

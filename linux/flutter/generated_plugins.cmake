@@ -11,12 +11,12 @@ list(APPEND FLUTTER_PLUGIN_LIST
   irondash_engine_context
   local_notifier
   media_kit_libs_linux
-  media_kit_video
   open_file_linux
   screen_retriever_linux
   super_native_extensions
   url_launcher_linux
   volume_controller
+  media_kit_video
   window_manager
 )
 

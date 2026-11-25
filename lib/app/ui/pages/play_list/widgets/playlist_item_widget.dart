@@ -1,5 +1,5 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:i_iwara/app/ui/widgets/cached_list_image.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/play_list.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -87,23 +87,16 @@ class PlaylistItemWidget extends StatelessWidget {
                   ),
                   child: AspectRatio(
                     aspectRatio: 16 / 9,
-                    child: CachedNetworkImage(
+                    child: CachedListImage(
                       imageUrl: playlist.thumbnailUrl,
                       fit: BoxFit.cover,
                       width: double.infinity,
                       memCacheWidth: width != null && width! > 0
                           ? (width! * 1.5).toInt()
                           : null,
-                      maxWidthDiskCache: 500,
-                      maxHeightDiskCache: 500,
                       placeholder: _buildPlaceholder,
                       errorWidget: (context, url, error) =>
                           _buildErrorPlaceholder(),
-                      fadeInDuration: const Duration(milliseconds: 50),
-                      placeholderFadeInDuration: const Duration(
-                        milliseconds: 0,
-                      ),
-                      fadeOutDuration: const Duration(milliseconds: 0),
                     ),
                   ),
                 ),

@@ -362,7 +362,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         onChanged: (value) {
                           configService[ConfigKey.AUTO_RECORD_HISTORY_KEY] =
                               value;
-                          CommonConstants.enableHistory = value;
                         },
                       ),
                     ),

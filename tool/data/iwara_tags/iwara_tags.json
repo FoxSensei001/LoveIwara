@@ -1,12 +1,12 @@
 {
   "version": 1,
   "source": "https://apiq.iwara.tv/tags",
-  "fetchedAt": "2026-08-25T13:02:43.620Z",
+  "fetchedAt": "2026-11-24T13:39:02.542Z",
   "requestedPageSize": 50,
   "pageSize": 50,
-  "count": 2942,
-  "expectedCount": 2942,
-  "pages": 59,
+  "count": 3038,
+  "expectedCount": 3038,
+  "pages": 61,
   "tags": [
     {
       "id": "1080p",
@@ -230,6 +230,11 @@
     },
     {
       "id": "aether_gazer",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "against_wall",
       "type": "general",
       "sensitive": false
     },
@@ -505,6 +510,11 @@
     },
     {
       "id": "amber",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "amelia_watson",
       "type": "general",
       "sensitive": false
     },
@@ -1139,6 +1149,11 @@
       "sensitive": false
     },
     {
+      "id": "baby_bump",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "bache",
       "type": "general",
       "sensitive": false
@@ -1469,12 +1484,22 @@
       "sensitive": false
     },
     {
+      "id": "big_tits",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "bikini",
       "type": "general",
       "sensitive": false
     },
     {
       "id": "bikini_armor",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "bilibili",
       "type": "general",
       "sensitive": false
     },
@@ -1824,6 +1849,21 @@
       "sensitive": false
     },
     {
+      "id": "breast_feeding",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "breast_grab",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "breast_groping",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "breast_milk",
       "type": "general",
       "sensitive": false
@@ -1945,6 +1985,11 @@
     },
     {
       "id": "bunnysuit",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "burn_up_excess",
       "type": "general",
       "sensitive": false
     },
@@ -2104,12 +2149,22 @@
       "sensitive": false
     },
     {
+      "id": "cardcaptor_sakura",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "carlotta",
       "type": "general",
       "sensitive": false
     },
     {
       "id": "cartethyia",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "cast_off",
       "type": "general",
       "sensitive": false
     },
@@ -2144,7 +2199,17 @@
       "sensitive": false
     },
     {
+      "id": "catch_catch",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "catgirl",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "caught",
       "type": "general",
       "sensitive": false
     },
@@ -2165,6 +2230,11 @@
     },
     {
       "id": "cecelia",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "cecilia_immergreen",
       "type": "general",
       "sensitive": false
     },
@@ -2225,6 +2295,11 @@
     },
     {
       "id": "changli",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "chaos_zero_nightmare",
       "type": "general",
       "sensitive": false
     },
@@ -2315,6 +2390,11 @@
     },
     {
       "id": "chidori_kaname",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "chie_abasto",
       "type": "general",
       "sensitive": false
     },
@@ -2485,6 +2565,11 @@
     },
     {
       "id": "clitoris_leash",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "clitoris_piercing",
       "type": "general",
       "sensitive": false
     },
@@ -2690,6 +2775,11 @@
     },
     {
       "id": "cover",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "covered_eye",
       "type": "general",
       "sensitive": false
     },
@@ -3009,6 +3099,11 @@
       "sensitive": false
     },
     {
+      "id": "danica",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "danjin",
       "type": "general",
       "sensitive": false
@@ -3030,6 +3125,11 @@
     },
     {
       "id": "dark_magician_girl",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "dark_room",
       "type": "general",
       "sensitive": false
     },
@@ -3060,6 +3160,11 @@
     },
     {
       "id": "daten_route",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "daughter",
       "type": "general",
       "sensitive": false
     },
@@ -3359,6 +3464,11 @@
       "sensitive": false
     },
     {
+      "id": "double_vaginal",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "downblouse",
       "type": "general",
       "sensitive": false
@@ -3389,7 +3499,17 @@
       "sensitive": false
     },
     {
+      "id": "dream",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "dream_of_you",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "dreaming",
       "type": "general",
       "sensitive": false
     },
@@ -3475,6 +3595,16 @@
     },
     {
       "id": "earthquake",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "easter",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "echidna",
       "type": "general",
       "sensitive": false
     },
@@ -3749,6 +3879,11 @@
       "sensitive": false
     },
     {
+      "id": "evanescia",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "evelyn",
       "type": "general",
       "sensitive": false
@@ -3915,6 +4050,11 @@
     },
     {
       "id": "female",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "female_knight",
       "type": "general",
       "sensitive": false
     },
@@ -4114,6 +4254,11 @@
       "sensitive": false
     },
     {
+      "id": "forest",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "formidable",
       "type": "general",
       "sensitive": false
@@ -4170,6 +4315,11 @@
     },
     {
       "id": "fren_e_lustario",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "french_kiss",
       "type": "general",
       "sensitive": false
     },
@@ -4255,6 +4405,11 @@
     },
     {
       "id": "futa_on_female",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "futa_on_male",
       "type": "general",
       "sensitive": false
     },
@@ -4430,6 +4585,11 @@
     },
     {
       "id": "gegege_no_kitaro",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "gender_change",
       "type": "general",
       "sensitive": false
     },
@@ -4679,6 +4839,11 @@
       "sensitive": false
     },
     {
+      "id": "gravity_effect",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "gravity_reality",
       "type": "general",
       "sensitive": false
@@ -4710,6 +4875,11 @@
     },
     {
       "id": "greenscreen",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "grey_eyes",
       "type": "general",
       "sensitive": false
     },
@@ -4815,6 +4985,11 @@
     },
     {
       "id": "haigure",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "hair_pull",
       "type": "general",
       "sensitive": false
     },
@@ -4939,6 +5114,11 @@
       "sensitive": false
     },
     {
+      "id": "haru_urara",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "haruna",
       "type": "general",
       "sensitive": false
@@ -5030,6 +5210,11 @@
     },
     {
       "id": "henrietta",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "henshin",
       "type": "general",
       "sensitive": false
     },
@@ -5294,6 +5479,11 @@
       "sensitive": false
     },
     {
+      "id": "holding_hands",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "hololive",
       "type": "general",
       "sensitive": false
@@ -5314,7 +5504,17 @@
       "sensitive": false
     },
     {
+      "id": "homeless",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "homemori_luna",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "honey_flash",
       "type": "general",
       "sensitive": false
     },
@@ -5724,6 +5924,11 @@
       "sensitive": false
     },
     {
+      "id": "imashino_misaki",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "imperial_girl",
       "type": "general",
       "sensitive": false
@@ -5834,6 +6039,11 @@
       "sensitive": false
     },
     {
+      "id": "interlocked_fingers",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "interracial",
       "type": "general",
       "sensitive": false
@@ -5845,6 +6055,11 @@
     },
     {
       "id": "inugami_korone",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "inui_sajuna",
       "type": "general",
       "sensitive": false
     },
@@ -6044,6 +6259,11 @@
       "sensitive": false
     },
     {
+      "id": "jaune_arc",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "jean_gunnhildr",
       "type": "general",
       "sensitive": false
@@ -6100,6 +6320,11 @@
     },
     {
       "id": "jinshi",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "jirai_kei",
       "type": "general",
       "sensitive": false
     },
@@ -6215,6 +6440,11 @@
     },
     {
       "id": "kaedehara_kazuha",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "kaela_kovalskia",
       "type": "general",
       "sensitive": false
     },
@@ -6629,6 +6859,11 @@
       "sensitive": false
     },
     {
+      "id": "kiriko",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "kirishima",
       "type": "general",
       "sensitive": false
@@ -6689,6 +6924,11 @@
       "sensitive": false
     },
     {
+      "id": "kissing_penis",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "kitagawa_marin",
       "type": "general",
       "sensitive": false
@@ -6720,6 +6960,11 @@
     },
     {
       "id": "klukai",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "kneeling",
       "type": "general",
       "sensitive": false
     },
@@ -6889,6 +7134,11 @@
       "sensitive": false
     },
     {
+      "id": "krushdafight",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "krystal",
       "type": "general",
       "sensitive": false
@@ -6920,6 +7170,11 @@
     },
     {
       "id": "kurageu_roa",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "kureiji_ollie",
       "type": "general",
       "sensitive": false
     },
@@ -7264,6 +7519,11 @@
       "sensitive": false
     },
     {
+      "id": "lie_ren",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "lifting_person",
       "type": "general",
       "sensitive": false
@@ -7425,6 +7685,11 @@
     },
     {
       "id": "long_hair",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "long_legs",
       "type": "general",
       "sensitive": false
     },
@@ -7699,6 +7964,11 @@
       "sensitive": false
     },
     {
+      "id": "manuka",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "mara",
       "type": "general",
       "sensitive": false
@@ -7960,6 +8230,11 @@
     },
     {
       "id": "mememe",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "mercury_black",
       "type": "general",
       "sensitive": false
     },
@@ -8229,6 +8504,11 @@
       "sensitive": false
     },
     {
+      "id": "misteln_schariac",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "mister",
       "type": "general",
       "sensitive": false
@@ -8419,6 +8699,11 @@
       "sensitive": false
     },
     {
+      "id": "monster_hunter",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "moona_hoshinova",
       "type": "general",
       "sensitive": false
@@ -8430,6 +8715,11 @@
     },
     {
       "id": "mordred",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "moria_luluka",
       "type": "general",
       "sensitive": false
     },
@@ -8459,6 +8749,11 @@
       "sensitive": false
     },
     {
+      "id": "motorcycle",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "moyako_konoe",
       "type": "general",
       "sensitive": false
@@ -8480,6 +8775,11 @@
     },
     {
       "id": "mugen",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "mugshot",
       "type": "general",
       "sensitive": false
     },
@@ -8679,6 +8979,11 @@
       "sensitive": false
     },
     {
+      "id": "nanally",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "nanami_doa",
       "type": "general",
       "sensitive": false
@@ -8695,6 +9000,11 @@
     },
     {
       "id": "nanoko",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "nanvel_candlestick",
       "type": "general",
       "sensitive": false
     },
@@ -8905,6 +9215,11 @@
     },
     {
       "id": "newchan",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "newhalf",
       "type": "general",
       "sensitive": false
     },
@@ -9284,6 +9599,11 @@
       "sensitive": false
     },
     {
+      "id": "oil",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "ojama",
       "type": "general",
       "sensitive": false
@@ -9455,6 +9775,11 @@
     },
     {
       "id": "oshino_shinobu",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "otaku_room",
       "type": "general",
       "sensitive": false
     },
@@ -9914,6 +10239,11 @@
       "sensitive": false
     },
     {
+      "id": "plumophilia",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "plutia",
       "type": "general",
       "sensitive": false
@@ -10010,6 +10340,11 @@
     },
     {
       "id": "poppy",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "porn_with_plot",
       "type": "general",
       "sensitive": false
     },
@@ -10359,6 +10694,11 @@
       "sensitive": false
     },
     {
+      "id": "qingxiao",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "qingyi",
       "type": "general",
       "sensitive": false
@@ -10420,6 +10760,11 @@
     },
     {
       "id": "r1n4",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "rabbit_ears",
       "type": "general",
       "sensitive": false
     },
@@ -10749,6 +11094,11 @@
       "sensitive": false
     },
     {
+      "id": "rio_kinezono",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "rio_tsukatsuki",
       "type": "general",
       "sensitive": false
@@ -10784,6 +11134,11 @@
       "sensitive": false
     },
     {
+      "id": "roach",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "robin",
       "type": "general",
       "sensitive": false
@@ -10810,6 +11165,11 @@
     },
     {
       "id": "roll_n_rock",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "ronova",
       "type": "general",
       "sensitive": false
     },
@@ -11394,6 +11754,11 @@
       "sensitive": false
     },
     {
+      "id": "shadowheart",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "shake_it",
       "type": "general",
       "sensitive": false
@@ -11405,6 +11770,11 @@
     },
     {
       "id": "shantae",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "shared_senses",
       "type": "general",
       "sensitive": false
     },
@@ -11664,6 +12034,11 @@
       "sensitive": false
     },
     {
+      "id": "shulk",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "shuten_doji",
       "type": "general",
       "sensitive": false
@@ -11704,6 +12079,11 @@
       "sensitive": false
     },
     {
+      "id": "sigrid",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "silhouette",
       "type": "general",
       "sensitive": false
@@ -11725,6 +12105,11 @@
     },
     {
       "id": "silver_wolf",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "silvervale",
       "type": "general",
       "sensitive": false
     },
@@ -11785,6 +12170,11 @@
     },
     {
       "id": "skindentation",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "skinny",
       "type": "general",
       "sensitive": false
     },
@@ -12005,6 +12395,11 @@
     },
     {
       "id": "sorasaki_hina",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "soredomo_tsuma",
       "type": "general",
       "sensitive": false
     },
@@ -12559,6 +12954,11 @@
       "sensitive": false
     },
     {
+      "id": "tachy",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "tagme",
       "type": "general",
       "sensitive": false
@@ -12774,6 +13174,11 @@
       "sensitive": false
     },
     {
+      "id": "teenager",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "tekken",
       "type": "general",
       "sensitive": false
@@ -12799,6 +13204,11 @@
       "sensitive": false
     },
     {
+      "id": "tentacle_dildo",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "tentacles",
       "type": "general",
       "sensitive": false
@@ -12815,6 +13225,11 @@
     },
     {
       "id": "texas",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "text_dialog",
       "type": "general",
       "sensitive": false
     },
@@ -13184,6 +13599,11 @@
       "sensitive": false
     },
     {
+      "id": "tressa",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "tribadism",
       "type": "general",
       "sensitive": false
@@ -13459,6 +13879,11 @@
       "sensitive": false
     },
     {
+      "id": "upright_straddle",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "upskirt",
       "type": "general",
       "sensitive": false
@@ -13495,6 +13920,16 @@
     },
     {
       "id": "ushio_noa",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "usuhoso",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "utazumi_sakurako",
       "type": "general",
       "sensitive": false
     },
@@ -13639,6 +14074,16 @@
       "sensitive": false
     },
     {
+      "id": "vesna",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "vestia_zeta",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "vibrator",
       "type": "general",
       "sensitive": false
@@ -13729,6 +14174,11 @@
       "sensitive": false
     },
     {
+      "id": "vodyanitsa",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "voiced",
       "type": "general",
       "sensitive": false
@@ -13810,6 +14260,11 @@
     },
     {
       "id": "vtuber",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "vulgarity",
       "type": "general",
       "sensitive": false
     },
@@ -13999,6 +14454,11 @@
       "sensitive": false
     },
     {
+      "id": "wii_fit_trainer",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "willow_schnee",
       "type": "general",
       "sensitive": false
@@ -14130,6 +14590,16 @@
     },
     {
       "id": "xinyan",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "xishi",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "xnalara",
       "type": "general",
       "sensitive": false
     },
@@ -14299,6 +14769,11 @@
       "sensitive": false
     },
     {
+      "id": "ymv",
+      "type": "general",
+      "sensitive": false
+    },
+    {
       "id": "yog_sothoths_yard",
       "type": "general",
       "sensitive": false
@@ -14360,6 +14835,11 @@
     },
     {
       "id": "yoshikawa_yuuko",
+      "type": "general",
+      "sensitive": false
+    },
+    {
+      "id": "yoshino_niko",
       "type": "general",
       "sensitive": false
     },

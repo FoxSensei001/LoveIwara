@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:i_iwara/app/services/frame_interp/frame_interp_service.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_item_missing_dialog.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
@@ -58,6 +59,7 @@ class PlaybackQueueNavigator {
     List<PlaybackQueue> companionQueues = const [],
     bool presentInSpace = false,
     bool presentImageViewer = false,
+    bool replaceCurrent = true,
   }) async {
     final id = item.id.trim();
     if (id.isEmpty) return;
@@ -97,6 +99,7 @@ class PlaybackQueueNavigator {
         ref: ref,
         presentInSpace: presentInSpace,
         presentImageViewer: presentImageViewer,
+        replaceCurrent: replaceCurrent,
       );
       return;
     }
@@ -196,6 +199,7 @@ class PlaybackQueueNavigator {
     required PlaybackQueueRef ref,
     bool presentInSpace = false,
     bool presentImageViewer = false,
+    bool replaceCurrent = true,
   }) {
     final extra = GalleryDetailExtra(
       coverUrl: item.thumbnailUrl.isEmpty ? null : item.thumbnailUrl,
@@ -208,10 +212,16 @@ class PlaybackQueueNavigator {
       openImageViewer: presentImageViewer,
     );
     try {
-      appRouter.pushReplacement(
-        '/gallery_detail/${ref.currentItemId}',
-        extra: extra,
-      );
+      // [replaceCurrent] 为 false：栈顶不是一张详情页（Quest 上从列表直接交给空间的
+      // 视频，背后就是那张列表），换掉它等于把列表弄丢，只能叠上去。
+      if (replaceCurrent) {
+        appRouter.pushReplacement(
+          '/gallery_detail/${ref.currentItemId}',
+          extra: extra,
+        );
+      } else {
+        appRouter.push('/gallery_detail/${ref.currentItemId}', extra: extra);
+      }
     } catch (e) {
       LogUtils.e('切换到池内下一个图库失败', tag: 'PlaybackQueueNavigator', error: e);
       // 兜底：至少别把用户卡在原地
@@ -273,7 +283,9 @@ class PlaybackQueueNavigator {
     VoidCallback? onRelinquishFullscreen,
   }) {
     final extra = VideoDetailExtra(
-      localPath: local.localPath,
+      // 池里切到下一条时同样默认看补帧版（「默认补帧」是永久的，见
+      // FrameInterpService.preferredPlaybackPath）。
+      localPath: FrameInterpService.preferredPlaybackPath(local.localPath),
       localTask: local.task,
       localAllQualityTasks: local.allQualityTasks,
       // 本机文件那一路带得出稳定 id，详情页拿它记进度。

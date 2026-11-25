@@ -18,7 +18,11 @@ class MediaListController extends GetxController {
   // 页面变化回调
   final List<VoidCallback> _onPageChangedCallbacks = [];
 
-  final RxDouble currentScrollOffset = 0.0.obs;
+  static const double scrollToTopThreshold = 800;
+  final RxBool _canScrollToTop = false.obs;
+
+  // The FAB depends on crossing a threshold, not every scroll offset.
+  bool get canScrollToTop => _canScrollToTop.value;
   final Rx<ScrollDirection> lastScrollDirection = ScrollDirection.idle.obs;
   final RxDouble headerOffset = 0.0.obs;
   final RxBool showHeader = true.obs;
@@ -94,7 +98,10 @@ class MediaListController extends GetxController {
     ScrollDirection direction, {
     double delta = 0.0,
   }) {
-    currentScrollOffset.value = offset;
+    final canScroll = offset > scrollToTopThreshold;
+    if (_canScrollToTop.value != canScroll) {
+      _canScrollToTop.value = canScroll;
+    }
     lastScrollDirection.value = direction;
     _applyHeaderDelta(delta);
   }
@@ -134,12 +141,16 @@ class MediaListController extends GetxController {
     _tabReloadVersions[tabIndex] = (_tabReloadVersions[tabIndex] ?? 0) + 1;
   }
 
+  void resetScrollState() {
+    _canScrollToTop.value = false;
+    lastScrollDirection.value = ScrollDirection.idle;
+    resetHeaderState();
+  }
+
   // 执行所有滚动到顶部的回调
   void scrollToTop() {
     // First, reset scroll state immediately for header animation
-    currentScrollOffset.value = 0.0;
-    lastScrollDirection.value = ScrollDirection.idle;
-    resetHeaderState();
+    resetScrollState();
 
     // Then execute scroll callbacks
     for (var callback in _scrollToTopCallbacks) {
@@ -163,9 +174,7 @@ class MediaListController extends GetxController {
   // 刷新列表
   void refreshList() {
     rebuildKey.value++;
-    currentScrollOffset.value = 0.0;
-    lastScrollDirection.value = ScrollDirection.idle;
-    resetHeaderState();
+    resetScrollState();
   }
 
   // 刷新页面UI并滚动到顶部

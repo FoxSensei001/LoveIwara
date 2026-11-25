@@ -233,6 +233,8 @@ common:
   disagree: 不同意
   agreeToRules: 同意規則
   tapToReread: '點擊重讀全文'
+  rulesRequiredHint: '發表前需要先閱讀並同意社群規則'
+  readAndAgree: '閱讀並同意'
   # Base Input Dialog
   markdownSyntaxHelp: Markdown語法幫助
   previewContent: 預覽內容
@@ -716,6 +718,9 @@ settings:
   glassQualityPremiumDesc: "固定使用完整透鏡，GPU 開銷較高；桌面平台使用輕量效果"
   glassQualityCurrent: "目前生效"
   glassChromeParametersDesc: "導覽玻璃參數即時套用至頂部膠囊、按鈕與底欄"
+  glassPreview: "預覽"
+  glassPremiumOnly: "僅在「完整折射」畫質下生效"
+  glassSaturationNeedsBlur: "「流暢」畫質下需背景模糊大於 0 才生效"
   glassOpacity: "不透明度"
   glassBlur: "背景模糊（sigma）"
   glassBlurDesc: "0 保持背景清晰；模糊會增加一次渲染，可能降低流暢度"
@@ -726,8 +731,6 @@ settings:
   glassSaturation: "背景飽和度"
   glassChromaticAberration: "色散強度"
   glassShadows: "投影"
-  glassPanelParameters: "選單面板參數"
-  glassPanelParametersDesc: "套用至浮出選單，面板使用獨立的透鏡渲染器"
   glassResetParameters: "還原玻璃預設參數"
   glassEffect: 介面材質
   glassEffectDesc: 決定全域介面材質（頂欄膠囊、選單、彈窗按鈕、底部導覽列）
@@ -1097,15 +1100,13 @@ settings:
   # 影音配置相關
   audioVideoConfig: 影音配置
   expandBuffer: 擴大緩衝區
-  expandBufferInfo: 開啟後緩衝區增大，載入時間變長但播放更流暢
+  expandBufferInfo: 開啟後預先載入更多影片，網路不穩時較少卡頓，但會佔用更多記憶體
   videoSyncMode: 影片同步模式
   videoSyncModeSubtitle: 影音同步策略
   hardwareDecodingMode: 硬解模式
   hardwareDecodingModeSubtitle: 硬體解碼設定
   enableHardwareAcceleration: 啟用硬體加速
   enableHardwareAccelerationInfo: 開啟硬體加速可以提高解碼效能，但某些裝置可能不相容
-  useOpenSLESAudioOutput: 使用OpenSLES音訊輸出
-  useOpenSLESAudioOutputInfo: 使用低延遲音訊輸出，可能提高音頻效能
   # 影片同步選項
   videoSyncAudio: 音訊同步
   videoSyncDisplayResample: 顯示重採樣
@@ -1582,6 +1583,10 @@ videoDetail:
     currentQuality: 目前清晰度
     duration: 時長
     resolution: 解析度
+    frameRate: "影格率"
+    frameRateValue: "${fps} 幀/秒"
+    frameRateInterpolated: "${fps} 幀/秒（補幀版，原片 ${from} 幀/秒）"
+    frameRateHasInterpolated: "${fps} 幀/秒（原片，已有 ${to} 幀/秒補幀版）"
     fileInfo: 檔案資訊
     fileName: 檔案名稱
     fileSize: 檔案大小
@@ -1595,6 +1600,9 @@ videoDetail:
   thisIsAPrivateVideo: 這是私密影片
   getVideoInfoFailed: '取得影片資訊失敗，請稍後再試'
   noVideoSourceFound: 未找到對應的影片來源
+  sourceFileMissingOnServer: '影片檔案在 Iwara 伺服器上不存在（HTTP 404），網頁端同樣無法播放。可能是伺服器故障，請稍後再試。'
+  qualityFileMissingOnServer: '「${quality}」這一檔的影片檔案在伺服器上不存在（HTTP 404），可以在畫質選單裡換一檔。'
+  playbackRetryExhausted: '影片連續多次無法開啟，已停止自動重試。可以稍後點重試。'
   tagCopiedToClipboard: '標籤 "${tagId}" 已複製到剪貼簿'
   errorLoadingVideo: 載入影片時出錯
   play: 播放
@@ -1752,7 +1760,7 @@ videoDetail:
     fetchingVideoSources: 取得影片來源中...
     loadingVideo: 正在載入影片...
     applyingSolution: 正在應用此解析度...
-    addingListeners: 正在添加監聽器...
+    addingListeners: 正在連接影片伺服器...
     successFecthVideoDurationInfo: 成功獲取影片資源，開始載入影片...
     successFecthVideoHeightInfo: 載入完成
   # 投影
@@ -1791,6 +1799,23 @@ videoDetail:
       connectedTo: '已連接到: ${deviceName}'
       notConnected: 未連接裝置
       stopCasting: 停止投影
+      searchFinished: '搜尋完成，找到 ${count} 台裝置'
+      protocolDlna: 'DLNA'
+      protocolGoogleCast: 'Google Cast'
+      addByIp: '手動新增'
+      addByIpTitle: '手動新增裝置'
+      addByIpDesc: '輸入電視或機上盒的 IP 位址。通常可在電視的「設定 → 網路 → 網路狀態」中找到。'
+      addByIpHint: '例如 192.168.1.20'
+      addByIpAction: '尋找'
+      addByIpInvalid: '位址格式不正確，請輸入類似 192.168.1.20 的 IPv4 位址'
+      addByIpNotFound: '在 ${host} 上找不到投放裝置'
+      troubleshootTitle: '找不到你的裝置？'
+      troubleshoot: '· 手機（電腦）和電視要連同一個 Wi-Fi；訪客網路、路由器開啟「AP 隔離」都會搜不到\n· 開著 VPN／代理軟體時可能搜不到，請先關閉再試\n· 支援 DLNA 和 Google Cast（Chromecast）；不支援 Apple TV（AirPlay）與部分品牌的私有投放協定，電視需開啟 DLNA／多螢幕互動功能\n· 仍然沒有？點「手動新增」輸入電視的 IP'
+      failure:
+        unreachable: '連不上裝置，請確認在同一個 Wi-Fi，並暫時關閉 VPN'
+        timeout: '裝置沒有回應'
+        mediaRejected: '裝置無法播放這部影片（格式不支援或網址無法開啟）'
+        deviceRejected: '裝置拒絕了投放指令'
   # 按讚頭像元件
   likeAvatars:
     dialogTitle: 誰悄悄地喜歡
@@ -1991,6 +2016,8 @@ notifications:
   kApprovedPost: 投稿已審核
   kApprovedForumPost: 論壇發言審核透過
   kRejectedContent: 內容審核被拒絕
+  kWarning: "收到站點警告"
+  kWarningHint: "站方對你的帳號發出了警告，請留意社群規範。詳情請在網頁端查看。"
   kUnknownType: 未知通知類型
 
 conversation:
@@ -2094,6 +2121,7 @@ download:
   categorySectionLabel: '分類'
   saveToPreviewLabel: '將儲存到'
   saveToPreviewSuggested: '建議檔名：${name}（可在系統對話框修改）'
+  saveToPreviewChange: 更改…
   lastUsedBadge: 上次選擇
   pickedBadge: 已選擇
   forceDeleteTask: 強制刪除任務
@@ -2409,6 +2437,7 @@ download:
     downloadsFolder: 下載
     askEveryTime: 每次詢問
     askEveryTimeDesc: '每次下載時選擇儲存位置；批次下載存到 ${location}'
+    firstDownloadNotice: '已開始下載，檔案存到「${location}」，可在下載設定中更改'
     freeSpace: '剩餘 ${size}'
     statusWritable: 可寫入
     statusNeedsPermission: 需要授權
@@ -3582,6 +3611,12 @@ vrFormat:
   resetToAutoDesc: 忘掉這部影片的手動選擇，交回給自動判斷
   manualBadge: 已手動指定
   panoramaHint: 拖曳畫面即可環視，捏合改變視野
+  gyroControl: "重力感應控制視角"
+  gyroControlDesc: "VR 全景播放時轉動手機即可環視，拖動畫面仍可微調"
+  gyroPromptTitle: "開啟重力感應？"
+  gyroPromptBody: "是否開啟重力感應，獲得更好的 VR 模擬體驗？此功能可以在設定中關閉。"
+  gyroPromptEnable: "開啟"
+  gyroPromptDecline: "不用了"
   panoramaGestureNotice: 環視時畫面區的拖曳用於轉頭，快轉請用進度條
   shaderUnsupported: 本機不支援即時環視，已退回單眼顯示
   handoffTooltip: 換個方式播放
@@ -4048,3 +4083,88 @@ poll:
   voteFailed: "投票未能送出"
   copyLink: "複製投票連結"
   translateFailed: "投票翻譯失敗"
+frameInterp:
+  title: "補幀任務"
+  action: "補幀（產生 2 倍幀率版本）"
+  playInterpolated: "播放補幀版本"
+  playOriginal: "播放原影片"
+  deleteInterpolated: "同時刪除補幀版本"
+  deleteInterpolatedDesc: "補幀後的影片檔案和它的任務紀錄一起刪除"
+  deleteInterpolatedOnly: "刪除補幀版本"
+  deleteInterpolatedOnlyTitle: "刪除補幀版本？"
+  deleteInterpolatedOnlyBody: "只刪除補幀後的影片檔案和它的任務紀錄，原影片保留不動。之後還可以重新補幀。"
+  interpolatedDeleted: "已刪除補幀版本"
+  deleteInterpolatedFailed: "補幀版本沒有刪掉，檔案可能正被佔用或沒有權限"
+  viewTasks: "查看補幀任務"
+  badge: "補幀"
+  fpsBadge: "${fps} 幀"
+  specLine: "${width}×${height} · ${from} → ${to} fps"
+  runningDetail: "${percent}% · ${speed} fps"
+  preparing: "準備中…"
+  outputMissing: "補幀檔案已不存在"
+  empty: "還沒有補幀任務"
+  emptyHint: "在「本機檔案」或「下載列表」中對影片選擇「補幀」。"
+  clearFinished: "清除已結束的記錄"
+  status:
+    pending: "排隊中"
+    running: "處理中"
+    completed: "已完成"
+    failed: "失敗"
+    cancelled: "已取消"
+  actions:
+    play: "播放"
+    cancel: "取消"
+    retry: "重試"
+    delete: "刪除記錄"
+    revealInFolder: "在資料夾中顯示"
+  confirm:
+    cancelTitle: "取消這個任務？"
+    cancelContent: "已處理的進度會遺失，之後可以從頭重試。"
+    deleteTitle: "刪除這筆記錄？"
+    deleteContent: "原始影片不會受到影響。"
+    deleteOutput: "同時刪除補幀檔案"
+    clearTitle: "清除已結束的記錄？"
+    clearContent: "補幀檔案會保留在磁碟上，只會移除記錄。"
+    enqueueTitle: "加入補幀？"
+    enqueueAction: "開始補幀"
+    fpsUnit: "幀/秒"
+    saveNote: "另存為新檔案，原影片保留不動"
+    resetTitle: "暫不支援斷點續傳，以下情況會從頭開始："
+    resetBackground: "切到其他 App 或鎖定螢幕"
+    resetClosed: "關閉 App，或 App 被系統清理"
+  toast:
+    queued: "已加入補幀佇列"
+    completed: "補幀完成：${title}"
+    failed: "補幀失敗：${title}"
+  reject:
+    sourceMissing: "影片檔案已不存在"
+    alreadyInterpolated: "這已經是補幀後的影片"
+    alreadyQueued: "此影片已在補幀佇列中"
+    alreadyDone: "此影片已有補幀版本"
+    hdr: "目前不支援 HDR 影片"
+    resolutionTooLarge: "解析度過高，無法補幀"
+    unreadable: "無法讀取此影片"
+    noGpu: "找不到可用的顯示卡（需要支援 Vulkan）"
+  error:
+    unknown: "發生了一點問題"
+    openInput: "無法開啟影片"
+    noVideo: "檔案中沒有影片軌"
+    decoder: "影片解碼失敗"
+    hdrUnsupported: "目前不支援 HDR 影片"
+    noGpu: "找不到可用的顯示卡"
+    model: "補幀模型載入失敗，可嘗試重新安裝元件"
+    encoder: "沒有可用的影片編碼器"
+    openOutput: "無法建立輸出檔案"
+    write: "寫入失敗，可能是磁碟空間不足"
+    interpolate: "處理失敗，可能是顯示記憶體不足"
+    componentUnavailable: "補幀元件無法使用"
+    interrupted: "應用程式關閉導致任務中斷"
+    finalizeFailed: "成品檔案儲存失敗"
+    sourceMissing: "影片檔案已不存在"
+    backgrounded: "應用程式切到了背景，回到前景後會自動重新開始"
+  notification:
+    title: "正在補幀"
+    titleWithQueue: "正在補幀 · ${count} 個排隊"
+    waiting: "等待開始"
+  component:
+    unsupported: "此裝置暫不支援補幀"

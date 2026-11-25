@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:file_selector/file_selector.dart' as fs;
+import 'package:i_iwara/app/utils/desktop_save_dialog.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -11,6 +12,8 @@ import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/db/database_service.dart';
+import 'package:i_iwara/db/migrations/migration_v47_history_switch_own_key.dart';
+import 'package:i_iwara/db/migrations/migration_v48_download_ask_own_key.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
@@ -184,7 +187,8 @@ class ConfigBackupService extends GetxService {
         }
       } else {
         // 桌面平台：弹出保存文件对话框
-        final fileSaveLocation = await fs.getSaveLocation(
+        final fileSaveLocation = await showDesktopSaveDialog(
+          purpose: '导出配置备份',
           acceptedTypeGroups: [
             const fs.XTypeGroup(label: 'JSON', extensions: ['json']),
           ],
@@ -338,6 +342,14 @@ class ConfigBackupService extends GetxService {
             stmt.execute(values);
           }
           stmt.close();
+        }
+        // 备份是旧版导出的：app_config 刚被整表写回旧值，而导入不动 user_version，
+        // 改过配置语义的迁移不会再跑——这里按备份的库版本补跑它们的换算。
+        final backupDbVersion = importData["db_version"];
+        if (tablesData.containsKey('app_config')) {
+          final v = backupDbVersion is int ? backupDbVersion : 0;
+          if (v < 47) MigrationV47HistorySwitchOwnKey.reconcile(db);
+          if (v < 48) MigrationV48DownloadAskOwnKey.reconcile(db);
         }
         db.execute('COMMIT;');
       } catch (e) {

@@ -101,6 +101,7 @@ class TranslationsRu extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsFollowSearchRu followSearch = _TranslationsFollowSearchRu._(_root);
 	@override late final _TranslationsPagedSearchRu pagedSearch = _TranslationsPagedSearchRu._(_root);
 	@override late final _TranslationsPollRu poll = _TranslationsPollRu._(_root);
+	@override late final _TranslationsFrameInterpRu frameInterp = _TranslationsFrameInterpRu._(_root);
 }
 
 // Path: personalProfile
@@ -354,6 +355,8 @@ class _TranslationsCommonRu extends TranslationsCommonEn {
 	@override String get disagree => 'Отклонить';
 	@override String get agreeToRules => 'Принять правила';
 	@override String get tapToReread => 'Нажмите, чтобы перечитать';
+	@override String get rulesRequiredHint => 'Перед публикацией прочитайте и примите правила сообщества';
+	@override String get readAndAgree => 'Прочитать и принять';
 	@override String get markdownSyntaxHelp => 'Справка по Markdown';
 	@override String get previewContent => 'Предпросмотр';
 	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
@@ -858,6 +861,29 @@ class _TranslationsSettingsRu extends TranslationsSettingsEn {
 	@override String get defaultBrowserDesc => 'Откройте параметры ссылок по умолчанию в системных настройках и добавьте сайт iwara.tv';
 	@override String get themeMode => 'Режим темы';
 	@override String get themeModeDesc => 'Определяет тему оформления приложения';
+	@override String get glassQuality => 'Rendering quality';
+	@override String get glassQualityAuto => 'Automatic';
+	@override String get glassQualityAutoDesc => 'Adapts to frame time; refraction can change as quality adjusts';
+	@override String get glassQualityStandard => 'Smooth';
+	@override String get glassQualityStandardDesc => 'Lightweight glass with highlights and consistent frame pacing';
+	@override String get glassQualityPremium => 'Full refraction';
+	@override String get glassQualityPremiumDesc => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass';
+	@override String get glassQualityCurrent => 'Currently active';
+	@override String get glassChromeParametersDesc => 'Navigation glass parameters apply live to headers, buttons and the bottom bar';
+	@override String get glassPreview => 'Preview';
+	@override String get glassPremiumOnly => 'Only takes effect with the full refraction quality';
+	@override String get glassSaturationNeedsBlur => 'With the smooth quality, only takes effect when background blur is above 0';
+	@override String get glassOpacity => 'Opacity';
+	@override String get glassBlur => 'Background blur (sigma)';
+	@override String get glassBlurDesc => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness';
+	@override String get glassAdvancedParameters => 'Advanced navigation parameters';
+	@override String get glassThickness => 'Lens thickness';
+	@override String get glassRefractiveIndex => 'Refractive index';
+	@override String get glassLightIntensity => 'Highlight intensity';
+	@override String get glassSaturation => 'Background saturation';
+	@override String get glassChromaticAberration => 'Chromatic aberration';
+	@override String get glassShadows => 'Shadows';
+	@override String get glassResetParameters => 'Restore glass defaults';
 	@override String get glassEffect => 'Стиль интерфейса';
 	@override String get glassEffectDesc => 'Материал элементов интерфейса — заголовков, меню, кнопок и нижней панели';
 	@override String get liquidGlassEffect => 'Жидкое стекло';
@@ -1158,15 +1184,13 @@ class _TranslationsSettingsRu extends TranslationsSettingsEn {
 	@override String get showCenterPlayPauseButtonDesc => 'Показывать крупную кнопку воспроизведения/паузы в центре плеера.';
 	@override String get audioVideoConfig => 'Аудио и видео';
 	@override String get expandBuffer => 'Увеличенный буфер';
-	@override String get expandBufferInfo => 'Увеличивает размер буфера: загрузка длится дольше, но воспроизведение плавнее';
+	@override String get expandBufferInfo => 'Больше видео загружается заранее: при нестабильной сети воспроизведение реже прерывается, но расходуется больше памяти';
 	@override String get videoSyncMode => 'Режим синхронизации видео';
 	@override String get videoSyncModeSubtitle => 'Стратегия синхронизации звука и видео';
 	@override String get hardwareDecodingMode => 'Режим аппаратного декодирования';
 	@override String get hardwareDecodingModeSubtitle => 'Настройки аппаратного декодирования';
 	@override String get enableHardwareAcceleration => 'Аппаратное ускорение';
 	@override String get enableHardwareAccelerationInfo => 'Включение аппаратного ускорения может улучшить декодирование, но поддерживается не всеми устройствами';
-	@override String get useOpenSLESAudioOutput => 'Использовать вывод OpenSLES';
-	@override String get useOpenSLESAudioOutputInfo => 'Низкая задержка звука, может улучшить воспроизведение аудио';
 	@override String get videoSyncAudio => 'По звуку';
 	@override String get videoSyncDisplayResample => 'Передискретизация дисплея';
 	@override String get videoSyncDisplayResampleVdrop => 'Передискретизация (пропуск видеокадров)';
@@ -1313,6 +1337,9 @@ class _TranslationsVideoDetailRu extends TranslationsVideoDetailEn {
 	@override String get thisIsAPrivateVideo => 'Это приватное видео';
 	@override String get getVideoInfoFailed => 'Не удалось получить данные о видео, повторите позже';
 	@override String get noVideoSourceFound => 'Источник видео не найден';
+	@override String get sourceFileMissingOnServer => 'Файл видео отсутствует на сервере Iwara (HTTP 404), поэтому он не воспроизводится и на сайте. Возможно, у сервера неполадки; попробуйте позже.';
+	@override String qualityFileMissingOnServer({required Object quality}) => 'Файла качества «${quality}» нет на сервере (HTTP 404). Выберите другое качество в меню качества.';
+	@override String get playbackRetryExhausted => 'Видео несколько раз подряд не открылось, автоматические повторы остановлены. Попробуйте позже.';
 	@override String tagCopiedToClipboard({required Object tagId}) => 'Тег «${tagId}» скопирован';
 	@override String get errorLoadingVideo => 'Ошибка загрузки видео';
 	@override String get play => 'Воспроизвести';
@@ -1537,6 +1564,8 @@ class _TranslationsNotificationsRu extends TranslationsNotificationsEn {
 	@override String get kApprovedPost => 'Публикация одобрена';
 	@override String get kApprovedForumPost => 'Публикация на форуме одобрена';
 	@override String get kRejectedContent => 'Контент отклонён модерацией';
+	@override String get kWarning => 'Предупреждение от сайта';
+	@override String get kWarningHint => 'Модераторы вынесли предупреждение вашему аккаунту. Соблюдайте правила сообщества. Подробности — на сайте.';
 	@override String get kUnknownType => 'Неизвестный тип уведомления';
 }
 
@@ -1595,6 +1624,7 @@ class _TranslationsDownloadRu extends TranslationsDownloadEn {
 	@override String get categorySectionLabel => 'Категория';
 	@override String get saveToPreviewLabel => 'Будет сохранено в';
 	@override String saveToPreviewSuggested({required Object name}) => 'Предлагаемое имя файла: ${name} (можно изменить в системном диалоге)';
+	@override String get saveToPreviewChange => 'Change…';
 	@override String get lastUsedBadge => 'Недавно использованное';
 	@override String get pickedBadge => 'Выбрано';
 	@override String get startDownloading => 'Начать загрузку';
@@ -2856,6 +2886,12 @@ class _TranslationsVrFormatRu extends TranslationsVrFormatEn {
 	@override String get resetToAutoDesc => 'Забыть ручной выбор для этого видео и снова доверить решение автоопределению';
 	@override String get manualBadge => 'Задано вручную';
 	@override String get panoramaHint => 'Перетаскивайте изображение, чтобы осмотреться, сведите пальцы, чтобы изменить угол обзора';
+	@override String get gyroControl => 'Управление наклоном';
+	@override String get gyroControlDesc => 'В режиме VR-панорамы поворачивайте телефон, чтобы осмотреться; перетаскивание по-прежнему подстраивает вид';
+	@override String get gyroPromptTitle => 'Включить управление наклоном?';
+	@override String get gyroPromptBody => 'Включить датчик движения для более реалистичного VR? Эту функцию можно отключить в настройках.';
+	@override String get gyroPromptEnable => 'Включить';
+	@override String get gyroPromptDecline => 'Не сейчас';
 	@override String get panoramaGestureNotice => 'При осмотре перетаскивание поворачивает вид — для перемотки используйте полосу прогресса';
 	@override String get shaderUnsupported => 'Это устройство не может отображать живую панораму; вместо этого показывается один глаз';
 	@override String get handoffTooltip => 'Другой способ воспроизведения';
@@ -3209,6 +3245,44 @@ class _TranslationsPollRu extends TranslationsPollEn {
 	@override String get voteFailed => 'Не удалось отправить голос';
 	@override String get copyLink => 'Скопировать ссылку на опрос';
 	@override String get translateFailed => 'Не удалось перевести опрос';
+}
+
+// Path: frameInterp
+class _TranslationsFrameInterpRu extends TranslationsFrameInterpEn {
+	_TranslationsFrameInterpRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Интерполяция кадров';
+	@override String get action => 'Увеличить частоту кадров в 2 раза';
+	@override String get playInterpolated => 'Воспроизвести версию с интерполяцией';
+	@override String get playOriginal => 'Смотреть оригинал';
+	@override String get deleteInterpolated => 'Удалить и интерполированную версию';
+	@override String get deleteInterpolatedDesc => 'Удаляет интерполированный файл и запись о задаче';
+	@override String get deleteInterpolatedOnly => 'Удалить интерполированную версию';
+	@override String get deleteInterpolatedOnlyTitle => 'Удалить интерполированную версию?';
+	@override String get deleteInterpolatedOnlyBody => 'Удаляются только интерполированный файл и запись о задаче. Оригинал остаётся, его можно интерполировать снова.';
+	@override String get interpolatedDeleted => 'Интерполированная версия удалена';
+	@override String get deleteInterpolatedFailed => 'Не удалось удалить интерполированную версию. Файл может быть занят или нет доступа';
+	@override String get viewTasks => 'Задачи интерполяции';
+	@override String get badge => '2× FPS';
+	@override String fpsBadge({required Object fps}) => '${fps} FPS';
+	@override String specLine({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps';
+	@override String runningDetail({required Object percent, required Object speed}) => '${percent}% · ${speed} fps';
+	@override String get preparing => 'Подготовка…';
+	@override String get outputMissing => 'Файл с интерполяцией больше не существует';
+	@override String get empty => 'Задач интерполяции пока нет';
+	@override String get emptyHint => 'Выберите «Увеличить частоту кадров в 2 раза» для видео в разделе «Локальные файлы» или «Загрузки».';
+	@override String get clearFinished => 'Очистить завершённые записи';
+	@override late final _TranslationsFrameInterpStatusRu status = _TranslationsFrameInterpStatusRu._(_root);
+	@override late final _TranslationsFrameInterpActionsRu actions = _TranslationsFrameInterpActionsRu._(_root);
+	@override late final _TranslationsFrameInterpConfirmRu confirm = _TranslationsFrameInterpConfirmRu._(_root);
+	@override late final _TranslationsFrameInterpToastRu toast = _TranslationsFrameInterpToastRu._(_root);
+	@override late final _TranslationsFrameInterpRejectRu reject = _TranslationsFrameInterpRejectRu._(_root);
+	@override late final _TranslationsFrameInterpErrorRu error = _TranslationsFrameInterpErrorRu._(_root);
+	@override late final _TranslationsFrameInterpNotificationRu notification = _TranslationsFrameInterpNotificationRu._(_root);
+	@override late final _TranslationsFrameInterpComponentRu component = _TranslationsFrameInterpComponentRu._(_root);
 }
 
 // Path: common.pagination
@@ -3729,6 +3803,10 @@ class _TranslationsVideoDetailLocalInfoRu extends TranslationsVideoDetailLocalIn
 	@override String get currentQuality => 'Текущее качество';
 	@override String get duration => 'Длительность';
 	@override String get resolution => 'Разрешение';
+	@override String get frameRate => 'Частота кадров';
+	@override String frameRateValue({required Object fps}) => '${fps} к/с';
+	@override String frameRateInterpolated({required Object fps, required Object from}) => '${fps} к/с (интерполяция, исходник ${from} к/с)';
+	@override String frameRateHasInterpolated({required Object fps, required Object to}) => '${fps} к/с (исходник, есть версия ${to} к/с)';
 	@override String get fileInfo => 'О файле';
 	@override String get fileName => 'Имя файла';
 	@override String get fileSize => 'Размер файла';
@@ -3794,7 +3872,7 @@ class _TranslationsVideoDetailSkeletonRu extends TranslationsVideoDetailSkeleton
 	@override String get fetchingVideoSources => 'Загрузка источников видео...';
 	@override String get loadingVideo => 'Загрузка видео...';
 	@override String get applyingSolution => 'Применение решения...';
-	@override String get addingListeners => 'Добавление слушателей...';
+	@override String get addingListeners => 'Подключение к видеосерверу...';
 	@override String get successFecthVideoDurationInfo => 'Длительность видео получена, загрузка видео...';
 	@override String get successFecthVideoHeightInfo => 'Загрузка завершена';
 }
@@ -4351,6 +4429,7 @@ class _TranslationsDownloadLocationRu extends TranslationsDownloadLocationEn {
 	@override String get downloadsFolder => 'Downloads';
 	@override String get askEveryTime => 'Ask every time';
 	@override String askEveryTimeDesc({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}';
+	@override String firstDownloadNotice({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings';
 	@override String freeSpace({required Object size}) => '${size} free';
 	@override String get statusWritable => 'Writable';
 	@override String get statusNeedsPermission => 'Needs permission';
@@ -4917,6 +4996,133 @@ class _TranslationsLocalMediaWebdavRu extends TranslationsLocalMediaWebdavEn {
 	@override String get bannerCredUnreadable => 'Couldn\'t read the saved password. Sign in again.';
 }
 
+// Path: frameInterp.status
+class _TranslationsFrameInterpStatusRu extends TranslationsFrameInterpStatusEn {
+	_TranslationsFrameInterpStatusRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get pending => 'В очереди';
+	@override String get running => 'Обработка';
+	@override String get completed => 'Завершено';
+	@override String get failed => 'Ошибка';
+	@override String get cancelled => 'Отменено';
+}
+
+// Path: frameInterp.actions
+class _TranslationsFrameInterpActionsRu extends TranslationsFrameInterpActionsEn {
+	_TranslationsFrameInterpActionsRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get play => 'Воспроизвести';
+	@override String get cancel => 'Отмена';
+	@override String get retry => 'Повторить';
+	@override String get delete => 'Удалить запись';
+	@override String get revealInFolder => 'Показать в папке';
+}
+
+// Path: frameInterp.confirm
+class _TranslationsFrameInterpConfirmRu extends TranslationsFrameInterpConfirmEn {
+	_TranslationsFrameInterpConfirmRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get cancelTitle => 'Отменить эту задачу?';
+	@override String get cancelContent => 'Текущий прогресс будет потерян. Позже можно повторить задачу с начала.';
+	@override String get deleteTitle => 'Удалить эту запись?';
+	@override String get deleteContent => 'Исходное видео не затрагивается.';
+	@override String get deleteOutput => 'Также удалить файл с интерполяцией';
+	@override String get clearTitle => 'Очистить завершённые записи?';
+	@override String get clearContent => 'Файлы с интерполяцией останутся на диске, будут удалены только записи.';
+	@override String get enqueueTitle => 'Интерполировать видео?';
+	@override String get enqueueAction => 'Начать';
+	@override String get fpsUnit => 'к/с';
+	@override String get saveNote => 'Сохраняется в новый файл, исходное видео не меняется';
+	@override String get resetTitle => 'Продолжить с места остановки нельзя. Всё начнётся заново, если:';
+	@override String get resetBackground => 'переключиться на другое приложение или заблокировать экран';
+	@override String get resetClosed => 'закрыть приложение, или его закроет система';
+}
+
+// Path: frameInterp.toast
+class _TranslationsFrameInterpToastRu extends TranslationsFrameInterpToastEn {
+	_TranslationsFrameInterpToastRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get queued => 'Добавлено в очередь интерполяции';
+	@override String completed({required Object title}) => 'Интерполяция завершена: ${title}';
+	@override String failed({required Object title}) => 'Ошибка интерполяции: ${title}';
+}
+
+// Path: frameInterp.reject
+class _TranslationsFrameInterpRejectRu extends TranslationsFrameInterpRejectEn {
+	_TranslationsFrameInterpRejectRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get sourceMissing => 'Видеофайл больше не существует';
+	@override String get alreadyInterpolated => 'Это видео уже обработано интерполяцией';
+	@override String get alreadyQueued => 'Это видео уже в очереди';
+	@override String get alreadyDone => 'У этого видео уже есть версия с интерполяцией';
+	@override String get hdr => 'Видео HDR пока не поддерживается';
+	@override String get resolutionTooLarge => 'Разрешение слишком высокое для интерполяции';
+	@override String get unreadable => 'Не удалось прочитать это видео';
+	@override String get noGpu => 'Не найдена подходящая видеокарта (требуется поддержка Vulkan)';
+}
+
+// Path: frameInterp.error
+class _TranslationsFrameInterpErrorRu extends TranslationsFrameInterpErrorEn {
+	_TranslationsFrameInterpErrorRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get unknown => 'Что-то пошло не так';
+	@override String get openInput => 'Не удалось открыть видео';
+	@override String get noVideo => 'В файле нет видеодорожки';
+	@override String get decoder => 'Не удалось декодировать видео';
+	@override String get hdrUnsupported => 'Видео HDR пока не поддерживается';
+	@override String get noGpu => 'Не найдена подходящая видеокарта';
+	@override String get model => 'Не удалось загрузить модель интерполяции. Попробуйте переустановить компонент';
+	@override String get encoder => 'Нет доступного видеокодера';
+	@override String get openOutput => 'Не удалось создать выходной файл';
+	@override String get write => 'Ошибка записи. Возможно, диск заполнен';
+	@override String get interpolate => 'Ошибка обработки. Возможно, не хватило памяти видеокарты';
+	@override String get componentUnavailable => 'Компонент интерполяции недоступен';
+	@override String get interrupted => 'Прервано, так как приложение было закрыто';
+	@override String get finalizeFailed => 'Не удалось сохранить готовый файл';
+	@override String get sourceMissing => 'Видеофайл больше не существует';
+	@override String get backgrounded => 'Прервано: приложение ушло в фон. Запустится заново, когда вы вернётесь';
+}
+
+// Path: frameInterp.notification
+class _TranslationsFrameInterpNotificationRu extends TranslationsFrameInterpNotificationEn {
+	_TranslationsFrameInterpNotificationRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Интерполяция кадров';
+	@override String titleWithQueue({required Object count}) => 'Интерполяция кадров · в очереди: ${count}';
+	@override String get waiting => 'Ожидание запуска';
+}
+
+// Path: frameInterp.component
+class _TranslationsFrameInterpComponentRu extends TranslationsFrameInterpComponentEn {
+	_TranslationsFrameInterpComponentRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get unsupported => 'Интерполяция кадров недоступна на этом устройстве';
+}
+
 // Path: settings.downloadSettings.pathTemplateEditor
 class _TranslationsSettingsDownloadSettingsPathTemplateEditorRu extends TranslationsSettingsDownloadSettingsPathTemplateEditorEn {
 	_TranslationsSettingsDownloadSettingsPathTemplateEditorRu._(TranslationsRu root) : this._root = root, super.internal(root);
@@ -5077,6 +5283,32 @@ class _TranslationsVideoDetailCastDlnaCastSheetRu extends TranslationsVideoDetai
 	@override String connectedTo({required Object deviceName}) => 'Подключено к: ${deviceName}';
 	@override String get notConnected => 'Нет подключенных устройств';
 	@override String get stopCasting => 'Остановить трансляцию';
+	@override String searchFinished({required Object count}) => 'Поиск завершён, найдено устройств: ${count}';
+	@override String get protocolDlna => 'DLNA';
+	@override String get protocolGoogleCast => 'Google Cast';
+	@override String get addByIp => 'Добавить вручную';
+	@override String get addByIpTitle => 'Добавить устройство вручную';
+	@override String get addByIpDesc => 'Введите IP-адрес телевизора или приставки. Обычно его можно найти в разделе «Настройки → Сеть → Состояние сети» на телевизоре.';
+	@override String get addByIpHint => 'например, 192.168.1.20';
+	@override String get addByIpAction => 'Найти';
+	@override String get addByIpInvalid => 'Неверный адрес. Введите IPv4-адрес, например 192.168.1.20';
+	@override String addByIpNotFound({required Object host}) => 'По адресу ${host} устройство для трансляции не найдено';
+	@override String get troubleshootTitle => 'Не можете найти устройство?';
+	@override String get troubleshoot => '• Телефон (компьютер) и телевизор должны быть в одной сети Wi-Fi. Гостевые сети и изоляция точек доступа на роутере мешают поиску\n• VPN или прокси-приложение может блокировать поиск — отключите его и попробуйте снова\n• Поддерживаются DLNA и Google Cast (Chromecast). Apple TV (AirPlay) и фирменные протоколы некоторых производителей не поддерживаются; включите DLNA на телевизоре\n• Всё ещё нет? Нажмите «Добавить вручную» и введите IP телевизора';
+	@override late final _TranslationsVideoDetailCastDlnaCastSheetFailureRu failure = _TranslationsVideoDetailCastDlnaCastSheetFailureRu._(_root);
+}
+
+// Path: videoDetail.cast.dlnaCastSheet.failure
+class _TranslationsVideoDetailCastDlnaCastSheetFailureRu extends TranslationsVideoDetailCastDlnaCastSheetFailureEn {
+	_TranslationsVideoDetailCastDlnaCastSheetFailureRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get unreachable => 'Не удаётся подключиться к устройству. Убедитесь, что оно в той же сети Wi-Fi, и попробуйте отключить VPN';
+	@override String get timeout => 'Устройство не отвечает';
+	@override String get mediaRejected => 'Устройство не может воспроизвести это видео (неподдерживаемый формат или ссылка недоступна)';
+	@override String get deviceRejected => 'Устройство отклонило запрос';
 }
 
 /// The flat map containing all translations for locale <ru>.
@@ -5298,6 +5530,8 @@ extension on TranslationsRu {
 			'common.disagree' => 'Отклонить',
 			'common.agreeToRules' => 'Принять правила',
 			'common.tapToReread' => 'Нажмите, чтобы перечитать',
+			'common.rulesRequiredHint' => 'Перед публикацией прочитайте и примите правила сообщества',
+			'common.readAndAgree' => 'Прочитать и принять',
 			'common.markdownSyntaxHelp' => 'Справка по Markdown',
 			'common.previewContent' => 'Предпросмотр',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -5597,10 +5831,10 @@ extension on TranslationsRu {
 			'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain' => 'Использовать ли предыдущие параметры при повторном воспроизведении видео.',
 			'settings.playControl' => 'Управление воспроизведением',
 			'settings.playbackSpeedSettings' => 'Скорость воспроизведения',
-			'settings.playbackBehaviorSettings' => 'Поведение воспроизведения',
-			'settings.enhancementSettings' => 'Кинотеатр и улучшение',
 			_ => null,
 		} ?? switch (path) {
+			'settings.playbackBehaviorSettings' => 'Поведение воспроизведения',
+			'settings.enhancementSettings' => 'Кинотеатр и улучшение',
 			'settings.fastForwardTime' => 'Время перемотки вперед',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => 'Время перемотки должно быть положительным целым числом.',
 			'settings.rewindTime' => 'Время перемотки назад',
@@ -5757,6 +5991,29 @@ extension on TranslationsRu {
 			'settings.defaultBrowserDesc' => 'Откройте параметры ссылок по умолчанию в системных настройках и добавьте сайт iwara.tv',
 			'settings.themeMode' => 'Режим темы',
 			'settings.themeModeDesc' => 'Определяет тему оформления приложения',
+			'settings.glassQuality' => 'Rendering quality',
+			'settings.glassQualityAuto' => 'Automatic',
+			'settings.glassQualityAutoDesc' => 'Adapts to frame time; refraction can change as quality adjusts',
+			'settings.glassQualityStandard' => 'Smooth',
+			'settings.glassQualityStandardDesc' => 'Lightweight glass with highlights and consistent frame pacing',
+			'settings.glassQualityPremium' => 'Full refraction',
+			'settings.glassQualityPremiumDesc' => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass',
+			'settings.glassQualityCurrent' => 'Currently active',
+			'settings.glassChromeParametersDesc' => 'Navigation glass parameters apply live to headers, buttons and the bottom bar',
+			'settings.glassPreview' => 'Preview',
+			'settings.glassPremiumOnly' => 'Only takes effect with the full refraction quality',
+			'settings.glassSaturationNeedsBlur' => 'With the smooth quality, only takes effect when background blur is above 0',
+			'settings.glassOpacity' => 'Opacity',
+			'settings.glassBlur' => 'Background blur (sigma)',
+			'settings.glassBlurDesc' => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness',
+			'settings.glassAdvancedParameters' => 'Advanced navigation parameters',
+			'settings.glassThickness' => 'Lens thickness',
+			'settings.glassRefractiveIndex' => 'Refractive index',
+			'settings.glassLightIntensity' => 'Highlight intensity',
+			'settings.glassSaturation' => 'Background saturation',
+			'settings.glassChromaticAberration' => 'Chromatic aberration',
+			'settings.glassShadows' => 'Shadows',
+			'settings.glassResetParameters' => 'Restore glass defaults',
 			'settings.glassEffect' => 'Стиль интерфейса',
 			'settings.glassEffectDesc' => 'Материал элементов интерфейса — заголовков, меню, кнопок и нижней панели',
 			'settings.liquidGlassEffect' => 'Жидкое стекло',
@@ -6088,6 +6345,8 @@ extension on TranslationsRu {
 			'settings.keybinding.actionGalleryPlayPause' => 'Воспроизведение / Пауза',
 			'settings.keybinding.actionGallerySeekBackward' => 'Назад',
 			'settings.keybinding.actionGallerySeekForward' => 'Вперед',
+			_ => null,
+		} ?? switch (path) {
 			'settings.keybinding.actionGalleryToggleMute' => 'Вкл./Выкл. звук',
 			'settings.keybinding.actionPlayPause' => 'Воспроизведение / Пауза',
 			'settings.keybinding.actionSpeedUp' => 'Увеличить скорость',
@@ -6113,8 +6372,6 @@ extension on TranslationsRu {
 			'settings.doubleTapPause' => 'Двойное нажатие: пауза',
 			'settings.rightVerticalSwipeVolume' => 'Смахивание справа по вертикали: громкость (при входе на новую страницу)',
 			'settings.leftVerticalSwipeBrightness' => 'Смахивание слева по вертикали: яркость (при входе на новую страницу)',
-			_ => null,
-		} ?? switch (path) {
 			'settings.longPressFastForward' => 'Долгое нажатие: ускорение',
 			'settings.enableMouseHoverShowToolbar' => 'Показывать панель при наведении мыши',
 			'settings.enableMouseHoverShowToolbarInfo' => 'Панель управления видео появляется при наведении курсора и скрывается через 3 секунды бездействия.',
@@ -6125,15 +6382,13 @@ extension on TranslationsRu {
 			'settings.showCenterPlayPauseButtonDesc' => 'Показывать крупную кнопку воспроизведения/паузы в центре плеера.',
 			'settings.audioVideoConfig' => 'Аудио и видео',
 			'settings.expandBuffer' => 'Увеличенный буфер',
-			'settings.expandBufferInfo' => 'Увеличивает размер буфера: загрузка длится дольше, но воспроизведение плавнее',
+			'settings.expandBufferInfo' => 'Больше видео загружается заранее: при нестабильной сети воспроизведение реже прерывается, но расходуется больше памяти',
 			'settings.videoSyncMode' => 'Режим синхронизации видео',
 			'settings.videoSyncModeSubtitle' => 'Стратегия синхронизации звука и видео',
 			'settings.hardwareDecodingMode' => 'Режим аппаратного декодирования',
 			'settings.hardwareDecodingModeSubtitle' => 'Настройки аппаратного декодирования',
 			'settings.enableHardwareAcceleration' => 'Аппаратное ускорение',
 			'settings.enableHardwareAccelerationInfo' => 'Включение аппаратного ускорения может улучшить декодирование, но поддерживается не всеми устройствами',
-			'settings.useOpenSLESAudioOutput' => 'Использовать вывод OpenSLES',
-			'settings.useOpenSLESAudioOutputInfo' => 'Низкая задержка звука, может улучшить воспроизведение аудио',
 			'settings.videoSyncAudio' => 'По звуку',
 			'settings.videoSyncDisplayResample' => 'Передискретизация дисплея',
 			'settings.videoSyncDisplayResampleVdrop' => 'Передискретизация (пропуск видеокадров)',
@@ -6527,6 +6782,10 @@ extension on TranslationsRu {
 			'videoDetail.localInfo.currentQuality' => 'Текущее качество',
 			'videoDetail.localInfo.duration' => 'Длительность',
 			'videoDetail.localInfo.resolution' => 'Разрешение',
+			'videoDetail.localInfo.frameRate' => 'Частота кадров',
+			'videoDetail.localInfo.frameRateValue' => ({required Object fps}) => '${fps} к/с',
+			'videoDetail.localInfo.frameRateInterpolated' => ({required Object fps, required Object from}) => '${fps} к/с (интерполяция, исходник ${from} к/с)',
+			'videoDetail.localInfo.frameRateHasInterpolated' => ({required Object fps, required Object to}) => '${fps} к/с (исходник, есть версия ${to} к/с)',
 			'videoDetail.localInfo.fileInfo' => 'О файле',
 			'videoDetail.localInfo.fileName' => 'Имя файла',
 			'videoDetail.localInfo.fileSize' => 'Размер файла',
@@ -6540,6 +6799,9 @@ extension on TranslationsRu {
 			'videoDetail.thisIsAPrivateVideo' => 'Это приватное видео',
 			'videoDetail.getVideoInfoFailed' => 'Не удалось получить данные о видео, повторите позже',
 			'videoDetail.noVideoSourceFound' => 'Источник видео не найден',
+			'videoDetail.sourceFileMissingOnServer' => 'Файл видео отсутствует на сервере Iwara (HTTP 404), поэтому он не воспроизводится и на сайте. Возможно, у сервера неполадки; попробуйте позже.',
+			'videoDetail.qualityFileMissingOnServer' => ({required Object quality}) => 'Файла качества «${quality}» нет на сервере (HTTP 404). Выберите другое качество в меню качества.',
+			'videoDetail.playbackRetryExhausted' => 'Видео несколько раз подряд не открылось, автоматические повторы остановлены. Попробуйте позже.',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'Тег «${tagId}» скопирован',
 			'videoDetail.errorLoadingVideo' => 'Ошибка загрузки видео',
 			'videoDetail.play' => 'Воспроизвести',
@@ -6597,6 +6859,8 @@ extension on TranslationsRu {
 			'videoDetail.gestureGuide.quest.still' => 'Иллюстрация',
 			'videoDetail.gestureGuide.quest.done' => 'Понятно, продолжить',
 			'videoDetail.gestureGuide.quest.leftController' => 'Левая рука',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.rightController' => 'Правая рука',
 			'videoDetail.gestureGuide.quest.trigger' => 'Триггер (курок)',
 			'videoDetail.gestureGuide.quest.grip' => 'Боковая кнопка (хват)',
@@ -6627,8 +6891,6 @@ extension on TranslationsRu {
 			'videoDetail.gestureGuide.quest.swipeTitle' => 'Перелистывание перетаскиванием',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Наведите на изображение, зажмите триггер и потяните влево. Отпустите после подсказки о смене страницы; потяните вправо для возврата. Щипок с перетаскиванием тоже работает.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Для перелистывания изображение должно быть в масштабе 1×. Поддерживаются и видео в галерее. Сцена остается на месте до отпускания.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'Масштабирование изображения',
 			'videoDetail.gestureGuide.quest.zoomBody' => 'Наведите на деталь, зажмите триггер и отклоните стик вверх для приближения или вниз для отдаления. Центр зума фиксируется в точке нажатия.',
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Масштабирует изображение внутри его окна. Без зажатия изображения стик вверх/вниз меняет расстояние до экрана.',
@@ -6695,7 +6957,7 @@ extension on TranslationsRu {
 			'videoDetail.skeleton.fetchingVideoSources' => 'Загрузка источников видео...',
 			'videoDetail.skeleton.loadingVideo' => 'Загрузка видео...',
 			'videoDetail.skeleton.applyingSolution' => 'Применение решения...',
-			'videoDetail.skeleton.addingListeners' => 'Добавление слушателей...',
+			'videoDetail.skeleton.addingListeners' => 'Подключение к видеосерверу...',
 			'videoDetail.skeleton.successFecthVideoDurationInfo' => 'Длительность видео получена, загрузка видео...',
 			'videoDetail.skeleton.successFecthVideoHeightInfo' => 'Загрузка завершена',
 			'videoDetail.cast.dlnaCast' => 'Трансляция',
@@ -6729,6 +6991,22 @@ extension on TranslationsRu {
 			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => 'Подключено к: ${deviceName}',
 			'videoDetail.cast.dlnaCastSheet.notConnected' => 'Нет подключенных устройств',
 			'videoDetail.cast.dlnaCastSheet.stopCasting' => 'Остановить трансляцию',
+			'videoDetail.cast.dlnaCastSheet.searchFinished' => ({required Object count}) => 'Поиск завершён, найдено устройств: ${count}',
+			'videoDetail.cast.dlnaCastSheet.protocolDlna' => 'DLNA',
+			'videoDetail.cast.dlnaCastSheet.protocolGoogleCast' => 'Google Cast',
+			'videoDetail.cast.dlnaCastSheet.addByIp' => 'Добавить вручную',
+			'videoDetail.cast.dlnaCastSheet.addByIpTitle' => 'Добавить устройство вручную',
+			'videoDetail.cast.dlnaCastSheet.addByIpDesc' => 'Введите IP-адрес телевизора или приставки. Обычно его можно найти в разделе «Настройки → Сеть → Состояние сети» на телевизоре.',
+			'videoDetail.cast.dlnaCastSheet.addByIpHint' => 'например, 192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpAction' => 'Найти',
+			'videoDetail.cast.dlnaCastSheet.addByIpInvalid' => 'Неверный адрес. Введите IPv4-адрес, например 192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpNotFound' => ({required Object host}) => 'По адресу ${host} устройство для трансляции не найдено',
+			'videoDetail.cast.dlnaCastSheet.troubleshootTitle' => 'Не можете найти устройство?',
+			'videoDetail.cast.dlnaCastSheet.troubleshoot' => '• Телефон (компьютер) и телевизор должны быть в одной сети Wi-Fi. Гостевые сети и изоляция точек доступа на роутере мешают поиску\n• VPN или прокси-приложение может блокировать поиск — отключите его и попробуйте снова\n• Поддерживаются DLNA и Google Cast (Chromecast). Apple TV (AirPlay) и фирменные протоколы некоторых производителей не поддерживаются; включите DLNA на телевизоре\n• Всё ещё нет? Нажмите «Добавить вручную» и введите IP телевизора',
+			'videoDetail.cast.dlnaCastSheet.failure.unreachable' => 'Не удаётся подключиться к устройству. Убедитесь, что оно в той же сети Wi-Fi, и попробуйте отключить VPN',
+			'videoDetail.cast.dlnaCastSheet.failure.timeout' => 'Устройство не отвечает',
+			'videoDetail.cast.dlnaCastSheet.failure.mediaRejected' => 'Устройство не может воспроизвести это видео (неподдерживаемый формат или ссылка недоступна)',
+			'videoDetail.cast.dlnaCastSheet.failure.deviceRejected' => 'Устройство отклонило запрос',
 			'videoDetail.likeAvatars.dialogTitle' => 'Кто оценил',
 			'videoDetail.likeAvatars.dialogDescription' => 'Интересно, кто это? Посмотрите список оценивших~',
 			'videoDetail.likeAvatars.closeTooltip' => 'Закрыть',
@@ -6914,6 +7192,8 @@ extension on TranslationsRu {
 			'notifications.kApprovedPost' => 'Публикация одобрена',
 			'notifications.kApprovedForumPost' => 'Публикация на форуме одобрена',
 			'notifications.kRejectedContent' => 'Контент отклонён модерацией',
+			'notifications.kWarning' => 'Предупреждение от сайта',
+			'notifications.kWarningHint' => 'Модераторы вынесли предупреждение вашему аккаунту. Соблюдайте правила сообщества. Подробности — на сайте.',
 			'notifications.kUnknownType' => 'Неизвестный тип уведомления',
 			'conversation.errors.pleaseSelectAUser' => 'Выберите пользователя',
 			'conversation.errors.pleaseEnterATitle' => 'Введите заголовок',
@@ -7008,6 +7288,7 @@ extension on TranslationsRu {
 			'download.categorySectionLabel' => 'Категория',
 			'download.saveToPreviewLabel' => 'Будет сохранено в',
 			'download.saveToPreviewSuggested' => ({required Object name}) => 'Предлагаемое имя файла: ${name} (можно изменить в системном диалоге)',
+			'download.saveToPreviewChange' => 'Change…',
 			'download.lastUsedBadge' => 'Недавно использованное',
 			'download.pickedBadge' => 'Выбрано',
 			'download.startDownloading' => 'Начать загрузку',
@@ -7092,6 +7373,8 @@ extension on TranslationsRu {
 			'download.actions.play' => 'Play',
 			'download.actions.openWith' => 'Open with another app',
 			'download.actions.redownload' => 'Download again',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.relocate' => 'Move files to…',
 			'download.actions.categorize' => 'Categorize…',
 			'download.actions.viewOnline' => 'View online page',
@@ -7141,8 +7424,6 @@ extension on TranslationsRu {
 			'download.deleteByDate.noMatch' => 'Нет задач, соответствующих выбранному условию',
 			'download.deleteByDate.invalidRange' => 'Дата начала должна быть не позже даты окончания',
 			'download.deleteByDate.confirmTitle' => 'Подтвердите удаление',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.confirmContent' => ({required Object count}) => 'Удалить задач загрузки (${count}) и их файлы? Это действие нельзя отменить.',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Удаление ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Удалено задач: ${count}',
@@ -7316,6 +7597,7 @@ extension on TranslationsRu {
 			'download.location.downloadsFolder' => 'Downloads',
 			'download.location.askEveryTime' => 'Ask every time',
 			'download.location.askEveryTimeDesc' => ({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}',
+			'download.location.firstDownloadNotice' => ({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings',
 			'download.location.freeSpace' => ({required Object size}) => '${size} free',
 			'download.location.statusWritable' => 'Writable',
 			'download.location.statusNeedsPermission' => 'Needs permission',
@@ -7605,6 +7887,8 @@ extension on TranslationsRu {
 			'translation.fallbackTranslationFailed' => 'Резервный обычный перевод также не удался',
 			'translation.translationSettings' => 'Настройки перевода',
 			'translation.enableGoogleTranslation' => 'Включить перевод Google',
+			_ => null,
+		} ?? switch (path) {
 			'translation.thinking' => 'Размышление...',
 			'translation.thoughtProcess' => 'Процесс рассуждения',
 			'translation.modelCompatibility' => 'Совместимость моделей',
@@ -7655,8 +7939,6 @@ extension on TranslationsRu {
 			'navigationOrderSettings.navigationItemSorting' => 'Сортировка элементов навигации',
 			'navigationOrderSettings.done' => 'Готово',
 			'navigationOrderSettings.edit' => 'Изменить',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.reset' => 'Сбросить',
 			'navigationOrderSettings.previewEffect' => 'Предпросмотр',
 			'navigationOrderSettings.bottomNavigationPreview' => 'Предпросмотр нижней навигации:',
@@ -8119,6 +8401,8 @@ extension on TranslationsRu {
 			'firstTimeSetup.common.finishSetup' => 'Завершить настройку',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => 'Сначала примите пользовательское соглашение и правила сообщества',
 			'proxyHelper.systemProxyDetected' => 'Обнаружен системный прокси',
+			_ => null,
+		} ?? switch (path) {
 			'proxyHelper.copied' => 'Скопировано',
 			'proxyHelper.copy' => 'Копировать',
 			'tagSelector.selectTags' => 'Выбрать теги',
@@ -8169,8 +8453,6 @@ extension on TranslationsRu {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Режим A (быстрый) + затемнение линий: добавляет эффект затемнения линий к быстрому режиму A для более выразительных, стилизованных линий.',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Режим A (HQ) + утончение линий: добавляет эффект утончения линий к высококачественному режиму A для более изящного вида.',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8416,6 +8698,12 @@ extension on TranslationsRu {
 			'vrFormat.resetToAutoDesc' => 'Забыть ручной выбор для этого видео и снова доверить решение автоопределению',
 			'vrFormat.manualBadge' => 'Задано вручную',
 			'vrFormat.panoramaHint' => 'Перетаскивайте изображение, чтобы осмотреться, сведите пальцы, чтобы изменить угол обзора',
+			'vrFormat.gyroControl' => 'Управление наклоном',
+			'vrFormat.gyroControlDesc' => 'В режиме VR-панорамы поворачивайте телефон, чтобы осмотреться; перетаскивание по-прежнему подстраивает вид',
+			'vrFormat.gyroPromptTitle' => 'Включить управление наклоном?',
+			'vrFormat.gyroPromptBody' => 'Включить датчик движения для более реалистичного VR? Эту функцию можно отключить в настройках.',
+			'vrFormat.gyroPromptEnable' => 'Включить',
+			'vrFormat.gyroPromptDecline' => 'Не сейчас',
 			'vrFormat.panoramaGestureNotice' => 'При осмотре перетаскивание поворачивает вид — для перемотки используйте полосу прогресса',
 			'vrFormat.shaderUnsupported' => 'Это устройство не может отображать живую панораму; вместо этого показывается один глаз',
 			'vrFormat.handoffTooltip' => 'Другой способ воспроизведения',
@@ -8627,6 +8915,8 @@ extension on TranslationsRu {
 			'localMedia.webdav.pickRootTitle' => 'Choose a folder to add',
 			'localMedia.webdav.serverRoot' => 'Root',
 			'localMedia.webdav.alreadyAdded' => 'This NAS folder has already been added',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.relogin' => 'Sign in again',
 			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
 			'localMedia.webdav.stateCertUntrusted' => 'Server certificate changed',
@@ -8683,8 +8973,6 @@ extension on TranslationsRu {
 			'historyPage.rangeByLastViewed' => 'По времени последнего просмотра',
 			'ai.title' => 'ИИ',
 			'ai.providers' => 'Провайдеры',
-			_ => null,
-		} ?? switch (path) {
 			'ai.providersHint' => 'Добавьте одного или нескольких провайдеров ИИ и назначьте их для нужных функций.',
 			'ai.addProvider' => 'Добавить провайдера',
 			'ai.noProviders' => 'Провайдеры пока не добавлены. Добавьте хотя бы одного, чтобы включить перевод, поиск и подпись с помощью ИИ.',
@@ -8871,6 +9159,82 @@ extension on TranslationsRu {
 			'poll.voteFailed' => 'Не удалось отправить голос',
 			'poll.copyLink' => 'Скопировать ссылку на опрос',
 			'poll.translateFailed' => 'Не удалось перевести опрос',
+			'frameInterp.title' => 'Интерполяция кадров',
+			'frameInterp.action' => 'Увеличить частоту кадров в 2 раза',
+			'frameInterp.playInterpolated' => 'Воспроизвести версию с интерполяцией',
+			'frameInterp.playOriginal' => 'Смотреть оригинал',
+			'frameInterp.deleteInterpolated' => 'Удалить и интерполированную версию',
+			'frameInterp.deleteInterpolatedDesc' => 'Удаляет интерполированный файл и запись о задаче',
+			'frameInterp.deleteInterpolatedOnly' => 'Удалить интерполированную версию',
+			'frameInterp.deleteInterpolatedOnlyTitle' => 'Удалить интерполированную версию?',
+			'frameInterp.deleteInterpolatedOnlyBody' => 'Удаляются только интерполированный файл и запись о задаче. Оригинал остаётся, его можно интерполировать снова.',
+			'frameInterp.interpolatedDeleted' => 'Интерполированная версия удалена',
+			'frameInterp.deleteInterpolatedFailed' => 'Не удалось удалить интерполированную версию. Файл может быть занят или нет доступа',
+			'frameInterp.viewTasks' => 'Задачи интерполяции',
+			'frameInterp.badge' => '2× FPS',
+			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',
+			'frameInterp.specLine' => ({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps',
+			'frameInterp.runningDetail' => ({required Object percent, required Object speed}) => '${percent}% · ${speed} fps',
+			'frameInterp.preparing' => 'Подготовка…',
+			'frameInterp.outputMissing' => 'Файл с интерполяцией больше не существует',
+			'frameInterp.empty' => 'Задач интерполяции пока нет',
+			'frameInterp.emptyHint' => 'Выберите «Увеличить частоту кадров в 2 раза» для видео в разделе «Локальные файлы» или «Загрузки».',
+			'frameInterp.clearFinished' => 'Очистить завершённые записи',
+			'frameInterp.status.pending' => 'В очереди',
+			'frameInterp.status.running' => 'Обработка',
+			'frameInterp.status.completed' => 'Завершено',
+			'frameInterp.status.failed' => 'Ошибка',
+			'frameInterp.status.cancelled' => 'Отменено',
+			'frameInterp.actions.play' => 'Воспроизвести',
+			'frameInterp.actions.cancel' => 'Отмена',
+			'frameInterp.actions.retry' => 'Повторить',
+			'frameInterp.actions.delete' => 'Удалить запись',
+			'frameInterp.actions.revealInFolder' => 'Показать в папке',
+			'frameInterp.confirm.cancelTitle' => 'Отменить эту задачу?',
+			'frameInterp.confirm.cancelContent' => 'Текущий прогресс будет потерян. Позже можно повторить задачу с начала.',
+			'frameInterp.confirm.deleteTitle' => 'Удалить эту запись?',
+			'frameInterp.confirm.deleteContent' => 'Исходное видео не затрагивается.',
+			'frameInterp.confirm.deleteOutput' => 'Также удалить файл с интерполяцией',
+			'frameInterp.confirm.clearTitle' => 'Очистить завершённые записи?',
+			'frameInterp.confirm.clearContent' => 'Файлы с интерполяцией останутся на диске, будут удалены только записи.',
+			'frameInterp.confirm.enqueueTitle' => 'Интерполировать видео?',
+			'frameInterp.confirm.enqueueAction' => 'Начать',
+			'frameInterp.confirm.fpsUnit' => 'к/с',
+			'frameInterp.confirm.saveNote' => 'Сохраняется в новый файл, исходное видео не меняется',
+			'frameInterp.confirm.resetTitle' => 'Продолжить с места остановки нельзя. Всё начнётся заново, если:',
+			'frameInterp.confirm.resetBackground' => 'переключиться на другое приложение или заблокировать экран',
+			'frameInterp.confirm.resetClosed' => 'закрыть приложение, или его закроет система',
+			'frameInterp.toast.queued' => 'Добавлено в очередь интерполяции',
+			'frameInterp.toast.completed' => ({required Object title}) => 'Интерполяция завершена: ${title}',
+			'frameInterp.toast.failed' => ({required Object title}) => 'Ошибка интерполяции: ${title}',
+			'frameInterp.reject.sourceMissing' => 'Видеофайл больше не существует',
+			'frameInterp.reject.alreadyInterpolated' => 'Это видео уже обработано интерполяцией',
+			'frameInterp.reject.alreadyQueued' => 'Это видео уже в очереди',
+			'frameInterp.reject.alreadyDone' => 'У этого видео уже есть версия с интерполяцией',
+			'frameInterp.reject.hdr' => 'Видео HDR пока не поддерживается',
+			'frameInterp.reject.resolutionTooLarge' => 'Разрешение слишком высокое для интерполяции',
+			'frameInterp.reject.unreadable' => 'Не удалось прочитать это видео',
+			'frameInterp.reject.noGpu' => 'Не найдена подходящая видеокарта (требуется поддержка Vulkan)',
+			'frameInterp.error.unknown' => 'Что-то пошло не так',
+			'frameInterp.error.openInput' => 'Не удалось открыть видео',
+			'frameInterp.error.noVideo' => 'В файле нет видеодорожки',
+			'frameInterp.error.decoder' => 'Не удалось декодировать видео',
+			'frameInterp.error.hdrUnsupported' => 'Видео HDR пока не поддерживается',
+			'frameInterp.error.noGpu' => 'Не найдена подходящая видеокарта',
+			'frameInterp.error.model' => 'Не удалось загрузить модель интерполяции. Попробуйте переустановить компонент',
+			'frameInterp.error.encoder' => 'Нет доступного видеокодера',
+			'frameInterp.error.openOutput' => 'Не удалось создать выходной файл',
+			'frameInterp.error.write' => 'Ошибка записи. Возможно, диск заполнен',
+			'frameInterp.error.interpolate' => 'Ошибка обработки. Возможно, не хватило памяти видеокарты',
+			'frameInterp.error.componentUnavailable' => 'Компонент интерполяции недоступен',
+			'frameInterp.error.interrupted' => 'Прервано, так как приложение было закрыто',
+			'frameInterp.error.finalizeFailed' => 'Не удалось сохранить готовый файл',
+			'frameInterp.error.sourceMissing' => 'Видеофайл больше не существует',
+			'frameInterp.error.backgrounded' => 'Прервано: приложение ушло в фон. Запустится заново, когда вы вернётесь',
+			'frameInterp.notification.title' => 'Интерполяция кадров',
+			'frameInterp.notification.titleWithQueue' => ({required Object count}) => 'Интерполяция кадров · в очереди: ${count}',
+			'frameInterp.notification.waiting' => 'Ожидание запуска',
+			'frameInterp.component.unsupported' => 'Интерполяция кадров недоступна на этом устройстве',
 			_ => null,
 		};
 	}

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart' as legacy;
 import 'package:flutter_localizations/flutter_localizations.dart'
     as legacy_l10n;
 import 'package:material_ui/material_ui.dart';
+import 'package:i_iwara/app/ui/widgets/system_bars.dart';
 
 /// 旧版 `package:flutter/material.dart` 的兼容桥，挂在 `MaterialApp.builder` 最外层。
 ///
@@ -144,11 +145,16 @@ legacy.ThemeData buildLegacyThemeData(ThemeData theme) {
       labelMedium: t.labelMedium,
       labelSmall: t.labelSmall,
     ),
-    // 与 `buildThemeData` 同一张表：桌面端 Zoom 关快照，原因见那边的注释。
+    // 与 `buildThemeData` 同一张表：桌面端 Zoom 关快照，手机两档套状态栏的门，
+    // 原因见那边的注释。
     pageTransitionsTheme: const legacy.PageTransitionsTheme(
       builders: <TargetPlatform, legacy.PageTransitionsBuilder>{
-        TargetPlatform.android: legacy.PredictiveBackPageTransitionsBuilder(),
-        TargetPlatform.iOS: legacy_cupertino.CupertinoPageTransitionsBuilder(),
+        TargetPlatform.android: SystemBarsPageTransitionsBuilder(
+          legacy.PredictiveBackPageTransitionsBuilder(),
+        ),
+        TargetPlatform.iOS: SystemBarsPageTransitionsBuilder(
+          legacy_cupertino.CupertinoPageTransitionsBuilder(),
+        ),
         TargetPlatform.macOS:
             legacy_cupertino.CupertinoPageTransitionsBuilder(),
         TargetPlatform.windows: legacy.ZoomPageTransitionsBuilder(

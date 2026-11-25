@@ -3,12 +3,15 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/ui/pages/frame_interp/frame_interp_launcher.dart'
+    show formatFrameRate;
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_relocation_flow.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/services/frame_interp/frame_interp_service.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_task_actions.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_task_tile.dart';
@@ -42,6 +45,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
     final videoId = VideoDownloadExtData.fromJson(task.extData!.data).id;
     return DownloadTaskActionHandlers(
       onOpen: () => _playLocalVideo(context),
+      onOpenOriginal: () => _playLocalVideo(context, original: true),
       onViewOnline: videoId == null ? null : () => _openVideoDetail(videoId),
     );
   }
@@ -71,6 +75,26 @@ class VideoDownloadTaskItem extends StatelessWidget {
             ),
       // 只留时长：清晰度是同一部片子不同下载之间的区别，收在详情里。
       coverBadges: [
+        // 左上角被「文件不在」占着，补帧角标放右上。
+        if (FrameInterpService.maybe case final interp?)
+          Positioned(
+            top: 6,
+            right: 6,
+            // 补帧完成 / 成品被删时要在原地刷新，不能等用户离开再回来。
+            child: Obx(() {
+              interp.revision.value;
+              if (interp.completedOutputFor(task.savePath) == null) {
+                return const SizedBox.shrink();
+              }
+              // 与本机文件卡片同一写法：知道帧率就写「60帧」，不知道写「补帧」。
+              final fps = interp.taskForSource(task.savePath)?.outputFps ?? 0;
+              return _CoverBadge(
+                fps > 0
+                    ? slang.t.frameInterp.fpsBadge(fps: formatFrameRate(fps))
+                    : slang.t.frameInterp.badge,
+              );
+            }),
+          ),
         if (videoData.duration != null)
           Positioned(
             right: 6,
@@ -97,8 +121,12 @@ class VideoDownloadTaskItem extends StatelessWidget {
     return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
-  /// 本地播放视频
-  Future<void> _playLocalVideo(BuildContext context) async {
+  /// 本地播放视频。有补帧成品时默认播成品（换路径在 [NaviService.openLocalVideo]
+  /// 里做）；[original] 为 true 时播原片。
+  Future<void> _playLocalVideo(
+    BuildContext context, {
+    bool original = false,
+  }) async {
     final t = slang.Translations.of(context);
     try {
       final filePath = path.normalize(task.savePath);
@@ -126,7 +154,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
             .toList();
       }
 
-      // 导航到本地视频播放页面。**把下载池一起交出去**：这样播放器里的
+      // 打开本地视频（Quest 上直接交给空间，见 openLocalVideo）。**把下载池一起交出去**：这样播放器里的
       // 「接着看」一开就落在「已下载」上，而且下一条同样用本地文件播
       // （见 DownloadsPlaybackQueue）。
       //
@@ -134,12 +162,13 @@ class VideoDownloadTaskItem extends StatelessWidget {
       // 点开时进度记在 `local_media_progress` 里，从这儿点开却记在别处、还读
       // 不回来——详见 [LocalMediaRepository.getItemByDownloadTaskId] 的注释。
       // 查不到（同步还没跑到）就还是 null，行为与从前一字不差。
-      NaviService.navigateToLocalVideoPlayerPage(
+      await NaviService.openLocalVideo(
         localPath: filePath,
         task: task,
         allQualityTasks: allQualityTasks,
         localLibraryItemId: _resolveLocalLibraryItemId(),
         playbackQueueRef: await _openDownloadsQueueRef(videoData.id),
+        original: original,
       );
     } catch (e) {
       LogUtils.e('本地播放失败', tag: 'DownloadTaskItem', error: e);

@@ -229,6 +229,8 @@ common:
   disagree: 不同意
   agreeToRules: 同意规则
   tapToReread: '点击重读全文'
+  rulesRequiredHint: '发表前需要先阅读并同意社区规则'
+  readAndAgree: '阅读并同意'
   # Base Input Dialog
   markdownSyntaxHelp: Markdown语法帮助
   previewContent: 预览内容
@@ -717,6 +719,9 @@ settings:
   glassQualityPremiumDesc: "固定使用完整透镜，GPU 开销更高；桌面平台使用轻量效果"
   glassQualityCurrent: "当前生效"
   glassChromeParametersDesc: "导航玻璃参数实时应用至顶部胶囊、按钮和底栏"
+  glassPreview: "预览"
+  glassPremiumOnly: "仅在「完整折射」画质下生效"
+  glassSaturationNeedsBlur: "「流畅」画质下需背景模糊大于 0 才生效"
   glassOpacity: "不透明度"
   glassBlur: "背景模糊（sigma）"
   glassBlurDesc: "0 保持背景清晰；模糊会增加一次渲染，可能降低流畅度"
@@ -727,8 +732,6 @@ settings:
   glassSaturation: "背景饱和度"
   glassChromaticAberration: "色散强度"
   glassShadows: "投影"
-  glassPanelParameters: "菜单面板参数"
-  glassPanelParametersDesc: "应用至浮出菜单，面板使用独立的透镜渲染器"
   glassResetParameters: "恢复玻璃默认参数"
   glassEffect: 界面材质
   glassEffectDesc: 决定全局界面材质（顶栏胶囊、菜单、弹窗按钮、底部导航栏）
@@ -1098,15 +1101,13 @@ settings:
   # 音视频配置相关
   audioVideoConfig: 音视频配置
   expandBuffer: 扩大缓冲区
-  expandBufferInfo: 开启后缓冲区增大，加载时间变长但播放更流畅
+  expandBufferInfo: 开启后预读更多视频，网络不稳时更少卡顿，但会多占用内存
   videoSyncMode: 视频同步模式
   videoSyncModeSubtitle: 音视频同步策略
   hardwareDecodingMode: 硬解模式
   hardwareDecodingModeSubtitle: 硬件解码设置
   enableHardwareAcceleration: 启用硬件加速
   enableHardwareAccelerationInfo: 开启硬件加速可以提高解码性能，但某些设备可能不兼容
-  useOpenSLESAudioOutput: 使用OpenSLES音频输出
-  useOpenSLESAudioOutputInfo: 使用低延迟音频输出，可能提高音频性能
   # 视频同步选项
   videoSyncAudio: 音频同步
   videoSyncDisplayResample: 显示重采样
@@ -1535,6 +1536,10 @@ videoDetail:
     currentQuality: 当前清晰度
     duration: 时长
     resolution: 分辨率
+    frameRate: "帧率"
+    frameRateValue: "${fps} 帧/秒"
+    frameRateInterpolated: "${fps} 帧/秒（补帧版，原片 ${from} 帧/秒）"
+    frameRateHasInterpolated: "${fps} 帧/秒（原片，已有 ${to} 帧/秒补帧版）"
     fileInfo: 文件信息
     fileName: 文件名
     fileSize: 文件大小
@@ -1548,6 +1553,9 @@ videoDetail:
   thisIsAPrivateVideo: 这是一个私密视频
   getVideoInfoFailed: '获取视频信息失败，请稍后再试'
   noVideoSourceFound: 未找到对应的视频源
+  sourceFileMissingOnServer: '视频文件在 Iwara 服务器上不存在（HTTP 404），网页端同样播放不了。可能是服务器故障，请稍后再试。'
+  qualityFileMissingOnServer: '「${quality}」这一档的视频文件在服务器上不存在（HTTP 404），可以在清晰度菜单里换一档。'
+  playbackRetryExhausted: '视频连续多次打不开，已停止自动重试。可以稍后点重试。'
   tagCopiedToClipboard: '标签 "${tagId}" 已复制到剪贴板'
   errorLoadingVideo: 在加载视频时出现了错误
   play: 播放
@@ -1705,7 +1713,7 @@ videoDetail:
     fetchingVideoSources: 正在获取视频源...
     loadingVideo: 正在加载视频...
     applyingSolution: 正在应用此分辨率...
-    addingListeners: 正在添加监听器...
+    addingListeners: 正在连接视频服务器...
     successFecthVideoDurationInfo: 成功获取视频资源，开始加载视频...
     successFecthVideoHeightInfo: 加载完成
   # 投屏
@@ -1744,6 +1752,23 @@ videoDetail:
       connectedTo: '已连接到: ${deviceName}'
       notConnected: 未连接设备
       stopCasting: 停止投屏
+      searchFinished: '搜索完成，找到 ${count} 台设备'
+      protocolDlna: 'DLNA'
+      protocolGoogleCast: 'Google Cast'
+      addByIp: '手动添加'
+      addByIpTitle: '手动添加设备'
+      addByIpDesc: '输入电视或盒子的 IP 地址。一般在电视的「设置 → 网络 → 网络状态」里能看到。'
+      addByIpHint: '例如 192.168.1.20'
+      addByIpAction: '查找'
+      addByIpInvalid: '地址格式不对，请输入类似 192.168.1.20 的 IPv4 地址'
+      addByIpNotFound: '在 ${host} 上没有找到投屏设备'
+      troubleshootTitle: '找不到你的设备？'
+      troubleshoot: '· 手机（电脑）和电视要连同一个 Wi-Fi；访客网络、路由器开了「AP 隔离」都会搜不到\n· 开着 VPN／代理软件时可能搜不到，先关掉再试\n· 支持 DLNA 和 Google Cast（Chromecast）；不支持 Apple TV（AirPlay）和部分品牌的私有投屏协议，电视需打开 DLNA／多屏互动功能\n· 仍然没有？点「手动添加」输入电视的 IP'
+      failure:
+        unreachable: '连不上设备，请确认在同一个 Wi-Fi，并暂时关闭 VPN'
+        timeout: '设备没有响应'
+        mediaRejected: '设备无法播放这个视频（格式不支持或地址打不开）'
+        deviceRejected: '设备拒绝了投屏指令'
   # 点赞头像组件
   likeAvatars:
     dialogTitle: 谁在偷偷喜欢
@@ -1945,6 +1970,8 @@ notifications:
   kApprovedPost: 投稿审核通过
   kApprovedForumPost: 论坛发言审核通过
   kRejectedContent: 内容审核被拒绝
+  kWarning: "收到站点警告"
+  kWarningHint: "站方对你的账号发出了警告，请留意社区规范。详情请在网页端查看。"
   kUnknownType: 未知通知类型
 
 conversation:
@@ -2048,6 +2075,7 @@ download:
   categorySectionLabel: 分类
   saveToPreviewLabel: 将保存到
   saveToPreviewSuggested: '建议文件名：${name}（可在系统对话框修改）'
+  saveToPreviewChange: 更改…
   lastUsedBadge: 上次选择
   pickedBadge: 已选中
   forceDeleteTask: 强制删除任务
@@ -2362,6 +2390,7 @@ download:
     downloadsFolder: 下载
     askEveryTime: 每次询问
     askEveryTimeDesc: '每次下载时选择保存位置；批量下载存到 ${location}'
+    firstDownloadNotice: '已开始下载，文件存到「${location}」，可在下载设置中更改'
     freeSpace: '剩余 ${size}'
     statusWritable: 可写
     statusNeedsPermission: 需要授权
@@ -3580,6 +3609,12 @@ vrFormat:
   resetToAutoDesc: 忘掉这个视频的手动选择，交回给自动判断
   manualBadge: 已手动指定
   panoramaHint: 拖动画面即可环视，捏合改变视野
+  gyroControl: "重力感应控制视角"
+  gyroControlDesc: "VR 全景播放时转动手机即可环视，拖动画面仍可微调"
+  gyroPromptTitle: "开启重力感应？"
+  gyroPromptBody: "是否开启重力感应，获得更好的 VR 模拟体验？此功能可以在设置中关闭。"
+  gyroPromptEnable: "开启"
+  gyroPromptDecline: "不用了"
   panoramaGestureNotice: 环视时画面区的拖动用于转头，快进请用进度条
   shaderUnsupported: 本机不支持实时环视，已退回单眼显示
   handoffTooltip: 换个方式播放
@@ -4046,3 +4081,88 @@ poll:
   voteFailed: "投票没有提交成功"
   copyLink: "复制投票链接"
   translateFailed: "投票翻译失败"
+frameInterp:
+  title: "补帧任务"
+  action: "补帧（生成 2 倍帧率版本）"
+  playInterpolated: "播放补帧版本"
+  playOriginal: "播放原视频"
+  deleteInterpolated: "同时删除补帧版本"
+  deleteInterpolatedDesc: "补帧后的视频文件和它的任务记录一起删除"
+  deleteInterpolatedOnly: "删除补帧版本"
+  deleteInterpolatedOnlyTitle: "删除补帧版本？"
+  deleteInterpolatedOnlyBody: "只删除补帧后的视频文件和它的任务记录，原视频保留不动。之后还可以重新补帧。"
+  interpolatedDeleted: "已删除补帧版本"
+  deleteInterpolatedFailed: "补帧版本没有删掉，文件可能正被占用或没有权限"
+  viewTasks: "查看补帧任务"
+  badge: "补帧"
+  fpsBadge: "${fps}帧"
+  specLine: "${width}×${height} · ${from} → ${to} 帧/秒"
+  runningDetail: "${percent}% · ${speed} 帧/秒"
+  preparing: "准备中…"
+  outputMissing: "补帧文件已不存在"
+  empty: "还没有补帧任务"
+  emptyHint: "在「本机文件」或「下载列表」里对视频选择「补帧」。"
+  clearFinished: "清除已结束的记录"
+  status:
+    pending: "排队中"
+    running: "处理中"
+    completed: "已完成"
+    failed: "失败"
+    cancelled: "已取消"
+  actions:
+    play: "播放"
+    cancel: "取消"
+    retry: "重试"
+    delete: "删除记录"
+    revealInFolder: "在文件夹中显示"
+  confirm:
+    cancelTitle: "取消这个任务？"
+    cancelContent: "已处理的进度会丢失，之后可以从头重试。"
+    deleteTitle: "删除这条记录？"
+    deleteContent: "原视频不受影响。"
+    deleteOutput: "同时删除补帧文件"
+    clearTitle: "清除已结束的记录？"
+    clearContent: "补帧文件保留在磁盘上，只移除记录。"
+    enqueueTitle: "加入补帧？"
+    enqueueAction: "开始补帧"
+    fpsUnit: "帧/秒"
+    saveNote: "另存为新文件，原视频保留不动"
+    resetTitle: "暂不支持断点续传，以下情况会从头开始："
+    resetBackground: "切到其他应用或锁屏"
+    resetClosed: "关闭应用，或应用被系统清理"
+  toast:
+    queued: "已加入补帧队列"
+    completed: "补帧完成：${title}"
+    failed: "补帧失败：${title}"
+  reject:
+    sourceMissing: "视频文件已不存在"
+    alreadyInterpolated: "这已经是补帧后的视频"
+    alreadyQueued: "该视频已在补帧队列中"
+    alreadyDone: "该视频已有补帧版本"
+    hdr: "暂不支持 HDR 视频"
+    resolutionTooLarge: "分辨率过高，无法补帧"
+    unreadable: "无法读取该视频"
+    noGpu: "未检测到可用的显卡（需要支持 Vulkan）"
+  error:
+    unknown: "出了点问题"
+    openInput: "无法打开视频"
+    noVideo: "文件里没有视频轨"
+    decoder: "视频解码失败"
+    hdrUnsupported: "暂不支持 HDR 视频"
+    noGpu: "未检测到可用的显卡"
+    model: "补帧模型加载失败，可尝试重新安装组件"
+    encoder: "没有可用的视频编码器"
+    openOutput: "无法创建输出文件"
+    write: "写入失败，可能是磁盘空间不足"
+    interpolate: "处理失败，可能是显存不足"
+    componentUnavailable: "补帧组件不可用"
+    interrupted: "应用关闭导致任务中断"
+    finalizeFailed: "成品文件保存失败"
+    sourceMissing: "视频文件已不存在"
+    backgrounded: "应用切到了后台，回到前台后会自动重新开始"
+  notification:
+    title: "正在补帧"
+    titleWithQueue: "正在补帧 · ${count} 个排队"
+    waiting: "等待开始"
+  component:
+    unsupported: "此设备暂不支持补帧"

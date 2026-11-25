@@ -23,6 +23,8 @@ import 'package:i_iwara/app/ui/pages/download/widgets/download_notice_banner.dar
 import 'package:i_iwara/app/ui/pages/download/widgets/download_relocation_flow.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_task_actions.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_task_tile.dart';
+import 'package:i_iwara/app/ui/pages/frame_interp/frame_interp_launcher.dart'
+    show isFrameInterpSupported;
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_grid_metrics.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_dropdown_pill.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/default_download_task_item_widget.dart';
@@ -94,6 +96,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   static const String _menuActionDeleteByDate = 'deleteByDate';
   static const String _menuActionCheckIntegrity = 'checkIntegrity';
   static const String _menuActionMigrate = 'migrateToCurrent';
+  static const String _menuActionFrameInterp = 'frameInterp';
 
   final DownloadTaskRepository _downloadTaskRepository =
       DownloadTaskRepository();
@@ -558,7 +561,6 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final double statusBarHeight = MediaQuery.paddingOf(context).top;
     final double headerHeight =
         GlassTokens.headerRowHeight + _headerRowGap + _categoryStripHeight;
@@ -570,32 +572,23 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       headerExtent: headerExtent,
     );
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      // 没有 AppBar 就没人管状态栏图标明暗，不显式声明会沿用上一页
-      //（如视频详情页的白色图标），在浅色背景下看不见。
-      value: SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-      ),
-      child: Scaffold(
-        body: Obx(() {
-          // 坞上摆哪些动作取决于所选任务的**当前状态**（暂停的给「继续」、下载中
-          // 的给「暂停」）。状态一变任务就换区，这里读一下四个分区，换区时只重建
-          // 这一层作用域——下面的页面主体是同一个 widget 实例，不会跟着重建。
-          _store.downloadingIds.length;
-          _store.pendingIds.length;
-          _store.pausedIds.length;
-          _store.failedIds.length;
-          return BatchSelectionScope(
-            active: _isSelectionMode,
-            selectedCount: _selectedTaskIds.length,
-            actions: _batchActions(context),
-            onClear: () => setState(_selectedTaskIds.clear),
-            child: page,
-          );
-        }),
-      ),
+    return Scaffold(
+      body: Obx(() {
+        // 坞上摆哪些动作取决于所选任务的**当前状态**（暂停的给「继续」、下载中
+        // 的给「暂停」）。状态一变任务就换区，这里读一下四个分区，换区时只重建
+        // 这一层作用域——下面的页面主体是同一个 widget 实例，不会跟着重建。
+        _store.downloadingIds.length;
+        _store.pendingIds.length;
+        _store.pausedIds.length;
+        _store.failedIds.length;
+        return BatchSelectionScope(
+          active: _isSelectionMode,
+          selectedCount: _selectedTaskIds.length,
+          actions: _batchActions(context),
+          onClear: () => setState(_selectedTaskIds.clear),
+          child: page,
+        );
+      }),
     );
   }
 
@@ -827,6 +820,12 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
           icon: Icons.folder_outlined,
           label: t.download.category.manageTitle,
         ),
+        if (isFrameInterpSupported)
+          GlassMenuOption(
+            value: _menuActionFrameInterp,
+            icon: Icons.slow_motion_video_outlined,
+            label: t.frameInterp.title,
+          ),
         // 「整理」一组：磁盘上的文件与列表记录对不上时从这里收拾。
         GlassMenuSectionHeader(t.download.actions.organize),
         GlassMenuOption(
@@ -854,6 +853,8 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     switch (picked) {
       case _menuActionManageCategory:
         _openCategoryManagePage();
+      case _menuActionFrameInterp:
+        NaviService.navigateToFrameInterpTaskListPage();
       case _menuActionDeleteByDate:
         _showDeleteByDateDialog();
       case _menuActionCheckIntegrity:

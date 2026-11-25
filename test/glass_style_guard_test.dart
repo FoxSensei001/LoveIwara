@@ -613,7 +613,6 @@ const _rawMaterialButtonBaseline = <String, int>{
   'lib/app/ui/pages/video_detail/widgets/detail/add_video_to_playlist_dialog.dart':
       1,
   'lib/app/ui/pages/video_detail/widgets/detail/like_avatars_widget.dart': 1,
-  'lib/app/ui/pages/video_detail/widgets/dlna_cast_sheet.dart': 5,
   'lib/app/ui/pages/video_detail/widgets/player/bottom_toolbar_widget.dart': 2,
   'lib/app/ui/pages/video_detail/widgets/player/video_gesture_guide_page.dart':
       2,

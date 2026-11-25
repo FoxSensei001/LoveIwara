@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
+import 'package:i_iwara/app/ui/widgets/system_bars.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
@@ -193,7 +194,13 @@ class _GlassSideDrawerHostState extends State<_GlassSideDrawerHost>
                     : (_settle.isCompleted ? 0 : _dragOffset);
                 return Transform.translate(offset: Offset(dx, 0), child: child);
               },
-              child: SizedBox(width: width, child: widget.builder(context)),
+              // 窄屏时抽屉占 88% 宽，盖住状态栏正中：状态栏要按抽屉的底色走，
+              // 不然在视频页上会沿用身后播放器的白字，压在浅色抽屉上看不见。
+              // 跟着抽屉一起平移，划过正中那一刻自然换色。
+              child: SystemBarsRegion(
+                background: Theme.of(context).colorScheme.surface,
+                child: SizedBox(width: width, child: widget.builder(context)),
+              ),
             ),
           ),
         ),

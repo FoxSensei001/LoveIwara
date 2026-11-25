@@ -662,7 +662,9 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
                 : _handleSubmit,
             // 只差「同意规则」时按钮仍可点，点下去弹规则全文；置灰又点不动
             // 会让人以为是坏了。
-            onBlockedTap: blocked && canSubmit ? _showRulesDialog : null,
+            // 与发帖 / 动态两处一致：没写内容时点它也弹规则——规则这道闸
+            // 先过掉，写完就能直接发。
+            onBlockedTap: blocked ? _showRulesDialog : null,
             submitText: widget.submitText,
             isLoading: widget.isLoading || _submitting,
             statusText: _submitStatus,

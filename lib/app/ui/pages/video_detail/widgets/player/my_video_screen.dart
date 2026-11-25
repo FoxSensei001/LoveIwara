@@ -19,7 +19,7 @@ import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_target_registry.dart';
 import 'package:i_iwara/app/services/player_keybinding/text_input_focus.dart';
 import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/ui/pages/video_detail/widgets/blurred_thumbnail_background.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/ambient/ambient_glow_layer.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/rapple_painter.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/vr/vr_panorama_gesture_area.dart';
@@ -114,6 +114,11 @@ class MyVideoScreen extends StatefulWidget {
 
 class _MyVideoScreenState extends State<MyVideoScreen>
     with TickerProviderStateMixin, WindowListener, WidgetsBindingObserver {
+  /// 视频画面那层的重绘边界，剧院模式从这里取帧。
+  final GlobalKey _videoFrameBoundaryKey = GlobalKey(
+    debugLabel: 'videoFrameBoundary',
+  );
+
   final FocusNode _focusNode = FocusNode();
   // 帧末焦点回收是否已排队，避免同一帧多次 didChangeDependencies 排重复回调。
   bool _focusReclaimScheduled = false;
@@ -911,18 +916,20 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // 剧院模式背景
+          // 剧院模式背景：环境光，见 ambient/ 目录。
           Obx(() {
             final isTheaterMode =
                 _configService[ConfigKey.THEATER_MODE_KEY] as bool;
             if (!isTheaterMode) {
               return const SizedBox.shrink();
             }
-
-            final thumbnailUrl =
-                widget.myVideoStateController.videoInfo.value?.thumbnailUrl;
             return Positioned.fill(
-              child: BlurredThumbnailBackground(thumbnailUrl: thumbnailUrl),
+              child: AmbientGlowLayer(
+                controller: widget.myVideoStateController,
+                frameBoundaryKey: _videoFrameBoundaryKey,
+                videoAspectRatio:
+                    widget.myVideoStateController.aspectRatio.value,
+              ),
             );
           }),
           // 主要内容
@@ -1236,23 +1243,27 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       return VrVideoView(controller: controller);
     }
     final fitMode = controller.screenFitMode.value;
-    final Widget videoWidget = ColorVisionFilterWrapper(
-      // ⛔ 用 [AspectCorrectedVideo] 而不是裸 [Video]：Windows/Linux 软件渲染
-      // 会把纹理钳成 1080p 且不保比例，竖屏片的黑边是烤进纹理的，裸 contain
-      // 会把黑边当画面一起缩（见该组件的文档）。
-      child: AspectCorrectedVideo(
-        controller: controller.videoController,
-        fit: switch (fitMode) {
-          // 适应：帧比例即视频比例，contain 恰好铺满且不裁剪
-          PlayerScreenFitMode.fit => BoxFit.contain,
-          // 填充：保持比例铺满播放区域；Video 内部自带 FittedBox+ClipRect，
-          // 溢出在其自身盒内裁剪（外层 ClipRect 只负责兜住缩放 Transform 的越界绘制）
-          PlayerScreenFitMode.cover => BoxFit.cover,
-          // 拉伸 / 强制比例：把画面拉伸到目标帧
-          PlayerScreenFitMode.stretch ||
-          PlayerScreenFitMode.ratio16x9 ||
-          PlayerScreenFitMode.ratio4x3 => BoxFit.fill,
-        },
+    // 包一层重绘边界给剧院模式取帧（只含画面，不含控制层和缩放变换）。
+    final Widget videoWidget = RepaintBoundary(
+      key: _videoFrameBoundaryKey,
+      child: ColorVisionFilterWrapper(
+        // ⛔ 用 [AspectCorrectedVideo] 而不是裸 [Video]：Windows/Linux 软件渲染
+        // 会把纹理钳成 1080p 且不保比例，竖屏片的黑边是烤进纹理的，裸 contain
+        // 会把黑边当画面一起缩（见该组件的文档）。
+        child: AspectCorrectedVideo(
+          controller: controller.videoController,
+          fit: switch (fitMode) {
+            // 适应：帧比例即视频比例，contain 恰好铺满且不裁剪
+            PlayerScreenFitMode.fit => BoxFit.contain,
+            // 填充：保持比例铺满播放区域；Video 内部自带 FittedBox+ClipRect，
+            // 溢出在其自身盒内裁剪（外层 ClipRect 只负责兜住缩放 Transform 的越界绘制）
+            PlayerScreenFitMode.cover => BoxFit.cover,
+            // 拉伸 / 强制比例：把画面拉伸到目标帧
+            PlayerScreenFitMode.stretch ||
+            PlayerScreenFitMode.ratio16x9 ||
+            PlayerScreenFitMode.ratio4x3 => BoxFit.fill,
+          },
+        ),
       ),
     );
     switch (fitMode) {
@@ -1291,7 +1302,11 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             type: MaterialType.transparency,
             child: IconButton(
               tooltip: t.common.back,
-              icon: PlayerIcon(PlayerSymbol.back, color: Colors.white, size: iconSize),
+              icon: PlayerIcon(
+                PlayerSymbol.back,
+                color: Colors.white,
+                size: iconSize,
+              ),
               onPressed: () {
                 if (widget.isFullScreen) {
                   unawaited(widget.myVideoStateController.exitFullscreen());
@@ -2337,7 +2352,11 @@ class _QueueEdgeHandle extends StatelessWidget {
             ),
           ),
           child: const Center(
-            child: PlayerIcon(PlayerSymbol.chevronLeft, size: 20, color: Colors.white),
+            child: PlayerIcon(
+              PlayerSymbol.chevronLeft,
+              size: 20,
+              color: Colors.white,
+            ),
           ),
         ),
       ),

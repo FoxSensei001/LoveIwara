@@ -23,6 +23,7 @@ void main() {
       'thickness': -1,
       'refractiveIndex': double.infinity,
       'shadows': 'false',
+      // 旧配置里残留的菜单面板参数（已删）：读取时忽略，不报错。
       'panelBlur': 100,
     });
     expect(settings.quality, GlassQualityPreference.premium);
@@ -31,7 +32,7 @@ void main() {
     expect(settings.thickness, 0);
     expect(settings.refractiveIndex, 1.2);
     expect(settings.shadows, isTrue);
-    expect(settings.panelBlur, 20);
+    expect(settings.toMap().containsKey('panelBlur'), isFalse);
     final changed = settings
         .withValue('quality', 'premium')
         .withValue('blur', 3.5);
@@ -53,8 +54,6 @@ void main() {
       saturation: 1.1,
       chromaticAberration: 0.02,
       shadows: false,
-      panelBlur: 7,
-      panelOpacity: 0.6,
     );
     final actual = GlassTokens.widgetsGlass(
       cs,
@@ -196,7 +195,7 @@ void main() {
     });
   }
 
-  test('液态档出厂值：保留折射与投影，独立模糊 3.5', () {
+  test('液态档出厂值：保留折射与投影，独立模糊 0.5', () {
     final cs = ColorScheme.fromSeed(seedColor: Colors.blue);
     final settings = GlassTokens.widgetsGlass(
       cs,
@@ -206,7 +205,7 @@ void main() {
       GlassAppearanceSettings.defaults.quality,
       GlassQualityPreference.premium,
     );
-    expect(settings.blur, 3.5);
+    expect(settings.blur, 0.5);
     expect(settings.thickness, greaterThan(0));
     expect(settings.shadow, isNotEmpty);
   });

@@ -2,20 +2,19 @@
 enum GlassQualityPreference { standard, premium }
 
 class GlassAppearanceSettings {
-  // 液态档的出厂值：完整折射 + 34% 底色 + 3.5 模糊（2026-10-17 用户定）。
+  // 液态档的出厂值：完整折射 + 34% 底色（2026-10-17 用户定）+ 0.5 模糊
+  // （2026-11-21 用户改，原为 3.5）。
   // 只影响没存过这份配置的人；已存的配置里有的字段照旧用存下的值。
   const GlassAppearanceSettings({
     this.quality = GlassQualityPreference.premium,
     this.opacity = 0.34,
-    this.blur = 3.5,
+    this.blur = 0.5,
     this.thickness = 20,
     this.refractiveIndex = 1.2,
     this.lightIntensity = 0.5,
     this.saturation = 1.5,
     this.chromaticAberration = 0.01,
     this.shadows = true,
-    this.panelOpacity = 0.45,
-    this.panelBlur = 0.5,
   });
 
   static const defaults = GlassAppearanceSettings();
@@ -23,7 +22,10 @@ class GlassAppearanceSettings {
   final double opacity, blur, thickness, refractiveIndex;
   final double lightIntensity, saturation, chromaticAberration;
   final bool shadows;
-  final double panelOpacity, panelBlur;
+  // 以前还有 panelOpacity / panelBlur（菜单面板参数），是给已删掉的
+  // liquid_glass_easy 透镜渲染器用的，换成 liquid_glass_widgets 后再没有消费
+  // 方，2026-11-21 删除。存过的配置里多出来的这两个键 fromMap 不读，下次保存
+  // 时自然丢掉。
 
   factory GlassAppearanceSettings.fromMap(dynamic value) {
     final map = value is Map ? value : const <String, dynamic>{};
@@ -59,8 +61,6 @@ class GlassAppearanceSettings {
       shadows: map['shadows'] is bool
           ? map['shadows'] as bool
           : defaults.shadows,
-      panelOpacity: number('panelOpacity', defaults.panelOpacity, 0, 0.8),
-      panelBlur: number('panelBlur', defaults.panelBlur, 0, 20),
     );
   }
 
@@ -74,8 +74,6 @@ class GlassAppearanceSettings {
     'saturation': saturation,
     'chromaticAberration': chromaticAberration,
     'shadows': shadows,
-    'panelOpacity': panelOpacity,
-    'panelBlur': panelBlur,
   };
 
   GlassAppearanceSettings withValue(String key, dynamic value) =>

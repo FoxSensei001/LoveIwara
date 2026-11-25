@@ -227,6 +227,8 @@ common:
   disagree: ไม่ยอมรับ
   agreeToRules: ยอมรับกฎระเบียบ
   tapToReread: 'แตะเพื่ออ่านอีกครั้ง'
+  rulesRequiredHint: 'โปรดอ่านและยอมรับกฎของชุมชนก่อนโพสต์'
+  readAndAgree: 'อ่านและยอมรับ'
   # Base Input Dialog
   markdownSyntaxHelp: วิธีใช้ไวยากรณ์ Markdown
   previewContent: แสดงตัวอย่างเนื้อหา
@@ -706,6 +708,29 @@ settings:
   defaultBrowserDesc: โปรดเปิดรายการกำหนดค่าลิงก์เริ่มต้นในการตั้งค่าระบบและเพิ่มลิงก์เว็บไซต์ iwara.tv
   themeMode: โหมดธีม
   themeModeDesc: การกำหนดค่านี้กำหนดโหมดธีมของแอป
+  glassQuality: "Rendering quality"
+  glassQualityAuto: "Automatic"
+  glassQualityAutoDesc: "Adapts to frame time; refraction can change as quality adjusts"
+  glassQualityStandard: "Smooth"
+  glassQualityStandardDesc: "Lightweight glass with highlights and consistent frame pacing"
+  glassQualityPremium: "Full refraction"
+  glassQualityPremiumDesc: "Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass"
+  glassQualityCurrent: "Currently active"
+  glassChromeParametersDesc: "Navigation glass parameters apply live to headers, buttons and the bottom bar"
+  glassPreview: "Preview"
+  glassPremiumOnly: "Only takes effect with the full refraction quality"
+  glassSaturationNeedsBlur: "With the smooth quality, only takes effect when background blur is above 0"
+  glassOpacity: "Opacity"
+  glassBlur: "Background blur (sigma)"
+  glassBlurDesc: "0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness"
+  glassAdvancedParameters: "Advanced navigation parameters"
+  glassThickness: "Lens thickness"
+  glassRefractiveIndex: "Refractive index"
+  glassLightIntensity: "Highlight intensity"
+  glassSaturation: "Background saturation"
+  glassChromaticAberration: "Chromatic aberration"
+  glassShadows: "Shadows"
+  glassResetParameters: "Restore glass defaults"
   glassEffect: วัสดุอินเทอร์เฟซ
   glassEffectDesc: เลือกวัสดุที่ใช้ทั่วทั้งแอป — แคปซูลส่วนหัว เมนู ปุ่มกล่องโต้ตอบ และแถบนำทางด้านล่าง
   liquidGlassEffect: กระจกเหลว
@@ -1074,15 +1099,13 @@ settings:
   # Audio Video Configuration
   audioVideoConfig: การกำหนดค่าเสียงและวิดีโอ
   expandBuffer: ขยายบัฟเฟอร์
-  expandBufferInfo: เมื่อเปิดใช้งาน ขนาดบัฟเฟอร์จะเพิ่มขึ้น เวลาในการโหลดจะนานขึ้น แต่การเล่นจะราบรื่นยิ่งขึ้น
+  expandBufferInfo: เมื่อเปิดใช้งาน จะโหลดวิดีโอล่วงหน้ามากขึ้น ทำให้สะดุดน้อยลงเมื่อเครือข่ายไม่เสถียร แต่จะใช้หน่วยความจำมากขึ้น
   videoSyncMode: โหมดการซิงค์วิดีโอ
   videoSyncModeSubtitle: กลยุทธ์การซิงโครไนซ์เสียงและวิดีโอ
   hardwareDecodingMode: โหมดการถอดรหัสฮาร์ดแวร์
   hardwareDecodingModeSubtitle: การตั้งค่าการถอดรหัสฮาร์ดแวร์
   enableHardwareAcceleration: เปิดใช้การเร่งความเร็วด้วยฮาร์ดแวร์
   enableHardwareAccelerationInfo: การเปิดใช้การเร่งความเร็วด้วยฮาร์ดแวร์สามารถปรับปรุงประสิทธิภาพการถอดรหัสได้ แต่อุปกรณ์บางรุ่นอาจไม่รองรับ
-  useOpenSLESAudioOutput: ใช้เอาต์พุตเสียง OpenSLES
-  useOpenSLESAudioOutputInfo: ใช้เอาต์พุตเสียงที่มีความหน่วงต่ำ อาจช่วยปรับปรุงประสิทธิภาพของเสียงได้
   # Video sync options
   videoSyncAudio: การซิงค์เสียง
   videoSyncDisplayResample: การสุ่มตัวอย่างใหม่ในการแสดงผล
@@ -1510,6 +1533,10 @@ videoDetail:
     currentQuality: คุณภาพปัจจุบัน
     duration: ความยาว
     resolution: ความละเอียด
+    frameRate: "อัตราเฟรม"
+    frameRateValue: "${fps} fps"
+    frameRateInterpolated: "${fps} fps (เวอร์ชันเติมเฟรม ต้นฉบับ ${from} fps)"
+    frameRateHasInterpolated: "${fps} fps (ต้นฉบับ มีเวอร์ชัน ${to} fps แล้ว)"
     fileInfo: ข้อมูลไฟล์
     fileName: ชื่อไฟล์
     fileSize: ขนาดไฟล์
@@ -1523,6 +1550,9 @@ videoDetail:
   thisIsAPrivateVideo: นี่เป็นวิดีโอส่วนตัว
   getVideoInfoFailed: 'รับข้อมูลวิดีโอล้มเหลว โปรดลองใหม่อีกครั้งในภายหลัง'
   noVideoSourceFound: ไม่พบแหล่งที่มาของวิดีโอ
+  sourceFileMissingOnServer: 'ไม่พบไฟล์วิดีโอบนเซิร์ฟเวอร์ Iwara (HTTP 404) จึงเล่นบนเว็บไม่ได้เช่นกัน เซิร์ฟเวอร์อาจมีปัญหา โปรดลองใหม่ภายหลัง'
+  qualityFileMissingOnServer: 'ไม่พบไฟล์คุณภาพ「${quality}」บนเซิร์ฟเวอร์ (HTTP 404) เลือกคุณภาพอื่นจากเมนูคุณภาพ'
+  playbackRetryExhausted: 'เปิดวิดีโอไม่สำเร็จหลายครั้งติดกัน จึงหยุดลองใหม่อัตโนมัติแล้ว โปรดลองใหม่ภายหลัง'
   tagCopiedToClipboard: 'คัดลอกแท็ก "${tagId}" ไปยังคลิปบอร์ดแล้ว'
   errorLoadingVideo: เกิดข้อผิดพลาดขณะโหลดวิดีโอ
   play: เล่น
@@ -1680,7 +1710,7 @@ videoDetail:
     fetchingVideoSources: กำลังดึงแหล่งที่มาของวิดีโอ...
     loadingVideo: กำลังโหลดวิดีโอ...
     applyingSolution: กำลังนำการตั้งค่าความละเอียดนี้ไปใช้...
-    addingListeners: กำลังเพิ่มตัวรับฟังเหตุการณ์...
+    addingListeners: กำลังเชื่อมต่อเซิร์ฟเวอร์วิดีโอ...
     successFecthVideoDurationInfo: ดึงข้อมูลความยาววิดีโอสำเร็จ เริ่มโหลดวิดีโอ...
     successFecthVideoHeightInfo: โหลดเสร็จสมบูรณ์
   # 投屏
@@ -1719,6 +1749,23 @@ videoDetail:
       connectedTo: 'เชื่อมต่อกับ: ${deviceName}'
       notConnected: ไม่ได้เชื่อมต่ออุปกรณ์
       stopCasting: หยุดแคสต์
+      searchFinished: 'ค้นหาเสร็จแล้ว พบ ${count} อุปกรณ์'
+      protocolDlna: 'DLNA'
+      protocolGoogleCast: 'Google Cast'
+      addByIp: 'เพิ่มด้วยตนเอง'
+      addByIpTitle: 'เพิ่มอุปกรณ์ด้วยตนเอง'
+      addByIpDesc: 'ป้อนที่อยู่ IP ของทีวีหรือกล่องสตรีมมิง โดยปกติดูได้ที่ «การตั้งค่า → เครือข่าย → สถานะเครือข่าย» บนทีวี'
+      addByIpHint: 'เช่น 192.168.1.20'
+      addByIpAction: 'ค้นหา'
+      addByIpInvalid: 'รูปแบบที่อยู่ไม่ถูกต้อง โปรดป้อนที่อยู่ IPv4 เช่น 192.168.1.20'
+      addByIpNotFound: 'ไม่พบอุปกรณ์แคสต์ที่ ${host}'
+      troubleshootTitle: 'หาอุปกรณ์ไม่เจอใช่ไหม?'
+      troubleshoot: '• โทรศัพท์ (คอมพิวเตอร์) และทีวีต้องเชื่อมต่อ Wi-Fi เดียวกัน เครือข่ายแขกหรือเราเตอร์ที่เปิด AP isolation จะทำให้ค้นหาไม่เจอ\n• หากเปิด VPN หรือแอปพร็อกซีอยู่อาจค้นหาไม่เจอ ให้ปิดแล้วลองใหม่\n• รองรับ DLNA และ Google Cast (Chromecast) ไม่รองรับ Apple TV (AirPlay) และโปรโตคอลเฉพาะของบางยี่ห้อ ต้องเปิด DLNA บนทีวี\n• ยังไม่เจอ? แตะ «เพิ่มด้วยตนเอง» แล้วป้อน IP ของทีวี'
+      failure:
+        unreachable: 'เชื่อมต่ออุปกรณ์ไม่ได้ ตรวจสอบว่าอยู่ใน Wi-Fi เดียวกันและลองปิด VPN'
+        timeout: 'อุปกรณ์ไม่ตอบสนอง'
+        mediaRejected: 'อุปกรณ์เล่นวิดีโอนี้ไม่ได้ (รูปแบบไม่รองรับหรือเปิดลิงก์ไม่ได้)'
+        deviceRejected: 'อุปกรณ์ปฏิเสธคำขอแคสต์'
   # Like Avatars Component
   likeAvatars:
     dialogTitle: ใครแอบมากดถูกใจ
@@ -1918,6 +1965,8 @@ notifications:
   kApprovedPost: อนุมัติโพสต์แล้ว
   kApprovedForumPost: อนุมัติโพสต์ฟอรัมแล้ว
   kRejectedContent: การตรวจสอบเนื้อหาถูกปฏิเสธ
+  kWarning: "คำเตือนจากเว็บไซต์"
+  kWarningHint: "ผู้ดูแลได้ออกคำเตือนให้บัญชีของคุณ โปรดปฏิบัติตามกฎของชุมชน ดูรายละเอียดได้บนเว็บไซต์"
   kUnknownType: ประเภทการแจ้งเตือนที่ไม่รู้จัก
 
 conversation:
@@ -2022,6 +2071,7 @@ download:
   categorySectionLabel: 'หมวดหมู่'
   saveToPreviewLabel: 'จะบันทึกไปที่'
   saveToPreviewSuggested: 'ชื่อไฟล์ที่แนะนำ: ${name} (แก้ไขได้ในกล่องโต้ตอบระบบ)'
+  saveToPreviewChange: Change…
   lastUsedBadge: ใช้ล่าสุด
   pickedBadge: เลือกแล้ว
   startDownloading: เริ่มการดาวน์โหลด
@@ -2337,6 +2387,7 @@ download:
     downloadsFolder: Downloads
     askEveryTime: Ask every time
     askEveryTimeDesc: 'Choose where to save for each download. Batch downloads go to ${location}'
+    firstDownloadNotice: 'Download started. Files are saved to "${location}". You can change this in download settings'
     freeSpace: '${size} free'
     statusWritable: Writable
     statusNeedsPermission: Needs permission
@@ -3556,6 +3607,12 @@ vrFormat:
   resetToAutoDesc: ลืมการเลือกเองสำหรับวิดีโอนี้ แล้วให้การตรวจจับตัดสินใจใหม่
   manualBadge: ตั้งค่าเอง
   panoramaHint: ลากภาพเพื่อมองไปรอบๆ บีบนิ้วเพื่อเปลี่ยนมุมมอง
+  gyroControl: "ควบคุมมุมมองด้วยไจโร"
+  gyroControlDesc: "ในโหมดพาโนรามา VR หมุนโทรศัพท์เพื่อมองไปรอบๆ และยังลากเพื่อปรับมุมได้"
+  gyroPromptTitle: "เปิดการควบคุมด้วยไจโรไหม?"
+  gyroPromptBody: "เปิดเซ็นเซอร์การเคลื่อนไหวเพื่อประสบการณ์ VR ที่ดีขึ้นไหม? ปิดฟีเจอร์นี้ได้ในการตั้งค่า"
+  gyroPromptEnable: "เปิด"
+  gyroPromptDecline: "ไม่ใช่ตอนนี้"
   panoramaGestureNotice: ขณะมองไปรอบๆ การลากจะหมุนมุมมอง — ใช้แถบความคืบหน้าเพื่อเลื่อนไปยังตำแหน่ง
   shaderUnsupported: อุปกรณ์นี้ไม่สามารถเรนเดอร์พาโนรามาแบบสดได้ จึงแสดงเพียงตาเดียว
   handoffTooltip: เล่นด้วยวิธีอื่น
@@ -4022,3 +4079,88 @@ poll:
   voteFailed: "ส่งโหวตไม่สำเร็จ"
   copyLink: "คัดลอกลิงก์โพล"
   translateFailed: "แปลโพลไม่สำเร็จ"
+frameInterp:
+  title: "งานเพิ่มเฟรม"
+  action: "เพิ่มเฟรม (สร้างเวอร์ชันเฟรมเรตเป็น 2 เท่า)"
+  playInterpolated: "เล่นเวอร์ชันที่เพิ่มเฟรม"
+  playOriginal: "เล่นต้นฉบับ"
+  deleteInterpolated: "ลบเวอร์ชันเติมเฟรมด้วย"
+  deleteInterpolatedDesc: "ลบไฟล์วิดีโอที่เติมเฟรมพร้อมบันทึกงาน"
+  deleteInterpolatedOnly: "ลบเวอร์ชันเติมเฟรม"
+  deleteInterpolatedOnlyTitle: "ลบเวอร์ชันเติมเฟรมไหม?"
+  deleteInterpolatedOnlyBody: "ลบเฉพาะไฟล์วิดีโอที่เติมเฟรมและบันทึกงานเท่านั้น วิดีโอต้นฉบับยังอยู่ และเติมเฟรมใหม่ได้ภายหลัง"
+  interpolatedDeleted: "ลบเวอร์ชันเติมเฟรมแล้ว"
+  deleteInterpolatedFailed: "ลบเวอร์ชันเติมเฟรมไม่สำเร็จ ไฟล์อาจกำลังถูกใช้งานหรือไม่มีสิทธิ์"
+  viewTasks: "ดูงานเพิ่มเฟรม"
+  badge: "เพิ่มเฟรม"
+  fpsBadge: "${fps} FPS"
+  specLine: "${width}×${height} · ${from} → ${to} fps"
+  runningDetail: "${percent}% · ${speed} fps"
+  preparing: "กำลังเตรียม…"
+  outputMissing: "ไม่พบไฟล์ที่เพิ่มเฟรมแล้ว"
+  empty: "ยังไม่มีงานเพิ่มเฟรม"
+  emptyHint: "เลือกวิดีโอใน “ไฟล์ในเครื่อง” หรือ “ดาวน์โหลด” แล้วเลือก “เพิ่มเฟรม”"
+  clearFinished: "ล้างบันทึกที่เสร็จสิ้นแล้ว"
+  status:
+    pending: "รอคิว"
+    running: "กำลังประมวลผล"
+    completed: "เสร็จสมบูรณ์"
+    failed: "ล้มเหลว"
+    cancelled: "ยกเลิกแล้ว"
+  actions:
+    play: "เล่น"
+    cancel: "ยกเลิก"
+    retry: "ลองใหม่"
+    delete: "ลบบันทึก"
+    revealInFolder: "แสดงในโฟลเดอร์"
+  confirm:
+    cancelTitle: "ยกเลิกงานนี้หรือไม่?"
+    cancelContent: "ความคืบหน้าที่ผ่านมาจะหายไป คุณสามารถลองใหม่ตั้งแต่ต้นได้ภายหลัง"
+    deleteTitle: "ลบบันทึกนี้หรือไม่?"
+    deleteContent: "วิดีโอต้นฉบับจะไม่ได้รับผลกระทบ"
+    deleteOutput: "ลบไฟล์ที่เพิ่มเฟรมด้วย"
+    clearTitle: "ล้างบันทึกที่เสร็จสิ้นแล้วหรือไม่?"
+    clearContent: "ไฟล์ที่เพิ่มเฟรมแล้วจะยังอยู่ในดิสก์ จะลบเฉพาะบันทึก"
+    enqueueTitle: "เติมเฟรมวิดีโอนี้?"
+    enqueueAction: "เริ่มเติมเฟรม"
+    fpsUnit: "fps"
+    saveNote: "บันทึกเป็นไฟล์ใหม่ วิดีโอต้นฉบับไม่ถูกแก้ไข"
+    resetTitle: "ไม่รองรับการทำต่อ จะเริ่มใหม่ตั้งแต่ต้นเมื่อ:"
+    resetBackground: "สลับไปแอปอื่นหรือล็อกหน้าจอ"
+    resetClosed: "ปิดแอป หรือระบบปิดแอป"
+  toast:
+    queued: "เพิ่มเข้าคิวเพิ่มเฟรมแล้ว"
+    completed: "เพิ่มเฟรมเสร็จแล้ว: ${title}"
+    failed: "เพิ่มเฟรมไม่สำเร็จ: ${title}"
+  reject:
+    sourceMissing: "ไม่พบไฟล์วิดีโอ"
+    alreadyInterpolated: "วิดีโอนี้ผ่านการเพิ่มเฟรมแล้ว"
+    alreadyQueued: "วิดีโอนี้อยู่ในคิวแล้ว"
+    alreadyDone: "วิดีโอนี้มีเวอร์ชันที่เพิ่มเฟรมแล้ว"
+    hdr: "ยังไม่รองรับวิดีโอ HDR"
+    resolutionTooLarge: "ความละเอียดสูงเกินไปที่จะเพิ่มเฟรมได้"
+    unreadable: "อ่านวิดีโอนี้ไม่ได้"
+    noGpu: "ไม่พบการ์ดจอที่ใช้งานได้ (ต้องรองรับ Vulkan)"
+  error:
+    unknown: "เกิดข้อผิดพลาดบางอย่าง"
+    openInput: "เปิดวิดีโอไม่ได้"
+    noVideo: "ไฟล์นี้ไม่มีแทร็กวิดีโอ"
+    decoder: "ถอดรหัสวิดีโอไม่ได้"
+    hdrUnsupported: "ยังไม่รองรับวิดีโอ HDR"
+    noGpu: "ไม่พบการ์ดจอที่ใช้งานได้"
+    model: "โหลดโมเดลเพิ่มเฟรมไม่สำเร็จ ลองติดตั้งคอมโพเนนต์ใหม่"
+    encoder: "ไม่มีตัวเข้ารหัสวิดีโอที่ใช้งานได้"
+    openOutput: "สร้างไฟล์ผลลัพธ์ไม่ได้"
+    write: "เขียนไฟล์ไม่สำเร็จ ดิสก์อาจเต็ม"
+    interpolate: "ประมวลผลไม่สำเร็จ หน่วยความจำการ์ดจออาจไม่พอ"
+    componentUnavailable: "ใช้คอมโพเนนต์เพิ่มเฟรมไม่ได้"
+    interrupted: "ถูกขัดจังหวะเพราะแอปถูกปิด"
+    finalizeFailed: "บันทึกไฟล์ที่เสร็จแล้วไม่สำเร็จ"
+    sourceMissing: "ไม่พบไฟล์วิดีโอ"
+    backgrounded: "หยุดเพราะแอปเข้าสู่เบื้องหลัง จะเริ่มใหม่อัตโนมัติเมื่อกลับมา"
+  notification:
+    title: "กำลังแทรกเฟรม"
+    titleWithQueue: "กำลังแทรกเฟรม · รอคิว ${count} รายการ"
+    waiting: "รอเริ่ม"
+  component:
+    unsupported: "อุปกรณ์นี้ไม่รองรับการเพิ่มเฟรม"

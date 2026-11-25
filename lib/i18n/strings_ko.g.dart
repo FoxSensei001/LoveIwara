@@ -101,6 +101,7 @@ class TranslationsKo extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsFollowSearchKo followSearch = _TranslationsFollowSearchKo._(_root);
 	@override late final _TranslationsPagedSearchKo pagedSearch = _TranslationsPagedSearchKo._(_root);
 	@override late final _TranslationsPollKo poll = _TranslationsPollKo._(_root);
+	@override late final _TranslationsFrameInterpKo frameInterp = _TranslationsFrameInterpKo._(_root);
 }
 
 // Path: personalProfile
@@ -354,6 +355,8 @@ class _TranslationsCommonKo extends TranslationsCommonEn {
 	@override String get disagree => '동의하지 않음';
 	@override String get agreeToRules => '규칙에 동의';
 	@override String get tapToReread => '탭하여 전문 다시 읽기';
+	@override String get rulesRequiredHint => '게시하기 전에 커뮤니티 규칙을 읽고 동의해 주세요';
+	@override String get readAndAgree => '읽고 동의';
 	@override String get markdownSyntaxHelp => 'Markdown 문법 도움말';
 	@override String get previewContent => '내용 미리보기';
 	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
@@ -858,6 +861,29 @@ class _TranslationsSettingsKo extends TranslationsSettingsEn {
 	@override String get defaultBrowserDesc => '시스템 설정에서 기본 링크 설정 항목을 열고 iwara.tv 웹사이트 링크를 추가해 주세요';
 	@override String get themeMode => '테마 모드';
 	@override String get themeModeDesc => '이 설정은 앱의 테마 모드를 결정합니다';
+	@override String get glassQuality => 'Rendering quality';
+	@override String get glassQualityAuto => 'Automatic';
+	@override String get glassQualityAutoDesc => 'Adapts to frame time; refraction can change as quality adjusts';
+	@override String get glassQualityStandard => 'Smooth';
+	@override String get glassQualityStandardDesc => 'Lightweight glass with highlights and consistent frame pacing';
+	@override String get glassQualityPremium => 'Full refraction';
+	@override String get glassQualityPremiumDesc => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass';
+	@override String get glassQualityCurrent => 'Currently active';
+	@override String get glassChromeParametersDesc => 'Navigation glass parameters apply live to headers, buttons and the bottom bar';
+	@override String get glassPreview => 'Preview';
+	@override String get glassPremiumOnly => 'Only takes effect with the full refraction quality';
+	@override String get glassSaturationNeedsBlur => 'With the smooth quality, only takes effect when background blur is above 0';
+	@override String get glassOpacity => 'Opacity';
+	@override String get glassBlur => 'Background blur (sigma)';
+	@override String get glassBlurDesc => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness';
+	@override String get glassAdvancedParameters => 'Advanced navigation parameters';
+	@override String get glassThickness => 'Lens thickness';
+	@override String get glassRefractiveIndex => 'Refractive index';
+	@override String get glassLightIntensity => 'Highlight intensity';
+	@override String get glassSaturation => 'Background saturation';
+	@override String get glassChromaticAberration => 'Chromatic aberration';
+	@override String get glassShadows => 'Shadows';
+	@override String get glassResetParameters => 'Restore glass defaults';
 	@override String get glassEffect => '인터페이스 재질';
 	@override String get glassEffectDesc => '앱 전반에 사용할 재질을 선택합니다 — 헤더 캡슐, 메뉴, 대화 상자 버튼, 하단 내비게이션 바';
 	@override String get liquidGlassEffect => '리퀴드 글래스';
@@ -1158,15 +1184,13 @@ class _TranslationsSettingsKo extends TranslationsSettingsEn {
 	@override String get showCenterPlayPauseButtonDesc => '플레이어 중앙에 큰 재생/일시정지 버튼을 표시합니다.';
 	@override String get audioVideoConfig => '오디오·비디오 설정';
 	@override String get expandBuffer => '버퍼 확장';
-	@override String get expandBufferInfo => '활성화하면 버퍼 크기가 커져 로딩 시간은 길어지지만 재생이 더 부드러워집니다';
+	@override String get expandBufferInfo => '활성화하면 영상을 더 많이 미리 받아 두어 네트워크가 불안정할 때 끊김이 줄어들지만 메모리를 더 사용합니다';
 	@override String get videoSyncMode => '동영상 동기화 모드';
 	@override String get videoSyncModeSubtitle => '오디오-비디오 동기화 전략';
 	@override String get hardwareDecodingMode => '하드웨어 디코딩 모드';
 	@override String get hardwareDecodingModeSubtitle => '하드웨어 디코딩 설정';
 	@override String get enableHardwareAcceleration => '하드웨어 가속 사용';
 	@override String get enableHardwareAccelerationInfo => '하드웨어 가속을 사용하면 디코딩 성능이 향상될 수 있지만 일부 기기는 호환되지 않을 수 있습니다';
-	@override String get useOpenSLESAudioOutput => 'OpenSLES 오디오 출력 사용';
-	@override String get useOpenSLESAudioOutputInfo => '저지연 오디오 출력을 사용하여 오디오 성능을 개선할 수 있습니다';
 	@override String get videoSyncAudio => '오디오 동기화';
 	@override String get videoSyncDisplayResample => '리샘플 표시';
 	@override String get videoSyncDisplayResampleVdrop => '리샘플 표시 (프레임 드롭)';
@@ -1313,6 +1337,9 @@ class _TranslationsVideoDetailKo extends TranslationsVideoDetailEn {
 	@override String get thisIsAPrivateVideo => '비공개 동영상입니다';
 	@override String get getVideoInfoFailed => '동영상 정보를 가져오지 못했습니다. 나중에 다시 시도해 주세요';
 	@override String get noVideoSourceFound => '동영상 소스를 찾을 수 없습니다';
+	@override String get sourceFileMissingOnServer => 'Iwara 서버에 동영상 파일이 없습니다(HTTP 404). 웹에서도 재생되지 않습니다. 서버 장애일 수 있으니 나중에 다시 시도하세요.';
+	@override String qualityFileMissingOnServer({required Object quality}) => '「${quality}」 화질 파일이 서버에 없습니다(HTTP 404). 화질 메뉴에서 다른 화질을 선택하세요.';
+	@override String get playbackRetryExhausted => '동영상을 여러 번 연속으로 열지 못해 자동 재시도를 중단했습니다. 나중에 다시 시도하세요.';
 	@override String tagCopiedToClipboard({required Object tagId}) => '태그 "${tagId}"이(가) 클립보드에 복사되었습니다';
 	@override String get errorLoadingVideo => '동영상을 불러오는 중 오류';
 	@override String get play => '재생';
@@ -1537,6 +1564,8 @@ class _TranslationsNotificationsKo extends TranslationsNotificationsEn {
 	@override String get kApprovedPost => '게시물 승인됨';
 	@override String get kApprovedForumPost => '포럼 게시물 승인됨';
 	@override String get kRejectedContent => '콘텐츠 검토가 거부되었습니다';
+	@override String get kWarning => '사이트 경고';
+	@override String get kWarningHint => '운영진이 계정에 경고를 보냈습니다. 커뮤니티 규칙을 확인해 주세요. 자세한 내용은 웹에서 확인할 수 있습니다.';
 	@override String get kUnknownType => '알 수 없는 알림 유형';
 }
 
@@ -1595,6 +1624,7 @@ class _TranslationsDownloadKo extends TranslationsDownloadEn {
 	@override String get categorySectionLabel => '분류';
 	@override String get saveToPreviewLabel => '저장될 위치';
 	@override String saveToPreviewSuggested({required Object name}) => '추천 파일 이름: ${name}(시스템 대화상자에서 변경 가능)';
+	@override String get saveToPreviewChange => 'Change…';
 	@override String get lastUsedBadge => '최근 사용';
 	@override String get pickedBadge => '선택됨';
 	@override String get startDownloading => '다운로드 시작';
@@ -2856,6 +2886,12 @@ class _TranslationsVrFormatKo extends TranslationsVrFormatEn {
 	@override String get resetToAutoDesc => '이 동영상의 수동 선택을 지우고 다시 감지하도록 합니다';
 	@override String get manualBadge => '수동 설정됨';
 	@override String get panoramaHint => '화면을 끌어 주변을 둘러보고, 핀치하여 시야각을 변경하세요';
+	@override String get gyroControl => '자이로로 시점 조작';
+	@override String get gyroControlDesc => 'VR 파노라마 재생 중 휴대폰을 움직여 둘러볼 수 있고, 드래그로 미세 조정도 됩니다';
+	@override String get gyroPromptTitle => '자이로 조작을 켤까요?';
+	@override String get gyroPromptBody => '동작 감지를 켜서 더 나은 VR 체험을 하시겠어요? 이 기능은 설정에서 끌 수 있습니다.';
+	@override String get gyroPromptEnable => '켜기';
+	@override String get gyroPromptDecline => '나중에';
 	@override String get panoramaGestureNotice => '둘러보는 동안 끌면 시야가 돌아갑니다. 탐색은 진행 표시줄을 사용하세요';
 	@override String get shaderUnsupported => '이 기기는 실시간 파노라마를 렌더링할 수 없어 단일 시점으로 표시합니다';
 	@override String get handoffTooltip => '다른 방식으로 재생';
@@ -3209,6 +3245,44 @@ class _TranslationsPollKo extends TranslationsPollEn {
 	@override String get voteFailed => '투표를 제출하지 못했습니다';
 	@override String get copyLink => '투표 링크 복사';
 	@override String get translateFailed => '투표를 번역하지 못했습니다';
+}
+
+// Path: frameInterp
+class _TranslationsFrameInterpKo extends TranslationsFrameInterpEn {
+	_TranslationsFrameInterpKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '프레임 보간 작업';
+	@override String get action => '프레임 보간(2배 프레임 레이트로 생성)';
+	@override String get playInterpolated => '보간된 버전 재생';
+	@override String get playOriginal => '원본 재생';
+	@override String get deleteInterpolated => '보간 버전도 삭제';
+	@override String get deleteInterpolatedDesc => '보간된 영상 파일과 작업 기록을 함께 삭제합니다';
+	@override String get deleteInterpolatedOnly => '보간 버전 삭제';
+	@override String get deleteInterpolatedOnlyTitle => '보간 버전을 삭제할까요?';
+	@override String get deleteInterpolatedOnlyBody => '보간된 영상 파일과 작업 기록만 삭제합니다. 원본 영상은 그대로 남고, 나중에 다시 보간할 수 있습니다.';
+	@override String get interpolatedDeleted => '보간 버전을 삭제했습니다';
+	@override String get deleteInterpolatedFailed => '보간 버전을 삭제하지 못했습니다. 파일이 사용 중이거나 권한이 없을 수 있습니다';
+	@override String get viewTasks => '보간 작업 보기';
+	@override String get badge => '보간';
+	@override String fpsBadge({required Object fps}) => '${fps} FPS';
+	@override String specLine({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps';
+	@override String runningDetail({required Object percent, required Object speed}) => '${percent}% · ${speed} fps';
+	@override String get preparing => '준비 중…';
+	@override String get outputMissing => '보간된 파일이 더 이상 없습니다';
+	@override String get empty => '아직 보간 작업이 없습니다';
+	@override String get emptyHint => '「로컬 파일」 또는 「다운로드」에서 동영상을 선택해 「프레임 보간」을 실행하세요.';
+	@override String get clearFinished => '완료된 기록 지우기';
+	@override late final _TranslationsFrameInterpStatusKo status = _TranslationsFrameInterpStatusKo._(_root);
+	@override late final _TranslationsFrameInterpActionsKo actions = _TranslationsFrameInterpActionsKo._(_root);
+	@override late final _TranslationsFrameInterpConfirmKo confirm = _TranslationsFrameInterpConfirmKo._(_root);
+	@override late final _TranslationsFrameInterpToastKo toast = _TranslationsFrameInterpToastKo._(_root);
+	@override late final _TranslationsFrameInterpRejectKo reject = _TranslationsFrameInterpRejectKo._(_root);
+	@override late final _TranslationsFrameInterpErrorKo error = _TranslationsFrameInterpErrorKo._(_root);
+	@override late final _TranslationsFrameInterpNotificationKo notification = _TranslationsFrameInterpNotificationKo._(_root);
+	@override late final _TranslationsFrameInterpComponentKo component = _TranslationsFrameInterpComponentKo._(_root);
 }
 
 // Path: common.pagination
@@ -3729,6 +3803,10 @@ class _TranslationsVideoDetailLocalInfoKo extends TranslationsVideoDetailLocalIn
 	@override String get currentQuality => '현재 화질';
 	@override String get duration => '길이';
 	@override String get resolution => '해상도';
+	@override String get frameRate => '프레임 레이트';
+	@override String frameRateValue({required Object fps}) => '${fps} fps';
+	@override String frameRateInterpolated({required Object fps, required Object from}) => '${fps} fps (보간 버전, 원본 ${from} fps)';
+	@override String frameRateHasInterpolated({required Object fps, required Object to}) => '${fps} fps (원본, ${to} fps 보간 버전 있음)';
 	@override String get fileInfo => '파일 정보';
 	@override String get fileName => '파일 이름';
 	@override String get fileSize => '파일 크기';
@@ -3794,7 +3872,7 @@ class _TranslationsVideoDetailSkeletonKo extends TranslationsVideoDetailSkeleton
 	@override String get fetchingVideoSources => '동영상 소스 가져오는 중...';
 	@override String get loadingVideo => '동영상 불러오는 중...';
 	@override String get applyingSolution => '해결 방법 적용 중...';
-	@override String get addingListeners => '리스너 추가 중...';
+	@override String get addingListeners => '동영상 서버에 연결 중...';
 	@override String get successFecthVideoDurationInfo => '동영상 길이를 가져왔습니다. 동영상 로드를 시작합니다...';
 	@override String get successFecthVideoHeightInfo => '로딩 완료';
 }
@@ -4351,6 +4429,7 @@ class _TranslationsDownloadLocationKo extends TranslationsDownloadLocationEn {
 	@override String get downloadsFolder => 'Downloads';
 	@override String get askEveryTime => 'Ask every time';
 	@override String askEveryTimeDesc({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}';
+	@override String firstDownloadNotice({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings';
 	@override String freeSpace({required Object size}) => '${size} free';
 	@override String get statusWritable => 'Writable';
 	@override String get statusNeedsPermission => 'Needs permission';
@@ -4917,6 +4996,133 @@ class _TranslationsLocalMediaWebdavKo extends TranslationsLocalMediaWebdavEn {
 	@override String get bannerCredUnreadable => 'Couldn\'t read the saved password. Sign in again.';
 }
 
+// Path: frameInterp.status
+class _TranslationsFrameInterpStatusKo extends TranslationsFrameInterpStatusEn {
+	_TranslationsFrameInterpStatusKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get pending => '대기 중';
+	@override String get running => '처리 중';
+	@override String get completed => '완료됨';
+	@override String get failed => '실패';
+	@override String get cancelled => '취소됨';
+}
+
+// Path: frameInterp.actions
+class _TranslationsFrameInterpActionsKo extends TranslationsFrameInterpActionsEn {
+	_TranslationsFrameInterpActionsKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get play => '재생';
+	@override String get cancel => '취소';
+	@override String get retry => '재시도';
+	@override String get delete => '기록 삭제';
+	@override String get revealInFolder => '폴더에서 보기';
+}
+
+// Path: frameInterp.confirm
+class _TranslationsFrameInterpConfirmKo extends TranslationsFrameInterpConfirmEn {
+	_TranslationsFrameInterpConfirmKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get cancelTitle => '이 작업을 취소하시겠습니까?';
+	@override String get cancelContent => '지금까지의 진행 상황은 사라집니다. 나중에 처음부터 다시 시도할 수 있습니다.';
+	@override String get deleteTitle => '이 기록을 삭제하시겠습니까?';
+	@override String get deleteContent => '원본 동영상에는 영향이 없습니다.';
+	@override String get deleteOutput => '보간된 파일도 함께 삭제';
+	@override String get clearTitle => '완료된 기록을 지우시겠습니까?';
+	@override String get clearContent => '보간된 파일은 디스크에 그대로 남고 기록만 삭제됩니다.';
+	@override String get enqueueTitle => '프레임 보간을 할까요?';
+	@override String get enqueueAction => '보간 시작';
+	@override String get fpsUnit => 'fps';
+	@override String get saveNote => '새 파일로 저장되며 원본 영상은 그대로 유지됩니다';
+	@override String get resetTitle => '이어서 처리할 수 없어 다음 경우 처음부터 다시 시작합니다:';
+	@override String get resetBackground => '다른 앱으로 전환하거나 화면을 잠글 때';
+	@override String get resetClosed => '앱을 닫거나 시스템이 앱을 종료할 때';
+}
+
+// Path: frameInterp.toast
+class _TranslationsFrameInterpToastKo extends TranslationsFrameInterpToastEn {
+	_TranslationsFrameInterpToastKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get queued => '보간 대기열에 추가했습니다';
+	@override String completed({required Object title}) => '프레임 보간 완료: ${title}';
+	@override String failed({required Object title}) => '프레임 보간 실패: ${title}';
+}
+
+// Path: frameInterp.reject
+class _TranslationsFrameInterpRejectKo extends TranslationsFrameInterpRejectEn {
+	_TranslationsFrameInterpRejectKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get sourceMissing => '동영상 파일이 더 이상 없습니다';
+	@override String get alreadyInterpolated => '이미 보간된 동영상입니다';
+	@override String get alreadyQueued => '이 동영상은 이미 대기열에 있습니다';
+	@override String get alreadyDone => '이 동영상에는 이미 보간된 버전이 있습니다';
+	@override String get hdr => 'HDR 동영상은 아직 지원하지 않습니다';
+	@override String get resolutionTooLarge => '해상도가 너무 높아 보간할 수 없습니다';
+	@override String get unreadable => '이 동영상을 읽을 수 없습니다';
+	@override String get noGpu => '사용 가능한 그래픽 카드를 찾을 수 없습니다(Vulkan 지원 필요)';
+}
+
+// Path: frameInterp.error
+class _TranslationsFrameInterpErrorKo extends TranslationsFrameInterpErrorEn {
+	_TranslationsFrameInterpErrorKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get unknown => '문제가 발생했습니다';
+	@override String get openInput => '동영상을 열 수 없습니다';
+	@override String get noVideo => '파일에 비디오 트랙이 없습니다';
+	@override String get decoder => '동영상을 디코딩할 수 없습니다';
+	@override String get hdrUnsupported => 'HDR 동영상은 아직 지원하지 않습니다';
+	@override String get noGpu => '사용 가능한 그래픽 카드를 찾을 수 없습니다';
+	@override String get model => '보간 모델을 불러오지 못했습니다. 구성 요소를 다시 설치해 보세요';
+	@override String get encoder => '사용 가능한 비디오 인코더가 없습니다';
+	@override String get openOutput => '출력 파일을 만들 수 없습니다';
+	@override String get write => '쓰기에 실패했습니다. 디스크가 가득 찼을 수 있습니다';
+	@override String get interpolate => '처리에 실패했습니다. 그래픽 메모리가 부족할 수 있습니다';
+	@override String get componentUnavailable => '프레임 보간 구성 요소를 사용할 수 없습니다';
+	@override String get interrupted => '앱이 종료되어 중단되었습니다';
+	@override String get finalizeFailed => '완성된 파일을 저장하지 못했습니다';
+	@override String get sourceMissing => '동영상 파일이 더 이상 없습니다';
+	@override String get backgrounded => '앱이 백그라운드로 전환되어 중단되었습니다. 돌아오면 자동으로 다시 시작합니다';
+}
+
+// Path: frameInterp.notification
+class _TranslationsFrameInterpNotificationKo extends TranslationsFrameInterpNotificationEn {
+	_TranslationsFrameInterpNotificationKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '프레임 보간 중';
+	@override String titleWithQueue({required Object count}) => '프레임 보간 중 · 대기 ${count}개';
+	@override String get waiting => '시작 대기 중';
+}
+
+// Path: frameInterp.component
+class _TranslationsFrameInterpComponentKo extends TranslationsFrameInterpComponentEn {
+	_TranslationsFrameInterpComponentKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get unsupported => '이 기기에서는 프레임 보간을 사용할 수 없습니다';
+}
+
 // Path: settings.downloadSettings.pathTemplateEditor
 class _TranslationsSettingsDownloadSettingsPathTemplateEditorKo extends TranslationsSettingsDownloadSettingsPathTemplateEditorEn {
 	_TranslationsSettingsDownloadSettingsPathTemplateEditorKo._(TranslationsKo root) : this._root = root, super.internal(root);
@@ -5077,6 +5283,32 @@ class _TranslationsVideoDetailCastDlnaCastSheetKo extends TranslationsVideoDetai
 	@override String connectedTo({required Object deviceName}) => '연결됨: ${deviceName}';
 	@override String get notConnected => '연결된 기기가 없습니다';
 	@override String get stopCasting => '캐스트 중지';
+	@override String searchFinished({required Object count}) => '검색 완료, 기기 ${count}대 발견';
+	@override String get protocolDlna => 'DLNA';
+	@override String get protocolGoogleCast => 'Google Cast';
+	@override String get addByIp => '직접 추가';
+	@override String get addByIpTitle => '기기 직접 추가';
+	@override String get addByIpDesc => 'TV 또는 셋톱박스의 IP 주소를 입력하세요. 보통 TV의 「설정 → 네트워크 → 네트워크 상태」에서 확인할 수 있습니다.';
+	@override String get addByIpHint => '예: 192.168.1.20';
+	@override String get addByIpAction => '찾기';
+	@override String get addByIpInvalid => '주소 형식이 올바르지 않습니다. 192.168.1.20 같은 IPv4 주소를 입력하세요';
+	@override String addByIpNotFound({required Object host}) => '${host}에서 캐스트 기기를 찾지 못했습니다';
+	@override String get troubleshootTitle => '기기를 찾을 수 없나요?';
+	@override String get troubleshoot => '• 휴대폰(PC)과 TV가 같은 Wi-Fi에 연결되어 있어야 합니다. 게스트 네트워크나 공유기의 AP 격리 기능이 켜져 있으면 검색되지 않습니다\n• VPN이나 프록시 앱을 사용 중이면 검색되지 않을 수 있습니다. 끄고 다시 시도하세요\n• DLNA와 Google Cast(Chromecast)를 지원합니다. Apple TV(AirPlay)와 일부 제조사 전용 캐스트 방식은 지원하지 않으며, TV에서 DLNA 기능을 켜야 합니다\n• 그래도 안 되면 「직접 추가」를 눌러 TV의 IP를 입력하세요';
+	@override late final _TranslationsVideoDetailCastDlnaCastSheetFailureKo failure = _TranslationsVideoDetailCastDlnaCastSheetFailureKo._(_root);
+}
+
+// Path: videoDetail.cast.dlnaCastSheet.failure
+class _TranslationsVideoDetailCastDlnaCastSheetFailureKo extends TranslationsVideoDetailCastDlnaCastSheetFailureEn {
+	_TranslationsVideoDetailCastDlnaCastSheetFailureKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get unreachable => '기기에 연결할 수 없습니다. 같은 Wi-Fi인지 확인하고 VPN을 꺼 보세요';
+	@override String get timeout => '기기가 응답하지 않습니다';
+	@override String get mediaRejected => '기기에서 이 동영상을 재생할 수 없습니다(지원하지 않는 형식이거나 링크를 열 수 없음)';
+	@override String get deviceRejected => '기기가 캐스트 요청을 거부했습니다';
 }
 
 /// The flat map containing all translations for locale <ko>.
@@ -5298,6 +5530,8 @@ extension on TranslationsKo {
 			'common.disagree' => '동의하지 않음',
 			'common.agreeToRules' => '규칙에 동의',
 			'common.tapToReread' => '탭하여 전문 다시 읽기',
+			'common.rulesRequiredHint' => '게시하기 전에 커뮤니티 규칙을 읽고 동의해 주세요',
+			'common.readAndAgree' => '읽고 동의',
 			'common.markdownSyntaxHelp' => 'Markdown 문법 도움말',
 			'common.previewContent' => '내용 미리보기',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -5597,10 +5831,10 @@ extension on TranslationsKo {
 			'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain' => '이 설정은 동영상을 다시 재생할 때 이전 설정을 사용할지 여부를 결정합니다.',
 			'settings.playControl' => '재생 제어',
 			'settings.playbackSpeedSettings' => '재생 및 속도',
-			'settings.playbackBehaviorSettings' => '재생 동작',
-			'settings.enhancementSettings' => '극장 및 향상',
 			_ => null,
 		} ?? switch (path) {
+			'settings.playbackBehaviorSettings' => '재생 동작',
+			'settings.enhancementSettings' => '극장 및 향상',
 			'settings.fastForwardTime' => '빨리 감기 시간',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => '빨리 감기 시간은 양의 정수여야 합니다.',
 			'settings.rewindTime' => '되감기 시간',
@@ -5757,6 +5991,29 @@ extension on TranslationsKo {
 			'settings.defaultBrowserDesc' => '시스템 설정에서 기본 링크 설정 항목을 열고 iwara.tv 웹사이트 링크를 추가해 주세요',
 			'settings.themeMode' => '테마 모드',
 			'settings.themeModeDesc' => '이 설정은 앱의 테마 모드를 결정합니다',
+			'settings.glassQuality' => 'Rendering quality',
+			'settings.glassQualityAuto' => 'Automatic',
+			'settings.glassQualityAutoDesc' => 'Adapts to frame time; refraction can change as quality adjusts',
+			'settings.glassQualityStandard' => 'Smooth',
+			'settings.glassQualityStandardDesc' => 'Lightweight glass with highlights and consistent frame pacing',
+			'settings.glassQualityPremium' => 'Full refraction',
+			'settings.glassQualityPremiumDesc' => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass',
+			'settings.glassQualityCurrent' => 'Currently active',
+			'settings.glassChromeParametersDesc' => 'Navigation glass parameters apply live to headers, buttons and the bottom bar',
+			'settings.glassPreview' => 'Preview',
+			'settings.glassPremiumOnly' => 'Only takes effect with the full refraction quality',
+			'settings.glassSaturationNeedsBlur' => 'With the smooth quality, only takes effect when background blur is above 0',
+			'settings.glassOpacity' => 'Opacity',
+			'settings.glassBlur' => 'Background blur (sigma)',
+			'settings.glassBlurDesc' => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness',
+			'settings.glassAdvancedParameters' => 'Advanced navigation parameters',
+			'settings.glassThickness' => 'Lens thickness',
+			'settings.glassRefractiveIndex' => 'Refractive index',
+			'settings.glassLightIntensity' => 'Highlight intensity',
+			'settings.glassSaturation' => 'Background saturation',
+			'settings.glassChromaticAberration' => 'Chromatic aberration',
+			'settings.glassShadows' => 'Shadows',
+			'settings.glassResetParameters' => 'Restore glass defaults',
 			'settings.glassEffect' => '인터페이스 재질',
 			'settings.glassEffectDesc' => '앱 전반에 사용할 재질을 선택합니다 — 헤더 캡슐, 메뉴, 대화 상자 버튼, 하단 내비게이션 바',
 			'settings.liquidGlassEffect' => '리퀴드 글래스',
@@ -6088,6 +6345,8 @@ extension on TranslationsKo {
 			'settings.keybinding.actionGalleryPlayPause' => '재생 / 일시정지',
 			'settings.keybinding.actionGallerySeekBackward' => '되감기',
 			'settings.keybinding.actionGallerySeekForward' => '빨리 감기',
+			_ => null,
+		} ?? switch (path) {
 			'settings.keybinding.actionGalleryToggleMute' => '음소거 전환',
 			'settings.keybinding.actionPlayPause' => '재생 / 일시정지',
 			'settings.keybinding.actionSpeedUp' => '속도 증가',
@@ -6113,8 +6372,6 @@ extension on TranslationsKo {
 			'settings.doubleTapPause' => '두 번 탭하여 일시정지',
 			'settings.rightVerticalSwipeVolume' => '오른쪽 세로 스와이프 볼륨 (새 페이지 진입 시 적용)',
 			'settings.leftVerticalSwipeBrightness' => '왼쪽 세로 스와이프 밝기 (새 페이지 진입 시 적용)',
-			_ => null,
-		} ?? switch (path) {
 			'settings.longPressFastForward' => '길게 눌러 빨리 감기',
 			'settings.enableMouseHoverShowToolbar' => '마우스 오버 시 도구 모음 표시',
 			'settings.enableMouseHoverShowToolbarInfo' => '활성화하면 플레이어 위로 마우스를 올리면 동영상 도구 모음이 표시됩니다. 3초 동안 활동이 없으면 자동으로 숨겨집니다.',
@@ -6125,15 +6382,13 @@ extension on TranslationsKo {
 			'settings.showCenterPlayPauseButtonDesc' => '플레이어 중앙에 큰 재생/일시정지 버튼을 표시합니다.',
 			'settings.audioVideoConfig' => '오디오·비디오 설정',
 			'settings.expandBuffer' => '버퍼 확장',
-			'settings.expandBufferInfo' => '활성화하면 버퍼 크기가 커져 로딩 시간은 길어지지만 재생이 더 부드러워집니다',
+			'settings.expandBufferInfo' => '활성화하면 영상을 더 많이 미리 받아 두어 네트워크가 불안정할 때 끊김이 줄어들지만 메모리를 더 사용합니다',
 			'settings.videoSyncMode' => '동영상 동기화 모드',
 			'settings.videoSyncModeSubtitle' => '오디오-비디오 동기화 전략',
 			'settings.hardwareDecodingMode' => '하드웨어 디코딩 모드',
 			'settings.hardwareDecodingModeSubtitle' => '하드웨어 디코딩 설정',
 			'settings.enableHardwareAcceleration' => '하드웨어 가속 사용',
 			'settings.enableHardwareAccelerationInfo' => '하드웨어 가속을 사용하면 디코딩 성능이 향상될 수 있지만 일부 기기는 호환되지 않을 수 있습니다',
-			'settings.useOpenSLESAudioOutput' => 'OpenSLES 오디오 출력 사용',
-			'settings.useOpenSLESAudioOutputInfo' => '저지연 오디오 출력을 사용하여 오디오 성능을 개선할 수 있습니다',
 			'settings.videoSyncAudio' => '오디오 동기화',
 			'settings.videoSyncDisplayResample' => '리샘플 표시',
 			'settings.videoSyncDisplayResampleVdrop' => '리샘플 표시 (프레임 드롭)',
@@ -6527,6 +6782,10 @@ extension on TranslationsKo {
 			'videoDetail.localInfo.currentQuality' => '현재 화질',
 			'videoDetail.localInfo.duration' => '길이',
 			'videoDetail.localInfo.resolution' => '해상도',
+			'videoDetail.localInfo.frameRate' => '프레임 레이트',
+			'videoDetail.localInfo.frameRateValue' => ({required Object fps}) => '${fps} fps',
+			'videoDetail.localInfo.frameRateInterpolated' => ({required Object fps, required Object from}) => '${fps} fps (보간 버전, 원본 ${from} fps)',
+			'videoDetail.localInfo.frameRateHasInterpolated' => ({required Object fps, required Object to}) => '${fps} fps (원본, ${to} fps 보간 버전 있음)',
 			'videoDetail.localInfo.fileInfo' => '파일 정보',
 			'videoDetail.localInfo.fileName' => '파일 이름',
 			'videoDetail.localInfo.fileSize' => '파일 크기',
@@ -6540,6 +6799,9 @@ extension on TranslationsKo {
 			'videoDetail.thisIsAPrivateVideo' => '비공개 동영상입니다',
 			'videoDetail.getVideoInfoFailed' => '동영상 정보를 가져오지 못했습니다. 나중에 다시 시도해 주세요',
 			'videoDetail.noVideoSourceFound' => '동영상 소스를 찾을 수 없습니다',
+			'videoDetail.sourceFileMissingOnServer' => 'Iwara 서버에 동영상 파일이 없습니다(HTTP 404). 웹에서도 재생되지 않습니다. 서버 장애일 수 있으니 나중에 다시 시도하세요.',
+			'videoDetail.qualityFileMissingOnServer' => ({required Object quality}) => '「${quality}」 화질 파일이 서버에 없습니다(HTTP 404). 화질 메뉴에서 다른 화질을 선택하세요.',
+			'videoDetail.playbackRetryExhausted' => '동영상을 여러 번 연속으로 열지 못해 자동 재시도를 중단했습니다. 나중에 다시 시도하세요.',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => '태그 "${tagId}"이(가) 클립보드에 복사되었습니다',
 			'videoDetail.errorLoadingVideo' => '동영상을 불러오는 중 오류',
 			'videoDetail.play' => '재생',
@@ -6597,6 +6859,8 @@ extension on TranslationsKo {
 			'videoDetail.gestureGuide.quest.still' => '정지 일러스트',
 			'videoDetail.gestureGuide.quest.done' => '알겠습니다, 계속',
 			'videoDetail.gestureGuide.quest.leftController' => '왼손',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.rightController' => '오른손',
 			'videoDetail.gestureGuide.quest.trigger' => '검지 트리거',
 			'videoDetail.gestureGuide.quest.grip' => '그립 버튼',
@@ -6627,8 +6891,6 @@ extension on TranslationsKo {
 			'videoDetail.gestureGuide.quest.swipeTitle' => '옆으로 끌어 페이지 넘기기',
 			'videoDetail.gestureGuide.quest.swipeBody' => '이미지에 광선을 맞추고 검지 트리거를 누른 채 왼쪽으로 끄세요. 페이지 넘김 신호 후 놓으면 넘어가고, 오른쪽으로 끌면 뒤로 갑니다. 집어서 끌어도 됩니다.',
 			'videoDetail.gestureGuide.quest.swipeHint' => '이미지를 끌어 페이지를 넘기려면 1배 상태여야 합니다. 갤러리 동영상도 지원합니다. 놓을 때까지 스테이지는 그대로 유지됩니다.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomTitle' => '이미지 확대',
 			'videoDetail.gestureGuide.quest.zoomBody' => '이미지의 세부 부분에 광선을 맞추고 검지 트리거를 누른 뒤 스틱을 위로 밀면 확대, 아래로 밀면 축소됩니다. 확대는 누른 지점을 기준으로 고정됩니다.',
 			'videoDetail.gestureGuide.quest.zoomHint' => '이미지 창 안의 이미지를 확대합니다. 이미지를 잡지 않은 상태에서는 위/아래가 시청 거리를 조정합니다.',
@@ -6695,7 +6957,7 @@ extension on TranslationsKo {
 			'videoDetail.skeleton.fetchingVideoSources' => '동영상 소스 가져오는 중...',
 			'videoDetail.skeleton.loadingVideo' => '동영상 불러오는 중...',
 			'videoDetail.skeleton.applyingSolution' => '해결 방법 적용 중...',
-			'videoDetail.skeleton.addingListeners' => '리스너 추가 중...',
+			'videoDetail.skeleton.addingListeners' => '동영상 서버에 연결 중...',
 			'videoDetail.skeleton.successFecthVideoDurationInfo' => '동영상 길이를 가져왔습니다. 동영상 로드를 시작합니다...',
 			'videoDetail.skeleton.successFecthVideoHeightInfo' => '로딩 완료',
 			'videoDetail.cast.dlnaCast' => '캐스트',
@@ -6729,6 +6991,22 @@ extension on TranslationsKo {
 			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => '연결됨: ${deviceName}',
 			'videoDetail.cast.dlnaCastSheet.notConnected' => '연결된 기기가 없습니다',
 			'videoDetail.cast.dlnaCastSheet.stopCasting' => '캐스트 중지',
+			'videoDetail.cast.dlnaCastSheet.searchFinished' => ({required Object count}) => '검색 완료, 기기 ${count}대 발견',
+			'videoDetail.cast.dlnaCastSheet.protocolDlna' => 'DLNA',
+			'videoDetail.cast.dlnaCastSheet.protocolGoogleCast' => 'Google Cast',
+			'videoDetail.cast.dlnaCastSheet.addByIp' => '직접 추가',
+			'videoDetail.cast.dlnaCastSheet.addByIpTitle' => '기기 직접 추가',
+			'videoDetail.cast.dlnaCastSheet.addByIpDesc' => 'TV 또는 셋톱박스의 IP 주소를 입력하세요. 보통 TV의 「설정 → 네트워크 → 네트워크 상태」에서 확인할 수 있습니다.',
+			'videoDetail.cast.dlnaCastSheet.addByIpHint' => '예: 192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpAction' => '찾기',
+			'videoDetail.cast.dlnaCastSheet.addByIpInvalid' => '주소 형식이 올바르지 않습니다. 192.168.1.20 같은 IPv4 주소를 입력하세요',
+			'videoDetail.cast.dlnaCastSheet.addByIpNotFound' => ({required Object host}) => '${host}에서 캐스트 기기를 찾지 못했습니다',
+			'videoDetail.cast.dlnaCastSheet.troubleshootTitle' => '기기를 찾을 수 없나요?',
+			'videoDetail.cast.dlnaCastSheet.troubleshoot' => '• 휴대폰(PC)과 TV가 같은 Wi-Fi에 연결되어 있어야 합니다. 게스트 네트워크나 공유기의 AP 격리 기능이 켜져 있으면 검색되지 않습니다\n• VPN이나 프록시 앱을 사용 중이면 검색되지 않을 수 있습니다. 끄고 다시 시도하세요\n• DLNA와 Google Cast(Chromecast)를 지원합니다. Apple TV(AirPlay)와 일부 제조사 전용 캐스트 방식은 지원하지 않으며, TV에서 DLNA 기능을 켜야 합니다\n• 그래도 안 되면 「직접 추가」를 눌러 TV의 IP를 입력하세요',
+			'videoDetail.cast.dlnaCastSheet.failure.unreachable' => '기기에 연결할 수 없습니다. 같은 Wi-Fi인지 확인하고 VPN을 꺼 보세요',
+			'videoDetail.cast.dlnaCastSheet.failure.timeout' => '기기가 응답하지 않습니다',
+			'videoDetail.cast.dlnaCastSheet.failure.mediaRejected' => '기기에서 이 동영상을 재생할 수 없습니다(지원하지 않는 형식이거나 링크를 열 수 없음)',
+			'videoDetail.cast.dlnaCastSheet.failure.deviceRejected' => '기기가 캐스트 요청을 거부했습니다',
 			'videoDetail.likeAvatars.dialogTitle' => '몰래 좋아요를 누른 사람',
 			'videoDetail.likeAvatars.dialogDescription' => '누가 좋아하는지 궁금하신가요? 이 "좋아요 앨범"을 넘겨 보세요~',
 			'videoDetail.likeAvatars.closeTooltip' => '닫기',
@@ -6914,6 +7192,8 @@ extension on TranslationsKo {
 			'notifications.kApprovedPost' => '게시물 승인됨',
 			'notifications.kApprovedForumPost' => '포럼 게시물 승인됨',
 			'notifications.kRejectedContent' => '콘텐츠 검토가 거부되었습니다',
+			'notifications.kWarning' => '사이트 경고',
+			'notifications.kWarningHint' => '운영진이 계정에 경고를 보냈습니다. 커뮤니티 규칙을 확인해 주세요. 자세한 내용은 웹에서 확인할 수 있습니다.',
 			'notifications.kUnknownType' => '알 수 없는 알림 유형',
 			'conversation.errors.pleaseSelectAUser' => '사용자를 선택해 주세요',
 			'conversation.errors.pleaseEnterATitle' => '제목을 입력해 주세요',
@@ -7008,6 +7288,7 @@ extension on TranslationsKo {
 			'download.categorySectionLabel' => '분류',
 			'download.saveToPreviewLabel' => '저장될 위치',
 			'download.saveToPreviewSuggested' => ({required Object name}) => '추천 파일 이름: ${name}(시스템 대화상자에서 변경 가능)',
+			'download.saveToPreviewChange' => 'Change…',
 			'download.lastUsedBadge' => '최근 사용',
 			'download.pickedBadge' => '선택됨',
 			'download.startDownloading' => '다운로드 시작',
@@ -7092,6 +7373,8 @@ extension on TranslationsKo {
 			'download.actions.play' => 'Play',
 			'download.actions.openWith' => 'Open with another app',
 			'download.actions.redownload' => 'Download again',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.relocate' => 'Move files to…',
 			'download.actions.categorize' => 'Categorize…',
 			'download.actions.viewOnline' => 'View online page',
@@ -7141,8 +7424,6 @@ extension on TranslationsKo {
 			'download.deleteByDate.noMatch' => '선택한 조건에 맞는 작업이 없습니다',
 			'download.deleteByDate.invalidRange' => '시작일은 종료일과 같거나 그보다 앞서야 합니다',
 			'download.deleteByDate.confirmTitle' => '삭제 확인',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.confirmContent' => ({required Object count}) => '${count}개의 다운로드 작업과 해당 파일을 삭제하시겠습니까? 되돌릴 수 없습니다.',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '삭제 중 ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count}개 작업 삭제됨',
@@ -7316,6 +7597,7 @@ extension on TranslationsKo {
 			'download.location.downloadsFolder' => 'Downloads',
 			'download.location.askEveryTime' => 'Ask every time',
 			'download.location.askEveryTimeDesc' => ({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}',
+			'download.location.firstDownloadNotice' => ({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings',
 			'download.location.freeSpace' => ({required Object size}) => '${size} free',
 			'download.location.statusWritable' => 'Writable',
 			'download.location.statusNeedsPermission' => 'Needs permission',
@@ -7605,6 +7887,8 @@ extension on TranslationsKo {
 			'translation.fallbackTranslationFailed' => '일반 번역으로의 대체도 실패했습니다',
 			'translation.translationSettings' => '번역 설정',
 			'translation.enableGoogleTranslation' => 'Google 번역 사용',
+			_ => null,
+		} ?? switch (path) {
 			'translation.thinking' => '생각 중...',
 			'translation.thoughtProcess' => '사고 과정',
 			'translation.modelCompatibility' => '모델 호환성',
@@ -7655,8 +7939,6 @@ extension on TranslationsKo {
 			'navigationOrderSettings.navigationItemSorting' => '내비게이션 항목 정렬',
 			'navigationOrderSettings.done' => '완료',
 			'navigationOrderSettings.edit' => '편집',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.reset' => '초기화',
 			'navigationOrderSettings.previewEffect' => '미리보기 효과',
 			'navigationOrderSettings.bottomNavigationPreview' => '하단 내비게이션 미리보기:',
@@ -8119,6 +8401,8 @@ extension on TranslationsKo {
 			'firstTimeSetup.common.finishSetup' => '설정 완료',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => '먼저 사용자 약관과 커뮤니티 규칙에 동의해 주세요',
 			'proxyHelper.systemProxyDetected' => '시스템 프록시 감지됨',
+			_ => null,
+		} ?? switch (path) {
 			'proxyHelper.copied' => '복사됨',
 			'proxyHelper.copy' => '복사',
 			'tagSelector.selectTags' => '태그 선택',
@@ -8169,8 +8453,6 @@ extension on TranslationsKo {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + 선 어둡게 하기로, 고속 Mode A에 선을 더 진하게 만드는 효과를 추가해 선을 더 뚜렷하고 스타일리시하게 표현합니다.',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + 선 얇게 하기로, 고품질 Mode A에 선을 더 가늘게 만드는 효과를 추가해 더 정교하게 표현합니다.',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8416,6 +8698,12 @@ extension on TranslationsKo {
 			'vrFormat.resetToAutoDesc' => '이 동영상의 수동 선택을 지우고 다시 감지하도록 합니다',
 			'vrFormat.manualBadge' => '수동 설정됨',
 			'vrFormat.panoramaHint' => '화면을 끌어 주변을 둘러보고, 핀치하여 시야각을 변경하세요',
+			'vrFormat.gyroControl' => '자이로로 시점 조작',
+			'vrFormat.gyroControlDesc' => 'VR 파노라마 재생 중 휴대폰을 움직여 둘러볼 수 있고, 드래그로 미세 조정도 됩니다',
+			'vrFormat.gyroPromptTitle' => '자이로 조작을 켤까요?',
+			'vrFormat.gyroPromptBody' => '동작 감지를 켜서 더 나은 VR 체험을 하시겠어요? 이 기능은 설정에서 끌 수 있습니다.',
+			'vrFormat.gyroPromptEnable' => '켜기',
+			'vrFormat.gyroPromptDecline' => '나중에',
 			'vrFormat.panoramaGestureNotice' => '둘러보는 동안 끌면 시야가 돌아갑니다. 탐색은 진행 표시줄을 사용하세요',
 			'vrFormat.shaderUnsupported' => '이 기기는 실시간 파노라마를 렌더링할 수 없어 단일 시점으로 표시합니다',
 			'vrFormat.handoffTooltip' => '다른 방식으로 재생',
@@ -8627,6 +8915,8 @@ extension on TranslationsKo {
 			'localMedia.webdav.pickRootTitle' => 'Choose a folder to add',
 			'localMedia.webdav.serverRoot' => 'Root',
 			'localMedia.webdav.alreadyAdded' => 'This NAS folder has already been added',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.relogin' => 'Sign in again',
 			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
 			'localMedia.webdav.stateCertUntrusted' => 'Server certificate changed',
@@ -8683,8 +8973,6 @@ extension on TranslationsKo {
 			'historyPage.rangeByLastViewed' => '마지막으로 본 시간 기준',
 			'ai.title' => 'AI',
 			'ai.providers' => '제공자',
-			_ => null,
-		} ?? switch (path) {
 			'ai.providersHint' => '하나 이상의 AI 제공자를 추가한 뒤, 각 기능에서 사용할 제공자를 지정하세요.',
 			'ai.addProvider' => '제공자 추가',
 			'ai.noProviders' => '등록된 제공자가 없습니다. 제공자를 추가하면 AI 번역, 검색, 서명 기능을 사용할 수 있습니다.',
@@ -8871,6 +9159,82 @@ extension on TranslationsKo {
 			'poll.voteFailed' => '투표를 제출하지 못했습니다',
 			'poll.copyLink' => '투표 링크 복사',
 			'poll.translateFailed' => '투표를 번역하지 못했습니다',
+			'frameInterp.title' => '프레임 보간 작업',
+			'frameInterp.action' => '프레임 보간(2배 프레임 레이트로 생성)',
+			'frameInterp.playInterpolated' => '보간된 버전 재생',
+			'frameInterp.playOriginal' => '원본 재생',
+			'frameInterp.deleteInterpolated' => '보간 버전도 삭제',
+			'frameInterp.deleteInterpolatedDesc' => '보간된 영상 파일과 작업 기록을 함께 삭제합니다',
+			'frameInterp.deleteInterpolatedOnly' => '보간 버전 삭제',
+			'frameInterp.deleteInterpolatedOnlyTitle' => '보간 버전을 삭제할까요?',
+			'frameInterp.deleteInterpolatedOnlyBody' => '보간된 영상 파일과 작업 기록만 삭제합니다. 원본 영상은 그대로 남고, 나중에 다시 보간할 수 있습니다.',
+			'frameInterp.interpolatedDeleted' => '보간 버전을 삭제했습니다',
+			'frameInterp.deleteInterpolatedFailed' => '보간 버전을 삭제하지 못했습니다. 파일이 사용 중이거나 권한이 없을 수 있습니다',
+			'frameInterp.viewTasks' => '보간 작업 보기',
+			'frameInterp.badge' => '보간',
+			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',
+			'frameInterp.specLine' => ({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps',
+			'frameInterp.runningDetail' => ({required Object percent, required Object speed}) => '${percent}% · ${speed} fps',
+			'frameInterp.preparing' => '준비 중…',
+			'frameInterp.outputMissing' => '보간된 파일이 더 이상 없습니다',
+			'frameInterp.empty' => '아직 보간 작업이 없습니다',
+			'frameInterp.emptyHint' => '「로컬 파일」 또는 「다운로드」에서 동영상을 선택해 「프레임 보간」을 실행하세요.',
+			'frameInterp.clearFinished' => '완료된 기록 지우기',
+			'frameInterp.status.pending' => '대기 중',
+			'frameInterp.status.running' => '처리 중',
+			'frameInterp.status.completed' => '완료됨',
+			'frameInterp.status.failed' => '실패',
+			'frameInterp.status.cancelled' => '취소됨',
+			'frameInterp.actions.play' => '재생',
+			'frameInterp.actions.cancel' => '취소',
+			'frameInterp.actions.retry' => '재시도',
+			'frameInterp.actions.delete' => '기록 삭제',
+			'frameInterp.actions.revealInFolder' => '폴더에서 보기',
+			'frameInterp.confirm.cancelTitle' => '이 작업을 취소하시겠습니까?',
+			'frameInterp.confirm.cancelContent' => '지금까지의 진행 상황은 사라집니다. 나중에 처음부터 다시 시도할 수 있습니다.',
+			'frameInterp.confirm.deleteTitle' => '이 기록을 삭제하시겠습니까?',
+			'frameInterp.confirm.deleteContent' => '원본 동영상에는 영향이 없습니다.',
+			'frameInterp.confirm.deleteOutput' => '보간된 파일도 함께 삭제',
+			'frameInterp.confirm.clearTitle' => '완료된 기록을 지우시겠습니까?',
+			'frameInterp.confirm.clearContent' => '보간된 파일은 디스크에 그대로 남고 기록만 삭제됩니다.',
+			'frameInterp.confirm.enqueueTitle' => '프레임 보간을 할까요?',
+			'frameInterp.confirm.enqueueAction' => '보간 시작',
+			'frameInterp.confirm.fpsUnit' => 'fps',
+			'frameInterp.confirm.saveNote' => '새 파일로 저장되며 원본 영상은 그대로 유지됩니다',
+			'frameInterp.confirm.resetTitle' => '이어서 처리할 수 없어 다음 경우 처음부터 다시 시작합니다:',
+			'frameInterp.confirm.resetBackground' => '다른 앱으로 전환하거나 화면을 잠글 때',
+			'frameInterp.confirm.resetClosed' => '앱을 닫거나 시스템이 앱을 종료할 때',
+			'frameInterp.toast.queued' => '보간 대기열에 추가했습니다',
+			'frameInterp.toast.completed' => ({required Object title}) => '프레임 보간 완료: ${title}',
+			'frameInterp.toast.failed' => ({required Object title}) => '프레임 보간 실패: ${title}',
+			'frameInterp.reject.sourceMissing' => '동영상 파일이 더 이상 없습니다',
+			'frameInterp.reject.alreadyInterpolated' => '이미 보간된 동영상입니다',
+			'frameInterp.reject.alreadyQueued' => '이 동영상은 이미 대기열에 있습니다',
+			'frameInterp.reject.alreadyDone' => '이 동영상에는 이미 보간된 버전이 있습니다',
+			'frameInterp.reject.hdr' => 'HDR 동영상은 아직 지원하지 않습니다',
+			'frameInterp.reject.resolutionTooLarge' => '해상도가 너무 높아 보간할 수 없습니다',
+			'frameInterp.reject.unreadable' => '이 동영상을 읽을 수 없습니다',
+			'frameInterp.reject.noGpu' => '사용 가능한 그래픽 카드를 찾을 수 없습니다(Vulkan 지원 필요)',
+			'frameInterp.error.unknown' => '문제가 발생했습니다',
+			'frameInterp.error.openInput' => '동영상을 열 수 없습니다',
+			'frameInterp.error.noVideo' => '파일에 비디오 트랙이 없습니다',
+			'frameInterp.error.decoder' => '동영상을 디코딩할 수 없습니다',
+			'frameInterp.error.hdrUnsupported' => 'HDR 동영상은 아직 지원하지 않습니다',
+			'frameInterp.error.noGpu' => '사용 가능한 그래픽 카드를 찾을 수 없습니다',
+			'frameInterp.error.model' => '보간 모델을 불러오지 못했습니다. 구성 요소를 다시 설치해 보세요',
+			'frameInterp.error.encoder' => '사용 가능한 비디오 인코더가 없습니다',
+			'frameInterp.error.openOutput' => '출력 파일을 만들 수 없습니다',
+			'frameInterp.error.write' => '쓰기에 실패했습니다. 디스크가 가득 찼을 수 있습니다',
+			'frameInterp.error.interpolate' => '처리에 실패했습니다. 그래픽 메모리가 부족할 수 있습니다',
+			'frameInterp.error.componentUnavailable' => '프레임 보간 구성 요소를 사용할 수 없습니다',
+			'frameInterp.error.interrupted' => '앱이 종료되어 중단되었습니다',
+			'frameInterp.error.finalizeFailed' => '완성된 파일을 저장하지 못했습니다',
+			'frameInterp.error.sourceMissing' => '동영상 파일이 더 이상 없습니다',
+			'frameInterp.error.backgrounded' => '앱이 백그라운드로 전환되어 중단되었습니다. 돌아오면 자동으로 다시 시작합니다',
+			'frameInterp.notification.title' => '프레임 보간 중',
+			'frameInterp.notification.titleWithQueue' => ({required Object count}) => '프레임 보간 중 · 대기 ${count}개',
+			'frameInterp.notification.waiting' => '시작 대기 중',
+			'frameInterp.component.unsupported' => '이 기기에서는 프레임 보간을 사용할 수 없습니다',
 			_ => null,
 		};
 	}

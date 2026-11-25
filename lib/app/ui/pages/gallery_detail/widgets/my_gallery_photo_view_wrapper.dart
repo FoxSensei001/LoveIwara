@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:i_iwara/app/ui/widgets/system_bars.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
@@ -1759,389 +1760,401 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     final chromeVideoController = _chromeVideo;
     final bool videoChromePresent = currentVideoController != null;
 
-    return RestoreRawMediaQueryInsets(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: RawGestureDetector(
-          behavior: HitTestBehavior.opaque,
-          gestures: {
-            _ConditionalVerticalDragGestureRecognizer:
-                GestureRecognizerFactoryWithHandlers<
-                  _ConditionalVerticalDragGestureRecognizer
-                >(
-                  () => _ConditionalVerticalDragGestureRecognizer(
-                    isEnabled: _canStartDismissDrag,
+    // 大图页把系统栏藏了（沉浸模式），但从边缘一划会临时露出来，那时身后是黑底。
+    // 退场时黑底跟着路由淡出、系统栏也已重新显示，就不再声明，直接按下面那一页走。
+    return SystemBarsRegion(
+      background: Colors.black,
+      enabled: !_isExiting,
+      child: RestoreRawMediaQueryInsets(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: RawGestureDetector(
+            behavior: HitTestBehavior.opaque,
+            gestures: {
+              _ConditionalVerticalDragGestureRecognizer:
+                  GestureRecognizerFactoryWithHandlers<
+                    _ConditionalVerticalDragGestureRecognizer
+                  >(
+                    () => _ConditionalVerticalDragGestureRecognizer(
+                      isEnabled: _canStartDismissDrag,
+                    ),
+                    (instance) {
+                      instance
+                        ..onStart = _onDismissDragStart
+                        ..onUpdate = _onDismissDragUpdate
+                        ..onEnd = _onDismissDragEnd;
+                    },
                   ),
-                  (instance) {
-                    instance
-                      ..onStart = _onDismissDragStart
-                      ..onUpdate = _onDismissDragUpdate
-                      ..onEnd = _onDismissDragEnd;
-                  },
-                ),
-          },
-          child: _ExitFadeBackdrop(
-            alpha: backgroundAlpha,
-            exitFade: _isExiting ? _routeAnimation : null,
-            // ⛔ 下拉关闭的位移与缩放**只作用在画面上，不带 chrome**。
-            //
-            // 原先这两只 Transform 裹着整个 Stack，于是收起来的 chrome（它是
-            // 靠"滑出屏幕外"藏的）会跟着手指一起被拖回屏幕里——用户上滑退出
-            // 时，本该看不见的控件条与胶片条从下缘冒出来（2026-09-05 报的）。
-            // 根因有两条，这是其中一条；另一条是 chrome 藏得不彻底，见
-            // [_ChromeSlot]。两条都得堵，因为退场动画那 300ms 里 chrome 还在
-            // 往外滑，光靠"演完就摘"仍会被拖进视野。
-            child: Focus(
-              focusNode: _keyboardFocusNode,
-              autofocus: true,
-              // 不再在这里 onKeyEvent：按键统一由应用根部经
-              // ShortcutTargetRegistry 派发进来，两处都收会双触发。
-              // 只剩滚轮：轻点与翻页都收进 photo_view 的 onTapUp 了
-              // （见 [_handlePageTap]），`Listener` 不参与竞技场，拿它做
-              // 点击判定必然会和更深的按钮双触发。
-              child: Listener(
-                onPointerSignal: _handlePointerSignal,
-                child: GestureDetector(
-                  onSecondaryTapDown: (details) {
-                    if (!widget.enableMenu) return;
-                    _showImageMenu(
-                      context,
-                      activeGalleryItems[currentIndex],
-                      globalPosition: details.globalPosition,
-                    );
-                  },
-                  // 长按走 GlassLongPressMenuArea：面板贴着手指弹出，且手指
-                  // 不抬就能直接划到某一条上松手选中（点按与它同层分家，
-                  // 见该组件类文档）。
-                  child: GlassLongPressMenuArea(
-                    // ⛔ 这里不再收点击：它在竞技场里排得太靠外，见
-                    // [_handlePageTap]。只留长按开菜单。
-                    onTap: null,
-                    // 关掉菜单时连长按都不注册：onMenu 一旦挂上，长按到点就
-                    // 会先震一下、再去发现「没有菜单可开」。
-                    // ⛔ 视频页不注册长按菜单：那一页的长按归**按住加速**
-                    // （见 [_beginVideoBoost]）。两只长按识别器同时在场时
-                    // 谁先 accept 是不确定的——不能靠运气，只能让其中一只
-                    // 压根不上场。视频页要开菜单还有右键与右上角 ⋮ 两条路。
-                    onMenu:
-                        (!widget.enableMenu || currentVideoController != null)
-                        ? null
-                        : (globalPosition) => _showImageMenu(
-                            context,
-                            activeGalleryItems[currentIndex],
-                            globalPosition: globalPosition,
-                          ),
-                    child: Stack(
-                      alignment: Alignment.topCenter,
-                      children: [
-                        // 下拉关闭的位移与缩放挂在**这里**（画面这一层），
-                        // 不在整只 Stack 外面：理由见上面 _ExitFadeBackdrop
-                        // 那段注释。
-                        Transform.translate(
-                          offset: Offset(0, _dismissOffset.dy),
-                          child: Transform.scale(
-                            scale: contentScale,
-                            alignment: Alignment.center,
-                            child: KeyedSubtree(
-                              key: ValueKey(_activeQuality),
-                              child: PhotoViewGallery.builder(
-                                // PhotoView 默认会给每页铺一层不透明黑底，压在外层那层
-                                // 会随拖拽淡出的黑背景之上 —— 不置空的话拖拽消隐完全看不见。
-                                // 黑底统一由外层 [_ExitFadeBackdrop] 提供。
-                                backgroundDecoration: const BoxDecoration(
-                                  color: Colors.transparent,
-                                ),
-                                scrollPhysics: const BouncingScrollPhysics(),
-                                allowImplicitScrolling: false,
-                                wantKeepAlive: false,
-                                builder: (BuildContext context, int index) {
-                                  final activeItem = activeGalleryItems[index];
-                                  String imageUrl =
-                                      _reloadTimestamps.containsKey(index)
-                                      ? '${activeItem.data.originalUrl}?reload=${_reloadTimestamps[index]}'
-                                      : activeItem.data.originalUrl;
+            },
+            child: _ExitFadeBackdrop(
+              alpha: backgroundAlpha,
+              exitFade: _isExiting ? _routeAnimation : null,
+              // ⛔ 下拉关闭的位移与缩放**只作用在画面上，不带 chrome**。
+              //
+              // 原先这两只 Transform 裹着整个 Stack，于是收起来的 chrome（它是
+              // 靠"滑出屏幕外"藏的）会跟着手指一起被拖回屏幕里——用户上滑退出
+              // 时，本该看不见的控件条与胶片条从下缘冒出来（2026-09-05 报的）。
+              // 根因有两条，这是其中一条；另一条是 chrome 藏得不彻底，见
+              // [_ChromeSlot]。两条都得堵，因为退场动画那 300ms 里 chrome 还在
+              // 往外滑，光靠"演完就摘"仍会被拖进视野。
+              child: Focus(
+                focusNode: _keyboardFocusNode,
+                autofocus: true,
+                // 不再在这里 onKeyEvent：按键统一由应用根部经
+                // ShortcutTargetRegistry 派发进来，两处都收会双触发。
+                // 只剩滚轮：轻点与翻页都收进 photo_view 的 onTapUp 了
+                // （见 [_handlePageTap]），`Listener` 不参与竞技场，拿它做
+                // 点击判定必然会和更深的按钮双触发。
+                child: Listener(
+                  onPointerSignal: _handlePointerSignal,
+                  child: GestureDetector(
+                    onSecondaryTapDown: (details) {
+                      if (!widget.enableMenu) return;
+                      _showImageMenu(
+                        context,
+                        activeGalleryItems[currentIndex],
+                        globalPosition: details.globalPosition,
+                      );
+                    },
+                    // 长按走 GlassLongPressMenuArea：面板贴着手指弹出，且手指
+                    // 不抬就能直接划到某一条上松手选中（点按与它同层分家，
+                    // 见该组件类文档）。
+                    child: GlassLongPressMenuArea(
+                      // ⛔ 这里不再收点击：它在竞技场里排得太靠外，见
+                      // [_handlePageTap]。只留长按开菜单。
+                      onTap: null,
+                      // 关掉菜单时连长按都不注册：onMenu 一旦挂上，长按到点就
+                      // 会先震一下、再去发现「没有菜单可开」。
+                      // ⛔ 视频页不注册长按菜单：那一页的长按归**按住加速**
+                      // （见 [_beginVideoBoost]）。两只长按识别器同时在场时
+                      // 谁先 accept 是不确定的——不能靠运气，只能让其中一只
+                      // 压根不上场。视频页要开菜单还有右键与右上角 ⋮ 两条路。
+                      onMenu:
+                          (!widget.enableMenu || currentVideoController != null)
+                          ? null
+                          : (globalPosition) => _showImageMenu(
+                              context,
+                              activeGalleryItems[currentIndex],
+                              globalPosition: globalPosition,
+                            ),
+                      child: Stack(
+                        alignment: Alignment.topCenter,
+                        children: [
+                          // 下拉关闭的位移与缩放挂在**这里**（画面这一层），
+                          // 不在整只 Stack 外面：理由见上面 _ExitFadeBackdrop
+                          // 那段注释。
+                          Transform.translate(
+                            offset: Offset(0, _dismissOffset.dy),
+                            child: Transform.scale(
+                              scale: contentScale,
+                              alignment: Alignment.center,
+                              child: KeyedSubtree(
+                                key: ValueKey(_activeQuality),
+                                child: PhotoViewGallery.builder(
+                                  // PhotoView 默认会给每页铺一层不透明黑底，压在外层那层
+                                  // 会随拖拽淡出的黑背景之上 —— 不置空的话拖拽消隐完全看不见。
+                                  // 黑底统一由外层 [_ExitFadeBackdrop] 提供。
+                                  backgroundDecoration: const BoxDecoration(
+                                    color: Colors.transparent,
+                                  ),
+                                  scrollPhysics: const BouncingScrollPhysics(),
+                                  allowImplicitScrolling: false,
+                                  wantKeepAlive: false,
+                                  builder: (BuildContext context, int index) {
+                                    final activeItem =
+                                        activeGalleryItems[index];
+                                    String imageUrl =
+                                        _reloadTimestamps.containsKey(index)
+                                        ? '${activeItem.data.originalUrl}?reload=${_reloadTimestamps[index]}'
+                                        : activeItem.data.originalUrl;
 
-                                  // 媒体类型由服务端的 type/mime 决定，不再
-                                  // 按 URL 后缀猜（见 [MediaFile.isVideo]）。
-                                  // 顺带治好了一个隐患：重试时 URL 会被拼上
-                                  // `?reload=…`，按后缀判就得看运气。
-                                  final bool isVideo = activeItem.isVideo;
+                                    // 媒体类型由服务端的 type/mime 决定，不再
+                                    // 按 URL 后缀猜（见 [MediaFile.isVideo]）。
+                                    // 顺带治好了一个隐患：重试时 URL 会被拼上
+                                    // `?reload=…`，按后缀判就得看运气。
+                                    final bool isVideo = activeItem.isVideo;
 
-                                  final pageVideoController = isVideo
-                                      ? _videoControllers[activeItem.data.id]
-                                      : null;
+                                    final pageVideoController = isVideo
+                                        ? _videoControllers[activeItem.data.id]
+                                        : null;
 
-                                  Widget mediaChild = KeyedSubtree(
-                                    key: ValueKey(
-                                      '${activeItem.data.id}_${_activeQuality}_${_reloadTimestamps[index] ?? 0}',
-                                    ),
-                                    child: isVideo
-                                        // ⛔ 只画**已经有播放器**的那一页。
-                                        // `PageView` 会把前后各一页也建出来，
-                                        // 在这儿 putIfAbsent 就等于替邻居把
-                                        // 网络流也开了——视频挨着视频时几条流
-                                        // 一起抢带宽，中间那条会一直停在黑屏
-                                        // 转圈。邻居先摆一块黑，翻到它时
-                                        // [_ensureVideoControllers] 再开。
-                                        ? (pageVideoController != null
-                                              ? GalleryVideoPlayer(
-                                                  controller:
-                                                      pageVideoController,
-                                                )
-                                              : const SizedBox.expand())
-                                        : imageUrl.startsWith('file://')
-                                        ? Image.file(
-                                            File(
-                                              imageUrl.replaceFirst(
-                                                'file://',
-                                                '',
-                                              ),
-                                            ),
-                                            fit: BoxFit.contain,
-                                            // ⛔ 本地文件可能已被删掉/挪走（库里的
-                                            // 路径还在）。不接住的话 FileImage 的
-                                            // PathNotFoundException 会一路抛到全局
-                                            // FlutterError.onError，这一页也只剩黑屏。
-                                            errorBuilder: (_, _, _) =>
-                                                const Center(
-                                                  child: Icon(
-                                                    Icons.broken_image_outlined,
-                                                    size: 64,
-                                                    color: Colors.white54,
-                                                  ),
-                                                ),
-                                          )
-                                        : ImageWidget(
-                                            imageUrl: imageUrl,
-                                            headers: activeItem.headers,
-                                            cacheKey: activeItem.cacheKey,
-                                          ),
-                                  );
-
-                                  // 图片跟随「图库色觉辅助」独立开关（webm 由播放器
-                                  // 组件内部同键包装，此处仅处理静态图片，避免叠加）。
-                                  if (!isVideo) {
-                                    mediaChild = ColorVisionFilterWrapper(
-                                      configKey: ConfigKey
-                                          .GALLERY_COLOR_VISION_FILTER_ID,
-                                      child: mediaChild,
-                                    );
-                                  }
-
-                                  return PhotoViewGalleryPageOptions.customChild(
-                                    child: GestureDetector(
-                                      // ⛔ 这里**一只双击都不挂**。photo_view
-                                      // 自己恒定注册着 `onDoubleTap:
-                                      // nextScaleState`（双击缩放），再挂一只
-                                      // 就是两只同类识别器抢同一次手势——谁先
-                                      // accept 不确定，顺带把单击也拖下水。
-                                      // 双击缩放交给包自己那只。
-                                      // 按住加速。挂在这一层（比外层那只长按
-                                      // 更深）是为了拿到页内局部坐标，横向拖动
-                                      // 调档就按它算。
-                                      onLongPressStart:
-                                          pageVideoController == null
-                                          ? null
-                                          : (details) => _beginVideoBoost(
-                                              pageVideoController,
-                                              details.localPosition.dx,
-                                            ),
-                                      onLongPressMoveUpdate:
-                                          pageVideoController == null
-                                          ? null
-                                          : (details) => _updateVideoBoost(
-                                              pageVideoController,
-                                              details.localPosition.dx,
-                                            ),
-                                      onLongPressEnd:
-                                          pageVideoController == null
-                                          ? null
-                                          : (_) => _endVideoBoost(
-                                              pageVideoController,
-                                            ),
-                                      onLongPressCancel:
-                                          pageVideoController == null
-                                          ? null
-                                          : () => _endVideoBoost(
-                                              pageVideoController,
-                                            ),
-                                      child: Container(
-                                        color: Colors.transparent,
-                                        child: Center(child: mediaChild),
+                                    Widget mediaChild = KeyedSubtree(
+                                      key: ValueKey(
+                                        '${activeItem.data.id}_${_activeQuality}_${_reloadTimestamps[index] ?? 0}',
                                       ),
-                                    ),
-                                    // 轻点：翻页与切 chrome 都在这里，理由见
-                                    // [_handlePageTap]。
-                                    onTapUp: (context, details, value) =>
-                                        _handlePageTap(details.globalPosition),
-                                    minScale:
-                                        PhotoViewComputedScale.contained * 0.5,
-                                    maxScale:
-                                        PhotoViewComputedScale.covered * 3,
-                                    initialScale:
-                                        PhotoViewComputedScale.contained,
-                                    controller: _photoControllerAt(index),
-                                  );
-                                },
-                                itemCount: activeGalleryItems.length,
-                                pageController: pageController,
-                                onPageChanged: _onPageChanged,
+                                      child: isVideo
+                                          // ⛔ 只画**已经有播放器**的那一页。
+                                          // `PageView` 会把前后各一页也建出来，
+                                          // 在这儿 putIfAbsent 就等于替邻居把
+                                          // 网络流也开了——视频挨着视频时几条流
+                                          // 一起抢带宽，中间那条会一直停在黑屏
+                                          // 转圈。邻居先摆一块黑，翻到它时
+                                          // [_ensureVideoControllers] 再开。
+                                          ? (pageVideoController != null
+                                                ? GalleryVideoPlayer(
+                                                    controller:
+                                                        pageVideoController,
+                                                  )
+                                                : const SizedBox.expand())
+                                          : imageUrl.startsWith('file://')
+                                          ? Image.file(
+                                              File(
+                                                imageUrl.replaceFirst(
+                                                  'file://',
+                                                  '',
+                                                ),
+                                              ),
+                                              fit: BoxFit.contain,
+                                              // ⛔ 本地文件可能已被删掉/挪走（库里的
+                                              // 路径还在）。不接住的话 FileImage 的
+                                              // PathNotFoundException 会一路抛到全局
+                                              // FlutterError.onError，这一页也只剩黑屏。
+                                              errorBuilder: (_, _, _) =>
+                                                  const Center(
+                                                    child: Icon(
+                                                      Icons
+                                                          .broken_image_outlined,
+                                                      size: 64,
+                                                      color: Colors.white54,
+                                                    ),
+                                                  ),
+                                            )
+                                          : ImageWidget(
+                                              imageUrl: imageUrl,
+                                              headers: activeItem.headers,
+                                              cacheKey: activeItem.cacheKey,
+                                            ),
+                                    );
+
+                                    // 图片跟随「图库色觉辅助」独立开关（webm 由播放器
+                                    // 组件内部同键包装，此处仅处理静态图片，避免叠加）。
+                                    if (!isVideo) {
+                                      mediaChild = ColorVisionFilterWrapper(
+                                        configKey: ConfigKey
+                                            .GALLERY_COLOR_VISION_FILTER_ID,
+                                        child: mediaChild,
+                                      );
+                                    }
+
+                                    return PhotoViewGalleryPageOptions.customChild(
+                                      child: GestureDetector(
+                                        // ⛔ 这里**一只双击都不挂**。photo_view
+                                        // 自己恒定注册着 `onDoubleTap:
+                                        // nextScaleState`（双击缩放），再挂一只
+                                        // 就是两只同类识别器抢同一次手势——谁先
+                                        // accept 不确定，顺带把单击也拖下水。
+                                        // 双击缩放交给包自己那只。
+                                        // 按住加速。挂在这一层（比外层那只长按
+                                        // 更深）是为了拿到页内局部坐标，横向拖动
+                                        // 调档就按它算。
+                                        onLongPressStart:
+                                            pageVideoController == null
+                                            ? null
+                                            : (details) => _beginVideoBoost(
+                                                pageVideoController,
+                                                details.localPosition.dx,
+                                              ),
+                                        onLongPressMoveUpdate:
+                                            pageVideoController == null
+                                            ? null
+                                            : (details) => _updateVideoBoost(
+                                                pageVideoController,
+                                                details.localPosition.dx,
+                                              ),
+                                        onLongPressEnd:
+                                            pageVideoController == null
+                                            ? null
+                                            : (_) => _endVideoBoost(
+                                                pageVideoController,
+                                              ),
+                                        onLongPressCancel:
+                                            pageVideoController == null
+                                            ? null
+                                            : () => _endVideoBoost(
+                                                pageVideoController,
+                                              ),
+                                        child: Container(
+                                          color: Colors.transparent,
+                                          child: Center(child: mediaChild),
+                                        ),
+                                      ),
+                                      // 轻点：翻页与切 chrome 都在这里，理由见
+                                      // [_handlePageTap]。
+                                      onTapUp: (context, details, value) =>
+                                          _handlePageTap(
+                                            details.globalPosition,
+                                          ),
+                                      minScale:
+                                          PhotoViewComputedScale.contained *
+                                          0.5,
+                                      maxScale:
+                                          PhotoViewComputedScale.covered * 3,
+                                      initialScale:
+                                          PhotoViewComputedScale.contained,
+                                      controller: _photoControllerAt(index),
+                                    );
+                                  },
+                                  itemCount: activeGalleryItems.length,
+                                  pageController: pageController,
+                                  onPageChanged: _onPageChanged,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        // 顶栏
-                        SafeArea(
-                          child: KeyedSubtree(
-                            key: _topChromeKey,
-                            child: _buildTopChrome(
-                              context,
-                              t,
-                              activeGalleryItems,
-                              visible: chromeVisible,
-                              isVideoPage: currentVideoController != null,
+                          // 顶栏
+                          SafeArea(
+                            child: KeyedSubtree(
+                              key: _topChromeKey,
+                              child: _buildTopChrome(
+                                context,
+                                t,
+                                activeGalleryItems,
+                                visible: chromeVisible,
+                                isVideoPage: currentVideoController != null,
+                              ),
                             ),
                           ),
-                        ),
-                        // 正中那一组：倒退 N 秒 · 播放/暂停 · 快进 N 秒。
-                        //
-                        // ⛔ 它**不能**待在页内——那儿是 PhotoViewGallery 的
-                        // 缩放变换里头，双指一放大控件会跟着一起变大。
-                        if (chromeVideoController != null)
-                          Positioned.fill(
-                            // 这一片只有那一组钮自己吃得到点击：`Center` 的
-                            // 命中测试只认子件那块矩形，其余整片照样落到底下
-                            // 的画面上（单击切显隐、长按加速都在那一层）。
-                            child: Stack(
-                              children: [
-                                // 倍速牌**不进那一列**：跟着排在钮上方的话，
-                                // 它收起来之后留下的那段间距会把整组钮从正中
-                                // 顶下去一截。它自己浮在偏上一点的位置。
-                                Align(
-                                  alignment: const Alignment(0, -0.26),
-                                  child: GalleryVideoBoostBadge(
-                                    controller: chromeVideoController,
-                                  ),
-                                ),
-                                Center(
-                                  child: KeyedSubtree(
-                                    key: _centerControlsKey,
-                                    child: GalleryVideoCenterControls(
+                          // 正中那一组：倒退 N 秒 · 播放/暂停 · 快进 N 秒。
+                          //
+                          // ⛔ 它**不能**待在页内——那儿是 PhotoViewGallery 的
+                          // 缩放变换里头，双指一放大控件会跟着一起变大。
+                          if (chromeVideoController != null)
+                            Positioned.fill(
+                              // 这一片只有那一组钮自己吃得到点击：`Center` 的
+                              // 命中测试只认子件那块矩形，其余整片照样落到底下
+                              // 的画面上（单击切显隐、长按加速都在那一层）。
+                              child: Stack(
+                                children: [
+                                  // 倍速牌**不进那一列**：跟着排在钮上方的话，
+                                  // 它收起来之后留下的那段间距会把整组钮从正中
+                                  // 顶下去一截。它自己浮在偏上一点的位置。
+                                  Align(
+                                    alignment: const Alignment(0, -0.26),
+                                    child: GalleryVideoBoostBadge(
                                       controller: chromeVideoController,
-                                      present: videoChromePresent,
-                                      chromeVisible: chromeVisible,
-                                      seekSeconds: (
-                                        rewind: _seekSeconds(false),
-                                        forward: _seekSeconds(true),
-                                      ),
-                                      onInteraction: _showUiAndAutoHide,
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        // 底部：视频控件条 + 胶片条。整片挂一个 key，边缘
-                        // 轻点翻页与滚轮都靠它让开（见 [_chromeHitKeys]）。
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          // ⛔ 整块一起滑，位移按**含安全区的整块高度**算。
-                          // 此前是让胶片条自己滑 1.4 个身位（≈104px），而它
-                          // 到屏幕下缘的距离是「自身高 + 间距 + 安全区」
-                          // （≈118px）——差那一截，收起来还露着半条，正是
-                          // 用户报的「只是向下移动且不彻底」。
-                          child: _ChromeSlot(
-                            visible: chromeVisible,
-                            // 1.02 而不是 1.0：留一丝余量，别在某些机型的
-                            // 亚像素取整上露出一条发丝。
-                            slideFrom: const Offset(0, 1.02),
-                            child: KeyedSubtree(
-                              key: _bottomChromeKey,
-                              child: SafeArea(
-                                top: false,
-                                // Seek Preview 要按「播放器有多大」摆窗口，
-                                // 这一页铺满屏幕，供的就是屏幕尺寸。
-                                child: PlayerBoxScope(
-                                  size: MediaQuery.sizeOf(context),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      // 视频控件条按**高度**渐变地进退，
-                                      // 图片页翻到视频页时不再是整条凭空
-                                      // 蹦出来（[GlassGroupSlot] 自己缓存
-                                      // child 演完退场）。
-                                      GlassGroupSlot(
-                                        axis: Axis.vertical,
-                                        visible:
-                                            videoChromePresent &&
-                                            chromeVideoController != null,
-                                        child: chromeVideoController == null
-                                            ? const SizedBox.shrink()
-                                            : Padding(
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                      16,
-                                                      0,
-                                                      16,
-                                                      12,
-                                                    ),
-                                                child: GalleryVideoControlBar(
-                                                  controller:
-                                                      chromeVideoController,
-                                                  scale: _pageScale,
-                                                  onResetScale: _resetPageScale,
-                                                  chromeVisible:
-                                                      chromeVisible &&
-                                                      videoChromePresent,
-                                                  onInteraction:
-                                                      _showUiAndAutoHide,
-                                                  canRotate:
-                                                      _canRotateToLandscape,
-                                                  landscape:
-                                                      _isLandscapeFullscreen,
-                                                  onToggleRotation:
-                                                      _toggleLandscapeFullscreen,
-                                                ),
-                                              ),
-                                      ),
-                                      // 图片页的右下角那一撮（缩放 · 横竖屏）。
-                                      // 视频页不建：那两件在控件条上/条里。
-                                      GlassGroupSlot(
-                                        axis: Axis.vertical,
-                                        visible: !videoChromePresent,
-                                        child: _buildImageCornerChips(
-                                          visible:
-                                              chromeVisible &&
-                                              !videoChromePresent,
+                                  Center(
+                                    child: KeyedSubtree(
+                                      key: _centerControlsKey,
+                                      child: GalleryVideoCenterControls(
+                                        controller: chromeVideoController,
+                                        present: videoChromePresent,
+                                        chromeVisible: chromeVisible,
+                                        seekSeconds: (
+                                          rewind: _seekSeconds(false),
+                                          forward: _seekSeconds(true),
                                         ),
+                                        onInteraction: _showUiAndAutoHide,
                                       ),
-                                      if (activeGalleryItems.length > 1)
-                                        // ⛔ 手机横过来看视频时整条收起来。
-                                        // 横屏下这一条要吃掉画面下缘一大截，
-                                        // 而横屏正是为了把画面放大——图片页
-                                        // 不受影响（那儿翻页靠它，画面也没被
-                                        // 挤到）。按高度渐变地收，不是硬切。
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          // 底部：视频控件条 + 胶片条。整片挂一个 key，边缘
+                          // 轻点翻页与滚轮都靠它让开（见 [_chromeHitKeys]）。
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            // ⛔ 整块一起滑，位移按**含安全区的整块高度**算。
+                            // 此前是让胶片条自己滑 1.4 个身位（≈104px），而它
+                            // 到屏幕下缘的距离是「自身高 + 间距 + 安全区」
+                            // （≈118px）——差那一截，收起来还露着半条，正是
+                            // 用户报的「只是向下移动且不彻底」。
+                            child: _ChromeSlot(
+                              visible: chromeVisible,
+                              // 1.02 而不是 1.0：留一丝余量，别在某些机型的
+                              // 亚像素取整上露出一条发丝。
+                              slideFrom: const Offset(0, 1.02),
+                              child: KeyedSubtree(
+                                key: _bottomChromeKey,
+                                child: SafeArea(
+                                  top: false,
+                                  // Seek Preview 要按「播放器有多大」摆窗口，
+                                  // 这一页铺满屏幕，供的就是屏幕尺寸。
+                                  child: PlayerBoxScope(
+                                    size: MediaQuery.sizeOf(context),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        // 视频控件条按**高度**渐变地进退，
+                                        // 图片页翻到视频页时不再是整条凭空
+                                        // 蹦出来（[GlassGroupSlot] 自己缓存
+                                        // child 演完退场）。
                                         GlassGroupSlot(
                                           axis: Axis.vertical,
-                                          visible: !_filmstripSuppressed,
-                                          child: GalleryFilmstrip(
-                                            items: activeGalleryItems,
-                                            currentIndex: currentIndex,
-                                            onIndexSelected:
-                                                _jumpToIndexFromFilmstrip,
+                                          visible:
+                                              videoChromePresent &&
+                                              chromeVideoController != null,
+                                          child: chromeVideoController == null
+                                              ? const SizedBox.shrink()
+                                              : Padding(
+                                                  padding:
+                                                      const EdgeInsets.fromLTRB(
+                                                        16,
+                                                        0,
+                                                        16,
+                                                        12,
+                                                      ),
+                                                  child: GalleryVideoControlBar(
+                                                    controller:
+                                                        chromeVideoController,
+                                                    scale: _pageScale,
+                                                    onResetScale:
+                                                        _resetPageScale,
+                                                    chromeVisible:
+                                                        chromeVisible &&
+                                                        videoChromePresent,
+                                                    onInteraction:
+                                                        _showUiAndAutoHide,
+                                                    canRotate:
+                                                        _canRotateToLandscape,
+                                                    landscape:
+                                                        _isLandscapeFullscreen,
+                                                    onToggleRotation:
+                                                        _toggleLandscapeFullscreen,
+                                                  ),
+                                                ),
+                                        ),
+                                        // 图片页的右下角那一撮（缩放 · 横竖屏）。
+                                        // 视频页不建：那两件在控件条上/条里。
+                                        GlassGroupSlot(
+                                          axis: Axis.vertical,
+                                          visible: !videoChromePresent,
+                                          child: _buildImageCornerChips(
+                                            visible:
+                                                chromeVisible &&
+                                                !videoChromePresent,
                                           ),
                                         ),
-                                      const SizedBox(height: 10),
-                                    ],
+                                        if (activeGalleryItems.length > 1)
+                                          // ⛔ 手机横过来看视频时整条收起来。
+                                          // 横屏下这一条要吃掉画面下缘一大截，
+                                          // 而横屏正是为了把画面放大——图片页
+                                          // 不受影响（那儿翻页靠它，画面也没被
+                                          // 挤到）。按高度渐变地收，不是硬切。
+                                          GlassGroupSlot(
+                                            axis: Axis.vertical,
+                                            visible: !_filmstripSuppressed,
+                                            child: GalleryFilmstrip(
+                                              items: activeGalleryItems,
+                                              currentIndex: currentIndex,
+                                              onIndexSelected:
+                                                  _jumpToIndexFromFilmstrip,
+                                            ),
+                                          ),
+                                        const SizedBox(height: 10),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),

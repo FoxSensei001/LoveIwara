@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:i_iwara/app/my_app.dart' show buildThemeData;
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/system_bars.dart';
 
 /// 桌面端推一页带液态玻璃的路由时，转场**不许**在 paint 里把渲染树标脏。
 ///
@@ -78,13 +79,22 @@ void main() {
     }
 
     // 缺项会被兜底成**带快照**的 Zoom，所以这三个平台必须写全、且维持原样。
+    // 手机两档外面包着一层状态栏的门（见 SystemBarsPageTransitionsBuilder），
+    // 转场本身看里面那一档。
+    PageTransitionsBuilder? unwrap(PageTransitionsBuilder? builder) =>
+        builder is SystemBarsPageTransitionsBuilder ? builder.inner : builder;
+
     expect(
       builders[TargetPlatform.android],
+      isA<SystemBarsPageTransitionsBuilder>(),
+    );
+    expect(
+      unwrap(builders[TargetPlatform.android]),
       isA<PredictiveBackPageTransitionsBuilder>(),
     );
     // material_ui 版的 predictive back 默认截图（非手势 push/pop 走 FadeForwards）。
     expect(
-      (builders[TargetPlatform.android]!
+      (unwrap(builders[TargetPlatform.android])!
               as PredictiveBackPageTransitionsBuilder)
           .allowSnapshotting,
       isFalse,
@@ -92,6 +102,10 @@ void main() {
     );
     expect(
       builders[TargetPlatform.iOS],
+      isA<SystemBarsPageTransitionsBuilder>(),
+    );
+    expect(
+      unwrap(builders[TargetPlatform.iOS]),
       isA<CupertinoPageTransitionsBuilder>(),
     );
     expect(
@@ -112,9 +126,9 @@ void main() {
           builder: (context) => Scaffold(
             body: Center(
               child: TextButton(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(builder: (_) => glassPage()),
-                ),
+                onPressed: () => Navigator.of(
+                  context,
+                ).push(MaterialPageRoute<void>(builder: (_) => glassPage())),
                 child: const Text('go'),
               ),
             ),

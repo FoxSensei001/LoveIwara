@@ -268,6 +268,38 @@ class ApiService extends GetxService {
       return;
     }
 
+    // access token 缺失/过期/快过期而没人在刷：先刷再发。
+    // ⛔ 不能指望后台定时器——断网启动时刷新失败，网络恢复后要等下一个 4 分钟
+    // tick 才会再刷；这期间带着过期 token 发出去，服务端回 403（不是 401，
+    // 401 救援接不住），点赞等操作就报「请重新登录」。
+    switch (_refreshDecisionBeforeRequest(access, options)) {
+      case _PreRequestRefresh.refreshFirst:
+        LogUtils.d(
+          '$_tag[$requestId] Access token 不可用，先刷新再发 ${options.path} '
+          '(access=${access.name})',
+        );
+        _waitForRefreshThenRequest(options, handler);
+        return;
+      case _PreRequestRefresh.rejectOffline:
+        LogUtils.d(
+          '$_tag[$requestId] Access token 已过期且刚刷新失败，不带过期 token 发 '
+          '${options.path}',
+        );
+        _rejectDueToRefreshFailure(
+          options,
+          handler,
+          'refresh_network_failed_recently',
+        );
+        return;
+      case _PreRequestRefresh.refreshInBackground:
+        // token 还能用（只是进了提前量）：照常发，刷新在后台跑，
+        // 别让请求去等一次可能很慢的刷新（Cloudflare 质询、慢网）。
+        _authService.refreshInBackground();
+        break;
+      case _PreRequestRefresh.none:
+        break;
+    }
+
     options.headers.addAll(site.requestHeaders);
 
     if (_shouldAttachAccessToken(access, accessToken, options)) {
@@ -284,6 +316,56 @@ class ApiService extends GetxService {
     );
     handler.next(options);
   }
+
+  /// 刚刷新失败后多久内不再「请求前补刷」。断网时每个请求都去撞一次
+  /// /user/token 没有意义；可匿名降级的请求本来就能匿名拿到内容，冷却放长些。
+  static const Duration _preRefreshCooldownAuthRequired = Duration(seconds: 3);
+  static const Duration _preRefreshCooldownOptional = Duration(seconds: 10);
+  static const Duration _recentRefreshSuccessWindow = Duration(seconds: 60);
+
+  _PreRequestRefresh _refreshDecisionBeforeRequest(
+    ApiRequestAccess access,
+    d_dio.RequestOptions options,
+  ) {
+    if (access == ApiRequestAccess.publicOnly) return _PreRequestRefresh.none;
+    if (options.extra[_forceAnonymousKey] == true) {
+      return _PreRequestRefresh.none;
+    }
+    if (!_authService.hasRefreshToken || _authService.isAuthTokenExpired) {
+      return _PreRequestRefresh.none;
+    }
+    // UI 就绪前不刷：Cloudflare 质询要 context，AuthService 本就把启动刷新
+    // 推迟到 markReady，这里不能绕过去。
+    if (!_authService.isReady) return _PreRequestRefresh.none;
+    final tokenManager = _authService.tokenManager;
+    // 带提前量的判断：快过期也补刷，顺带吃掉几分钟内的设备时钟偏差。
+    if (!tokenManager.isAccessTokenExpired) return _PreRequestRefresh.none;
+    // 刚刷成功，本地却仍判「快过期」：设备时钟偏快，再刷也一样。交给服务端认。
+    if (_authService.accessToken != null &&
+        tokenManager.refreshSucceededWithin(_recentRefreshSuccessWindow)) {
+      return _PreRequestRefresh.none;
+    }
+
+    final cooldown = access == ApiRequestAccess.optionalAuthShortWait
+        ? _preRefreshCooldownOptional
+        : _preRefreshCooldownAuthRequired;
+    if (!tokenManager.refreshFailedWithin(cooldown)) {
+      return _hasLiveAccessToken
+          ? _PreRequestRefresh.refreshInBackground
+          : _PreRequestRefresh.refreshFirst;
+    }
+    // 冷却中：token 还没真过期就照常带着发；真过期的需登录请求别带过期
+    // token 去换一个 403，直接按网络失败报。可匿名降级的照旧匿名发。
+    if (access == ApiRequestAccess.authRequired && !_hasLiveAccessToken) {
+      return _PreRequestRefresh.rejectOffline;
+    }
+    return _PreRequestRefresh.none;
+  }
+
+  /// 手里的 access token 还没真正过期（不算提前量）。
+  bool get _hasLiveAccessToken =>
+      _authService.accessToken != null &&
+      !_authService.isAccessTokenActuallyExpired;
 
   /// R18 总闸，由 [CommonConstants.enableR18] 控制。
   ///
@@ -315,6 +397,10 @@ class ApiService extends GetxService {
     d_dio.Response response,
     d_dio.ResponseInterceptorHandler handler,
   ) async {
+    // 收到了 HTTP 响应＝网络通了。断网启动后会话停在 degradedOffline，
+    // 这里是最早知道网络恢复的地方，让认证服务立刻补刷。
+    _authService.onNetworkReachable();
+
     final redirected = await _followRedirectIfNeeded(response);
     if (redirected != null) {
       return handler.resolve(redirected);
@@ -476,12 +562,28 @@ class ApiService extends GetxService {
       }
 
       if (result.success) {
+        _applySiteHeaders(options);
         _setAuthorizationHeader(options, _authService.accessToken);
         options.extra['requestStartTime'] =
             DateTime.now().millisecondsSinceEpoch;
         LogUtils.d('$_tag[$requestId] Token 刷新完成，继续请求: ${options.path}');
         handler.next(options);
       } else {
+        // 只是网络没刷成、手里的 token 其实还没过期：照常带着它发。
+        // ⛔ superseded（等的时候切了号）不行：这个请求属于旧账号，
+        // 此刻的 token 已经是新账号的。
+        if (!result.isAuthError &&
+            !result.isSuperseded &&
+            _hasLiveAccessToken) {
+          _continueWithCurrentToken(options, handler);
+          return;
+        }
+        // 服务端确认 refresh token 失效：这里就是发现者，负责登出。
+        // 以前请求前从不刷新，只有 401 救援会发现失效，它会登出；现在请求前
+        // 补刷也会发现，不登出的话会话挂着、每隔几秒再撞一次 /user/token。
+        if (result.isAuthError && _authService.hasRefreshToken) {
+          await _authService.handleTokenExpired();
+        }
         if (access == ApiRequestAccess.optionalAuthShortWait) {
           LogUtils.d('$_tag[$requestId] Token 刷新未成功，匿名继续请求: ${options.path}');
           _continueRequestAnonymously(options, handler);
@@ -495,6 +597,10 @@ class ApiService extends GetxService {
         );
       }
     } on TimeoutException catch (_) {
+      if (_hasLiveAccessToken) {
+        _continueWithCurrentToken(options, handler);
+        return;
+      }
       if (access == ApiRequestAccess.optionalAuthShortWait) {
         LogUtils.w('$_tag[$requestId] 等待 token 刷新超时，匿名继续请求: ${options.path}');
         _continueRequestAnonymously(options, handler);
@@ -511,12 +617,35 @@ class ApiService extends GetxService {
     }
   }
 
+  void _continueWithCurrentToken(
+    d_dio.RequestOptions options,
+    d_dio.RequestInterceptorHandler handler,
+  ) {
+    _applySiteHeaders(options);
+    _setAuthorizationHeader(options, _authService.accessToken);
+    options.extra['requestStartTime'] = DateTime.now().millisecondsSinceEpoch;
+    handler.next(options);
+  }
+
+  /// 写入这次请求所属站点的 `x-site` / `Referer` / `Origin`。
+  ///
+  /// ⛔ 每条最终 `handler.next` 的路径都要过这里。等刷新再发的那条路以前
+  /// 漏了它：在 AI 站等过一次刷新的请求，会不带 x-site 落到主站。
+  void _applySiteHeaders(d_dio.RequestOptions options) {
+    final siteOverride = options.extra[_siteOverrideKey];
+    final site = siteOverride is IwaraSite
+        ? siteOverride
+        : currentIwaraSiteOrMain();
+    options.headers.addAll(site.requestHeaders);
+  }
+
   void _continueRequestAnonymously(
     d_dio.RequestOptions options,
     d_dio.RequestInterceptorHandler handler,
   ) {
     options.extra[_forceAnonymousKey] = true;
     options.extra[_requestAccessKey] = ApiRequestAccess.publicOnly.name;
+    _applySiteHeaders(options);
     options.headers.remove('Authorization');
     options.extra['requestStartTime'] = DateTime.now().millisecondsSinceEpoch;
     handler.next(options);
@@ -638,10 +767,10 @@ class ApiService extends GetxService {
           return response;
         } catch (e) {
           LogUtils.e('$_tag[$requestId] 刷新后重试失败', error: e);
-          // 如果重试仍然失败，可能是其他问题
-          if (e is d_dio.DioException && e.response?.statusCode == 401) {
-            await _authService.handleTokenExpired();
-          }
+          // 刷新刚成功、拿到的是新 access token：此处再 401 不是 refresh token
+          // 失效的证据(可能端点因非认证原因 401，或又一次瞬时抖动)，不清 token、
+          // 不登出，仅本次请求失败降级(治根因B)。真失效由刷新端点连续 401 判定。
+          _markAuthRefreshFailed(options, 'retry_401_after_refresh_success');
           return null;
         }
       } else if (refreshResult.isAuthError) {
@@ -768,7 +897,11 @@ class ApiService extends GetxService {
     }
 
     try {
-      final response = await _dio.fetch(options);
+      // 复制 extra：重试重新走 onRequest，那里拒掉时会往 extra 写刷新失败
+      // 标记；共享同一份 map 会把原始错误（超时等）的分类也改掉。
+      final response = await _dio.fetch(
+        options.copyWith(extra: {...options.extra}),
+      );
       return response;
     } on d_dio.DioException catch (retryError) {
       // 如果重试仍然失败，检查是否需要继续重试
@@ -1024,4 +1157,19 @@ class ApiService extends GetxService {
       return ApiResult.fail(errorMessage, exception: e);
     }
   }
+}
+
+/// 发请求前要不要先刷 token。
+enum _PreRequestRefresh {
+  /// 不用管，按现状发。
+  none,
+
+  /// 先刷新、等刷完再发（手里没有能用的 token）。
+  refreshFirst,
+
+  /// token 还能用：照常发，同时在后台刷新。
+  refreshInBackground,
+
+  /// 刚刷新失败、token 已真过期：不发，按网络失败报给调用方。
+  rejectOffline,
 }

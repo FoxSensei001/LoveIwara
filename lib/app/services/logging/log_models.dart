@@ -245,6 +245,15 @@ class HangEventSnapshot {
   final DateTime? recoveredAt;
   final int stalledMs;
 
+  /// 最后一条心跳当时在跑的那个关键段（见 `HangBreadcrumb`）。
+  ///
+  /// ⛔ 它不是「卡死在这里」的断言：段落可能在那一跳之后正常结束，然后卡在别处。
+  /// 它是现场的第一条线索，不是判决书。
+  final String? section;
+
+  /// 那一跳时，[section] 已经跑了多久。真正跑了多久还要加上 [stalledMs]。
+  final int? sectionSinceMs;
+
   HangEventSnapshot({
     required this.type,
     required this.sessionId,
@@ -252,6 +261,8 @@ class HangEventSnapshot {
     required this.stalledMs,
     this.lastHeartbeatAt,
     this.recoveredAt,
+    this.section,
+    this.sectionSinceMs,
   });
 
   bool get recovered => recoveredAt != null || type == 'hang_recovered';
@@ -268,6 +279,12 @@ class HangEventSnapshot {
     }
     if (recoveredAt != null) {
       map['recoveredAt'] = recoveredAt!.toUtc().toIso8601String();
+    }
+    if (section != null) {
+      map['section'] = section;
+    }
+    if (sectionSinceMs != null) {
+      map['sectionSinceMs'] = sectionSinceMs;
     }
     return map;
   }
@@ -292,11 +309,20 @@ class HangEventSnapshot {
     final lastHeartbeatRaw = raw['lastHeartbeatAt'] as String?;
     final recoveredAtRaw = raw['recoveredAt'] as String?;
 
+    final sectionSinceRaw = raw['sectionSinceMs'];
+    final sectionSinceMs = switch (sectionSinceRaw) {
+      int v => v,
+      num v => v.toInt(),
+      _ => null,
+    };
+
     return HangEventSnapshot(
       type: type,
       sessionId: sessionId,
       detectedAt: detectedAt,
       stalledMs: stalledMs,
+      section: raw['section'] as String?,
+      sectionSinceMs: sectionSinceMs,
       lastHeartbeatAt: lastHeartbeatRaw != null
           ? DateTime.tryParse(lastHeartbeatRaw)
           : null,

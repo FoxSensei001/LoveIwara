@@ -246,11 +246,14 @@ void main(List<String> args) {
     docs[e.key] = _json(f);
   }
   var nLoc = 0, nOv = 0, nRev = 0;
+  // 只回写这次真正动过的文件：其余原样不碰，免得缩进不同的旧文件被整份重排。
+  final touched = <String>{};
 
   for (final a in accepted) {
     for (final m in (a['merges'] as List).cast<Map<String, dynamic>>()) {
       final id = '${m['target']}:${m['dataset']}';
       final doc = docs[id]!;
+      touched.add(id);
       final key = m['key'] as String;
       final names =
           ((m['names'] as Map?) ?? const {}).cast<String, dynamic>();
@@ -284,6 +287,7 @@ void main(List<String> args) {
 
   const enc = JsonEncoder.withIndent('  ');
   for (final e in files.entries) {
+    if (!touched.contains(e.key)) continue;
     File(e.value).writeAsStringSync(enc.convert(docs[e.key]));
   }
   stdout.writeln('\n已合并：译名层 $nLoc 条，人工修正层 $nOv 条，'

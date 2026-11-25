@@ -101,6 +101,7 @@ class TranslationsEs extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsFollowSearchEs followSearch = _TranslationsFollowSearchEs._(_root);
 	@override late final _TranslationsPagedSearchEs pagedSearch = _TranslationsPagedSearchEs._(_root);
 	@override late final _TranslationsPollEs poll = _TranslationsPollEs._(_root);
+	@override late final _TranslationsFrameInterpEs frameInterp = _TranslationsFrameInterpEs._(_root);
 }
 
 // Path: personalProfile
@@ -354,6 +355,8 @@ class _TranslationsCommonEs extends TranslationsCommonEn {
 	@override String get disagree => 'No acepto';
 	@override String get agreeToRules => 'Aceptar las normas';
 	@override String get tapToReread => 'Toca para releer';
+	@override String get rulesRequiredHint => 'Lee y acepta las normas de la comunidad antes de publicar';
+	@override String get readAndAgree => 'Leer y aceptar';
 	@override String get markdownSyntaxHelp => 'Ayuda de sintaxis de Markdown';
 	@override String get previewContent => 'Vista previa del contenido';
 	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
@@ -858,6 +861,29 @@ class _TranslationsSettingsEs extends TranslationsSettingsEn {
 	@override String get defaultBrowserDesc => 'Abra el elemento de configuración de enlace predeterminado en los ajustes del sistema y añada el enlace del sitio web iwara.tv';
 	@override String get themeMode => 'Modo de tema';
 	@override String get themeModeDesc => 'Esta configuración determina el modo de tema de la aplicación';
+	@override String get glassQuality => 'Rendering quality';
+	@override String get glassQualityAuto => 'Automatic';
+	@override String get glassQualityAutoDesc => 'Adapts to frame time; refraction can change as quality adjusts';
+	@override String get glassQualityStandard => 'Smooth';
+	@override String get glassQualityStandardDesc => 'Lightweight glass with highlights and consistent frame pacing';
+	@override String get glassQualityPremium => 'Full refraction';
+	@override String get glassQualityPremiumDesc => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass';
+	@override String get glassQualityCurrent => 'Currently active';
+	@override String get glassChromeParametersDesc => 'Navigation glass parameters apply live to headers, buttons and the bottom bar';
+	@override String get glassPreview => 'Preview';
+	@override String get glassPremiumOnly => 'Only takes effect with the full refraction quality';
+	@override String get glassSaturationNeedsBlur => 'With the smooth quality, only takes effect when background blur is above 0';
+	@override String get glassOpacity => 'Opacity';
+	@override String get glassBlur => 'Background blur (sigma)';
+	@override String get glassBlurDesc => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness';
+	@override String get glassAdvancedParameters => 'Advanced navigation parameters';
+	@override String get glassThickness => 'Lens thickness';
+	@override String get glassRefractiveIndex => 'Refractive index';
+	@override String get glassLightIntensity => 'Highlight intensity';
+	@override String get glassSaturation => 'Background saturation';
+	@override String get glassChromaticAberration => 'Chromatic aberration';
+	@override String get glassShadows => 'Shadows';
+	@override String get glassResetParameters => 'Restore glass defaults';
 	@override String get glassEffect => 'Material de la interfaz';
 	@override String get glassEffectDesc => 'Elige el material usado en toda la aplicación: cápsulas de encabezado, menús, botones de diálogo y la barra de navegación inferior';
 	@override String get liquidGlassEffect => 'Vidrio líquido';
@@ -1158,15 +1184,13 @@ class _TranslationsSettingsEs extends TranslationsSettingsEn {
 	@override String get showCenterPlayPauseButtonDesc => 'Mostrar el botón grande de reproducir/pausar en el centro del reproductor.';
 	@override String get audioVideoConfig => 'Configuración de audio y video';
 	@override String get expandBuffer => 'Ampliar el búfer';
-	@override String get expandBufferInfo => 'Cuando está activado, el tamaño del búfer aumenta: el tiempo de carga se alarga, pero la reproducción es más fluida';
+	@override String get expandBufferInfo => 'Al activarlo se almacena más vídeo por adelantado: la reproducción se corta menos con redes inestables, pero usa más memoria';
 	@override String get videoSyncMode => 'Modo de sincronización de video';
 	@override String get videoSyncModeSubtitle => 'Estrategia de sincronización de audio y video';
 	@override String get hardwareDecodingMode => 'Modo de decodificación por hardware';
 	@override String get hardwareDecodingModeSubtitle => 'Ajustes de decodificación por hardware';
 	@override String get enableHardwareAcceleration => 'Activar la aceleración por hardware';
 	@override String get enableHardwareAccelerationInfo => 'Activar la aceleración por hardware puede mejorar el rendimiento de decodificación, pero algunos dispositivos pueden no ser compatibles';
-	@override String get useOpenSLESAudioOutput => 'Usar salida de audio OpenSLES';
-	@override String get useOpenSLESAudioOutputInfo => 'Usar salida de audio de baja latencia; puede mejorar el rendimiento del audio';
 	@override String get videoSyncAudio => 'Sincronización de audio';
 	@override String get videoSyncDisplayResample => 'Mostrar remuestreo';
 	@override String get videoSyncDisplayResampleVdrop => 'Mostrar remuestreo (pérdida de fotogramas)';
@@ -1313,6 +1337,9 @@ class _TranslationsVideoDetailEs extends TranslationsVideoDetailEn {
 	@override String get thisIsAPrivateVideo => 'Este es un video privado';
 	@override String get getVideoInfoFailed => 'No se pudo obtener la información del video; inténtelo de nuevo más tarde';
 	@override String get noVideoSourceFound => 'No se encontró ninguna fuente de video';
+	@override String get sourceFileMissingOnServer => 'El archivo de video no existe en el servidor de Iwara (HTTP 404), así que tampoco se reproduce en la web. Puede que el servidor tenga problemas; inténtalo más tarde.';
+	@override String qualityFileMissingOnServer({required Object quality}) => 'El archivo de «${quality}» no está en el servidor (HTTP 404). Elige otra calidad en el menú de calidad.';
+	@override String get playbackRetryExhausted => 'El video no se pudo abrir varias veces seguidas, así que se detuvieron los reintentos automáticos. Vuelve a intentarlo más tarde.';
 	@override String tagCopiedToClipboard({required Object tagId}) => 'Etiqueta "${tagId}" copiada al portapapeles';
 	@override String get errorLoadingVideo => 'Error al cargar el video';
 	@override String get play => 'Reproducir';
@@ -1537,6 +1564,8 @@ class _TranslationsNotificationsEs extends TranslationsNotificationsEn {
 	@override String get kApprovedPost => 'Publicación aprobada';
 	@override String get kApprovedForumPost => 'Publicación del foro aprobada';
 	@override String get kRejectedContent => 'Revisión de contenido rechazada';
+	@override String get kWarning => 'Advertencia del sitio';
+	@override String get kWarningHint => 'Los moderadores han emitido una advertencia en tu cuenta. Respeta las normas de la comunidad. Consulta los detalles en la web.';
 	@override String get kUnknownType => 'Tipo de notificación desconocido';
 }
 
@@ -1595,6 +1624,7 @@ class _TranslationsDownloadEs extends TranslationsDownloadEn {
 	@override String get categorySectionLabel => 'Categoría';
 	@override String get saveToPreviewLabel => 'Se guardará en';
 	@override String saveToPreviewSuggested({required Object name}) => 'Nombre sugerido: ${name} (editable en el diálogo del sistema)';
+	@override String get saveToPreviewChange => 'Change…';
 	@override String get lastUsedBadge => 'Último uso';
 	@override String get pickedBadge => 'Seleccionado';
 	@override String get startDownloading => 'Iniciar descarga';
@@ -2856,6 +2886,12 @@ class _TranslationsVrFormatEs extends TranslationsVrFormatEn {
 	@override String get resetToAutoDesc => 'Olvidar la elección manual para este video y dejar que la detección decida de nuevo';
 	@override String get manualBadge => 'Establecido manualmente';
 	@override String get panoramaHint => 'Arrastre la imagen para mirar alrededor; pellizque para cambiar el campo de visión';
+	@override String get gyroControl => 'Control por movimiento';
+	@override String get gyroControlDesc => 'En modo panorámico VR, gira el móvil para mirar alrededor; arrastrar sigue ajustando la vista';
+	@override String get gyroPromptTitle => '¿Activar el control por movimiento?';
+	@override String get gyroPromptBody => '¿Activar el sensor de movimiento para una mejor experiencia VR? Puedes desactivarlo en Ajustes.';
+	@override String get gyroPromptEnable => 'Activar';
+	@override String get gyroPromptDecline => 'Ahora no';
 	@override String get panoramaGestureNotice => 'Mientras mira alrededor, arrastrar gira la vista; use la barra de progreso para buscar';
 	@override String get shaderUnsupported => 'Este dispositivo no puede renderizar el panorama en vivo; se muestra un solo ojo en su lugar';
 	@override String get handoffTooltip => 'Reproducir de otra forma';
@@ -3209,6 +3245,44 @@ class _TranslationsPollEs extends TranslationsPollEn {
 	@override String get voteFailed => 'No se pudo enviar el voto';
 	@override String get copyLink => 'Copiar enlace de la encuesta';
 	@override String get translateFailed => 'No se pudo traducir la encuesta';
+}
+
+// Path: frameInterp
+class _TranslationsFrameInterpEs extends TranslationsFrameInterpEn {
+	_TranslationsFrameInterpEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Interpolación de fotogramas';
+	@override String get action => 'Interpolar al doble de fotogramas';
+	@override String get playInterpolated => 'Reproducir versión interpolada';
+	@override String get playOriginal => 'Reproducir original';
+	@override String get deleteInterpolated => 'Eliminar también la versión interpolada';
+	@override String get deleteInterpolatedDesc => 'Elimina el archivo de vídeo interpolado y su tarea';
+	@override String get deleteInterpolatedOnly => 'Eliminar versión interpolada';
+	@override String get deleteInterpolatedOnlyTitle => '¿Eliminar la versión interpolada?';
+	@override String get deleteInterpolatedOnlyBody => 'Solo se eliminan el archivo de vídeo interpolado y su tarea. El vídeo original se conserva y puedes volver a interpolarlo más tarde.';
+	@override String get interpolatedDeleted => 'Versión interpolada eliminada';
+	@override String get deleteInterpolatedFailed => 'No se pudo eliminar la versión interpolada. Puede que el archivo esté en uso o no haya permiso';
+	@override String get viewTasks => 'Ver tareas de interpolación';
+	@override String get badge => '2× FPS';
+	@override String fpsBadge({required Object fps}) => '${fps} FPS';
+	@override String specLine({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps';
+	@override String runningDetail({required Object percent, required Object speed}) => '${percent}% · ${speed} fps';
+	@override String get preparing => 'Preparando…';
+	@override String get outputMissing => 'El archivo interpolado ya no existe';
+	@override String get empty => 'Aún no hay tareas de interpolación';
+	@override String get emptyHint => 'Elige «Interpolar al doble de fotogramas» en un vídeo de Archivos locales o Descargas.';
+	@override String get clearFinished => 'Borrar registros finalizados';
+	@override late final _TranslationsFrameInterpStatusEs status = _TranslationsFrameInterpStatusEs._(_root);
+	@override late final _TranslationsFrameInterpActionsEs actions = _TranslationsFrameInterpActionsEs._(_root);
+	@override late final _TranslationsFrameInterpConfirmEs confirm = _TranslationsFrameInterpConfirmEs._(_root);
+	@override late final _TranslationsFrameInterpToastEs toast = _TranslationsFrameInterpToastEs._(_root);
+	@override late final _TranslationsFrameInterpRejectEs reject = _TranslationsFrameInterpRejectEs._(_root);
+	@override late final _TranslationsFrameInterpErrorEs error = _TranslationsFrameInterpErrorEs._(_root);
+	@override late final _TranslationsFrameInterpNotificationEs notification = _TranslationsFrameInterpNotificationEs._(_root);
+	@override late final _TranslationsFrameInterpComponentEs component = _TranslationsFrameInterpComponentEs._(_root);
 }
 
 // Path: common.pagination
@@ -3729,6 +3803,10 @@ class _TranslationsVideoDetailLocalInfoEs extends TranslationsVideoDetailLocalIn
 	@override String get currentQuality => 'Calidad actual';
 	@override String get duration => 'Duración';
 	@override String get resolution => 'Resolución';
+	@override String get frameRate => 'Velocidad de fotogramas';
+	@override String frameRateValue({required Object fps}) => '${fps} fps';
+	@override String frameRateInterpolated({required Object fps, required Object from}) => '${fps} fps (interpolado, original ${from} fps)';
+	@override String frameRateHasInterpolated({required Object fps, required Object to}) => '${fps} fps (original, versión de ${to} fps disponible)';
 	@override String get fileInfo => 'Información del archivo';
 	@override String get fileName => 'Nombre del archivo';
 	@override String get fileSize => 'Tamaño del archivo';
@@ -3794,7 +3872,7 @@ class _TranslationsVideoDetailSkeletonEs extends TranslationsVideoDetailSkeleton
 	@override String get fetchingVideoSources => 'Obteniendo las fuentes de video...';
 	@override String get loadingVideo => 'Cargando el video...';
 	@override String get applyingSolution => 'Aplicando la solución...';
-	@override String get addingListeners => 'Añadiendo receptores...';
+	@override String get addingListeners => 'Conectando con el servidor de video...';
 	@override String get successFecthVideoDurationInfo => 'Se obtuvo la duración del video correctamente; empezando a cargar el video...';
 	@override String get successFecthVideoHeightInfo => 'Carga completada';
 }
@@ -4351,6 +4429,7 @@ class _TranslationsDownloadLocationEs extends TranslationsDownloadLocationEn {
 	@override String get downloadsFolder => 'Downloads';
 	@override String get askEveryTime => 'Ask every time';
 	@override String askEveryTimeDesc({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}';
+	@override String firstDownloadNotice({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings';
 	@override String freeSpace({required Object size}) => '${size} free';
 	@override String get statusWritable => 'Writable';
 	@override String get statusNeedsPermission => 'Needs permission';
@@ -4917,6 +4996,133 @@ class _TranslationsLocalMediaWebdavEs extends TranslationsLocalMediaWebdavEn {
 	@override String get bannerCredUnreadable => 'Couldn\'t read the saved password. Sign in again.';
 }
 
+// Path: frameInterp.status
+class _TranslationsFrameInterpStatusEs extends TranslationsFrameInterpStatusEn {
+	_TranslationsFrameInterpStatusEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get pending => 'En cola';
+	@override String get running => 'Procesando';
+	@override String get completed => 'Completado';
+	@override String get failed => 'Fallido';
+	@override String get cancelled => 'Cancelado';
+}
+
+// Path: frameInterp.actions
+class _TranslationsFrameInterpActionsEs extends TranslationsFrameInterpActionsEn {
+	_TranslationsFrameInterpActionsEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get play => 'Reproducir';
+	@override String get cancel => 'Cancelar';
+	@override String get retry => 'Reintentar';
+	@override String get delete => 'Eliminar registro';
+	@override String get revealInFolder => 'Mostrar en la carpeta';
+}
+
+// Path: frameInterp.confirm
+class _TranslationsFrameInterpConfirmEs extends TranslationsFrameInterpConfirmEn {
+	_TranslationsFrameInterpConfirmEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get cancelTitle => '¿Cancelar esta tarea?';
+	@override String get cancelContent => 'Se perderá el progreso actual. Podrá reintentarla más tarde desde el principio.';
+	@override String get deleteTitle => '¿Eliminar este registro?';
+	@override String get deleteContent => 'El vídeo original no se verá afectado.';
+	@override String get deleteOutput => 'Eliminar también el archivo interpolado';
+	@override String get clearTitle => '¿Borrar los registros finalizados?';
+	@override String get clearContent => 'Los archivos interpolados se conservan en el disco; solo se eliminan los registros.';
+	@override String get enqueueTitle => '¿Interpolar este vídeo?';
+	@override String get enqueueAction => 'Empezar';
+	@override String get fpsUnit => 'fps';
+	@override String get saveNote => 'Se guarda como un archivo nuevo; el original no se modifica';
+	@override String get resetTitle => 'No se puede reanudar. Empieza de nuevo si:';
+	@override String get resetBackground => 'Cambias a otra app o bloqueas la pantalla';
+	@override String get resetClosed => 'Cierras la app o el sistema la cierra';
+}
+
+// Path: frameInterp.toast
+class _TranslationsFrameInterpToastEs extends TranslationsFrameInterpToastEn {
+	_TranslationsFrameInterpToastEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get queued => 'Añadido a la cola de interpolación';
+	@override String completed({required Object title}) => 'Interpolación finalizada: ${title}';
+	@override String failed({required Object title}) => 'Error de interpolación: ${title}';
+}
+
+// Path: frameInterp.reject
+class _TranslationsFrameInterpRejectEs extends TranslationsFrameInterpRejectEn {
+	_TranslationsFrameInterpRejectEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get sourceMissing => 'El archivo de vídeo ya no existe';
+	@override String get alreadyInterpolated => 'Este vídeo ya está interpolado';
+	@override String get alreadyQueued => 'Este vídeo ya está en la cola';
+	@override String get alreadyDone => 'Este vídeo ya tiene una versión interpolada';
+	@override String get hdr => 'Los vídeos HDR aún no son compatibles';
+	@override String get resolutionTooLarge => 'La resolución es demasiado alta para interpolar';
+	@override String get unreadable => 'No se pudo leer este vídeo';
+	@override String get noGpu => 'No se encontró ninguna tarjeta gráfica utilizable (se requiere compatibilidad con Vulkan)';
+}
+
+// Path: frameInterp.error
+class _TranslationsFrameInterpErrorEs extends TranslationsFrameInterpErrorEn {
+	_TranslationsFrameInterpErrorEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get unknown => 'Algo salió mal';
+	@override String get openInput => 'No se pudo abrir el vídeo';
+	@override String get noVideo => 'El archivo no tiene pista de vídeo';
+	@override String get decoder => 'No se pudo decodificar el vídeo';
+	@override String get hdrUnsupported => 'Los vídeos HDR aún no son compatibles';
+	@override String get noGpu => 'No se encontró ninguna tarjeta gráfica utilizable';
+	@override String get model => 'No se pudo cargar el modelo de interpolación. Pruebe a reinstalar el componente';
+	@override String get encoder => 'No hay ningún codificador de vídeo utilizable';
+	@override String get openOutput => 'No se pudo crear el archivo de salida';
+	@override String get write => 'Error de escritura. Puede que el disco esté lleno';
+	@override String get interpolate => 'Error de procesamiento. Puede que la tarjeta gráfica se haya quedado sin memoria';
+	@override String get componentUnavailable => 'El componente de interpolación no está disponible';
+	@override String get interrupted => 'Interrumpido porque se cerró la aplicación';
+	@override String get finalizeFailed => 'No se pudo guardar el archivo terminado';
+	@override String get sourceMissing => 'El archivo de vídeo ya no existe';
+	@override String get backgrounded => 'Detenido porque la app pasó a segundo plano; se reinicia al volver';
+}
+
+// Path: frameInterp.notification
+class _TranslationsFrameInterpNotificationEs extends TranslationsFrameInterpNotificationEn {
+	_TranslationsFrameInterpNotificationEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Interpolando fotogramas';
+	@override String titleWithQueue({required Object count}) => 'Interpolando fotogramas · ${count} en cola';
+	@override String get waiting => 'Esperando para empezar';
+}
+
+// Path: frameInterp.component
+class _TranslationsFrameInterpComponentEs extends TranslationsFrameInterpComponentEn {
+	_TranslationsFrameInterpComponentEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get unsupported => 'La interpolación de fotogramas no está disponible en este dispositivo';
+}
+
 // Path: settings.downloadSettings.pathTemplateEditor
 class _TranslationsSettingsDownloadSettingsPathTemplateEditorEs extends TranslationsSettingsDownloadSettingsPathTemplateEditorEn {
 	_TranslationsSettingsDownloadSettingsPathTemplateEditorEs._(TranslationsEs root) : this._root = root, super.internal(root);
@@ -5077,6 +5283,32 @@ class _TranslationsVideoDetailCastDlnaCastSheetEs extends TranslationsVideoDetai
 	@override String connectedTo({required Object deviceName}) => 'Conectado a: ${deviceName}';
 	@override String get notConnected => 'Ningún dispositivo conectado';
 	@override String get stopCasting => 'Detener transmisión';
+	@override String searchFinished({required Object count}) => 'Búsqueda terminada: ${count} dispositivo(s) encontrado(s)';
+	@override String get protocolDlna => 'DLNA';
+	@override String get protocolGoogleCast => 'Google Cast';
+	@override String get addByIp => 'Añadir manualmente';
+	@override String get addByIpTitle => 'Añadir dispositivo manualmente';
+	@override String get addByIpDesc => 'Introduce la dirección IP de tu TV o reproductor. Normalmente aparece en Ajustes → Red → Estado de la red del televisor.';
+	@override String get addByIpHint => 'p. ej. 192.168.1.20';
+	@override String get addByIpAction => 'Buscar';
+	@override String get addByIpInvalid => 'Dirección no válida. Introduce una dirección IPv4 como 192.168.1.20';
+	@override String addByIpNotFound({required Object host}) => 'No se encontró ningún dispositivo de transmisión en ${host}';
+	@override String get troubleshootTitle => '¿No encuentras tu dispositivo?';
+	@override String get troubleshoot => '• El teléfono/ordenador y la TV deben estar en la misma red Wi-Fi. Las redes de invitados y el aislamiento AP del router impiden encontrarlos\n• Una VPN o app de proxy puede impedir la búsqueda; desactívala e inténtalo de nuevo\n• Se admiten DLNA y Google Cast (Chromecast). Apple TV (AirPlay) y los protocolos propios de algunas marcas no son compatibles; activa DLNA en la TV\n• ¿Sigue sin aparecer? Pulsa «Añadir manualmente» e introduce la IP de la TV';
+	@override late final _TranslationsVideoDetailCastDlnaCastSheetFailureEs failure = _TranslationsVideoDetailCastDlnaCastSheetFailureEs._(_root);
+}
+
+// Path: videoDetail.cast.dlnaCastSheet.failure
+class _TranslationsVideoDetailCastDlnaCastSheetFailureEs extends TranslationsVideoDetailCastDlnaCastSheetFailureEn {
+	_TranslationsVideoDetailCastDlnaCastSheetFailureEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get unreachable => 'No se puede conectar con el dispositivo. Comprueba que está en la misma Wi-Fi y prueba a desactivar la VPN';
+	@override String get timeout => 'El dispositivo no responde';
+	@override String get mediaRejected => 'El dispositivo no puede reproducir este vídeo (formato no compatible o no se puede abrir el enlace)';
+	@override String get deviceRejected => 'El dispositivo rechazó la solicitud';
 }
 
 /// The flat map containing all translations for locale <es>.
@@ -5298,6 +5530,8 @@ extension on TranslationsEs {
 			'common.disagree' => 'No acepto',
 			'common.agreeToRules' => 'Aceptar las normas',
 			'common.tapToReread' => 'Toca para releer',
+			'common.rulesRequiredHint' => 'Lee y acepta las normas de la comunidad antes de publicar',
+			'common.readAndAgree' => 'Leer y aceptar',
 			'common.markdownSyntaxHelp' => 'Ayuda de sintaxis de Markdown',
 			'common.previewContent' => 'Vista previa del contenido',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -5597,10 +5831,10 @@ extension on TranslationsEs {
 			'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain' => 'Esta configuración determina si se usará la configuración anterior al reproducir videos de nuevo.',
 			'settings.playControl' => 'Control de reproducción',
 			'settings.playbackSpeedSettings' => 'Reproducción y velocidad',
-			'settings.playbackBehaviorSettings' => 'Comportamiento de reproducción',
-			'settings.enhancementSettings' => 'Cine y mejoras',
 			_ => null,
 		} ?? switch (path) {
+			'settings.playbackBehaviorSettings' => 'Comportamiento de reproducción',
+			'settings.enhancementSettings' => 'Cine y mejoras',
 			'settings.fastForwardTime' => 'Tiempo de avance rápido',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => 'El tiempo de avance rápido debe ser un número entero positivo.',
 			'settings.rewindTime' => 'Tiempo de retroceso',
@@ -5757,6 +5991,29 @@ extension on TranslationsEs {
 			'settings.defaultBrowserDesc' => 'Abra el elemento de configuración de enlace predeterminado en los ajustes del sistema y añada el enlace del sitio web iwara.tv',
 			'settings.themeMode' => 'Modo de tema',
 			'settings.themeModeDesc' => 'Esta configuración determina el modo de tema de la aplicación',
+			'settings.glassQuality' => 'Rendering quality',
+			'settings.glassQualityAuto' => 'Automatic',
+			'settings.glassQualityAutoDesc' => 'Adapts to frame time; refraction can change as quality adjusts',
+			'settings.glassQualityStandard' => 'Smooth',
+			'settings.glassQualityStandardDesc' => 'Lightweight glass with highlights and consistent frame pacing',
+			'settings.glassQualityPremium' => 'Full refraction',
+			'settings.glassQualityPremiumDesc' => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass',
+			'settings.glassQualityCurrent' => 'Currently active',
+			'settings.glassChromeParametersDesc' => 'Navigation glass parameters apply live to headers, buttons and the bottom bar',
+			'settings.glassPreview' => 'Preview',
+			'settings.glassPremiumOnly' => 'Only takes effect with the full refraction quality',
+			'settings.glassSaturationNeedsBlur' => 'With the smooth quality, only takes effect when background blur is above 0',
+			'settings.glassOpacity' => 'Opacity',
+			'settings.glassBlur' => 'Background blur (sigma)',
+			'settings.glassBlurDesc' => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness',
+			'settings.glassAdvancedParameters' => 'Advanced navigation parameters',
+			'settings.glassThickness' => 'Lens thickness',
+			'settings.glassRefractiveIndex' => 'Refractive index',
+			'settings.glassLightIntensity' => 'Highlight intensity',
+			'settings.glassSaturation' => 'Background saturation',
+			'settings.glassChromaticAberration' => 'Chromatic aberration',
+			'settings.glassShadows' => 'Shadows',
+			'settings.glassResetParameters' => 'Restore glass defaults',
 			'settings.glassEffect' => 'Material de la interfaz',
 			'settings.glassEffectDesc' => 'Elige el material usado en toda la aplicación: cápsulas de encabezado, menús, botones de diálogo y la barra de navegación inferior',
 			'settings.liquidGlassEffect' => 'Vidrio líquido',
@@ -6088,6 +6345,8 @@ extension on TranslationsEs {
 			'settings.keybinding.actionGalleryPlayPause' => 'Reproducir / Pausar',
 			'settings.keybinding.actionGallerySeekBackward' => 'Retroceder',
 			'settings.keybinding.actionGallerySeekForward' => 'Avanzar rápido',
+			_ => null,
+		} ?? switch (path) {
 			'settings.keybinding.actionGalleryToggleMute' => 'Activar o desactivar el silencio',
 			'settings.keybinding.actionPlayPause' => 'Reproducir / Pausar',
 			'settings.keybinding.actionSpeedUp' => 'Aumentar la velocidad',
@@ -6113,8 +6372,6 @@ extension on TranslationsEs {
 			'settings.doubleTapPause' => 'Pausa con doble toque',
 			'settings.rightVerticalSwipeVolume' => 'Volumen con deslizamiento vertical a la derecha (efectivo al entrar en una página nueva)',
 			'settings.leftVerticalSwipeBrightness' => 'Brillo con deslizamiento vertical a la izquierda (efectivo al entrar en una página nueva)',
-			_ => null,
-		} ?? switch (path) {
 			'settings.longPressFastForward' => 'Avance rápido con pulsación larga',
 			'settings.enableMouseHoverShowToolbar' => 'Mostrar la barra de herramientas al pasar el ratón',
 			'settings.enableMouseHoverShowToolbarInfo' => 'Cuando está activado, la barra de herramientas del video se muestra al pasar el ratón sobre el reproductor. Se oculta automáticamente tras 3 segundos de inactividad.',
@@ -6125,15 +6382,13 @@ extension on TranslationsEs {
 			'settings.showCenterPlayPauseButtonDesc' => 'Mostrar el botón grande de reproducir/pausar en el centro del reproductor.',
 			'settings.audioVideoConfig' => 'Configuración de audio y video',
 			'settings.expandBuffer' => 'Ampliar el búfer',
-			'settings.expandBufferInfo' => 'Cuando está activado, el tamaño del búfer aumenta: el tiempo de carga se alarga, pero la reproducción es más fluida',
+			'settings.expandBufferInfo' => 'Al activarlo se almacena más vídeo por adelantado: la reproducción se corta menos con redes inestables, pero usa más memoria',
 			'settings.videoSyncMode' => 'Modo de sincronización de video',
 			'settings.videoSyncModeSubtitle' => 'Estrategia de sincronización de audio y video',
 			'settings.hardwareDecodingMode' => 'Modo de decodificación por hardware',
 			'settings.hardwareDecodingModeSubtitle' => 'Ajustes de decodificación por hardware',
 			'settings.enableHardwareAcceleration' => 'Activar la aceleración por hardware',
 			'settings.enableHardwareAccelerationInfo' => 'Activar la aceleración por hardware puede mejorar el rendimiento de decodificación, pero algunos dispositivos pueden no ser compatibles',
-			'settings.useOpenSLESAudioOutput' => 'Usar salida de audio OpenSLES',
-			'settings.useOpenSLESAudioOutputInfo' => 'Usar salida de audio de baja latencia; puede mejorar el rendimiento del audio',
 			'settings.videoSyncAudio' => 'Sincronización de audio',
 			'settings.videoSyncDisplayResample' => 'Mostrar remuestreo',
 			'settings.videoSyncDisplayResampleVdrop' => 'Mostrar remuestreo (pérdida de fotogramas)',
@@ -6527,6 +6782,10 @@ extension on TranslationsEs {
 			'videoDetail.localInfo.currentQuality' => 'Calidad actual',
 			'videoDetail.localInfo.duration' => 'Duración',
 			'videoDetail.localInfo.resolution' => 'Resolución',
+			'videoDetail.localInfo.frameRate' => 'Velocidad de fotogramas',
+			'videoDetail.localInfo.frameRateValue' => ({required Object fps}) => '${fps} fps',
+			'videoDetail.localInfo.frameRateInterpolated' => ({required Object fps, required Object from}) => '${fps} fps (interpolado, original ${from} fps)',
+			'videoDetail.localInfo.frameRateHasInterpolated' => ({required Object fps, required Object to}) => '${fps} fps (original, versión de ${to} fps disponible)',
 			'videoDetail.localInfo.fileInfo' => 'Información del archivo',
 			'videoDetail.localInfo.fileName' => 'Nombre del archivo',
 			'videoDetail.localInfo.fileSize' => 'Tamaño del archivo',
@@ -6540,6 +6799,9 @@ extension on TranslationsEs {
 			'videoDetail.thisIsAPrivateVideo' => 'Este es un video privado',
 			'videoDetail.getVideoInfoFailed' => 'No se pudo obtener la información del video; inténtelo de nuevo más tarde',
 			'videoDetail.noVideoSourceFound' => 'No se encontró ninguna fuente de video',
+			'videoDetail.sourceFileMissingOnServer' => 'El archivo de video no existe en el servidor de Iwara (HTTP 404), así que tampoco se reproduce en la web. Puede que el servidor tenga problemas; inténtalo más tarde.',
+			'videoDetail.qualityFileMissingOnServer' => ({required Object quality}) => 'El archivo de «${quality}» no está en el servidor (HTTP 404). Elige otra calidad en el menú de calidad.',
+			'videoDetail.playbackRetryExhausted' => 'El video no se pudo abrir varias veces seguidas, así que se detuvieron los reintentos automáticos. Vuelve a intentarlo más tarde.',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'Etiqueta "${tagId}" copiada al portapapeles',
 			'videoDetail.errorLoadingVideo' => 'Error al cargar el video',
 			'videoDetail.play' => 'Reproducir',
@@ -6597,6 +6859,8 @@ extension on TranslationsEs {
 			'videoDetail.gestureGuide.quest.still' => 'Ilustración fija',
 			'videoDetail.gestureGuide.quest.done' => 'Entendido, continuar',
 			'videoDetail.gestureGuide.quest.leftController' => 'Mano izquierda',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.rightController' => 'Mano derecha',
 			'videoDetail.gestureGuide.quest.trigger' => 'Gatillo índice',
 			'videoDetail.gestureGuide.quest.grip' => 'Botón de agarre',
@@ -6627,8 +6891,6 @@ extension on TranslationsEs {
 			'videoDetail.gestureGuide.quest.swipeTitle' => 'Arrastrar a lo ancho para pasar de página',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'Apunte a la imagen, mantenga el gatillo índice y arrastre a la izquierda. Suelte tras la señal de cambio de página para avanzar; arrastre a la derecha para retroceder. También funciona pellizcar y arrastrar.',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'Las imágenes deben estar a 1× para pasar páginas arrastrando. Los videos de galería también lo admiten. El escenario permanece inmóvil hasta que suelte.',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'Ampliar la imagen',
 			'videoDetail.gestureGuide.quest.zoomBody' => 'Apunte a un detalle de la imagen, mantenga el gatillo índice y luego empuje el joystick hacia arriba para ampliar o hacia abajo para reducir. El zoom se fija donde pulsó.',
 			'videoDetail.gestureGuide.quest.zoomHint' => 'Esto amplía la imagen dentro de su ventana. Sin mantener la imagen, arriba/abajo ajusta la distancia de visualización.',
@@ -6695,7 +6957,7 @@ extension on TranslationsEs {
 			'videoDetail.skeleton.fetchingVideoSources' => 'Obteniendo las fuentes de video...',
 			'videoDetail.skeleton.loadingVideo' => 'Cargando el video...',
 			'videoDetail.skeleton.applyingSolution' => 'Aplicando la solución...',
-			'videoDetail.skeleton.addingListeners' => 'Añadiendo receptores...',
+			'videoDetail.skeleton.addingListeners' => 'Conectando con el servidor de video...',
 			'videoDetail.skeleton.successFecthVideoDurationInfo' => 'Se obtuvo la duración del video correctamente; empezando a cargar el video...',
 			'videoDetail.skeleton.successFecthVideoHeightInfo' => 'Carga completada',
 			'videoDetail.cast.dlnaCast' => 'Transmitir',
@@ -6729,6 +6991,22 @@ extension on TranslationsEs {
 			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => 'Conectado a: ${deviceName}',
 			'videoDetail.cast.dlnaCastSheet.notConnected' => 'Ningún dispositivo conectado',
 			'videoDetail.cast.dlnaCastSheet.stopCasting' => 'Detener transmisión',
+			'videoDetail.cast.dlnaCastSheet.searchFinished' => ({required Object count}) => 'Búsqueda terminada: ${count} dispositivo(s) encontrado(s)',
+			'videoDetail.cast.dlnaCastSheet.protocolDlna' => 'DLNA',
+			'videoDetail.cast.dlnaCastSheet.protocolGoogleCast' => 'Google Cast',
+			'videoDetail.cast.dlnaCastSheet.addByIp' => 'Añadir manualmente',
+			'videoDetail.cast.dlnaCastSheet.addByIpTitle' => 'Añadir dispositivo manualmente',
+			'videoDetail.cast.dlnaCastSheet.addByIpDesc' => 'Introduce la dirección IP de tu TV o reproductor. Normalmente aparece en Ajustes → Red → Estado de la red del televisor.',
+			'videoDetail.cast.dlnaCastSheet.addByIpHint' => 'p. ej. 192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpAction' => 'Buscar',
+			'videoDetail.cast.dlnaCastSheet.addByIpInvalid' => 'Dirección no válida. Introduce una dirección IPv4 como 192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpNotFound' => ({required Object host}) => 'No se encontró ningún dispositivo de transmisión en ${host}',
+			'videoDetail.cast.dlnaCastSheet.troubleshootTitle' => '¿No encuentras tu dispositivo?',
+			'videoDetail.cast.dlnaCastSheet.troubleshoot' => '• El teléfono/ordenador y la TV deben estar en la misma red Wi-Fi. Las redes de invitados y el aislamiento AP del router impiden encontrarlos\n• Una VPN o app de proxy puede impedir la búsqueda; desactívala e inténtalo de nuevo\n• Se admiten DLNA y Google Cast (Chromecast). Apple TV (AirPlay) y los protocolos propios de algunas marcas no son compatibles; activa DLNA en la TV\n• ¿Sigue sin aparecer? Pulsa «Añadir manualmente» e introduce la IP de la TV',
+			'videoDetail.cast.dlnaCastSheet.failure.unreachable' => 'No se puede conectar con el dispositivo. Comprueba que está en la misma Wi-Fi y prueba a desactivar la VPN',
+			'videoDetail.cast.dlnaCastSheet.failure.timeout' => 'El dispositivo no responde',
+			'videoDetail.cast.dlnaCastSheet.failure.mediaRejected' => 'El dispositivo no puede reproducir este vídeo (formato no compatible o no se puede abrir el enlace)',
+			'videoDetail.cast.dlnaCastSheet.failure.deviceRejected' => 'El dispositivo rechazó la solicitud',
 			'videoDetail.likeAvatars.dialogTitle' => 'Quién da me gusta en secreto',
 			'videoDetail.likeAvatars.dialogDescription' => '¿Tiene curiosidad por saber quiénes son? Hojee este "álbum de me gusta"~',
 			'videoDetail.likeAvatars.closeTooltip' => 'Cerrar',
@@ -6914,6 +7192,8 @@ extension on TranslationsEs {
 			'notifications.kApprovedPost' => 'Publicación aprobada',
 			'notifications.kApprovedForumPost' => 'Publicación del foro aprobada',
 			'notifications.kRejectedContent' => 'Revisión de contenido rechazada',
+			'notifications.kWarning' => 'Advertencia del sitio',
+			'notifications.kWarningHint' => 'Los moderadores han emitido una advertencia en tu cuenta. Respeta las normas de la comunidad. Consulta los detalles en la web.',
 			'notifications.kUnknownType' => 'Tipo de notificación desconocido',
 			'conversation.errors.pleaseSelectAUser' => 'Seleccione un usuario',
 			'conversation.errors.pleaseEnterATitle' => 'Introduzca un título',
@@ -7008,6 +7288,7 @@ extension on TranslationsEs {
 			'download.categorySectionLabel' => 'Categoría',
 			'download.saveToPreviewLabel' => 'Se guardará en',
 			'download.saveToPreviewSuggested' => ({required Object name}) => 'Nombre sugerido: ${name} (editable en el diálogo del sistema)',
+			'download.saveToPreviewChange' => 'Change…',
 			'download.lastUsedBadge' => 'Último uso',
 			'download.pickedBadge' => 'Seleccionado',
 			'download.startDownloading' => 'Iniciar descarga',
@@ -7092,6 +7373,8 @@ extension on TranslationsEs {
 			'download.actions.play' => 'Play',
 			'download.actions.openWith' => 'Open with another app',
 			'download.actions.redownload' => 'Download again',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.relocate' => 'Move files to…',
 			'download.actions.categorize' => 'Categorize…',
 			'download.actions.viewOnline' => 'View online page',
@@ -7141,8 +7424,6 @@ extension on TranslationsEs {
 			'download.deleteByDate.noMatch' => 'Ninguna tarea coincide con la condición seleccionada',
 			'download.deleteByDate.invalidRange' => 'La fecha de inicio debe ser anterior o igual a la fecha de fin',
 			'download.deleteByDate.confirmTitle' => 'Confirmar eliminación',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.confirmContent' => ({required Object count}) => '¿Eliminar ${count} tareas de descarga y sus archivos? Esta acción no se puede deshacer.',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Eliminando ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Se eliminaron ${count} tarea(s)',
@@ -7316,6 +7597,7 @@ extension on TranslationsEs {
 			'download.location.downloadsFolder' => 'Downloads',
 			'download.location.askEveryTime' => 'Ask every time',
 			'download.location.askEveryTimeDesc' => ({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}',
+			'download.location.firstDownloadNotice' => ({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings',
 			'download.location.freeSpace' => ({required Object size}) => '${size} free',
 			'download.location.statusWritable' => 'Writable',
 			'download.location.statusNeedsPermission' => 'Needs permission',
@@ -7605,6 +7887,8 @@ extension on TranslationsEs {
 			'translation.fallbackTranslationFailed' => 'La alternativa a la traducción normal también falló',
 			'translation.translationSettings' => 'Ajustes de traducción',
 			'translation.enableGoogleTranslation' => 'Activar la traducción de Google',
+			_ => null,
+		} ?? switch (path) {
 			'translation.thinking' => 'Pensando...',
 			'translation.thoughtProcess' => 'Proceso de razonamiento',
 			'translation.modelCompatibility' => 'Compatibilidad de modelos',
@@ -7655,8 +7939,6 @@ extension on TranslationsEs {
 			'navigationOrderSettings.navigationItemSorting' => 'Ordenación de los elementos de navegación',
 			'navigationOrderSettings.done' => 'Listo',
 			'navigationOrderSettings.edit' => 'Editar',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.reset' => 'Restablecer',
 			'navigationOrderSettings.previewEffect' => 'Efecto de vista previa',
 			'navigationOrderSettings.bottomNavigationPreview' => 'Vista previa de la navegación inferior:',
@@ -8119,6 +8401,8 @@ extension on TranslationsEs {
 			'firstTimeSetup.common.finishSetup' => 'Finalizar configuración',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => 'Acepte primero el acuerdo de usuario y las normas de la comunidad',
 			'proxyHelper.systemProxyDetected' => 'Proxy del sistema detectado',
+			_ => null,
+		} ?? switch (path) {
 			'proxyHelper.copied' => 'Copiado',
 			'proxyHelper.copy' => 'Copiar',
 			'tagSelector.selectTags' => 'Seleccionar etiquetas',
@@ -8169,8 +8453,6 @@ extension on TranslationsEs {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Modo A (rápido) + oscurecimiento de líneas, que añade este efecto sobre el modo A rápido para lograr líneas más marcadas y estilizadas.',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Modo A (alta calidad) + adelgazamiento de líneas, que añade este efecto sobre el modo A de alta calidad para un aspecto más fino.',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8416,6 +8698,12 @@ extension on TranslationsEs {
 			'vrFormat.resetToAutoDesc' => 'Olvidar la elección manual para este video y dejar que la detección decida de nuevo',
 			'vrFormat.manualBadge' => 'Establecido manualmente',
 			'vrFormat.panoramaHint' => 'Arrastre la imagen para mirar alrededor; pellizque para cambiar el campo de visión',
+			'vrFormat.gyroControl' => 'Control por movimiento',
+			'vrFormat.gyroControlDesc' => 'En modo panorámico VR, gira el móvil para mirar alrededor; arrastrar sigue ajustando la vista',
+			'vrFormat.gyroPromptTitle' => '¿Activar el control por movimiento?',
+			'vrFormat.gyroPromptBody' => '¿Activar el sensor de movimiento para una mejor experiencia VR? Puedes desactivarlo en Ajustes.',
+			'vrFormat.gyroPromptEnable' => 'Activar',
+			'vrFormat.gyroPromptDecline' => 'Ahora no',
 			'vrFormat.panoramaGestureNotice' => 'Mientras mira alrededor, arrastrar gira la vista; use la barra de progreso para buscar',
 			'vrFormat.shaderUnsupported' => 'Este dispositivo no puede renderizar el panorama en vivo; se muestra un solo ojo en su lugar',
 			'vrFormat.handoffTooltip' => 'Reproducir de otra forma',
@@ -8627,6 +8915,8 @@ extension on TranslationsEs {
 			'localMedia.webdav.pickRootTitle' => 'Choose a folder to add',
 			'localMedia.webdav.serverRoot' => 'Root',
 			'localMedia.webdav.alreadyAdded' => 'This NAS folder has already been added',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.relogin' => 'Sign in again',
 			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
 			'localMedia.webdav.stateCertUntrusted' => 'Server certificate changed',
@@ -8683,8 +8973,6 @@ extension on TranslationsEs {
 			'historyPage.rangeByLastViewed' => 'Filtrado por última visualización',
 			'ai.title' => 'IA',
 			'ai.providers' => 'Proveedores',
-			_ => null,
-		} ?? switch (path) {
 			'ai.providersHint' => 'Añade uno o más proveedores de IA y elige cuál usará cada función.',
 			'ai.addProvider' => 'Añadir proveedor',
 			'ai.noProviders' => 'Aún no hay proveedores. Añade uno para habilitar la traducción, búsqueda y firma con IA.',
@@ -8871,6 +9159,82 @@ extension on TranslationsEs {
 			'poll.voteFailed' => 'No se pudo enviar el voto',
 			'poll.copyLink' => 'Copiar enlace de la encuesta',
 			'poll.translateFailed' => 'No se pudo traducir la encuesta',
+			'frameInterp.title' => 'Interpolación de fotogramas',
+			'frameInterp.action' => 'Interpolar al doble de fotogramas',
+			'frameInterp.playInterpolated' => 'Reproducir versión interpolada',
+			'frameInterp.playOriginal' => 'Reproducir original',
+			'frameInterp.deleteInterpolated' => 'Eliminar también la versión interpolada',
+			'frameInterp.deleteInterpolatedDesc' => 'Elimina el archivo de vídeo interpolado y su tarea',
+			'frameInterp.deleteInterpolatedOnly' => 'Eliminar versión interpolada',
+			'frameInterp.deleteInterpolatedOnlyTitle' => '¿Eliminar la versión interpolada?',
+			'frameInterp.deleteInterpolatedOnlyBody' => 'Solo se eliminan el archivo de vídeo interpolado y su tarea. El vídeo original se conserva y puedes volver a interpolarlo más tarde.',
+			'frameInterp.interpolatedDeleted' => 'Versión interpolada eliminada',
+			'frameInterp.deleteInterpolatedFailed' => 'No se pudo eliminar la versión interpolada. Puede que el archivo esté en uso o no haya permiso',
+			'frameInterp.viewTasks' => 'Ver tareas de interpolación',
+			'frameInterp.badge' => '2× FPS',
+			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',
+			'frameInterp.specLine' => ({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps',
+			'frameInterp.runningDetail' => ({required Object percent, required Object speed}) => '${percent}% · ${speed} fps',
+			'frameInterp.preparing' => 'Preparando…',
+			'frameInterp.outputMissing' => 'El archivo interpolado ya no existe',
+			'frameInterp.empty' => 'Aún no hay tareas de interpolación',
+			'frameInterp.emptyHint' => 'Elige «Interpolar al doble de fotogramas» en un vídeo de Archivos locales o Descargas.',
+			'frameInterp.clearFinished' => 'Borrar registros finalizados',
+			'frameInterp.status.pending' => 'En cola',
+			'frameInterp.status.running' => 'Procesando',
+			'frameInterp.status.completed' => 'Completado',
+			'frameInterp.status.failed' => 'Fallido',
+			'frameInterp.status.cancelled' => 'Cancelado',
+			'frameInterp.actions.play' => 'Reproducir',
+			'frameInterp.actions.cancel' => 'Cancelar',
+			'frameInterp.actions.retry' => 'Reintentar',
+			'frameInterp.actions.delete' => 'Eliminar registro',
+			'frameInterp.actions.revealInFolder' => 'Mostrar en la carpeta',
+			'frameInterp.confirm.cancelTitle' => '¿Cancelar esta tarea?',
+			'frameInterp.confirm.cancelContent' => 'Se perderá el progreso actual. Podrá reintentarla más tarde desde el principio.',
+			'frameInterp.confirm.deleteTitle' => '¿Eliminar este registro?',
+			'frameInterp.confirm.deleteContent' => 'El vídeo original no se verá afectado.',
+			'frameInterp.confirm.deleteOutput' => 'Eliminar también el archivo interpolado',
+			'frameInterp.confirm.clearTitle' => '¿Borrar los registros finalizados?',
+			'frameInterp.confirm.clearContent' => 'Los archivos interpolados se conservan en el disco; solo se eliminan los registros.',
+			'frameInterp.confirm.enqueueTitle' => '¿Interpolar este vídeo?',
+			'frameInterp.confirm.enqueueAction' => 'Empezar',
+			'frameInterp.confirm.fpsUnit' => 'fps',
+			'frameInterp.confirm.saveNote' => 'Se guarda como un archivo nuevo; el original no se modifica',
+			'frameInterp.confirm.resetTitle' => 'No se puede reanudar. Empieza de nuevo si:',
+			'frameInterp.confirm.resetBackground' => 'Cambias a otra app o bloqueas la pantalla',
+			'frameInterp.confirm.resetClosed' => 'Cierras la app o el sistema la cierra',
+			'frameInterp.toast.queued' => 'Añadido a la cola de interpolación',
+			'frameInterp.toast.completed' => ({required Object title}) => 'Interpolación finalizada: ${title}',
+			'frameInterp.toast.failed' => ({required Object title}) => 'Error de interpolación: ${title}',
+			'frameInterp.reject.sourceMissing' => 'El archivo de vídeo ya no existe',
+			'frameInterp.reject.alreadyInterpolated' => 'Este vídeo ya está interpolado',
+			'frameInterp.reject.alreadyQueued' => 'Este vídeo ya está en la cola',
+			'frameInterp.reject.alreadyDone' => 'Este vídeo ya tiene una versión interpolada',
+			'frameInterp.reject.hdr' => 'Los vídeos HDR aún no son compatibles',
+			'frameInterp.reject.resolutionTooLarge' => 'La resolución es demasiado alta para interpolar',
+			'frameInterp.reject.unreadable' => 'No se pudo leer este vídeo',
+			'frameInterp.reject.noGpu' => 'No se encontró ninguna tarjeta gráfica utilizable (se requiere compatibilidad con Vulkan)',
+			'frameInterp.error.unknown' => 'Algo salió mal',
+			'frameInterp.error.openInput' => 'No se pudo abrir el vídeo',
+			'frameInterp.error.noVideo' => 'El archivo no tiene pista de vídeo',
+			'frameInterp.error.decoder' => 'No se pudo decodificar el vídeo',
+			'frameInterp.error.hdrUnsupported' => 'Los vídeos HDR aún no son compatibles',
+			'frameInterp.error.noGpu' => 'No se encontró ninguna tarjeta gráfica utilizable',
+			'frameInterp.error.model' => 'No se pudo cargar el modelo de interpolación. Pruebe a reinstalar el componente',
+			'frameInterp.error.encoder' => 'No hay ningún codificador de vídeo utilizable',
+			'frameInterp.error.openOutput' => 'No se pudo crear el archivo de salida',
+			'frameInterp.error.write' => 'Error de escritura. Puede que el disco esté lleno',
+			'frameInterp.error.interpolate' => 'Error de procesamiento. Puede que la tarjeta gráfica se haya quedado sin memoria',
+			'frameInterp.error.componentUnavailable' => 'El componente de interpolación no está disponible',
+			'frameInterp.error.interrupted' => 'Interrumpido porque se cerró la aplicación',
+			'frameInterp.error.finalizeFailed' => 'No se pudo guardar el archivo terminado',
+			'frameInterp.error.sourceMissing' => 'El archivo de vídeo ya no existe',
+			'frameInterp.error.backgrounded' => 'Detenido porque la app pasó a segundo plano; se reinicia al volver',
+			'frameInterp.notification.title' => 'Interpolando fotogramas',
+			'frameInterp.notification.titleWithQueue' => ({required Object count}) => 'Interpolando fotogramas · ${count} en cola',
+			'frameInterp.notification.waiting' => 'Esperando para empezar',
+			'frameInterp.component.unsupported' => 'La interpolación de fotogramas no está disponible en este dispositivo',
 			_ => null,
 		};
 	}

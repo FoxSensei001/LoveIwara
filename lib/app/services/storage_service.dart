@@ -101,6 +101,29 @@ class StorageService {
   // 由 TokenManager 的静默丢失检测触发）。
   static const String _untrustedFlagKey = 'secure_storage_untrusted';
 
+  // 「这份加密镜像与安全存储同步过」的标记，按键记。⛔ 前缀不能以 secure_ 开头，
+  // 否则会被当成副本扫进迁移。
+  //
+  // 有标记＝安全存储写成功时顺手写的镜像，只是备份，安全存储为准；
+  // 没标记＝降级会话里只写进了普通存储的新值（或升级前遗留的降级副本），
+  // 它比安全存储新，启动迁移时要以它为准。分不清这两种，降级期间切的号、
+  // 改的 PIN、登出墓碑都会在下次启动被安全存储里的旧值回滚。
+  static const String _mirrorSyncedPrefix = 'fbsync_';
+
+  /// 安全写成功时是否也常备加密镜像。只在安卓：要治的是安卓 Keystore 冷启动
+  /// 静默丢数据。iOS 钥匙串、Windows DPAPI 本身可靠，而镜像所在的普通存储
+  /// 会进 iCloud / 本地备份 / 网盘同步，密钥文件也在一起，机密性反而变弱。
+  static bool get _mirrorWhileSecure =>
+      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+
+  // 本次启动里，安全存储缺失、靠加密镜像/降级副本读回来的键。
+  // TokenManager 据此记「静默丢失」：镜像救回了登录，但丢失本身仍要留证据。
+  final Set<String> _restoredFromFallback = <String>{};
+
+  /// 本次启动里 [key] 是否因安全存储缺失而从普通存储副本读回。
+  bool wasRestoredFromFallback(String key) =>
+      _restoredFromFallback.contains(key);
+
   // v10 插件在密钥不匹配/数据损坏时抛出的特征串（转小写匹配）。
   // 刻意不包含笼统的 'keystore'——避免把瞬时故障误判为损坏而清空真实数据。
   static const List<String> _corruptionSignatures = [
@@ -252,7 +275,7 @@ class StorageService {
 
       if (secureKeys.isEmpty) return;
 
-      LogUtils.i('开始迁移 ${secureKeys.length} 个安全数据副本到安全存储', _tag);
+      LogUtils.d('检查 ${secureKeys.length} 个安全数据副本', _tag);
 
       int successCount = 0;
       for (final prefixedKey in secureKeys) {
@@ -264,7 +287,14 @@ class StorageService {
           if (raw == null) continue;
 
           String? value;
-          if (SecureFallbackCipher.isEnvelope(raw)) {
+          final isEnvelope = SecureFallbackCipher.isEnvelope(raw);
+          // 同步过的镜像只是备份：启动时不动它（也省掉逐个读 Keystore）。
+          // 安全存储真缺这条时，读取路径会从镜像读回并写回安全存储。
+          if (isEnvelope &&
+              box.read<bool>(_mirrorSyncedKey(originalKey)) == true) {
+            continue;
+          }
+          if (isEnvelope) {
             value = await _fallbackCipher.decrypt(raw);
             if (value == null) {
               // 密钥已丢（如换机后密文被还原而密钥没有）：僵尸数据，清理。
@@ -276,15 +306,23 @@ class StorageService {
             value = raw; // 历史明文遗留
           }
 
+          // 没同步标记的副本比安全存储新（降级会话的写入 / 历史明文）：以它为准。
           await _secureStorage.write(key: originalKey, value: value);
-          await box.remove(keyString);
+          if (isEnvelope && _mirrorWhileSecure) {
+            // 现在两边一致了，镜像留作常备备份(治根因A)。
+            await _markMirrorSynced(originalKey);
+          } else {
+            await _removeFallbackCopy(originalKey);
+          }
           successCount++;
         } catch (e) {
           LogUtils.w('迁移数据失败: $prefixedKey', _tag);
         }
       }
 
-      LogUtils.i('数据迁移完成: $successCount/${secureKeys.length} 成功', _tag);
+      if (successCount > 0) {
+        LogUtils.i('降级副本已写回安全存储: $successCount 个', _tag);
+      }
     } catch (e) {
       LogUtils.e('数据迁移过程出错', tag: _tag, error: e);
     }
@@ -355,6 +393,11 @@ class StorageService {
     _fallbackCipher = cipher;
   }
 
+  /// 测试专用：跑一遍启动时的副本迁移（正常只在 init 探测通过后跑）。
+  @visibleForTesting
+  Future<void> debugRunStartupMigration() =>
+      _migrateFallbackDataToSecureStorage();
+
   /// 测试专用：注入普通存储 box。
   @visibleForTesting
   set debugBox(GetStorage? value) {
@@ -372,31 +415,46 @@ class StorageService {
 
   /// 写入安全数据，返回实际落盘位置。
   ///
-  /// [fallback] 为 [SecureWriteFallback.encrypted]（默认）时，安全存储不可用
-  /// 则降级为本地密钥 AES-GCM 加密后写普通存储——绝不落明文（延续 HIGH#1 的
-  /// 无明文原则，同时保住坏 Keystore 设备的登录持久化）；为 none 时跳过持久化。
+  /// [fallback] 为 [SecureWriteFallback.encrypted]（默认）时：安全存储可用也会
+  /// **主动常备一份本地密钥 AES-GCM 加密镜像**（治根因A：坏/间歇 Keystore 设备
+  /// 从首次保存起即可冷启动恢复登录，不必等「连续 2 次静默丢失」才反应式武装）；
+  /// 安全存储不可用则以该加密镜像兜底——绝不落明文（延续 HIGH#1 无明文原则）。
+  /// 为 none 时不留镜像、安全存储不可用即跳过持久化。
   Future<SecureWriteResult> writeSecureData(
     String key,
     String value, {
     SecureWriteFallback fallback = SecureWriteFallback.encrypted,
   }) async {
+    // 重新写入后这条就不再是「从副本读回」的了。
+    _restoredFromFallback.remove(key);
+    // 加密兜底键（token 等）安全写入成功后仍主动常备一份加密兜底镜像，
+    // 使坏/间歇 Keystore 设备从「首次保存」起就能在冷启动恢复登录，
+    // 不必等连续 2 次静默丢失才「反应式」武装(治根因A：反应式双写形同虚设)。
+    // 镜像为 AES-256-GCM + 应用沙箱密钥 + 已排除系统备份，无机密性回退。
+    // 非安卓平台只在设备被标记不可信（发生过静默丢失）后才双写，与原先一致。
+    final keepEncryptedFallback =
+        fallback == SecureWriteFallback.encrypted &&
+        (_mirrorWhileSecure || secureStorageUntrusted);
+
     if (_useSecureStorage) {
       try {
         await _secureStorage.write(key: key, value: value);
-        if (secureStorageUntrusted &&
-            fallback == SecureWriteFallback.encrypted) {
-          // 双写保护：该设备发生过静默丢失，兜底副本常备。
-          await _writeEncryptedFallback(key, value);
-        } else {
-          // 安全写入成功后清掉残留副本，保持单一真相(HIGH#2)。
-          await _removeFallbackCopy(key);
-        }
+        await _syncFallbackAfterSecureWrite(
+          key,
+          value,
+          keep: keepEncryptedFallback,
+        );
         return SecureWriteResult.secure;
       } catch (e) {
         // 损坏特征 → 清空自愈并重试一次，安全存储保持启用。
         if (await _tryHealCorruption(e, 'write:$key')) {
           try {
             await _secureStorage.write(key: key, value: value);
+            await _syncFallbackAfterSecureWrite(
+              key,
+              value,
+              keep: keepEncryptedFallback,
+            );
             return SecureWriteResult.secure;
           } catch (e2) {
             _disableSecureStorage(e2, 'write-after-heal:$key');
@@ -413,6 +471,8 @@ class StorageService {
     }
 
     if (await _writeEncryptedFallback(key, value)) {
+      // 只写进了普通存储：它比安全存储新，撤掉同步标记，下次启动以它为准。
+      await _clearMirrorSynced(key);
       return SecureWriteResult.encryptedFallback;
     }
     LogUtils.w('降级加密不可用，跳过持久化（不落明文）: $key', _tag);
@@ -436,6 +496,39 @@ class StorageService {
     if (_box == null) return;
     try {
       await _box!.remove(_securePrefix + key);
+      await _box!.remove(_mirrorSyncedKey(key));
+    } catch (_) {}
+  }
+
+  /// 安全写入成功后同步降级镜像(治根因A)：
+  /// - [keep]=true（加密兜底键，如 token）：主动写一份加密兜底常备镜像，
+  ///   使坏/间歇 Keystore 设备从首次保存起即可在冷启动恢复登录；
+  /// - [keep]=false：清掉任何残留副本，保持单一真相(HIGH#2)。
+  Future<void> _syncFallbackAfterSecureWrite(
+    String key,
+    String value, {
+    required bool keep,
+  }) async {
+    if (keep && await _writeEncryptedFallback(key, value)) {
+      await _markMirrorSynced(key);
+      return;
+    }
+    // 不留镜像，或镜像没写成：删掉旧镜像。宁可没有，也别留一份落后的——
+    // 哪天安全存储丢了，落后的镜像会把上一个账号 / 旧 PIN 读回来。
+    await _removeFallbackCopy(key);
+  }
+
+  String _mirrorSyncedKey(String key) => _mirrorSyncedPrefix + key;
+
+  Future<void> _markMirrorSynced(String key) async {
+    try {
+      await _box?.write(_mirrorSyncedKey(key), true);
+    } catch (_) {}
+  }
+
+  Future<void> _clearMirrorSynced(String key) async {
+    try {
+      await _box?.remove(_mirrorSyncedKey(key));
     } catch (_) {}
   }
 
@@ -454,9 +547,12 @@ class StorageService {
         final value = await _secureStorage.read(key: key);
         if (value != null) return SecureReadResult.found(value);
         // 安全存储无此数据 → 尝试降级副本（健康且可信时迁移回安全存储）。
-        return _fallbackResult(
-          await _readFallback(key, migrateToSecure: !secureStorageUntrusted),
+        final restored = await _readFallback(
+          key,
+          migrateToSecure: !secureStorageUntrusted,
         );
+        if (restored != null) _restoredFromFallback.add(key);
+        return _fallbackResult(restored);
       } catch (e) {
         readError = e;
         // 损坏特征 → 清空自愈，本条数据尝试从降级副本恢复；
@@ -512,8 +608,14 @@ class StorageService {
     if (migrateToSecure && _useSecureStorage) {
       try {
         await _secureStorage.write(key: key, value: value);
-        await _removeFallbackCopy(key);
-        LogUtils.d('降级副本已迁移至安全存储: $key', _tag);
+        // 加密封皮在安卓上是常备镜像(治根因A)：写回安全存储后保留并标为已同步，
+        // 下次冷启动 Keystore 再次静默丢失时仍可恢复；其余情况删掉副本。
+        if (isEnvelope && _mirrorWhileSecure) {
+          await _markMirrorSynced(key);
+        } else {
+          await _removeFallbackCopy(key);
+        }
+        LogUtils.d('降级副本已同步至安全存储: $key', _tag);
       } catch (_) {
         // 迁移失败保留副本，下次再试。
       }
@@ -530,6 +632,7 @@ class StorageService {
   }
 
   Future<void> deleteSecureData(String key) async {
+    _restoredFromFallback.remove(key);
     if (_useSecureStorage) {
       try {
         await _secureStorage.delete(key: key);

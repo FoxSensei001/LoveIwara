@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:file_selector/file_selector.dart';
+import 'package:i_iwara/app/utils/desktop_save_dialog.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:i_iwara/app/services/logging/log_service.dart';
@@ -990,7 +991,8 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
       if (!mounted) return;
 
       if (GetPlatform.isDesktop) {
-        final result = await getSaveLocation(
+        final result = await showDesktopSaveDialog(
+          purpose: '导出日志',
           suggestedName: 'loveiwara_logs.zip',
           acceptedTypeGroups: [
             const XTypeGroup(label: 'ZIP', extensions: ['zip']),

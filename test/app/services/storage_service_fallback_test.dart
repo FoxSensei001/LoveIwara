@@ -206,16 +206,68 @@ void main() {
       expect(await storage.readSecureData('legacy'), 'plain-old-value');
     });
 
-    test('安全存储健康时兜底副本迁移回安全存储并删除副本', () async {
+    test('安全存储健康时兜底副本同步回安全存储并保留加密镜像(治根因A)', () async {
       final storage = StorageService();
       // 先在不可用状态写入兜底副本
       storage.debugSetSecureStorageAvailable(false);
       await storage.writeSecureData('mig', 'value-1');
-      // 恢复可用后读取 → 迁移
+      // 恢复可用后读取 → 同步回安全存储；加密封皮作为常备镜像保留，
+      // 以便下次冷启动 Keystore 静默丢失时仍可恢复（不再删除副本）。
       storage.debugSetSecureStorageAvailable(true);
       expect(await storage.readSecureData('mig'), 'value-1');
       expect(secureStore['mig'], 'value-1');
-      expect(box.read<String>('secure_mig'), isNull);
+      final mirror = box.read<String>('secure_mig');
+      expect(mirror, isNotNull);
+      expect(mirror!.startsWith('enc1:'), isTrue);
+
+      // 镜像独立可用：清掉安全存储后仍能从镜像恢复原值。
+      secureStore.remove('mig');
+      expect(await storage.readSecureData('mig'), 'value-1');
+    });
+
+    test('健康设备首次写入即常备加密镜像，Keystore 静默清空后仍能恢复(治根因A)',
+        () async {
+      final storage = StorageService();
+      storage.debugSetSecureStorageAvailable(true); // 健康，未标记不可信
+      expect(storage.secureStorageUntrusted, isFalse);
+
+      // 首次写入：安全存储成功，且不必等「连续 2 次静默丢失」就已常备加密镜像。
+      final result = await storage.writeSecureData('tok', 'refresh-xyz');
+      expect(result, SecureWriteResult.secure);
+      expect(secureStore['tok'], 'refresh-xyz');
+      final mirror = box.read<String>('secure_tok');
+      expect(mirror, isNotNull);
+      expect(mirror!.startsWith('enc1:'), isTrue);
+
+      // 模拟冷启动 Keystore 静默清空：安全存储没了，加密镜像救回会话。
+      secureStore.clear();
+      expect(await storage.readSecureData('tok'), 'refresh-xyz');
+    });
+
+    test('降级会话只写进镜像的新值，下次启动迁移时胜过安全存储里的旧值', () async {
+      final storage = StorageService();
+      await storage.writeSecureData('acct', 'A'); // 健康：安全存储 + 已同步镜像
+      expect(secureStore['acct'], 'A');
+
+      // 本会话安全存储坏了，切号写入只落进普通存储。
+      storage.debugSetSecureStorageAvailable(false);
+      await storage.writeSecureData('acct', 'B');
+      expect(secureStore['acct'], 'A');
+
+      // 下次启动探测通过：没有同步标记的副本更新，必须以它为准，不能回滚到 A。
+      storage.debugSetSecureStorageAvailable(true);
+      await storage.debugRunStartupMigration();
+      expect(secureStore['acct'], 'B');
+      expect(await storage.readSecureData('acct'), 'B');
+    });
+
+    test('已同步的镜像启动时不覆盖安全存储', () async {
+      final storage = StorageService();
+      await storage.writeSecureData('k', 'old');
+      // 安全存储里已是更新的值（例如镜像曾经落后），镜像仍是 old。
+      secureStore['k'] = 'new';
+      await storage.debugRunStartupMigration();
+      expect(secureStore['k'], 'new');
     });
 
     test('读到损坏数据时清空自愈且安全存储保持启用', () async {
@@ -306,6 +358,22 @@ void main() {
       await tm4.init();
       expect(tm4.hasRefreshToken, isTrue);
       expect(tm4.authToken, refresh);
+    });
+
+    test('token 靠加密镜像救回时仍记一次静默丢失', () async {
+      final refresh = _jwt(
+        'refresh_token',
+        expEpochSec: _nowSec + 30 * 24 * 3600,
+      );
+      final tm1 = TokenManager(tokenDio: _dummyDio());
+      await tm1.saveAuthToken(refresh);
+
+      // 冷启动 Keystore 静默清空：镜像救回会话，但丢失要留下计数。
+      secureStore.clear();
+      final tm2 = TokenManager(tokenDio: _dummyDio());
+      await tm2.init();
+      expect(tm2.authToken, refresh);
+      expect(box.read<int>('auth_secure_loss_count'), 1);
     });
 
     test('正常登出不计为静默丢失', () async {

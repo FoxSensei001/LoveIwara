@@ -7,6 +7,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/batch_download_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_manager_shortcut_button.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -109,6 +110,12 @@ class _BatchDownloadDialogState<T> extends State<BatchDownloadDialog<T>> {
 
     return GlassAlertDialog(
       title: title.isNotEmpty ? title : t.download.batchDownload.title,
+      // 下载进行中不给：弹窗一关，`mounted` 随之落空，批量任务的结果阶段与
+      // `onComplete`（清空选择）就都没人接了；而不关就跳转，弹窗会盖在下载页
+      // 上面。两头都不安全，这一阶段只留「取消」。
+      titleActions: _phase == _DialogPhase.downloading
+          ? const []
+          : downloadDialogShortcutButtons,
       content: SizedBox(
         width: 400, // 给予一个基础宽度，防止 layout 问题
         child: SingleChildScrollView(child: _buildContent(context, t)),

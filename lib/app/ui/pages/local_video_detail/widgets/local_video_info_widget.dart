@@ -8,9 +8,13 @@ import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
+import 'package:i_iwara/app/models/frame_interp/frame_interp_task.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
+import 'package:i_iwara/app/services/frame_interp/frame_interp_service.dart';
 import 'package:i_iwara/app/services/local_media_derivation_service.dart';
+import 'package:i_iwara/app/ui/pages/frame_interp/frame_interp_launcher.dart'
+    show formatFrameRate;
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:open_file/open_file.dart';
@@ -253,9 +257,63 @@ class _LocalVideoInfoWidgetState extends State<LocalVideoInfoWidget> {
               }
               return const SizedBox.shrink();
             }),
+
+            // 帧率：顺带标明这份是补帧版还是原片
+            _buildFrameRateRow(context),
           ],
         ),
       ),
+    );
+  }
+
+  /// 帧率一行。补帧成品标「补帧版」并给出原片帧率；原片若已有补帧成品，
+  /// 也注明一句，免得用户分不清手上播的是哪一份。
+  ///
+  /// 补帧任务会在后台完成 / 被删，所以服务在时套 Obx 跟着刷新。
+  Widget _buildFrameRateRow(BuildContext context) {
+    final interp = FrameInterpService.maybe;
+    if (interp == null) return _frameRateRow(context, null, null);
+    return Obx(() {
+      // ⛔ 无条件先读，理由同上面的时长一行。
+      interp.revision.value;
+      return _frameRateRow(
+        context,
+        interp.taskForOutput(localPath),
+        interp.taskForSource(localPath),
+      );
+    });
+  }
+
+  Widget _frameRateRow(
+    BuildContext context,
+    FrameInterpTask? asOutput,
+    FrameInterpTask? asSource,
+  ) {
+    final info = t.videoDetail.localInfo;
+    final String value;
+    if (asOutput != null && asOutput.sourceFps > 0) {
+      value = info.frameRateInterpolated(
+        fps: formatFrameRate(asOutput.outputFps),
+        from: formatFrameRate(asOutput.sourceFps),
+      );
+    } else {
+      final fps = _localItem?.fps ?? asSource?.sourceFps;
+      if (fps == null || fps <= 0) return const SizedBox.shrink();
+      final hasOutput =
+          asSource != null &&
+          FrameInterpService.maybe?.completedOutputFor(localPath) != null;
+      value = hasOutput
+          ? info.frameRateHasInterpolated(
+              fps: formatFrameRate(fps),
+              to: formatFrameRate(asSource.outputFps),
+            )
+          : info.frameRateValue(fps: formatFrameRate(fps));
+    }
+    return _buildInfoRow(
+      context,
+      info.frameRate,
+      value,
+      Icons.slow_motion_video_outlined,
     );
   }
 

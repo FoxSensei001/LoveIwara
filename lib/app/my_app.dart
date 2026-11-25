@@ -25,6 +25,7 @@ import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/global_drawer_content_widget.dart';
 import 'package:i_iwara/app/ui/widgets/app_lock_screen.dart';
 import 'package:i_iwara/app/ui/widgets/privacy_over_lay_widget.dart';
+import 'package:i_iwara/app/ui/widgets/system_bars.dart';
 import 'package:i_iwara/app/ui/widgets/window_layout_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
@@ -72,12 +73,17 @@ ThemeData buildThemeData({required ColorScheme colorScheme}) {
     // 走 FadeForwards 并截图：转场里的玻璃采不到背景，也有撞上面那条断言的风险
     // （widget test 里没复现出来）。关掉就是迁移前的原样。
     // iOS / macOS 是 Cupertino 转场，不走快照这条路。
+    //
+    // 手机两档外面再包一层 [SystemBarsPageTransitionsBuilder]：每一页都只在露出
+    // 过半后才接管状态栏图标颜色。转场本身不变。
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: <TargetPlatform, PageTransitionsBuilder>{
-        TargetPlatform.android: PredictiveBackPageTransitionsBuilder(
-          allowSnapshotting: false,
+        TargetPlatform.android: SystemBarsPageTransitionsBuilder(
+          PredictiveBackPageTransitionsBuilder(allowSnapshotting: false),
         ),
-        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        TargetPlatform.iOS: SystemBarsPageTransitionsBuilder(
+          CupertinoPageTransitionsBuilder(),
+        ),
         TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
         TargetPlatform.windows: ZoomPageTransitionsBuilder(
           allowSnapshotting: false,
@@ -320,10 +326,14 @@ class _MyAppState extends State<MyApp> {
               // 深色模式下整块提示会是一片亮白。
               // ⛔ touchSlop 的夹取要包在**最外层**：弹窗路由挂在根导航器上，
               // 而 builder 是套在 Router 外面的，包在这里它们才吃得到。
-              final Widget app = withClampedTouchSlop(
-                context,
-                LegacyMaterialBridge(
-                  child: AppToastHost(child: MyAppLayout(child: child)),
+              // 系统栏兜底放在最外层：任何页面、弹窗、锁屏自己的声明都比它深，
+              // 只有谁都没说的地方才轮到它（见 [SystemBarsThemeFallback]）。
+              final Widget app = SystemBarsThemeFallback(
+                child: withClampedTouchSlop(
+                  context,
+                  LegacyMaterialBridge(
+                    child: AppToastHost(child: MyAppLayout(child: child)),
+                  ),
                 ),
               );
               // XR 头显：整个应用是空间里的一块面板，窗口透明（MainActivity.getBackgroundMode），

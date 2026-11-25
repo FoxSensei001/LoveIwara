@@ -119,9 +119,26 @@ const Map<String, String> kNameOverrides = {
 /// 他们自己还有一条测试盯着它）。**别人的返利码不该跟着我们的包发出去**——
 /// 用户点一次就算在他们头上了。一律换成该站的裸注册/控制台地址。
 /// 重抓时这张表会盖掉上游值，所以上游换了邀请码也不会漏进来。
+///
+/// 只有**写在路径里**的邀请码（`/i/<码>` 这种）才需要进这张表；挂在查询参数上的
+/// 渠道码由下面的 [kTrackingQueryKey] 统一剥掉，不用逐条补。
 const Map<String, String> kApiKeyUrlOverrides = {
   'silicon': 'https://cloud.siliconflow.cn/account/ak',
 };
+
+/// 网址里要剥掉的查询参数名（推广渠道 / 来源归因）。拿 key、文档、官网三种链接都过一遍。
+///
+/// 为什么统一剥而不是逐条进覆盖表：2026-11-08 上游给千问两家的链接挂上了
+/// `utm_content=g_2000000325x`，表里没有这两条，每周自动重抓被返利闸门拦下；
+/// AMD 那条 `?source=cherry-studio` 更早就混进了线上目录，闸门的正则没认出来。
+/// 逐条补永远慢上游一步。这些参数对「打开那个页面」没有任何作用，剥掉不改落点。
+///
+/// ⛔ 改这里要同步 `.github/workflows/update-ai-catalog.yml` 的返利闸门和
+/// SOURCES.md 的核对命令（三处是同一个口径）。
+final RegExp kTrackingQueryKey = RegExp(
+  r'^(utm_.*|source|ref|ref_.*|refcode|refer.*|from|aff.*|invit.*|promo.*|campaign.*|spm|channel.*|gclid|fbclid)$',
+  caseSensitive: false,
+);
 
 /// 服务端的模型名 → 目录里的规范 id。
 ///

@@ -32,16 +32,19 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_21
-    }
-
     buildFeatures {
         compose true
     }
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
+    }
+}
+
+// android { kotlinOptions } 在 Kotlin 2.x 已废弃，改用 kotlin { compilerOptions }（同 Flutter 模板）。
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
     }
 }
 

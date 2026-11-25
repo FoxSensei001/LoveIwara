@@ -99,6 +99,31 @@ TABLE favorite_items
   INDEX idx_favorite_items_tags :: CREATE INDEX idx_favorite_items_tags ON favorite_items(tags)
   INDEX idx_favorite_items_type_id :: CREATE INDEX idx_favorite_items_type_id ON favorite_items(item_type, item_id)
   INDEX sqlite_autoindex_favorite_items_1 :: (auto)
+TABLE frame_interp_tasks
+  COLUMN completed_at INTEGER
+  COLUMN created_at INTEGER NOT NULL
+  COLUMN duration_ms INTEGER NOT NULL DEFAULT 0
+  COLUMN encoder TEXT
+  COLUMN error TEXT
+  COLUMN error_code INTEGER NOT NULL DEFAULT 0
+  COLUMN height INTEGER NOT NULL DEFAULT 0
+  COLUMN id TEXT PK1
+  COLUMN output_key TEXT NOT NULL
+  COLUMN output_path TEXT NOT NULL
+  COLUMN output_size INTEGER NOT NULL DEFAULT 0
+  COLUMN progress REAL NOT NULL DEFAULT 0
+  COLUMN source_fps REAL NOT NULL DEFAULT 0
+  COLUMN source_key TEXT NOT NULL
+  COLUMN source_path TEXT NOT NULL
+  COLUMN source_size INTEGER NOT NULL DEFAULT 0
+  COLUMN status TEXT NOT NULL
+  COLUMN thumbnail TEXT
+  COLUMN title TEXT NOT NULL
+  COLUMN updated_at INTEGER NOT NULL
+  COLUMN width INTEGER NOT NULL DEFAULT 0
+  INDEX idx_frame_interp_tasks_output_key :: CREATE INDEX idx_frame_interp_tasks_output_key ON frame_interp_tasks(output_key)
+  INDEX idx_frame_interp_tasks_source_key :: CREATE INDEX idx_frame_interp_tasks_source_key ON frame_interp_tasks(source_key)
+  INDEX sqlite_autoindex_frame_interp_tasks_1 :: (auto)
 TABLE history_records
   COLUMN author TEXT
   COLUMN author_id TEXT

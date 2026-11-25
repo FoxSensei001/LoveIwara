@@ -337,6 +337,29 @@ class LogExportService {
     required bool hangFileExists,
     NativeExitRecord? matchedExit,
   }) {
+    // 卡死后再没恢复、且在最后一条 fatal 之后：进程是卡死期间被结束的（用户强关、
+    // 系统结束未响应程序）。fatal 快照只记「最后一次」被全局处理器接住的错误，
+    // 那可能是一条每次都报、应用照常跑的错误——2026-10-31 一份 Windows 报告就把
+    // 每开一次视频页都报的 NetworkManager::StartListen 当成了死因，真凶是点「下载」
+    // 时系统保存对话框卡死了整个线程。
+    final hang = crashResult.lastHangEvent;
+    final fatal = crashResult.fatalError;
+    if (hang != null &&
+        !hang.recovered &&
+        (fatal == null || hang.detectedAt.isAfter(fatal.timestamp))) {
+      final lastBeat = hang.lastHeartbeatAt?.toUtc().toIso8601String() ?? '未知';
+      return {
+        'type': 'ui_hang_unrecovered',
+        'summary':
+            '主 isolate 卡死后再未恢复（最后心跳 $lastBeat），进程随后结束，'
+            '多半是用户强关或系统结束了未响应的程序'
+            '${_hangSectionHint(hang)}'
+            '${fatal != null ? '；更早的那条 fatal 不是死因' : ''}',
+        'fatalSnapshotFileExists': fatalFileExists,
+        'hangEventsFileExists': hangFileExists,
+        if (hang.section != null) 'section': hang.section,
+      };
+    }
     if (crashResult.fatalError != null) {
       return {
         'type': 'fatal_exception',
@@ -346,11 +369,13 @@ class LogExportService {
       };
     }
     if (crashResult.lastHangEvent != null) {
+      final hangEvent = crashResult.lastHangEvent!;
       return {
         'type': 'ui_hang_or_stall',
-        'summary': '检测到上一会话的卡顿事件快照',
+        'summary': '检测到上一会话的卡顿事件快照${_hangSectionHint(hangEvent)}',
         'fatalSnapshotFileExists': fatalFileExists,
         'hangEventsFileExists': hangFileExists,
+        if (hangEvent.section != null) 'section': hangEvent.section,
       };
     }
     // Dart 侧无快照时，系统记录的退出原因是唯一一手结论，按它细分。
@@ -405,5 +430,20 @@ class LogExportService {
       'fatalSnapshotFileExists': fatalFileExists,
       'hangEventsFileExists': hangFileExists,
     };
+  }
+
+  /// 「当时在干什么」这一句。没有面包屑就什么都不加。
+  ///
+  /// ⛔ 措辞上不能写成「卡死在 X」：`section` 是**最后一条心跳当时**在跑的那一段，
+  /// 它可能在那一跳之后正常结束、真凶在别处。写成断言就会重演 2026-10-31 那次
+  /// 误判（把每次都报的那条 fatal 当成死因）。
+  String _hangSectionHint(HangEventSnapshot hang) {
+    final section = hang.section;
+    if (section == null) return '';
+    final since = hang.sectionSinceMs;
+    final sinceText = since == null
+        ? ''
+        : '，到那一跳时已跑 ${since}ms，之后又停了 ${hang.stalledMs}ms';
+    return '；最后一条心跳时在跑的关键段是 $section$sinceText';
   }
 }

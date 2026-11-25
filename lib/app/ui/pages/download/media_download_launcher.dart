@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:get/get.dart';
+import 'package:path/path.dart' as p;
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
@@ -15,6 +16,8 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_picker_sheet.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/download_location_card.dart'
+    show downloadLocationTitle;
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
@@ -122,6 +125,7 @@ Future<void> launchVideoDownload(
     video: video,
     source: source,
     categoryId: result.categoryId,
+    savePathOverride: result.savePath,
     onTaskCreated: onTaskCreated,
   );
 }
@@ -201,7 +205,7 @@ Future<void> launchGalleryDownload(
 
     await DownloadService.to.addTask(task);
     onTaskCreated?.call();
-    _showDownloadStartedToast(t);
+    await _showDownloadStartedToast(t, savePath: savePath);
   } catch (e) {
     LogUtils.e('添加图库下载任务失败', tag: 'MediaDownloadLauncher', error: e);
     showAppToast(t.download.errors.downloadFailed, type: AppToastType.error);
@@ -313,6 +317,9 @@ Future<void> _downloadVideoWithSource(
   required Video video,
   required VideoSource source,
   String? categoryId,
+
+  /// 弹层里「更改…」挑过的本次落盘路径；给了就不再按配置算路径（也不再弹框）。
+  String? savePathOverride,
   VoidCallback? onTaskCreated,
 }) async {
   final t = slang.Translations.of(context);
@@ -343,15 +350,17 @@ Future<void> _downloadVideoWithSource(
       if (!shouldContinue) return;
     }
 
-    final savePath = await Get.find<DownloadPathService>().getVideoDownloadPath(
-      video: Video(
-        id: video.id,
-        title: video.title ?? 'video',
-        user: video.user,
-      ),
-      quality: source.name ?? 'unknown',
-      downloadUrl: source.download ?? 'unknown',
-    );
+    final savePath =
+        savePathOverride ??
+        await Get.find<DownloadPathService>().getVideoDownloadPath(
+          video: Video(
+            id: video.id,
+            title: video.title ?? 'video',
+            user: video.user,
+          ),
+          quality: source.name ?? 'unknown',
+          downloadUrl: source.download ?? 'unknown',
+        );
     if (savePath == null) {
       LogUtils.d('用户取消了下载操作', 'MediaDownloadLauncher');
       showAppToast(t.common.operationCancelled, type: AppToastType.info);
@@ -399,7 +408,11 @@ Future<void> _downloadVideoWithSource(
       categoryId ?? '',
     );
 
-    _showDownloadStartedToast(t);
+    await _showDownloadStartedToast(
+      t,
+      savePath: savePath,
+      userPickedLocation: savePathOverride != null,
+    );
   } catch (e) {
     LogUtils.e('添加下载任务失败: $e', tag: 'MediaDownloadLauncher', error: e);
     String message;
@@ -463,7 +476,17 @@ Future<bool> _confirmDuplicateTask(
 }
 
 /// 统一的「开始下载」提示：一条带「查看下载列表」动作的玻璃 toast。
-void _showDownloadStartedToast(slang.Translations t) {
+/// [userPickedLocation]：这次是用户自己在「另存为」里挑的位置，不需要再告诉他
+/// 存到了哪。
+Future<void> _showDownloadStartedToast(
+  slang.Translations t, {
+  required String savePath,
+  bool userPickedLocation = false,
+}) async {
+  if (!userPickedLocation &&
+      await _showFirstDownloadLocationNotice(t, savePath)) {
+    return;
+  }
   showAppToast(
     t.videoDetail.startDownloading,
     type: AppToastType.success,
@@ -471,4 +494,50 @@ void _showDownloadStartedToast(slang.Translations t) {
     actionLabel: t.download.viewDownloadList,
     onAction: NaviService.navigateToDownloadTaskListPage,
   );
+}
+
+/// 桌面固定目录模式下的第一次下载：告诉用户文件存到了哪、在哪改。只出一次。
+///
+/// 桌面默认以前是每次弹「另存为」，2026-10-31 起改成直接存进 下载/LoveIwara
+/// （见 [DownloadPathService.asksEveryTime]）。老用户点下载后没看到对话框，
+/// 不说一声就会去找文件。返回是否出了这条提示（出了就不再叠「开始下载」那条）。
+///
+/// 只给落在默认目录的人：自己开过自定义目录的人知道文件在哪。
+/// 「在不在目标目录里」按这次真实的 [savePath] 判，不看路径状态的 Rx 快照——
+/// 目录不可用时 `_getBasePath` 会悄悄回落到应用专属空间，而状态刷新是异步的，
+/// 快照这时多半还是旧的，会对用户报错地方。
+Future<bool> _showFirstDownloadLocationNotice(
+  slang.Translations t,
+  String savePath,
+) async {
+  if (!GetPlatform.isDesktop || !Get.isRegistered<DownloadPathService>()) {
+    return false;
+  }
+  final pathService = DownloadPathService.to;
+  if (pathService.asksEveryTime) return false;
+  final config = Get.find<ConfigService>();
+  if (config[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool) return false;
+  if (config[ConfigKey.DOWNLOAD_LOCATION_NOTICE_SHOWN] as bool) return false;
+  try {
+    final directory = await pathService.targetDownloadDirectory();
+    if (!p.isWithin(directory, savePath) && !p.equals(directory, savePath)) {
+      return false;
+    }
+    final location = await pathService.describeLocation(directory);
+    config[ConfigKey.DOWNLOAD_LOCATION_NOTICE_SHOWN] = true;
+    showAppToast(
+      t.download.location.firstDownloadNotice(
+        location: downloadLocationTitle(location),
+      ),
+      type: AppToastType.success,
+      position: AppToastPosition.bottom,
+      duration: const Duration(seconds: 8),
+      actionLabel: t.download.location.changeLocation,
+      onAction: NaviService.navigateToDownloadSettingsPage,
+    );
+    return true;
+  } catch (e) {
+    LogUtils.w('首次下载位置提示失败: $e', 'MediaDownloadLauncher');
+    return false;
+  }
 }

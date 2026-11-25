@@ -1,4 +1,9 @@
+import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
 import 'package:i_iwara/app/models/video.model.dart' as video_model;
+import 'package:i_iwara/app/services/auth_service.dart';
+import 'package:i_iwara/app/services/iwara_site_headers.dart';
+import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/models/video_source.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -20,11 +25,37 @@ class VideoCacheManager {
   
   // 线程安全锁
   bool _isCleaningCache = false;
+
+  /// 条目是在哪个站点、哪个账号下取的。读的时候对不上就当没缓存：
+  /// - 详情里的 `liked`、私密视频能不能看都跟账号走；
+  /// - 主站模式下缓存了 AI 站的视频，切站后再点它不会再收到 differentSite，
+  ///   自动切站就失灵了。
+  /// 以前只有点进去过的视频才会进缓存，悬停预取之后鼠标停一下就进，所以补上。
+  @visibleForTesting
+  static String Function() contextKey = _defaultContextKey;
+
+  /// 此刻的「站点 + 账号」标记（同 [contextKey]）。请求发出前记一份，回来时
+  /// 对一下，就知道中途有没有切站 / 换号。
+  static String currentContextKey() => contextKey();
+
+  static String _defaultContextKey() {
+    final site = currentIwaraSiteOrMain().name;
+    final userId = Get.isRegistered<UserService>()
+        ? Get.find<UserService>().currentUser.value?.id
+        : null;
+    if (userId != null) return '$site|$userId';
+    // 没拿到用户 id 时分清「登着但资料还没加载 / 加载失败」与「没登录」：
+    // 两者都记成 `-` 的话，登着时取的详情（带这个号的 liked）退出登录后照样命中。
+    final loggedIn =
+        Get.isRegistered<AuthService>() &&
+        Get.find<AuthService>().hasRefreshToken;
+    return '$site|${loggedIn ? '?' : '-'}';
+  }
   
   /// 获取视频信息
   video_model.Video? getVideoInfo(String videoId) {
     final item = _videoInfoCache[videoId];
-    if (item == null || item.isExpired) {
+    if (item == null || item.isExpired || item.contextKey != contextKey()) {
       if (item != null) {
         _videoInfoCache.remove(videoId);
         LogUtils.d('移除过期的视频信息缓存: $videoId', 'VideoCacheManager');
@@ -45,7 +76,9 @@ class VideoCacheManager {
   /// 更新缓存中视频信息的部分字段
   void updateVideoInfoFields(String videoId, Map<String, dynamic> fields) {
     final item = _videoInfoCache[videoId];
-    if (item == null) {
+    if (item == null || item.contextKey != contextKey()) {
+      // 换过站点 / 账号的旧条目不能借这次更新换成当前身份的条目
+      if (item != null) _videoInfoCache.remove(videoId);
       LogUtils.w('尝试更新不存在的缓存项: $videoId', 'VideoCacheManager');
       return;
     }
@@ -68,7 +101,9 @@ class VideoCacheManager {
   /// 更新缓存中视频的作者信息（用于关注、取关）
   void updateVideoAuthor(String videoId, User updatedUser) {
     final item = _videoInfoCache[videoId];
-    if (item == null) {
+    if (item == null || item.contextKey != contextKey()) {
+      // 换过站点 / 账号的旧条目不能借这次更新换成当前身份的条目
+      if (item != null) _videoInfoCache.remove(videoId);
       LogUtils.w('尝试更新不存在的缓存项: $videoId', 'VideoCacheManager');
       return;
     }
@@ -85,7 +120,7 @@ class VideoCacheManager {
   /// 获取视频源
   List<VideoSource>? getVideoSources(String fileUrl) {
     final item = _videoSourceCache[fileUrl];
-    if (item == null || item.isExpired) {
+    if (item == null || item.isExpired || item.contextKey != contextKey()) {
       if (item != null) {
         _videoSourceCache.remove(fileUrl);
         LogUtils.d('移除过期的视频源缓存: ${_truncateUrl(fileUrl)}', 'VideoCacheManager');
@@ -232,10 +267,12 @@ class VideoCacheManager {
 class _CacheItem<T> {
   final T data;
   final DateTime createdTime;
+  final String contextKey;
   DateTime lastAccessTime;
   
   _CacheItem(this.data) 
     : createdTime = DateTime.now(),
+      contextKey = VideoCacheManager.contextKey(),
       lastAccessTime = DateTime.now();
   
   bool get isExpired {

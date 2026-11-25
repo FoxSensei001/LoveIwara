@@ -32,8 +32,11 @@ Cherry Studio **仓库整体是 AGPL-3.0**，但我们取用的那个子包在�
 本项目的玻璃体系自己写的，只借鉴了交互思路（内置目录 + 用户 delta、Provider 1–N Model、
 「填 key → 拉模型 → 勾选 → 真试一次」的接入向导）。
 
-⛔ 派生时**剥掉了上游的推广返利链接**（硅基流动那条 `/i/…` 邀请码，见
-`overrides.dart` 的 `kApiKeyUrlOverrides`）。别人的返利码不该跟着我们的包发出去。
+⛔ 派生时**剥掉了上游的推广返利链接**：写在路径里的邀请码（硅基流动那条 `/i/…`）
+靠 `overrides.dart` 的 `kApiKeyUrlOverrides` 换成裸地址；挂在查询参数上的渠道码
+（`utm_*`、`source=cherry-studio` 等，参数名见 `kTrackingQueryKey`）由生成脚本统一剥掉。
+别人的返利码不该跟着我们的包发出去。改参数名单要同步下面的核对命令和
+`.github/workflows/update-ai-catalog.yml` 的闸门。
 
 ## 我们自己加的那一层
 
@@ -67,7 +70,7 @@ dart run tool/data/ai_catalog/fetch_ai_catalog.dart --from /tmp/cs/packages/prov
 - 供应商数量没有意外暴跌（漏掉一条 kind 判定就会成批丢）
 - `openai` / `anthropic` / `gemini` / `deepseek` / `ollama` 五条都还在
 - 没有新的返利链接混进来：
-  `python3 -c "import json,re;d=json.load(open('assets/data/ai_catalog.min.json'));print([(p,v) for p,pv in d['providers'].items() for v in (pv.get('w') or {}).values() if re.search(r'/i/|invite|referr|utm_',v,re.I)])"`
+  `python3 -c "import json,re;d=json.load(open('assets/data/ai_catalog.min.json'));print([(p,v) for p,pv in d['providers'].items() for v in (pv.get('w') or {}).values() if re.search(r'/i/|invite|referr|utm_|[?&](source|ref|ref_[^=&]*|refcode|refer[^=&]*|from|aff[^=&]*|invit[^=&]*|promo[^=&]*|campaign[^=&]*|spm|channel[^=&]*|gclid|fbclid)=',v,re.I)])"`
 
 ## 热更新
 

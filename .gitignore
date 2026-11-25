@@ -84,3 +84,16 @@ android/build/
 # 跑一次对应脚本就能重建。只忽略产物目录，这两个工具日后真加了脚本仍然入库。
 /tool/tag_audit/out/
 /tool/tag_verify/out/
+
+# AI 助手的计划稿 / 本地状态（不入库；与 /CLAUDE.md、/plans/ 同一口径）
+/.claude/plan/
+/.claude/worktrees/
+/.claude/settings.local.json
+/.kilo/
+
+# Python 缓存
+__pycache__/
+
+# oreno3d 词库脚本的一次性运行产物（--changes 变更清单、迁移报告），重跑脚本即可再生
+/tool/data/oreno3d_tags/changes_*.json
+/tool/data/oreno3d_tags/migration_report.json

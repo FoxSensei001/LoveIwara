@@ -27,11 +27,22 @@ require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelpe
 
 flutter_ios_podfile_setup
 
+# Frame interpolation component (optional). prepare_component.sh lays it out
+# under native/frame_interp/apple/component/; when nothing is there (no package
+# published yet, or FRAME_INTERP_DISABLE set) the pod is simply not referenced
+# and the app builds without frame interpolation.
+frame_interp_dir = File.expand_path(File.join('..', 'native', 'frame_interp', 'apple'), __dir__)
+unless system('bash', File.join(frame_interp_dir, 'prepare_component.sh'))
+  raise 'Preparing the frame interpolation component failed (see the output above)'
+end
+frame_interp_ready = File.exist?(File.join(frame_interp_dir, 'component', 'FrameInterp.xcframework'))
+
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+  pod 'FrameInterp', :path => frame_interp_dir if frame_interp_ready
   target 'RunnerTests' do
     inherit! :search_paths
   end

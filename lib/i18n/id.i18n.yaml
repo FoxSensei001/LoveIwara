@@ -227,6 +227,8 @@ common:
   disagree: Tidak Setuju
   agreeToRules: Setujui Aturan
   tapToReread: 'Ketuk untuk baca ulang'
+  rulesRequiredHint: 'Baca dan setujui aturan komunitas sebelum memposting'
+  readAndAgree: 'Baca & setujui'
   # Base Input Dialog
   markdownSyntaxHelp: Bantuan Sintaks Markdown
   previewContent: Pratinjau Konten
@@ -706,6 +708,29 @@ settings:
   defaultBrowserDesc: Silakan buka item konfigurasi tautan bawaan di pengaturan sistem dan tambahkan tautan situs iwara.tv
   themeMode: Mode Tema
   themeModeDesc: Konfigurasi ini menentukan mode tema aplikasi
+  glassQuality: "Rendering quality"
+  glassQualityAuto: "Automatic"
+  glassQualityAutoDesc: "Adapts to frame time; refraction can change as quality adjusts"
+  glassQualityStandard: "Smooth"
+  glassQualityStandardDesc: "Lightweight glass with highlights and consistent frame pacing"
+  glassQualityPremium: "Full refraction"
+  glassQualityPremiumDesc: "Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass"
+  glassQualityCurrent: "Currently active"
+  glassChromeParametersDesc: "Navigation glass parameters apply live to headers, buttons and the bottom bar"
+  glassPreview: "Preview"
+  glassPremiumOnly: "Only takes effect with the full refraction quality"
+  glassSaturationNeedsBlur: "With the smooth quality, only takes effect when background blur is above 0"
+  glassOpacity: "Opacity"
+  glassBlur: "Background blur (sigma)"
+  glassBlurDesc: "0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness"
+  glassAdvancedParameters: "Advanced navigation parameters"
+  glassThickness: "Lens thickness"
+  glassRefractiveIndex: "Refractive index"
+  glassLightIntensity: "Highlight intensity"
+  glassSaturation: "Background saturation"
+  glassChromaticAberration: "Chromatic aberration"
+  glassShadows: "Shadows"
+  glassResetParameters: "Restore glass defaults"
   glassEffect: Material Antarmuka
   glassEffectDesc: Memilih material yang digunakan di seluruh aplikasi — kapsul header, menu, tombol dialog, dan bilah navigasi bawah
   liquidGlassEffect: Kaca Cair
@@ -1074,15 +1099,13 @@ settings:
   # Audio Video Configuration
   audioVideoConfig: Konfigurasi Audio Video
   expandBuffer: Perluas Buffer
-  expandBufferInfo: Saat diaktifkan, ukuran buffer bertambah, waktu pemuatan menjadi lebih lama tetapi pemutaran lebih lancar
+  expandBufferInfo: Saat diaktifkan, lebih banyak video dimuat lebih dulu sehingga pemutaran lebih jarang tersendat di jaringan yang tidak stabil, tetapi memakai lebih banyak memori
   videoSyncMode: Mode Sinkron Video
   videoSyncModeSubtitle: Strategi sinkronisasi audio-video
   hardwareDecodingMode: Mode Dekode Perangkat Keras
   hardwareDecodingModeSubtitle: Pengaturan dekode perangkat keras
   enableHardwareAcceleration: Aktifkan Akselerasi Perangkat Keras
   enableHardwareAccelerationInfo: Mengaktifkan akselerasi perangkat keras dapat meningkatkan kinerja dekode, tetapi beberapa perangkat mungkin tidak kompatibel
-  useOpenSLESAudioOutput: Gunakan Output Audio OpenSLES
-  useOpenSLESAudioOutputInfo: Gunakan output audio latensi rendah, dapat meningkatkan kinerja audio
   # Video sync options
   videoSyncAudio: Sinkron Audio
   videoSyncDisplayResample: Tampilkan Resample
@@ -1510,6 +1533,10 @@ videoDetail:
     currentQuality: Kualitas Saat Ini
     duration: Durasi
     resolution: Resolusi
+    frameRate: "Frame rate"
+    frameRateValue: "${fps} fps"
+    frameRateInterpolated: "${fps} fps (hasil interpolasi, asli ${from} fps)"
+    frameRateHasInterpolated: "${fps} fps (asli, versi ${to} fps tersedia)"
     fileInfo: Info File
     fileName: Nama File
     fileSize: Ukuran File
@@ -1523,6 +1550,9 @@ videoDetail:
   thisIsAPrivateVideo: Ini adalah video privat
   getVideoInfoFailed: 'Gagal mendapatkan info video, silakan coba lagi nanti'
   noVideoSourceFound: Tidak ada sumber video yang ditemukan
+  sourceFileMissingOnServer: 'File video tidak ada di server Iwara (HTTP 404), jadi juga tidak bisa diputar di situs web. Server mungkin sedang bermasalah; coba lagi nanti.'
+  qualityFileMissingOnServer: 'File kualitas “${quality}” tidak ada di server (HTTP 404). Pilih kualitas lain dari menu kualitas.'
+  playbackRetryExhausted: 'Video gagal dibuka beberapa kali berturut-turut, percobaan ulang otomatis dihentikan. Coba lagi nanti.'
   tagCopiedToClipboard: 'Tag "${tagId}" disalin ke papan klip'
   errorLoadingVideo: Kesalahan memuat video
   play: Putar
@@ -1680,7 +1710,7 @@ videoDetail:
     fetchingVideoSources: Mengambil sumber video...
     loadingVideo: Memuat video...
     applyingSolution: Menerapkan solusi...
-    addingListeners: Menambahkan pemantau...
+    addingListeners: Menghubungkan ke server video...
     successFecthVideoDurationInfo: Berhasil mengambil durasi video, mulai memuat video...
     successFecthVideoHeightInfo: Pemuatan selesai
   # 投屏
@@ -1719,6 +1749,23 @@ videoDetail:
       connectedTo: 'Terhubung ke: ${deviceName}'
       notConnected: Tidak ada perangkat terhubung
       stopCasting: Hentikan Penyiaran
+      searchFinished: 'Pencarian selesai, ${count} perangkat ditemukan'
+      protocolDlna: 'DLNA'
+      protocolGoogleCast: 'Google Cast'
+      addByIp: 'Tambah manual'
+      addByIpTitle: 'Tambah perangkat secara manual'
+      addByIpDesc: 'Masukkan alamat IP TV atau perangkat streaming. Biasanya dapat ditemukan di Pengaturan → Jaringan → Status jaringan pada TV.'
+      addByIpHint: 'mis. 192.168.1.20'
+      addByIpAction: 'Cari'
+      addByIpInvalid: 'Alamat tidak valid. Masukkan alamat IPv4 seperti 192.168.1.20'
+      addByIpNotFound: 'Tidak ada perangkat cast di ${host}'
+      troubleshootTitle: 'Tidak menemukan perangkat?'
+      troubleshoot: '• Ponsel/komputer dan TV harus terhubung ke Wi-Fi yang sama. Jaringan tamu dan isolasi AP pada router menghalangi pencarian\n• VPN atau aplikasi proxy dapat menghalangi pencarian; matikan lalu coba lagi\n• Mendukung DLNA dan Google Cast (Chromecast). Apple TV (AirPlay) dan protokol khusus beberapa merek tidak didukung; aktifkan DLNA di TV\n• Masih tidak ada? Ketuk "Tambah manual" lalu masukkan IP TV'
+      failure:
+        unreachable: 'Tidak dapat terhubung ke perangkat. Pastikan berada di Wi-Fi yang sama dan coba matikan VPN'
+        timeout: 'Perangkat tidak merespons'
+        mediaRejected: 'Perangkat tidak dapat memutar video ini (format tidak didukung atau tautan tidak dapat dibuka)'
+        deviceRejected: 'Perangkat menolak permintaan cast'
   # Like Avatars Component
   likeAvatars:
     dialogTitle: Siapa yang diam-diam menyukai
@@ -1918,6 +1965,8 @@ notifications:
   kApprovedPost: Postingan disetujui
   kApprovedForumPost: Postingan forum disetujui
   kRejectedContent: Peninjauan konten ditolak
+  kWarning: "Peringatan dari situs"
+  kWarningHint: "Moderator memberi peringatan pada akunmu. Harap patuhi aturan komunitas. Lihat detailnya di situs web."
   kUnknownType: Jenis notifikasi tidak dikenal
 
 conversation:
@@ -2022,6 +2071,7 @@ download:
   categorySectionLabel: 'Kategori'
   saveToPreviewLabel: 'Akan disimpan ke'
   saveToPreviewSuggested: 'Nama file saran: ${name} (bisa diubah di dialog sistem)'
+  saveToPreviewChange: Change…
   lastUsedBadge: Terakhir digunakan
   pickedBadge: Dipilih
   startDownloading: Mulai Mengunduh
@@ -2337,6 +2387,7 @@ download:
     downloadsFolder: Downloads
     askEveryTime: Ask every time
     askEveryTimeDesc: 'Choose where to save for each download. Batch downloads go to ${location}'
+    firstDownloadNotice: 'Download started. Files are saved to "${location}". You can change this in download settings'
     freeSpace: '${size} free'
     statusWritable: Writable
     statusNeedsPermission: Needs permission
@@ -3556,6 +3607,12 @@ vrFormat:
   resetToAutoDesc: Lupakan pilihan manual untuk video ini dan biarkan deteksi memutuskan lagi
   manualBadge: Diatur secara manual
   panoramaHint: Seret gambar untuk melihat sekeliling, cubit untuk mengubah bidang pandang
+  gyroControl: "Kontrol gerak"
+  gyroControlDesc: "Dalam mode panorama VR, putar ponsel untuk melihat sekeliling; geser layar tetap bisa menyesuaikan tampilan"
+  gyroPromptTitle: "Aktifkan kontrol gerak?"
+  gyroPromptBody: "Aktifkan sensor gerak untuk pengalaman VR yang lebih baik? Fitur ini bisa dimatikan di Pengaturan."
+  gyroPromptEnable: "Aktifkan"
+  gyroPromptDecline: "Nanti saja"
   panoramaGestureNotice: Saat melihat sekeliling, menyeret akan memutar tampilan — gunakan bilah kemajuan untuk mencari
   shaderUnsupported: Perangkat ini tidak dapat menampilkan panorama langsung; menampilkan satu mata sebagai gantinya
   handoffTooltip: Putar dengan cara lain
@@ -4022,3 +4079,88 @@ poll:
   voteFailed: "Gagal mengirim suara"
   copyLink: "Salin tautan polling"
   translateFailed: "Gagal menerjemahkan polling"
+frameInterp:
+  title: "Tugas interpolasi frame"
+  action: "Interpolasi ke 2× frame rate"
+  playInterpolated: "Putar versi interpolasi"
+  playOriginal: "Putar asli"
+  deleteInterpolated: "Hapus juga versi interpolasi"
+  deleteInterpolatedDesc: "Menghapus file video hasil interpolasi beserta catatan tugasnya"
+  deleteInterpolatedOnly: "Hapus versi interpolasi"
+  deleteInterpolatedOnlyTitle: "Hapus versi interpolasi?"
+  deleteInterpolatedOnlyBody: "Hanya file video hasil interpolasi dan catatan tugasnya yang dihapus. Video asli tetap disimpan dan bisa diinterpolasi lagi nanti."
+  interpolatedDeleted: "Versi interpolasi dihapus"
+  deleteInterpolatedFailed: "Versi interpolasi gagal dihapus. File mungkin sedang dipakai atau tidak ada izin"
+  viewTasks: "Lihat tugas interpolasi"
+  badge: "2× FPS"
+  fpsBadge: "${fps} FPS"
+  specLine: "${width}×${height} · ${from} → ${to} fps"
+  runningDetail: "${percent}% · ${speed} fps"
+  preparing: "Menyiapkan…"
+  outputMissing: "Berkas hasil interpolasi sudah tidak ada"
+  empty: "Belum ada tugas interpolasi"
+  emptyHint: "Pilih “Interpolasi ke 2× frame rate” pada video di Berkas lokal atau Unduhan."
+  clearFinished: "Hapus catatan yang selesai"
+  status:
+    pending: "Dalam antrean"
+    running: "Memproses"
+    completed: "Selesai"
+    failed: "Gagal"
+    cancelled: "Dibatalkan"
+  actions:
+    play: "Putar"
+    cancel: "Batal"
+    retry: "Coba lagi"
+    delete: "Hapus catatan"
+    revealInFolder: "Tampilkan di folder"
+  confirm:
+    cancelTitle: "Batalkan tugas ini?"
+    cancelContent: "Progres sejauh ini akan hilang. Anda bisa mencobanya lagi dari awal nanti."
+    deleteTitle: "Hapus catatan ini?"
+    deleteContent: "Video asli tidak terpengaruh."
+    deleteOutput: "Hapus juga berkas hasil interpolasi"
+    clearTitle: "Hapus catatan yang selesai?"
+    clearContent: "Berkas hasil interpolasi tetap ada di disk; hanya catatannya yang dihapus."
+    enqueueTitle: "Interpolasi video ini?"
+    enqueueAction: "Mulai"
+    fpsUnit: "fps"
+    saveNote: "Disimpan sebagai file baru; video asli tidak diubah"
+    resetTitle: "Tidak bisa dilanjutkan. Proses mulai dari awal jika:"
+    resetBackground: "Beralih ke aplikasi lain atau mengunci layar"
+    resetClosed: "Menutup aplikasi, atau sistem menutupnya"
+  toast:
+    queued: "Ditambahkan ke antrean interpolasi"
+    completed: "Interpolasi selesai: ${title}"
+    failed: "Interpolasi gagal: ${title}"
+  reject:
+    sourceMissing: "Berkas video sudah tidak ada"
+    alreadyInterpolated: "Video ini sudah hasil interpolasi"
+    alreadyQueued: "Video ini sudah ada di antrean"
+    alreadyDone: "Video ini sudah memiliki versi interpolasi"
+    hdr: "Video HDR belum didukung"
+    resolutionTooLarge: "Resolusi terlalu tinggi untuk diinterpolasi"
+    unreadable: "Tidak dapat membaca video ini"
+    noGpu: "Kartu grafis yang dapat digunakan tidak ditemukan (membutuhkan dukungan Vulkan)"
+  error:
+    unknown: "Terjadi kesalahan"
+    openInput: "Tidak dapat membuka video"
+    noVideo: "Berkas tidak memiliki trek video"
+    decoder: "Tidak dapat mendekode video"
+    hdrUnsupported: "Video HDR belum didukung"
+    noGpu: "Kartu grafis yang dapat digunakan tidak ditemukan"
+    model: "Model interpolasi gagal dimuat. Coba pasang ulang komponennya"
+    encoder: "Tidak ada encoder video yang dapat digunakan"
+    openOutput: "Tidak dapat membuat berkas keluaran"
+    write: "Gagal menulis. Disk mungkin penuh"
+    interpolate: "Pemrosesan gagal. Memori kartu grafis mungkin tidak cukup"
+    componentUnavailable: "Komponen interpolasi tidak tersedia"
+    interrupted: "Terhenti karena aplikasi ditutup"
+    finalizeFailed: "Tidak dapat menyimpan berkas hasil"
+    sourceMissing: "Berkas video sudah tidak ada"
+    backgrounded: "Terhenti karena aplikasi masuk ke latar belakang; dimulai ulang saat kamu kembali"
+  notification:
+    title: "Menginterpolasi frame"
+    titleWithQueue: "Menginterpolasi frame · ${count} antre"
+    waiting: "Menunggu dimulai"
+  component:
+    unsupported: "Interpolasi frame tidak tersedia di perangkat ini"

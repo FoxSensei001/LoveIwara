@@ -101,6 +101,7 @@ class TranslationsZhCn extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsFollowSearchZhCn followSearch = _TranslationsFollowSearchZhCn._(_root);
 	@override late final _TranslationsPagedSearchZhCn pagedSearch = _TranslationsPagedSearchZhCn._(_root);
 	@override late final _TranslationsPollZhCn poll = _TranslationsPollZhCn._(_root);
+	@override late final _TranslationsFrameInterpZhCn frameInterp = _TranslationsFrameInterpZhCn._(_root);
 }
 
 // Path: personalProfile
@@ -354,6 +355,8 @@ class _TranslationsCommonZhCn extends TranslationsCommonEn {
 	@override String get disagree => '不同意';
 	@override String get agreeToRules => '同意规则';
 	@override String get tapToReread => '点击重读全文';
+	@override String get rulesRequiredHint => '发表前需要先阅读并同意社区规则';
+	@override String get readAndAgree => '阅读并同意';
 	@override String get markdownSyntaxHelp => 'Markdown语法帮助';
 	@override String get previewContent => '预览内容';
 	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
@@ -867,6 +870,9 @@ class _TranslationsSettingsZhCn extends TranslationsSettingsEn {
 	@override String get glassQualityPremiumDesc => '固定使用完整透镜，GPU 开销更高；桌面平台使用轻量效果';
 	@override String get glassQualityCurrent => '当前生效';
 	@override String get glassChromeParametersDesc => '导航玻璃参数实时应用至顶部胶囊、按钮和底栏';
+	@override String get glassPreview => '预览';
+	@override String get glassPremiumOnly => '仅在「完整折射」画质下生效';
+	@override String get glassSaturationNeedsBlur => '「流畅」画质下需背景模糊大于 0 才生效';
 	@override String get glassOpacity => '不透明度';
 	@override String get glassBlur => '背景模糊（sigma）';
 	@override String get glassBlurDesc => '0 保持背景清晰；模糊会增加一次渲染，可能降低流畅度';
@@ -877,8 +883,6 @@ class _TranslationsSettingsZhCn extends TranslationsSettingsEn {
 	@override String get glassSaturation => '背景饱和度';
 	@override String get glassChromaticAberration => '色散强度';
 	@override String get glassShadows => '投影';
-	@override String get glassPanelParameters => '菜单面板参数';
-	@override String get glassPanelParametersDesc => '应用至浮出菜单，面板使用独立的透镜渲染器';
 	@override String get glassResetParameters => '恢复玻璃默认参数';
 	@override String get glassEffect => '界面材质';
 	@override String get glassEffectDesc => '决定全局界面材质（顶栏胶囊、菜单、弹窗按钮、底部导航栏）';
@@ -1180,15 +1184,13 @@ class _TranslationsSettingsZhCn extends TranslationsSettingsEn {
 	@override String get showCenterPlayPauseButtonDesc => '显示播放器中央的大号播放/暂停按钮。';
 	@override String get audioVideoConfig => '音视频配置';
 	@override String get expandBuffer => '扩大缓冲区';
-	@override String get expandBufferInfo => '开启后缓冲区增大，加载时间变长但播放更流畅';
+	@override String get expandBufferInfo => '开启后预读更多视频，网络不稳时更少卡顿，但会多占用内存';
 	@override String get videoSyncMode => '视频同步模式';
 	@override String get videoSyncModeSubtitle => '音视频同步策略';
 	@override String get hardwareDecodingMode => '硬解模式';
 	@override String get hardwareDecodingModeSubtitle => '硬件解码设置';
 	@override String get enableHardwareAcceleration => '启用硬件加速';
 	@override String get enableHardwareAccelerationInfo => '开启硬件加速可以提高解码性能，但某些设备可能不兼容';
-	@override String get useOpenSLESAudioOutput => '使用OpenSLES音频输出';
-	@override String get useOpenSLESAudioOutputInfo => '使用低延迟音频输出，可能提高音频性能';
 	@override String get videoSyncAudio => '音频同步';
 	@override String get videoSyncDisplayResample => '显示重采样';
 	@override String get videoSyncDisplayResampleVdrop => '显示重采样(丢帧)';
@@ -1335,6 +1337,9 @@ class _TranslationsVideoDetailZhCn extends TranslationsVideoDetailEn {
 	@override String get thisIsAPrivateVideo => '这是一个私密视频';
 	@override String get getVideoInfoFailed => '获取视频信息失败，请稍后再试';
 	@override String get noVideoSourceFound => '未找到对应的视频源';
+	@override String get sourceFileMissingOnServer => '视频文件在 Iwara 服务器上不存在（HTTP 404），网页端同样播放不了。可能是服务器故障，请稍后再试。';
+	@override String qualityFileMissingOnServer({required Object quality}) => '「${quality}」这一档的视频文件在服务器上不存在（HTTP 404），可以在清晰度菜单里换一档。';
+	@override String get playbackRetryExhausted => '视频连续多次打不开，已停止自动重试。可以稍后点重试。';
 	@override String tagCopiedToClipboard({required Object tagId}) => '标签 "${tagId}" 已复制到剪贴板';
 	@override String get errorLoadingVideo => '在加载视频时出现了错误';
 	@override String get play => '播放';
@@ -1559,6 +1564,8 @@ class _TranslationsNotificationsZhCn extends TranslationsNotificationsEn {
 	@override String get kApprovedPost => '投稿审核通过';
 	@override String get kApprovedForumPost => '论坛发言审核通过';
 	@override String get kRejectedContent => '内容审核被拒绝';
+	@override String get kWarning => '收到站点警告';
+	@override String get kWarningHint => '站方对你的账号发出了警告，请留意社区规范。详情请在网页端查看。';
 	@override String get kUnknownType => '未知通知类型';
 }
 
@@ -1617,6 +1624,7 @@ class _TranslationsDownloadZhCn extends TranslationsDownloadEn {
 	@override String get categorySectionLabel => '分类';
 	@override String get saveToPreviewLabel => '将保存到';
 	@override String saveToPreviewSuggested({required Object name}) => '建议文件名：${name}（可在系统对话框修改）';
+	@override String get saveToPreviewChange => '更改…';
 	@override String get lastUsedBadge => '上次选择';
 	@override String get pickedBadge => '已选中';
 	@override String get forceDeleteTask => '强制删除任务';
@@ -2878,6 +2886,12 @@ class _TranslationsVrFormatZhCn extends TranslationsVrFormatEn {
 	@override String get resetToAutoDesc => '忘掉这个视频的手动选择，交回给自动判断';
 	@override String get manualBadge => '已手动指定';
 	@override String get panoramaHint => '拖动画面即可环视，捏合改变视野';
+	@override String get gyroControl => '重力感应控制视角';
+	@override String get gyroControlDesc => 'VR 全景播放时转动手机即可环视，拖动画面仍可微调';
+	@override String get gyroPromptTitle => '开启重力感应？';
+	@override String get gyroPromptBody => '是否开启重力感应，获得更好的 VR 模拟体验？此功能可以在设置中关闭。';
+	@override String get gyroPromptEnable => '开启';
+	@override String get gyroPromptDecline => '不用了';
 	@override String get panoramaGestureNotice => '环视时画面区的拖动用于转头，快进请用进度条';
 	@override String get shaderUnsupported => '本机不支持实时环视，已退回单眼显示';
 	@override String get handoffTooltip => '换个方式播放';
@@ -3231,6 +3245,44 @@ class _TranslationsPollZhCn extends TranslationsPollEn {
 	@override String get voteFailed => '投票没有提交成功';
 	@override String get copyLink => '复制投票链接';
 	@override String get translateFailed => '投票翻译失败';
+}
+
+// Path: frameInterp
+class _TranslationsFrameInterpZhCn extends TranslationsFrameInterpEn {
+	_TranslationsFrameInterpZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '补帧任务';
+	@override String get action => '补帧（生成 2 倍帧率版本）';
+	@override String get playInterpolated => '播放补帧版本';
+	@override String get playOriginal => '播放原视频';
+	@override String get deleteInterpolated => '同时删除补帧版本';
+	@override String get deleteInterpolatedDesc => '补帧后的视频文件和它的任务记录一起删除';
+	@override String get deleteInterpolatedOnly => '删除补帧版本';
+	@override String get deleteInterpolatedOnlyTitle => '删除补帧版本？';
+	@override String get deleteInterpolatedOnlyBody => '只删除补帧后的视频文件和它的任务记录，原视频保留不动。之后还可以重新补帧。';
+	@override String get interpolatedDeleted => '已删除补帧版本';
+	@override String get deleteInterpolatedFailed => '补帧版本没有删掉，文件可能正被占用或没有权限';
+	@override String get viewTasks => '查看补帧任务';
+	@override String get badge => '补帧';
+	@override String fpsBadge({required Object fps}) => '${fps}帧';
+	@override String specLine({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} 帧/秒';
+	@override String runningDetail({required Object percent, required Object speed}) => '${percent}% · ${speed} 帧/秒';
+	@override String get preparing => '准备中…';
+	@override String get outputMissing => '补帧文件已不存在';
+	@override String get empty => '还没有补帧任务';
+	@override String get emptyHint => '在「本机文件」或「下载列表」里对视频选择「补帧」。';
+	@override String get clearFinished => '清除已结束的记录';
+	@override late final _TranslationsFrameInterpStatusZhCn status = _TranslationsFrameInterpStatusZhCn._(_root);
+	@override late final _TranslationsFrameInterpActionsZhCn actions = _TranslationsFrameInterpActionsZhCn._(_root);
+	@override late final _TranslationsFrameInterpConfirmZhCn confirm = _TranslationsFrameInterpConfirmZhCn._(_root);
+	@override late final _TranslationsFrameInterpToastZhCn toast = _TranslationsFrameInterpToastZhCn._(_root);
+	@override late final _TranslationsFrameInterpRejectZhCn reject = _TranslationsFrameInterpRejectZhCn._(_root);
+	@override late final _TranslationsFrameInterpErrorZhCn error = _TranslationsFrameInterpErrorZhCn._(_root);
+	@override late final _TranslationsFrameInterpNotificationZhCn notification = _TranslationsFrameInterpNotificationZhCn._(_root);
+	@override late final _TranslationsFrameInterpComponentZhCn component = _TranslationsFrameInterpComponentZhCn._(_root);
 }
 
 // Path: common.pagination
@@ -3751,6 +3803,10 @@ class _TranslationsVideoDetailLocalInfoZhCn extends TranslationsVideoDetailLocal
 	@override String get currentQuality => '当前清晰度';
 	@override String get duration => '时长';
 	@override String get resolution => '分辨率';
+	@override String get frameRate => '帧率';
+	@override String frameRateValue({required Object fps}) => '${fps} 帧/秒';
+	@override String frameRateInterpolated({required Object fps, required Object from}) => '${fps} 帧/秒（补帧版，原片 ${from} 帧/秒）';
+	@override String frameRateHasInterpolated({required Object fps, required Object to}) => '${fps} 帧/秒（原片，已有 ${to} 帧/秒补帧版）';
 	@override String get fileInfo => '文件信息';
 	@override String get fileName => '文件名';
 	@override String get fileSize => '文件大小';
@@ -3816,7 +3872,7 @@ class _TranslationsVideoDetailSkeletonZhCn extends TranslationsVideoDetailSkelet
 	@override String get fetchingVideoSources => '正在获取视频源...';
 	@override String get loadingVideo => '正在加载视频...';
 	@override String get applyingSolution => '正在应用此分辨率...';
-	@override String get addingListeners => '正在添加监听器...';
+	@override String get addingListeners => '正在连接视频服务器...';
 	@override String get successFecthVideoDurationInfo => '成功获取视频资源，开始加载视频...';
 	@override String get successFecthVideoHeightInfo => '加载完成';
 }
@@ -4373,6 +4429,7 @@ class _TranslationsDownloadLocationZhCn extends TranslationsDownloadLocationEn {
 	@override String get downloadsFolder => '下载';
 	@override String get askEveryTime => '每次询问';
 	@override String askEveryTimeDesc({required Object location}) => '每次下载时选择保存位置；批量下载存到 ${location}';
+	@override String firstDownloadNotice({required Object location}) => '已开始下载，文件存到「${location}」，可在下载设置中更改';
 	@override String freeSpace({required Object size}) => '剩余 ${size}';
 	@override String get statusWritable => '可写';
 	@override String get statusNeedsPermission => '需要授权';
@@ -4939,6 +4996,133 @@ class _TranslationsLocalMediaWebdavZhCn extends TranslationsLocalMediaWebdavEn {
 	@override String get bannerCredUnreadable => '读取保存的密码失败，重新登录一次即可';
 }
 
+// Path: frameInterp.status
+class _TranslationsFrameInterpStatusZhCn extends TranslationsFrameInterpStatusEn {
+	_TranslationsFrameInterpStatusZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get pending => '排队中';
+	@override String get running => '处理中';
+	@override String get completed => '已完成';
+	@override String get failed => '失败';
+	@override String get cancelled => '已取消';
+}
+
+// Path: frameInterp.actions
+class _TranslationsFrameInterpActionsZhCn extends TranslationsFrameInterpActionsEn {
+	_TranslationsFrameInterpActionsZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get play => '播放';
+	@override String get cancel => '取消';
+	@override String get retry => '重试';
+	@override String get delete => '删除记录';
+	@override String get revealInFolder => '在文件夹中显示';
+}
+
+// Path: frameInterp.confirm
+class _TranslationsFrameInterpConfirmZhCn extends TranslationsFrameInterpConfirmEn {
+	_TranslationsFrameInterpConfirmZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get cancelTitle => '取消这个任务？';
+	@override String get cancelContent => '已处理的进度会丢失，之后可以从头重试。';
+	@override String get deleteTitle => '删除这条记录？';
+	@override String get deleteContent => '原视频不受影响。';
+	@override String get deleteOutput => '同时删除补帧文件';
+	@override String get clearTitle => '清除已结束的记录？';
+	@override String get clearContent => '补帧文件保留在磁盘上，只移除记录。';
+	@override String get enqueueTitle => '加入补帧？';
+	@override String get enqueueAction => '开始补帧';
+	@override String get fpsUnit => '帧/秒';
+	@override String get saveNote => '另存为新文件，原视频保留不动';
+	@override String get resetTitle => '暂不支持断点续传，以下情况会从头开始：';
+	@override String get resetBackground => '切到其他应用或锁屏';
+	@override String get resetClosed => '关闭应用，或应用被系统清理';
+}
+
+// Path: frameInterp.toast
+class _TranslationsFrameInterpToastZhCn extends TranslationsFrameInterpToastEn {
+	_TranslationsFrameInterpToastZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get queued => '已加入补帧队列';
+	@override String completed({required Object title}) => '补帧完成：${title}';
+	@override String failed({required Object title}) => '补帧失败：${title}';
+}
+
+// Path: frameInterp.reject
+class _TranslationsFrameInterpRejectZhCn extends TranslationsFrameInterpRejectEn {
+	_TranslationsFrameInterpRejectZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get sourceMissing => '视频文件已不存在';
+	@override String get alreadyInterpolated => '这已经是补帧后的视频';
+	@override String get alreadyQueued => '该视频已在补帧队列中';
+	@override String get alreadyDone => '该视频已有补帧版本';
+	@override String get hdr => '暂不支持 HDR 视频';
+	@override String get resolutionTooLarge => '分辨率过高，无法补帧';
+	@override String get unreadable => '无法读取该视频';
+	@override String get noGpu => '未检测到可用的显卡（需要支持 Vulkan）';
+}
+
+// Path: frameInterp.error
+class _TranslationsFrameInterpErrorZhCn extends TranslationsFrameInterpErrorEn {
+	_TranslationsFrameInterpErrorZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get unknown => '出了点问题';
+	@override String get openInput => '无法打开视频';
+	@override String get noVideo => '文件里没有视频轨';
+	@override String get decoder => '视频解码失败';
+	@override String get hdrUnsupported => '暂不支持 HDR 视频';
+	@override String get noGpu => '未检测到可用的显卡';
+	@override String get model => '补帧模型加载失败，可尝试重新安装组件';
+	@override String get encoder => '没有可用的视频编码器';
+	@override String get openOutput => '无法创建输出文件';
+	@override String get write => '写入失败，可能是磁盘空间不足';
+	@override String get interpolate => '处理失败，可能是显存不足';
+	@override String get componentUnavailable => '补帧组件不可用';
+	@override String get interrupted => '应用关闭导致任务中断';
+	@override String get finalizeFailed => '成品文件保存失败';
+	@override String get sourceMissing => '视频文件已不存在';
+	@override String get backgrounded => '应用切到了后台，回到前台后会自动重新开始';
+}
+
+// Path: frameInterp.notification
+class _TranslationsFrameInterpNotificationZhCn extends TranslationsFrameInterpNotificationEn {
+	_TranslationsFrameInterpNotificationZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '正在补帧';
+	@override String titleWithQueue({required Object count}) => '正在补帧 · ${count} 个排队';
+	@override String get waiting => '等待开始';
+}
+
+// Path: frameInterp.component
+class _TranslationsFrameInterpComponentZhCn extends TranslationsFrameInterpComponentEn {
+	_TranslationsFrameInterpComponentZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get unsupported => '此设备暂不支持补帧';
+}
+
 // Path: settings.downloadSettings.pathTemplateEditor
 class _TranslationsSettingsDownloadSettingsPathTemplateEditorZhCn extends TranslationsSettingsDownloadSettingsPathTemplateEditorEn {
 	_TranslationsSettingsDownloadSettingsPathTemplateEditorZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
@@ -5099,6 +5283,32 @@ class _TranslationsVideoDetailCastDlnaCastSheetZhCn extends TranslationsVideoDet
 	@override String connectedTo({required Object deviceName}) => '已连接到: ${deviceName}';
 	@override String get notConnected => '未连接设备';
 	@override String get stopCasting => '停止投屏';
+	@override String searchFinished({required Object count}) => '搜索完成，找到 ${count} 台设备';
+	@override String get protocolDlna => 'DLNA';
+	@override String get protocolGoogleCast => 'Google Cast';
+	@override String get addByIp => '手动添加';
+	@override String get addByIpTitle => '手动添加设备';
+	@override String get addByIpDesc => '输入电视或盒子的 IP 地址。一般在电视的「设置 → 网络 → 网络状态」里能看到。';
+	@override String get addByIpHint => '例如 192.168.1.20';
+	@override String get addByIpAction => '查找';
+	@override String get addByIpInvalid => '地址格式不对，请输入类似 192.168.1.20 的 IPv4 地址';
+	@override String addByIpNotFound({required Object host}) => '在 ${host} 上没有找到投屏设备';
+	@override String get troubleshootTitle => '找不到你的设备？';
+	@override String get troubleshoot => '· 手机（电脑）和电视要连同一个 Wi-Fi；访客网络、路由器开了「AP 隔离」都会搜不到\n· 开着 VPN／代理软件时可能搜不到，先关掉再试\n· 支持 DLNA 和 Google Cast（Chromecast）；不支持 Apple TV（AirPlay）和部分品牌的私有投屏协议，电视需打开 DLNA／多屏互动功能\n· 仍然没有？点「手动添加」输入电视的 IP';
+	@override late final _TranslationsVideoDetailCastDlnaCastSheetFailureZhCn failure = _TranslationsVideoDetailCastDlnaCastSheetFailureZhCn._(_root);
+}
+
+// Path: videoDetail.cast.dlnaCastSheet.failure
+class _TranslationsVideoDetailCastDlnaCastSheetFailureZhCn extends TranslationsVideoDetailCastDlnaCastSheetFailureEn {
+	_TranslationsVideoDetailCastDlnaCastSheetFailureZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get unreachable => '连不上设备，请确认在同一个 Wi-Fi，并暂时关闭 VPN';
+	@override String get timeout => '设备没有响应';
+	@override String get mediaRejected => '设备无法播放这个视频（格式不支持或地址打不开）';
+	@override String get deviceRejected => '设备拒绝了投屏指令';
 }
 
 /// The flat map containing all translations for locale <zh-CN>.
@@ -5320,6 +5530,8 @@ extension on TranslationsZhCn {
 			'common.disagree' => '不同意',
 			'common.agreeToRules' => '同意规则',
 			'common.tapToReread' => '点击重读全文',
+			'common.rulesRequiredHint' => '发表前需要先阅读并同意社区规则',
+			'common.readAndAgree' => '阅读并同意',
 			'common.markdownSyntaxHelp' => 'Markdown语法帮助',
 			'common.previewContent' => '预览内容',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -5619,10 +5831,10 @@ extension on TranslationsZhCn {
 			'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain' => '此配置决定当你之后播放视频时是否会沿用之前的配置。',
 			'settings.playControl' => '播放控制',
 			'settings.playbackSpeedSettings' => '播放与倍速',
-			'settings.playbackBehaviorSettings' => '播放行为',
-			'settings.enhancementSettings' => '剧院与画质增强',
 			_ => null,
 		} ?? switch (path) {
+			'settings.playbackBehaviorSettings' => '播放行为',
+			'settings.enhancementSettings' => '剧院与画质增强',
 			'settings.fastForwardTime' => '快进时间',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => '快进时间必须是一个正整数。',
 			'settings.rewindTime' => '后退时间',
@@ -5788,6 +6000,9 @@ extension on TranslationsZhCn {
 			'settings.glassQualityPremiumDesc' => '固定使用完整透镜，GPU 开销更高；桌面平台使用轻量效果',
 			'settings.glassQualityCurrent' => '当前生效',
 			'settings.glassChromeParametersDesc' => '导航玻璃参数实时应用至顶部胶囊、按钮和底栏',
+			'settings.glassPreview' => '预览',
+			'settings.glassPremiumOnly' => '仅在「完整折射」画质下生效',
+			'settings.glassSaturationNeedsBlur' => '「流畅」画质下需背景模糊大于 0 才生效',
 			'settings.glassOpacity' => '不透明度',
 			'settings.glassBlur' => '背景模糊（sigma）',
 			'settings.glassBlurDesc' => '0 保持背景清晰；模糊会增加一次渲染，可能降低流畅度',
@@ -5798,8 +6013,6 @@ extension on TranslationsZhCn {
 			'settings.glassSaturation' => '背景饱和度',
 			'settings.glassChromaticAberration' => '色散强度',
 			'settings.glassShadows' => '投影',
-			'settings.glassPanelParameters' => '菜单面板参数',
-			'settings.glassPanelParametersDesc' => '应用至浮出菜单，面板使用独立的透镜渲染器',
 			'settings.glassResetParameters' => '恢复玻璃默认参数',
 			'settings.glassEffect' => '界面材质',
 			'settings.glassEffectDesc' => '决定全局界面材质（顶栏胶囊、菜单、弹窗按钮、底部导航栏）',
@@ -6132,11 +6345,11 @@ extension on TranslationsZhCn {
 			'settings.keybinding.actionGalleryPlayPause' => '播放 / 暂停',
 			'settings.keybinding.actionGallerySeekBackward' => '快退',
 			'settings.keybinding.actionGallerySeekForward' => '快进',
+			_ => null,
+		} ?? switch (path) {
 			'settings.keybinding.actionGalleryToggleMute' => '静音切换',
 			'settings.keybinding.actionPlayPause' => '播放 / 暂停',
 			'settings.keybinding.actionSpeedUp' => '加快倍速',
-			_ => null,
-		} ?? switch (path) {
 			'settings.keybinding.actionSpeedDown' => '减慢倍速',
 			'settings.keybinding.actionSeekForward' => '快进',
 			'settings.keybinding.actionSeekBackward' => '快退',
@@ -6169,15 +6382,13 @@ extension on TranslationsZhCn {
 			'settings.showCenterPlayPauseButtonDesc' => '显示播放器中央的大号播放/暂停按钮。',
 			'settings.audioVideoConfig' => '音视频配置',
 			'settings.expandBuffer' => '扩大缓冲区',
-			'settings.expandBufferInfo' => '开启后缓冲区增大，加载时间变长但播放更流畅',
+			'settings.expandBufferInfo' => '开启后预读更多视频，网络不稳时更少卡顿，但会多占用内存',
 			'settings.videoSyncMode' => '视频同步模式',
 			'settings.videoSyncModeSubtitle' => '音视频同步策略',
 			'settings.hardwareDecodingMode' => '硬解模式',
 			'settings.hardwareDecodingModeSubtitle' => '硬件解码设置',
 			'settings.enableHardwareAcceleration' => '启用硬件加速',
 			'settings.enableHardwareAccelerationInfo' => '开启硬件加速可以提高解码性能，但某些设备可能不兼容',
-			'settings.useOpenSLESAudioOutput' => '使用OpenSLES音频输出',
-			'settings.useOpenSLESAudioOutputInfo' => '使用低延迟音频输出，可能提高音频性能',
 			'settings.videoSyncAudio' => '音频同步',
 			'settings.videoSyncDisplayResample' => '显示重采样',
 			'settings.videoSyncDisplayResampleVdrop' => '显示重采样(丢帧)',
@@ -6571,6 +6782,10 @@ extension on TranslationsZhCn {
 			'videoDetail.localInfo.currentQuality' => '当前清晰度',
 			'videoDetail.localInfo.duration' => '时长',
 			'videoDetail.localInfo.resolution' => '分辨率',
+			'videoDetail.localInfo.frameRate' => '帧率',
+			'videoDetail.localInfo.frameRateValue' => ({required Object fps}) => '${fps} 帧/秒',
+			'videoDetail.localInfo.frameRateInterpolated' => ({required Object fps, required Object from}) => '${fps} 帧/秒（补帧版，原片 ${from} 帧/秒）',
+			'videoDetail.localInfo.frameRateHasInterpolated' => ({required Object fps, required Object to}) => '${fps} 帧/秒（原片，已有 ${to} 帧/秒补帧版）',
 			'videoDetail.localInfo.fileInfo' => '文件信息',
 			'videoDetail.localInfo.fileName' => '文件名',
 			'videoDetail.localInfo.fileSize' => '文件大小',
@@ -6584,6 +6799,9 @@ extension on TranslationsZhCn {
 			'videoDetail.thisIsAPrivateVideo' => '这是一个私密视频',
 			'videoDetail.getVideoInfoFailed' => '获取视频信息失败，请稍后再试',
 			'videoDetail.noVideoSourceFound' => '未找到对应的视频源',
+			'videoDetail.sourceFileMissingOnServer' => '视频文件在 Iwara 服务器上不存在（HTTP 404），网页端同样播放不了。可能是服务器故障，请稍后再试。',
+			'videoDetail.qualityFileMissingOnServer' => ({required Object quality}) => '「${quality}」这一档的视频文件在服务器上不存在（HTTP 404），可以在清晰度菜单里换一档。',
+			'videoDetail.playbackRetryExhausted' => '视频连续多次打不开，已停止自动重试。可以稍后点重试。',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => '标签 "${tagId}" 已复制到剪贴板',
 			'videoDetail.errorLoadingVideo' => '在加载视频时出现了错误',
 			'videoDetail.play' => '播放',
@@ -6641,6 +6859,8 @@ extension on TranslationsZhCn {
 			'videoDetail.gestureGuide.quest.still' => '静态示意',
 			'videoDetail.gestureGuide.quest.done' => '知道了，继续',
 			'videoDetail.gestureGuide.quest.leftController' => '左手',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.rightController' => '右手',
 			'videoDetail.gestureGuide.quest.trigger' => '食指扳机',
 			'videoDetail.gestureGuide.quest.grip' => '侧握键',
@@ -6649,8 +6869,6 @@ extension on TranslationsZhCn {
 			'videoDetail.gestureGuide.quest.handTracking' => '手势追踪',
 			'videoDetail.gestureGuide.quest.ready' => '准备',
 			'videoDetail.gestureGuide.quest.press' => '按下',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.hold' => '保持',
 			'videoDetail.gestureGuide.quest.release' => '松开',
 			'videoDetail.gestureGuide.quest.result' => '查看效果',
@@ -6739,7 +6957,7 @@ extension on TranslationsZhCn {
 			'videoDetail.skeleton.fetchingVideoSources' => '正在获取视频源...',
 			'videoDetail.skeleton.loadingVideo' => '正在加载视频...',
 			'videoDetail.skeleton.applyingSolution' => '正在应用此分辨率...',
-			'videoDetail.skeleton.addingListeners' => '正在添加监听器...',
+			'videoDetail.skeleton.addingListeners' => '正在连接视频服务器...',
 			'videoDetail.skeleton.successFecthVideoDurationInfo' => '成功获取视频资源，开始加载视频...',
 			'videoDetail.skeleton.successFecthVideoHeightInfo' => '加载完成',
 			'videoDetail.cast.dlnaCast' => '投屏',
@@ -6773,6 +6991,22 @@ extension on TranslationsZhCn {
 			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => '已连接到: ${deviceName}',
 			'videoDetail.cast.dlnaCastSheet.notConnected' => '未连接设备',
 			'videoDetail.cast.dlnaCastSheet.stopCasting' => '停止投屏',
+			'videoDetail.cast.dlnaCastSheet.searchFinished' => ({required Object count}) => '搜索完成，找到 ${count} 台设备',
+			'videoDetail.cast.dlnaCastSheet.protocolDlna' => 'DLNA',
+			'videoDetail.cast.dlnaCastSheet.protocolGoogleCast' => 'Google Cast',
+			'videoDetail.cast.dlnaCastSheet.addByIp' => '手动添加',
+			'videoDetail.cast.dlnaCastSheet.addByIpTitle' => '手动添加设备',
+			'videoDetail.cast.dlnaCastSheet.addByIpDesc' => '输入电视或盒子的 IP 地址。一般在电视的「设置 → 网络 → 网络状态」里能看到。',
+			'videoDetail.cast.dlnaCastSheet.addByIpHint' => '例如 192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpAction' => '查找',
+			'videoDetail.cast.dlnaCastSheet.addByIpInvalid' => '地址格式不对，请输入类似 192.168.1.20 的 IPv4 地址',
+			'videoDetail.cast.dlnaCastSheet.addByIpNotFound' => ({required Object host}) => '在 ${host} 上没有找到投屏设备',
+			'videoDetail.cast.dlnaCastSheet.troubleshootTitle' => '找不到你的设备？',
+			'videoDetail.cast.dlnaCastSheet.troubleshoot' => '· 手机（电脑）和电视要连同一个 Wi-Fi；访客网络、路由器开了「AP 隔离」都会搜不到\n· 开着 VPN／代理软件时可能搜不到，先关掉再试\n· 支持 DLNA 和 Google Cast（Chromecast）；不支持 Apple TV（AirPlay）和部分品牌的私有投屏协议，电视需打开 DLNA／多屏互动功能\n· 仍然没有？点「手动添加」输入电视的 IP',
+			'videoDetail.cast.dlnaCastSheet.failure.unreachable' => '连不上设备，请确认在同一个 Wi-Fi，并暂时关闭 VPN',
+			'videoDetail.cast.dlnaCastSheet.failure.timeout' => '设备没有响应',
+			'videoDetail.cast.dlnaCastSheet.failure.mediaRejected' => '设备无法播放这个视频（格式不支持或地址打不开）',
+			'videoDetail.cast.dlnaCastSheet.failure.deviceRejected' => '设备拒绝了投屏指令',
 			'videoDetail.likeAvatars.dialogTitle' => '谁在偷偷喜欢',
 			'videoDetail.likeAvatars.dialogDescription' => '好奇他们是谁？翻翻这本「点赞相册」吧～',
 			'videoDetail.likeAvatars.closeTooltip' => '关闭',
@@ -6958,6 +7192,8 @@ extension on TranslationsZhCn {
 			'notifications.kApprovedPost' => '投稿审核通过',
 			'notifications.kApprovedForumPost' => '论坛发言审核通过',
 			'notifications.kRejectedContent' => '内容审核被拒绝',
+			'notifications.kWarning' => '收到站点警告',
+			'notifications.kWarningHint' => '站方对你的账号发出了警告，请留意社区规范。详情请在网页端查看。',
 			'notifications.kUnknownType' => '未知通知类型',
 			'conversation.errors.pleaseSelectAUser' => '请选择一个用户',
 			'conversation.errors.pleaseEnterATitle' => '请输入标题',
@@ -7052,6 +7288,7 @@ extension on TranslationsZhCn {
 			'download.categorySectionLabel' => '分类',
 			'download.saveToPreviewLabel' => '将保存到',
 			'download.saveToPreviewSuggested' => ({required Object name}) => '建议文件名：${name}（可在系统对话框修改）',
+			'download.saveToPreviewChange' => '更改…',
 			'download.lastUsedBadge' => '上次选择',
 			'download.pickedBadge' => '已选中',
 			'download.forceDeleteTask' => '强制删除任务',
@@ -7136,6 +7373,8 @@ extension on TranslationsZhCn {
 			'download.actions.openWith' => '用其他应用打开',
 			'download.actions.redownload' => '重新下载',
 			'download.actions.relocate' => '移动文件到…',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.categorize' => '归类到…',
 			'download.actions.viewOnline' => '查看在线页面',
 			'download.actions.delete' => '删除…',
@@ -7163,8 +7402,6 @@ extension on TranslationsZhCn {
 			'download.actions.migrateNone' => '所有已下载内容都在当前下载目录里',
 			'download.notice.failed' => ({required Object count}) => '${count} 个任务下载失败',
 			'download.notice.retryAll' => '全部重试',
-			_ => null,
-		} ?? switch (path) {
 			'download.notice.view' => '查看',
 			'download.notice.missing' => ({required Object count}) => '${count} 项已下载内容的文件不见了',
 			'download.notice.handle' => '处理…',
@@ -7359,6 +7596,7 @@ extension on TranslationsZhCn {
 			'download.location.downloadsFolder' => '下载',
 			'download.location.askEveryTime' => '每次询问',
 			'download.location.askEveryTimeDesc' => ({required Object location}) => '每次下载时选择保存位置；批量下载存到 ${location}',
+			'download.location.firstDownloadNotice' => ({required Object location}) => '已开始下载，文件存到「${location}」，可在下载设置中更改',
 			'download.location.freeSpace' => ({required Object size}) => '剩余 ${size}',
 			'download.location.statusWritable' => '可写',
 			'download.location.statusNeedsPermission' => '需要授权',
@@ -7649,6 +7887,8 @@ extension on TranslationsZhCn {
 			'translation.fallbackTranslationFailed' => '降级到普通翻译也失败',
 			'translation.translationSettings' => '翻译设置',
 			'translation.enableGoogleTranslation' => '启用 Google 翻译',
+			_ => null,
+		} ?? switch (path) {
 			'translation.thinking' => '思考中…',
 			'translation.thoughtProcess' => '思考过程',
 			'translation.modelCompatibility' => '模型兼容性',
@@ -7677,8 +7917,6 @@ extension on TranslationsZhCn {
 			'translation.presetNames.anthropic' => 'Anthropic Claude',
 			'translation.presetNames.anthropicReasoning' => 'Anthropic Claude 推理 (extended thinking)',
 			'translation.presetNames.gemini' => 'Google Gemini (原生)',
-			_ => null,
-		} ?? switch (path) {
 			'translation.presetNames.geminiReasoning' => 'Google Gemini 推理 (thinking)',
 			'translation.presetNames.deepseek' => 'DeepSeek (deepseek-chat)',
 			'translation.presetNames.deepseekReasoner' => 'DeepSeek 推理 (deepseek-reasoner / R1)',
@@ -8163,6 +8401,8 @@ extension on TranslationsZhCn {
 			'firstTimeSetup.common.finishSetup' => '完成设置',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => '请先同意用户协议和社区规则',
 			'proxyHelper.systemProxyDetected' => '检测到系统代理',
+			_ => null,
+		} ?? switch (path) {
 			'proxyHelper.copied' => '已复制',
 			'proxyHelper.copy' => '复制',
 			'tagSelector.selectTags' => '选择标签',
@@ -8191,8 +8431,6 @@ extension on TranslationsZhCn {
 			'anime4k.presetGroups.highQuality' => '高质量',
 			'anime4k.presetGroups.fast' => '快速',
 			'anime4k.presetGroups.lite' => '轻量级',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetGroups.moreLite' => '更多轻量级',
 			'anime4k.presetGroups.custom' => '自定义',
 			'anime4k.presetDescriptions.mode_a_hq' => '适用于大多数1080p动漫，特别是处理模糊、重采样和压缩瑕疵。提供最高的感知质量。',
@@ -8460,6 +8698,12 @@ extension on TranslationsZhCn {
 			'vrFormat.resetToAutoDesc' => '忘掉这个视频的手动选择，交回给自动判断',
 			'vrFormat.manualBadge' => '已手动指定',
 			'vrFormat.panoramaHint' => '拖动画面即可环视，捏合改变视野',
+			'vrFormat.gyroControl' => '重力感应控制视角',
+			'vrFormat.gyroControlDesc' => 'VR 全景播放时转动手机即可环视，拖动画面仍可微调',
+			'vrFormat.gyroPromptTitle' => '开启重力感应？',
+			'vrFormat.gyroPromptBody' => '是否开启重力感应，获得更好的 VR 模拟体验？此功能可以在设置中关闭。',
+			'vrFormat.gyroPromptEnable' => '开启',
+			'vrFormat.gyroPromptDecline' => '不用了',
 			'vrFormat.panoramaGestureNotice' => '环视时画面区的拖动用于转头，快进请用进度条',
 			'vrFormat.shaderUnsupported' => '本机不支持实时环视，已退回单眼显示',
 			'vrFormat.handoffTooltip' => '换个方式播放',
@@ -8671,6 +8915,8 @@ extension on TranslationsZhCn {
 			'localMedia.webdav.pickRootTitle' => '选择要添加的文件夹',
 			'localMedia.webdav.serverRoot' => '根目录',
 			'localMedia.webdav.alreadyAdded' => '这个 NAS 文件夹已经添加过了',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.relogin' => '重新登录',
 			'localMedia.webdav.stateAuthFailed' => '需要重新登录',
 			'localMedia.webdav.stateCertUntrusted' => '服务器证书已变化',
@@ -8705,8 +8951,6 @@ extension on TranslationsZhCn {
 			'localMedia.emptyTitle' => '添加文件夹或连接 NAS，看你已有的视频',
 			'localMedia.emptyPrivacyNote' => '只在本机读取，不上传任何东西。',
 			'localMedia.removeSourceTitle' => ({required Object name}) => '移除「${name}」？',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.removeSourceBody' => '文件本身一个不动，只是把它从本地库里移出去。',
 			'localMedia.remove' => '移除',
 			'localMedia.removeFolder' => '移除来源',
@@ -8915,6 +9159,82 @@ extension on TranslationsZhCn {
 			'poll.voteFailed' => '投票没有提交成功',
 			'poll.copyLink' => '复制投票链接',
 			'poll.translateFailed' => '投票翻译失败',
+			'frameInterp.title' => '补帧任务',
+			'frameInterp.action' => '补帧（生成 2 倍帧率版本）',
+			'frameInterp.playInterpolated' => '播放补帧版本',
+			'frameInterp.playOriginal' => '播放原视频',
+			'frameInterp.deleteInterpolated' => '同时删除补帧版本',
+			'frameInterp.deleteInterpolatedDesc' => '补帧后的视频文件和它的任务记录一起删除',
+			'frameInterp.deleteInterpolatedOnly' => '删除补帧版本',
+			'frameInterp.deleteInterpolatedOnlyTitle' => '删除补帧版本？',
+			'frameInterp.deleteInterpolatedOnlyBody' => '只删除补帧后的视频文件和它的任务记录，原视频保留不动。之后还可以重新补帧。',
+			'frameInterp.interpolatedDeleted' => '已删除补帧版本',
+			'frameInterp.deleteInterpolatedFailed' => '补帧版本没有删掉，文件可能正被占用或没有权限',
+			'frameInterp.viewTasks' => '查看补帧任务',
+			'frameInterp.badge' => '补帧',
+			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps}帧',
+			'frameInterp.specLine' => ({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} 帧/秒',
+			'frameInterp.runningDetail' => ({required Object percent, required Object speed}) => '${percent}% · ${speed} 帧/秒',
+			'frameInterp.preparing' => '准备中…',
+			'frameInterp.outputMissing' => '补帧文件已不存在',
+			'frameInterp.empty' => '还没有补帧任务',
+			'frameInterp.emptyHint' => '在「本机文件」或「下载列表」里对视频选择「补帧」。',
+			'frameInterp.clearFinished' => '清除已结束的记录',
+			'frameInterp.status.pending' => '排队中',
+			'frameInterp.status.running' => '处理中',
+			'frameInterp.status.completed' => '已完成',
+			'frameInterp.status.failed' => '失败',
+			'frameInterp.status.cancelled' => '已取消',
+			'frameInterp.actions.play' => '播放',
+			'frameInterp.actions.cancel' => '取消',
+			'frameInterp.actions.retry' => '重试',
+			'frameInterp.actions.delete' => '删除记录',
+			'frameInterp.actions.revealInFolder' => '在文件夹中显示',
+			'frameInterp.confirm.cancelTitle' => '取消这个任务？',
+			'frameInterp.confirm.cancelContent' => '已处理的进度会丢失，之后可以从头重试。',
+			'frameInterp.confirm.deleteTitle' => '删除这条记录？',
+			'frameInterp.confirm.deleteContent' => '原视频不受影响。',
+			'frameInterp.confirm.deleteOutput' => '同时删除补帧文件',
+			'frameInterp.confirm.clearTitle' => '清除已结束的记录？',
+			'frameInterp.confirm.clearContent' => '补帧文件保留在磁盘上，只移除记录。',
+			'frameInterp.confirm.enqueueTitle' => '加入补帧？',
+			'frameInterp.confirm.enqueueAction' => '开始补帧',
+			'frameInterp.confirm.fpsUnit' => '帧/秒',
+			'frameInterp.confirm.saveNote' => '另存为新文件，原视频保留不动',
+			'frameInterp.confirm.resetTitle' => '暂不支持断点续传，以下情况会从头开始：',
+			'frameInterp.confirm.resetBackground' => '切到其他应用或锁屏',
+			'frameInterp.confirm.resetClosed' => '关闭应用，或应用被系统清理',
+			'frameInterp.toast.queued' => '已加入补帧队列',
+			'frameInterp.toast.completed' => ({required Object title}) => '补帧完成：${title}',
+			'frameInterp.toast.failed' => ({required Object title}) => '补帧失败：${title}',
+			'frameInterp.reject.sourceMissing' => '视频文件已不存在',
+			'frameInterp.reject.alreadyInterpolated' => '这已经是补帧后的视频',
+			'frameInterp.reject.alreadyQueued' => '该视频已在补帧队列中',
+			'frameInterp.reject.alreadyDone' => '该视频已有补帧版本',
+			'frameInterp.reject.hdr' => '暂不支持 HDR 视频',
+			'frameInterp.reject.resolutionTooLarge' => '分辨率过高，无法补帧',
+			'frameInterp.reject.unreadable' => '无法读取该视频',
+			'frameInterp.reject.noGpu' => '未检测到可用的显卡（需要支持 Vulkan）',
+			'frameInterp.error.unknown' => '出了点问题',
+			'frameInterp.error.openInput' => '无法打开视频',
+			'frameInterp.error.noVideo' => '文件里没有视频轨',
+			'frameInterp.error.decoder' => '视频解码失败',
+			'frameInterp.error.hdrUnsupported' => '暂不支持 HDR 视频',
+			'frameInterp.error.noGpu' => '未检测到可用的显卡',
+			'frameInterp.error.model' => '补帧模型加载失败，可尝试重新安装组件',
+			'frameInterp.error.encoder' => '没有可用的视频编码器',
+			'frameInterp.error.openOutput' => '无法创建输出文件',
+			'frameInterp.error.write' => '写入失败，可能是磁盘空间不足',
+			'frameInterp.error.interpolate' => '处理失败，可能是显存不足',
+			'frameInterp.error.componentUnavailable' => '补帧组件不可用',
+			'frameInterp.error.interrupted' => '应用关闭导致任务中断',
+			'frameInterp.error.finalizeFailed' => '成品文件保存失败',
+			'frameInterp.error.sourceMissing' => '视频文件已不存在',
+			'frameInterp.error.backgrounded' => '应用切到了后台，回到前台后会自动重新开始',
+			'frameInterp.notification.title' => '正在补帧',
+			'frameInterp.notification.titleWithQueue' => ({required Object count}) => '正在补帧 · ${count} 个排队',
+			'frameInterp.notification.waiting' => '等待开始',
+			'frameInterp.component.unsupported' => '此设备暂不支持补帧',
 			_ => null,
 		};
 	}

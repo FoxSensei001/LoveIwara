@@ -227,6 +227,8 @@ common:
   disagree: Отклонить
   agreeToRules: Принять правила
   tapToReread: 'Нажмите, чтобы перечитать'
+  rulesRequiredHint: 'Перед публикацией прочитайте и примите правила сообщества'
+  readAndAgree: 'Прочитать и принять'
   # Base Input Dialog
   markdownSyntaxHelp: Справка по Markdown
   previewContent: Предпросмотр
@@ -706,6 +708,29 @@ settings:
   defaultBrowserDesc: Откройте параметры ссылок по умолчанию в системных настройках и добавьте сайт iwara.tv
   themeMode: Режим темы
   themeModeDesc: Определяет тему оформления приложения
+  glassQuality: "Rendering quality"
+  glassQualityAuto: "Automatic"
+  glassQualityAutoDesc: "Adapts to frame time; refraction can change as quality adjusts"
+  glassQualityStandard: "Smooth"
+  glassQualityStandardDesc: "Lightweight glass with highlights and consistent frame pacing"
+  glassQualityPremium: "Full refraction"
+  glassQualityPremiumDesc: "Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass"
+  glassQualityCurrent: "Currently active"
+  glassChromeParametersDesc: "Navigation glass parameters apply live to headers, buttons and the bottom bar"
+  glassPreview: "Preview"
+  glassPremiumOnly: "Only takes effect with the full refraction quality"
+  glassSaturationNeedsBlur: "With the smooth quality, only takes effect when background blur is above 0"
+  glassOpacity: "Opacity"
+  glassBlur: "Background blur (sigma)"
+  glassBlurDesc: "0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness"
+  glassAdvancedParameters: "Advanced navigation parameters"
+  glassThickness: "Lens thickness"
+  glassRefractiveIndex: "Refractive index"
+  glassLightIntensity: "Highlight intensity"
+  glassSaturation: "Background saturation"
+  glassChromaticAberration: "Chromatic aberration"
+  glassShadows: "Shadows"
+  glassResetParameters: "Restore glass defaults"
   glassEffect: Стиль интерфейса
   glassEffectDesc: Материал элементов интерфейса — заголовков, меню, кнопок и нижней панели
   liquidGlassEffect: Жидкое стекло
@@ -1074,15 +1099,13 @@ settings:
   # Audio Video Configuration
   audioVideoConfig: Аудио и видео
   expandBuffer: Увеличенный буфер
-  expandBufferInfo: "Увеличивает размер буфера: загрузка длится дольше, но воспроизведение плавнее"
+  expandBufferInfo: "Больше видео загружается заранее: при нестабильной сети воспроизведение реже прерывается, но расходуется больше памяти"
   videoSyncMode: Режим синхронизации видео
   videoSyncModeSubtitle: Стратегия синхронизации звука и видео
   hardwareDecodingMode: Режим аппаратного декодирования
   hardwareDecodingModeSubtitle: Настройки аппаратного декодирования
   enableHardwareAcceleration: Аппаратное ускорение
   enableHardwareAccelerationInfo: Включение аппаратного ускорения может улучшить декодирование, но поддерживается не всеми устройствами
-  useOpenSLESAudioOutput: Использовать вывод OpenSLES
-  useOpenSLESAudioOutputInfo: Низкая задержка звука, может улучшить воспроизведение аудио
   # Video sync options
   videoSyncAudio: По звуку
   videoSyncDisplayResample: Передискретизация дисплея
@@ -1510,6 +1533,10 @@ videoDetail:
     currentQuality: Текущее качество
     duration: Длительность
     resolution: Разрешение
+    frameRate: "Частота кадров"
+    frameRateValue: "${fps} к/с"
+    frameRateInterpolated: "${fps} к/с (интерполяция, исходник ${from} к/с)"
+    frameRateHasInterpolated: "${fps} к/с (исходник, есть версия ${to} к/с)"
     fileInfo: О файле
     fileName: Имя файла
     fileSize: Размер файла
@@ -1523,6 +1550,9 @@ videoDetail:
   thisIsAPrivateVideo: Это приватное видео
   getVideoInfoFailed: 'Не удалось получить данные о видео, повторите позже'
   noVideoSourceFound: Источник видео не найден
+  sourceFileMissingOnServer: 'Файл видео отсутствует на сервере Iwara (HTTP 404), поэтому он не воспроизводится и на сайте. Возможно, у сервера неполадки; попробуйте позже.'
+  qualityFileMissingOnServer: 'Файла качества «${quality}» нет на сервере (HTTP 404). Выберите другое качество в меню качества.'
+  playbackRetryExhausted: 'Видео несколько раз подряд не открылось, автоматические повторы остановлены. Попробуйте позже.'
   tagCopiedToClipboard: 'Тег «${tagId}» скопирован'
   errorLoadingVideo: Ошибка загрузки видео
   play: Воспроизвести
@@ -1680,7 +1710,7 @@ videoDetail:
     fetchingVideoSources: Загрузка источников видео...
     loadingVideo: Загрузка видео...
     applyingSolution: Применение решения...
-    addingListeners: Добавление слушателей...
+    addingListeners: Подключение к видеосерверу...
     successFecthVideoDurationInfo: Длительность видео получена, загрузка видео...
     successFecthVideoHeightInfo: Загрузка завершена
   # 投屏
@@ -1719,6 +1749,23 @@ videoDetail:
       connectedTo: 'Подключено к: ${deviceName}'
       notConnected: Нет подключенных устройств
       stopCasting: Остановить трансляцию
+      searchFinished: 'Поиск завершён, найдено устройств: ${count}'
+      protocolDlna: 'DLNA'
+      protocolGoogleCast: 'Google Cast'
+      addByIp: 'Добавить вручную'
+      addByIpTitle: 'Добавить устройство вручную'
+      addByIpDesc: 'Введите IP-адрес телевизора или приставки. Обычно его можно найти в разделе «Настройки → Сеть → Состояние сети» на телевизоре.'
+      addByIpHint: 'например, 192.168.1.20'
+      addByIpAction: 'Найти'
+      addByIpInvalid: 'Неверный адрес. Введите IPv4-адрес, например 192.168.1.20'
+      addByIpNotFound: 'По адресу ${host} устройство для трансляции не найдено'
+      troubleshootTitle: 'Не можете найти устройство?'
+      troubleshoot: '• Телефон (компьютер) и телевизор должны быть в одной сети Wi-Fi. Гостевые сети и изоляция точек доступа на роутере мешают поиску\n• VPN или прокси-приложение может блокировать поиск — отключите его и попробуйте снова\n• Поддерживаются DLNA и Google Cast (Chromecast). Apple TV (AirPlay) и фирменные протоколы некоторых производителей не поддерживаются; включите DLNA на телевизоре\n• Всё ещё нет? Нажмите «Добавить вручную» и введите IP телевизора'
+      failure:
+        unreachable: 'Не удаётся подключиться к устройству. Убедитесь, что оно в той же сети Wi-Fi, и попробуйте отключить VPN'
+        timeout: 'Устройство не отвечает'
+        mediaRejected: 'Устройство не может воспроизвести это видео (неподдерживаемый формат или ссылка недоступна)'
+        deviceRejected: 'Устройство отклонило запрос'
   # Like Avatars Component
   likeAvatars:
     dialogTitle: Кто оценил
@@ -1918,6 +1965,8 @@ notifications:
   kApprovedPost: Публикация одобрена
   kApprovedForumPost: Публикация на форуме одобрена
   kRejectedContent: Контент отклонён модерацией
+  kWarning: "Предупреждение от сайта"
+  kWarningHint: "Модераторы вынесли предупреждение вашему аккаунту. Соблюдайте правила сообщества. Подробности — на сайте."
   kUnknownType: Неизвестный тип уведомления
 
 conversation:
@@ -2022,6 +2071,7 @@ download:
   categorySectionLabel: 'Категория'
   saveToPreviewLabel: 'Будет сохранено в'
   saveToPreviewSuggested: 'Предлагаемое имя файла: ${name} (можно изменить в системном диалоге)'
+  saveToPreviewChange: Change…
   lastUsedBadge: Недавно использованное
   pickedBadge: Выбрано
   startDownloading: Начать загрузку
@@ -2337,6 +2387,7 @@ download:
     downloadsFolder: Downloads
     askEveryTime: Ask every time
     askEveryTimeDesc: 'Choose where to save for each download. Batch downloads go to ${location}'
+    firstDownloadNotice: 'Download started. Files are saved to "${location}". You can change this in download settings'
     freeSpace: '${size} free'
     statusWritable: Writable
     statusNeedsPermission: Needs permission
@@ -3556,6 +3607,12 @@ vrFormat:
   resetToAutoDesc: Забыть ручной выбор для этого видео и снова доверить решение автоопределению
   manualBadge: Задано вручную
   panoramaHint: Перетаскивайте изображение, чтобы осмотреться, сведите пальцы, чтобы изменить угол обзора
+  gyroControl: "Управление наклоном"
+  gyroControlDesc: "В режиме VR-панорамы поворачивайте телефон, чтобы осмотреться; перетаскивание по-прежнему подстраивает вид"
+  gyroPromptTitle: "Включить управление наклоном?"
+  gyroPromptBody: "Включить датчик движения для более реалистичного VR? Эту функцию можно отключить в настройках."
+  gyroPromptEnable: "Включить"
+  gyroPromptDecline: "Не сейчас"
   panoramaGestureNotice: При осмотре перетаскивание поворачивает вид — для перемотки используйте полосу прогресса
   shaderUnsupported: Это устройство не может отображать живую панораму; вместо этого показывается один глаз
   handoffTooltip: Другой способ воспроизведения
@@ -4022,3 +4079,88 @@ poll:
   voteFailed: "Не удалось отправить голос"
   copyLink: "Скопировать ссылку на опрос"
   translateFailed: "Не удалось перевести опрос"
+frameInterp:
+  title: "Интерполяция кадров"
+  action: "Увеличить частоту кадров в 2 раза"
+  playInterpolated: "Воспроизвести версию с интерполяцией"
+  playOriginal: "Смотреть оригинал"
+  deleteInterpolated: "Удалить и интерполированную версию"
+  deleteInterpolatedDesc: "Удаляет интерполированный файл и запись о задаче"
+  deleteInterpolatedOnly: "Удалить интерполированную версию"
+  deleteInterpolatedOnlyTitle: "Удалить интерполированную версию?"
+  deleteInterpolatedOnlyBody: "Удаляются только интерполированный файл и запись о задаче. Оригинал остаётся, его можно интерполировать снова."
+  interpolatedDeleted: "Интерполированная версия удалена"
+  deleteInterpolatedFailed: "Не удалось удалить интерполированную версию. Файл может быть занят или нет доступа"
+  viewTasks: "Задачи интерполяции"
+  badge: "2× FPS"
+  fpsBadge: "${fps} FPS"
+  specLine: "${width}×${height} · ${from} → ${to} fps"
+  runningDetail: "${percent}% · ${speed} fps"
+  preparing: "Подготовка…"
+  outputMissing: "Файл с интерполяцией больше не существует"
+  empty: "Задач интерполяции пока нет"
+  emptyHint: "Выберите «Увеличить частоту кадров в 2 раза» для видео в разделе «Локальные файлы» или «Загрузки»."
+  clearFinished: "Очистить завершённые записи"
+  status:
+    pending: "В очереди"
+    running: "Обработка"
+    completed: "Завершено"
+    failed: "Ошибка"
+    cancelled: "Отменено"
+  actions:
+    play: "Воспроизвести"
+    cancel: "Отмена"
+    retry: "Повторить"
+    delete: "Удалить запись"
+    revealInFolder: "Показать в папке"
+  confirm:
+    cancelTitle: "Отменить эту задачу?"
+    cancelContent: "Текущий прогресс будет потерян. Позже можно повторить задачу с начала."
+    deleteTitle: "Удалить эту запись?"
+    deleteContent: "Исходное видео не затрагивается."
+    deleteOutput: "Также удалить файл с интерполяцией"
+    clearTitle: "Очистить завершённые записи?"
+    clearContent: "Файлы с интерполяцией останутся на диске, будут удалены только записи."
+    enqueueTitle: "Интерполировать видео?"
+    enqueueAction: "Начать"
+    fpsUnit: "к/с"
+    saveNote: "Сохраняется в новый файл, исходное видео не меняется"
+    resetTitle: "Продолжить с места остановки нельзя. Всё начнётся заново, если:"
+    resetBackground: "переключиться на другое приложение или заблокировать экран"
+    resetClosed: "закрыть приложение, или его закроет система"
+  toast:
+    queued: "Добавлено в очередь интерполяции"
+    completed: "Интерполяция завершена: ${title}"
+    failed: "Ошибка интерполяции: ${title}"
+  reject:
+    sourceMissing: "Видеофайл больше не существует"
+    alreadyInterpolated: "Это видео уже обработано интерполяцией"
+    alreadyQueued: "Это видео уже в очереди"
+    alreadyDone: "У этого видео уже есть версия с интерполяцией"
+    hdr: "Видео HDR пока не поддерживается"
+    resolutionTooLarge: "Разрешение слишком высокое для интерполяции"
+    unreadable: "Не удалось прочитать это видео"
+    noGpu: "Не найдена подходящая видеокарта (требуется поддержка Vulkan)"
+  error:
+    unknown: "Что-то пошло не так"
+    openInput: "Не удалось открыть видео"
+    noVideo: "В файле нет видеодорожки"
+    decoder: "Не удалось декодировать видео"
+    hdrUnsupported: "Видео HDR пока не поддерживается"
+    noGpu: "Не найдена подходящая видеокарта"
+    model: "Не удалось загрузить модель интерполяции. Попробуйте переустановить компонент"
+    encoder: "Нет доступного видеокодера"
+    openOutput: "Не удалось создать выходной файл"
+    write: "Ошибка записи. Возможно, диск заполнен"
+    interpolate: "Ошибка обработки. Возможно, не хватило памяти видеокарты"
+    componentUnavailable: "Компонент интерполяции недоступен"
+    interrupted: "Прервано, так как приложение было закрыто"
+    finalizeFailed: "Не удалось сохранить готовый файл"
+    sourceMissing: "Видеофайл больше не существует"
+    backgrounded: "Прервано: приложение ушло в фон. Запустится заново, когда вы вернётесь"
+  notification:
+    title: "Интерполяция кадров"
+    titleWithQueue: "Интерполяция кадров · в очереди: ${count}"
+    waiting: "Ожидание запуска"
+  component:
+    unsupported: "Интерполяция кадров недоступна на этом устройстве"

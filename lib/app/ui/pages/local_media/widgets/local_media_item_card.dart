@@ -14,12 +14,15 @@ import 'package:i_iwara/app/models/local_media/local_vr_hints.dart';
 import 'package:i_iwara/app/models/vr_format.model.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/services/frame_interp/frame_interp_service.dart';
+import 'package:i_iwara/app/ui/pages/frame_interp/frame_interp_launcher.dart';
 import 'package:i_iwara/app/services/local_media_derivation_service.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_cover_image.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_image_thumb.dart';
 import 'package:i_iwara/app/utils/local_vr_filename_detector.dart';
 import 'package:i_iwara/utils/common_utils.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:visibility_detector/visibility_detector.dart';
 
 /// 本机文件浏览页里的一个媒体条目：视频是「封面 + 标题 + 出处」，图片是一格纯方图。
@@ -457,6 +460,43 @@ class _LocalMediaItemCardState extends State<LocalMediaItemCard> {
     );
   }
 
+  /// 封面右上角的角标行：补帧成品的帧率（排最前）+ 规格角标。
+  ///
+  /// 补帧这一枚要随任务完成 / 成品被删原地刷新，所以只有服务在时才套 Obx，
+  /// 且只套这一行，不动整张卡。
+  Widget _topRightTags(List<String> specTags) {
+    final interp = FrameInterpService.maybe;
+    if (interp == null) return _tagRow(specTags);
+    return Obx(() {
+      interp.revision.value;
+      // 原片那张卡就代表了它的补帧成品（成品自己那行被藏掉了，见
+      // LocalMediaRepository._itemFilter），角标标在原片上；原片不在了、
+      // 成品自己单独露出来时，仍标在成品上。
+      final task = interp.completedOutputFor(_item.path) != null
+          ? interp.taskForSource(_item.path)
+          : interp.taskForOutput(_item.path);
+      final String? interpTag = task == null
+          ? null
+          : task.outputFps > 0
+          ? slang.t.frameInterp.fpsBadge(fps: formatFrameRate(task.outputFps))
+          : slang.t.frameInterp.badge;
+      return _tagRow(<String>[?interpTag, ...specTags]);
+    });
+  }
+
+  Widget _tagRow(List<String> tags) {
+    if (tags.isEmpty) return const SizedBox.shrink();
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        for (var i = 0; i < tags.length; i++) ...<Widget>[
+          if (i > 0) const SizedBox(width: 4),
+          LocalCoverTag(label: tags[i]),
+        ],
+      ],
+    );
+  }
+
   List<Widget> _coverBadges(ThemeData theme) {
     final tags = _specTags();
     return <Widget>[
@@ -499,20 +539,7 @@ class _LocalMediaItemCardState extends State<LocalMediaItemCard> {
               : _formatDuration(_item.durationMs!),
         ),
       ),
-      if (tags.isNotEmpty)
-        Positioned(
-          top: 6,
-          right: 6,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              for (var i = 0; i < tags.length; i++) ...<Widget>[
-                if (i > 0) const SizedBox(width: 4),
-                LocalCoverTag(label: tags[i]),
-              ],
-            ],
-          ),
-        ),
+      Positioned(top: 6, right: 6, child: _topRightTags(tags)),
       Positioned(
         top: LocalContainerCard.badgeInset,
         left: LocalContainerCard.badgeInset,

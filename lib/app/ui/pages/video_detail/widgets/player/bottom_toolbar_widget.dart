@@ -27,6 +27,7 @@ import '../../controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/models/vr_format.model.dart';
 
 import 'custom_slider_bar_shape_widget.dart';
+import 'vr/vr_gyro_tracker.dart';
 import 'player_icon.dart';
 import 'toolbar_fade_visibility.dart';
 import 'vr/vr_format_menu.dart';
@@ -499,6 +500,34 @@ class BottomToolbar extends StatelessWidget {
     return button;
   }
 
+  /// 重力感应开关：只在 VR 全景环视时露出，和设置里那枚开关是同一个配置项。
+  ///
+  /// 放底栏而不是顶栏：顶栏在 360dp 竖屏上已经摆满（见 TopToolbar 的注释）。
+  Widget _buildGyroToggle(double iconSize, slang.Translations t) {
+    return Obx(() {
+      // 三个 Rx 先全部读一遍再判断：短路在前的话 Obx 首帧可能一个都没读到。
+      final panorama = myVideoStateController.isVrPanorama;
+      final available = VrGyroSupport.available.value;
+      final enabled =
+          _configService.settings[ConfigKey.VR_GYRO_CONTROL_KEY]!.value == true;
+      if (!panorama || available == false) return const SizedBox.shrink();
+      return _buildIconButton(
+        tooltip: t.vrFormat.gyroControl,
+        icon: PlayerIcon(
+          enabled ? PlayerSymbol.gyro : PlayerSymbol.gyroOff,
+          color: Colors.white,
+          size: iconSize,
+          semanticLabel: t.vrFormat.gyroControl,
+        ),
+        onPressed: () {
+          _configService[ConfigKey.VR_GYRO_CONTROL_KEY] = !enabled;
+          // 用户已经自己找到开关了，首次进环视那句提示不必再问。
+          _configService[ConfigKey.VR_GYRO_PROMPT_SHOWN_KEY] = true;
+        },
+      );
+    });
+  }
+
   /// 创建一个带切换动画的IconButton
   Widget _buildSwitchIconButton({
     required Widget icon,
@@ -929,6 +958,7 @@ class BottomToolbar extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        if (VrGyroSupport.platformEligible) _buildGyroToggle(iconSize, t),
         _buildPlaybackSpeedSwitcher(context, iconSize),
         _buildResolutionSwitcher(context, iconSize),
         if (GetPlatform.isDesktop && !currentScreenIsFullScreen)

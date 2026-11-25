@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:i_iwara/app/ui/widgets/cached_list_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
@@ -306,11 +306,10 @@ class _HistoryTileState extends State<HistoryTile>
             icon: _typeIcon ?? Icons.history,
             width: width,
           )
-        : CachedNetworkImage(
+        : CachedListImage(
             imageUrl: url,
             fit: BoxFit.cover,
             memCacheWidth: (width * dpr).round(),
-            fadeInDuration: const Duration(milliseconds: 120),
             placeholder: (_, _) =>
                 ColoredBox(color: cs.surfaceContainerHighest),
             errorWidget: (_, _, _) => ColoredBox(
@@ -385,25 +384,30 @@ class _HistoryTileState extends State<HistoryTile>
         ? _buildGrid(context)
         : _buildRow(context);
     return RepaintBoundary(
-      child: Builder(
-        builder: (anchorContext) => GestureDetector(
-          onSecondaryTapUp: _isDesktop
-              ? (d) => _onSecondaryTap(anchorContext, d)
-              : null,
-          child: Stack(
-            children: [
-              body,
-              // 选择态：角标勾选片 + 选中描边（全站统一）。常驻挂载以获得进出过渡。
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: GlassSelectableOverlay(
-                    selectionMode: widget.selectionMode,
-                    selected: widget.selected,
-                    borderRadius: BorderRadius.circular(HistoryTile.radius),
+      child: MouseRegion(
+        // 停够一会儿就预取详情 + 视频源；选择态下点一下是勾选，不预取。
+        onEnter: (_) => onCardHoverChanged(!widget.selectionMode),
+        onExit: (_) => onCardHoverChanged(false),
+        child: Builder(
+          builder: (anchorContext) => GestureDetector(
+            onSecondaryTapUp: _isDesktop
+                ? (d) => _onSecondaryTap(anchorContext, d)
+                : null,
+            child: Stack(
+              children: [
+                body,
+                // 选择态：角标勾选片 + 选中描边（全站统一）。常驻挂载以获得进出过渡。
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: GlassSelectableOverlay(
+                      selectionMode: widget.selectionMode,
+                      selected: widget.selected,
+                      borderRadius: BorderRadius.circular(HistoryTile.radius),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

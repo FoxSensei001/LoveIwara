@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -6,6 +7,8 @@ import 'package:material_ui/material_ui.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/vr_format.model.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/vr/vr_gyro_prompt.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/vr/vr_gyro_tracker.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/vr/vr_panorama_shader.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
 import 'package:i_iwara/app/utils/vr_geometry.dart';
@@ -150,6 +153,9 @@ class _VrPanoramaVideoState extends State<_VrPanoramaVideo> {
   int _shaderIndex = 0;
   bool _loadAttempted = false;
 
+  /// 本画面所在路由是否可见：被别的页面整个盖住时为 false，陀螺仪跟着停。
+  ValueListenable<TickerModeData>? _tickerMode;
+
   @override
   void initState() {
     super.initState();
@@ -177,10 +183,55 @@ class _VrPanoramaVideoState extends State<_VrPanoramaVideo> {
         ..add(program.fragmentShader())
         ..add(program.fragmentShader());
     });
+    _syncGyro();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final tickerMode = TickerMode.getValuesNotifier(context);
+    if (!identical(tickerMode, _tickerMode)) {
+      _tickerMode?.removeListener(_syncGyro);
+      _tickerMode = tickerMode..addListener(_syncGyro);
+      _syncGyro();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _VrPanoramaVideo oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.controller, widget.controller)) {
+      oldWidget.controller.vrGyroTracker.setViewerActive(this, false);
+      _syncGyro();
+    }
+  }
+
+  /// 把「这块画面要不要陀螺仪」报给控制器上那只 tracker。
+  ///
+  /// 只有真的在跑环视着色器时才要：退回单眼裁切的那条路不读偏航 / 俯仰，订了
+  /// 传感器也是白耗电。开关关着时 tracker 自己不订阅，这里不必管。
+  bool get _wantsGyro =>
+      mounted && (_tickerMode?.value.enabled ?? true) && _shaders.isNotEmpty;
+
+  void _syncGyro() {
+    final wants = _wantsGyro;
+    widget.controller.vrGyroTracker.setViewerActive(this, wants);
+    if (wants) {
+      // 底栏那枚开关要靠探测结果决定露不露（没有陀螺仪就藏起来）。
+      unawaited(VrGyroSupport.ensureProbed());
+      // 第一次进环视时问一句要不要开重力感应；挪到帧后，别在 build 期间弹窗。
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          unawaited(VrGyroPrompt.maybeShow(stillWanted: () => _wantsGyro));
+        }
+      });
+    }
   }
 
   @override
   void dispose() {
+    _tickerMode?.removeListener(_syncGyro);
+    widget.controller.vrGyroTracker.setViewerActive(this, false);
     for (final shader in _shaders) {
       shader.dispose();
     }

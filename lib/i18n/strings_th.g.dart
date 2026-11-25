@@ -101,6 +101,7 @@ class TranslationsTh extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsFollowSearchTh followSearch = _TranslationsFollowSearchTh._(_root);
 	@override late final _TranslationsPagedSearchTh pagedSearch = _TranslationsPagedSearchTh._(_root);
 	@override late final _TranslationsPollTh poll = _TranslationsPollTh._(_root);
+	@override late final _TranslationsFrameInterpTh frameInterp = _TranslationsFrameInterpTh._(_root);
 }
 
 // Path: personalProfile
@@ -354,6 +355,8 @@ class _TranslationsCommonTh extends TranslationsCommonEn {
 	@override String get disagree => 'ไม่ยอมรับ';
 	@override String get agreeToRules => 'ยอมรับกฎระเบียบ';
 	@override String get tapToReread => 'แตะเพื่ออ่านอีกครั้ง';
+	@override String get rulesRequiredHint => 'โปรดอ่านและยอมรับกฎของชุมชนก่อนโพสต์';
+	@override String get readAndAgree => 'อ่านและยอมรับ';
 	@override String get markdownSyntaxHelp => 'วิธีใช้ไวยากรณ์ Markdown';
 	@override String get previewContent => 'แสดงตัวอย่างเนื้อหา';
 	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
@@ -858,6 +861,29 @@ class _TranslationsSettingsTh extends TranslationsSettingsEn {
 	@override String get defaultBrowserDesc => 'โปรดเปิดรายการกำหนดค่าลิงก์เริ่มต้นในการตั้งค่าระบบและเพิ่มลิงก์เว็บไซต์ iwara.tv';
 	@override String get themeMode => 'โหมดธีม';
 	@override String get themeModeDesc => 'การกำหนดค่านี้กำหนดโหมดธีมของแอป';
+	@override String get glassQuality => 'Rendering quality';
+	@override String get glassQualityAuto => 'Automatic';
+	@override String get glassQualityAutoDesc => 'Adapts to frame time; refraction can change as quality adjusts';
+	@override String get glassQualityStandard => 'Smooth';
+	@override String get glassQualityStandardDesc => 'Lightweight glass with highlights and consistent frame pacing';
+	@override String get glassQualityPremium => 'Full refraction';
+	@override String get glassQualityPremiumDesc => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass';
+	@override String get glassQualityCurrent => 'Currently active';
+	@override String get glassChromeParametersDesc => 'Navigation glass parameters apply live to headers, buttons and the bottom bar';
+	@override String get glassPreview => 'Preview';
+	@override String get glassPremiumOnly => 'Only takes effect with the full refraction quality';
+	@override String get glassSaturationNeedsBlur => 'With the smooth quality, only takes effect when background blur is above 0';
+	@override String get glassOpacity => 'Opacity';
+	@override String get glassBlur => 'Background blur (sigma)';
+	@override String get glassBlurDesc => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness';
+	@override String get glassAdvancedParameters => 'Advanced navigation parameters';
+	@override String get glassThickness => 'Lens thickness';
+	@override String get glassRefractiveIndex => 'Refractive index';
+	@override String get glassLightIntensity => 'Highlight intensity';
+	@override String get glassSaturation => 'Background saturation';
+	@override String get glassChromaticAberration => 'Chromatic aberration';
+	@override String get glassShadows => 'Shadows';
+	@override String get glassResetParameters => 'Restore glass defaults';
 	@override String get glassEffect => 'วัสดุอินเทอร์เฟซ';
 	@override String get glassEffectDesc => 'เลือกวัสดุที่ใช้ทั่วทั้งแอป — แคปซูลส่วนหัว เมนู ปุ่มกล่องโต้ตอบ และแถบนำทางด้านล่าง';
 	@override String get liquidGlassEffect => 'กระจกเหลว';
@@ -1158,15 +1184,13 @@ class _TranslationsSettingsTh extends TranslationsSettingsEn {
 	@override String get showCenterPlayPauseButtonDesc => 'แสดงปุ่มเล่น/หยุดชั่วคราวขนาดใหญ่ตรงกลางเครื่องเล่น';
 	@override String get audioVideoConfig => 'การกำหนดค่าเสียงและวิดีโอ';
 	@override String get expandBuffer => 'ขยายบัฟเฟอร์';
-	@override String get expandBufferInfo => 'เมื่อเปิดใช้งาน ขนาดบัฟเฟอร์จะเพิ่มขึ้น เวลาในการโหลดจะนานขึ้น แต่การเล่นจะราบรื่นยิ่งขึ้น';
+	@override String get expandBufferInfo => 'เมื่อเปิดใช้งาน จะโหลดวิดีโอล่วงหน้ามากขึ้น ทำให้สะดุดน้อยลงเมื่อเครือข่ายไม่เสถียร แต่จะใช้หน่วยความจำมากขึ้น';
 	@override String get videoSyncMode => 'โหมดการซิงค์วิดีโอ';
 	@override String get videoSyncModeSubtitle => 'กลยุทธ์การซิงโครไนซ์เสียงและวิดีโอ';
 	@override String get hardwareDecodingMode => 'โหมดการถอดรหัสฮาร์ดแวร์';
 	@override String get hardwareDecodingModeSubtitle => 'การตั้งค่าการถอดรหัสฮาร์ดแวร์';
 	@override String get enableHardwareAcceleration => 'เปิดใช้การเร่งความเร็วด้วยฮาร์ดแวร์';
 	@override String get enableHardwareAccelerationInfo => 'การเปิดใช้การเร่งความเร็วด้วยฮาร์ดแวร์สามารถปรับปรุงประสิทธิภาพการถอดรหัสได้ แต่อุปกรณ์บางรุ่นอาจไม่รองรับ';
-	@override String get useOpenSLESAudioOutput => 'ใช้เอาต์พุตเสียง OpenSLES';
-	@override String get useOpenSLESAudioOutputInfo => 'ใช้เอาต์พุตเสียงที่มีความหน่วงต่ำ อาจช่วยปรับปรุงประสิทธิภาพของเสียงได้';
 	@override String get videoSyncAudio => 'การซิงค์เสียง';
 	@override String get videoSyncDisplayResample => 'การสุ่มตัวอย่างใหม่ในการแสดงผล';
 	@override String get videoSyncDisplayResampleVdrop => 'การสุ่มตัวอย่างใหม่ในการแสดงผล (ดรอปเฟรม)';
@@ -1313,6 +1337,9 @@ class _TranslationsVideoDetailTh extends TranslationsVideoDetailEn {
 	@override String get thisIsAPrivateVideo => 'นี่เป็นวิดีโอส่วนตัว';
 	@override String get getVideoInfoFailed => 'รับข้อมูลวิดีโอล้มเหลว โปรดลองใหม่อีกครั้งในภายหลัง';
 	@override String get noVideoSourceFound => 'ไม่พบแหล่งที่มาของวิดีโอ';
+	@override String get sourceFileMissingOnServer => 'ไม่พบไฟล์วิดีโอบนเซิร์ฟเวอร์ Iwara (HTTP 404) จึงเล่นบนเว็บไม่ได้เช่นกัน เซิร์ฟเวอร์อาจมีปัญหา โปรดลองใหม่ภายหลัง';
+	@override String qualityFileMissingOnServer({required Object quality}) => 'ไม่พบไฟล์คุณภาพ「${quality}」บนเซิร์ฟเวอร์ (HTTP 404) เลือกคุณภาพอื่นจากเมนูคุณภาพ';
+	@override String get playbackRetryExhausted => 'เปิดวิดีโอไม่สำเร็จหลายครั้งติดกัน จึงหยุดลองใหม่อัตโนมัติแล้ว โปรดลองใหม่ภายหลัง';
 	@override String tagCopiedToClipboard({required Object tagId}) => 'คัดลอกแท็ก "${tagId}" ไปยังคลิปบอร์ดแล้ว';
 	@override String get errorLoadingVideo => 'เกิดข้อผิดพลาดขณะโหลดวิดีโอ';
 	@override String get play => 'เล่น';
@@ -1537,6 +1564,8 @@ class _TranslationsNotificationsTh extends TranslationsNotificationsEn {
 	@override String get kApprovedPost => 'อนุมัติโพสต์แล้ว';
 	@override String get kApprovedForumPost => 'อนุมัติโพสต์ฟอรัมแล้ว';
 	@override String get kRejectedContent => 'การตรวจสอบเนื้อหาถูกปฏิเสธ';
+	@override String get kWarning => 'คำเตือนจากเว็บไซต์';
+	@override String get kWarningHint => 'ผู้ดูแลได้ออกคำเตือนให้บัญชีของคุณ โปรดปฏิบัติตามกฎของชุมชน ดูรายละเอียดได้บนเว็บไซต์';
 	@override String get kUnknownType => 'ประเภทการแจ้งเตือนที่ไม่รู้จัก';
 }
 
@@ -1595,6 +1624,7 @@ class _TranslationsDownloadTh extends TranslationsDownloadEn {
 	@override String get categorySectionLabel => 'หมวดหมู่';
 	@override String get saveToPreviewLabel => 'จะบันทึกไปที่';
 	@override String saveToPreviewSuggested({required Object name}) => 'ชื่อไฟล์ที่แนะนำ: ${name} (แก้ไขได้ในกล่องโต้ตอบระบบ)';
+	@override String get saveToPreviewChange => 'Change…';
 	@override String get lastUsedBadge => 'ใช้ล่าสุด';
 	@override String get pickedBadge => 'เลือกแล้ว';
 	@override String get startDownloading => 'เริ่มการดาวน์โหลด';
@@ -2856,6 +2886,12 @@ class _TranslationsVrFormatTh extends TranslationsVrFormatEn {
 	@override String get resetToAutoDesc => 'ลืมการเลือกเองสำหรับวิดีโอนี้ แล้วให้การตรวจจับตัดสินใจใหม่';
 	@override String get manualBadge => 'ตั้งค่าเอง';
 	@override String get panoramaHint => 'ลากภาพเพื่อมองไปรอบๆ บีบนิ้วเพื่อเปลี่ยนมุมมอง';
+	@override String get gyroControl => 'ควบคุมมุมมองด้วยไจโร';
+	@override String get gyroControlDesc => 'ในโหมดพาโนรามา VR หมุนโทรศัพท์เพื่อมองไปรอบๆ และยังลากเพื่อปรับมุมได้';
+	@override String get gyroPromptTitle => 'เปิดการควบคุมด้วยไจโรไหม?';
+	@override String get gyroPromptBody => 'เปิดเซ็นเซอร์การเคลื่อนไหวเพื่อประสบการณ์ VR ที่ดีขึ้นไหม? ปิดฟีเจอร์นี้ได้ในการตั้งค่า';
+	@override String get gyroPromptEnable => 'เปิด';
+	@override String get gyroPromptDecline => 'ไม่ใช่ตอนนี้';
 	@override String get panoramaGestureNotice => 'ขณะมองไปรอบๆ การลากจะหมุนมุมมอง — ใช้แถบความคืบหน้าเพื่อเลื่อนไปยังตำแหน่ง';
 	@override String get shaderUnsupported => 'อุปกรณ์นี้ไม่สามารถเรนเดอร์พาโนรามาแบบสดได้ จึงแสดงเพียงตาเดียว';
 	@override String get handoffTooltip => 'เล่นด้วยวิธีอื่น';
@@ -3209,6 +3245,44 @@ class _TranslationsPollTh extends TranslationsPollEn {
 	@override String get voteFailed => 'ส่งโหวตไม่สำเร็จ';
 	@override String get copyLink => 'คัดลอกลิงก์โพล';
 	@override String get translateFailed => 'แปลโพลไม่สำเร็จ';
+}
+
+// Path: frameInterp
+class _TranslationsFrameInterpTh extends TranslationsFrameInterpEn {
+	_TranslationsFrameInterpTh._(TranslationsTh root) : this._root = root, super.internal(root);
+
+	final TranslationsTh _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'งานเพิ่มเฟรม';
+	@override String get action => 'เพิ่มเฟรม (สร้างเวอร์ชันเฟรมเรตเป็น 2 เท่า)';
+	@override String get playInterpolated => 'เล่นเวอร์ชันที่เพิ่มเฟรม';
+	@override String get playOriginal => 'เล่นต้นฉบับ';
+	@override String get deleteInterpolated => 'ลบเวอร์ชันเติมเฟรมด้วย';
+	@override String get deleteInterpolatedDesc => 'ลบไฟล์วิดีโอที่เติมเฟรมพร้อมบันทึกงาน';
+	@override String get deleteInterpolatedOnly => 'ลบเวอร์ชันเติมเฟรม';
+	@override String get deleteInterpolatedOnlyTitle => 'ลบเวอร์ชันเติมเฟรมไหม?';
+	@override String get deleteInterpolatedOnlyBody => 'ลบเฉพาะไฟล์วิดีโอที่เติมเฟรมและบันทึกงานเท่านั้น วิดีโอต้นฉบับยังอยู่ และเติมเฟรมใหม่ได้ภายหลัง';
+	@override String get interpolatedDeleted => 'ลบเวอร์ชันเติมเฟรมแล้ว';
+	@override String get deleteInterpolatedFailed => 'ลบเวอร์ชันเติมเฟรมไม่สำเร็จ ไฟล์อาจกำลังถูกใช้งานหรือไม่มีสิทธิ์';
+	@override String get viewTasks => 'ดูงานเพิ่มเฟรม';
+	@override String get badge => 'เพิ่มเฟรม';
+	@override String fpsBadge({required Object fps}) => '${fps} FPS';
+	@override String specLine({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps';
+	@override String runningDetail({required Object percent, required Object speed}) => '${percent}% · ${speed} fps';
+	@override String get preparing => 'กำลังเตรียม…';
+	@override String get outputMissing => 'ไม่พบไฟล์ที่เพิ่มเฟรมแล้ว';
+	@override String get empty => 'ยังไม่มีงานเพิ่มเฟรม';
+	@override String get emptyHint => 'เลือกวิดีโอใน “ไฟล์ในเครื่อง” หรือ “ดาวน์โหลด” แล้วเลือก “เพิ่มเฟรม”';
+	@override String get clearFinished => 'ล้างบันทึกที่เสร็จสิ้นแล้ว';
+	@override late final _TranslationsFrameInterpStatusTh status = _TranslationsFrameInterpStatusTh._(_root);
+	@override late final _TranslationsFrameInterpActionsTh actions = _TranslationsFrameInterpActionsTh._(_root);
+	@override late final _TranslationsFrameInterpConfirmTh confirm = _TranslationsFrameInterpConfirmTh._(_root);
+	@override late final _TranslationsFrameInterpToastTh toast = _TranslationsFrameInterpToastTh._(_root);
+	@override late final _TranslationsFrameInterpRejectTh reject = _TranslationsFrameInterpRejectTh._(_root);
+	@override late final _TranslationsFrameInterpErrorTh error = _TranslationsFrameInterpErrorTh._(_root);
+	@override late final _TranslationsFrameInterpNotificationTh notification = _TranslationsFrameInterpNotificationTh._(_root);
+	@override late final _TranslationsFrameInterpComponentTh component = _TranslationsFrameInterpComponentTh._(_root);
 }
 
 // Path: common.pagination
@@ -3729,6 +3803,10 @@ class _TranslationsVideoDetailLocalInfoTh extends TranslationsVideoDetailLocalIn
 	@override String get currentQuality => 'คุณภาพปัจจุบัน';
 	@override String get duration => 'ความยาว';
 	@override String get resolution => 'ความละเอียด';
+	@override String get frameRate => 'อัตราเฟรม';
+	@override String frameRateValue({required Object fps}) => '${fps} fps';
+	@override String frameRateInterpolated({required Object fps, required Object from}) => '${fps} fps (เวอร์ชันเติมเฟรม ต้นฉบับ ${from} fps)';
+	@override String frameRateHasInterpolated({required Object fps, required Object to}) => '${fps} fps (ต้นฉบับ มีเวอร์ชัน ${to} fps แล้ว)';
 	@override String get fileInfo => 'ข้อมูลไฟล์';
 	@override String get fileName => 'ชื่อไฟล์';
 	@override String get fileSize => 'ขนาดไฟล์';
@@ -3794,7 +3872,7 @@ class _TranslationsVideoDetailSkeletonTh extends TranslationsVideoDetailSkeleton
 	@override String get fetchingVideoSources => 'กำลังดึงแหล่งที่มาของวิดีโอ...';
 	@override String get loadingVideo => 'กำลังโหลดวิดีโอ...';
 	@override String get applyingSolution => 'กำลังนำการตั้งค่าความละเอียดนี้ไปใช้...';
-	@override String get addingListeners => 'กำลังเพิ่มตัวรับฟังเหตุการณ์...';
+	@override String get addingListeners => 'กำลังเชื่อมต่อเซิร์ฟเวอร์วิดีโอ...';
 	@override String get successFecthVideoDurationInfo => 'ดึงข้อมูลความยาววิดีโอสำเร็จ เริ่มโหลดวิดีโอ...';
 	@override String get successFecthVideoHeightInfo => 'โหลดเสร็จสมบูรณ์';
 }
@@ -4351,6 +4429,7 @@ class _TranslationsDownloadLocationTh extends TranslationsDownloadLocationEn {
 	@override String get downloadsFolder => 'Downloads';
 	@override String get askEveryTime => 'Ask every time';
 	@override String askEveryTimeDesc({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}';
+	@override String firstDownloadNotice({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings';
 	@override String freeSpace({required Object size}) => '${size} free';
 	@override String get statusWritable => 'Writable';
 	@override String get statusNeedsPermission => 'Needs permission';
@@ -4917,6 +4996,133 @@ class _TranslationsLocalMediaWebdavTh extends TranslationsLocalMediaWebdavEn {
 	@override String get bannerCredUnreadable => 'Couldn\'t read the saved password. Sign in again.';
 }
 
+// Path: frameInterp.status
+class _TranslationsFrameInterpStatusTh extends TranslationsFrameInterpStatusEn {
+	_TranslationsFrameInterpStatusTh._(TranslationsTh root) : this._root = root, super.internal(root);
+
+	final TranslationsTh _root; // ignore: unused_field
+
+	// Translations
+	@override String get pending => 'รอคิว';
+	@override String get running => 'กำลังประมวลผล';
+	@override String get completed => 'เสร็จสมบูรณ์';
+	@override String get failed => 'ล้มเหลว';
+	@override String get cancelled => 'ยกเลิกแล้ว';
+}
+
+// Path: frameInterp.actions
+class _TranslationsFrameInterpActionsTh extends TranslationsFrameInterpActionsEn {
+	_TranslationsFrameInterpActionsTh._(TranslationsTh root) : this._root = root, super.internal(root);
+
+	final TranslationsTh _root; // ignore: unused_field
+
+	// Translations
+	@override String get play => 'เล่น';
+	@override String get cancel => 'ยกเลิก';
+	@override String get retry => 'ลองใหม่';
+	@override String get delete => 'ลบบันทึก';
+	@override String get revealInFolder => 'แสดงในโฟลเดอร์';
+}
+
+// Path: frameInterp.confirm
+class _TranslationsFrameInterpConfirmTh extends TranslationsFrameInterpConfirmEn {
+	_TranslationsFrameInterpConfirmTh._(TranslationsTh root) : this._root = root, super.internal(root);
+
+	final TranslationsTh _root; // ignore: unused_field
+
+	// Translations
+	@override String get cancelTitle => 'ยกเลิกงานนี้หรือไม่?';
+	@override String get cancelContent => 'ความคืบหน้าที่ผ่านมาจะหายไป คุณสามารถลองใหม่ตั้งแต่ต้นได้ภายหลัง';
+	@override String get deleteTitle => 'ลบบันทึกนี้หรือไม่?';
+	@override String get deleteContent => 'วิดีโอต้นฉบับจะไม่ได้รับผลกระทบ';
+	@override String get deleteOutput => 'ลบไฟล์ที่เพิ่มเฟรมด้วย';
+	@override String get clearTitle => 'ล้างบันทึกที่เสร็จสิ้นแล้วหรือไม่?';
+	@override String get clearContent => 'ไฟล์ที่เพิ่มเฟรมแล้วจะยังอยู่ในดิสก์ จะลบเฉพาะบันทึก';
+	@override String get enqueueTitle => 'เติมเฟรมวิดีโอนี้?';
+	@override String get enqueueAction => 'เริ่มเติมเฟรม';
+	@override String get fpsUnit => 'fps';
+	@override String get saveNote => 'บันทึกเป็นไฟล์ใหม่ วิดีโอต้นฉบับไม่ถูกแก้ไข';
+	@override String get resetTitle => 'ไม่รองรับการทำต่อ จะเริ่มใหม่ตั้งแต่ต้นเมื่อ:';
+	@override String get resetBackground => 'สลับไปแอปอื่นหรือล็อกหน้าจอ';
+	@override String get resetClosed => 'ปิดแอป หรือระบบปิดแอป';
+}
+
+// Path: frameInterp.toast
+class _TranslationsFrameInterpToastTh extends TranslationsFrameInterpToastEn {
+	_TranslationsFrameInterpToastTh._(TranslationsTh root) : this._root = root, super.internal(root);
+
+	final TranslationsTh _root; // ignore: unused_field
+
+	// Translations
+	@override String get queued => 'เพิ่มเข้าคิวเพิ่มเฟรมแล้ว';
+	@override String completed({required Object title}) => 'เพิ่มเฟรมเสร็จแล้ว: ${title}';
+	@override String failed({required Object title}) => 'เพิ่มเฟรมไม่สำเร็จ: ${title}';
+}
+
+// Path: frameInterp.reject
+class _TranslationsFrameInterpRejectTh extends TranslationsFrameInterpRejectEn {
+	_TranslationsFrameInterpRejectTh._(TranslationsTh root) : this._root = root, super.internal(root);
+
+	final TranslationsTh _root; // ignore: unused_field
+
+	// Translations
+	@override String get sourceMissing => 'ไม่พบไฟล์วิดีโอ';
+	@override String get alreadyInterpolated => 'วิดีโอนี้ผ่านการเพิ่มเฟรมแล้ว';
+	@override String get alreadyQueued => 'วิดีโอนี้อยู่ในคิวแล้ว';
+	@override String get alreadyDone => 'วิดีโอนี้มีเวอร์ชันที่เพิ่มเฟรมแล้ว';
+	@override String get hdr => 'ยังไม่รองรับวิดีโอ HDR';
+	@override String get resolutionTooLarge => 'ความละเอียดสูงเกินไปที่จะเพิ่มเฟรมได้';
+	@override String get unreadable => 'อ่านวิดีโอนี้ไม่ได้';
+	@override String get noGpu => 'ไม่พบการ์ดจอที่ใช้งานได้ (ต้องรองรับ Vulkan)';
+}
+
+// Path: frameInterp.error
+class _TranslationsFrameInterpErrorTh extends TranslationsFrameInterpErrorEn {
+	_TranslationsFrameInterpErrorTh._(TranslationsTh root) : this._root = root, super.internal(root);
+
+	final TranslationsTh _root; // ignore: unused_field
+
+	// Translations
+	@override String get unknown => 'เกิดข้อผิดพลาดบางอย่าง';
+	@override String get openInput => 'เปิดวิดีโอไม่ได้';
+	@override String get noVideo => 'ไฟล์นี้ไม่มีแทร็กวิดีโอ';
+	@override String get decoder => 'ถอดรหัสวิดีโอไม่ได้';
+	@override String get hdrUnsupported => 'ยังไม่รองรับวิดีโอ HDR';
+	@override String get noGpu => 'ไม่พบการ์ดจอที่ใช้งานได้';
+	@override String get model => 'โหลดโมเดลเพิ่มเฟรมไม่สำเร็จ ลองติดตั้งคอมโพเนนต์ใหม่';
+	@override String get encoder => 'ไม่มีตัวเข้ารหัสวิดีโอที่ใช้งานได้';
+	@override String get openOutput => 'สร้างไฟล์ผลลัพธ์ไม่ได้';
+	@override String get write => 'เขียนไฟล์ไม่สำเร็จ ดิสก์อาจเต็ม';
+	@override String get interpolate => 'ประมวลผลไม่สำเร็จ หน่วยความจำการ์ดจออาจไม่พอ';
+	@override String get componentUnavailable => 'ใช้คอมโพเนนต์เพิ่มเฟรมไม่ได้';
+	@override String get interrupted => 'ถูกขัดจังหวะเพราะแอปถูกปิด';
+	@override String get finalizeFailed => 'บันทึกไฟล์ที่เสร็จแล้วไม่สำเร็จ';
+	@override String get sourceMissing => 'ไม่พบไฟล์วิดีโอ';
+	@override String get backgrounded => 'หยุดเพราะแอปเข้าสู่เบื้องหลัง จะเริ่มใหม่อัตโนมัติเมื่อกลับมา';
+}
+
+// Path: frameInterp.notification
+class _TranslationsFrameInterpNotificationTh extends TranslationsFrameInterpNotificationEn {
+	_TranslationsFrameInterpNotificationTh._(TranslationsTh root) : this._root = root, super.internal(root);
+
+	final TranslationsTh _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'กำลังแทรกเฟรม';
+	@override String titleWithQueue({required Object count}) => 'กำลังแทรกเฟรม · รอคิว ${count} รายการ';
+	@override String get waiting => 'รอเริ่ม';
+}
+
+// Path: frameInterp.component
+class _TranslationsFrameInterpComponentTh extends TranslationsFrameInterpComponentEn {
+	_TranslationsFrameInterpComponentTh._(TranslationsTh root) : this._root = root, super.internal(root);
+
+	final TranslationsTh _root; // ignore: unused_field
+
+	// Translations
+	@override String get unsupported => 'อุปกรณ์นี้ไม่รองรับการเพิ่มเฟรม';
+}
+
 // Path: settings.downloadSettings.pathTemplateEditor
 class _TranslationsSettingsDownloadSettingsPathTemplateEditorTh extends TranslationsSettingsDownloadSettingsPathTemplateEditorEn {
 	_TranslationsSettingsDownloadSettingsPathTemplateEditorTh._(TranslationsTh root) : this._root = root, super.internal(root);
@@ -5077,6 +5283,32 @@ class _TranslationsVideoDetailCastDlnaCastSheetTh extends TranslationsVideoDetai
 	@override String connectedTo({required Object deviceName}) => 'เชื่อมต่อกับ: ${deviceName}';
 	@override String get notConnected => 'ไม่ได้เชื่อมต่ออุปกรณ์';
 	@override String get stopCasting => 'หยุดแคสต์';
+	@override String searchFinished({required Object count}) => 'ค้นหาเสร็จแล้ว พบ ${count} อุปกรณ์';
+	@override String get protocolDlna => 'DLNA';
+	@override String get protocolGoogleCast => 'Google Cast';
+	@override String get addByIp => 'เพิ่มด้วยตนเอง';
+	@override String get addByIpTitle => 'เพิ่มอุปกรณ์ด้วยตนเอง';
+	@override String get addByIpDesc => 'ป้อนที่อยู่ IP ของทีวีหรือกล่องสตรีมมิง โดยปกติดูได้ที่ «การตั้งค่า → เครือข่าย → สถานะเครือข่าย» บนทีวี';
+	@override String get addByIpHint => 'เช่น 192.168.1.20';
+	@override String get addByIpAction => 'ค้นหา';
+	@override String get addByIpInvalid => 'รูปแบบที่อยู่ไม่ถูกต้อง โปรดป้อนที่อยู่ IPv4 เช่น 192.168.1.20';
+	@override String addByIpNotFound({required Object host}) => 'ไม่พบอุปกรณ์แคสต์ที่ ${host}';
+	@override String get troubleshootTitle => 'หาอุปกรณ์ไม่เจอใช่ไหม?';
+	@override String get troubleshoot => '• โทรศัพท์ (คอมพิวเตอร์) และทีวีต้องเชื่อมต่อ Wi-Fi เดียวกัน เครือข่ายแขกหรือเราเตอร์ที่เปิด AP isolation จะทำให้ค้นหาไม่เจอ\n• หากเปิด VPN หรือแอปพร็อกซีอยู่อาจค้นหาไม่เจอ ให้ปิดแล้วลองใหม่\n• รองรับ DLNA และ Google Cast (Chromecast) ไม่รองรับ Apple TV (AirPlay) และโปรโตคอลเฉพาะของบางยี่ห้อ ต้องเปิด DLNA บนทีวี\n• ยังไม่เจอ? แตะ «เพิ่มด้วยตนเอง» แล้วป้อน IP ของทีวี';
+	@override late final _TranslationsVideoDetailCastDlnaCastSheetFailureTh failure = _TranslationsVideoDetailCastDlnaCastSheetFailureTh._(_root);
+}
+
+// Path: videoDetail.cast.dlnaCastSheet.failure
+class _TranslationsVideoDetailCastDlnaCastSheetFailureTh extends TranslationsVideoDetailCastDlnaCastSheetFailureEn {
+	_TranslationsVideoDetailCastDlnaCastSheetFailureTh._(TranslationsTh root) : this._root = root, super.internal(root);
+
+	final TranslationsTh _root; // ignore: unused_field
+
+	// Translations
+	@override String get unreachable => 'เชื่อมต่ออุปกรณ์ไม่ได้ ตรวจสอบว่าอยู่ใน Wi-Fi เดียวกันและลองปิด VPN';
+	@override String get timeout => 'อุปกรณ์ไม่ตอบสนอง';
+	@override String get mediaRejected => 'อุปกรณ์เล่นวิดีโอนี้ไม่ได้ (รูปแบบไม่รองรับหรือเปิดลิงก์ไม่ได้)';
+	@override String get deviceRejected => 'อุปกรณ์ปฏิเสธคำขอแคสต์';
 }
 
 /// The flat map containing all translations for locale <th>.
@@ -5298,6 +5530,8 @@ extension on TranslationsTh {
 			'common.disagree' => 'ไม่ยอมรับ',
 			'common.agreeToRules' => 'ยอมรับกฎระเบียบ',
 			'common.tapToReread' => 'แตะเพื่ออ่านอีกครั้ง',
+			'common.rulesRequiredHint' => 'โปรดอ่านและยอมรับกฎของชุมชนก่อนโพสต์',
+			'common.readAndAgree' => 'อ่านและยอมรับ',
 			'common.markdownSyntaxHelp' => 'วิธีใช้ไวยากรณ์ Markdown',
 			'common.previewContent' => 'แสดงตัวอย่างเนื้อหา',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -5597,10 +5831,10 @@ extension on TranslationsTh {
 			'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain' => 'การกำหนดค่านี้กำหนดว่าจะใช้การกำหนดค่าก่อนหน้าซ้ำหรือไม่เมื่อเล่นวิดีโออีกครั้ง',
 			'settings.playControl' => 'การควบคุมการเล่น',
 			'settings.playbackSpeedSettings' => 'การเล่นและความเร็ว',
-			'settings.playbackBehaviorSettings' => 'พฤติกรรมการเล่น',
-			'settings.enhancementSettings' => 'โหมดโรงภาพยนตร์และการเพิ่มประสิทธิภาพ',
 			_ => null,
 		} ?? switch (path) {
+			'settings.playbackBehaviorSettings' => 'พฤติกรรมการเล่น',
+			'settings.enhancementSettings' => 'โหมดโรงภาพยนตร์และการเพิ่มประสิทธิภาพ',
 			'settings.fastForwardTime' => 'เวลาเดินหน้าอย่างเร็ว',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => 'เวลาเดินหน้าอย่างเร็วต้องเป็นจำนวนเต็มบวก',
 			'settings.rewindTime' => 'เวลาย้อนกลับ',
@@ -5757,6 +5991,29 @@ extension on TranslationsTh {
 			'settings.defaultBrowserDesc' => 'โปรดเปิดรายการกำหนดค่าลิงก์เริ่มต้นในการตั้งค่าระบบและเพิ่มลิงก์เว็บไซต์ iwara.tv',
 			'settings.themeMode' => 'โหมดธีม',
 			'settings.themeModeDesc' => 'การกำหนดค่านี้กำหนดโหมดธีมของแอป',
+			'settings.glassQuality' => 'Rendering quality',
+			'settings.glassQualityAuto' => 'Automatic',
+			'settings.glassQualityAutoDesc' => 'Adapts to frame time; refraction can change as quality adjusts',
+			'settings.glassQualityStandard' => 'Smooth',
+			'settings.glassQualityStandardDesc' => 'Lightweight glass with highlights and consistent frame pacing',
+			'settings.glassQualityPremium' => 'Full refraction',
+			'settings.glassQualityPremiumDesc' => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass',
+			'settings.glassQualityCurrent' => 'Currently active',
+			'settings.glassChromeParametersDesc' => 'Navigation glass parameters apply live to headers, buttons and the bottom bar',
+			'settings.glassPreview' => 'Preview',
+			'settings.glassPremiumOnly' => 'Only takes effect with the full refraction quality',
+			'settings.glassSaturationNeedsBlur' => 'With the smooth quality, only takes effect when background blur is above 0',
+			'settings.glassOpacity' => 'Opacity',
+			'settings.glassBlur' => 'Background blur (sigma)',
+			'settings.glassBlurDesc' => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness',
+			'settings.glassAdvancedParameters' => 'Advanced navigation parameters',
+			'settings.glassThickness' => 'Lens thickness',
+			'settings.glassRefractiveIndex' => 'Refractive index',
+			'settings.glassLightIntensity' => 'Highlight intensity',
+			'settings.glassSaturation' => 'Background saturation',
+			'settings.glassChromaticAberration' => 'Chromatic aberration',
+			'settings.glassShadows' => 'Shadows',
+			'settings.glassResetParameters' => 'Restore glass defaults',
 			'settings.glassEffect' => 'วัสดุอินเทอร์เฟซ',
 			'settings.glassEffectDesc' => 'เลือกวัสดุที่ใช้ทั่วทั้งแอป — แคปซูลส่วนหัว เมนู ปุ่มกล่องโต้ตอบ และแถบนำทางด้านล่าง',
 			'settings.liquidGlassEffect' => 'กระจกเหลว',
@@ -6088,6 +6345,8 @@ extension on TranslationsTh {
 			'settings.keybinding.actionGalleryPlayPause' => 'เล่น / หยุดชั่วคราว',
 			'settings.keybinding.actionGallerySeekBackward' => 'ย้อนกลับ',
 			'settings.keybinding.actionGallerySeekForward' => 'เดินหน้าอย่างเร็ว',
+			_ => null,
+		} ?? switch (path) {
 			'settings.keybinding.actionGalleryToggleMute' => 'สลับปิด/เปิดเสียง',
 			'settings.keybinding.actionPlayPause' => 'เล่น / หยุดชั่วคราว',
 			'settings.keybinding.actionSpeedUp' => 'เพิ่มความเร็ว',
@@ -6113,8 +6372,6 @@ extension on TranslationsTh {
 			'settings.doubleTapPause' => 'แตะสองครั้งเพื่อหยุดชั่วคราว',
 			'settings.rightVerticalSwipeVolume' => 'ปัดแนวตั้งด้านขวาเพื่อปรับระดับเสียง (มีผลเมื่อเข้าสู่หน้าใหม่)',
 			'settings.leftVerticalSwipeBrightness' => 'ปัดแนวตั้งด้านซ้ายเพื่อปรับความสว่าง (มีผลเมื่อเข้าสู่หน้าใหม่)',
-			_ => null,
-		} ?? switch (path) {
 			'settings.longPressFastForward' => 'กดค้างเพื่อเดินหน้าอย่างเร็ว',
 			'settings.enableMouseHoverShowToolbar' => 'เปิดใช้การชี้เมาส์เพื่อแสดงแถบเครื่องมือ',
 			'settings.enableMouseHoverShowToolbarInfo' => 'เมื่อเปิดใช้งาน แถบเครื่องมือวิดีโอจะแสดงขึ้นเมื่อเลื่อนเมาส์ไปเหนือเครื่องเล่น และจะซ่อนโดยอัตโนมัติหลังจากไม่มีการใช้งานเป็นเวลา 3 วินาที',
@@ -6125,15 +6382,13 @@ extension on TranslationsTh {
 			'settings.showCenterPlayPauseButtonDesc' => 'แสดงปุ่มเล่น/หยุดชั่วคราวขนาดใหญ่ตรงกลางเครื่องเล่น',
 			'settings.audioVideoConfig' => 'การกำหนดค่าเสียงและวิดีโอ',
 			'settings.expandBuffer' => 'ขยายบัฟเฟอร์',
-			'settings.expandBufferInfo' => 'เมื่อเปิดใช้งาน ขนาดบัฟเฟอร์จะเพิ่มขึ้น เวลาในการโหลดจะนานขึ้น แต่การเล่นจะราบรื่นยิ่งขึ้น',
+			'settings.expandBufferInfo' => 'เมื่อเปิดใช้งาน จะโหลดวิดีโอล่วงหน้ามากขึ้น ทำให้สะดุดน้อยลงเมื่อเครือข่ายไม่เสถียร แต่จะใช้หน่วยความจำมากขึ้น',
 			'settings.videoSyncMode' => 'โหมดการซิงค์วิดีโอ',
 			'settings.videoSyncModeSubtitle' => 'กลยุทธ์การซิงโครไนซ์เสียงและวิดีโอ',
 			'settings.hardwareDecodingMode' => 'โหมดการถอดรหัสฮาร์ดแวร์',
 			'settings.hardwareDecodingModeSubtitle' => 'การตั้งค่าการถอดรหัสฮาร์ดแวร์',
 			'settings.enableHardwareAcceleration' => 'เปิดใช้การเร่งความเร็วด้วยฮาร์ดแวร์',
 			'settings.enableHardwareAccelerationInfo' => 'การเปิดใช้การเร่งความเร็วด้วยฮาร์ดแวร์สามารถปรับปรุงประสิทธิภาพการถอดรหัสได้ แต่อุปกรณ์บางรุ่นอาจไม่รองรับ',
-			'settings.useOpenSLESAudioOutput' => 'ใช้เอาต์พุตเสียง OpenSLES',
-			'settings.useOpenSLESAudioOutputInfo' => 'ใช้เอาต์พุตเสียงที่มีความหน่วงต่ำ อาจช่วยปรับปรุงประสิทธิภาพของเสียงได้',
 			'settings.videoSyncAudio' => 'การซิงค์เสียง',
 			'settings.videoSyncDisplayResample' => 'การสุ่มตัวอย่างใหม่ในการแสดงผล',
 			'settings.videoSyncDisplayResampleVdrop' => 'การสุ่มตัวอย่างใหม่ในการแสดงผล (ดรอปเฟรม)',
@@ -6527,6 +6782,10 @@ extension on TranslationsTh {
 			'videoDetail.localInfo.currentQuality' => 'คุณภาพปัจจุบัน',
 			'videoDetail.localInfo.duration' => 'ความยาว',
 			'videoDetail.localInfo.resolution' => 'ความละเอียด',
+			'videoDetail.localInfo.frameRate' => 'อัตราเฟรม',
+			'videoDetail.localInfo.frameRateValue' => ({required Object fps}) => '${fps} fps',
+			'videoDetail.localInfo.frameRateInterpolated' => ({required Object fps, required Object from}) => '${fps} fps (เวอร์ชันเติมเฟรม ต้นฉบับ ${from} fps)',
+			'videoDetail.localInfo.frameRateHasInterpolated' => ({required Object fps, required Object to}) => '${fps} fps (ต้นฉบับ มีเวอร์ชัน ${to} fps แล้ว)',
 			'videoDetail.localInfo.fileInfo' => 'ข้อมูลไฟล์',
 			'videoDetail.localInfo.fileName' => 'ชื่อไฟล์',
 			'videoDetail.localInfo.fileSize' => 'ขนาดไฟล์',
@@ -6540,6 +6799,9 @@ extension on TranslationsTh {
 			'videoDetail.thisIsAPrivateVideo' => 'นี่เป็นวิดีโอส่วนตัว',
 			'videoDetail.getVideoInfoFailed' => 'รับข้อมูลวิดีโอล้มเหลว โปรดลองใหม่อีกครั้งในภายหลัง',
 			'videoDetail.noVideoSourceFound' => 'ไม่พบแหล่งที่มาของวิดีโอ',
+			'videoDetail.sourceFileMissingOnServer' => 'ไม่พบไฟล์วิดีโอบนเซิร์ฟเวอร์ Iwara (HTTP 404) จึงเล่นบนเว็บไม่ได้เช่นกัน เซิร์ฟเวอร์อาจมีปัญหา โปรดลองใหม่ภายหลัง',
+			'videoDetail.qualityFileMissingOnServer' => ({required Object quality}) => 'ไม่พบไฟล์คุณภาพ「${quality}」บนเซิร์ฟเวอร์ (HTTP 404) เลือกคุณภาพอื่นจากเมนูคุณภาพ',
+			'videoDetail.playbackRetryExhausted' => 'เปิดวิดีโอไม่สำเร็จหลายครั้งติดกัน จึงหยุดลองใหม่อัตโนมัติแล้ว โปรดลองใหม่ภายหลัง',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'คัดลอกแท็ก "${tagId}" ไปยังคลิปบอร์ดแล้ว',
 			'videoDetail.errorLoadingVideo' => 'เกิดข้อผิดพลาดขณะโหลดวิดีโอ',
 			'videoDetail.play' => 'เล่น',
@@ -6597,6 +6859,8 @@ extension on TranslationsTh {
 			'videoDetail.gestureGuide.quest.still' => 'ภาพประกอบนิ่ง',
 			'videoDetail.gestureGuide.quest.done' => 'เข้าใจแล้ว ดำเนินการต่อ',
 			'videoDetail.gestureGuide.quest.leftController' => 'มือซ้าย',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.rightController' => 'มือขวา',
 			'videoDetail.gestureGuide.quest.trigger' => 'ไกชี้',
 			'videoDetail.gestureGuide.quest.grip' => 'ปุ่มกริป',
@@ -6627,8 +6891,6 @@ extension on TranslationsTh {
 			'videoDetail.gestureGuide.quest.swipeTitle' => 'ลากเพื่อพลิกหน้า',
 			'videoDetail.gestureGuide.quest.swipeBody' => 'เล็งไปที่รูปภาพ กดไกชี้ค้างไว้แล้วลากไปทางซ้าย ปล่อยหลังจากมีสัญญาณเปลี่ยนหน้าเพื่อไปข้างหน้า ลากไปทางขวาเพื่อย้อนกลับ การจีบนิ้วแล้วลากก็ใช้ได้เช่นกัน',
 			'videoDetail.gestureGuide.quest.swipeHint' => 'รูปภาพต้องอยู่ที่ขนาด 1× จึงจะเปลี่ยนหน้าด้วยการลากได้ วิดีโอในแกลเลอรีก็รองรับเช่นกัน หน้าจอจะอยู่นิ่งจนกว่าคุณจะปล่อย',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomTitle' => 'ซูมดูรายละเอียดรูปภาพ',
 			'videoDetail.gestureGuide.quest.zoomBody' => 'เล็งไปที่รายละเอียดในภาพ กดไกชี้ค้างไว้ แล้วดันก้านอนาล็อกขึ้นเพื่อซูมเข้า หรือลงเพื่อซูมออก การซูมจะยึดตำแหน่งที่คุณกดไว้',
 			'videoDetail.gestureGuide.quest.zoomHint' => 'การดำเนินการนี้จะขยายรูปภาพภายในหน้าต่าง หากไม่ได้จับรูปภาพไว้ การดันขึ้น/ลงจะเป็นการปรับระยะการมอง',
@@ -6695,7 +6957,7 @@ extension on TranslationsTh {
 			'videoDetail.skeleton.fetchingVideoSources' => 'กำลังดึงแหล่งที่มาของวิดีโอ...',
 			'videoDetail.skeleton.loadingVideo' => 'กำลังโหลดวิดีโอ...',
 			'videoDetail.skeleton.applyingSolution' => 'กำลังนำการตั้งค่าความละเอียดนี้ไปใช้...',
-			'videoDetail.skeleton.addingListeners' => 'กำลังเพิ่มตัวรับฟังเหตุการณ์...',
+			'videoDetail.skeleton.addingListeners' => 'กำลังเชื่อมต่อเซิร์ฟเวอร์วิดีโอ...',
 			'videoDetail.skeleton.successFecthVideoDurationInfo' => 'ดึงข้อมูลความยาววิดีโอสำเร็จ เริ่มโหลดวิดีโอ...',
 			'videoDetail.skeleton.successFecthVideoHeightInfo' => 'โหลดเสร็จสมบูรณ์',
 			'videoDetail.cast.dlnaCast' => 'แคสต์',
@@ -6729,6 +6991,22 @@ extension on TranslationsTh {
 			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => 'เชื่อมต่อกับ: ${deviceName}',
 			'videoDetail.cast.dlnaCastSheet.notConnected' => 'ไม่ได้เชื่อมต่ออุปกรณ์',
 			'videoDetail.cast.dlnaCastSheet.stopCasting' => 'หยุดแคสต์',
+			'videoDetail.cast.dlnaCastSheet.searchFinished' => ({required Object count}) => 'ค้นหาเสร็จแล้ว พบ ${count} อุปกรณ์',
+			'videoDetail.cast.dlnaCastSheet.protocolDlna' => 'DLNA',
+			'videoDetail.cast.dlnaCastSheet.protocolGoogleCast' => 'Google Cast',
+			'videoDetail.cast.dlnaCastSheet.addByIp' => 'เพิ่มด้วยตนเอง',
+			'videoDetail.cast.dlnaCastSheet.addByIpTitle' => 'เพิ่มอุปกรณ์ด้วยตนเอง',
+			'videoDetail.cast.dlnaCastSheet.addByIpDesc' => 'ป้อนที่อยู่ IP ของทีวีหรือกล่องสตรีมมิง โดยปกติดูได้ที่ «การตั้งค่า → เครือข่าย → สถานะเครือข่าย» บนทีวี',
+			'videoDetail.cast.dlnaCastSheet.addByIpHint' => 'เช่น 192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpAction' => 'ค้นหา',
+			'videoDetail.cast.dlnaCastSheet.addByIpInvalid' => 'รูปแบบที่อยู่ไม่ถูกต้อง โปรดป้อนที่อยู่ IPv4 เช่น 192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpNotFound' => ({required Object host}) => 'ไม่พบอุปกรณ์แคสต์ที่ ${host}',
+			'videoDetail.cast.dlnaCastSheet.troubleshootTitle' => 'หาอุปกรณ์ไม่เจอใช่ไหม?',
+			'videoDetail.cast.dlnaCastSheet.troubleshoot' => '• โทรศัพท์ (คอมพิวเตอร์) และทีวีต้องเชื่อมต่อ Wi-Fi เดียวกัน เครือข่ายแขกหรือเราเตอร์ที่เปิด AP isolation จะทำให้ค้นหาไม่เจอ\n• หากเปิด VPN หรือแอปพร็อกซีอยู่อาจค้นหาไม่เจอ ให้ปิดแล้วลองใหม่\n• รองรับ DLNA และ Google Cast (Chromecast) ไม่รองรับ Apple TV (AirPlay) และโปรโตคอลเฉพาะของบางยี่ห้อ ต้องเปิด DLNA บนทีวี\n• ยังไม่เจอ? แตะ «เพิ่มด้วยตนเอง» แล้วป้อน IP ของทีวี',
+			'videoDetail.cast.dlnaCastSheet.failure.unreachable' => 'เชื่อมต่ออุปกรณ์ไม่ได้ ตรวจสอบว่าอยู่ใน Wi-Fi เดียวกันและลองปิด VPN',
+			'videoDetail.cast.dlnaCastSheet.failure.timeout' => 'อุปกรณ์ไม่ตอบสนอง',
+			'videoDetail.cast.dlnaCastSheet.failure.mediaRejected' => 'อุปกรณ์เล่นวิดีโอนี้ไม่ได้ (รูปแบบไม่รองรับหรือเปิดลิงก์ไม่ได้)',
+			'videoDetail.cast.dlnaCastSheet.failure.deviceRejected' => 'อุปกรณ์ปฏิเสธคำขอแคสต์',
 			'videoDetail.likeAvatars.dialogTitle' => 'ใครแอบมากดถูกใจ',
 			'videoDetail.likeAvatars.dialogDescription' => 'สงสัยไหมว่าพวกเขาคือใคร? ลองเปิดดู "อัลบั้มการกดถูกใจ" นี้สิ~',
 			'videoDetail.likeAvatars.closeTooltip' => 'ปิด',
@@ -6914,6 +7192,8 @@ extension on TranslationsTh {
 			'notifications.kApprovedPost' => 'อนุมัติโพสต์แล้ว',
 			'notifications.kApprovedForumPost' => 'อนุมัติโพสต์ฟอรัมแล้ว',
 			'notifications.kRejectedContent' => 'การตรวจสอบเนื้อหาถูกปฏิเสธ',
+			'notifications.kWarning' => 'คำเตือนจากเว็บไซต์',
+			'notifications.kWarningHint' => 'ผู้ดูแลได้ออกคำเตือนให้บัญชีของคุณ โปรดปฏิบัติตามกฎของชุมชน ดูรายละเอียดได้บนเว็บไซต์',
 			'notifications.kUnknownType' => 'ประเภทการแจ้งเตือนที่ไม่รู้จัก',
 			'conversation.errors.pleaseSelectAUser' => 'โปรดเลือกผู้ใช้',
 			'conversation.errors.pleaseEnterATitle' => 'โปรดป้อนชื่อเรื่อง',
@@ -7008,6 +7288,7 @@ extension on TranslationsTh {
 			'download.categorySectionLabel' => 'หมวดหมู่',
 			'download.saveToPreviewLabel' => 'จะบันทึกไปที่',
 			'download.saveToPreviewSuggested' => ({required Object name}) => 'ชื่อไฟล์ที่แนะนำ: ${name} (แก้ไขได้ในกล่องโต้ตอบระบบ)',
+			'download.saveToPreviewChange' => 'Change…',
 			'download.lastUsedBadge' => 'ใช้ล่าสุด',
 			'download.pickedBadge' => 'เลือกแล้ว',
 			'download.startDownloading' => 'เริ่มการดาวน์โหลด',
@@ -7092,6 +7373,8 @@ extension on TranslationsTh {
 			'download.actions.play' => 'Play',
 			'download.actions.openWith' => 'Open with another app',
 			'download.actions.redownload' => 'Download again',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.relocate' => 'Move files to…',
 			'download.actions.categorize' => 'Categorize…',
 			'download.actions.viewOnline' => 'View online page',
@@ -7141,8 +7424,6 @@ extension on TranslationsTh {
 			'download.deleteByDate.noMatch' => 'ไม่มีงานที่ตรงกับเงื่อนไขที่เลือก',
 			'download.deleteByDate.invalidRange' => 'วันที่เริ่มต้นต้องตรงกับหรือก่อนหน้าวันที่สิ้นสุด',
 			'download.deleteByDate.confirmTitle' => 'ยืนยันการลบ',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.confirmContent' => ({required Object count}) => 'ลบ ${count} งานดาวน์โหลดและไฟล์ของงานเหล่านั้นหรือไม่? การดำเนินการนี้ไม่สามารถยกเลิกได้',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'กำลังลบ ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'ลบ ${count} งานแล้ว',
@@ -7316,6 +7597,7 @@ extension on TranslationsTh {
 			'download.location.downloadsFolder' => 'Downloads',
 			'download.location.askEveryTime' => 'Ask every time',
 			'download.location.askEveryTimeDesc' => ({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}',
+			'download.location.firstDownloadNotice' => ({required Object location}) => 'Download started. Files are saved to "${location}". You can change this in download settings',
 			'download.location.freeSpace' => ({required Object size}) => '${size} free',
 			'download.location.statusWritable' => 'Writable',
 			'download.location.statusNeedsPermission' => 'Needs permission',
@@ -7605,6 +7887,8 @@ extension on TranslationsTh {
 			'translation.fallbackTranslationFailed' => 'การเปลี่ยนกลับไปใช้การแปลแบบปกติก็ล้มเหลวเช่นกัน',
 			'translation.translationSettings' => 'การตั้งค่าการแปลภาษา',
 			'translation.enableGoogleTranslation' => 'เปิดใช้งาน Google Translation',
+			_ => null,
+		} ?? switch (path) {
 			'translation.thinking' => 'กำลังคิด…',
 			'translation.thoughtProcess' => 'กระบวนการคิด',
 			'translation.modelCompatibility' => 'ความเข้ากันได้ของโมเดล',
@@ -7655,8 +7939,6 @@ extension on TranslationsTh {
 			'navigationOrderSettings.navigationItemSorting' => 'การเรียงลำดับรายการนำทาง',
 			'navigationOrderSettings.done' => 'เสร็จสิ้น',
 			'navigationOrderSettings.edit' => 'แก้ไข',
-			_ => null,
-		} ?? switch (path) {
 			'navigationOrderSettings.reset' => 'รีเซ็ต',
 			'navigationOrderSettings.previewEffect' => 'ตัวอย่างผลลัพธ์',
 			'navigationOrderSettings.bottomNavigationPreview' => 'ตัวอย่างแถบนำทางด้านล่าง:',
@@ -8119,6 +8401,8 @@ extension on TranslationsTh {
 			'firstTimeSetup.common.finishSetup' => 'เสร็จสิ้นการตั้งค่า',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => 'โปรดยอมรับข้อตกลงผู้ใช้และกฎของชุมชนก่อน',
 			'proxyHelper.systemProxyDetected' => 'ตรวจพบพร็อกซีของระบบ',
+			_ => null,
+		} ?? switch (path) {
 			'proxyHelper.copied' => 'คัดลอกแล้ว',
 			'proxyHelper.copy' => 'คัดลอก',
 			'tagSelector.selectTags' => 'เลือกแท็ก',
@@ -8169,8 +8453,6 @@ extension on TranslationsTh {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + การทำให้เส้นเข้มขึ้น เพิ่มเอฟเฟกต์ทำให้เส้นเข้มขึ้นบน Mode A แบบเร็ว เพื่อให้เส้นเด่นชัดและมีสไตล์ยิ่งขึ้น',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + การทำให้เส้นบางลง เพิ่มเอฟเฟกต์ทำให้เส้นบางลงบน Mode A คุณภาพสูง เพื่อให้ดูประณีตยิ่งขึ้น',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8416,6 +8698,12 @@ extension on TranslationsTh {
 			'vrFormat.resetToAutoDesc' => 'ลืมการเลือกเองสำหรับวิดีโอนี้ แล้วให้การตรวจจับตัดสินใจใหม่',
 			'vrFormat.manualBadge' => 'ตั้งค่าเอง',
 			'vrFormat.panoramaHint' => 'ลากภาพเพื่อมองไปรอบๆ บีบนิ้วเพื่อเปลี่ยนมุมมอง',
+			'vrFormat.gyroControl' => 'ควบคุมมุมมองด้วยไจโร',
+			'vrFormat.gyroControlDesc' => 'ในโหมดพาโนรามา VR หมุนโทรศัพท์เพื่อมองไปรอบๆ และยังลากเพื่อปรับมุมได้',
+			'vrFormat.gyroPromptTitle' => 'เปิดการควบคุมด้วยไจโรไหม?',
+			'vrFormat.gyroPromptBody' => 'เปิดเซ็นเซอร์การเคลื่อนไหวเพื่อประสบการณ์ VR ที่ดีขึ้นไหม? ปิดฟีเจอร์นี้ได้ในการตั้งค่า',
+			'vrFormat.gyroPromptEnable' => 'เปิด',
+			'vrFormat.gyroPromptDecline' => 'ไม่ใช่ตอนนี้',
 			'vrFormat.panoramaGestureNotice' => 'ขณะมองไปรอบๆ การลากจะหมุนมุมมอง — ใช้แถบความคืบหน้าเพื่อเลื่อนไปยังตำแหน่ง',
 			'vrFormat.shaderUnsupported' => 'อุปกรณ์นี้ไม่สามารถเรนเดอร์พาโนรามาแบบสดได้ จึงแสดงเพียงตาเดียว',
 			'vrFormat.handoffTooltip' => 'เล่นด้วยวิธีอื่น',
@@ -8627,6 +8915,8 @@ extension on TranslationsTh {
 			'localMedia.webdav.pickRootTitle' => 'Choose a folder to add',
 			'localMedia.webdav.serverRoot' => 'Root',
 			'localMedia.webdav.alreadyAdded' => 'This NAS folder has already been added',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.relogin' => 'Sign in again',
 			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
 			'localMedia.webdav.stateCertUntrusted' => 'Server certificate changed',
@@ -8683,8 +8973,6 @@ extension on TranslationsTh {
 			'historyPage.rangeByLastViewed' => 'กรองตามเวลาที่ดูล่าสุด',
 			'ai.title' => 'AI',
 			'ai.providers' => 'ผู้ให้บริการ',
-			_ => null,
-		} ?? switch (path) {
 			'ai.providersHint' => 'เพิ่มผู้ให้บริการ AI อย่างน้อยหนึ่งราย แล้วเลือกผู้ให้บริการสำหรับแต่ละฟีเจอร์',
 			'ai.addProvider' => 'เพิ่มผู้ให้บริการ',
 			'ai.noProviders' => 'ยังไม่มีผู้ให้บริการ เพิ่มผู้ให้บริการเพื่อเปิดใช้งานการแปล การค้นหา และลายเซ็นด้วย AI',
@@ -8871,6 +9159,82 @@ extension on TranslationsTh {
 			'poll.voteFailed' => 'ส่งโหวตไม่สำเร็จ',
 			'poll.copyLink' => 'คัดลอกลิงก์โพล',
 			'poll.translateFailed' => 'แปลโพลไม่สำเร็จ',
+			'frameInterp.title' => 'งานเพิ่มเฟรม',
+			'frameInterp.action' => 'เพิ่มเฟรม (สร้างเวอร์ชันเฟรมเรตเป็น 2 เท่า)',
+			'frameInterp.playInterpolated' => 'เล่นเวอร์ชันที่เพิ่มเฟรม',
+			'frameInterp.playOriginal' => 'เล่นต้นฉบับ',
+			'frameInterp.deleteInterpolated' => 'ลบเวอร์ชันเติมเฟรมด้วย',
+			'frameInterp.deleteInterpolatedDesc' => 'ลบไฟล์วิดีโอที่เติมเฟรมพร้อมบันทึกงาน',
+			'frameInterp.deleteInterpolatedOnly' => 'ลบเวอร์ชันเติมเฟรม',
+			'frameInterp.deleteInterpolatedOnlyTitle' => 'ลบเวอร์ชันเติมเฟรมไหม?',
+			'frameInterp.deleteInterpolatedOnlyBody' => 'ลบเฉพาะไฟล์วิดีโอที่เติมเฟรมและบันทึกงานเท่านั้น วิดีโอต้นฉบับยังอยู่ และเติมเฟรมใหม่ได้ภายหลัง',
+			'frameInterp.interpolatedDeleted' => 'ลบเวอร์ชันเติมเฟรมแล้ว',
+			'frameInterp.deleteInterpolatedFailed' => 'ลบเวอร์ชันเติมเฟรมไม่สำเร็จ ไฟล์อาจกำลังถูกใช้งานหรือไม่มีสิทธิ์',
+			'frameInterp.viewTasks' => 'ดูงานเพิ่มเฟรม',
+			'frameInterp.badge' => 'เพิ่มเฟรม',
+			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',
+			'frameInterp.specLine' => ({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps',
+			'frameInterp.runningDetail' => ({required Object percent, required Object speed}) => '${percent}% · ${speed} fps',
+			'frameInterp.preparing' => 'กำลังเตรียม…',
+			'frameInterp.outputMissing' => 'ไม่พบไฟล์ที่เพิ่มเฟรมแล้ว',
+			'frameInterp.empty' => 'ยังไม่มีงานเพิ่มเฟรม',
+			'frameInterp.emptyHint' => 'เลือกวิดีโอใน “ไฟล์ในเครื่อง” หรือ “ดาวน์โหลด” แล้วเลือก “เพิ่มเฟรม”',
+			'frameInterp.clearFinished' => 'ล้างบันทึกที่เสร็จสิ้นแล้ว',
+			'frameInterp.status.pending' => 'รอคิว',
+			'frameInterp.status.running' => 'กำลังประมวลผล',
+			'frameInterp.status.completed' => 'เสร็จสมบูรณ์',
+			'frameInterp.status.failed' => 'ล้มเหลว',
+			'frameInterp.status.cancelled' => 'ยกเลิกแล้ว',
+			'frameInterp.actions.play' => 'เล่น',
+			'frameInterp.actions.cancel' => 'ยกเลิก',
+			'frameInterp.actions.retry' => 'ลองใหม่',
+			'frameInterp.actions.delete' => 'ลบบันทึก',
+			'frameInterp.actions.revealInFolder' => 'แสดงในโฟลเดอร์',
+			'frameInterp.confirm.cancelTitle' => 'ยกเลิกงานนี้หรือไม่?',
+			'frameInterp.confirm.cancelContent' => 'ความคืบหน้าที่ผ่านมาจะหายไป คุณสามารถลองใหม่ตั้งแต่ต้นได้ภายหลัง',
+			'frameInterp.confirm.deleteTitle' => 'ลบบันทึกนี้หรือไม่?',
+			'frameInterp.confirm.deleteContent' => 'วิดีโอต้นฉบับจะไม่ได้รับผลกระทบ',
+			'frameInterp.confirm.deleteOutput' => 'ลบไฟล์ที่เพิ่มเฟรมด้วย',
+			'frameInterp.confirm.clearTitle' => 'ล้างบันทึกที่เสร็จสิ้นแล้วหรือไม่?',
+			'frameInterp.confirm.clearContent' => 'ไฟล์ที่เพิ่มเฟรมแล้วจะยังอยู่ในดิสก์ จะลบเฉพาะบันทึก',
+			'frameInterp.confirm.enqueueTitle' => 'เติมเฟรมวิดีโอนี้?',
+			'frameInterp.confirm.enqueueAction' => 'เริ่มเติมเฟรม',
+			'frameInterp.confirm.fpsUnit' => 'fps',
+			'frameInterp.confirm.saveNote' => 'บันทึกเป็นไฟล์ใหม่ วิดีโอต้นฉบับไม่ถูกแก้ไข',
+			'frameInterp.confirm.resetTitle' => 'ไม่รองรับการทำต่อ จะเริ่มใหม่ตั้งแต่ต้นเมื่อ:',
+			'frameInterp.confirm.resetBackground' => 'สลับไปแอปอื่นหรือล็อกหน้าจอ',
+			'frameInterp.confirm.resetClosed' => 'ปิดแอป หรือระบบปิดแอป',
+			'frameInterp.toast.queued' => 'เพิ่มเข้าคิวเพิ่มเฟรมแล้ว',
+			'frameInterp.toast.completed' => ({required Object title}) => 'เพิ่มเฟรมเสร็จแล้ว: ${title}',
+			'frameInterp.toast.failed' => ({required Object title}) => 'เพิ่มเฟรมไม่สำเร็จ: ${title}',
+			'frameInterp.reject.sourceMissing' => 'ไม่พบไฟล์วิดีโอ',
+			'frameInterp.reject.alreadyInterpolated' => 'วิดีโอนี้ผ่านการเพิ่มเฟรมแล้ว',
+			'frameInterp.reject.alreadyQueued' => 'วิดีโอนี้อยู่ในคิวแล้ว',
+			'frameInterp.reject.alreadyDone' => 'วิดีโอนี้มีเวอร์ชันที่เพิ่มเฟรมแล้ว',
+			'frameInterp.reject.hdr' => 'ยังไม่รองรับวิดีโอ HDR',
+			'frameInterp.reject.resolutionTooLarge' => 'ความละเอียดสูงเกินไปที่จะเพิ่มเฟรมได้',
+			'frameInterp.reject.unreadable' => 'อ่านวิดีโอนี้ไม่ได้',
+			'frameInterp.reject.noGpu' => 'ไม่พบการ์ดจอที่ใช้งานได้ (ต้องรองรับ Vulkan)',
+			'frameInterp.error.unknown' => 'เกิดข้อผิดพลาดบางอย่าง',
+			'frameInterp.error.openInput' => 'เปิดวิดีโอไม่ได้',
+			'frameInterp.error.noVideo' => 'ไฟล์นี้ไม่มีแทร็กวิดีโอ',
+			'frameInterp.error.decoder' => 'ถอดรหัสวิดีโอไม่ได้',
+			'frameInterp.error.hdrUnsupported' => 'ยังไม่รองรับวิดีโอ HDR',
+			'frameInterp.error.noGpu' => 'ไม่พบการ์ดจอที่ใช้งานได้',
+			'frameInterp.error.model' => 'โหลดโมเดลเพิ่มเฟรมไม่สำเร็จ ลองติดตั้งคอมโพเนนต์ใหม่',
+			'frameInterp.error.encoder' => 'ไม่มีตัวเข้ารหัสวิดีโอที่ใช้งานได้',
+			'frameInterp.error.openOutput' => 'สร้างไฟล์ผลลัพธ์ไม่ได้',
+			'frameInterp.error.write' => 'เขียนไฟล์ไม่สำเร็จ ดิสก์อาจเต็ม',
+			'frameInterp.error.interpolate' => 'ประมวลผลไม่สำเร็จ หน่วยความจำการ์ดจออาจไม่พอ',
+			'frameInterp.error.componentUnavailable' => 'ใช้คอมโพเนนต์เพิ่มเฟรมไม่ได้',
+			'frameInterp.error.interrupted' => 'ถูกขัดจังหวะเพราะแอปถูกปิด',
+			'frameInterp.error.finalizeFailed' => 'บันทึกไฟล์ที่เสร็จแล้วไม่สำเร็จ',
+			'frameInterp.error.sourceMissing' => 'ไม่พบไฟล์วิดีโอ',
+			'frameInterp.error.backgrounded' => 'หยุดเพราะแอปเข้าสู่เบื้องหลัง จะเริ่มใหม่อัตโนมัติเมื่อกลับมา',
+			'frameInterp.notification.title' => 'กำลังแทรกเฟรม',
+			'frameInterp.notification.titleWithQueue' => ({required Object count}) => 'กำลังแทรกเฟรม · รอคิว ${count} รายการ',
+			'frameInterp.notification.waiting' => 'รอเริ่ม',
+			'frameInterp.component.unsupported' => 'อุปกรณ์นี้ไม่รองรับการเพิ่มเฟรม',
 			_ => null,
 		};
 	}

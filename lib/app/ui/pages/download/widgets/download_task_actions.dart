@@ -8,13 +8,16 @@ import 'package:super_clipboard/super_clipboard.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart'
     hide FileSystemException;
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
+import 'package:i_iwara/app/models/local_media/dav_path.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_file_health.dart';
 import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/services/frame_interp/frame_interp_service.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart'
     show showDownloadDetailDialog;
 import 'package:i_iwara/app/ui/pages/download/widgets/download_relocation_flow.dart';
+import 'package:i_iwara/app/ui/pages/frame_interp/frame_interp_launcher.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_scale.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/move_to_category_sheet.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/relocation_detail_widgets.dart'
@@ -35,6 +38,16 @@ enum DownloadAction {
 
   /// 视频：交给系统里别的应用打开。
   openWith,
+
+  /// 视频：生成 2 倍帧率的补帧版本。已有成品时换成 [playOriginal]。
+  interpolate,
+
+  /// 视频：已有补帧成品时，绕开「默认看补帧版」去看原片。
+  ///
+  /// 有成品时 [open]（「播放」）本身就播成品，所以菜单里只多这一条「另一个
+  /// 版本」。⛔ 别把 [open] 的标签换成「播放补帧版本」：用户点开 ⋮ 看到的
+  /// 头一条写着补帧，会以为默认播的是原片（2026-11-21 用户报）。
+  playOriginal,
   pause,
   resume,
   retry,
@@ -55,6 +68,10 @@ enum DownloadAction {
   /// 在线详情页（视频详情 / 图库详情）。
   viewOnline,
   detail,
+
+  /// 视频：只删补帧成品（文件 + 任务记录），原片与下载任务都留着。只在有现成
+  /// 成品时出现，排在 [delete] 前面同一组里。
+  deleteInterpolated,
   delete,
 }
 
@@ -83,16 +100,26 @@ class DownloadActionResolver {
   ///
   /// [isFileMissing]：这条已完成任务的文件是否已知不在（决定有没有「重新
   /// 下载」）。[isDesktop] 决定有没有「在文件夹中显示」。
+  ///
+  /// [frameInterpSupported] / [interpolatedOutputOf] 是补帧的两个外部事实
+  /// （这台设备有没有补帧、这条任务现成的成品路径）；不给就读
+  /// [FrameInterpService]，测试里注入。
   static List<DownloadAction> resolve(
     Set<DownloadTask> tasks, {
     bool? isDesktop,
     bool Function(DownloadTask task)? isFileMissing,
+    bool? frameInterpSupported,
+    String? Function(DownloadTask task)? interpolatedOutputOf,
   }) {
     if (tasks.isEmpty) return const [];
     final desktop =
         isDesktop ??
         (Platform.isWindows || Platform.isMacOS || Platform.isLinux);
     final missing = isFileMissing ?? (_) => false;
+    final interpSupported = frameInterpSupported ?? isFrameInterpSupported;
+    final interpOutput =
+        interpolatedOutputOf ??
+        (t) => FrameInterpService.maybe?.completedOutputFor(t.savePath);
     final single = tasks.length == 1 ? tasks.first : null;
 
     bool any(bool Function(DownloadTask t) test) => tasks.any(test);
@@ -114,6 +141,13 @@ class DownloadActionResolver {
         DownloadAction.open,
         if (downloadTaskKind(single) == DownloadTaskKind.video)
           DownloadAction.openWith,
+        if (downloadTaskKind(single) == DownloadTaskKind.video)
+          if (interpOutput(single) != null)
+            DownloadAction.playOriginal
+          else if (interpSupported &&
+              _isPlainLocalPath(single.savePath) &&
+              !missing(single))
+            DownloadAction.interpolate,
       ],
       if (canPause) DownloadAction.pause,
       if (canResume) DownloadAction.resume,
@@ -130,9 +164,18 @@ class DownloadActionResolver {
       if (single != null && onlineMediaIdOf(single) != null)
         DownloadAction.viewOnline,
       if (single != null) DownloadAction.detail,
+      if (single != null &&
+          single.status == DownloadStatus.completed &&
+          downloadTaskKind(single) == DownloadTaskKind.video &&
+          interpOutput(single) != null)
+        DownloadAction.deleteInterpolated,
       DownloadAction.delete,
     ];
   }
+
+  /// 补帧只认本机上的普通文件：NAS 与 `content://` 不是能直接读写的路径。
+  static bool _isPlainLocalPath(String path) =>
+      path.isNotEmpty && !DavPath.isDav(path) && !path.startsWith('content://');
 
   /// 能在文件管理器里定位的：已完成的任何任务；图库文件夹边下边有，
   /// 下载中也能看（原图库卡片就是这么做的）。
@@ -180,9 +223,16 @@ bool isDownloadFileKnownMissing(DownloadTask task) {
 /// 卡片自己才知道怎么做的那几件事（例如视频要带上列表页的分类池去播放）。
 /// 不给就走通用实现。
 class DownloadTaskActionHandlers {
-  const DownloadTaskActionHandlers({this.onOpen, this.onViewOnline});
+  const DownloadTaskActionHandlers({
+    this.onOpen,
+    this.onOpenOriginal,
+    this.onViewOnline,
+  });
 
   final Future<void> Function()? onOpen;
+
+  /// 「播放原视频」：同 [onOpen]，只是不换成补帧成品。
+  final Future<void> Function()? onOpenOriginal;
   final Future<void> Function()? onViewOnline;
 }
 
@@ -201,6 +251,8 @@ IconData downloadActionIcon(DownloadAction action, {DownloadTask? task}) {
       DownloadTaskKind.other => Icons.open_in_new,
     },
     DownloadAction.openWith => Icons.open_in_new,
+    DownloadAction.interpolate => Icons.auto_awesome_motion_outlined,
+    DownloadAction.playOriginal => Icons.movie_outlined,
     DownloadAction.pause => Icons.pause,
     DownloadAction.resume => Icons.play_arrow,
     DownloadAction.retry => Icons.refresh,
@@ -211,6 +263,7 @@ IconData downloadActionIcon(DownloadAction action, {DownloadTask? task}) {
     DownloadAction.copyLink => Icons.link,
     DownloadAction.viewOnline => Icons.public,
     DownloadAction.detail => Icons.info_outline,
+    DownloadAction.deleteInterpolated => Icons.auto_delete_outlined,
     DownloadAction.delete => Icons.delete_outline,
   };
 }
@@ -223,6 +276,8 @@ String downloadActionLabel(DownloadAction action, {DownloadTask? task}) {
           ? t.actions.play
           : t.actions.open,
     DownloadAction.openWith => t.actions.openWith,
+    DownloadAction.interpolate => slang.t.frameInterp.action,
+    DownloadAction.playOriginal => slang.t.frameInterp.playOriginal,
     DownloadAction.pause => t.pause,
     DownloadAction.resume => t.resume,
     DownloadAction.retry => slang.t.common.retry,
@@ -238,6 +293,8 @@ String downloadActionLabel(DownloadAction action, {DownloadTask? task}) {
           ? t.viewVideoDetail
           : t.actions.viewOnline,
     DownloadAction.detail => t.downloadDetail,
+    DownloadAction.deleteInterpolated =>
+      slang.t.frameInterp.deleteInterpolatedOnly,
     DownloadAction.delete => t.actions.delete,
   };
 }
@@ -246,6 +303,8 @@ String downloadActionLabel(DownloadAction action, {DownloadTask? task}) {
 int _groupOf(DownloadAction action) => switch (action) {
   DownloadAction.open ||
   DownloadAction.openWith ||
+  DownloadAction.interpolate ||
+  DownloadAction.playOriginal ||
   DownloadAction.pause ||
   DownloadAction.resume ||
   DownloadAction.retry ||
@@ -256,7 +315,7 @@ int _groupOf(DownloadAction action) => switch (action) {
   DownloadAction.copyLink ||
   DownloadAction.viewOnline ||
   DownloadAction.detail => 2,
-  DownloadAction.delete => 3,
+  DownloadAction.deleteInterpolated || DownloadAction.delete => 3,
 };
 
 /// 把 [actions] 排成玻璃菜单条目。
@@ -277,7 +336,9 @@ List<GlassMenuEntry> buildDownloadActionMenuEntries(
         value: action,
         icon: downloadActionIcon(action, task: task),
         label: downloadActionLabel(action, task: task),
-        destructive: action == DownloadAction.delete,
+        destructive:
+            action == DownloadAction.delete ||
+            action == DownloadAction.deleteInterpolated,
       ),
     );
   }
@@ -359,6 +420,36 @@ Future<bool> runDownloadAction(
       if (single == null) return false;
       await openDownloadedFile(single);
       return true;
+    case DownloadAction.interpolate:
+      if (single == null) return false;
+      // 标题和封面只是给任务页看的，老数据解析不出来就退回文件名，
+      // 不该因此连补帧都发起不了（同 onlineMediaIdOf 的处理）。
+      String? title;
+      String? thumbnail;
+      try {
+        final videoData = VideoDownloadExtData.fromJson(single.extData!.data);
+        title = videoData.title;
+        thumbnail = videoData.thumbnail;
+      } catch (_) {}
+      await requestFrameInterpolation(
+        sourcePath: p.normalize(single.savePath),
+        title: title ?? single.fileName,
+        thumbnail: thumbnail,
+      );
+      return true;
+    case DownloadAction.playOriginal:
+      if (single == null) return false;
+      final onOpenOriginal = handlers.onOpenOriginal;
+      if (onOpenOriginal != null) {
+        await onOpenOriginal();
+      } else {
+        await NaviService.openLocalVideo(
+          localPath: _normalizedSavePath(single),
+          task: single,
+          original: true,
+        );
+      }
+      return true;
     case DownloadAction.pause:
       for (final t in tasks) {
         if (t.status == DownloadStatus.pending ||
@@ -422,6 +513,9 @@ Future<bool> runDownloadAction(
       if (single == null) return false;
       showDownloadDetailDialog(context, single);
       return true;
+    case DownloadAction.deleteInterpolated:
+      if (single == null) return false;
+      return confirmAndDeleteInterpolated(single.savePath);
     case DownloadAction.delete:
       return showDeleteDownloadTasksDialog(tasks);
   }
@@ -510,6 +604,16 @@ Future<bool> showDeleteDownloadTasksDialog(List<DownloadTask> tasks) async {
 
   final allMissing = tasks.every(_isFileGone);
   final deleteFiles = ValueNotifier<bool>(!allMissing);
+  // 带补帧成品的那几条：只有它们才露「同时删除补帧版本」。原片和成品在列表
+  // 里是一张卡，默认跟着一起删。
+  final interp = FrameInterpService.maybe;
+  final interpTasks = [
+    if (interp != null)
+      for (final task in tasks)
+        if (interp.completedOutputFor(task.savePath) != null)
+          interp.taskForSource(task.savePath)!,
+  ];
+  final deleteInterpolated = ValueNotifier<bool>(true);
 
   final confirmed = await showGlassAlertDialog<bool>(
     title: t.deleteTitle(count: tasks.length),
@@ -517,6 +621,7 @@ Future<bool> showDeleteDownloadTasksDialog(List<DownloadTask> tasks) async {
       tasks: tasks,
       deleteFiles: deleteFiles,
       filesGone: allMissing,
+      deleteInterpolated: interpTasks.isEmpty ? null : deleteInterpolated,
     ),
     actions: [
       GlassDialogAction(
@@ -535,7 +640,15 @@ Future<bool> showDeleteDownloadTasksDialog(List<DownloadTask> tasks) async {
   // 开关的 ValueListenableBuilder 此时仍挂着它。它没有外部资源，交给 GC；
   // 监听者随弹窗子树卸载自己摘掉。
   final withFiles = deleteFiles.value;
+  final withInterpolated = deleteInterpolated.value;
   if (confirmed != true) return false;
+
+  // 补帧成品先删：它和下载任务互不依赖，不该因为下面哪条下载删失败就留下。
+  if (withInterpolated && interp != null) {
+    for (final interpTask in interpTasks) {
+      await interp.delete(interpTask.id, deleteOutput: true);
+    }
+  }
 
   final ids = [for (final task in tasks) task.id];
   DeleteTasksResult? result;
@@ -614,11 +727,15 @@ class _DeleteDownloadsContent extends StatelessWidget {
     required this.tasks,
     required this.deleteFiles,
     required this.filesGone,
+    this.deleteInterpolated,
   });
 
   final List<DownloadTask> tasks;
   final ValueNotifier<bool> deleteFiles;
   final bool filesGone;
+
+  /// 为 null 表示这批里没有带补帧成品的，不露那一行开关。
+  final ValueNotifier<bool>? deleteInterpolated;
 
   @override
   Widget build(BuildContext context) {
@@ -678,6 +795,24 @@ class _DeleteDownloadsContent extends StatelessWidget {
             ),
           ),
         ),
+        if (deleteInterpolated case final interpolated?)
+          ValueListenableBuilder<bool>(
+            valueListenable: interpolated,
+            builder: (context, value, _) => SwitchListTile.adaptive(
+              contentPadding: EdgeInsets.zero,
+              value: value,
+              onChanged: (v) => interpolated.value = v,
+              title: Text(
+                slang.Translations.of(context).frameInterp.deleteInterpolated,
+              ),
+              subtitle: Text(
+                slang.Translations.of(
+                  context,
+                ).frameInterp.deleteInterpolatedDesc,
+                style: muted,
+              ),
+            ),
+          ),
       ],
     );
   }

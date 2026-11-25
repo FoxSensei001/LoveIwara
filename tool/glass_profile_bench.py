@@ -84,7 +84,10 @@ def summarize(raw):
     return {
         "n": len(frames), "budget_ms": budget / 1000,
         "build_p50": percentile(build, .5), "build_p95": percentile(build, .95),
+        "build_p99": percentile(build, .99),
         "raster_p50": percentile(raster, .5), "raster_p95": percentile(raster, .95),
+        "raster_p99": percentile(raster, .99),
+        "span_p99": percentile([f[3] for f in frames], .99),
         "raster_jank_pct": 100 * sum(x > budget for x in raster) / len(frames),
         "either_jank_pct": 100 * sum(f[1] > budget or f[2] > budget for f in frames) / len(frames),
     }
@@ -94,6 +97,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base", required=True, help="Forwarded Dart VM service URL")
     parser.add_argument("--route", default="/")
+    parser.add_argument("--expect-widget", help="Require an active item widget type, not just the route")
     parser.add_argument("--rounds", type=int, default=3)
     parser.add_argument("--variants", default="production,blurred,material")
     parser.add_argument("--gesture", choices=["oscillate", "forward"], default="oscillate")
@@ -106,10 +110,18 @@ def main():
     # Completing onboarding is deliberately left to the operator; preserve app settings.
     probe.ext("go", route=args.route)
     time.sleep(3)
-    state = probe.ext("state")
-    if state["route"] != args.route:
-        raise RuntimeError(f"Unexpected route: {state}")
-    print("state", state, flush=True)
+
+    def check_scene():
+        state = probe.ext("state")
+        if state["route"] != args.route:
+            raise RuntimeError(f"Unexpected route: {state}")
+        if args.expect_widget:
+            hits = probe.ext("find", type=args.expect_widget)["hits"]
+            if not any("tickerMode=true" in hit for hit in hits):
+                raise RuntimeError(f"No active {args.expect_widget}: verify that the list loaded")
+        return state
+
+    print("state", check_scene(), flush=True)
     records = []
     args.output.parent.mkdir(parents=True, exist_ok=True)
     try:
@@ -121,16 +133,19 @@ def main():
                 time.sleep(1)
                 probe.ext("frames")
                 probe.ext("mark", label=f"{variant}-{trial}")
+                start = probe.rpc("getVMTimelineMicros")["timestamp"]
                 directions = ([True, False] * 4 if args.gesture == "oscillate"
                               else [True] * 8 + [False] * 8)
                 for upward in directions:
                     probe.swipe(upward)
-                time.sleep(1)
+                # AOT timing callbacks can batch. Wait for delivery and filter
+                # by frame start, not by when the sample reached the probe.
+                end = probe.rpc("getVMTimelineMicros")["timestamp"]
+                time.sleep(2)
                 raw = probe.ext("frames")
+                raw["frames"] = [f for f in raw["frames"] if start <= f[0] <= end]
                 probe.ext("report")
-                state = probe.ext("state")
-                if state["route"] != args.route:
-                    raise RuntimeError("Route changed during measurement")
+                state = check_scene()
                 summary = {"variant": variant, "trial": trial, **summarize(raw)}
                 records.append({"summary": summary, "state": state, "raw": raw})
                 args.output.write_text(json.dumps(records), encoding="utf-8")
@@ -138,8 +153,8 @@ def main():
         for variant in variants:
             trials = [r["summary"] for r in records if r["summary"]["variant"] == variant]
             medians = {key: round(statistics.median(t[key] for t in trials), 3)
-                       for key in ["build_p95", "raster_p50", "raster_p95",
-                                   "raster_jank_pct", "either_jank_pct"]}
+                       for key in ["build_p95", "build_p99", "raster_p50", "raster_p95",
+                                   "raster_p99", "span_p99", "raster_jank_pct", "either_jank_pct"]}
             print(variant, "median", medians, flush=True)
     finally:
         probe.configure("production")

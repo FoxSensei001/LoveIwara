@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:i_iwara/app/ui/widgets/system_bars.dart';
 import 'package:i_iwara/app/ui/widgets/loading_content_transition.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -638,9 +639,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
         foregroundColor: Theme.of(context).colorScheme.onSurface,
         // 透明底色会被 AppBar 估成「深色背景」而把状态栏图标设成白色，
         // 这里按主题明暗显式指定
-        systemOverlayStyle: Theme.of(context).brightness == Brightness.dark
-            ? SystemUiOverlayStyle.light
-            : SystemUiOverlayStyle.dark,
+        systemOverlayStyle: SystemBarStyles.forTheme(Theme.of(context)),
         elevation: 0,
         scrolledUnderElevation: 0,
         // 返回键与「更多」菜单不再挂在 AppBar 上：它们要走液态玻璃，而 lens

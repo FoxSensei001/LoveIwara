@@ -13,6 +13,7 @@ import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/downloads_library_sync_service.dart';
@@ -21,6 +22,9 @@ import 'package:i_iwara/app/services/local_media_scan_service.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/services/webdav/webdav_service.dart';
+import 'package:i_iwara/app/services/xr_immersive_service.dart';
+import 'package:i_iwara/app/ui/pages/frame_interp/frame_interp_launcher.dart'
+    show isFrameInterpSupported;
 import 'package:i_iwara/app/ui/pages/home_page.dart';
 import 'package:i_iwara/app/ui/pages/local_media/local_folder_route.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/downloaded_gallery_wall.dart';
@@ -314,6 +318,15 @@ class _LocalHomePageState extends State<LocalHomePage>
     }, time: const Duration(milliseconds: 400));
     unawaited(_syncDownloads());
     unawaited(_prepareDeviceVideos());
+    _refreshFolderSources();
+  }
+
+  /// 进页面 / 回到前台时补扫文件夹源：别的软件在应用外往这些目录里存的新视频
+  /// 只有这一个入口进库（文件夹源没有变更通知，见
+  /// [LocalMediaScanService.refreshFolderSources]）。
+  void _refreshFolderSources() {
+    if (!Get.isRegistered<LocalMediaScanService>()) return;
+    LocalMediaScanService.to.refreshFolderSources();
   }
 
   /// 系统媒体库现在读不读得到（只查不弹）。头显上「扫描设备视频」入口靠它决定露不露。
@@ -371,6 +384,10 @@ class _LocalHomePageState extends State<LocalHomePage>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state != AppLifecycleState.resumed) return;
+    // Quest 上空间播放结束、面板恢复出帧借的也是 resumed，不是真的回到前台
+    // （见 [XrImmersiveService.panelSuspended]，my_app 同一道闸）。不拦的话每看完
+    // 一条、在空间里每换一次片，都会把所有文件夹源整树再扫一遍。
+    if (XrImmersiveService.panelSuspended) return;
 
     _resumeSignal?.complete();
     _resumeSignal = null;
@@ -387,6 +404,7 @@ class _LocalHomePageState extends State<LocalHomePage>
     }
     // 系统设置里刚给了（或撤了）媒体权限、或者离开期间多了新视频。
     unawaited(_prepareDeviceVideos());
+    _refreshFolderSources();
     // 从「去设置开启」回来：权限给了就把横幅收掉，不必等用户再点一次添加。
     if (_permissionDenied && Get.isRegistered<PermissionService>()) {
       unawaited(
@@ -469,15 +487,24 @@ class _LocalHomePageState extends State<LocalHomePage>
       String? cover = _repository
           .getFolder(sourceId: source.id, relPath: '')
           ?.coverPath;
-      if (cover == null || cover.isEmpty) {
+      // ⛔ 库里记着封面不等于文件还在：iOS 随时会清 `Library/Caches`（缩略图就
+      // 放在那儿），更新应用后容器路径也会变。记着的那张读不出来时，来源卡没有
+      // 在线封面可退，只剩一张空夹子（2026-11-21 用户报「已下载」点进去再出来
+      // 还是没图）。所以本机路径要现问一次在不在，不在就往下找。
+      if (!_coverFileUsable(cover)) {
         // ⛔ 兜底必须问「最新的**有图的**那一条」，不是「最新那一条」。
         // 缩略图是滚进视野才生成的，最新那条十有八九还没有——按它判，一个装着
         // 几十个视频的来源会一直是一张空夹子（2026-09-11 用户报的）。
-        final candidates = _repository.sourceCoverCandidates(
+        cover = null;
+        for (final candidate in _repository.sourceCoverCandidates(
           sourceId: source.id,
-          limit: 1,
-        );
-        if (candidates.isNotEmpty) cover = candidates.first;
+          limit: 8,
+        )) {
+          if (_coverFileUsable(candidate)) {
+            cover = candidate;
+            break;
+          }
+        }
       }
       // 根下的子目录数：以前来源卡对非内建源恒传 0，一个只有子文件夹、根下
       // 没有直属媒体的来源（NAS 尤其常见）就被写成「这个文件夹是空的」。
@@ -498,6 +525,20 @@ class _LocalHomePageState extends State<LocalHomePage>
       _sourceStats = stats;
     });
     unawaited(_reloadDownloadedGalleryCount());
+  }
+
+  /// 这条封面路径现在能不能画。NAS 的缓存图与本机图一样是本地文件；`content://`
+  /// 之类不是文件路径的交给图片组件自己判。
+  static bool _coverFileUsable(String? path) {
+    if (path == null || path.isEmpty) return false;
+    if (!path.startsWith('/') && !RegExp(r'^[A-Za-z]:[\\/]').hasMatch(path)) {
+      return true;
+    }
+    try {
+      return File(path).existsSync();
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<void> _reloadDownloadedGalleryCount() async {
@@ -1658,10 +1699,18 @@ class _LocalHomePageState extends State<LocalHomePage>
                     label: t.clearProgress,
                     icon: Icons.history_toggle_off,
                   ),
+                  if (isFrameInterpSupported)
+                    GlassMenuOption<String>(
+                      value: 'frameInterpTasks',
+                      label: slang.t.frameInterp.title,
+                      icon: Icons.slow_motion_video_outlined,
+                    ),
                 ],
               );
               if (!mounted || !anchorContext.mounted || action == null) return;
-              if (action == 'removeFolder') {
+              if (action == 'frameInterpTasks') {
+                NaviService.navigateToFrameInterpTaskListPage();
+              } else if (action == 'removeFolder') {
                 unawaited(
                   _handleRemoveFolderAction(anchorContext, removableSources),
                 );

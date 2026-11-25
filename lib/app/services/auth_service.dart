@@ -59,19 +59,21 @@ class AuthService extends GetxService {
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 15),
       sendTimeout: const Duration(seconds: 15),
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: {'Content-Type': 'application/json'},
     ),
   );
 
   // 统一的认证状态管理：sessionState 为权威源，_isAuthenticated 为派生镜像，
   // 兼容现有 UI 调用点与 authStateStream（Stream<bool>）。
-  final Rx<AuthSessionState> sessionState = AuthSessionState.unauthenticated.obs;
+  final Rx<AuthSessionState> sessionState =
+      AuthSessionState.unauthenticated.obs;
   final RxBool _isAuthenticated = false.obs;
   bool get isAuthenticated => _isAuthenticated.value;
 
   bool _isReady = false;
+
+  /// 首帧已就绪，可以发起可能触发 Cloudflare 质询的刷新。
+  bool get isReady => _isReady;
   bool _pendingInitialRefresh = false;
 
   // 认证状态变化流
@@ -85,7 +87,8 @@ class AuthService extends GetxService {
       sessionState.value = next;
       LogUtils.d('$_tag 会话状态: $prev -> $next');
     }
-    final boolAuth = next == AuthSessionState.authenticated ||
+    final boolAuth =
+        next == AuthSessionState.authenticated ||
         next == AuthSessionState.degradedOffline ||
         next == AuthSessionState.refreshing;
     if (_isAuthenticated.value != boolAuth) {
@@ -237,6 +240,9 @@ class AuthService extends GetxService {
             LogUtils.d('$_tag 后台刷新 token 成功');
             // 把状态从 refreshing 收敛到 authenticated，避免 sessionState 卡在刷新中(M2)。
             _updateAuthenticationState();
+          } else if (result.isSuperseded) {
+            // 刷新途中换了会话（登录/切号/登出）：结果与当前会话无关，不动状态。
+            return;
           } else if (result.isAuthError) {
             LogUtils.w('$_tag 后台刷新失败，需要重新登录: ${result.errorMessage}');
             _handleTokenExpiredSilently();
@@ -253,6 +259,43 @@ class AuthService extends GetxService {
         .catchError((e) {
           LogUtils.e('$_tag 后台刷新异常', error: e);
         });
+  }
+
+  /// 网络恢复后多久内不重复补刷（断网时刷新失败会盖上失败时间）。
+  static const Duration _reachableRefreshCooldown = Duration(seconds: 5);
+
+  /// ApiService 每收到一个 HTTP 响应就调一次：网络是通的。
+  ///
+  /// 断网启动时刷新失败，会话进 degradedOffline，此后只有 4 分钟一次的后台
+  /// 定时器会再刷。网络恢复后用户随便刷一下列表（公开内容匿名就能拿到），
+  /// 这里就能立刻把 token 补刷回来，不用等定时器。
+  void onNetworkReachable() {
+    // 断网启动时 access token 可能还没过期，会话一直是 authenticated，
+    // 但 /user 没拉成——这条信号也要让用户资料补拉。
+    if (Get.isRegistered<UserService>()) {
+      Get.find<UserService>().onNetworkReachable();
+    }
+    if (sessionState.value != AuthSessionState.degradedOffline) return;
+    if (!_isReady || _tokenManager.isRefreshing) return;
+    if (!_tokenManager.hasRefreshToken || _tokenManager.isAuthTokenExpired) {
+      return;
+    }
+    if (!_tokenManager.isAccessTokenExpired) {
+      _updateAuthenticationState();
+      return;
+    }
+    if (_tokenManager.refreshFailedWithin(_reachableRefreshCooldown)) return;
+    LogUtils.d('$_tag 网络已恢复，补刷 access token');
+    _startRefreshWithoutWaiting();
+  }
+
+  /// 后台刷新一次（不等结果）。结果按启动刷新同样处理：成功收敛状态、
+  /// 认证失效静默登出、网络失败进降级离线。在途刷新会被复用。
+  void refreshInBackground() {
+    if (!_tokenManager.hasRefreshToken || _tokenManager.isAuthTokenExpired) {
+      return;
+    }
+    _startRefreshWithoutWaiting();
   }
 
   /// 刷新 access token（供外部调用）

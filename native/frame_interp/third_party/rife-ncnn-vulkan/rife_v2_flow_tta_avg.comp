@@ -1,0 +1,56 @@
+// rife implemented with ncnn library
+
+#version 450
+
+#if NCNN_fp16_storage
+#extension GL_EXT_shader_16bit_storage: require
+#endif
+
+layout (binding = 0) buffer flow_blob0 { sfpvec4 flow_blob0_data[]; };
+layout (binding = 1) buffer flow_blob1 { sfpvec4 flow_blob1_data[]; };
+layout (binding = 2) buffer flow_blob2 { sfpvec4 flow_blob2_data[]; };
+layout (binding = 3) buffer flow_blob3 { sfpvec4 flow_blob3_data[]; };
+layout (binding = 4) buffer flow_blob4 { sfpvec4 flow_blob4_data[]; };
+layout (binding = 5) buffer flow_blob5 { sfpvec4 flow_blob5_data[]; };
+layout (binding = 6) buffer flow_blob6 { sfpvec4 flow_blob6_data[]; };
+layout (binding = 7) buffer flow_blob7 { sfpvec4 flow_blob7_data[]; };
+
+layout (push_constant) uniform parameter
+{
+    int w;
+    int h;
+    int cstep;
+} p;
+
+void main()
+{
+    int gx = int(gl_GlobalInvocationID.x);
+    int gy = int(gl_GlobalInvocationID.y);
+    int gz = int(gl_GlobalInvocationID.z);
+
+    if (gx >= p.w || gy >= p.h || gz >= 1)
+        return;
+
+    afpvec4 xyzw0 = buffer_ld4(flow_blob0_data, gy * p.w + gx);
+    afpvec4 xyzw1 = buffer_ld4(flow_blob1_data, gy * p.w + (p.w - 1 - gx));
+    afpvec4 xyzw2 = buffer_ld4(flow_blob2_data, (p.h - 1 - gy) * p.w + (p.w - 1 - gx));
+    afpvec4 xyzw3 = buffer_ld4(flow_blob3_data, (p.h - 1 - gy) * p.w + gx);
+    afpvec4 xyzw4 = buffer_ld4(flow_blob4_data, gx * p.h + gy);
+    afpvec4 xyzw5 = buffer_ld4(flow_blob5_data, gx * p.h + (p.h - 1 - gy));
+    afpvec4 xyzw6 = buffer_ld4(flow_blob6_data, (p.w - 1 - gx) * p.h + (p.h - 1 - gy));
+    afpvec4 xyzw7 = buffer_ld4(flow_blob7_data, (p.w - 1 - gx) * p.h + gy);
+
+    afp x = (xyzw0.x - xyzw1.x - xyzw2.x + xyzw3.x + xyzw4.y + xyzw5.y - xyzw6.y - xyzw7.y) * afp(0.125f);
+    afp y = (xyzw0.y + xyzw1.y - xyzw2.y - xyzw3.y + xyzw4.x - xyzw5.x - xyzw6.x + xyzw7.x) * afp(0.125f);
+    afp z = (xyzw0.z - xyzw1.z - xyzw2.z + xyzw3.z + xyzw4.w + xyzw5.w - xyzw6.w - xyzw7.w) * afp(0.125f);
+    afp w = (xyzw0.w + xyzw1.w - xyzw2.w - xyzw3.w + xyzw4.z - xyzw5.z - xyzw6.z + xyzw7.z) * afp(0.125f);
+
+    buffer_st4(flow_blob0_data, gy * p.w + gx, afpvec4(x, y, z, w));
+    buffer_st4(flow_blob1_data, gy * p.w + (p.w - 1 - gx), afpvec4(-x, y, -z, w));
+    buffer_st4(flow_blob2_data, (p.h - 1 - gy) * p.w + (p.w - 1 - gx), afpvec4(-x, -y, -z, -w));
+    buffer_st4(flow_blob3_data, (p.h - 1 - gy) * p.w + gx, afpvec4(x, -y, z, -w));
+    buffer_st4(flow_blob4_data, gx * p.h + gy, afpvec4(y, x, w, z));
+    buffer_st4(flow_blob5_data, gx * p.h + (p.h - 1 - gy), afpvec4(-y, x, -w, z));
+    buffer_st4(flow_blob6_data, (p.w - 1 - gx) * p.h + (p.h - 1 - gy), afpvec4(-y, -x, -w, -z));
+    buffer_st4(flow_blob7_data, (p.w - 1 - gx) * p.h + gy, afpvec4(y, -x, w, -z));
+}

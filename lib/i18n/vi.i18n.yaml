@@ -227,6 +227,8 @@ common:
   disagree: Không đồng ý
   agreeToRules: Đồng ý với quy tắc
   tapToReread: 'Chạm để đọc lại'
+  rulesRequiredHint: 'Hãy đọc và đồng ý với quy tắc cộng đồng trước khi đăng'
+  readAndAgree: 'Đọc và đồng ý'
   # Base Input Dialog
   markdownSyntaxHelp: Trợ giúp cú pháp Markdown
   previewContent: Xem trước nội dung
@@ -706,6 +708,29 @@ settings:
   defaultBrowserDesc: Vui lòng mở mục cấu hình liên kết mặc định trong cài đặt hệ thống và thêm liên kết trang web iwara.tv
   themeMode: Chế độ giao diện
   themeModeDesc: Cấu hình này quyết định chế độ giao diện của ứng dụng
+  glassQuality: "Rendering quality"
+  glassQualityAuto: "Automatic"
+  glassQualityAutoDesc: "Adapts to frame time; refraction can change as quality adjusts"
+  glassQualityStandard: "Smooth"
+  glassQualityStandardDesc: "Lightweight glass with highlights and consistent frame pacing"
+  glassQualityPremium: "Full refraction"
+  glassQualityPremiumDesc: "Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass"
+  glassQualityCurrent: "Currently active"
+  glassChromeParametersDesc: "Navigation glass parameters apply live to headers, buttons and the bottom bar"
+  glassPreview: "Preview"
+  glassPremiumOnly: "Only takes effect with the full refraction quality"
+  glassSaturationNeedsBlur: "With the smooth quality, only takes effect when background blur is above 0"
+  glassOpacity: "Opacity"
+  glassBlur: "Background blur (sigma)"
+  glassBlurDesc: "0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness"
+  glassAdvancedParameters: "Advanced navigation parameters"
+  glassThickness: "Lens thickness"
+  glassRefractiveIndex: "Refractive index"
+  glassLightIntensity: "Highlight intensity"
+  glassSaturation: "Background saturation"
+  glassChromaticAberration: "Chromatic aberration"
+  glassShadows: "Shadows"
+  glassResetParameters: "Restore glass defaults"
   glassEffect: Vật liệu giao diện
   glassEffectDesc: Chọn vật liệu dùng xuyên suốt ứng dụng — thanh tiêu đề, menu, nút hộp thoại và thanh điều hướng dưới
   liquidGlassEffect: Kính lỏng
@@ -1074,15 +1099,13 @@ settings:
   # Audio Video Configuration
   audioVideoConfig: Cấu hình âm thanh và video
   expandBuffer: Mở rộng bộ đệm
-  expandBufferInfo: Khi bật, kích thước bộ đệm tăng lên, thời gian tải lâu hơn nhưng phát mượt hơn
+  expandBufferInfo: Khi bật, ứng dụng tải trước nhiều video hơn nên ít bị giật khi mạng không ổn định, nhưng tốn thêm bộ nhớ
   videoSyncMode: Chế độ đồng bộ video
   videoSyncModeSubtitle: Chiến lược đồng bộ âm thanh - video
   hardwareDecodingMode: Chế độ giải mã phần cứng
   hardwareDecodingModeSubtitle: Cài đặt giải mã phần cứng
   enableHardwareAcceleration: Bật tăng tốc phần cứng
   enableHardwareAccelerationInfo: Bật tăng tốc phần cứng có thể cải thiện hiệu năng giải mã, nhưng một số thiết bị có thể không tương thích
-  useOpenSLESAudioOutput: Dùng đầu ra âm thanh OpenSLES
-  useOpenSLESAudioOutputInfo: Dùng đầu ra âm thanh độ trễ thấp, có thể cải thiện hiệu năng âm thanh
   # Video sync options
   videoSyncAudio: Đồng bộ âm thanh
   videoSyncDisplayResample: Lấy mẫu lại
@@ -1510,6 +1533,10 @@ videoDetail:
     currentQuality: Chất lượng hiện tại
     duration: Thời lượng
     resolution: Độ phân giải
+    frameRate: "Tốc độ khung hình"
+    frameRateValue: "${fps} fps"
+    frameRateInterpolated: "${fps} fps (bản nội suy, gốc ${from} fps)"
+    frameRateHasInterpolated: "${fps} fps (bản gốc, đã có bản ${to} fps)"
     fileInfo: Thông tin tệp
     fileName: Tên tệp
     fileSize: Kích thước tệp
@@ -1523,6 +1550,9 @@ videoDetail:
   thisIsAPrivateVideo: Đây là video riêng tư
   getVideoInfoFailed: 'Lấy thông tin video thất bại, vui lòng thử lại sau'
   noVideoSourceFound: Không tìm thấy nguồn video
+  sourceFileMissingOnServer: 'Tệp video không tồn tại trên máy chủ Iwara (HTTP 404), nên trên web cũng không phát được. Máy chủ có thể đang gặp sự cố; hãy thử lại sau.'
+  qualityFileMissingOnServer: 'Tệp chất lượng “${quality}” không có trên máy chủ (HTTP 404). Hãy chọn chất lượng khác trong menu chất lượng.'
+  playbackRetryExhausted: 'Video không mở được nhiều lần liên tiếp nên đã dừng tự động thử lại. Hãy thử lại sau.'
   tagCopiedToClipboard: 'Đã sao chép thẻ "${tagId}" vào bộ nhớ tạm'
   errorLoadingVideo: Lỗi khi tải video
   play: Phát
@@ -1680,7 +1710,7 @@ videoDetail:
     fetchingVideoSources: Đang lấy nguồn video...
     loadingVideo: Đang tải video...
     applyingSolution: Đang áp dụng giải pháp...
-    addingListeners: Đang thêm trình lắng nghe...
+    addingListeners: Đang kết nối máy chủ video...
     successFecthVideoDurationInfo: Đã lấy thành công thời lượng video, bắt đầu tải video...
     successFecthVideoHeightInfo: Tải hoàn tất
   # 投屏
@@ -1719,6 +1749,23 @@ videoDetail:
       connectedTo: 'Đã kết nối với: ${deviceName}'
       notConnected: Chưa kết nối thiết bị nào
       stopCasting: Dừng truyền phát
+      searchFinished: 'Đã tìm xong, tìm thấy ${count} thiết bị'
+      protocolDlna: 'DLNA'
+      protocolGoogleCast: 'Google Cast'
+      addByIp: 'Thêm thủ công'
+      addByIpTitle: 'Thêm thiết bị thủ công'
+      addByIpDesc: 'Nhập địa chỉ IP của TV hoặc hộp phát. Thường xem được trong Cài đặt → Mạng → Trạng thái mạng trên TV.'
+      addByIpHint: 'ví dụ 192.168.1.20'
+      addByIpAction: 'Tìm'
+      addByIpInvalid: 'Địa chỉ không hợp lệ. Hãy nhập địa chỉ IPv4 như 192.168.1.20'
+      addByIpNotFound: 'Không tìm thấy thiết bị truyền tại ${host}'
+      troubleshootTitle: 'Không tìm thấy thiết bị?'
+      troubleshoot: '• Điện thoại/máy tính và TV phải dùng cùng một Wi-Fi. Mạng khách và tính năng cách ly AP của router sẽ chặn việc tìm kiếm\n• VPN hoặc ứng dụng proxy có thể chặn việc tìm kiếm; hãy tắt rồi thử lại\n• Hỗ trợ DLNA và Google Cast (Chromecast). Không hỗ trợ Apple TV (AirPlay) và giao thức riêng của một số hãng; hãy bật DLNA trên TV\n• Vẫn không thấy? Nhấn "Thêm thủ công" và nhập IP của TV'
+      failure:
+        unreachable: 'Không kết nối được thiết bị. Kiểm tra cùng Wi-Fi và thử tắt VPN'
+        timeout: 'Thiết bị không phản hồi'
+        mediaRejected: 'Thiết bị không phát được video này (định dạng không hỗ trợ hoặc không mở được liên kết)'
+        deviceRejected: 'Thiết bị đã từ chối yêu cầu truyền'
   # Like Avatars Component
   likeAvatars:
     dialogTitle: Ai đang âm thầm thích
@@ -1918,6 +1965,8 @@ notifications:
   kApprovedPost: Bài viết đã được duyệt
   kApprovedForumPost: Bài viết diễn đàn đã được duyệt
   kRejectedContent: Nội dung bị từ chối phê duyệt
+  kWarning: "Cảnh báo từ trang web"
+  kWarningHint: "Quản trị viên đã gửi cảnh báo cho tài khoản của bạn. Vui lòng tuân thủ quy tắc cộng đồng. Xem chi tiết trên trang web."
   kUnknownType: Loại thông báo không xác định
 
 conversation:
@@ -2022,6 +2071,7 @@ download:
   categorySectionLabel: 'Phân loại'
   saveToPreviewLabel: 'Sẽ lưu vào'
   saveToPreviewSuggested: 'Tên tệp gợi ý: ${name} (có thể sửa trong hộp thoại hệ thống)'
+  saveToPreviewChange: Change…
   lastUsedBadge: Dùng gần nhất
   pickedBadge: Đã chọn
   startDownloading: Bắt đầu tải xuống
@@ -2337,6 +2387,7 @@ download:
     downloadsFolder: Downloads
     askEveryTime: Ask every time
     askEveryTimeDesc: 'Choose where to save for each download. Batch downloads go to ${location}'
+    firstDownloadNotice: 'Download started. Files are saved to "${location}". You can change this in download settings'
     freeSpace: '${size} free'
     statusWritable: Writable
     statusNeedsPermission: Needs permission
@@ -3556,6 +3607,12 @@ vrFormat:
   resetToAutoDesc: Quên lựa chọn thủ công cho video này và để tính năng phát hiện quyết định lại
   manualBadge: Đặt thủ công
   panoramaHint: Kéo hình để nhìn quanh, chụm để thay đổi trường nhìn
+  gyroControl: "Điều khiển bằng cảm biến"
+  gyroControlDesc: "Ở chế độ toàn cảnh VR, xoay điện thoại để nhìn xung quanh; kéo màn hình vẫn tinh chỉnh được góc nhìn"
+  gyroPromptTitle: "Bật điều khiển bằng cảm biến?"
+  gyroPromptBody: "Bật cảm biến chuyển động để có trải nghiệm VR tốt hơn? Bạn có thể tắt tính năng này trong Cài đặt."
+  gyroPromptEnable: "Bật"
+  gyroPromptDecline: "Để sau"
   panoramaGestureNotice: Trong khi nhìn quanh, kéo sẽ xoay tầm nhìn — hãy dùng thanh tiến trình để tua
   shaderUnsupported: Thiết bị này không thể hiển thị toàn cảnh trực tiếp; thay vào đó hiển thị một mắt
   handoffTooltip: Phát theo cách khác
@@ -4022,3 +4079,88 @@ poll:
   voteFailed: "Không gửi được phiếu bầu"
   copyLink: "Sao chép liên kết bình chọn"
   translateFailed: "Không dịch được cuộc bình chọn"
+frameInterp:
+  title: "Tác vụ nội suy khung hình"
+  action: "Nội suy lên gấp 2 tốc độ khung hình"
+  playInterpolated: "Phát bản đã nội suy"
+  playOriginal: "Phát bản gốc"
+  deleteInterpolated: "Xóa cả bản nội suy"
+  deleteInterpolatedDesc: "Xóa tệp video đã nội suy cùng bản ghi tác vụ"
+  deleteInterpolatedOnly: "Xóa bản nội suy"
+  deleteInterpolatedOnlyTitle: "Xóa bản nội suy?"
+  deleteInterpolatedOnlyBody: "Chỉ xóa tệp video đã nội suy và bản ghi tác vụ. Video gốc được giữ nguyên và có thể nội suy lại sau."
+  interpolatedDeleted: "Đã xóa bản nội suy"
+  deleteInterpolatedFailed: "Không xóa được bản nội suy. Tệp có thể đang được dùng hoặc không có quyền"
+  viewTasks: "Xem tác vụ nội suy"
+  badge: "2× FPS"
+  fpsBadge: "${fps} FPS"
+  specLine: "${width}×${height} · ${from} → ${to} fps"
+  runningDetail: "${percent}% · ${speed} fps"
+  preparing: "Đang chuẩn bị…"
+  outputMissing: "Tệp đã nội suy không còn tồn tại"
+  empty: "Chưa có tác vụ nội suy nào"
+  emptyHint: "Chọn “Nội suy lên gấp 2 tốc độ khung hình” cho video trong Tệp cục bộ hoặc Tải xuống."
+  clearFinished: "Xóa các bản ghi đã xong"
+  status:
+    pending: "Đang chờ"
+    running: "Đang xử lý"
+    completed: "Đã hoàn thành"
+    failed: "Thất bại"
+    cancelled: "Đã hủy"
+  actions:
+    play: "Phát"
+    cancel: "Hủy"
+    retry: "Thử lại"
+    delete: "Xóa bản ghi"
+    revealInFolder: "Hiện trong thư mục"
+  confirm:
+    cancelTitle: "Hủy tác vụ này?"
+    cancelContent: "Tiến độ đã xử lý sẽ bị mất. Bạn có thể thử lại từ đầu sau."
+    deleteTitle: "Xóa bản ghi này?"
+    deleteContent: "Video gốc không bị ảnh hưởng."
+    deleteOutput: "Xóa luôn tệp đã nội suy"
+    clearTitle: "Xóa các bản ghi đã xong?"
+    clearContent: "Các tệp đã nội suy vẫn nằm trên ổ đĩa; chỉ xóa bản ghi."
+    enqueueTitle: "Nội suy khung hình cho video này?"
+    enqueueAction: "Bắt đầu"
+    fpsUnit: "fps"
+    saveNote: "Lưu thành tệp mới; video gốc giữ nguyên"
+    resetTitle: "Không thể tiếp tục giữa chừng. Sẽ bắt đầu lại nếu:"
+    resetBackground: "Chuyển sang ứng dụng khác hoặc khóa màn hình"
+    resetClosed: "Đóng ứng dụng, hoặc hệ thống đóng nó"
+  toast:
+    queued: "Đã thêm vào hàng đợi nội suy"
+    completed: "Nội suy xong: ${title}"
+    failed: "Nội suy thất bại: ${title}"
+  reject:
+    sourceMissing: "Tệp video không còn tồn tại"
+    alreadyInterpolated: "Đây đã là video được nội suy"
+    alreadyQueued: "Video này đã có trong hàng đợi"
+    alreadyDone: "Video này đã có bản nội suy"
+    hdr: "Chưa hỗ trợ video HDR"
+    resolutionTooLarge: "Độ phân giải quá cao để nội suy"
+    unreadable: "Không đọc được video này"
+    noGpu: "Không tìm thấy card đồ họa khả dụng (cần hỗ trợ Vulkan)"
+  error:
+    unknown: "Đã xảy ra sự cố"
+    openInput: "Không mở được video"
+    noVideo: "Tệp không có luồng video"
+    decoder: "Không giải mã được video"
+    hdrUnsupported: "Chưa hỗ trợ video HDR"
+    noGpu: "Không tìm thấy card đồ họa khả dụng"
+    model: "Không tải được mô hình nội suy. Hãy thử cài lại thành phần"
+    encoder: "Không có bộ mã hóa video khả dụng"
+    openOutput: "Không tạo được tệp đầu ra"
+    write: "Ghi tệp thất bại. Ổ đĩa có thể đã đầy"
+    interpolate: "Xử lý thất bại. Card đồ họa có thể thiếu bộ nhớ"
+    componentUnavailable: "Thành phần nội suy không khả dụng"
+    interrupted: "Bị gián đoạn do ứng dụng đã đóng"
+    finalizeFailed: "Không lưu được tệp thành phẩm"
+    sourceMissing: "Tệp video không còn tồn tại"
+    backgrounded: "Bị dừng vì ứng dụng chuyển sang nền; sẽ chạy lại khi bạn quay lại"
+  notification:
+    title: "Đang nội suy khung hình"
+    titleWithQueue: "Đang nội suy khung hình · ${count} đang chờ"
+    waiting: "Đang chờ bắt đầu"
+  component:
+    unsupported: "Thiết bị này không hỗ trợ nội suy khung hình"

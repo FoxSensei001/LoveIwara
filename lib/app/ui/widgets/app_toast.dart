@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/utils/device_form_factor_utils.dart';
 import 'package:toastification/toastification.dart';
 
 /// # 应用轻提示（toast）
@@ -44,6 +46,22 @@ const Duration appToastAnimationDuration = Duration(milliseconds: 300);
 /// 同屏最多堆几条。超过后最早的那条会被挤掉。
 const int appToastMaxVisible = 3;
 
+/// 自动关闭计时最多能被「暂停」多久，到点无条件接着走。
+///
+/// toastification 的计时会被两件事暂停：鼠标悬停（`MouseRegion.onEnter`）和
+/// 手指按住（包内 `_FadeDismissible` 的 `onPointerDown`）。恢复全靠对应的
+/// exit / up 事件，而这两个事件都有收不到的时候——
+/// - 手指按下后被系统拿走（安卓边缘返回手势会给 App 一个 cancel）、或按住时
+///   恰好有路由 push/pop（Navigator 会 cancel 所有按着的指针）：包只监听了
+///   `onPointerUp`，没有 `onPointerCancel`；
+/// - XR 头显的手柄射线只发 hover 不发 exit（见
+///   [DeviceFormFactorUtils.supportsPointerHover]）；
+/// - 桌面上鼠标停在 toast 落点上人走开了。
+///
+/// 任何一条漏掉，那条 toast 就永远挂在屏幕上。所以不逐条去补事件，而是给
+/// 「暂停」本身设上限（[_capPausedTime]）。
+const Duration appToastMaxPause = Duration(seconds: 10);
+
 /// 展示一条轻提示。
 ///
 /// [message] 为空串时直接忽略——上游常有 `error?.message ?? ''` 这种写法，
@@ -64,7 +82,7 @@ void showAppToast(
 }) {
   if (message.trim().isEmpty) return;
   final bool interactive = onAction != null;
-  toastification.showCustom(
+  final ToastificationItem item = toastification.showCustom(
     alignment: _alignmentOf(position),
     animationDuration: appToastAnimationDuration,
     autoCloseDuration:
@@ -78,6 +96,34 @@ void showAppToast(
       onAction: onAction,
     ),
   );
+  _capPausedTime(item);
+}
+
+/// 计时进入暂停就挂一个 [appToastMaxPause] 的兜底定时器，暂停期满仍未恢复就
+/// 替它恢复；恢复或 toast 结束时撤掉。
+void _capPausedTime(ToastificationItem item) {
+  if (!item.hasTimer) return;
+  Timer? backstop;
+  late final VoidCallback onStatus;
+  onStatus = () {
+    switch (item.timeStatus) {
+      case ToastTimeStatus.paused:
+        backstop ??= Timer(appToastMaxPause, () {
+          backstop = null;
+          if (item.timeStatus == ToastTimeStatus.paused) item.start();
+        });
+      case ToastTimeStatus.init:
+      case ToastTimeStatus.started:
+        backstop?.cancel();
+        backstop = null;
+      case ToastTimeStatus.stopped:
+      case ToastTimeStatus.finished:
+        backstop?.cancel();
+        backstop = null;
+        item.removeListenerOnTimeStatus(onStatus);
+    }
+  };
+  item.addListenerOnTimeStatus(onStatus);
 }
 
 /// 立刻收起所有 toast（例如点了 toast 上的动作按钮之后）。
@@ -196,39 +242,47 @@ class AppToastWidget extends StatelessWidget {
       // 堆叠时两条之间的呼吸；左右边距由 marginBuilder 统一给。
       margin: const EdgeInsets.symmetric(vertical: 5),
       closeOnClick: _tapAnywhere,
-      pauseOnHover: true,
+      // XR 的射线 hover 收不到 exit，按悬停暂停只会把计时钉死。
+      pauseOnHover: DeviceFormFactorUtils.supportsPointerHover,
       dragToClose: true,
       dismissDirection: DismissDirection.horizontal,
       onHoverMouseCursor: _tapAnywhere ? SystemMouseCursors.click : null,
       callbacks: ToastificationCallbacks(
         onTap: _tapAnywhere ? (_) => onAction!.call() : null,
       ),
-      child: BuiltInToastBuilder(
-        item: item,
-        type: ToastificationType.custom(type.name, accent, _iconFor(type)),
-        style: ToastificationStyle.flat,
-        direction: Directionality.of(context),
-        title: Text(message),
-        primaryColor: accent,
-        backgroundColor: cs.surfaceContainerHigh,
-        foregroundColor: cs.onSurface,
-        borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: cs.outlineVariant),
-        boxShadow: [
-          BoxShadow(
-            color: cs.shadow.withValues(alpha: 0.16),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
-          ),
-        ],
-        padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 8, 12),
-        // 包里默认 minHeight 64 是给「标题 + 正文」两行卡片的，一句话提示会显得
-        // 中间空一大块。
-        constraints: const BoxConstraints(minHeight: 52),
-        showIcon: true,
-        showProgressBar: false,
-        closeButton: _closeButton(accent),
-        onCloseTap: () => toastification.dismiss(item),
+      // 包在按下时暂停计时、抬手时恢复，却不管 cancel：手指被系统手势或路由
+      // 切换取消后就再也收不到 up。这里补上，让计时立刻接着走。
+      child: Listener(
+        onPointerCancel: (_) {
+          if (item.timeStatus == ToastTimeStatus.paused) item.start();
+        },
+        child: BuiltInToastBuilder(
+          item: item,
+          type: ToastificationType.custom(type.name, accent, _iconFor(type)),
+          style: ToastificationStyle.flat,
+          direction: Directionality.of(context),
+          title: Text(message),
+          primaryColor: accent,
+          backgroundColor: cs.surfaceContainerHigh,
+          foregroundColor: cs.onSurface,
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: cs.outlineVariant),
+          boxShadow: [
+            BoxShadow(
+              color: cs.shadow.withValues(alpha: 0.16),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
+            ),
+          ],
+          padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 8, 12),
+          // 包里默认 minHeight 64 是给「标题 + 正文」两行卡片的，一句话提示会显得
+          // 中间空一大块。
+          constraints: const BoxConstraints(minHeight: 52),
+          showIcon: true,
+          showProgressBar: false,
+          closeButton: _closeButton(accent),
+          onCloseTap: () => toastification.dismiss(item),
+        ),
       ),
     );
   }

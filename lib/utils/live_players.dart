@@ -3,6 +3,7 @@ import 'dart:ffi';
 
 import 'package:media_kit/media_kit.dart';
 
+import 'package:i_iwara/app/services/logging/hang_breadcrumb.dart';
 import 'package:i_iwara/app/services/logging/native_exit_info.dart';
 import 'package:i_iwara/app/services/webdav/webdav_gateway.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -160,7 +161,12 @@ abstract final class LivePlayers {
   /// 正在进行的 open / seek 会把它们拖住。`waitForInitialization: false` 的
   /// [NativePlayer.setProperty] 在第一个 await 之前就同步调完了
   /// `mpv_set_property_string`，函数返回时 mpv 已经静音。
-  static void silenceAllSync() {
+  static void silenceAllSync() =>
+      // 同步 FFI：函数返回之前整个主 isolate 都在 mpv 里面。退出流程的第一步
+      // 卡在这儿，表现就是「点关闭之后窗口再也没反应」——留个名字。
+      HangBreadcrumb.guardSync('mpv-silence-sync', _silenceAllSyncInner);
+
+  static void _silenceAllSyncInner() {
     for (final player in _players.toList()) {
       final platform = player.platform;
       if (platform is! NativePlayer || platform.disposed) continue;

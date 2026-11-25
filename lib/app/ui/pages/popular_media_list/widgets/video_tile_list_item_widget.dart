@@ -86,29 +86,34 @@ class _VideoTileListItemState extends State<VideoTileListItem>
   Widget build(BuildContext context) {
     final bool isDesktopPlatform = _isDesktop();
 
-    return InkWell(
-      onTap: _navigateToDetailPage,
-      // 长按 / 右键 → 预览弹窗；行尾三点钮 → 操作菜单（菜单第一条又能回到
-      // 预览）。分工见 media_preview_dialog.dart 文件头。
-      onLongPress: openPreview,
-      onSecondaryTap: isDesktopPlatform ? openPreview : null,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildThumbnail(context),
-            const SizedBox(width: 16),
-            _buildVideoInfo(context),
-            // 行尾的三点钮。它在 InkWell 内部，但手势竞技场里更深的识别器
-            // 稳赢，所以点它不会顺带把整行的"打开详情"也触发掉。
-            MediaActionMenuButton(
-              video: widget.video,
-              likedOverride: effectiveLiked,
-              onLikeChanged: applyLikeToggle,
-              onPreview: openPreview,
-            ),
-          ],
+    return MouseRegion(
+      // 停够一会儿就预取详情 + 视频源（见 MediaCardActionState）。
+      onEnter: (_) => onCardHoverChanged(true),
+      onExit: (_) => onCardHoverChanged(false),
+      child: InkWell(
+        onTap: _navigateToDetailPage,
+        // 长按 / 右键 → 预览弹窗；行尾三点钮 → 操作菜单（菜单第一条又能回到
+        // 预览）。分工见 media_preview_dialog.dart 文件头。
+        onLongPress: openPreview,
+        onSecondaryTap: isDesktopPlatform ? openPreview : null,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildThumbnail(context),
+              const SizedBox(width: 16),
+              _buildVideoInfo(context),
+              // 行尾的三点钮。它在 InkWell 内部，但手势竞技场里更深的识别器
+              // 稳赢，所以点它不会顺带把整行的"打开详情"也触发掉。
+              MediaActionMenuButton(
+                video: widget.video,
+                likedOverride: effectiveLiked,
+                onLikeChanged: applyLikeToggle,
+                onPreview: openPreview,
+              ),
+            ],
+          ),
         ),
       ),
     );

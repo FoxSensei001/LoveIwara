@@ -931,6 +931,10 @@ class CommonUtils {
             case ApiFailureKind.unauthorized:
             case ApiFailureKind.authRefreshFailed:
               return withDesktopHint(slang.t.errors.pleaseLoginAgain);
+            case ApiFailureKind.connectionFailed:
+              return withDesktopHint(
+                '${slang.t.errors.network.basicPrefix}${slang.t.errors.network.connectionFailed}',
+              );
             case ApiFailureKind.cloudflareBlocked:
             case ApiFailureKind.serverError:
               return statusCode != null
@@ -986,6 +990,13 @@ class CommonUtils {
         case DioExceptionType.unknown:
           if (failure.kind == ApiFailureKind.authRefreshFailed) {
             return withDesktopHint(slang.t.errors.pleaseLoginAgain);
+          }
+          // 发请求前换 token 撞上断网/超时：报网络问题，别露出内部英文原因。
+          if (failure.kind == ApiFailureKind.connectionFailed &&
+              error.requestOptions.extra['auth_refresh_failed'] == true) {
+            return withDesktopHint(
+              '${slang.t.errors.network.basicPrefix}${slang.t.errors.network.connectionFailed}',
+            );
           }
           if (errorMessage.contains('Invalid port')) {
             final port = extractPort(errorMessage);

@@ -1,0 +1,66 @@
+// rife implemented with ncnn library
+
+#version 450
+
+#if NCNN_fp16_storage
+#extension GL_EXT_shader_16bit_storage: require
+#endif
+
+#if NCNN_int8_storage
+#extension GL_EXT_shader_8bit_storage: require
+#endif
+
+layout (constant_id = 0) const int bgr = 0;
+
+#if NCNN_int8_storage
+layout (binding = 0) readonly buffer bottom_blob { uint8_t bottom_blob_data[]; };
+#else
+layout (binding = 0) readonly buffer bottom_blob { float bottom_blob_data[]; };
+#endif
+layout (binding = 1) writeonly buffer top_blob { sfp top_blob_data[]; };
+
+layout (push_constant) uniform parameter
+{
+    int w;
+    int h;
+    int cstep;
+
+    int outw;
+    int outh;
+    int outcstep;
+} p;
+
+void main()
+{
+    int gx = int(gl_GlobalInvocationID.x);
+    int gy = int(gl_GlobalInvocationID.y);
+    int gz = int(gl_GlobalInvocationID.z);
+
+    if (gx >= p.outw || gy >= p.outh || gz >= 3)
+        return;
+
+    if (gx < 0 || gx >= p.w || gy < 0 || gy >= p.h)
+    {
+        top_blob_data[gz * p.outcstep + gy * p.outw + gx] = sfp(0.f);
+        return;
+    }
+
+#if NCNN_int8_storage
+    int v_offset = gy * p.w + gx;
+
+    float v;
+
+    if (bgr == 0)
+        v = float(uint(bottom_blob_data[v_offset * 3 + gz]));
+    else
+        v = float(uint(bottom_blob_data[v_offset * 3 + 2 - gz]));
+#else
+    int v_offset = gz * p.cstep + gy * p.w + gx;
+
+    float v = bottom_blob_data[v_offset];
+#endif
+
+    const float norm_val = 1 / 255.f;
+
+    top_blob_data[gz * p.outcstep + gy * p.outw + gx] = sfp(v * norm_val);
+}

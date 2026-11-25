@@ -8,11 +8,12 @@ import 'package:dio/dio.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart'
     show ExtendedNestedScrollViewState;
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/services/frame_interp/frame_interp_service.dart';
 import 'package:i_iwara/app/models/local_media/dav_path.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/app/services/webdav/webdav_gateway.dart';
+import 'package:i_iwara/app/services/http_client_factory.dart';
 import 'package:i_iwara/app/services/webdav/webdav_service.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/models/history_record.dart';
@@ -26,12 +27,13 @@ import 'package:i_iwara/app/ui/pages/local_media/widgets/local_folder_menu.dart'
 import 'package:i_iwara/app/repositories/oreno3d_match_cache_repository.dart';
 import 'package:i_iwara/app/utils/local_vr_filename_detector.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/logging/hang_breadcrumb.dart';
 import 'package:i_iwara/app/services/local_media_derivation_service.dart';
 import 'package:i_iwara/app/services/xr_immersive_service.dart';
 import 'package:i_iwara/app/services/oreno3d_client.dart' show Oreno3dClient;
 import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/utils/iwara_different_site_recovery.dart';
-import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/utils/oreno3d_match_util.dart';
 import 'package:i_iwara/app/models/oreno3d_video.model.dart';
 import 'package:i_iwara/app/models/vr_format.model.dart';
@@ -42,7 +44,7 @@ import 'package:i_iwara/app/services/playback_history_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/player_notice.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/related_media_controller.dart';
 import 'package:i_iwara/app/services/external_player_service.dart';
-import 'package:i_iwara/app/ui/pages/video_detail/widgets/dlna_cast_sheet.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/cast_sheet.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/external_player_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/error_widget.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
@@ -84,10 +86,13 @@ import '../../../../services/x_version_salt_service.dart';
 import '../../../../models/download/download_task.model.dart';
 import '../../../../models/download/download_task_ext_data.model.dart';
 import '../widgets/player/custom_slider_bar_shape_widget.dart';
+import '../widgets/player/vr/vr_gyro_tracker.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import '../widgets/private_or_deleted_video_widget.dart';
 import '../services/video_cache_manager.dart';
-import 'dlna_cast_service.dart';
+import '../services/video_detail_prefetcher.dart';
+import 'package:i_iwara/app/services/cast/cast_service.dart';
+import 'package:i_iwara/utils/proxy/app_proxy_tunnel.dart';
 
 enum VideoDetailPageLoadingState {
   init, // 初始化
@@ -226,7 +231,7 @@ class MyVideoStateController extends GetxController
   static final VideoCacheManager _cacheManager = VideoCacheManager();
 
   // DLNA 投屏服务
-  DlnaCastService get _dlnaCastService => DlnaCastService.instance;
+  CastService get _castService => CastService.instance;
 
   // Oreno3D相关状态
   final Rxn<Oreno3dVideoDetail> oreno3dVideoDetail = Rxn<Oreno3dVideoDetail>();
@@ -311,6 +316,10 @@ class MyVideoStateController extends GetxController
   bool _pendingOpenPlayerAfterVideoSourceFetch = false;
   Duration _deferredInitialPlaybackPosition = Duration.zero;
   bool _isStartingDeferredInitialPlayback = false;
+
+  /// 媒体正在打开时用户按了播放（[requestInitialPlayback] 那时只能登记、不能再开一次）。
+  /// 打开完成后的对账据此补播——不管这次打开是预热、出错重开还是切清晰度。
+  bool _playRequestedWhileOpening = false;
 
   /// 在视频源尚未加载完成时，用户点击了暂停或离开了当前页面。
   /// 此时 player 还未 open，直接 pause() 无效；加载完成后的延迟初始播放
@@ -426,6 +435,16 @@ class MyVideoStateController extends GetxController
   final RxDouble vrYaw = 0.0.obs;
   final RxDouble vrPitch = 0.0.obs;
   final RxDouble vrFovY = VrGeometry.defaultFovY.obs;
+
+  /// 陀螺仪转视角：把手机的转动当成拖动一样加到 [vrYaw] / [vrPitch] 上。
+  ///
+  /// 挂在控制器上而不是画面 widget 上：内嵌和全屏两块画面共用这一份视角，
+  /// 各订一份传感器的话每次转动会被加两遍。什么时候真正订阅传感器由环视画面
+  /// 报上来（见 [VrGyroTracker.setViewerActive]），非 VR 视频永远不会碰到它。
+  late final VrGyroTracker vrGyroTracker = VrGyroTracker(
+    onDelta: (deltaYaw, deltaPitch) =>
+        nudgeVrView(deltaYaw: deltaYaw, deltaPitch: deltaPitch),
+  );
 
   /// 阶段A（文本怀疑）的结果，留着给阶段B 复用。
   VrSuspicion _vrSuspicion = VrSuspicion.none;
@@ -1183,6 +1202,15 @@ class MyVideoStateController extends GetxController
   final CancelToken _cancelToken = CancelToken();
   // 添加 disposed 标志位
   bool _isDisposed = false;
+
+  /// onInit 已经把代理（`http-proxy`）和 mpv 网络参数（超时、重连、缓冲上限）
+  /// 设到播放器上了。[resetVideoInfo] 打开前等它，理由见那里。
+  final Completer<void> _playerConfigApplied = Completer<void>();
+
+  void _markPlayerConfigApplied() {
+    if (!_playerConfigApplied.isCompleted) _playerConfigApplied.complete();
+  }
+
   bool _isRouteCovered = false;
   // 添加随机ID用于节流key，避免与其他视频实例冲突
   late final String randomId;
@@ -1193,6 +1221,17 @@ class MyVideoStateController extends GetxController
 
   /// 上一次判定「播放确实往前走了」时的位置基准，用于给 noticeCenter 报进展。
   Duration _lastPlaybackAdvanceMark = Duration.zero;
+
+  /// 在线源打开失败后已经自动重试了几次（见 [_scheduleOpenFailureRetry]）。
+  /// 播放真的往前走了、或用户在错误浮层上点了重试，才清零。
+  int _openFailureRetries = 0;
+  static const int _maxOpenFailureRetries = 3;
+
+  /// 已确认在服务器上 404 的清晰度，探测换档时跳过。清零时机同上。
+  final Set<String> _missingSourceLabels = <String>{};
+
+  /// 正在探测地址状态：mpv 一次失败可能连报好几条，只探一次。
+  bool _probingOpenFailure = false;
 
   // 添加倍速播放防抖定时器
   Timer? _speedChangeDebouncer;
@@ -1556,6 +1595,34 @@ class MyVideoStateController extends GetxController
   /// 在线各档来自 [videoResolutions]；本地那份查下载库里**这条视频**完成了的任务，
   /// 逐个 stat 文件（下载页删过、系统清过缓存都可能让记录还在文件没了）。同一档有本地
   /// 文件就用本地地址顶掉在线地址；只有本地没有在线的档（本地模式）也列进去。
+  /// 在线视频的 [quality] 档已经下载好时，实际该打开的本地文件；没下载 / 原片
+  /// 不在时为 null（调用方照旧走在线直链）。
+  ///
+  /// 这一档有现成的补帧版就用补帧版，与本机播放「默认看补帧版」同一口径
+  /// （[FrameInterpService.preferredPlaybackPath]）。补帧版被用户在外面删掉时，
+  /// 那边现问一次文件在不在、不在就退回原下载文件。
+  Future<String?> _downloadedPlaybackPath(String quality) async {
+    final id = videoId;
+    if (id == null) return null;
+    final savePath = await Get.find<DownloadService>()
+        .getCompletedVideoLocalPath(id, quality);
+    if (savePath == null) return null;
+    return FrameInterpService.preferredPlaybackPath(savePath);
+  }
+
+  /// 本地多清晰度时，某一档该打开的文件。
+  ///
+  /// 正在播的是补帧成品（默认就是它，见 FrameInterpService.preferredPlaybackPath）
+  /// 时，各档也换成各自的补帧成品——否则清晰度面板标着原片那档、刷新 / 出错重试
+  /// / 切档 / 进沉浸都会悄悄退回原片。用户点的是「播放原视频」时不换。
+  String _qualityPlaybackPath(String savePath) {
+    final playing = localVideoPath;
+    final interp = FrameInterpService.maybe;
+    if (playing == null || interp == null) return savePath;
+    if (!interp.isInterpolatedOutput(playing)) return savePath;
+    return FrameInterpService.preferredPlaybackPath(savePath);
+  }
+
   Future<List<XrMediaSource>> _immersiveSources() async {
     final byLabel = <String, XrMediaSource>{};
     for (final r in videoResolutions) {
@@ -1586,7 +1653,7 @@ class MyVideoStateController extends GetxController
           final ext = VideoDownloadExtData.fromJson(task.extData!.data);
           final quality = ext.quality?.trim();
           if (quality == null || quality.isEmpty) continue;
-          final path = task.savePath;
+          final path = _qualityPlaybackPath(task.savePath);
           if (path.isEmpty || !File(path).existsSync()) continue;
           byLabel[quality] = XrMediaSource(
             label: quality,
@@ -1910,7 +1977,7 @@ class MyVideoStateController extends GetxController
         _pipAutoEnterSettingSubscription = _configService
             .settings[ConfigKey.AUTO_ENTER_PIP_ON_LEAVE_KEY]!
             .listen((_) => _syncPiPAutoEnter());
-        _pipAutoEnterCastingSubscription = _dlnaCastService.isCasting.listen(
+        _pipAutoEnterCastingSubscription = _castService.isCasting.listen(
           (_) => _syncPiPAutoEnter(),
         );
         _pipAutoEnterOverlaySubscription = OverlayTracker
@@ -2027,6 +2094,7 @@ class MyVideoStateController extends GetxController
 
       // 应用音视频配置
       await _applyPlayerConfiguration();
+      _markPlayerConfigApplied();
 
       // 自动全屏：监听「详情页信息就位 / 这个视频播不了」的三个来源
       _setupAutoFullscreenWatchers();
@@ -2050,6 +2118,9 @@ class MyVideoStateController extends GetxController
           ],
         );
       }
+    } finally {
+      // 半路失败、提前 return 也要放行：不然等着打开的那一路会永远挂住。
+      _markPlayerConfigApplied();
     }
   }
 
@@ -2243,21 +2314,28 @@ class MyVideoStateController extends GetxController
       (!_xrImmersiveAvailable &&
           (_configService[ConfigKey.AUTO_PLAY_VIDEO_ON_FIRST_ENTER] as bool));
 
+  /// 「关掉了首次自动播放、用户还没按过播放」。
+  ///
+  /// ⛔ 不再看 [videoPlayerReady]：媒体可能已经被 [_prewarmDeferredPlayback] 在
+  /// 暂停状态下预先打开（就绪了），但用户没点播放，播放意图仍然是「等着」。
   bool get _shouldKeepInitialPlaybackDeferred =>
       !isLocalVideoMode &&
       videoInfo.value != null &&
       videoInfo.value?.isExternalVideo != true &&
       !_shouldAutoPlayOnInitialEntry &&
-      !videoPlayerReady.value &&
       !hasRequestedInitialPlayback.value;
 
+  /// 封面挡到「媒体就绪**并且**用户按过播放」为止。
+  ///
+  /// 预热（[_prewarmDeferredPlayback]）会让媒体在封面底下先就绪，所以只看
+  /// [videoPlayerReady] 不够——那样封面会在用户没点任何东西时自己消失。
   bool get shouldShowInitialPlaybackCover =>
       !_isDisposed &&
       !isLocalVideoMode &&
       videoInfo.value != null &&
       videoInfo.value?.isExternalVideo != true &&
       !_shouldAutoPlayOnInitialEntry &&
-      !videoPlayerReady.value &&
+      !(videoPlayerReady.value && hasRequestedInitialPlayback.value) &&
       videoSourceErrorMessage.value == null;
 
   bool get isWaitingForInitialPlaybackStart =>
@@ -2307,6 +2385,13 @@ class MyVideoStateController extends GetxController
     // 用户显式请求播放，撤销此前在加载阶段产生的暂停意图。
     _suppressAutoPlayOnReady = false;
 
+    // ⛔ 必须在「已就绪」分支之前置位：预热过的媒体此刻已经就绪，封面要靠它
+    // 才知道用户按过播放、可以撤了（见 [shouldShowInitialPlaybackCover]）。
+    hasRequestedInitialPlayback.value = true;
+    _markStartup('点播放');
+    // 预热期间限过预读，真要看了就放开，否则边播边只攒几秒，弱网下更容易卡。
+    await _releasePrewarmReadaheadLimit();
+
     if (videoPlayerReady.value) {
       if (!videoPlaying.value) {
         await player.play();
@@ -2315,14 +2400,13 @@ class MyVideoStateController extends GetxController
       return;
     }
 
-    hasRequestedInitialPlayback.value = true;
-
     // 媒体已经打开、或正在打开：只能让它播，**绝不能再打开一次**。
     // 少了这道守卫，加载态下每按一次播放都会重开同一个地址，转圈永远不结束。
     if (_hasIssuedMediaSourceOpen) {
       if (_isCurrentMediaSourceOpening) {
         // 打开还在路上。方法开头已经把 _suppressAutoPlayOnReady 置回 false，
         // 打开完成后的对账（见 resetVideoInfo）会据此决定最终播放状态。
+        _playRequestedWhileOpening = true;
         return;
       }
       await player.play();
@@ -2403,12 +2487,26 @@ class MyVideoStateController extends GetxController
     hasRequestedInitialPlayback.value = false;
   }
 
+  /// 用户明确要看（进小窗）时开播。封面还在＝首次播放没开始：必须走
+  /// [requestInitialPlayback]，否则预热过的媒体会在封面底下出声。
+  Future<void> _playForExplicitIntent() async {
+    if (_isDisposed) return;
+    if (shouldShowInitialPlaybackCover) {
+      await requestInitialPlayback();
+    } else {
+      await player.play();
+    }
+  }
+
   Future<void> playFromUserAction() async {
     if (_isDisposed) {
       return;
     }
 
+    // 封面还在 = 首次播放还没开始。预热过的媒体虽然已就绪，也得走首次播放那条
+    // 路，否则只调了 player.play()，封面不知道该撤、用户看到的是封面底下在出声。
     final shouldBootstrapDeferredPlayback =
+        shouldShowInitialPlaybackCover ||
         shouldBootstrapDeferredPlaybackOnUserPlay(
           isLocalVideoMode: isLocalVideoMode,
           isExternalVideo: videoInfo.value?.isExternalVideo == true,
@@ -2538,7 +2636,172 @@ class MyVideoStateController extends GetxController
     return decision.shouldOpenPlayer;
   }
 
-  Future<void> _startDeferredInitialPlayback({required bool playOnOpen}) async {
+  /// 预热时 mpv 最多往前攒几秒（`cache-secs`）。
+  ///
+  /// 暂停状态下 mpv 照样会把缓存灌满到 `demuxer-max-bytes`（默认 40MB、扩大
+  /// 缓冲时 64MB，见 [_getBufferSize]）。用户可能只是进来看评论、根本不播，所以预热只攒够「一点
+  /// 播放就能出画面」的量：1080p Source 约 10Mbps，8 秒 ≈ 10MB，540p 只有
+  /// 两三 MB。用户一按播放就恢复原值（见 [_releasePrewarmReadaheadLimit]）。
+  ///
+  /// 运行期改 `cache-secs` 有效：mpv 的 demux 线程每轮都会检查选项变更并
+  /// 重算预读上限（demux.c `update_opts`）。
+  static const String _prewarmCacheSecs = '8';
+
+  /// 预热前 `cache-secs` 的原值；非 null 表示预读正被预热限着。
+  String? _cacheSecsBeforePrewarm;
+  bool _prewarmReadaheadLimited = false;
+
+  /// 一次预热正在路上（读写 cache-secs 到发出打开之间）。没有它，同时进来的第二次
+  /// 预热会在复查时看到第一次的打开、把第一次设下的预读限制当成自己的给撤了。
+  bool _isPrewarming = false;
+
+  /// 「关掉首次自动播放」的用户：视频源到手后，在**暂停状态**下把媒体先打开。
+  ///
+  /// 原来要等用户点了播放才开始 `player.open`，连 CDN、TLS 握手、读文件头、
+  /// 跳到历史进度、缓冲，全部压在点击之后。预热把这些挪到用户看简介、看评论
+  /// 的时间里：点播放时多半已经就绪，直接出画面。
+  ///
+  /// 封面照旧挡在上面（[shouldShowInitialPlaybackCover] 要求「就绪且按过播放」），
+  /// 用户看到的和以前一样，只是点下去快了。
+  ///
+  /// 不预热的情况：
+  /// - 头显：播放器区域只是封面，真正播放交给空间播放器，预热只是白占带宽；
+  /// - 投屏中：画面在电视上，本机不该再拉一路；
+  /// - 页面被盖住：用户已经走了，等回来（[resumeFromCoveredRoute]）再说。
+  Future<void> _prewarmDeferredPlayback() async {
+    if (_isDisposed ||
+        _isPrewarming ||
+        !_shouldKeepInitialPlaybackDeferred ||
+        _hasIssuedMediaSourceOpen ||
+        _isStartingDeferredInitialPlayback ||
+        currentVideoSourceList.isEmpty ||
+        videoSourceErrorMessage.value != null ||
+        DeviceFormFactorUtils.isXrDevice ||
+        _xrImmersiveAvailable ||
+        _castService.isCasting.value ||
+        _isRouteCovered) {
+      return;
+    }
+
+    LogUtils.i('首次自动播放已关闭：在暂停状态下预先打开视频', 'MyVideoStateController');
+    _isPrewarming = true;
+    try {
+      await _limitReadaheadForPrewarm();
+      // 读写 cache-secs 那一下里，用户可能已经点了播放、走了正常的打开——
+      // 再预热一次就是对同一个地址第二次 open。
+      if (_isDisposed ||
+          hasRequestedInitialPlayback.value ||
+          _hasIssuedMediaSourceOpen ||
+          _isStartingDeferredInitialPlayback) {
+        await _releasePrewarmReadaheadLimit();
+        return;
+      }
+    } finally {
+      _isPrewarming = false;
+    }
+    await _startDeferredInitialPlayback(playOnOpen: false, prewarm: true);
+  }
+
+  Future<void> _limitReadaheadForPrewarm() async {
+    if (player.platform is! NativePlayer) return;
+    final NativePlayer platform = player.platform as NativePlayer;
+    try {
+      final String original = await platform.getProperty('cache-secs');
+      // 读原值的这一下里用户可能已经点了播放——那就别再限了。
+      if (_isDisposed ||
+          hasRequestedInitialPlayback.value ||
+          _prewarmReadaheadLimited) {
+        return;
+      }
+      _cacheSecsBeforePrewarm = original;
+      // 先置位再发：此后任何一次 release 都排在这次 setProperty 之后执行
+      // （两者都先 await 同一个已完成的初始化 future，FFI 调用按发出顺序落地）。
+      _prewarmReadaheadLimited = true;
+      await platform.setProperty('cache-secs', _prewarmCacheSecs);
+    } catch (e) {
+      LogUtils.w('预热时限制预读失败: $e', 'MyVideoStateController');
+    }
+  }
+
+  Future<void> _releasePrewarmReadaheadLimit() async {
+    if (!_prewarmReadaheadLimited) return;
+    _prewarmReadaheadLimited = false;
+    final String? original = _cacheSecsBeforePrewarm;
+    _cacheSecsBeforePrewarm = null;
+    if (_isDisposed ||
+        original == null ||
+        original.isEmpty ||
+        player.platform is! NativePlayer) {
+      return;
+    }
+    try {
+      final NativePlayer platform = player.platform as NativePlayer;
+      // 预热攒了多少：用来核对 cache-secs 运行期修改真的生效（应 ≈8 秒，
+      // 不该是几十秒）。
+      final String cachedSecs = await platform.getProperty(
+        'demuxer-cache-duration',
+      );
+      LogUtils.i(
+        '放开预热的预读限制：预热期间已缓存 ${cachedSecs}s，cache-secs 恢复为 $original',
+        'MyVideoStateController',
+      );
+      await platform.setProperty('cache-secs', original);
+    } catch (e) {
+      LogUtils.w('恢复预读上限失败: $e', 'MyVideoStateController');
+    }
+  }
+
+  /// 关掉首次自动播放、还没按过播放（媒体可能已被预热打开）。
+  ///
+  /// 这段时间里播放器的「位置」只是停在历史进度上，用户什么都没看：不能报给
+  /// 稍后再看、不能写播放历史，否则光是进一次详情页就会改动进度记录。
+  bool get _hasNotStartedDeferredPlayback =>
+      !isLocalVideoMode &&
+      videoInfo.value?.isExternalVideo != true &&
+      !_shouldAutoPlayOnInitialEntry &&
+      !hasRequestedInitialPlayback.value;
+
+  // ------------------------------------------------------------ 起播耗时分解
+
+  /// 从进详情页到画面真正动起来，每一段花了多久。开播那一刻打一行日志，
+  /// 之后不再记（切清晰度、续播那些重开不算起播）。
+  ///
+  /// 用来回答「用户到底在等什么」：等接口、等 CDN、还是等缓冲。
+  final Stopwatch _startupClock = Stopwatch();
+  final Map<String, int> _startupMarks = <String, int>{};
+  bool _startupReported = false;
+
+  /// 同名标记只记第一次。
+  void _markStartup(String label) {
+    if (_startupReported || isLocalVideoMode) return;
+    if (!_startupClock.isRunning) _startupClock.start();
+    _startupMarks.putIfAbsent(label, () => _startupClock.elapsedMilliseconds);
+  }
+
+  /// 在播 + 不在缓冲 + 宽高已知 才算画面真的动起来了。
+  ///
+  /// ⛔ 不能只看 playing：`open(play: true)` 一发出去 mpv 就报 playing=true，
+  /// 那时连文件头都还没读，拿它当「开播」会把整段等待算成 0（Mac 实测）。
+  void _reportStartupIfFirstPlay() {
+    if (_startupReported || isLocalVideoMode || _startupMarks.isEmpty) return;
+    if (!player.state.playing ||
+        player.state.buffering ||
+        sourceVideoHeight.value <= 0) {
+      return;
+    }
+    _markStartup('开播');
+    _startupReported = true;
+    _startupClock.stop();
+    final summary = _startupMarks.entries
+        .map((e) => '${e.key}@${e.value}ms')
+        .join(' → ');
+    LogUtils.i('起播耗时: $summary', 'MyVideoStateController');
+  }
+
+  Future<void> _startDeferredInitialPlayback({
+    required bool playOnOpen,
+    bool prewarm = false,
+  }) async {
     if (_isDisposed ||
         _isStartingDeferredInitialPlayback ||
         currentVideoSourceList.isEmpty ||
@@ -2579,6 +2842,7 @@ class MyVideoStateController extends GetxController
         videoResolutions: resolvedVideoResolutions,
         position: _deferredInitialPlaybackPosition,
         playOnOpen: effectivePlayOnOpen,
+        prewarm: prewarm,
       );
 
       // 这里只**登记待办**，不点亮提示。
@@ -2872,9 +3136,10 @@ class MyVideoStateController extends GetxController
         if (task.status == DownloadStatus.completed) {
           final extData = VideoDownloadExtData.fromJson(task.extData!.data);
           final quality = extData.quality ?? slang.t.mediaPlayer.unknown;
-          final path = task.savePath.startsWith('file://')
-              ? task.savePath
-              : 'file://${task.savePath}';
+          final savePath = _qualityPlaybackPath(task.savePath);
+          final path = savePath.startsWith('file://')
+              ? savePath
+              : 'file://$savePath';
           videoResolutions.add(VideoResolution(label: quality, url: path));
         }
       }
@@ -2928,7 +3193,7 @@ class MyVideoStateController extends GetxController
         // 走「离开时自动进入」兜底进来的：用户点过小窗，进了就该播（当场进入那条路
         // 在 [enterPiPMode] 里自己 play）。设置开关只在播放中才设，不必再补。
         if (autoEntered && _pipAutoEnterIsFallback) {
-          unawaited(player.play());
+          unawaited(_playForExplicitIntent());
         }
       }
       return;
@@ -2983,7 +3248,7 @@ class MyVideoStateController extends GetxController
       !DeviceFormFactorUtils.isXrDevice &&
       !OverlayTracker.instance.hasOverlay &&
       player.state.playing &&
-      !_dlnaCastService.isCasting.value;
+      !_castService.isCasting.value;
 
   /// 按 [_wantsPiPAutoEnter] 设上或撤掉「离开应用时自动进小窗」，宽高变了就重设。
   ///
@@ -3292,17 +3557,41 @@ class MyVideoStateController extends GetxController
   }
 
   // 获取缓冲区大小（针对 1080p Source ~10Mbps：默认约 16s，扩大约 50s）
-  int _getBufferSize() {
-    bool expandBuffer = _configService[ConfigKey.EXPAND_BUFFER];
-    if (expandBuffer) {
-      return 64 * 1024 * 1024; // 64MB 扩大缓冲区
-    } else {
-      return 20 * 1024 * 1024; // 20MB 默认缓冲区
-    }
-  }
+  /// 默认前向缓冲（`demuxer-max-bytes`）。
+  ///
+  /// 2026-11-21 由 20 MB 加到 40 MB（用户拍板，FEEDBACK_LOG 决定表）。实测：
+  /// 1080p60 的 Source 约 9.2 Mbit/s，20 MB 只够约 18 秒；播放中网速降到
+  /// 4 Mbit/s 持续 50 秒，20 MB 卡 2 次共 10.1 秒，40 MB 不卡。起播时间与缓冲
+  /// 大小无关（mpv 有数据就开播，不等缓冲攒满）。代价只是内存，攒满才占满。
+  static const int _defaultForwardBufferBytes = 40 * 1024 * 1024;
+
+  /// 默认后向缓冲（`demuxer-max-back-bytes`）：往回跳时不用重新连服务器。
+  /// 16 MB 在 Source 码率下约 14 秒，够「后退 10 秒」那一下。比前向小，是把
+  /// 内存让给更要紧的前向：峰值比原来（前后各 20 MB）只多约 16 MB。
+  static const int _defaultBackBufferBytes = 16 * 1024 * 1024;
+
+  /// 「扩大缓冲区」开着时前后都用它（与改动前一致）。
+  static const int _expandedBufferBytes = 64 * 1024 * 1024;
+
+  bool get _expandBuffer => _configService[ConfigKey.EXPAND_BUFFER] == true;
+
+  /// 交给 `PlayerConfiguration.bufferSize`。⛔ media_kit 拿它**同时**设前向和
+  /// 后向两个上限，后向要在 [_applyPlayerConfigurationInner] 里单独改回来。
+  int _getBufferSize() =>
+      _expandBuffer ? _expandedBufferBytes : _defaultForwardBufferBytes;
+
+  int _getBackBufferSize() =>
+      _expandBuffer ? _expandedBufferBytes : _defaultBackBufferBytes;
 
   // 应用播放器配置
-  Future<void> _applyPlayerConfiguration() async {
+  Future<void> _applyPlayerConfiguration() =>
+      // ⛔ 下面每一个 `setProperty` 都是同步的 `mpv_set_property_string` FFI
+      // 调用（media_kit `real.dart`，`async` 配置只管 `_setProperty`，管不到
+      // 这个公开方法），要拿 mpv 的 core 锁。core 线程一旦忙住，这里就把主
+      // isolate 一起钉在原地——留个名字，下次卡死时看得见是钉在这儿。
+      HangBreadcrumb.guard('mpv-apply-config', _applyPlayerConfigurationInner);
+
+  Future<void> _applyPlayerConfigurationInner() async {
     if (player.platform is! NativePlayer) return;
 
     final platform = player.platform as NativePlayer;
@@ -3311,6 +3600,19 @@ class MyVideoStateController extends GetxController
     // 过短的超时会让 mpv 频繁自我重连，而重连时的 TLS close_notify 正是那条
     // `tcp: ffurl_write returned 0xffffd8ba`。详见 MpvTuning 的注释。
     await MpvTuning.apply(player);
+
+    // 后向缓冲单独设：media_kit 建播放器时把它和前向设成了同一个 bufferSize。
+    // 失败只记日志——退回的是前后同大，播放照常。
+    try {
+      final backBytes = _getBackBufferSize().toString();
+      await platform.setProperty('demuxer-max-back-bytes', backBytes);
+      LogUtils.d(
+        '缓冲上限: 前向 ${_getBufferSize() >> 20} MB, 后向 ${_getBackBufferSize() >> 20} MB',
+        'MyVideoStateController',
+      );
+    } catch (e) {
+      LogUtils.w('设置 demuxer-max-back-bytes 失败: $e', 'MyVideoStateController');
+    }
 
     try {
       // 设置视频同步模式
@@ -3324,13 +3626,12 @@ class MyVideoStateController extends GetxController
       await platform.setProperty("load-unsafe-playlists", "yes");
       LogUtils.d('允许加载潜在不安全的播放列表/URL', 'MyVideoStateController');
 
-      // 设置音频输出（仅Android）
-      if (Platform.isAndroid) {
-        bool useOpenSLES = _configService[ConfigKey.USE_OPENSLES];
-        String ao = useOpenSLES ? "opensles,audiotrack" : "audiotrack,opensles";
-        await platform.setProperty("ao", ao);
-        LogUtils.d('设置音频输出: $ao', 'MyVideoStateController');
-      }
+      // ⛔ 安卓音频输出（ao）不许在这里改：media_kit 创建播放器时已给安卓所有
+      // 播放器设了 `ao=opensles`（real.dart `_create`）。这里以前按设置开关改成
+      // `audiotrack,opensles`，那就是 issue #138 的根因——我们打包的 libmpv
+      // （mpv 78d43740，2023-09）里 ao_audiotrack 的 jmethodID 是进程级全局表，
+      // 一个实例释放就清空它，另一个 audiotrack 实例的线程随即 `mid == null`
+      // abort（叠两个详情页再返回必现）。上游 mpv 46fe3cded0 才加了引用计数。
 
       // 设置硬件解码
       bool enableHA = _configService[ConfigKey.ENABLE_HARDWARE_ACCELERATION];
@@ -3425,23 +3726,8 @@ class MyVideoStateController extends GetxController
 
     WidgetsBinding.instance.removeObserver(this);
 
-    final context = rootNavigatorKey.currentContext;
-    final isDarkMode = context != null
-        ? Theme.of(context).brightness == Brightness.dark
-        : WidgetsBinding.instance.platformDispatcher.platformBrightness ==
-              Brightness.dark;
-    SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: isDarkMode
-            ? Brightness.light
-            : Brightness.dark,
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarIconBrightness: isDarkMode
-            ? Brightness.light
-            : Brightness.dark,
-      ),
-    );
+    // 系统栏样式不用在这里恢复：页面一摘掉，它的声明就不在图层树里了，
+    // 下一帧自然轮到下面那一页或根上的主题兜底（见 system_bars.dart）。
 
     animationController.dispose();
     scrollController.removeListener(_scrollListener);
@@ -3449,7 +3735,11 @@ class MyVideoStateController extends GetxController
 
     final historyVideoId = videoId;
     final historyPosition = currentPosition;
-    final historyDuration = totalDuration.value;
+    // 预热打开过、但用户一直没按播放：时长虽然拿到了，人其实没看。按 0 处理，
+    // 下面的「duration <= 0 不写」就会跳过——和没预热时进出详情页的结果一样。
+    final historyDuration = _hasNotStartedDeferredPlayback
+        ? Duration.zero
+        : totalDuration.value;
     // ⛔ 本地库的进度**同步落**，不能跟着下面那串异步收尾走：写库本身是同步的
     // （sqlite3 同步 API），而异步收尾要先 await 掉播放器 dispose 那一串，
     // 进程在这中间被杀（后台回收 / 摘下头显）这一次就白记了。
@@ -3498,6 +3788,7 @@ class MyVideoStateController extends GetxController
     await _runCleanupStep('取消 VR 格式监听', () async {
       _vrFormatWorker?.dispose();
       _vrFormatWorker = null;
+      vrGyroTracker.dispose();
     });
     await _runCleanupStep('停止加载速率监听', _unobservePlayerLoadingSpeed);
     await _runCleanupStep('释放预览播放器', _disposePreviewPlayer);
@@ -3601,14 +3892,49 @@ class MyVideoStateController extends GetxController
     ]);
   }
 
+  /// 进页面时等预取最多等多久。正常情况下详情约 0.4–0.9 s、视频源约
+  /// 1.2–1.7 s，而且预取早就出发了；超过这个数多半是那条请求卡住了
+  /// （预取不重试、超时 15 s），不如自己发一份（自己的请求带重试）。预取那份
+  /// 照样跑完，结果进缓存不浪费。
+  static const Duration _prefetchGateTimeout = Duration(seconds: 3);
+
+  /// 等预取的闸门；按时等到返回 true，超时返回 false。闸门本身只会正常完成。
+  Future<bool> _awaitPrefetchGate(Future<void> gate) async {
+    var arrived = true;
+    await gate.timeout(
+      _prefetchGateTimeout,
+      onTimeout: () {
+        arrived = false;
+      },
+    );
+    return arrived;
+  }
+
   /// 获取视频详情信息
   void fetchVideoDetail(String videoId) async {
     if (_isDisposed) return;
 
     LogUtils.i('开始获取视频详情，videoId: $videoId', 'MyVideoStateController');
+    _markStartup('进详情');
     pageLoadingState.value = VideoDetailPageLoadingState.loadingVideoInfo;
     videoErrorMessage.value = null;
     mainErrorWidget.value = null;
+
+    // 卡片悬停 / 长按预览时发起的预取还在路上：接着等它，不另发一份。
+    // 闸门只会正常完成；预取失败时下面照常查缓存、不中就自己请求，错误页由这里给。
+    if (_cacheManager.getVideoInfo(videoId) == null) {
+      final pendingPrefetch = VideoDetailPrefetcher.instance.pendingDetail(
+        videoId,
+      );
+      if (pendingPrefetch != null) {
+        _markStartup(
+          await _awaitPrefetchGate(pendingPrefetch)
+              ? '等到预取的详情'
+              : '预取详情没及时回来，自己请求',
+        );
+        if (_isDisposed) return;
+      }
+    }
 
     // 检查视频信息缓存
     final cachedVideoInfo = _cacheManager.getVideoInfo(videoId);
@@ -3616,41 +3942,19 @@ class MyVideoStateController extends GetxController
       final bool cachedHasPlayableDetail =
           cachedVideoInfo.fileUrl != null || cachedVideoInfo.isExternalVideo;
 
+      // 刚预取回来的详情（一分钟内、卡片上没点过赞）点赞态是新鲜的，不必再
+      // 补拉一次 `/video/<id>`（见下方 `_refreshVideoLikeInfo`）。
+      final bool cachedIsFresh = VideoDetailPrefetcher.instance.consumeFresh(
+        videoId,
+        cachedVideoInfo,
+      );
       // 缓存命中时，先将 liked 和 numLikes 设置为 null 表示 loading 状态
+      // （注：`copyWith` 是 `?? this.x` 写法，传 null 实际保留缓存值）
       videoInfo.value = cachedVideoInfo.copyWith(liked: null, numLikes: null);
       _showInitialToolbarsAfterVideoInfoReadyIfNeeded();
 
       if (cachedHasPlayableDetail) {
-        // 缓存命中时，立即开始并行任务
-        final List<Future<void>> parallelTasks = [];
-
-        // 1. 添加历史记录（可以并行执行）
-        parallelTasks.add(_addHistoryRecord());
-
-        // 2. 获取作者其他视频（可以并行执行）
-        String? authorId = cachedVideoInfo.user?.id;
-        if (authorId != null) {
-          parallelTasks.add(_initializeAuthorVideosController(authorId));
-        }
-
-        // 3. Oreno3D匹配（可以并行执行，但只在没有extData的情况下）
-        if (oreno3dVideoDetail.value == null &&
-            (extData == null ||
-                !extData!.containsKey('oreno3dVideoDetailInfo'))) {
-          parallelTasks.add(_tryMatchOreno3dVideo());
-        }
-
-        // 4. 异步请求最新视频信息（不阻塞UI渲染）
-        parallelTasks.add(_refreshVideoLikeInfo(videoId, cachedVideoInfo));
-
-        // 5. 检查收藏和播放列表状态（不阻塞UI渲染）
-        _clearWatchLaterInvalid();
-        parallelTasks.add(checkFavoriteAndPlaylistStatus());
-
-        // 6. 检查下载任务状态（不阻塞UI渲染）
-        parallelTasks.add(checkDownloadTaskStatus());
-
-        // 继续获取视频源 - 仅对站内视频
+        // 视频源是起播的关键路径，第一个发（理由同下方网络分支）。
         if (cachedVideoInfo.fileUrl != null &&
             !cachedVideoInfo.isExternalVideo) {
           fetchVideoSource();
@@ -3664,15 +3968,33 @@ class MyVideoStateController extends GetxController
           LogUtils.d('站外视频（缓存命中），直接设置为idle状态', 'MyVideoStateController');
         }
 
-        // 并行执行其他任务，但不等待
-        if (parallelTasks.isNotEmpty) {
-          Future.wait(parallelTasks).catchError((e) {
-            if (!_isDisposed) {
-              LogUtils.w('并行任务执行失败: $e', 'MyVideoStateController');
-            }
-            return <void>[];
-          });
-        }
+        // 让出一拍，等视频源请求真正发出去（理由同下方网络分支）。
+        await Future<void>.delayed(Duration.zero);
+        if (_isDisposed) return;
+
+        // 收藏 / 播放列表 / 下载状态（不阻塞UI渲染）
+        _clearWatchLaterInvalid();
+        unawaited(checkFavoriteAndPlaylistStatus());
+        unawaited(checkDownloadTaskStatus());
+
+        // 附带任务并行执行，但不等待
+        Future.wait(<Future<void>>[
+          _addHistoryRecord(),
+          if (cachedVideoInfo.user?.id case final String authorId)
+            _initializeAuthorVideosController(authorId),
+          // Oreno3D 匹配只在没有 extData 的情况下做
+          if (oreno3dVideoDetail.value == null &&
+              (extData == null ||
+                  !extData!.containsKey('oreno3dVideoDetailInfo')))
+            _tryMatchOreno3dVideo(),
+          // 异步请求最新点赞信息
+          if (!cachedIsFresh) _refreshVideoLikeInfo(videoId, cachedVideoInfo),
+        ]).catchError((e) {
+          if (!_isDisposed) {
+            LogUtils.w('并行任务执行失败: $e', 'MyVideoStateController');
+          }
+          return <void>[];
+        });
 
         return;
       }
@@ -3719,30 +4041,11 @@ class MyVideoStateController extends GetxController
         // 获取作者ID用于后续操作
         String? authorId = videoInfo.value!.user?.id;
 
-        // 并行执行以下操作（不需要等待的）
-        final List<Future<void>> parallelTasks = [];
-
-        // 1. 添加历史记录（可以并行执行）
-        if (videoInfo.value != null) {
-          parallelTasks.add(_addHistoryRecord());
-        }
-
-        // 2. 获取作者其他视频（可以并行执行）
-        if (authorId != null) {
-          parallelTasks.add(_initializeAuthorVideosController(authorId));
-        }
-
-        // 3. Oreno3D匹配（可以并行执行，但只在没有extData的情况下）
-        if (oreno3dVideoDetail.value == null &&
-            (extData == null ||
-                !extData!.containsKey('oreno3dVideoDetailInfo'))) {
-          parallelTasks.add(_tryMatchOreno3dVideo());
-        }
-
-        // 4. 获取视频源（关键路径，需要等待）- 仅对站内视频
+        // 1. 视频源是起播的关键路径，第一个发。下面的附带任务各自在第一个
+        //    await 之前都有同步工作（写历史、建作者列表控制器、oreno3d 打分），
+        //    排在它前面就是让起播干等。
         if (videoInfo.value!.fileUrl != null &&
             !videoInfo.value!.isExternalVideo) {
-          // 立即开始获取视频源，不等待其他任务
           fetchVideoSource();
         } else if (videoInfo.value!.isExternalVideo) {
           // 对于站外视频，直接设置为idle状态
@@ -3754,17 +4057,31 @@ class MyVideoStateController extends GetxController
           LogUtils.d('站外视频，跳过视频源获取，直接设置为idle状态', 'MyVideoStateController');
         }
 
-        // 等待所有任务完成，但设置超时
-        if (parallelTasks.isNotEmpty) {
-          await Future.wait(parallelTasks);
-        }
+        // 让出一拍：视频源请求的微任务链先走到真正的网络发送，再发别的。
+        // 详情接口刚用完的那条连接（已握过手）正空闲在池里，谁先走到
+        // `_getConnection` 谁拿到；其余请求要各自重新握手（经代理约 0.65–1.5 s）。
+        // 下面的状态查询链路比视频源短，同一拍发出去会抢在它前面。
+        await Future<void>.delayed(Duration.zero);
+        if (_isDisposed) return;
 
-        // 检查收藏和播放列表状态
+        // 2. 收藏 / 播放列表 / 下载状态只依赖 videoId，紧接着查。
+        //    ⛔ 以前排在 `await Future.wait(附带任务)` 之后，而 oreno3d 匹配最多要
+        //    3 次搜索 + 3 次详情（还要过代理），按钮状态因此晚好几秒才对。
         _clearWatchLaterInvalid();
-        checkFavoriteAndPlaylistStatus();
+        unawaited(checkFavoriteAndPlaylistStatus());
+        unawaited(checkDownloadTaskStatus());
 
-        // 检查下载任务状态
-        checkDownloadTaskStatus();
+        // 3. 附带任务，互不依赖，并行跑；各自内部已吞掉异常。
+        final List<Future<void>> parallelTasks = [
+          _addHistoryRecord(),
+          if (authorId != null) _initializeAuthorVideosController(authorId),
+          // Oreno3D 匹配只在没有 extData 的情况下做
+          if (oreno3dVideoDetail.value == null &&
+              (extData == null ||
+                  !extData!.containsKey('oreno3dVideoDetailInfo')))
+            _tryMatchOreno3dVideo(),
+        ];
+        await Future.wait(parallelTasks);
       } on DioException catch (e) {
         if (_isDisposed || e.type == DioExceptionType.cancel) {
           LogUtils.w('请求被取消或Controller已销毁', 'MyVideoStateController');
@@ -3948,6 +4265,22 @@ class MyVideoStateController extends GetxController
         _videoSourceFetchFuture = null;
       }
     }
+    // 源到手、用户又没要求立刻播：先在暂停状态下把媒体打开（条件全在里面判）。
+    unawaited(_prewarmDeferredPlayback());
+  }
+
+  /// 首次打开时要跳到的历史进度；失败、关了进度记录、或已经播过（切清晰度等
+  /// 重取源）都返回 0。不抛异常，好让调用方把它和网络请求并行等。
+  Future<Duration> _loadInitialResumePosition() async {
+    try {
+      if (!firstLoaded &&
+          _configService[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]) {
+        return await _playbackHistoryService.resumePosition(videoId!);
+      }
+    } catch (e) {
+      LogUtils.e('还原历史记录失败: $e', tag: 'MyVideoStateController', error: e);
+    }
+    return Duration.zero;
   }
 
   Future<void> _fetchVideoSourceInternal({
@@ -3962,26 +4295,48 @@ class MyVideoStateController extends GetxController
 
     pageLoadingState.value = VideoDetailPageLoadingState.loadingVideoSource;
     videoErrorMessage.value = null;
+    // 从错误浮层回来（用户点了重试）：之前的判死和重试计数一笔勾销。
+    // 自动重试自己调进来时错误浮层还没出，计数照常累加。
+    if (videoSourceErrorMessage.value != null) {
+      _openFailureRetries = 0;
+      _missingSourceLabels.clear();
+    }
     videoSourceErrorMessage.value = null;
 
     final cacheKey = videoInfo.value!.fileUrl!;
-    final cachedSources = _cacheManager.getVideoSources(cacheKey);
     final logVideoUrl = videoInfo.value!.fileUrl!;
 
-    Duration targetDuration = Duration.zero;
-    try {
-      if (!firstLoaded &&
-          _configService[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]) {
-        targetDuration = await _playbackHistoryService.resumePosition(videoId!);
+    // 历史进度和视频源互不依赖：先把查库发出去，网络请求同时进行，
+    // 两边都回来再用——原来是查完库才发请求，白白串行。
+    final Future<Duration> resumePositionFuture = _loadInitialResumePosition();
+
+    // 预取的视频源还在路上：接着等它（同 fetchVideoDetail 开头那段）。
+    if (!forceRefresh && _cacheManager.getVideoSources(cacheKey) == null) {
+      final pendingPrefetch = VideoDetailPrefetcher.instance.pendingSources(
+        cacheKey,
+      );
+      if (pendingPrefetch != null) {
+        _markStartup(
+          await _awaitPrefetchGate(pendingPrefetch)
+              ? '等到预取的视频源'
+              : '预取视频源没及时回来，自己请求',
+        );
         if (_isDisposed) return;
       }
-    } catch (e) {
-      LogUtils.e('还原历史记录失败: $e', tag: 'MyVideoStateController', error: e);
+    }
+    var cachedSources = _cacheManager.getVideoSources(cacheKey);
+    // 缓存里的链接快到期（与刷新定时器同一个 5 分钟提前量）：拿它开播只会
+    // 半路 403，直接当没缓存，重新要一份。
+    if (cachedSources != null && _videoSourcesExpireSoon(cachedSources)) {
+      LogUtils.d('缓存视频源快过期，重新获取: $logVideoUrl', 'MyVideoStateController');
+      _cacheManager.removeVideoSources(cacheKey);
+      cachedSources = null;
     }
 
-    _deferredInitialPlaybackPosition = targetDuration;
-
     if (cachedSources != null && !forceRefresh) {
+      _deferredInitialPlaybackPosition = await resumePositionFuture;
+      if (_isDisposed) return;
+      _markStartup('视频源(缓存)');
       final serializedSources = cachedSources
           .map(
             (source) => {
@@ -4003,6 +4358,9 @@ class MyVideoStateController extends GetxController
         filterPreview: true,
       );
       videoInfo.value = videoInfo.value!.copyWith(videoSources: cachedSources);
+      // ⛔ 缓存分支以前不记过期时间、不起刷新定时器：缓存最多放 30 分钟，
+      // 链接可能已经快到期，看到一半就 403。现在悬停预取让这条分支成了常态。
+      _updateVideoSourceExpireTime(cachedSources);
 
       if (_isDisposed) return;
 
@@ -4011,13 +4369,24 @@ class MyVideoStateController extends GetxController
             openPlayerAfterFetch: openPlayerAfterFetch,
           );
 
-      if (shouldOpenPlayerWhenReady) {
-        await _startDeferredInitialPlayback(
-          playOnOpen:
-              _resolvePlayStateForInitialEntry() ||
-              hasRequestedInitialPlayback.value,
-        );
+      // 与网络分支一样在 finally 里置 idle。以前缓存分支不置：不立刻打开、或
+      // 打开提前返回（清晰度列表为空等）时会停在 loadingVideoSource，清晰度 /
+      // 下载按钮看它判「加载中」而一直置灰。悬停预取让这条分支成了常态。
+      try {
+        if (shouldOpenPlayerWhenReady) {
+          await _startDeferredInitialPlayback(
+            playOnOpen:
+                _resolvePlayStateForInitialEntry() ||
+                hasRequestedInitialPlayback.value,
+          );
+        }
+      } finally {
+        if (!_isDisposed) {
+          pageLoadingState.value = VideoDetailPageLoadingState.idle;
+        }
       }
+      if (_isDisposed) return;
+      _setupVideoSourceExpirationTimer();
       return;
     }
 
@@ -4039,6 +4408,9 @@ class MyVideoStateController extends GetxController
         checkSiteTimeout: XVersionSaltService.playbackCheckSiteTimeout,
       );
 
+      if (_isDisposed) return;
+      _markStartup('视频源(网络)');
+      _deferredInitialPlaybackPosition = await resumePositionFuture;
       if (_isDisposed) return;
 
       final List<dynamic> data = res.data;
@@ -4075,17 +4447,7 @@ class MyVideoStateController extends GetxController
         filterPreview: true,
       );
 
-      _currentVideoSourceExpireTime = null;
-      for (final source in sources) {
-        if (source.view != null) {
-          final expireTime = CommonUtils.getVideoLinkExpireTime(source.view!);
-          if (expireTime != null) {
-            _currentVideoSourceExpireTime = expireTime;
-            LogUtils.d('视频源过期时间: $expireTime', 'MyVideoStateController');
-            break;
-          }
-        }
-      }
+      _updateVideoSourceExpireTime(sources);
 
       videoInfo.value = videoInfo.value!.copyWith(videoSources: sources);
 
@@ -4122,6 +4484,36 @@ class MyVideoStateController extends GetxController
     }
   }
 
+  /// 刷新定时器在过期前多久动手；缓存里的链接离过期不到这么久也不再拿来开播。
+  static const Duration _videoSourceRefreshLead = Duration(minutes: 5);
+
+  static DateTime? _videoSourcesExpireTime(List<VideoSource> sources) {
+    for (final source in sources) {
+      final view = source.view;
+      if (view == null) continue;
+      final expireTime = CommonUtils.getVideoLinkExpireTime(view);
+      if (expireTime != null) return expireTime;
+    }
+    return null;
+  }
+
+  static bool _videoSourcesExpireSoon(List<VideoSource> sources) {
+    final expireTime = _videoSourcesExpireTime(sources);
+    if (expireTime == null) return false;
+    return DateTime.now().isAfter(expireTime.subtract(_videoSourceRefreshLead));
+  }
+
+  /// 从清单里取链接的过期时间（所有清晰度共用一个，取到第一个即可）。
+  void _updateVideoSourceExpireTime(List<VideoSource> sources) {
+    _currentVideoSourceExpireTime = _videoSourcesExpireTime(sources);
+    if (_currentVideoSourceExpireTime != null) {
+      LogUtils.d(
+        '视频源过期时间: $_currentVideoSourceExpireTime',
+        'MyVideoStateController',
+      );
+    }
+  }
+
   /// 切换清晰度
   Future<void> switchResolution(String resolutionTag) async {
     // 检查控制器是否已销毁
@@ -4141,6 +4533,13 @@ class MyVideoStateController extends GetxController
     if (url == null || url.isEmpty) {
       noticeCenter.reportApp(PlayerNoticeKind.noVideoSource);
       return;
+    }
+
+    // 错误浮层还在时用户自己换了档（「这一档缺失，可以换一档」就是让人这么做的）：
+    // 撤掉浮层再按新档打开，否则新档播起来了浮层还盖着。新档也打不开会重新报。
+    if (videoSourceErrorMessage.value != null) {
+      videoSourceErrorMessage.value = null;
+      _openFailureRetries = 0;
     }
 
     // 如果播放器已经准备好，使用无缝切换模式
@@ -4176,11 +4575,7 @@ class MyVideoStateController extends GetxController
     String finalUrl = url;
     if (videoId != null) {
       try {
-        final downloadService = Get.find<DownloadService>();
-        final localPath = await downloadService.getCompletedVideoLocalPath(
-          videoId!,
-          resolutionTag,
-        );
+        final localPath = await _downloadedPlaybackPath(resolutionTag);
 
         if (localPath != null && !_isDisposed) {
           // 使用本地文件路径
@@ -4252,8 +4647,14 @@ class MyVideoStateController extends GetxController
     required List<VideoResolution> videoResolutions,
     Duration position = Duration.zero,
     bool playOnOpen = true,
+
+    /// 由 [_prewarmDeferredPlayback] 发起：用户还没按播放，打开期间按下的那一下
+    /// 要在打开完成后补上（见下面的对账）。
+    bool prewarm = false,
   }) async {
     if (_isDisposed) return;
+    // 不是预热的打开都是「真要看」：预热留下的预读限制不能带过去。
+    if (!prewarm) await _releasePrewarmReadaheadLimit();
     pageLoadingState.value = VideoDetailPageLoadingState.applyingSolution;
     videoLoadingSpeedBytesPerSecond.value = null;
     // 重置状态
@@ -4295,11 +4696,7 @@ class MyVideoStateController extends GetxController
     String finalUrl = url;
     if (videoId != null) {
       try {
-        final downloadService = Get.find<DownloadService>();
-        final localPath = await downloadService.getCompletedVideoLocalPath(
-          videoId!,
-          resolutionTag,
-        );
+        final localPath = await _downloadedPlaybackPath(resolutionTag);
 
         if (localPath != null && !_isDisposed) {
           // 使用本地文件路径
@@ -4314,6 +4711,14 @@ class MyVideoStateController extends GetxController
       }
     }
 
+    // ⛔ 先等 onInit 把代理和 mpv 网络参数设好再打开。详情 + 视频源都命中缓存
+    // （预取过）时，从 fetchVideoDetail 走到这里只隔几个微任务，而 onInit 在
+    // 手机上还停在取系统音量的平台通道上、桌面上停在逐条 setProperty 的 await
+    // 之间——不等的话第一次打开不走应用代理、超时还是 media_kit 的 5 秒
+    // （Opus 审查 2026-11-21）。网络分支隔着一整次请求，原本就赶得上。
+    if (!_playerConfigApplied.isCompleted) {
+      await _playerConfigApplied.future;
+    }
     if (_isDisposed) return;
     int? mediaSourceGeneration;
     try {
@@ -4322,11 +4727,15 @@ class MyVideoStateController extends GetxController
         'MyVideoStateController',
       );
       mediaSourceGeneration = _beginCurrentMediaSourceOpen(finalUrl);
+      _markStartup(prewarm ? '预热打开' : '打开');
       await player.open(
         Media(finalUrl, start: currentPosition),
         play: playOnOpen,
       );
       _finishCurrentMediaSourceOpen(mediaSourceGeneration, succeeded: true);
+      _markStartup('打开返回');
+      final playRequestedWhileOpening = _playRequestedWhileOpening;
+      _playRequestedWhileOpening = false;
       // 打开是异步的，这期间用户完全可能改主意（在加载转圈上按了暂停）。
       // playOnOpen 是**打开之前**算出来的，而 open(play: true) 又会盖掉期间那次
       // pause()，所以必须在打开之后按最终意图再对一次账，否则「加载中按暂停」
@@ -4334,11 +4743,31 @@ class MyVideoStateController extends GetxController
       if (playOnOpen && _suppressAutoPlayOnReady) {
         await player.pause();
         videoPlaying.value = false;
+      } else if (!playOnOpen &&
+          !_suppressAutoPlayOnReady &&
+          (playRequestedWhileOpening ||
+              (prewarm && hasRequestedInitialPlayback.value))) {
+        // 反方向的同一笔账：这次是暂停着打开的（预热，或预热后出错重开、切清晰度），
+        // 打开途中用户按了播放——那一下在 requestInitialPlayback 里只登记了意图
+        // （媒体正在打开，不能再开一次），这里补上。
+        await _releasePrewarmReadaheadLimit();
+        await player.play();
+        videoPlaying.value = true;
       }
+      // open 返回只代表 loadfile 发出去了；连服务器、读文件头都在这之后，
+      // 这一段在界面上叫「正在连接视频服务器」。
       pageLoadingState.value = VideoDetailPageLoadingState.addingListeners;
     } catch (e) {
       _finishCurrentMediaSourceOpen(mediaSourceGeneration, succeeded: false);
+      _playRequestedWhileOpening = false;
       if (_isDisposed) return;
+      if (prewarm && !hasRequestedInitialPlayback.value) {
+        // 用户还没要看，预热失败不该把错误页甩到他脸上；点播放时会正常重新打开，
+        // 真打不开那次再报。
+        LogUtils.w('预热打开视频失败，等用户点播放再试: $e', 'MyVideoStateController');
+        await _releasePrewarmReadaheadLimit();
+        return;
+      }
       LogUtils.e('Player open 出错: $e', tag: 'MyVideoStateController', error: e);
       videoErrorMessage.value =
           '${slang.t.videoDetail.player.errorWhileLoadingVideoSource}: $e';
@@ -4377,12 +4806,18 @@ class MyVideoStateController extends GetxController
         videoLoadingSpeedBytesPerSecond.value = null;
       }
       videoBuffering.value = buffering;
+      if (buffering) {
+        _markStartup('开始缓冲');
+      } else {
+        _reportStartupIfFirstPlay();
+      }
     });
 
     // 总时长
     durationSubscription = player.stream.duration.listen((duration) async {
       if (_isDisposed) return;
       totalDuration.value = duration;
+      _markStartup('拿到时长');
       pageLoadingState.value =
           VideoDetailPageLoadingState.successFecthVideoDurationInfo;
     });
@@ -4400,6 +4835,9 @@ class MyVideoStateController extends GetxController
       if (_isDisposed) return;
       if (height != null) {
         sourceVideoHeight.value = height;
+        _markStartup('拿到宽高');
+        // 缓冲结束可能先于宽高到达，这里再问一次。
+        _reportStartupIfFirstPlay();
         // [tip]: 发现每次都是先监听到 width，再监听到height，所以这里先更新宽高比
         pageLoadingState.value =
             VideoDetailPageLoadingState.successFecthVideoHeightInfo;
@@ -4415,6 +4853,7 @@ class MyVideoStateController extends GetxController
         videoPlaying.value = playing;
       }
       if (playing) {
+        _reportStartupIfFirstPlay();
         _reconcileAutoFullscreen(AutoFullscreenTrigger.playbackStarted);
       }
       _syncPiPAutoEnter();
@@ -4513,27 +4952,14 @@ class MyVideoStateController extends GetxController
         // 记录出错时的播放位置
         final Duration savedErrorPosition = currentPosition;
 
-        LogUtils.i(
-          '检测到网络/打开失败错误，开始节流重试，出错位置: $savedErrorPosition',
-          'MyVideoStateController',
-        );
-        EasyThrottle.throttle(
-          '${randomId}_player.stream.error.retry',
-          const Duration(milliseconds: 10000),
-          () async {
-            if (videoBuffering.value && buffers.isEmpty) {
-              LogUtils.i(
-                '开始重试刷新播放器，当前缓冲状态: buffering=${videoBuffering.value}, buffers=${buffers.length}',
-                'MyVideoStateController',
-              );
-              await fetchVideoSource(forceRefresh: true);
-              final bool ok = await refreshPlayer(seekTo: savedErrorPosition);
-              if (!ok) {
-                LogUtils.w('重试刷新播放器失败', 'MyVideoStateController');
-              }
-            }
-          },
-        );
+        // 「打不开地址」先问清楚地址本身怎么了：文件在服务器上 404 时，重取源、
+        // 重开播放器多少次都一样（2026-11-18 用户报：一直转圈）。
+        if (event.startsWith('Failed to open https://')) {
+          unawaited(_handleOnlineOpenFailure(savedErrorPosition));
+          return;
+        }
+
+        _scheduleOpenFailureRetry(savedErrorPosition);
         return;
       }
 
@@ -4562,13 +4988,156 @@ class MyVideoStateController extends GetxController
     });
   }
 
+  /// 在线源打开失败后的自动重试：重取源（链接可能过期）再重开播放器。
+  ///
+  /// ⛔ 有上限。早先没有上限：每 10 秒重取一次、重开一次，地址只要一直打不开，
+  /// 画面就永远停在转圈，用户看不到任何说法（2026-11-18 用户报障）。
+  void _scheduleOpenFailureRetry(Duration savedErrorPosition) {
+    LogUtils.i(
+      '检测到网络/打开失败错误，开始节流重试，出错位置: $savedErrorPosition',
+      'MyVideoStateController',
+    );
+    EasyThrottle.throttle(
+      '${randomId}_player.stream.error.retry',
+      const Duration(milliseconds: 10000),
+      () async {
+        if (_isDisposed) return;
+        // 已经判死（文件缺失 / 重试用完）就别再开播放器，否则错误页会被
+        // 下一次取源清掉，又回到转圈。
+        if (videoSourceErrorMessage.value != null) return;
+        if (!(videoBuffering.value && buffers.isEmpty)) return;
+        if (_openFailureRetries >= _maxOpenFailureRetries) {
+          _stopPlaybackWithError(slang.t.videoDetail.playbackRetryExhausted);
+          return;
+        }
+        _openFailureRetries++;
+        LogUtils.i(
+          '开始第 $_openFailureRetries 次重试刷新播放器，当前缓冲状态: '
+              'buffering=${videoBuffering.value}, buffers=${buffers.length}',
+          'MyVideoStateController',
+        );
+        await fetchVideoSource(forceRefresh: true);
+        final bool ok = await refreshPlayer(seekTo: savedErrorPosition);
+        if (!ok) {
+          LogUtils.w('重试刷新播放器失败', 'MyVideoStateController');
+        }
+      },
+    );
+  }
+
+  /// mpv 报「Failed to open https://…」：先探一下当前清晰度地址的 HTTP 状态。
+  ///
+  /// - 404 / 410：这一档的文件在服务器上没有，重试也没用，直接给错误浮层。
+  ///   再探一下其余正片清晰度，只为挑说法：还有取得到（或探不通）的，就说
+  ///   「这一档缺失，可以在清晰度菜单里换一档」；正片档全都 404，就说视频
+  ///   文件在服务器上不存在。（实例：An7kifYn7bMZS6 的 Source/540/360 只会
+  ///   分到 acheron / yuko，两台都回 404，只有 preview 还在。）
+  /// - ⛔ 不自动换档，preview 也不算正片（2026-11-18 用户纠正：「不应该是替换
+  ///   到preview档，而是应该用报错等形式提示用户」，随后「也改成报错」）。换不
+  ///   换、换哪一档由用户自己在清晰度菜单里选。
+  /// - 其他状态或探不通：照旧走 [_scheduleOpenFailureRetry]（链接过期、网络
+  ///   抖动这类重取源能救回来）。
+  Future<void> _handleOnlineOpenFailure(Duration savedErrorPosition) async {
+    if (_isDisposed || _probingOpenFailure) return;
+    if (videoSourceErrorMessage.value != null) return;
+    final String? label = currentResolutionTag.value;
+    final String? url = CommonUtils.findUrlByResolutionTag(
+      videoResolutions,
+      label,
+    );
+    if (url == null || !url.startsWith('https://')) {
+      _scheduleOpenFailureRetry(savedErrorPosition);
+      return;
+    }
+
+    _probingOpenFailure = true;
+    try {
+      final int? status = await _probeMediaUrlStatus(url);
+      if (_isDisposed) return;
+      if (!_isMissingStatus(status)) {
+        _scheduleOpenFailureRetry(savedErrorPosition);
+        return;
+      }
+      LogUtils.w(
+        '清晰度 [$label] 的文件在服务器上不存在 (HTTP $status)，停止重试',
+        'MyVideoStateController',
+      );
+      if (label != null) _missingSourceLabels.add(label);
+
+      // 只探到第一档「可能还在」的为止：用来决定错误文案，不换档。
+      var otherMayExist = false;
+      for (final resolution in videoResolutions.toList()) {
+        if (resolution.label == label ||
+            _isPreviewLabel(resolution.label) ||
+            _missingSourceLabels.contains(resolution.label)) {
+          continue;
+        }
+        final int? other = await _probeMediaUrlStatus(resolution.url);
+        if (_isDisposed) return;
+        if (_isMissingStatus(other)) {
+          _missingSourceLabels.add(resolution.label);
+          continue;
+        }
+        // 2xx 或探不通：都算「说不准还在」，让用户自己去试。
+        otherMayExist = true;
+        break;
+      }
+      if (_isDisposed) return;
+
+      _stopPlaybackWithError(
+        otherMayExist
+            ? slang.t.videoDetail.qualityFileMissingOnServer(
+                quality: CommonUtils.getQualityDisplayLabel(slang.t, label),
+              )
+            : slang.t.videoDetail.sourceFileMissingOnServer,
+      );
+    } finally {
+      _probingOpenFailure = false;
+    }
+  }
+
+  static bool _isMissingStatus(int? status) => status == 404 || status == 410;
+
+  static bool _isPreviewLabel(String label) => label.toLowerCase() == 'preview';
+
+  /// 只取 1 个字节问状态码。不带额外请求头，和 mpv 发出去的请求保持一致。
+  /// 探不通（超时、断网）返回 null。
+  Future<int?> _probeMediaUrlStatus(String url) async {
+    try {
+      final client = HttpClientFactory.instance.createHttpClient();
+      final request = await client
+          .getUrl(Uri.parse(url))
+          .timeout(const Duration(seconds: 10));
+      request.headers.set(HttpHeaders.rangeHeader, 'bytes=0-0');
+      final response = await request.close().timeout(
+        const Duration(seconds: 10),
+      );
+      final status = response.statusCode;
+      // 服务器不认 Range 时会回整个文件：不读正文，直接断开。
+      await response.listen((_) {}).cancel();
+      return status;
+    } catch (e) {
+      LogUtils.w('探测视频地址失败: $e', 'MyVideoStateController');
+      return null;
+    }
+  }
+
+  /// 不再自动重试：收起转圈，播放器中央换成源错误浮层（带「重试」）。
+  void _stopPlaybackWithError(String message) {
+    if (_isDisposed) return;
+    LogUtils.w('停止自动重试: $message', 'MyVideoStateController');
+    videoBuffering.value = false;
+    videoSourceErrorMessage.value = message;
+    _abortImmersiveSwitchIfPending(message);
+  }
+
   /// NAS 条目打开失败：向网关补一次 HEAD 问清原因（它会把上游 401/403 原样回传，
   /// 连不上 / 证书不符回 502 + `X-Dav-Error`），换成错误页 + 重试。
   Future<void> _reportRemotePlaybackFailure() async {
     final url = _remotePlaybackUrl;
     if (url == null || _isDisposed) return;
     var state = LocalMediaRemoteState.unreachable;
-    final client = HttpClient()..findProxy = ((_) => 'DIRECT');
+    final client = createDirectHttpClient();
     try {
       final request = await client
           .openUrl('HEAD', Uri.parse(url))
@@ -4728,7 +5297,7 @@ class MyVideoStateController extends GetxController
     final expireTime = _currentVideoSourceExpireTime!;
 
     // 计算刷新时间：在过期前5分钟刷新
-    final refreshTime = expireTime.subtract(const Duration(minutes: 5));
+    final refreshTime = expireTime.subtract(_videoSourceRefreshLead);
     final now = DateTime.now();
 
     if (now.isAfter(refreshTime)) {
@@ -5600,8 +6169,11 @@ class MyVideoStateController extends GetxController
 
     Duration target = position < Duration.zero ? Duration.zero : position;
 
-    // 播放器尚未就绪时，先触发初始播放
-    if (!videoPlayerReady.value && !isLocalVideoMode) {
+    // 首次播放还没开始时，先走首次播放。⛔ 不能只看「是否就绪」：预热过的媒体
+    // 已经就绪，跳过这里就会在封面底下开播，历史、稍后再看、预读上限都以为
+    // 用户没开始看。
+    if ((!videoPlayerReady.value || shouldShowInitialPlaybackCover) &&
+        !isLocalVideoMode) {
       await requestInitialPlayback();
     }
 
@@ -5882,7 +6454,7 @@ class MyVideoStateController extends GetxController
       if (_isDisposed) return;
       if (result.entered) {
         isPiPMode.value = true;
-        await player.play();
+        await _playForExplicitIntent();
         return;
       }
 
@@ -5963,6 +6535,8 @@ class MyVideoStateController extends GetxController
             const Duration(seconds: 5)) {
           _lastPlaybackAdvanceMark = position;
           noticeCenter.onPlaybackAdvanced();
+          _openFailureRetries = 0;
+          _missingSourceLabels.clear();
         }
 
         // 显示进度刚刚更新过了 —— 这才是「用户真的看到画面在这个位置上」的时刻，
@@ -5974,7 +6548,11 @@ class MyVideoStateController extends GetxController
         //
         // ⛔ 不能复用 video_playback_history：那张表跟着浏览历史一起删，
         // 用户删一条历史不该连「稍后再看」的看完状态一起丢。
-        _reportWatchLaterProgress(position);
+        //
+        // 预热打开、用户还没按播放：位置只是停在历史进度上，不算看过。
+        if (!_hasNotStartedDeferredPlayback) {
+          _reportWatchLaterProgress(position);
+        }
 
         // 本地库那条路的进度（自己节流，见 [_saveLocalLibraryProgress]）。
         _saveLocalLibraryProgress(position, totalDuration.value);
@@ -6101,6 +6679,8 @@ class MyVideoStateController extends GetxController
     _startHealthSnapshotTimer();
     _setupVideoSourceExpirationTimer();
     _syncPiPAutoEnter();
+    // 源到手时页面正被盖着、没预热，回来了补上。
+    unawaited(_prewarmDeferredPlayback());
   }
 
   void _bindSystemVolumeListener() {
@@ -6301,7 +6881,9 @@ class MyVideoStateController extends GetxController
       previewPlayer = LivePlayers.create(
         label: '进度条预览',
         configuration: PlayerConfiguration(
-          bufferSize: 20 * 1024 * 1024, // 20MB 与主播放器默认一致
+          // 进度条预览只播低码率的 preview 源、来回跳帧，不跟主播放器的
+          // 40 MB（2026-11-21 起）走：缓冲大了只占内存，预览用不上。
+          bufferSize: 20 * 1024 * 1024,
           title: 'i_iwara Preview Player',
           // 注意：在 macOS 上开启 async: true 可能会导致热重启时崩溃，因此在调试模式下关闭
           async: !kDebugMode,
@@ -6524,14 +7106,16 @@ class MyVideoStateController extends GetxController
       return;
     }
 
-    showAppBottomSheet(
-      DlnaCastSheet(
+    final context = rootNavigatorKey.currentContext;
+    if (context == null) return;
+    showGlassBottomSheet<void>(
+      context: context,
+      builder: (_) => CastSheet(
         videoUrl: videoUrl,
-        dlnaController: _dlnaCastService,
+        videoTitle: videoInfo.value?.title,
+        castService: _castService,
         onCastStarted: pausePlayback,
       ),
-      isScrollControlled: true,
-      elevation: 0,
     );
   }
 
@@ -6547,11 +7131,7 @@ class MyVideoStateController extends GetxController
     String? downloadedPath;
     if (!isLocalVideoMode && videoId != null && tag != null) {
       try {
-        final downloadService = Get.find<DownloadService>();
-        downloadedPath = await downloadService.getCompletedVideoLocalPath(
-          videoId!,
-          tag,
-        );
+        downloadedPath = await _downloadedPlaybackPath(tag);
       } catch (e) {
         LogUtils.w('查询本地下载文件失败，回退在线直链: $e', 'MyVideoStateController');
       }
@@ -6581,7 +7161,7 @@ class MyVideoStateController extends GetxController
   }
 
   /// 获取 DLNA 投屏服务
-  DlnaCastService get dlnaCastService => _dlnaCastService;
+  CastService get castService => _castService;
 
   /// 更新缓存中的视频点赞信息
   void updateCachedVideoLikeInfo(String videoId, bool liked, int numLikes) {
@@ -6647,10 +7227,13 @@ class MyVideoStateController extends GetxController
       final favoriteService = Get.find<FavoriteService>();
       final playListService = Get.find<PlayListService>();
 
-      final favoriteFolders = await favoriteService.getItemFolders(videoId!);
-      final playlistsResult = await playListService.getLightPlaylists(
-        videoId: videoId!,
-      );
+      // 两个请求互不依赖：一起发，等时只算较慢的那一个（原来是一个等完再发另一个）。
+      // 用 record 的 `.wait`：任一个失败都会被下面的 catch 接住，不会漏成
+      // 未处理的异步异常。
+      final (favoriteFolders, playlistsResult) = await (
+        favoriteService.getItemFolders(videoId!),
+        playListService.getLightPlaylists(videoId: videoId!),
+      ).wait;
 
       if (_isDisposed) return;
 

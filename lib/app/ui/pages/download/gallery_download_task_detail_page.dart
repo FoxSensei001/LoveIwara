@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
@@ -211,38 +210,29 @@ class _GalleryDownloadTaskDetailPageState
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final double statusBarHeight = MediaQuery.paddingOf(context).top;
     final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
     final extData = galleryData;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      // 没有 AppBar 就没人管状态栏图标明暗，不显式声明会沿用上一页的。
-      value: SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-      ),
-      child: Scaffold(
-        body: GlassHeaderOverlay(
-          liquid: true,
-          headerExtent: headerExtent,
-          headerTop: statusBarHeight,
-          solidExtent: statusBarHeight,
-          header: _buildHeader(context, extData),
-          extra: [_buildScrollToTopFab(context)],
-          body: NotificationListener<ScrollNotification>(
-            onNotification: (notification) {
-              if (notification.depth == 0 &&
-                  notification.metrics.axis == Axis.vertical) {
-                _showBackToTop.value = notification.metrics.pixels >= 300;
-              }
-              return false;
-            },
-            child: extData == null
-                ? const Center(child: CircularProgressIndicator())
-                : _buildBody(context, extData, headerExtent),
-          ),
+    return Scaffold(
+      body: GlassHeaderOverlay(
+        liquid: true,
+        headerExtent: headerExtent,
+        headerTop: statusBarHeight,
+        solidExtent: statusBarHeight,
+        header: _buildHeader(context, extData),
+        extra: [_buildScrollToTopFab(context)],
+        body: NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            if (notification.depth == 0 &&
+                notification.metrics.axis == Axis.vertical) {
+              _showBackToTop.value = notification.metrics.pixels >= 300;
+            }
+            return false;
+          },
+          child: extData == null
+              ? const Center(child: CircularProgressIndicator())
+              : _buildBody(context, extData, headerExtent),
         ),
       ),
     );

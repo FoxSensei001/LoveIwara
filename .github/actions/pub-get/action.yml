@@ -1,0 +1,80 @@
+name: Get dependencies
+description: >-
+  CI 拉依赖：先把 pubspec.lock 里的镜像地址换成 PUB_HOSTED_URL，再 flutter pub get
+  --enforce-lockfile；下载出错自动重试，最多 3 次。哈希校验和 lock 约束一点没放松。
+
+runs:
+  using: composite
+  steps:
+    - name: pubspec.lock 里的镜像地址换成 PUB_HOSTED_URL
+      shell: bash
+      run: |
+        # 本机开发走国内镜像，pubspec.lock 里 287 条依赖记的全是 https://pub.flutter-io.cn。
+        # CI 的 runner 在美国，从那个镜像跨境冷下载，2026-11-06 起 build-ios 连挂三次
+        # （"Downloaded archive for X had wrong content-hash"，连重跑也是同一个包），
+        # 所以 CI 改从 PUB_HOSTED_URL（官方 pub.dev）下。
+        # 光改环境变量不行：lock 里记的来源和它对不上 → 整份 lock 作废 → 按 ^ 约束重解到
+        # 最新版（liquid_glass_easy 就这么从 4.1.1 被解到 4.3.1）。所以这里先把 lock 的
+        # 地址换成同一个。只改 runner 上的检出，不入库；本机的 lock 仍然记镜像。
+        # 两边的压缩包是同一份字节，lock 里的 sha256 照旧逐包校验，下面 --enforce-lockfile
+        # 还会兜底：没对上就直接失败，不会静默重解。
+        mirror='https://pub.flutter-io.cn'
+        target="${PUB_HOSTED_URL%/}"
+        if [ -z "$target" ]; then
+          echo "::error::PUB_HOSTED_URL 没设置，不知道该把 pubspec.lock 换成哪个来源"
+          exit 1
+        fi
+        if [ "$target" = "$mirror" ]; then
+          echo "PUB_HOSTED_URL 就是镜像，pubspec.lock 不用改"
+          exit 0
+        fi
+        count=$(grep -c "\"$mirror\"" pubspec.lock || true)
+        sed -i.bak "s#\"$mirror\"#\"$target\"#g" pubspec.lock
+        rm -f pubspec.lock.bak
+        if grep -q "$mirror" pubspec.lock; then
+          echo "::error::pubspec.lock 里还有没换掉的镜像地址"
+          exit 1
+        fi
+        echo "pubspec.lock：${count} 处 ${mirror} 换成了 ${target}"
+
+    - name: flutter pub get --enforce-lockfile（失败自动重试）
+      shell: bash
+      run: |
+        # --enforce-lockfile：lock 一旦用不上就让构建失败，而不是静默重解成另一套依赖。
+        #
+        # 为什么还要重试：任何来源的下载都可能偶发拿到坏的压缩包。pub 拿下到的字节去对
+        # 版本清单里的 archive_sha256，对不上就整条命令失败（"wrong content-hash"）。
+        # pub 源码里这种错误对应 TEMP_FAIL，退出码 75，即「临时失败」。
+        # 重试不放松任何校验：每个包照旧要过哈希，坏的照旧被拒，重试只是重新下载。pub 把包
+        # 解到临时目录、校验通过才挪进 ~/.pub-cache，失败就删临时目录（hosted.dart 的
+        # _downloadAtomically），所以坏档不会留在缓存里；第二次只补下没下成的那几个包。
+        # 注意：重试只救得了「偶发」。2026-11-09 那次镜像是持续性的坏（同一个包隔了一个多
+        # 小时还是坏），重试救不了，靠的是上一步把来源换成 pub.dev。
+        # 不按退出码挑着重试：lock 对不上这类确定性失败也会多跑两遍（约 1 分钟），最后照样
+        # 失败、报错照样原样打出来，不会被吞。
+        # 整个 PUB_CACHE（含 log/）会进 actions/cache：上一次重试成功前留下的失败日志会被缓存带回来，
+        # 先删掉，免得最后打印出来的是旧日志。PUB_CACHE 由 flutter-action 的 setup.sh 设好（Windows 也有）。
+        pub_log="${PUB_CACHE:-$HOME/.pub-cache}/log/pub_log.txt"
+        rm -f "$pub_log"
+        max_attempts=3
+        for attempt in $(seq 1 "$max_attempts"); do
+          code=0
+          flutter pub get --enforce-lockfile || code=$?
+          if [ "$code" -eq 0 ]; then
+            exit 0
+          fi
+          if [ "$attempt" -eq "$max_attempts" ]; then
+            echo "::error::flutter pub get 连续 ${max_attempts} 次失败，最后一次退出码 ${code}"
+            # 终端里只有「wrong content-hash」一句，看不出是哪个地址、服务器回了什么头、实际收到
+            # 多少字节。pub 自己的日志里都有，打出来：下次再失败就不用靠猜（这次三次失败都没有）。
+            if [ -f "$pub_log" ]; then
+              echo "::group::pub_log.txt（最后 300 行）"
+              tail -n 300 "$pub_log"
+              echo "::endgroup::"
+            fi
+            exit "$code"
+          fi
+          wait_seconds=$((attempt * 15))
+          echo "::warning::flutter pub get 第 ${attempt}/${max_attempts} 次失败（退出码 ${code}），${wait_seconds} 秒后重试"
+          sleep "$wait_seconds"
+        done

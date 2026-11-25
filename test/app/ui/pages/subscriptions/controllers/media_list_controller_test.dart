@@ -1,7 +1,41 @@
+import 'package:flutter/rendering.dart' show ScrollDirection;
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/subscriptions/controllers/media_list_controller.dart';
 
 void main() {
+  testWidgets('scroll-to-top observers rebuild only at visibility changes', (
+    tester,
+  ) async {
+    final controller = MediaListController();
+    var builds = 0;
+    await tester.pumpWidget(
+      Obx(() {
+        builds++;
+        return SizedBox(width: controller.canScrollToTop ? 10 : 0);
+      }),
+    );
+    expect(builds, 1);
+
+    controller.notifyListScroll(800, ScrollDirection.reverse);
+    await tester.pumpAndSettle();
+    expect(builds, 1);
+
+    controller.notifyListScroll(801, ScrollDirection.reverse);
+    await tester.pumpAndSettle();
+    expect(builds, 2);
+
+    controller.notifyListScroll(900, ScrollDirection.reverse);
+    await tester.pumpAndSettle();
+    expect(builds, 2);
+
+    controller.resetScrollState();
+    await tester.pumpAndSettle();
+    expect(builds, 3);
+    expect(controller.canScrollToTop, isFalse);
+  });
+
   group('MediaListController site switch invalidation', () {
     test('invalidates only active loaded tab immediately', () {
       final controller = MediaListController();

@@ -16,6 +16,15 @@ import '../../utils/logger_utils.dart';
 class IwaraNetworkService extends GetxService {
   static const String _tag = 'IwaraNetworkService';
 
+  /// 请求级标记（`RequestOptions.extra`）：这一次是**用户没在等**的后台请求
+  /// （例如悬停卡片时的详情预取）。撞上 Cloudflare 挑战时直接把挑战响应交给下游
+  /// （调用方按 403 失败处理），**不弹全屏验证页、也不起无头过盾**。
+  ///
+  /// 与 `interactiveChallenge: false` 的区别：那是整只 Dio 的开关；这个只管单个
+  /// 请求，好让后台请求和用户请求共用 ApiService 那只 Dio（同一套鉴权、同一个
+  /// 连接池）。用户真点进去时由页面自己的请求去过盾。
+  static const String backgroundRequestKey = 'iwara_background_request';
+
   // 全站点共享同一个 CookieJar：iwara.tv 与 iwara.ai 是同一账号/后端
   // (同一 API host apiq.iwara.tv，x-site 仅作内容过滤/展示)，因此共享
   // cookie 与 Authorization 是有意为之、正确的；不需要按站点分区(N3)。
@@ -169,7 +178,11 @@ class IwaraNetworkService extends GetxService {
 
     dio.interceptors.insert(
       insertIndex,
-      CloudflareInterceptor(dio: dio, cookieJar: cookieJar, context: _context!),
+      _ForegroundOnlyCloudflareInterceptor(
+        dio: dio,
+        cookieJar: cookieJar,
+        context: _context!,
+      ),
     );
   }
 
@@ -228,6 +241,39 @@ class IwaraNetworkService extends GetxService {
   }
 }
 
+/// 带 [IwaraNetworkService.backgroundRequestKey] 的请求不过盾，其余照旧弹验证页。
+///
+/// 做成子类而不是包一层：注册流程里好几处靠 `is CloudflareInterceptor` 找它的
+/// 位置（去重、把 post-solve 重试插在它后面），子类不用改那些判断。
+class _ForegroundOnlyCloudflareInterceptor extends CloudflareInterceptor {
+  _ForegroundOnlyCloudflareInterceptor({
+    required super.dio,
+    required super.cookieJar,
+    required super.context,
+  });
+
+  static bool _isBackground(RequestOptions options) =>
+      options.extra[IwaraNetworkService.backgroundRequestKey] == true;
+
+  @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    if (_isBackground(response.requestOptions)) {
+      handler.next(response);
+      return;
+    }
+    super.onResponse(response, handler);
+  }
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    if (_isBackground(err.requestOptions)) {
+      handler.next(err);
+      return;
+    }
+    super.onError(err, handler);
+  }
+}
+
 /// 只用无头 WebView 过盾，永不弹窗。
 ///
 /// 与 [CloudflareInterceptor] 的差别：那个 5 秒没过就弹全屏验证页；这个等到
@@ -247,7 +293,10 @@ class _HeadlessCloudflareInterceptor extends Interceptor {
     final method = response.requestOptions.method.toUpperCase();
     if (cfMitigated == null ||
         !cfMitigated.contains('challenge') ||
-        (method != 'GET' && method != 'HEAD')) {
+        (method != 'GET' && method != 'HEAD') ||
+        _ForegroundOnlyCloudflareInterceptor._isBackground(
+          response.requestOptions,
+        )) {
       handler.next(response);
       return;
     }

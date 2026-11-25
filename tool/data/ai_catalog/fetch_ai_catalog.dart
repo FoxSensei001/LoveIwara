@@ -238,11 +238,13 @@ Map<String, dynamic> _distillProviders(
 
     final site = ((p['metadata'] as Map?)?['website'] as Map?)
         ?.cast<String, dynamic>();
-    final apiKeyUrl = kApiKeyUrlOverrides[id] ?? site?['apiKey'];
+    final apiKeyUrl = _cleanUrl(kApiKeyUrlOverrides[id] ?? site?['apiKey']);
+    final docsUrl = _cleanUrl(site?['docs']);
+    final homeUrl = _cleanUrl(site?['official']);
     final web = <String, dynamic>{
-      if (apiKeyUrl != null) 'k': apiKeyUrl,
-      if (site?['docs'] != null) 'd': site!['docs'],
-      if (site?['official'] != null) 'h': site!['official'],
+      'k': ?apiKeyUrl,
+      'd': ?docsUrl,
+      'h': ?homeUrl,
     };
 
     final suggested = [...?ownedBy[id]]..sort();
@@ -261,6 +263,46 @@ Map<String, dynamic> _distillProviders(
     };
   }
   return out;
+}
+
+/// 剥掉网址里的推广 / 归因参数（参数名见 overrides.dart 的 [kTrackingQueryKey]），
+/// 其余一个字不动。不是字符串或是空串返回 null。
+///
+/// 不用 `Uri.replace(queryParameters:)`：它会把整串重新编码、改掉参数写法，
+/// 目录 diff 里会冒出一堆没意义的变动。`#/path?x=1` 这种写在 fragment 里的查询
+/// （单页应用的哈希路由，上游有好几家是这种地址）也一并处理。
+String? _cleanUrl(Object? raw) {
+  if (raw is! String) return null;
+  final url = raw.trim();
+  if (url.isEmpty) return null;
+  final hash = url.indexOf('#');
+  if (hash < 0) return _stripTrackingQuery(url);
+  return '${_stripTrackingQuery(url.substring(0, hash))}'
+      '#${_stripTrackingQuery(url.substring(hash + 1))}';
+}
+
+String _stripTrackingQuery(String s) {
+  final q = s.indexOf('?');
+  if (q < 0) return s;
+  final pairs = s.substring(q + 1).split('&');
+  final kept = pairs.where((pair) {
+    final eq = pair.indexOf('=');
+    final rawKey = eq < 0 ? pair : pair.substring(0, eq);
+    String key;
+    try {
+      key = Uri.decodeQueryComponent(rawKey);
+    } on ArgumentError {
+      // 坏的百分号编码（`%zz`）抛 ArgumentError。
+      key = rawKey;
+    } on FormatException {
+      // 解出来不是合法 UTF-8（`%ff`、截断的 `%e4%b8`）抛 FormatException。
+      key = rawKey;
+    }
+    return !kTrackingQueryKey.hasMatch(key);
+  }).toList();
+  if (kept.length == pairs.length) return s;
+  final head = s.substring(0, q);
+  return kept.isEmpty ? head : '$head?${kept.join('&')}';
 }
 
 /// 按端点类型判 kind。返回 null ＝ dartantic 驱动不了这一家。

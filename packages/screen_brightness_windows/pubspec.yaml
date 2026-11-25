@@ -1,0 +1,23 @@
+name: screen_brightness_windows
+description: >-
+  i_iwara 本地覆盖：screen_brightness 的 Windows 实现换成纯 Dart 空实现，
+  不编译、不注册上游的 C++ 插件，从而永远不经 DDC/CI 写显示器亮度。
+version: 2.1.2+noop
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  screen_brightness_platform_interface: ">=2.1.2 <3.0.0"
+
+flutter:
+  plugin:
+    implements: screen_brightness
+    platforms:
+      windows:
+        # 只有 dartPluginClass、没有 pluginClass：Flutter 不会为它生成任何原生注册代码。
+        dartPluginClass: ScreenBrightnessWindowsNoop

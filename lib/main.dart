@@ -8,9 +8,9 @@ import 'dart:ui' show Canvas, PaintingStyle, Picture, PictureRecorder, Rect;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart' show FrameTiming, TimingsCallback;
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/frame_interp/frame_interp_service.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/app/services/logging/log_models.dart';
 import 'package:i_iwara/app/services/logging/log_service.dart';
@@ -80,24 +80,20 @@ void main(List<String> args) {
         '启动初始化',
       );
 
-      SystemChrome.setSystemUIOverlayStyle(
-        SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.dark,
-          systemNavigationBarColor: Colors.white,
-          systemNavigationBarIconBrightness: Brightness.dark,
-          systemNavigationBarDividerColor: Colors.transparent.withAlpha(
-            0x01,
-          ) /*Android=28,不能用全透明 */,
-        ),
-      );
+      // 系统栏样式不在这里设：首帧起由应用根上的 SystemBarsThemeFallback 按主题
+      // 声明（见 lib/app/ui/widgets/system_bars.dart）。这里原先写死「黑字 + 白色
+      // 导航栏」，深色主题下首帧前会闪一下白导航栏；iOS 上缺 statusBarBrightness，
+      // 本来就不生效。首帧之前的样子由原生主题 styles.xml 管。
 
       // 设置Flutter错误处理
       FlutterError.onError = (FlutterErrorDetails details) {
         LogUtils.captureUnhandledException(
           source: 'FlutterError.onError',
+          // ⛔ 用 toDescription()，不能直接插 details.context：DiagnosticsNode 的
+          // toString 只在 assert 里拼正文，release 包里只剩 "Instance of
+          // 'ErrorDescription'"，日志看不出是哪个组件、哪条通道报的错。
           message:
-              'Flutter框架错误${details.context != null ? ' (${details.context})' : ''}',
+              'Flutter框架错误${details.context != null ? ' (${details.context!.toDescription()})' : ''}',
           error: details.exception,
           stackTrace: details.stack ?? StackTrace.current,
         );
@@ -384,6 +380,11 @@ Future<void> _writeGeometryMirrorFromCurrentWindow() async {
 ///
 /// 包虽然把 `setAutoReset` 的文档写成「iOS only」，但 Windows 的 C++ 侧确实
 /// 实现了（`HandleSetAutoResetMethodCall`）。
+///
+/// ⛔ Windows 现在已经整个换成纯 Dart 空实现（`packages/screen_brightness_windows`，
+/// 经 pubspec 的 `dependency_overrides` 接入）：关窗、启动窗口期这两条写亮度的路
+/// 这里关不掉，只能不注册那个 C++ 插件。这次调用在 Windows 上已是空操作，留着
+/// 是给其它桌面平台的实现兜底。
 Future<void> _disableScreenBrightnessAutoReset() async {
   try {
     await ScreenBrightness().setAutoReset(false);
@@ -545,6 +546,10 @@ class DesktopWindowListener extends WindowListener {
     try {
       await hiding;
     } catch (_) {}
+    // 2.6 停掉并销毁正在跑的补帧作业。它握着一个进程级的 Vulkan 实例，带着
+    //     活的实例走到进程退出，显卡驱动的清理代码会崩。同步、最多阻塞两秒半
+    //     ——窗口此时已经藏起来了，用户感知不到。
+    FrameInterpService.maybe?.shutdownSync();
     // 3. 后台限时清理（flush / 停 watchdog / 关库）：正常很快，但日志 flush
     //    偶发偏慢。给 1.5s 上限，超时直接退出，不让用户干等——此时标记已删，
     //    超时退出也不会误报崩溃。
@@ -775,10 +780,13 @@ Future<void> _closeServices() async {
 
 // 在应用启动时配置图片缓存
 void configureImageCache() {
-  // 适当调整图片缓存大小，平衡内存使用和性能
-  PaintingBinding.instance.imageCache.maximumSize = 100; // 减少到100张图片
-  PaintingBinding.instance.imageCache.maximumSizeBytes =
-      50 * 1024 * 1024; // 限制内存占用为50MB
+  // 内存上限只由字节数决定（50MB 不变），条数上限放宽到不先于它触发。
+  //
+  // 原来条数限 100：列表一张卡是缩略图（按 1.5× 卡宽解码，约 0.45MB）+ 头像
+  // （按 2× 尺寸，约 25KB）两条，约 50 张卡就满了，此时才用掉二十几 MB，
+  // 往回滑就要从磁盘重新读取、解码，期间先露出占位。放宽条数不抬高内存峰值。
+  PaintingBinding.instance.imageCache.maximumSize = 1000;
+  PaintingBinding.instance.imageCache.maximumSizeBytes = 50 * 1024 * 1024;
 
   // 预热渲染管道
   WidgetsBinding.instance.addPostFrameCallback((_) {

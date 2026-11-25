@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
@@ -23,6 +22,7 @@ import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/related_videos_ta
 import 'package:i_iwara/app/ui/widgets/error_widget.dart'
     show CommonErrorWidget;
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/app/ui/widgets/system_bars.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
@@ -612,8 +612,13 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       'didPopNext: keep current playback state on route return',
       'MyVideoDetailPage',
     );
-    // 返回到视频详情页，重置屏幕亮度
-    ScreenBrightness().resetApplicationScreenBrightness();
+    // 返回到视频详情页，重置屏幕亮度。
+    // ⛔ 只在移动端：Windows 的实现会经 DDC/CI 把启动时缓存的亮度写回显示器，
+    // 那个值在 sRGB / HDR 等锁亮度模式下可能读成 0 —— 用户报「屏幕亮度瞬间降到 0」。
+    // 桌面端本来就不调亮度（亮度手势与 setDefaultBrightness 都只给移动端）。
+    if (GetPlatform.isAndroid || GetPlatform.isIOS) {
+      ScreenBrightness().resetApplicationScreenBrightness();
+    }
     controller.resumeFromCoveredRoute();
     if (controller.isFullscreen.value) {
       appService.hideSystemUI();
@@ -822,10 +827,16 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
             ),
             if (fullscreenActive)
               Positioned.fill(
-                child: RestoreRawMediaQueryInsets(
-                  child: _buildPlayerScreen(
-                    isFullScreen: true,
-                    innerPlaylistContext: effectiveInnerPlaylistContext,
+                // 全屏时系统栏是藏着的，但从边缘一划会临时露出来：那时身后是黑色
+                // 画面。不声明的话，查询会穿过这层落到下面的窄屏布局上——要是进全屏
+                // 前顶栏正好收着（白底），露出来的就是黑字压黑屏。
+                child: SystemBarsRegion(
+                  background: Colors.black,
+                  child: RestoreRawMediaQueryInsets(
+                    child: _buildPlayerScreen(
+                      isFullScreen: true,
+                      innerPlaylistContext: effectiveInnerPlaylistContext,
+                    ),
                   ),
                 ),
               ),
@@ -844,6 +855,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     InnerPlaylistContext? innerPlaylistContext,
   ) {
     const double tabsAreaWidth = 350.0; // 固定Tab区域宽度，适当缩窄以优化播放器显示区域
+    final double playerHeight = screenSize.height - paddingTop;
 
     // 如果是私有视频但没有fileUrl（无访问权限），则不显示内容
     if (controller.videoInfo.value?.private == true &&
@@ -855,37 +867,61 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // 左侧纯播放器区域（自适应宽度）
+        //
+        // ⭐ 播放器从状态栏下面开始，状态栏那一条让给主题底色（用户 2026-11-18 定的）：
+        // 宽屏时状态栏左半在播放器上、右半在标签栏上，系统只给一种图标颜色，
+        // 不让出来的话浅色主题下总有一半看不见。让出来以后整条状态栏都是主题底色，
+        // 交给根上的兜底按主题走。16:9 视频在这块区域里本来上下就有黑边，
+        // 一般不会因此变小。
+        // 播放器内部按 MediaQuery 的顶部内边距给状态栏留位（工具栏、顶部遮罩那一条），
+        // 这里已经在外面让过了，所以把它去掉，免得留两次。
         Expanded(
-          child: SizedBox.expand(
-            child: _buildVideoArea(
-              player: Obx(() {
-                // 站外、站内视频都显示播放器
-                if (controller.videoInfo.value?.isExternalVideo == true ||
-                    controller.videoPlayerReady.value) {
-                  return _buildPureVideoPlayer(
-                    screenSize.height,
-                    applyBottomSafeArea: true,
-                    innerPlaylistContext: innerPlaylistContext,
-                  );
-                }
-                // 全屏时播放器渲染在全屏叠加层，这里必须让位——否则在
-                // 「尚未 ready + 已进全屏」这个窗口里，内嵌与全屏两只
-                // MyVideoScreen 会同时挂载，各带一套 Listener 与 FocusScope。
-                // 目前靠 Stack 命中测试（叠加层在最上层、命中即停）兜住没出事，
-                // 但那是运气不是设计：任何绕过命中测试的输入方案（如全局指针
-                // 路由）都会立刻变成双派发。此守卫与 _buildPureVideoPlayer /
-                // _buildVideoPlayerContent 两处保持一致。
-                if (controller.isFullscreen.value) {
-                  return const SizedBox.shrink();
-                }
-                // 否则显示播放器（包含加载状态）
-                return _buildPlayerScreen(
-                  isFullScreen: false,
-                  enableBottomSafeArea: true,
-                  innerPlaylistContext: innerPlaylistContext,
-                );
-              }),
-            ),
+          child: Column(
+            children: [
+              SizedBox(height: paddingTop),
+              Expanded(
+                child: MediaQuery.removePadding(
+                  context: context,
+                  removeTop: true,
+                  child: SystemBarsRegion(
+                    // 导航栏正中落在播放器上时（平板横屏通常如此），导航条用白色。
+                    background: Colors.black,
+                    child: SizedBox.expand(
+                      child: _buildVideoArea(
+                        player: Obx(() {
+                          // 站外、站内视频都显示播放器
+                          if (controller.videoInfo.value?.isExternalVideo ==
+                                  true ||
+                              controller.videoPlayerReady.value) {
+                            return _buildPureVideoPlayer(
+                              playerHeight,
+                              applyBottomSafeArea: true,
+                              innerPlaylistContext: innerPlaylistContext,
+                            );
+                          }
+                          // 全屏时播放器渲染在全屏叠加层，这里必须让位——否则在
+                          // 「尚未 ready + 已进全屏」这个窗口里，内嵌与全屏两只
+                          // MyVideoScreen 会同时挂载，各带一套 Listener 与 FocusScope。
+                          // 目前靠 Stack 命中测试（叠加层在最上层、命中即停）兜住没出事，
+                          // 但那是运气不是设计：任何绕过命中测试的输入方案（如全局指针
+                          // 路由）都会立刻变成双派发。此守卫与 _buildPureVideoPlayer /
+                          // _buildVideoPlayerContent 两处保持一致。
+                          if (controller.isFullscreen.value) {
+                            return const SizedBox.shrink();
+                          }
+                          // 否则显示播放器（包含加载状态）
+                          return _buildPlayerScreen(
+                            isFullScreen: false,
+                            enableBottomSafeArea: true,
+                            innerPlaylistContext: innerPlaylistContext,
+                          );
+                        }),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
 
@@ -914,6 +950,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       controller.videoPlaying.value;
       controller.aspectRatio.value;
       controller.videoPlayerReady.value;
+      // 预热后封面撤不撤还取决于用户按没按过播放（见 shouldShowInitialPlaybackCover）。
+      controller.hasRequestedInitialPlayback.value;
       return ExtendedNestedScrollView(
         key: controller.nestedScrollViewKey,
         controller: controller.scrollController,
@@ -960,11 +998,11 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                 primary: false,
                 automaticallyImplyLeading: false,
                 pinned: true,
-                systemOverlayStyle: const SystemUiOverlayStyle(
-                  statusBarColor: Colors.transparent,
-                  statusBarIconBrightness: Brightness.light,
-                  systemNavigationBarColor: Colors.transparent,
-                  systemNavigationBarIconBrightness: Brightness.light,
+                // AppBar 总会自带一份声明，这里给它对的那份：身后是黑色播放器。
+                // 原先手写的版本缺 iOS 认的 statusBarBrightness，iOS 上整条不生效。
+                // 状态栏那一条真正起作用的是更深的 [_buildTopToolbarOverlay]。
+                systemOverlayStyle: SystemBarStyles.forBackground(
+                  Brightness.dark,
                 ),
                 // 动态 pinned
                 expandedHeight: controller.getCurrentVideoHeight(
@@ -1392,49 +1430,61 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
 
   // 构建顶部工具栏覆盖层
   Widget _buildTopToolbarOverlay(BuildContext context, slang.Translations t) {
+    final double opacity = (controller.scrollRatio.value / 0.8).clamp(0.0, 1.0);
+    final Color surface = Theme.of(context).colorScheme.surface;
     return Positioned(
       top: 0,
       left: 0,
       right: 0,
-      child: IgnorePointer(
-        ignoring: controller.scrollRatio.value <= 0,
-        child: SizedBox(
-          height: kToolbarHeight + MediaQuery.paddingOf(context).top,
-          child: Opacity(
-            opacity: (controller.scrollRatio.value / 0.8).clamp(0.0, 1.0),
-            child: Container(
-              color: Theme.of(context).colorScheme.surface,
-              child: SafeArea(
-                child: AppBar(
-                  title: Text(
-                    controller.videoInfo.value?.title ?? '',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  leading: IconButton(
-                    onPressed: () => AppService.tryPop(context: context),
-                    icon: const Icon(Icons.arrow_back),
-                  ),
-                  actions: [
-                    // 播放/暂停按钮
-                    IconButton(
-                      onPressed: () {
-                        unawaited(controller.togglePlayback());
-                        controller.animateToTop();
-                      },
-                      icon: Icon(
-                        controller.videoPlaying.value
-                            ? Icons.pause
-                            : Icons.play_arrow,
+      // ⭐ 状态栏那一条此刻真正的颜色：黑色播放器上盖着一层随滚动淡入的 surface。
+      // 浅色主题下，盖到约 46% 时白字和黑字对比度相等，就在那里换成黑字（带回差，
+      // 停在附近不会闪）；深色主题的 surface 本来就深，全程白字。
+      // 放在 Opacity 外面：透明度为 0 时 Opacity 不画子树，声明会跟着消失。
+      child: SystemBarsRegion(
+        background: Color.alphaBlend(
+          surface.withValues(alpha: surface.a * opacity),
+          Colors.black,
+        ),
+        child: IgnorePointer(
+          ignoring: controller.scrollRatio.value <= 0,
+          child: SizedBox(
+            height: kToolbarHeight + MediaQuery.paddingOf(context).top,
+            child: Opacity(
+              opacity: opacity,
+              child: Container(
+                color: surface,
+                child: SafeArea(
+                  child: AppBar(
+                    title: Text(
+                      controller.videoInfo.value?.title ?? '',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ],
-                  elevation: 0,
-                  backgroundColor: Colors.transparent,
+                    leading: IconButton(
+                      onPressed: () => AppService.tryPop(context: context),
+                      icon: const Icon(Icons.arrow_back),
+                    ),
+                    actions: [
+                      // 播放/暂停按钮
+                      IconButton(
+                        onPressed: () {
+                          unawaited(controller.togglePlayback());
+                          controller.animateToTop();
+                        },
+                        icon: Icon(
+                          controller.videoPlaying.value
+                              ? Icons.pause
+                              : Icons.play_arrow,
+                        ),
+                      ),
+                    ],
+                    elevation: 0,
+                    backgroundColor: Colors.transparent,
+                  ),
                 ),
               ),
             ),

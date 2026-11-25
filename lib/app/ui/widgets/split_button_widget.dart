@@ -184,17 +184,25 @@ class _FilledLikeButtonState extends State<FilledLikeButton> {
       _isLoading = true;
     });
 
+    // 方向在发请求前定死：请求期间父组件可能经 didUpdateWidget 改写 _isLiked
+    // （同一视频的另一个点赞按钮先成功了），回来再取反就会算反。
+    final bool wasLiked = _isLiked!;
     try {
-      final bool success = _isLiked!
+      final bool success = wasLiked
           ? await widget.onUnlike(widget.mediaId)
           : await widget.onLike(widget.mediaId);
 
       if (success) {
-        setState(() {
-          _isLiked = !_isLiked!;
-          _likeCount += _isLiked! ? 1 : -1;
-        });
-        widget.onLikeChanged?.call(_isLiked!);
+        // 请求期间页面可能已退出：本地状态只在还挂着时改，
+        // 但点赞已在服务端生效，仍要通知外部同步状态。
+        final bool newLiked = !wasLiked;
+        if (mounted) {
+          setState(() {
+            _isLiked = newLiked;
+            _likeCount += newLiked ? 1 : -1;
+          });
+        }
+        widget.onLikeChanged?.call(newLiked);
       }
     } catch (e) {
       // 使用 CommonUtils.parseExceptionMessage 来获取详细的错误信息

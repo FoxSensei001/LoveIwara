@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:i_iwara/app/ui/widgets/cached_list_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
@@ -325,8 +325,18 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget>
     return SizedBox(
       width: widget.width,
       child: MouseRegion(
-        onEnter: enableHover ? (_) => setState(() => _isHovering = true) : null,
-        onExit: enableHover ? (_) => setState(() => _isHovering = false) : null,
+        onEnter: enableHover
+            ? (_) {
+                setState(() => _isHovering = true);
+                onCardHoverChanged(true);
+              }
+            : null,
+        onExit: enableHover
+            ? (_) {
+                setState(() => _isHovering = false);
+                onCardHoverChanged(false);
+              }
+            : null,
         child: HeroMode(
           enabled: previewHeroEnabled,
           child: Hero(
@@ -419,17 +429,12 @@ class _Thumbnail extends StatelessWidget {
   }
 
   Widget _buildThumbnailImage() {
-    return CachedNetworkImage(
+    return CachedListImage(
       imageUrl: video.thumbnailUrl,
       fit: BoxFit.cover,
       memCacheWidth: (width * 1.5).toInt(),
-      fadeInDuration: const Duration(milliseconds: 50),
-      placeholderFadeInDuration: const Duration(milliseconds: 0),
       placeholder: _buildPlaceholder,
       errorWidget: (context, url, error) => _buildErrorPlaceholder(),
-      maxWidthDiskCache: 400,
-      maxHeightDiskCache: 400,
-      fadeOutDuration: const Duration(milliseconds: 0),
     );
   }
 

@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter/rendering.dart'; // 用于 ScrollDirection
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
 
@@ -369,8 +368,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
       final batchActive =
           _videoBatchController.isMultiSelect.value ||
           _imageBatchController.isMultiSelect.value;
-      final visible =
-          mediaListController.currentScrollOffset.value > 800 && !batchActive;
+      final visible = mediaListController.canScrollToTop && !batchActive;
       return Positioned(
         // 移动端底栏可见时与搜索圆钮中心共轴；宽屏（rail 布局）用普通右边距
         right: isFloatingBarInsetActive(context)
@@ -536,9 +534,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     _filterSortId = SortId.date;
     _videoBatchController.exitMultiSelect();
     _imageBatchController.exitMultiSelect();
-    mediaListController.resetHeaderState();
-    mediaListController.currentScrollOffset.value = 0.0;
-    mediaListController.lastScrollDirection.value = ScrollDirection.idle;
+    mediaListController.resetScrollState();
 
     if (_tabController.index != 0) {
       _tabController.index = 0;
@@ -559,17 +555,13 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
         selectedId = '';
       });
       // Reset scroll state when switching users
-      mediaListController.resetHeaderState();
-      mediaListController.currentScrollOffset.value = 0.0;
-      mediaListController.lastScrollDirection.value = ScrollDirection.idle;
+      mediaListController.resetScrollState();
     } else if (selectedId != id) {
       setState(() {
         selectedId = id;
       });
       // Reset scroll state when switching users
-      mediaListController.resetHeaderState();
-      mediaListController.currentScrollOffset.value = 0.0;
-      mediaListController.lastScrollDirection.value = ScrollDirection.idle;
+      mediaListController.resetScrollState();
     }
   }
 

@@ -227,6 +227,8 @@ common:
   disagree: No acepto
   agreeToRules: Aceptar las normas
   tapToReread: 'Toca para releer'
+  rulesRequiredHint: 'Lee y acepta las normas de la comunidad antes de publicar'
+  readAndAgree: 'Leer y aceptar'
   # Base Input Dialog
   markdownSyntaxHelp: Ayuda de sintaxis de Markdown
   previewContent: Vista previa del contenido
@@ -706,6 +708,29 @@ settings:
   defaultBrowserDesc: Abra el elemento de configuración de enlace predeterminado en los ajustes del sistema y añada el enlace del sitio web iwara.tv
   themeMode: Modo de tema
   themeModeDesc: Esta configuración determina el modo de tema de la aplicación
+  glassQuality: "Rendering quality"
+  glassQualityAuto: "Automatic"
+  glassQualityAutoDesc: "Adapts to frame time; refraction can change as quality adjusts"
+  glassQualityStandard: "Smooth"
+  glassQualityStandardDesc: "Lightweight glass with highlights and consistent frame pacing"
+  glassQualityPremium: "Full refraction"
+  glassQualityPremiumDesc: "Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass"
+  glassQualityCurrent: "Currently active"
+  glassChromeParametersDesc: "Navigation glass parameters apply live to headers, buttons and the bottom bar"
+  glassPreview: "Preview"
+  glassPremiumOnly: "Only takes effect with the full refraction quality"
+  glassSaturationNeedsBlur: "With the smooth quality, only takes effect when background blur is above 0"
+  glassOpacity: "Opacity"
+  glassBlur: "Background blur (sigma)"
+  glassBlurDesc: "0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness"
+  glassAdvancedParameters: "Advanced navigation parameters"
+  glassThickness: "Lens thickness"
+  glassRefractiveIndex: "Refractive index"
+  glassLightIntensity: "Highlight intensity"
+  glassSaturation: "Background saturation"
+  glassChromaticAberration: "Chromatic aberration"
+  glassShadows: "Shadows"
+  glassResetParameters: "Restore glass defaults"
   glassEffect: Material de la interfaz
   glassEffectDesc: "Elige el material usado en toda la aplicación: cápsulas de encabezado, menús, botones de diálogo y la barra de navegación inferior"
   liquidGlassEffect: Vidrio líquido
@@ -1074,15 +1099,13 @@ settings:
   # Audio Video Configuration
   audioVideoConfig: Configuración de audio y video
   expandBuffer: Ampliar el búfer
-  expandBufferInfo: "Cuando está activado, el tamaño del búfer aumenta: el tiempo de carga se alarga, pero la reproducción es más fluida"
+  expandBufferInfo: "Al activarlo se almacena más vídeo por adelantado: la reproducción se corta menos con redes inestables, pero usa más memoria"
   videoSyncMode: Modo de sincronización de video
   videoSyncModeSubtitle: Estrategia de sincronización de audio y video
   hardwareDecodingMode: Modo de decodificación por hardware
   hardwareDecodingModeSubtitle: Ajustes de decodificación por hardware
   enableHardwareAcceleration: Activar la aceleración por hardware
   enableHardwareAccelerationInfo: Activar la aceleración por hardware puede mejorar el rendimiento de decodificación, pero algunos dispositivos pueden no ser compatibles
-  useOpenSLESAudioOutput: Usar salida de audio OpenSLES
-  useOpenSLESAudioOutputInfo: Usar salida de audio de baja latencia; puede mejorar el rendimiento del audio
   # Video sync options
   videoSyncAudio: Sincronización de audio
   videoSyncDisplayResample: Mostrar remuestreo
@@ -1510,6 +1533,10 @@ videoDetail:
     currentQuality: Calidad actual
     duration: Duración
     resolution: Resolución
+    frameRate: "Velocidad de fotogramas"
+    frameRateValue: "${fps} fps"
+    frameRateInterpolated: "${fps} fps (interpolado, original ${from} fps)"
+    frameRateHasInterpolated: "${fps} fps (original, versión de ${to} fps disponible)"
     fileInfo: Información del archivo
     fileName: Nombre del archivo
     fileSize: Tamaño del archivo
@@ -1523,6 +1550,9 @@ videoDetail:
   thisIsAPrivateVideo: Este es un video privado
   getVideoInfoFailed: 'No se pudo obtener la información del video; inténtelo de nuevo más tarde'
   noVideoSourceFound: No se encontró ninguna fuente de video
+  sourceFileMissingOnServer: 'El archivo de video no existe en el servidor de Iwara (HTTP 404), así que tampoco se reproduce en la web. Puede que el servidor tenga problemas; inténtalo más tarde.'
+  qualityFileMissingOnServer: 'El archivo de «${quality}» no está en el servidor (HTTP 404). Elige otra calidad en el menú de calidad.'
+  playbackRetryExhausted: 'El video no se pudo abrir varias veces seguidas, así que se detuvieron los reintentos automáticos. Vuelve a intentarlo más tarde.'
   tagCopiedToClipboard: 'Etiqueta "${tagId}" copiada al portapapeles'
   errorLoadingVideo: Error al cargar el video
   play: Reproducir
@@ -1680,7 +1710,7 @@ videoDetail:
     fetchingVideoSources: Obteniendo las fuentes de video...
     loadingVideo: Cargando el video...
     applyingSolution: Aplicando la solución...
-    addingListeners: Añadiendo receptores...
+    addingListeners: Conectando con el servidor de video...
     successFecthVideoDurationInfo: Se obtuvo la duración del video correctamente; empezando a cargar el video...
     successFecthVideoHeightInfo: Carga completada
   # 投屏
@@ -1719,6 +1749,23 @@ videoDetail:
       connectedTo: 'Conectado a: ${deviceName}'
       notConnected: Ningún dispositivo conectado
       stopCasting: Detener transmisión
+      searchFinished: 'Búsqueda terminada: ${count} dispositivo(s) encontrado(s)'
+      protocolDlna: 'DLNA'
+      protocolGoogleCast: 'Google Cast'
+      addByIp: 'Añadir manualmente'
+      addByIpTitle: 'Añadir dispositivo manualmente'
+      addByIpDesc: 'Introduce la dirección IP de tu TV o reproductor. Normalmente aparece en Ajustes → Red → Estado de la red del televisor.'
+      addByIpHint: 'p. ej. 192.168.1.20'
+      addByIpAction: 'Buscar'
+      addByIpInvalid: 'Dirección no válida. Introduce una dirección IPv4 como 192.168.1.20'
+      addByIpNotFound: 'No se encontró ningún dispositivo de transmisión en ${host}'
+      troubleshootTitle: '¿No encuentras tu dispositivo?'
+      troubleshoot: '• El teléfono/ordenador y la TV deben estar en la misma red Wi-Fi. Las redes de invitados y el aislamiento AP del router impiden encontrarlos\n• Una VPN o app de proxy puede impedir la búsqueda; desactívala e inténtalo de nuevo\n• Se admiten DLNA y Google Cast (Chromecast). Apple TV (AirPlay) y los protocolos propios de algunas marcas no son compatibles; activa DLNA en la TV\n• ¿Sigue sin aparecer? Pulsa «Añadir manualmente» e introduce la IP de la TV'
+      failure:
+        unreachable: 'No se puede conectar con el dispositivo. Comprueba que está en la misma Wi-Fi y prueba a desactivar la VPN'
+        timeout: 'El dispositivo no responde'
+        mediaRejected: 'El dispositivo no puede reproducir este vídeo (formato no compatible o no se puede abrir el enlace)'
+        deviceRejected: 'El dispositivo rechazó la solicitud'
   # Like Avatars Component
   likeAvatars:
     dialogTitle: Quién da me gusta en secreto
@@ -1918,6 +1965,8 @@ notifications:
   kApprovedPost: Publicación aprobada
   kApprovedForumPost: Publicación del foro aprobada
   kRejectedContent: Revisión de contenido rechazada
+  kWarning: "Advertencia del sitio"
+  kWarningHint: "Los moderadores han emitido una advertencia en tu cuenta. Respeta las normas de la comunidad. Consulta los detalles en la web."
   kUnknownType: Tipo de notificación desconocido
 
 conversation:
@@ -2022,6 +2071,7 @@ download:
   categorySectionLabel: 'Categoría'
   saveToPreviewLabel: 'Se guardará en'
   saveToPreviewSuggested: 'Nombre sugerido: ${name} (editable en el diálogo del sistema)'
+  saveToPreviewChange: Change…
   lastUsedBadge: Último uso
   pickedBadge: Seleccionado
   startDownloading: Iniciar descarga
@@ -2337,6 +2387,7 @@ download:
     downloadsFolder: Downloads
     askEveryTime: Ask every time
     askEveryTimeDesc: 'Choose where to save for each download. Batch downloads go to ${location}'
+    firstDownloadNotice: 'Download started. Files are saved to "${location}". You can change this in download settings'
     freeSpace: '${size} free'
     statusWritable: Writable
     statusNeedsPermission: Needs permission
@@ -3556,6 +3607,12 @@ vrFormat:
   resetToAutoDesc: Olvidar la elección manual para este video y dejar que la detección decida de nuevo
   manualBadge: Establecido manualmente
   panoramaHint: Arrastre la imagen para mirar alrededor; pellizque para cambiar el campo de visión
+  gyroControl: "Control por movimiento"
+  gyroControlDesc: "En modo panorámico VR, gira el móvil para mirar alrededor; arrastrar sigue ajustando la vista"
+  gyroPromptTitle: "¿Activar el control por movimiento?"
+  gyroPromptBody: "¿Activar el sensor de movimiento para una mejor experiencia VR? Puedes desactivarlo en Ajustes."
+  gyroPromptEnable: "Activar"
+  gyroPromptDecline: "Ahora no"
   panoramaGestureNotice: Mientras mira alrededor, arrastrar gira la vista; use la barra de progreso para buscar
   shaderUnsupported: Este dispositivo no puede renderizar el panorama en vivo; se muestra un solo ojo en su lugar
   handoffTooltip: Reproducir de otra forma
@@ -4022,3 +4079,88 @@ poll:
   voteFailed: "No se pudo enviar el voto"
   copyLink: "Copiar enlace de la encuesta"
   translateFailed: "No se pudo traducir la encuesta"
+frameInterp:
+  title: "Interpolación de fotogramas"
+  action: "Interpolar al doble de fotogramas"
+  playInterpolated: "Reproducir versión interpolada"
+  playOriginal: "Reproducir original"
+  deleteInterpolated: "Eliminar también la versión interpolada"
+  deleteInterpolatedDesc: "Elimina el archivo de vídeo interpolado y su tarea"
+  deleteInterpolatedOnly: "Eliminar versión interpolada"
+  deleteInterpolatedOnlyTitle: "¿Eliminar la versión interpolada?"
+  deleteInterpolatedOnlyBody: "Solo se eliminan el archivo de vídeo interpolado y su tarea. El vídeo original se conserva y puedes volver a interpolarlo más tarde."
+  interpolatedDeleted: "Versión interpolada eliminada"
+  deleteInterpolatedFailed: "No se pudo eliminar la versión interpolada. Puede que el archivo esté en uso o no haya permiso"
+  viewTasks: "Ver tareas de interpolación"
+  badge: "2× FPS"
+  fpsBadge: "${fps} FPS"
+  specLine: "${width}×${height} · ${from} → ${to} fps"
+  runningDetail: "${percent}% · ${speed} fps"
+  preparing: "Preparando…"
+  outputMissing: "El archivo interpolado ya no existe"
+  empty: "Aún no hay tareas de interpolación"
+  emptyHint: "Elige «Interpolar al doble de fotogramas» en un vídeo de Archivos locales o Descargas."
+  clearFinished: "Borrar registros finalizados"
+  status:
+    pending: "En cola"
+    running: "Procesando"
+    completed: "Completado"
+    failed: "Fallido"
+    cancelled: "Cancelado"
+  actions:
+    play: "Reproducir"
+    cancel: "Cancelar"
+    retry: "Reintentar"
+    delete: "Eliminar registro"
+    revealInFolder: "Mostrar en la carpeta"
+  confirm:
+    cancelTitle: "¿Cancelar esta tarea?"
+    cancelContent: "Se perderá el progreso actual. Podrá reintentarla más tarde desde el principio."
+    deleteTitle: "¿Eliminar este registro?"
+    deleteContent: "El vídeo original no se verá afectado."
+    deleteOutput: "Eliminar también el archivo interpolado"
+    clearTitle: "¿Borrar los registros finalizados?"
+    clearContent: "Los archivos interpolados se conservan en el disco; solo se eliminan los registros."
+    enqueueTitle: "¿Interpolar este vídeo?"
+    enqueueAction: "Empezar"
+    fpsUnit: "fps"
+    saveNote: "Se guarda como un archivo nuevo; el original no se modifica"
+    resetTitle: "No se puede reanudar. Empieza de nuevo si:"
+    resetBackground: "Cambias a otra app o bloqueas la pantalla"
+    resetClosed: "Cierras la app o el sistema la cierra"
+  toast:
+    queued: "Añadido a la cola de interpolación"
+    completed: "Interpolación finalizada: ${title}"
+    failed: "Error de interpolación: ${title}"
+  reject:
+    sourceMissing: "El archivo de vídeo ya no existe"
+    alreadyInterpolated: "Este vídeo ya está interpolado"
+    alreadyQueued: "Este vídeo ya está en la cola"
+    alreadyDone: "Este vídeo ya tiene una versión interpolada"
+    hdr: "Los vídeos HDR aún no son compatibles"
+    resolutionTooLarge: "La resolución es demasiado alta para interpolar"
+    unreadable: "No se pudo leer este vídeo"
+    noGpu: "No se encontró ninguna tarjeta gráfica utilizable (se requiere compatibilidad con Vulkan)"
+  error:
+    unknown: "Algo salió mal"
+    openInput: "No se pudo abrir el vídeo"
+    noVideo: "El archivo no tiene pista de vídeo"
+    decoder: "No se pudo decodificar el vídeo"
+    hdrUnsupported: "Los vídeos HDR aún no son compatibles"
+    noGpu: "No se encontró ninguna tarjeta gráfica utilizable"
+    model: "No se pudo cargar el modelo de interpolación. Pruebe a reinstalar el componente"
+    encoder: "No hay ningún codificador de vídeo utilizable"
+    openOutput: "No se pudo crear el archivo de salida"
+    write: "Error de escritura. Puede que el disco esté lleno"
+    interpolate: "Error de procesamiento. Puede que la tarjeta gráfica se haya quedado sin memoria"
+    componentUnavailable: "El componente de interpolación no está disponible"
+    interrupted: "Interrumpido porque se cerró la aplicación"
+    finalizeFailed: "No se pudo guardar el archivo terminado"
+    sourceMissing: "El archivo de vídeo ya no existe"
+    backgrounded: "Detenido porque la app pasó a segundo plano; se reinicia al volver"
+  notification:
+    title: "Interpolando fotogramas"
+    titleWithQueue: "Interpolando fotogramas · ${count} en cola"
+    waiting: "Esperando para empezar"
+  component:
+    unsupported: "La interpolación de fotogramas no está disponible en este dispositivo"

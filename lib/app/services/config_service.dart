@@ -125,8 +125,10 @@ class ConfigService extends GetxService {
         settings[ConfigKey.CURRENT_PRESET_INDEX_KEY]!.value;
     CommonConstants.currentCustomHex =
         settings[ConfigKey.CURRENT_CUSTOM_HEX_KEY]!.value;
+    // ⛔ 是 AUTO_RECORD_HISTORY_KEY，不是 RECORD_AND_RESTORE_VIDEO_PROGRESS：
+    // 读错键时关掉「播放进度」会连带让浏览历史停记（见迁移 v47）。
     CommonConstants.enableHistory =
-        settings[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]!.value;
+        settings[ConfigKey.AUTO_RECORD_HISTORY_KEY]!.value;
     CommonConstants.enableVibration =
         settings[ConfigKey.ENABLE_VIBRATION]!.value;
     CommonConstants.isPaginated =
@@ -253,6 +255,11 @@ class ConfigService extends GetxService {
     bool save = true,
   }) async {
     settings[key]!.value = value;
+    // 镜像只在这一处同步，所有写入口（设置页、首启引导）都不必各自记着改它。
+    // 放在落库之前：落库抛异常时开关显示的值与实际行为仍一致。
+    if (key == ConfigKey.AUTO_RECORD_HISTORY_KEY) {
+      CommonConstants.enableHistory = value as bool;
+    }
     if (save) {
       await saveSetting(key, value);
     }
@@ -330,6 +337,8 @@ enum ConfigKey {
   REMEMBER_PLAYBACK_SPEED_KEY, // 是否记住在播放器中调整的倍速作为默认倍速
   DEFAULT_SCREEN_FIT_MODE_KEY, // 新播放器默认使用的画面尺寸模式
   REMEMBER_SCREEN_FIT_MODE_KEY, // 是否让新播放器沿用当前画面尺寸模式
+  VR_GYRO_CONTROL_KEY, // VR 全景环视时用陀螺仪转视角（仅有陀螺仪的手机/平板）
+  VR_GYRO_PROMPT_SHOWN_KEY, // 第一次进 VR 全景时是否已问过要不要开陀螺仪
   // ⛔ 这里曾经有一枚 XR_AUTO_ENTER_IMMERSIVE_KEY（「打开视频自动交给空间播放器」）。
   // 它是半残的：Quest 上详情页的播放器区域被整只换成封面（video_detail_page_v2 的
   // `_immersiveAvailable` 判据里没有它），关掉它并不会退回 2D 播放器，只会让片源开了
@@ -479,6 +488,11 @@ enum ConfigKey {
   // 下载设置
   CUSTOM_DOWNLOAD_PATH, // 自定义下载路径
   ENABLE_CUSTOM_DOWNLOAD_PATH, // 启用自定义下载路径
+  // 桌面端「每次询问保存位置」（默认关 = 存进 下载/LoveIwara）。只在桌面且没开
+  // 自定义路径时生效，见 DownloadPathService.asksEveryTime。
+  DOWNLOAD_ASK_EVERY_TIME,
+  DOWNLOAD_LOCATION_NOTICE_SHOWN, // 桌面端首次下载时「文件存到了哪」的一次性提示是否已出过
+  DOWNLOAD_OUTSIDE_QUIET_PENDING, // 迁移 v48 写的一次性标记：从「每次询问」切过来的老安装，待对默认目录记「不搬」
   DOWNLOADS_OUTSIDE_DISMISSED_DIR, // 「旧目录里还有 N 项」对哪个目标目录已选过不搬
   DOWNLOAD_STRUCTURE_NOTICE_DISMISSED, // 「可按作者自动归档」一次性提示卡是否已消失（选中任意预设即消失）
   VIDEO_FILENAME_TEMPLATE, // 视频保存结构与命名模板（允许 / 分隔的 1~4 段）
@@ -489,7 +503,6 @@ enum ConfigKey {
   VIDEO_SYNC, // 视频同步
   HARDWARE_DECODING, // 硬解模式
   ENABLE_HARDWARE_ACCELERATION, // 启用硬件加速
-  USE_OPENSLES, // 使用OpenSLES音频输出
   DEFAULT_EMOJI_SIZE, // 默认表情包大小
   COMMENT_SORT_ORDER, // 评论排序方式，true为倒序，false为正序
   // 布局相关配置
@@ -553,6 +566,9 @@ enum ConfigKey {
   // 从官网前端自动提取的视频源签名盐值记录（JSON：salt / script / builtin，
   // 空 Map＝用内置值），见 XVersionSaltService
   X_VERSION_SALT_CACHE,
+  // 投屏「手动添加」记住的设备地址（IPv4 字符串列表，新的在前，最多 8 个），
+  // 每次搜索都会顺带探测一遍，见 CastService
+  CAST_MANUAL_HOSTS,
 }
 
 extension ConfigKeyExtension on ConfigKey {
@@ -572,6 +588,10 @@ extension ConfigKeyExtension on ConfigKey {
         return 'default_screen_fit_mode';
       case ConfigKey.REMEMBER_SCREEN_FIT_MODE_KEY:
         return 'remember_screen_fit_mode';
+      case ConfigKey.VR_GYRO_CONTROL_KEY:
+        return 'vr_gyro_control';
+      case ConfigKey.VR_GYRO_PROMPT_SHOWN_KEY:
+        return 'vr_gyro_prompt_shown';
       case ConfigKey.XR_GALLERY_AUTO_ENTER_KEY:
         return 'xr_gallery_auto_enter';
       case ConfigKey.SEEK_PREVIEW_SIZE_KEY:
@@ -790,6 +810,12 @@ extension ConfigKeyExtension on ConfigKey {
         return 'custom_download_path';
       case ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH:
         return 'enable_custom_download_path';
+      case ConfigKey.DOWNLOAD_ASK_EVERY_TIME:
+        return 'download_ask_every_time';
+      case ConfigKey.DOWNLOAD_LOCATION_NOTICE_SHOWN:
+        return 'download_location_notice_shown';
+      case ConfigKey.DOWNLOAD_OUTSIDE_QUIET_PENDING:
+        return 'download_outside_quiet_pending';
       case ConfigKey.DOWNLOADS_OUTSIDE_DISMISSED_DIR:
         return 'downloads_outside_dismissed_dir';
       case ConfigKey.DOWNLOAD_STRUCTURE_NOTICE_DISMISSED:
@@ -808,8 +834,6 @@ extension ConfigKeyExtension on ConfigKey {
         return 'hardware_decoding';
       case ConfigKey.ENABLE_HARDWARE_ACCELERATION:
         return 'enable_hardware_acceleration';
-      case ConfigKey.USE_OPENSLES:
-        return 'use_opensles';
       case ConfigKey.DEFAULT_EMOJI_SIZE:
         return 'default_emoji_size';
       case ConfigKey.COMMENT_SORT_ORDER:
@@ -892,6 +916,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'ai_task_bindings';
       case ConfigKey.X_VERSION_SALT_CACHE:
         return 'x_version_salt_cache';
+      case ConfigKey.CAST_MANUAL_HOSTS:
+        return 'cast_manual_hosts';
     }
   }
 
@@ -915,6 +941,10 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.DEFAULT_SCREEN_FIT_MODE_KEY:
         return 'fit';
       case ConfigKey.REMEMBER_SCREEN_FIT_MODE_KEY:
+        return false;
+      case ConfigKey.VR_GYRO_CONTROL_KEY:
+        return false; // 默认关：第一次进 VR 全景时问一次
+      case ConfigKey.VR_GYRO_PROMPT_SHOWN_KEY:
         return false;
       case ConfigKey.XR_GALLERY_AUTO_ENTER_KEY:
         return true;
@@ -1089,7 +1119,8 @@ extension ConfigKeyExtension on ConfigKey {
         // 只存「那句话」本身。分隔线与前面的空行由 CommentMarkup.compose 统一
         // 补——让它跟在用户能编辑的内容里，正是旧版语法被改坏的入口。
         // 老用户配置里带 '\n\n---' 的值照常能用，compose 与编辑器都会剥掉。
-        return 'Sent from ${CommonConstants.applicationNickname}';
+        // 出厂值不写应用名：默认就带官方署名等于替用户给应用打广告。
+        return '{date}';
       case ConfigKey.SIGNATURE_AI_SETTINGS_KEY:
         // 空串＝没配过，全用出厂值（见 SignatureAiSettings）。老用户改过的那份
         // 英文提示词还躺在 SIGNATURE_CUSTOM_SOURCES_KEY 里，读的时候迁过来。
@@ -1166,6 +1197,14 @@ extension ConfigKeyExtension on ConfigKey {
         return false;
       case ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH:
         return false;
+      // 默认不弹系统「另存为」：Flutter 3.47 的 Windows 上那个对话框跑在 Dart
+      // 所在的线程上，一卡整个应用就「未响应」（见迁移 v48）。
+      case ConfigKey.DOWNLOAD_ASK_EVERY_TIME:
+        return false;
+      case ConfigKey.DOWNLOAD_LOCATION_NOTICE_SHOWN:
+        return false;
+      case ConfigKey.DOWNLOAD_OUTSIDE_QUIET_PENDING:
+        return false;
       // 出厂默认 = 「按作者」预设（issue #126）：新装用户零配置即按作者归档。
       // ⚠️ 只对全新安装生效——_loadSettings 首跑就把默认值写进库了，存量用户
       // 库里那条平铺旧值会原样留着（清数据/重装视为新装，是已接受的边界例外）。
@@ -1182,8 +1221,6 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.HARDWARE_DECODING:
         return 'auto-safe';
       case ConfigKey.ENABLE_HARDWARE_ACCELERATION:
-        return true;
-      case ConfigKey.USE_OPENSLES:
         return true;
       case ConfigKey.DEFAULT_EMOJI_SIZE:
         return 'mid-i'; // 默认使用中等大小
@@ -1278,6 +1315,8 @@ extension ConfigKeyExtension on ConfigKey {
         return '';
       case ConfigKey.X_VERSION_SALT_CACHE:
         return <String, dynamic>{};
+      case ConfigKey.CAST_MANUAL_HOSTS:
+        return <String>[];
     }
   }
 }

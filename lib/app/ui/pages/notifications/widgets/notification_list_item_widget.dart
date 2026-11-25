@@ -81,6 +81,30 @@ class NotificationListItemWidget extends StatelessWidget {
           }
           break;
         case 'reviewApproved':
+          // 评论审核通过：载荷里只有评论本身，宿主只能从 xxxId 字段反查
+          final approvedComment = notification['comment'];
+          if (approvedComment is Map) {
+            final videoId = approvedComment['videoId'] as String?;
+            final imageId = approvedComment['imageId'] as String?;
+            final postId = approvedComment['postId'] as String?;
+            final profileId = approvedComment['profileId'] as String?;
+            if (videoId != null) {
+              NaviService.navigateToVideoDetailPage(videoId);
+              return;
+            }
+            if (imageId != null) {
+              NaviService.navigateToGalleryDetailPage(imageId);
+              return;
+            }
+            if (postId != null) {
+              NaviService.navigateToPostDetailPage(postId, null);
+              return;
+            }
+            if (profileId != null) {
+              // 主页评论：profileId 是用户 id，不是 username，无法直接跳转
+              break;
+            }
+          }
           // 视频审核通过
           if (notification['video'] != null) {
             final videoId = notification['video']['id'];
@@ -115,7 +139,8 @@ class NotificationListItemWidget extends StatelessWidget {
           }
           break;
         case 'reviewRejected':
-          // 审核被拒绝通知，不进行跳转，仅显示信息
+        case 'warning':
+          // 审核被拒绝 / 站点警告：没有可跳转的对象，仅显示信息
           break;
       }
     } catch (e) {
@@ -324,6 +349,11 @@ class NotificationListItemWidget extends StatelessWidget {
           );
         case 'reviewRejected':
           return NotificationContentItems.buildReviewRejectedNotification(
+            context,
+            notification,
+          );
+        case 'warning':
+          return NotificationContentItems.buildWarningNotification(
             context,
             notification,
           );

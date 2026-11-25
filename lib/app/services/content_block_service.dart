@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_selector/file_selector.dart' as fs;
+import 'package:i_iwara/app/utils/desktop_save_dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:get/get.dart';
@@ -317,7 +318,8 @@ class ContentBlockService extends GetxService {
       final savedPath = await FlutterFileDialog.saveFile(params: params);
       return savedPath != null;
     } else {
-      final location = await fs.getSaveLocation(
+      final location = await showDesktopSaveDialog(
+        purpose: '导出屏蔽规则',
         acceptedTypeGroups: [
           const fs.XTypeGroup(label: 'JSON', extensions: ['json']),
         ],

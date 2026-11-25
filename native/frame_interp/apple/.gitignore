@@ -1,0 +1,3 @@
+# prepare_component.sh 每次 pod install 时重新摆出来的组件与下载缓存。
+/component/
+/.cache/

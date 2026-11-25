@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:async';
 import 'package:i_iwara/app/models/local_media/local_media_folder.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
@@ -1328,6 +1329,8 @@ class LocalMediaRepository {
     final rows = _db.select(
       'SELECT folder_path AS f, COUNT(*) AS c FROM local_media_items '
       'WHERE source_id = ? AND kind = ? AND missing = 0 AND folder_path IS NOT NULL '
+      // 与列表同口径：被原片那张卡代表了的补帧成品不算（见 [_itemFilter]）。
+      'AND $_notHiddenInterpOutput '
       'GROUP BY folder_path ORDER BY c DESC',
       [sourceId, kind.name],
     );
@@ -1515,6 +1518,11 @@ class LocalMediaRepository {
     _addCategoryFilter(categoryId, where, params);
     if (!includeMissing) where.add('missing = 0');
     if (favoritedOnly) where.add('favorited_at IS NOT NULL');
+    // 补帧成品和原片合成一张卡（2026-11-21 用户要求）：成品文件就在原片旁边、
+    // 会被扫成一条独立的行，这里把它藏掉，播放时由原片那张卡默认换成成品。
+    // ⛔ 只在**原片还在库里**时才藏：原片被删了而成品还在，这张就是这部片子
+    // 唯一的一张卡，藏了视频就凭空消失。
+    where.add(_notHiddenInterpOutput);
     // ⛔ 含子文件夹时不能钉这条索引：OR + LIKE 用不上它的等值前缀，
     // `INDEXED BY` 找不到可用方案时 SQLite 直接报错而不是退回全扫。
     final indexed = sourceId != null && folderPath != null && !subtree
@@ -1522,6 +1530,24 @@ class LocalMediaRepository {
         : '';
     return (sql: '$indexed WHERE ${where.join(' AND ')}', params: params);
   }
+
+  /// 「这一行不是被原片那张卡代表了的补帧成品」。见 [_itemFilter]。
+  ///
+  /// 走关联子查询而不是由 Dart 传一串路径进来：两张表在同一个库里，口径
+  /// 永远是落库那一刻的真相，列表、计数、大图页三处也不会各算各的。
+  ///
+  /// 比的是 `output_key`（有索引；`output_path` 没有，比它就是每行整表扫一遍
+  /// 补帧任务）。`output_key` 是 `FrameInterpTask.pathKey`：normalize 过，
+  /// Windows 上再转小写——这边同样按平台转小写，两边口径才一致。
+  static final String _notHiddenInterpOutput = () {
+    final key = Platform.isWindows
+        ? 'lower(local_media_items.path)'
+        : 'local_media_items.path';
+    return 'NOT EXISTS (SELECT 1 FROM frame_interp_tasks f '
+        "WHERE f.output_key = $key AND f.status = 'completed' "
+        'AND EXISTS (SELECT 1 FROM local_media_items s '
+        'WHERE s.path = f.source_path AND s.missing = 0))';
+  }();
 
   /// `folder_path LIKE` 用的子树前缀：`<目录><分隔符>%`。
   ///
@@ -1741,7 +1767,9 @@ class LocalMediaRepository {
   /// 精选条目数（按 kind 分）。
   int countFavorited({LocalMediaItemKind kind = LocalMediaItemKind.video}) {
     final rows = _db.select(
-      'SELECT COUNT(*) AS c FROM local_media_items WHERE kind = ? AND missing = 0 AND favorited_at IS NOT NULL',
+      'SELECT COUNT(*) AS c FROM local_media_items WHERE kind = ? AND missing = 0 AND favorited_at IS NOT NULL '
+      // 与精选列表同口径（见 [_itemFilter]）。
+      'AND $_notHiddenInterpOutput',
       [kind.name],
     );
     return (rows.first['c'] as int?) ?? 0;
@@ -2308,6 +2336,60 @@ class LocalMediaRepository {
   ///
   /// 反过来「文件删了、库行没删掉」是可以自愈的：那一行会在下一次扫这一层时被
   /// 收敛成 missing。所以顺序只有一种是对的。
+  /// iOS 更新应用后沙盒容器换了路径：把库里**图片类**路径（缩略图、同名图、
+  /// 目录封面）改指到新容器。
+  ///
+  /// 「已下载」源的条目路径由下载那边的修正连带搬（`relocateTaskPath`），但
+  /// 缩略图缓存在 `Library/Caches` 里，路径同样带旧容器的 UUID——文件其实原样
+  /// 搬过来了，库里那串却指向一个不存在的目录。媒体卡读不出来还能退回在线封面，
+  /// 来源卡没有退路，于是「已下载」那张卡永远是空夹子（2026-11-21 用户报：
+  /// 点进去再出来还是没有预览图；真机库里实证 cover_path 指向旧容器）。
+  ///
+  /// [rebase] 给出这条路径在当前容器里的位置；只有「原路径不在、新路径在」时
+  /// 它才返回非 null，判断交给调用方（这里不碰文件系统以外的平台细节）。
+  /// 返回改了几处。
+  int rebaseContainerImagePaths(String? Function(String path) rebase) {
+    const pattern = '%/Containers/Data/Application/%';
+    var changed = 0;
+    var foldersChanged = false;
+    void fix(String table, String column) {
+      final rows = _db.select(
+        'SELECT id, $column AS v FROM $table WHERE $column LIKE ?',
+        [pattern],
+      );
+      for (final row in rows) {
+        final next = rebase(row['v'] as String);
+        if (next == null) continue;
+        _db.execute('UPDATE $table SET $column = ? WHERE id = ?', [
+          next,
+          row['id'],
+        ]);
+        changed++;
+        if (table == 'local_media_folders') foldersChanged = true;
+      }
+    }
+
+    fix('local_media_items', 'thumb_path');
+    fix('local_media_items', 'sidecar_image_path');
+    fix('local_media_folders', 'cover_path');
+    // 首页来源卡、置顶目录卡的封面都挂在这条信号上。
+    if (foldersChanged) notifyFolderChanged();
+    return changed;
+  }
+
+  /// 按路径删条目（连同进度），给「文件已经被应用自己删掉」的场合用，例如
+  /// 补帧成品随记录一起删除。同 [deleteItems]：调用方必须先删掉文件。
+  int deleteItemsByPath(String path) {
+    final ids = [
+      for (final row in _db.select(
+        'SELECT id FROM local_media_items WHERE path = ?',
+        [path],
+      ))
+        row['id'] as String,
+    ];
+    return deleteItems(ids);
+  }
+
   int deleteItems(List<String> ids) {
     if (ids.isEmpty) return 0;
     var removed = 0;
@@ -3299,6 +3381,8 @@ class LocalMediaRepository {
           'SELECT folder_path, kind, COUNT(*) AS c FROM local_media_items '
           'WHERE source_id = ? AND missing = 0 '
           'AND folder_path IN ($marks) '
+          // 目录卡上的「N 个视频」要和点进去看到的卡片数对得上（见 [_itemFilter]）。
+          'AND $_notHiddenInterpOutput '
           'GROUP BY folder_path, kind',
           <Object?>[sourceId, ...chunk],
         );

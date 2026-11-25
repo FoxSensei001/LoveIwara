@@ -61,10 +61,14 @@ void main(List<String> args) {
     ...decided('tool/data/oreno3d_tags/overrides.json'),
     ...decided('tool/data/oreno3d_tags/reviewed.json'),
   };
+  final overriddenIwara = decided('tool/data/iwara_tags/overrides.json');
   final decidedIwara = {
-    ...decided('tool/data/iwara_tags/overrides.json'),
+    ...overriddenIwara,
     ...decided('tool/data/iwara_tags/reviewed.json'),
   };
+  // `--retranslate`：iwara 侧整表重译（四种语言全部重新给），每条都带上现有译名
+  // 与两份证据。overrides 里的条目跳过——出包时人工修正永远压过 AI，重译了也不生效。
+  final retranslate = args.contains('--retranslate');
 
   // ---------------- oreno3d ----------------
   final oRaw = _json('tool/data/oreno3d_tags/oreno3d_tags.json');
@@ -180,14 +184,31 @@ void main(List<String> args) {
       '${r['key']}': r,
   };
   final iRaw = _json('tool/data/iwara_tags/iwara_tags.json');
+  // EhTagTranslation 证据（lookup_ehtt.dart 产出）。可选：没跑过就当没有。
+  final ehttFile = File('tool/tag_verify/out/evidence_ehtt_iwara.json');
+  final ehttByKey = <String, Map<String, dynamic>>{
+    if (ehttFile.existsSync())
+      for (final r in ((jsonDecode(ehttFile.readAsStringSync())
+                  as Map<String, dynamic>)['results'] as List)
+          .cast<Map<String, dynamic>>())
+        '${r['key']}': r,
+  };
 
   for (final e in (iRaw['tags'] as List).cast<Map<String, dynamic>>()) {
     final key = '${e['id']}';
     final source = key.replaceAll('_', ' ');
     final cur = (iLoc[key] as Map?)?.cast<String, dynamic>();
     final r = iEvByKey[key];
-    final ev = r == null ? null : _evidence(r);
-    final warn = _categoryWarning('iwara', ev);
+    final eh = ehttByKey[key];
+    final ehMatches = (eh?['matches'] as List?)?.cast<Map<String, dynamic>>();
+    final ev = <String, dynamic>{
+      ...?(r == null ? null : _evidence(r)),
+      'ehtt': ?ehMatches,
+    };
+    final warn = [
+      ?_categoryWarning('iwara', ev),
+      ?_ehttWarning(ehMatches),
+    ].join('\n');
 
     Map<String, dynamic> mk(String type) {
       final t = <String, dynamic>{
@@ -196,10 +217,24 @@ void main(List<String> args) {
         'type': type,
         'source': source,
         'tagType': e['type'],
-        'evidence': ?ev,
+        if (ev.isNotEmpty) 'evidence': ev,
       };
-      if (warn != null) t['warning'] = warn;
+      if (warn.isNotEmpty) t['warning'] = warn;
       return t;
+    }
+
+    if (retranslate) {
+      if (overriddenIwara.contains(key)) continue;
+      tasks.add(mk('translate')
+        ..['need'] = _langs.toList()
+        ..['known'] = const <String, String>{}
+        ..['current'] = {
+          for (final l in _langs)
+            if ('${cur?[l] ?? ''}'.trim().isNotEmpty) l: '${cur![l]}',
+        }
+        ..['note'] = '整表重译：current 是旧的 AI 译名，只作参考，'
+            '对照 evidence 重新给出四种语言；旧译名没问题就照抄');
+      continue;
     }
 
     if (cur == null) {
@@ -245,6 +280,21 @@ void main(List<String> args) {
             if ('${cur[l] ?? ''}'.trim().isNotEmpty) l: '${cur[l]}',
         }
         ..['candidates'] = pool);
+    } else if ((eh?['verdict'] == 'disagree' ||
+            eh?['verdict'] == 'ours_untranslated') &&
+        !decidedIwara.contains(key)) {
+      // Danbooru 那边没提出异议，但 EhTT 的中文名和我们的不一样。
+      final pool = <String>{
+        for (final m in ehMatches!) ...(m['zh'] as List).map((z) => '$z'),
+      }.toList()
+        ..sort();
+      tasks.add(mk('adjudicate')
+        ..['current'] = {
+          for (final l in _langs)
+            if ('${cur[l] ?? ''}'.trim().isNotEmpty) l: '${cur[l]}',
+        }
+        ..['candidates'] = pool
+        ..['candidatesFrom'] = 'ehtt');
     }
   }
 
@@ -337,6 +387,23 @@ String? _categoryWarning(String dataset, Map<String, dynamic>? evidence) {
       '若现有译名是角色/作品名而候选是通用词，应当 keep，不要替换。';
 }
 
+/// EhTT 证据的两类已知误导方向，按条目实际命中的命名空间挂警告。
+String? _ehttWarning(List<Map<String, dynamic>>? matches) {
+  if (matches == null) return null;
+  final ns = matches.map((m) => '${m['namespace']}').toSet();
+  final out = <String>[];
+  if (ns.any(const {'male', 'female', 'mixed'}.contains)) {
+    out.add('evidence.ehtt 命中的是 E 站性癖类标签，它的中文名是本子圈说法'
+        '（如 anal → 爆肛），措辞不一定适合 iwara；取义不取词，用通行说法');
+  }
+  if (ns.contains('character') || ns.contains('parody')) {
+    out.add('evidence.ehtt 是按拼写匹配到的 E 站同名角色/作品，可能是撞名'
+        '（如 almond_eye 在 E 站是赛马娘角色，不是「杏眼」）：'
+        '先看 origins / intro 判断是不是同一个东西');
+  }
+  return out.isEmpty ? null : out.join('\n');
+}
+
 /// 按 key 集合算的稳定指纹（与顺序无关）。
 String _fingerprint(List<String> keys) {
   final sorted = [...keys]..sort();
@@ -365,6 +432,13 @@ const _contract = {
     '每条都要给 reason（一句话），replace 必须给 ref（可访问的来源 URL）',
     '同名不同人的词条（不同 origin 的同一个日文名）必须给出不同译名，不要合并',
     '条目带 warning 字段时**必须先读它再做判断**——它说明这条证据有已知的误导方向',
+    'evidence.ehtt 来自 EhTagTranslation（E 站中文社区词库）：zh 是简体中文名，'
+        'ja 是介绍里写明的日文原名，origins 是所属作品。确认是同一个角色/作品后，'
+        '简中优先采用它（社区更新快，新角色常比模型记忆准），日文优先采用它的 ja；'
+        '繁中与日文没有证据时先联网搜官方写法，实在搜不到再从简中转写，'
+        'reason 里写明是「查到的」还是「转写的」',
+    'candidatesFrom=ehtt 的 adjudicate：candidates 是 EhTT 的中文名。'
+        '它是社区人工维护的，与现有译名冲突时多半是我们旧译错了，但仍要核对是不是同一个东西',
     'evidence.danbooruCategory 说明 Danbooru 那条 tag 讲的是什么：'
         'character=角色、copyright=作品、general=普通名词。'
         'iwara 是角色向站点，general 分类的候选常常与本标签的实际所指无关',

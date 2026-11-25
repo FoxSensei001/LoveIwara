@@ -606,7 +606,6 @@ class _PathTemplateEditorPageState extends State<PathTemplateEditorPage> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final double statusBarHeight = MediaQuery.paddingOf(context).top;
     final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
 
@@ -616,63 +615,55 @@ class _PathTemplateEditorPageState extends State<PathTemplateEditorPage> {
         if (didPop) return;
         if (await _confirmDiscard()) _leave();
       },
-      child: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-          statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-        ),
-        child: Scaffold(
-          body: GlassHeaderOverlay(
-            liquid: true,
-            headerExtent: headerExtent,
-            headerTop: statusBarHeight,
-            solidExtent: statusBarHeight,
-            body: LayoutBuilder(
-              builder: (context, constraints) =>
-                  constraints.maxWidth >= _twoColumnWidth
-                  ? _buildWideBody(context, headerExtent)
-                  : _buildNarrowBody(context, headerExtent),
-            ),
-            // ⛔ header **不进** [_constrained]：全站二级页的标题行一律是
-            // 「通栏 + 左右 16」（见 GlassSettingsScaffold），夹进 720 后宽屏上
-            // 左右会各多出半个居中余量（本页 783dp 的栏里多出 31dp），
-            // 返回钮和动作钮比别的页往里缩一截，一眼就看得出不是一套东西。
-            header: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  GlassIconButton(
-                    standalone: true,
-                    icon: const Icon(Icons.arrow_back),
-                    tooltip: t.common.back,
-                    onPressed: _handleBack,
+      child: Scaffold(
+        body: GlassHeaderOverlay(
+          liquid: true,
+          headerExtent: headerExtent,
+          headerTop: statusBarHeight,
+          solidExtent: statusBarHeight,
+          body: LayoutBuilder(
+            builder: (context, constraints) =>
+                constraints.maxWidth >= _twoColumnWidth
+                ? _buildWideBody(context, headerExtent)
+                : _buildNarrowBody(context, headerExtent),
+          ),
+          // ⛔ header **不进** [_constrained]：全站二级页的标题行一律是
+          // 「通栏 + 左右 16」（见 GlassSettingsScaffold），夹进 720 后宽屏上
+          // 左右会各多出半个居中余量（本页 783dp 的栏里多出 31dp），
+          // 返回钮和动作钮比别的页往里缩一截，一眼就看得出不是一套东西。
+          header: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                GlassIconButton(
+                  standalone: true,
+                  icon: const Icon(Icons.arrow_back),
+                  tooltip: t.common.back,
+                  onPressed: _handleBack,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: GlassTitlePill(
+                    title: t.settings.downloadSettings.pathTemplateEditor.title,
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: GlassTitlePill(
-                      title:
-                          t.settings.downloadSettings.pathTemplateEditor.title,
+                ),
+                const SizedBox(width: 8),
+                GlassButtonGroup(
+                  children: [
+                    GlassIconButton(
+                      icon: const Icon(Icons.help_outline),
+                      tooltip: t.settings.downloadSettings.supportedVariables,
+                      onPressed: () => _showVariableHelpDialog(context),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  GlassButtonGroup(
-                    children: [
-                      GlassIconButton(
-                        icon: const Icon(Icons.help_outline),
-                        tooltip: t.settings.downloadSettings.supportedVariables,
-                        onPressed: () => _showVariableHelpDialog(context),
-                      ),
-                      GlassIconButton(
-                        icon: const Icon(Icons.save_outlined),
-                        tooltip: t.common.save,
-                        showBadge: _isDirty,
-                        onPressed: _save,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                    GlassIconButton(
+                      icon: const Icon(Icons.save_outlined),
+                      tooltip: t.common.save,
+                      showBadge: _isDirty,
+                      onPressed: _save,
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),
@@ -1299,11 +1290,7 @@ class _PathTemplateEditorPageState extends State<PathTemplateEditorPage> {
     final v = t.settings.downloadSettings;
     return [
       _TrayChipSpec('title', _TrayCategory.content, (_) => v.variableTitle),
-      _TrayChipSpec(
-        'titletext',
-        _TrayCategory.content,
-        (_) => e.chipTitletext,
-      ),
+      _TrayChipSpec('titletext', _TrayCategory.content, (_) => e.chipTitletext),
       _TrayChipSpec('quality', _TrayCategory.content, (_) => v.variableQuality),
       _TrayChipSpec('id', _TrayCategory.content, (_) => v.variableId),
       _TrayChipSpec(

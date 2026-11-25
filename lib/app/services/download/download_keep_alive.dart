@@ -30,6 +30,31 @@ import 'package:i_iwara/utils/rx_ever.dart';
 /// 还没从队列里取出来的那一瞬间把服务拆了又起。
 ///
 /// 只管「切走 / 熄屏」。从最近任务里划掉应用时 Dart 引擎跟着没了，不在本类范围内。
+/// [DownloadKeepAlive.extras] 里的一项：别的后台活要在常驻通知里说的话。
+class KeepAliveExtra {
+  const KeepAliveExtra({
+    required this.title,
+    required this.text,
+    this.fraction,
+  });
+
+  final String title;
+  final String text;
+
+  /// 0.0 ~ 1.0；不知道进度时为 null（通知显示不确定进度条）。
+  final double? fraction;
+
+  @override
+  bool operator ==(Object other) =>
+      other is KeepAliveExtra &&
+      other.title == title &&
+      other.text == text &&
+      other.fraction == fraction;
+
+  @override
+  int get hashCode => Object.hash(title, text, fraction);
+}
+
 class DownloadKeepAlive {
   DownloadKeepAlive(this._store);
 
@@ -62,14 +87,25 @@ class DownloadKeepAlive {
   bool _unsupported = false;
   Map<String, Object?>? _lastPayload;
 
-  bool get _hasWork =>
+  /// 下载之外、同样要前台服务撑着才不被冻住的后台活（目前只有补帧）。键是来源，
+  /// 值是那边此刻要在常驻通知里说的话；那边没活了就把键删掉。
+  ///
+  /// 同一个前台服务、同一条常驻通知：两个服务各起各的，通知栏里会多出一条，
+  /// 一边停服务还会把另一边一起停掉。
+  static final RxMap<String, KeepAliveExtra> extras =
+      <String, KeepAliveExtra>{}.obs;
+
+  bool get _hasDownloads =>
       _store.downloadingIds.isNotEmpty || _store.pendingIds.isNotEmpty;
+
+  bool get _hasWork => _hasDownloads || extras.isNotEmpty;
 
   void attach() {
     if (!Platform.isAndroid || _workers.isNotEmpty) return;
     _workers
       ..add(rxEver(_store.downloadingIds, (_) => _sync()))
-      ..add(rxEver(_store.pendingIds, (_) => _sync()));
+      ..add(rxEver(_store.pendingIds, (_) => _sync()))
+      ..add(rxEver(extras, (_) => _sync()));
     // 从后台起前台服务会被 Android 12+ 拒掉；回到前台时补起一次。清掉去重快照是为了
     // 强制推一次：服务若已被系统停掉（dataSync 时长上限），这一推才能发现并重起。
     _lifecycle = AppLifecycleListener(
@@ -185,6 +221,19 @@ class DownloadKeepAlive {
 
   Map<String, Object?> _buildPayload() {
     final t = slang.t.downloadNotifications;
+    final extra = extras.values.firstOrNull;
+    if (!_hasDownloads && extra != null) {
+      final fraction = extra.fraction;
+      return <String, Object?>{
+        'channelName': t.progressChannelName,
+        'channelDescription': t.progressChannelDescription,
+        'title': extra.title,
+        'text': extra.text,
+        'progress': fraction == null
+            ? null
+            : (fraction * _progressMax).round().clamp(0, _progressMax),
+      };
+    }
     final downloading = _store.downloadingIds
         .map(_store.taskOf)
         .whereType<DownloadTask>()
@@ -194,6 +243,8 @@ class DownloadKeepAlive {
     final titleParts = <String>[
       if (downloading.isNotEmpty) t.ongoingTitle(count: downloading.length),
       if (queued > 0) t.ongoingQueued(count: queued),
+      // 下载和补帧同时在跑：通知以下载为主，补帧只在标题里带一句。
+      if (extra != null) extra.title,
     ];
 
     String text = '';

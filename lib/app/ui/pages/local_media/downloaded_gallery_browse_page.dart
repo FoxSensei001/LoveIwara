@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
@@ -341,206 +340,196 @@ class _DownloadedGalleryBrowsePageState
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final t = slang.t;
     final galleryId = _galleryData?.id;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-      ),
-      child: Scaffold(
-        body: GlassHeaderOverlay(
-          liquid: true,
-          headerExtent: headerExtent,
-          headerTop: statusBarHeight,
-          solidExtent: statusBarHeight,
-          header: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                GlassIconButton(
-                  standalone: true,
-                  icon: const Icon(Icons.arrow_back),
-                  tooltip: t.common.back,
-                  onPressed: () => AppService.tryPop(),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: GlassTitlePill(title: _title, busy: _loading),
-                ),
-                const SizedBox(width: 8),
-                GlassButtonGroup(
-                  children: [
-                    if (galleryId != null && galleryId.isNotEmpty)
-                      GlassIconButton(
-                        icon: const Icon(Icons.photo_library),
-                        tooltip: t.localMedia.browse.viewOnlineGallery,
-                        onPressed: () =>
-                            NaviService.navigateToGalleryDetailPage(galleryId),
-                      ),
-                    Builder(
-                      builder: (menuContext) => GlassIconButton(
-                        icon: const Icon(Icons.more_vert),
-                        tooltip: t.common.more,
-                        opensOverlay: true,
-                        onPressed: () => _showMoreMenu(menuContext),
-                      ),
+    return Scaffold(
+      body: GlassHeaderOverlay(
+        liquid: true,
+        headerExtent: headerExtent,
+        headerTop: statusBarHeight,
+        solidExtent: statusBarHeight,
+        header: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.arrow_back),
+                tooltip: t.common.back,
+                onPressed: () => AppService.tryPop(),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: GlassTitlePill(title: _title, busy: _loading),
+              ),
+              const SizedBox(width: 8),
+              GlassButtonGroup(
+                children: [
+                  if (galleryId != null && galleryId.isNotEmpty)
+                    GlassIconButton(
+                      icon: const Icon(Icons.photo_library),
+                      tooltip: t.localMedia.browse.viewOnlineGallery,
+                      onPressed: () =>
+                          NaviService.navigateToGalleryDetailPage(galleryId),
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  Builder(
+                    builder: (menuContext) => GlassIconButton(
+                      icon: const Icon(Icons.more_vert),
+                      tooltip: t.common.more,
+                      opensOverlay: true,
+                      onPressed: () => _showMoreMenu(menuContext),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          extra: [_buildScrollToTopFab(context)],
-          body: NotificationListener<ScrollNotification>(
-            onNotification: (notification) {
-              if (notification.depth == 0 &&
-                  notification.metrics.axis == Axis.vertical) {
-                _showBackToTop.value = notification.metrics.pixels >= 300;
-              }
-              return false;
-            },
-            child: RefreshIndicator(
-              displacement: headerExtent,
-              onRefresh: _loadData,
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final metrics = LocalGridMetrics.media(
-                    constraints.maxWidth - 32,
-                  );
+        ),
+        extra: [_buildScrollToTopFab(context)],
+        body: NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            if (notification.depth == 0 &&
+                notification.metrics.axis == Axis.vertical) {
+              _showBackToTop.value = notification.metrics.pixels >= 300;
+            }
+            return false;
+          },
+          child: RefreshIndicator(
+            displacement: headerExtent,
+            onRefresh: _loadData,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final metrics = LocalGridMetrics.media(
+                  constraints.maxWidth - 32,
+                );
 
-                  return CustomScrollView(
-                    controller: _scrollController,
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    slivers: [
-                      SliverToBoxAdapter(child: SizedBox(height: headerExtent)),
-                      if (_validImages.isNotEmpty) ...[
-                        _buildSectionHeader(
-                          t.localMedia.browse.imageCount(
-                            count: _validImages.length,
-                          ),
+                return CustomScrollView(
+                  controller: _scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  slivers: [
+                    SliverToBoxAdapter(child: SizedBox(height: headerExtent)),
+                    if (_validImages.isNotEmpty) ...[
+                      _buildSectionHeader(
+                        t.localMedia.browse.imageCount(
+                          count: _validImages.length,
                         ),
-                        SliverPadding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          // 正方形定高网格：格高＝格宽。
-                          sliver: SliverGrid(
-                            gridDelegate: metrics.squareDelegate(),
-                            delegate: SliverChildBuilderDelegate((
-                              context,
-                              index,
-                            ) {
-                              final item = _validImages[index];
-                              // Iwara 的图库里混着短片（`.webm`），下载下来就躺在
-                              // 同一个文件夹里。⛔ 这一格必须看得出「是一段视频」：
-                              // 它解不成位图，不加记号的话就只剩一格灰占位，读起来
-                              // 像「这张图坏了」。时长要解容器才知道，这条路上没有
-                              // 派生服务，所以只给三角不给数字（[LocalPlaybackPill]
-                              // 本来就允许没有时长）。
-                              final isVideo = isGalleryVideoFileName(item.path);
-                              return GestureDetector(
-                                onTap: () => _openImage(index),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: AspectRatio(
-                                    aspectRatio: 1,
-                                    child: Stack(
-                                      fit: StackFit.expand,
-                                      children: [
-                                        // 视频那一格画的是它旁边那张封面；不在就照
-                                        // 任务里存的地址取一次存下来（见
-                                        // [ensureGalleryVideoPoster]）。
-                                        LocalCoverImage(
-                                          path: item.path,
-                                          posterUrl: isVideo
-                                              ? iwaraPosterUrlFrom(
-                                                  _galleryData?.imageList[item
-                                                          .id] ??
-                                                      '',
-                                                )
-                                              : null,
-                                          placeholder: _buildImagePlaceholder(
-                                            context,
-                                          ),
+                      ),
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        // 正方形定高网格：格高＝格宽。
+                        sliver: SliverGrid(
+                          gridDelegate: metrics.squareDelegate(),
+                          delegate: SliverChildBuilderDelegate((
+                            context,
+                            index,
+                          ) {
+                            final item = _validImages[index];
+                            // Iwara 的图库里混着短片（`.webm`），下载下来就躺在
+                            // 同一个文件夹里。⛔ 这一格必须看得出「是一段视频」：
+                            // 它解不成位图，不加记号的话就只剩一格灰占位，读起来
+                            // 像「这张图坏了」。时长要解容器才知道，这条路上没有
+                            // 派生服务，所以只给三角不给数字（[LocalPlaybackPill]
+                            // 本来就允许没有时长）。
+                            final isVideo = isGalleryVideoFileName(item.path);
+                            return GestureDetector(
+                              onTap: () => _openImage(index),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: AspectRatio(
+                                  aspectRatio: 1,
+                                  child: Stack(
+                                    fit: StackFit.expand,
+                                    children: [
+                                      // 视频那一格画的是它旁边那张封面；不在就照
+                                      // 任务里存的地址取一次存下来（见
+                                      // [ensureGalleryVideoPoster]）。
+                                      LocalCoverImage(
+                                        path: item.path,
+                                        posterUrl: isVideo
+                                            ? iwaraPosterUrlFrom(
+                                                _galleryData?.imageList[item
+                                                        .id] ??
+                                                    '',
+                                              )
+                                            : null,
+                                        placeholder: _buildImagePlaceholder(
+                                          context,
                                         ),
-                                        if (isVideo)
-                                          const Positioned(
-                                            right: 6,
-                                            bottom: 6,
-                                            child: LocalPlaybackPill(),
-                                          ),
-                                        // 序号胶囊角标
-                                        Positioned(
-                                          top: LocalContainerCard.badgeInset,
-                                          left: LocalContainerCard.badgeInset,
-                                          child: LocalCardBadge(
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 5,
-                                                    vertical: 2,
+                                      ),
+                                      if (isVideo)
+                                        const Positioned(
+                                          right: 6,
+                                          bottom: 6,
+                                          child: LocalPlaybackPill(),
+                                        ),
+                                      // 序号胶囊角标
+                                      Positioned(
+                                        top: LocalContainerCard.badgeInset,
+                                        left: LocalContainerCard.badgeInset,
+                                        child: LocalCardBadge(
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 5,
+                                              vertical: 2,
+                                            ),
+                                            child: Text(
+                                              '#${item.index}',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .labelSmall
+                                                  ?.copyWith(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 10,
                                                   ),
-                                              child: Text(
-                                                '#${item.index}',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .labelSmall
-                                                    ?.copyWith(
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      fontSize: 10,
-                                                    ),
-                                              ),
                                             ),
                                           ),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              );
-                            }, childCount: _validImages.length),
-                          ),
-                        ),
-                      ],
-                      if (_validImages.isEmpty && !_loading)
-                        SliverFillRemaining(
-                          hasScrollBody: false,
-                          child: Center(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.photo_library_outlined,
-                                  size: 64,
-                                  color: Theme.of(context).colorScheme.outline,
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  t.localMedia.browse.emptyFolder,
-                                  style: Theme.of(context).textTheme.bodyMedium
-                                      ?.copyWith(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onSurfaceVariant,
-                                      ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      SliverToBoxAdapter(
-                        child: SizedBox(
-                          height: MediaQuery.of(context).padding.bottom + 24,
+                              ),
+                            );
+                          }, childCount: _validImages.length),
                         ),
                       ),
                     ],
-                  );
-                },
-              ),
+                    if (_validImages.isEmpty && !_loading)
+                      SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.photo_library_outlined,
+                                size: 64,
+                                color: Theme.of(context).colorScheme.outline,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                t.localMedia.browse.emptyFolder,
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    SliverToBoxAdapter(
+                      child: SizedBox(
+                        height: MediaQuery.of(context).padding.bottom + 24,
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ),

@@ -3,6 +3,8 @@ import 'package:material_ui/material_ui.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/ui/pages/frame_interp/frame_interp_launcher.dart'
+    show isFrameInterpSupported;
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -118,6 +120,18 @@ class GlobalDrawerColumns extends StatelessWidget {
                               AppService.switchGlobalDrawer();
                             },
                           ),
+                          // 补帧产物和下载一样落在本机，入口挨着下载列表；
+                          // 设备不支持补帧（无 GPU / 无组件）时不露。
+                          if (isFrameInterpSupported)
+                            _buildMenuItem(
+                              context,
+                              icon: Icons.slow_motion_video_outlined,
+                              title: slang.t.frameInterp.title,
+                              onTap: () {
+                                NaviService.navigateToFrameInterpTaskListPage();
+                                AppService.switchGlobalDrawer();
+                              },
+                            ),
                           _buildMenuItem(
                             context,
                             icon: Icons.favorite_outline,

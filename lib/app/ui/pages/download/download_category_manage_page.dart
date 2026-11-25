@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/models/download/download_category.model.dart';
@@ -226,60 +225,51 @@ class _DownloadCategoryManagePageState
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final double statusBarHeight = MediaQuery.paddingOf(context).top;
     final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      // 没有 AppBar 就没人管状态栏图标明暗，不显式声明会沿用上一页
-      value: SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-      ),
-      child: Scaffold(
-        body: GlassHeaderOverlay(
-          liquid: true,
-          headerExtent: headerExtent,
-          headerTop: statusBarHeight,
-          solidExtent: statusBarHeight,
-          body: NotificationListener<ScrollNotification>(
-            onNotification: (notification) {
-              if (notification.depth == 0 &&
-                  notification.metrics.axis == Axis.vertical) {
-                _showBackToTop.value = notification.metrics.pixels >= 300;
-              }
-              return false;
-            },
-            child: RefreshIndicator(
-              // 指示器从玻璃 header 下方弹出
-              displacement: headerExtent,
-              onRefresh: _fetch,
-              child: _buildBody(context, t, headerExtent),
-            ),
+    return Scaffold(
+      body: GlassHeaderOverlay(
+        liquid: true,
+        headerExtent: headerExtent,
+        headerTop: statusBarHeight,
+        solidExtent: statusBarHeight,
+        body: NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            if (notification.depth == 0 &&
+                notification.metrics.axis == Axis.vertical) {
+              _showBackToTop.value = notification.metrics.pixels >= 300;
+            }
+            return false;
+          },
+          child: RefreshIndicator(
+            // 指示器从玻璃 header 下方弹出
+            displacement: headerExtent,
+            onRefresh: _fetch,
+            child: _buildBody(context, t, headerExtent),
           ),
-          // header 行：左 返回圆钮 / 中 标题胶囊 / 右 动作胶囊
-          header: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                GlassIconButton(
-                  standalone: true,
-                  icon: const Icon(Icons.arrow_back),
-                  tooltip: t.common.back,
-                  onPressed: () => AppService.tryPop(),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: GlassTitlePill(title: t.download.category.manageTitle),
-                ),
-                const SizedBox(width: 8),
-                _buildActionGroup(context),
-              ],
-            ),
-          ),
-          extra: [_buildScrollToTopFab(context)],
         ),
+        // header 行：左 返回圆钮 / 中 标题胶囊 / 右 动作胶囊
+        header: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.arrow_back),
+                tooltip: t.common.back,
+                onPressed: () => AppService.tryPop(),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: GlassTitlePill(title: t.download.category.manageTitle),
+              ),
+              const SizedBox(width: 8),
+              _buildActionGroup(context),
+            ],
+          ),
+        ),
+        extra: [_buildScrollToTopFab(context)],
       ),
     );
   }

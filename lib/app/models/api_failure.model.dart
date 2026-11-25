@@ -36,8 +36,12 @@ class ApiFailureResolver {
     final apiMessage = _extractApiMessage(response?.data);
 
     if (error.requestOptions.extra['auth_refresh_failed'] == true) {
+      // 只有「refresh token 被服务端判失效」才是要重新登录；刷新撞上断网、超时
+      // 是网络问题，说成「请重新登录」会把用户引去重登，而 token 本来完好。
       return ApiFailureDetails(
-        kind: ApiFailureKind.authRefreshFailed,
+        kind: isRefreshFailureAuthRelated(error.requestOptions)
+            ? ApiFailureKind.authRefreshFailed
+            : ApiFailureKind.connectionFailed,
         statusCode: statusCode,
         apiMessage: apiMessage,
       );
@@ -123,6 +127,15 @@ class ApiFailureResolver {
       statusCode: statusCode,
       apiMessage: apiMessage,
     );
+  }
+
+  /// 刷新失败的原因是否为认证失效（而非网络）。原因串由 ApiService
+  /// `_markAuthRefreshFailed` 写入；缺原因时按认证失效处理（保持旧行为）。
+  static bool isRefreshFailureAuthRelated(RequestOptions options) {
+    final reason = options.extra['authRefreshFailureReason'];
+    if (reason is! String) return true;
+    return reason.startsWith('refresh_auth_failed') ||
+        reason == 'retry_401_after_refresh_success';
   }
 
   static bool _isCloudflareBlocked(Response<dynamic>? response) {

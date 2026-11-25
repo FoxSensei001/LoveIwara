@@ -29,6 +29,8 @@ enum PlayerSymbol {
   exitWindowFullscreen,
   theater,
   vr,
+  gyro,
+  gyroOff,
   enhance,
   volumeOff,
   volumeLow,
@@ -392,6 +394,22 @@ class _PlayerSymbolPainter extends CustomPainter {
           ..addOval(const Rect.fromLTWH(14, 9, 5, 5))
           ..fillType = PathFillType.evenOdd;
         canvas.drawPath(headset, fill);
+      case PlayerSymbol.gyro:
+      case PlayerSymbol.gyroOff:
+        // 一台微微侧倾的手机，两侧各一道弧表示「转动」。关着时与 wifiOff 同一套
+        // 语言：整枚变暗，再压一道实色斜杠。
+        final off = symbol == PlayerSymbol.gyroOff;
+        if (off) stroke.color = color.withValues(alpha: color.a * .4);
+        canvas.save();
+        canvas.translate(12, 12);
+        canvas.rotate(-math.pi / 12);
+        _pill(canvas, const Rect.fromLTWH(-4, -7.5, 8, 15), 2, stroke);
+        _line(canvas, stroke, -1.2, 4.6, 1.2, 4.6);
+        canvas.restore();
+        const arcBox = Rect.fromLTWH(1.5, 1.5, 21, 21);
+        canvas.drawArc(arcBox, math.pi * .82, math.pi * .36, false, stroke);
+        canvas.drawArc(arcBox, -math.pi * .18, math.pi * .36, false, stroke);
+        if (off) _line(canvas, stroke..color = color, 3, 3, 21, 21);
       case PlayerSymbol.enhance:
         _sparkle(canvas, fill, const Offset(10, 13.5), 8);
         _sparkle(canvas, fill, const Offset(18.5, 5), 3.5);

@@ -22,15 +22,31 @@ void main() {
   final bool onDesktop =
       Platform.isWindows || Platform.isMacOS || Platform.isLinux;
 
+  /// 原生通道上实际收到的调用。竞态只在**调用次数**上留痕：一次干净的退出是
+  /// 一次 `Utils.ExitNativeFullscreen`，被孤儿检查盖上一遍就是两次。
+  final List<String> nativeCalls = <String>[];
+
+  /// 原生侧答得多慢。默认立刻答——真实现场里它可能堵住好几百毫秒，那才是
+  /// 竞态显形的条件。
+  Duration nativeLatency = Duration.zero;
+
   setUp(() {
     DesktopNativeFullscreen.resetForTest();
+    nativeCalls.clear();
+    nativeLatency = Duration.zero;
     // 原生通道在单测里不存在。让它安静地答 null，走到的分支才是被测的那条。
     TestDefaultBinaryMessengerBinding
         .instance
         .defaultBinaryMessenger
         .setMockMethodCallHandler(
           const MethodChannel('com.alexmercerind/media_kit_video'),
-          (call) async => null,
+          (call) async {
+            nativeCalls.add(call.method);
+            if (nativeLatency > Duration.zero) {
+              await Future<void>.delayed(nativeLatency);
+            }
+            return null;
+          },
         );
   });
 
@@ -126,6 +142,59 @@ void main() {
       await settleOrphanCheck();
 
       expect(DesktopNativeFullscreen.isActive, isFalse);
+    });
+
+    test('原生退出慢于孤儿缓冲：正常退出照样只收一次', () async {
+      if (!onDesktop) return;
+      // ⛔ 这是 2026-11-09 那份 Windows 报告的形状。
+      //
+      // `exitFullscreen()` 先 release 再 await 退原生，而 [isActive] 要等那次
+      // MethodChannel **回来**才清掉。原生侧一慢（退全屏在 Windows 上是
+      // SetWindowLongPtr + SetWindowPos，会触发一次 resize 握手），300ms 的孤儿
+      // 缓冲就先醒了，于是一次完全正常的退出被当成孤儿会话又收了一遍：又一次
+      // 退原生、又一次 showSystemUI、又一次几何还原，全叠在那个本来就已经
+      // 卡住的时刻上。报告里的「原生全屏已无演出者」那行日志就是它的脚印——
+      // 一次干净的退出根本不会打印它。
+      nativeLatency = const Duration(milliseconds: 600);
+      final presenter = Object();
+      DesktopNativeFullscreen.markEntered();
+      DesktopNativeFullscreen.acquire(presenter);
+
+      DesktopNativeFullscreen.release(presenter);
+      final exiting = DesktopNativeFullscreen.exitNative();
+
+      // 缓冲期过了，孤儿检查这会儿已经醒过一次。
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+      expect(
+        DesktopNativeFullscreen.isExitingNative,
+        isTrue,
+        reason: '原生那边还没答复，这次退出仍在途',
+      );
+
+      await exiting;
+      await settleOrphanCheck();
+
+      expect(DesktopNativeFullscreen.isActive, isFalse);
+      expect(
+        nativeCalls.where((m) => m == 'Utils.ExitNativeFullscreen').length,
+        1,
+        reason: '第二次退原生说明孤儿检查盖了上来，窗口操作就叠在了一起',
+      );
+    });
+
+    test('真的孤儿会话：原生侧再慢也照样收得掉', () async {
+      if (!onDesktop) return;
+      // 挡住孤儿检查的那道闸只认「主动退出在途」。没人主动退，它该照收。
+      nativeLatency = const Duration(milliseconds: 300);
+      final presenter = Object();
+      DesktopNativeFullscreen.markEntered();
+      DesktopNativeFullscreen.acquire(presenter);
+
+      DesktopNativeFullscreen.release(presenter);
+      await Future<void>.delayed(const Duration(milliseconds: 900));
+
+      expect(DesktopNativeFullscreen.isActive, isFalse);
+      expect(nativeCalls, contains('Utils.ExitNativeFullscreen'));
     });
   });
 

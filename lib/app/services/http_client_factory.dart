@@ -1,13 +1,12 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
-
 import '../../utils/logger_utils.dart';
-import '../../utils/loopback_host.dart';
+import '../../utils/proxy/app_proxy_tunnel.dart';
 
 /// 共享 HttpClient 工厂
 ///
-/// 通过 findProxy 实现 HTTP 代理，使用 Dart 内置的 CONNECT 隧道机制。
+/// HTTP 代理：HTTPS 的 CONNECT 隧道由 [AppProxyTunnel] 自建（dart:io 自带的隧道
+/// 连接不复用），明文 HTTP 仍走 dart:io 原生代理。
 ///
 /// 用法：
 ///   IOHttpClientAdapter(createHttpClient: HttpClientFactory.instance.createHttpClient)
@@ -51,54 +50,9 @@ class HttpClientFactory {
   }
 
   /// 解析代理 URL: "host:port" 或 "http://host:port"
-  (String, int) _parseProxyUrl(String url) {
-    var cleaned = url.trim();
-    // 移除协议前缀
-    if (cleaned.startsWith('http://')) cleaned = cleaned.substring(7);
-    if (cleaned.startsWith('https://')) cleaned = cleaned.substring(8);
-    // 移除尾部斜杠
-    if (cleaned.endsWith('/')) {
-      cleaned = cleaned.substring(0, cleaned.length - 1);
-    }
-
-    String host;
-    String portStr;
-    if (cleaned.startsWith('[')) {
-      // IPv6 字面量: [::1]:7890 —— 不能用 lastIndexOf(':') 切分
-      final end = cleaned.indexOf(']');
-      if (end == -1) throw ArgumentError('Invalid IPv6 proxy URL: $url');
-      host = cleaned.substring(1, end);
-      final rest = cleaned.substring(end + 1);
-      if (!rest.startsWith(':')) {
-        throw ArgumentError('Missing proxy port in URL: $url');
-      }
-      portStr = rest.substring(1);
-    } else {
-      final colonIdx = cleaned.lastIndexOf(':');
-      if (colonIdx == -1) throw ArgumentError('Invalid proxy URL: $url');
-      host = cleaned.substring(0, colonIdx);
-      portStr = cleaned.substring(colonIdx + 1);
-    }
-    // 用 tryParse 兜底：端口非法时抛 ArgumentError（与本方法既有契约一致），
-    // 而非 FormatException，便于调用方统一捕获；并校验端口范围。
-    final port = int.tryParse(portStr.trim());
-    if (port == null || port < 1 || port > 65535) {
-      throw ArgumentError('Invalid proxy port in URL: $url');
-    }
-    return (host, port);
-  }
+  (String, int) _parseProxyUrl(String url) => AppProxyTunnel.parseAddress(url);
 
   bool get hasProxy => _proxyHost != null && _proxyPort != null;
-
-  String? _buildProxyRule() {
-    if (hasProxy) {
-      return 'PROXY $_proxyHost:$_proxyPort; DIRECT';
-    }
-    return null;
-  }
-
-  @visibleForTesting
-  String? get currentProxyRule => _buildProxyRule();
 
   /// 供 IOHttpClientAdapter(createHttpClient: ...) 使用的回调。
   HttpClient createHttpClient() {
@@ -106,11 +60,11 @@ class HttpClientFactory {
 
     _httpClient = HttpClient();
     _httpClient!.idleTimeout = const Duration(seconds: 90);
-    final proxyRule = _buildProxyRule();
-    if (proxyRule != null) {
-      // ⛔ 本机回环必须直连，理由同 `MyHttpOverrides`（NAS 本机网关）。
-      _httpClient!.findProxy = (uri) =>
-          isLoopbackHost(uri.host) ? 'DIRECT' : proxyRule;
+    if (hasProxy) {
+      // ⛔ 不能写 `findProxy = 'PROXY x; DIRECT'`：dart:io 经代理访问 HTTPS 永不
+      // 复用连接，每个接口请求都重新握手。隧道改由 AppProxyTunnel 自己建，
+      // 回环直连、代理不通改走直连的语义不变。详见该类注释。
+      AppProxyTunnel(_proxyHost!, _proxyPort!).install(_httpClient!);
     }
 
     LogUtils.d(

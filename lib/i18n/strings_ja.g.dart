@@ -101,6 +101,7 @@ class TranslationsJa extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsFollowSearchJa followSearch = _TranslationsFollowSearchJa._(_root);
 	@override late final _TranslationsPagedSearchJa pagedSearch = _TranslationsPagedSearchJa._(_root);
 	@override late final _TranslationsPollJa poll = _TranslationsPollJa._(_root);
+	@override late final _TranslationsFrameInterpJa frameInterp = _TranslationsFrameInterpJa._(_root);
 }
 
 // Path: personalProfile
@@ -362,6 +363,8 @@ class _TranslationsCommonJa extends TranslationsCommonEn {
 	@override String get disagree => '不同意';
 	@override String get agreeToRules => '同意ルール';
 	@override String get tapToReread => 'タップで全文を再読';
+	@override String get rulesRequiredHint => '投稿する前にコミュニティルールを読んで同意してください';
+	@override String get readAndAgree => '読んで同意';
 	@override String get markdownSyntaxHelp => 'Markdown構文ヘルプ';
 	@override String get previewContent => '内容をプレビュー';
 	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
@@ -858,6 +861,29 @@ class _TranslationsSettingsJa extends TranslationsSettingsEn {
 	@override String get defaultBrowserDesc => 'システム設定でデフォルトリンク設定項目を開き、iwara.tvサイトリンクを追加してください';
 	@override String get themeMode => 'テーマモード';
 	@override String get themeModeDesc => 'この設定はアプリのテーマモードを決定します';
+	@override String get glassQuality => 'Rendering quality';
+	@override String get glassQualityAuto => 'Automatic';
+	@override String get glassQualityAutoDesc => 'Adapts to frame time; refraction can change as quality adjusts';
+	@override String get glassQualityStandard => 'Smooth';
+	@override String get glassQualityStandardDesc => 'Lightweight glass with highlights and consistent frame pacing';
+	@override String get glassQualityPremium => 'Full refraction';
+	@override String get glassQualityPremiumDesc => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass';
+	@override String get glassQualityCurrent => 'Currently active';
+	@override String get glassChromeParametersDesc => 'Navigation glass parameters apply live to headers, buttons and the bottom bar';
+	@override String get glassPreview => 'Preview';
+	@override String get glassPremiumOnly => 'Only takes effect with the full refraction quality';
+	@override String get glassSaturationNeedsBlur => 'With the smooth quality, only takes effect when background blur is above 0';
+	@override String get glassOpacity => 'Opacity';
+	@override String get glassBlur => 'Background blur (sigma)';
+	@override String get glassBlurDesc => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness';
+	@override String get glassAdvancedParameters => 'Advanced navigation parameters';
+	@override String get glassThickness => 'Lens thickness';
+	@override String get glassRefractiveIndex => 'Refractive index';
+	@override String get glassLightIntensity => 'Highlight intensity';
+	@override String get glassSaturation => 'Background saturation';
+	@override String get glassChromaticAberration => 'Chromatic aberration';
+	@override String get glassShadows => 'Shadows';
+	@override String get glassResetParameters => 'Restore glass defaults';
 	@override String get glassEffect => '画面のマテリアル';
 	@override String get glassEffectDesc => 'アプリ全体（ヘッダーのカプセル、メニュー、ダイアログのボタン、ボトムナビゲーション）に使う素材を決めます';
 	@override String get liquidGlassEffect => 'リキッドガラス';
@@ -1158,15 +1184,13 @@ class _TranslationsSettingsJa extends TranslationsSettingsEn {
 	@override String get showCenterPlayPauseButtonDesc => 'プレーヤー中央の大きな再生/一時停止ボタンを表示します。';
 	@override String get audioVideoConfig => 'オーディオビデオ設定';
 	@override String get expandBuffer => 'バッファ拡張';
-	@override String get expandBufferInfo => '有効にすると、バッファサイズが増加し、読み込み時間が長くなりますが、再生がスムーズになります';
+	@override String get expandBufferInfo => '有効にすると、より多くの動画を先読みし、不安定な回線でも途切れにくくなりますが、メモリ使用量が増えます';
 	@override String get videoSyncMode => 'ビデオ同期モード';
 	@override String get videoSyncModeSubtitle => 'オーディオビデオ同期戦略';
 	@override String get hardwareDecodingMode => 'ハードウェアデコードモード';
 	@override String get hardwareDecodingModeSubtitle => 'ハードウェアデコード設定';
 	@override String get enableHardwareAcceleration => 'ハードウェアアクセラレーションを有効にする';
 	@override String get enableHardwareAccelerationInfo => 'ハードウェアアクセラレーションを有効にすると、デコード性能が向上しますが、一部のデバイスでは互換性がない場合があります';
-	@override String get useOpenSLESAudioOutput => 'OpenSLESオーディオ出力を使用';
-	@override String get useOpenSLESAudioOutputInfo => '低遅延オーディオ出力を使用し、オーディオ性能が向上する可能性があります';
 	@override String get videoSyncAudio => 'オーディオ同期';
 	@override String get videoSyncDisplayResample => 'ディスプレイリサンプル';
 	@override String get videoSyncDisplayResampleVdrop => 'ディスプレイリサンプル（フレームドロップ）';
@@ -1313,6 +1337,9 @@ class _TranslationsVideoDetailJa extends TranslationsVideoDetailEn {
 	@override String get thisIsAPrivateVideo => 'これはプライベートビデオです';
 	@override String get getVideoInfoFailed => 'ビデオ情報の取得に失敗しました。後でもう一度お試しください';
 	@override String get noVideoSourceFound => '対応するビデオソースが見つかりません';
+	@override String get sourceFileMissingOnServer => '動画ファイルが Iwara のサーバー上に存在しません（HTTP 404）。ウェブ版でも再生できません。サーバー障害の可能性があるため、後でもう一度お試しください。';
+	@override String qualityFileMissingOnServer({required Object quality}) => '「${quality}」のファイルがサーバー上にありません（HTTP 404）。画質メニューから別の画質を選んでください。';
+	@override String get playbackRetryExhausted => '動画を何度も開けなかったため、自動再試行を停止しました。後で再試行してください。';
 	@override String tagCopiedToClipboard({required Object tagId}) => 'タグ "${tagId}" がクリップボードにコピーされました';
 	@override String get errorLoadingVideo => 'ビデオの読み込み中にエラーが発生しました';
 	@override String get play => '再生';
@@ -1537,6 +1564,8 @@ class _TranslationsNotificationsJa extends TranslationsNotificationsEn {
 	@override String get kApprovedPost => '投稿が承認されました';
 	@override String get kApprovedForumPost => 'フォーラム投稿が承認されました';
 	@override String get kRejectedContent => 'コンテンツ審査が拒否されました';
+	@override String get kWarning => 'サイトからの警告';
+	@override String get kWarningHint => '運営からアカウントに警告が出されました。コミュニティルールをご確認ください。詳細はウェブ版でご覧ください。';
 	@override String get kUnknownType => '不明な通知タイプ';
 }
 
@@ -1595,6 +1624,7 @@ class _TranslationsDownloadJa extends TranslationsDownloadEn {
 	@override String get categorySectionLabel => '分類';
 	@override String get saveToPreviewLabel => '保存先';
 	@override String saveToPreviewSuggested({required Object name}) => '推奨ファイル名：${name}（システムダイアログで変更可）';
+	@override String get saveToPreviewChange => '変更…';
 	@override String get lastUsedBadge => '前回選択';
 	@override String get pickedBadge => '選択中';
 	@override String get forceDeleteTask => '強制削除タスク';
@@ -2856,6 +2886,12 @@ class _TranslationsVrFormatJa extends TranslationsVrFormatEn {
 	@override String get resetToAutoDesc => 'この動画の手動設定を忘れ、自動判定に任せます';
 	@override String get manualBadge => '手動で指定済み';
 	@override String get panoramaHint => '画面をドラッグで見回し、ピンチで視野角を変更';
+	@override String get gyroControl => 'ジャイロで視点操作';
+	@override String get gyroControlDesc => 'VR パノラマ再生中は端末を動かすと見回せます。ドラッグで微調整もできます';
+	@override String get gyroPromptTitle => 'ジャイロ操作をオンにしますか？';
+	@override String get gyroPromptBody => 'ジャイロセンサーをオンにして、よりリアルな VR 体験にしますか？この機能は設定でオフにできます。';
+	@override String get gyroPromptEnable => 'オンにする';
+	@override String get gyroPromptDecline => '今はしない';
 	@override String get panoramaGestureNotice => '見回し中は画面のドラッグが視点操作になります。シークはシークバーをお使いください';
 	@override String get shaderUnsupported => 'この端末ではリアルタイムの見回しに対応していないため、片目表示に切り替えました';
 	@override String get handoffTooltip => '別の方法で再生';
@@ -3209,6 +3245,44 @@ class _TranslationsPollJa extends TranslationsPollEn {
 	@override String get voteFailed => '投票を送信できませんでした';
 	@override String get copyLink => '投票のリンクをコピー';
 	@override String get translateFailed => '投票を翻訳できませんでした';
+}
+
+// Path: frameInterp
+class _TranslationsFrameInterpJa extends TranslationsFrameInterpEn {
+	_TranslationsFrameInterpJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'フレーム補間タスク';
+	@override String get action => 'フレーム補間（2倍のフレームレートで生成）';
+	@override String get playInterpolated => '補間版を再生';
+	@override String get playOriginal => 'オリジナルを再生';
+	@override String get deleteInterpolated => '補間版も削除する';
+	@override String get deleteInterpolatedDesc => '補間した動画ファイルとそのタスク記録を削除します';
+	@override String get deleteInterpolatedOnly => '補間版を削除';
+	@override String get deleteInterpolatedOnlyTitle => '補間版を削除しますか？';
+	@override String get deleteInterpolatedOnlyBody => '補間した動画ファイルとそのタスク記録だけを削除します。元の動画はそのまま残り、後でもう一度補間できます。';
+	@override String get interpolatedDeleted => '補間版を削除しました';
+	@override String get deleteInterpolatedFailed => '補間版を削除できませんでした。ファイルが使用中か、権限がない可能性があります';
+	@override String get viewTasks => '補間タスクを表示';
+	@override String get badge => '補間';
+	@override String fpsBadge({required Object fps}) => '${fps} FPS';
+	@override String specLine({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps';
+	@override String runningDetail({required Object percent, required Object speed}) => '${percent}% · ${speed} fps';
+	@override String get preparing => '準備中…';
+	@override String get outputMissing => '補間後のファイルが見つかりません';
+	@override String get empty => 'フレーム補間タスクはまだありません';
+	@override String get emptyHint => '「ローカルファイル」または「ダウンロード」で動画を選び、「フレーム補間」を実行してください。';
+	@override String get clearFinished => '完了した記録を消去';
+	@override late final _TranslationsFrameInterpStatusJa status = _TranslationsFrameInterpStatusJa._(_root);
+	@override late final _TranslationsFrameInterpActionsJa actions = _TranslationsFrameInterpActionsJa._(_root);
+	@override late final _TranslationsFrameInterpConfirmJa confirm = _TranslationsFrameInterpConfirmJa._(_root);
+	@override late final _TranslationsFrameInterpToastJa toast = _TranslationsFrameInterpToastJa._(_root);
+	@override late final _TranslationsFrameInterpRejectJa reject = _TranslationsFrameInterpRejectJa._(_root);
+	@override late final _TranslationsFrameInterpErrorJa error = _TranslationsFrameInterpErrorJa._(_root);
+	@override late final _TranslationsFrameInterpNotificationJa notification = _TranslationsFrameInterpNotificationJa._(_root);
+	@override late final _TranslationsFrameInterpComponentJa component = _TranslationsFrameInterpComponentJa._(_root);
 }
 
 // Path: common.pagination
@@ -3729,6 +3803,10 @@ class _TranslationsVideoDetailLocalInfoJa extends TranslationsVideoDetailLocalIn
 	@override String get currentQuality => '現在の品質';
 	@override String get duration => '再生時間';
 	@override String get resolution => '解像度';
+	@override String get frameRate => 'フレームレート';
+	@override String frameRateValue({required Object fps}) => '${fps} fps';
+	@override String frameRateInterpolated({required Object fps, required Object from}) => '${fps} fps（補間版、元 ${from} fps）';
+	@override String frameRateHasInterpolated({required Object fps, required Object to}) => '${fps} fps（オリジナル、${to} fps 補間版あり）';
 	@override String get fileInfo => 'ファイル情報';
 	@override String get fileName => 'ファイル名';
 	@override String get fileSize => 'ファイルサイズ';
@@ -3794,7 +3872,7 @@ class _TranslationsVideoDetailSkeletonJa extends TranslationsVideoDetailSkeleton
 	@override String get fetchingVideoSources => 'ビデオソースを取得中...';
 	@override String get loadingVideo => 'ビデオを読み込み中...';
 	@override String get applyingSolution => '解像度を適用中...';
-	@override String get addingListeners => '監視器を追加中...';
+	@override String get addingListeners => '動画サーバーに接続中...';
 	@override String get successFecthVideoDurationInfo => 'ビデオの総時間を取得しました、ビデオを読み込み中...';
 	@override String get successFecthVideoHeightInfo => '読み込み完了';
 }
@@ -4351,6 +4429,7 @@ class _TranslationsDownloadLocationJa extends TranslationsDownloadLocationEn {
 	@override String get downloadsFolder => 'ダウンロード';
 	@override String get askEveryTime => '毎回確認する';
 	@override String askEveryTimeDesc({required Object location}) => 'ダウンロードのたびに保存先を選びます。一括ダウンロードは ${location} に保存されます';
+	@override String firstDownloadNotice({required Object location}) => 'ダウンロードを開始しました。保存先は「${location}」です（ダウンロード設定で変更できます）';
 	@override String freeSpace({required Object size}) => '空き ${size}';
 	@override String get statusWritable => '書き込み可';
 	@override String get statusNeedsPermission => '許可が必要';
@@ -4917,6 +4996,133 @@ class _TranslationsLocalMediaWebdavJa extends TranslationsLocalMediaWebdavEn {
 	@override String get bannerCredUnreadable => '保存したパスワードを読み取れませんでした。再ログインしてください';
 }
 
+// Path: frameInterp.status
+class _TranslationsFrameInterpStatusJa extends TranslationsFrameInterpStatusEn {
+	_TranslationsFrameInterpStatusJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get pending => '待機中';
+	@override String get running => '処理中';
+	@override String get completed => '完了';
+	@override String get failed => '失敗';
+	@override String get cancelled => 'キャンセルされました';
+}
+
+// Path: frameInterp.actions
+class _TranslationsFrameInterpActionsJa extends TranslationsFrameInterpActionsEn {
+	_TranslationsFrameInterpActionsJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get play => '再生';
+	@override String get cancel => 'キャンセル';
+	@override String get retry => '再試行';
+	@override String get delete => '記録を削除';
+	@override String get revealInFolder => 'フォルダーで表示';
+}
+
+// Path: frameInterp.confirm
+class _TranslationsFrameInterpConfirmJa extends TranslationsFrameInterpConfirmEn {
+	_TranslationsFrameInterpConfirmJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get cancelTitle => 'このタスクをキャンセルしますか？';
+	@override String get cancelContent => 'ここまでの進捗は失われます。後で最初からやり直せます。';
+	@override String get deleteTitle => 'この記録を削除しますか？';
+	@override String get deleteContent => '元の動画には影響しません。';
+	@override String get deleteOutput => '補間後のファイルも削除する';
+	@override String get clearTitle => '完了した記録を消去しますか？';
+	@override String get clearContent => '補間後のファイルはディスクに残り、記録だけが削除されます。';
+	@override String get enqueueTitle => 'フレーム補間しますか？';
+	@override String get enqueueAction => '補間を開始';
+	@override String get fpsUnit => 'fps';
+	@override String get saveNote => '新しいファイルとして保存され、元の動画はそのまま残ります';
+	@override String get resetTitle => '途中再開には未対応です。次の場合は最初からやり直しになります：';
+	@override String get resetBackground => '他のアプリに切り替える、または画面をロックする';
+	@override String get resetClosed => 'アプリを閉じる、またはシステムに終了される';
+}
+
+// Path: frameInterp.toast
+class _TranslationsFrameInterpToastJa extends TranslationsFrameInterpToastEn {
+	_TranslationsFrameInterpToastJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get queued => 'フレーム補間キューに追加しました';
+	@override String completed({required Object title}) => 'フレーム補間が完了しました：${title}';
+	@override String failed({required Object title}) => 'フレーム補間に失敗しました：${title}';
+}
+
+// Path: frameInterp.reject
+class _TranslationsFrameInterpRejectJa extends TranslationsFrameInterpRejectEn {
+	_TranslationsFrameInterpRejectJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get sourceMissing => '動画ファイルが見つかりません';
+	@override String get alreadyInterpolated => 'この動画はすでに補間済みです';
+	@override String get alreadyQueued => 'この動画はすでにキューに入っています';
+	@override String get alreadyDone => 'この動画には補間版がすでにあります';
+	@override String get hdr => 'HDR 動画にはまだ対応していません';
+	@override String get resolutionTooLarge => '解像度が高すぎるため補間できません';
+	@override String get unreadable => 'この動画を読み込めませんでした';
+	@override String get noGpu => '使用可能なグラフィックスカードが見つかりません（Vulkan 対応が必要です）';
+}
+
+// Path: frameInterp.error
+class _TranslationsFrameInterpErrorJa extends TranslationsFrameInterpErrorEn {
+	_TranslationsFrameInterpErrorJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get unknown => '問題が発生しました';
+	@override String get openInput => '動画を開けませんでした';
+	@override String get noVideo => 'ファイルに映像トラックがありません';
+	@override String get decoder => '動画をデコードできませんでした';
+	@override String get hdrUnsupported => 'HDR 動画にはまだ対応していません';
+	@override String get noGpu => '使用可能なグラフィックスカードが見つかりません';
+	@override String get model => '補間モデルの読み込みに失敗しました。コンポーネントを再インストールしてみてください';
+	@override String get encoder => '使用可能な動画エンコーダーがありません';
+	@override String get openOutput => '出力ファイルを作成できませんでした';
+	@override String get write => '書き込みに失敗しました。ディスクの空き容量が不足している可能性があります';
+	@override String get interpolate => '処理に失敗しました。グラフィックスメモリが不足している可能性があります';
+	@override String get componentUnavailable => 'フレーム補間コンポーネントを利用できません';
+	@override String get interrupted => 'アプリが終了したため中断されました';
+	@override String get finalizeFailed => '完成したファイルを保存できませんでした';
+	@override String get sourceMissing => '動画ファイルが見つかりません';
+	@override String get backgrounded => 'アプリがバックグラウンドに移ったため中断しました。戻ると自動で再開します';
+}
+
+// Path: frameInterp.notification
+class _TranslationsFrameInterpNotificationJa extends TranslationsFrameInterpNotificationEn {
+	_TranslationsFrameInterpNotificationJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'フレーム補間中';
+	@override String titleWithQueue({required Object count}) => 'フレーム補間中 · 待機 ${count} 件';
+	@override String get waiting => '開始待ち';
+}
+
+// Path: frameInterp.component
+class _TranslationsFrameInterpComponentJa extends TranslationsFrameInterpComponentEn {
+	_TranslationsFrameInterpComponentJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get unsupported => 'このデバイスではフレーム補間を利用できません';
+}
+
 // Path: settings.downloadSettings.pathTemplateEditor
 class _TranslationsSettingsDownloadSettingsPathTemplateEditorJa extends TranslationsSettingsDownloadSettingsPathTemplateEditorEn {
 	_TranslationsSettingsDownloadSettingsPathTemplateEditorJa._(TranslationsJa root) : this._root = root, super.internal(root);
@@ -5077,6 +5283,32 @@ class _TranslationsVideoDetailCastDlnaCastSheetJa extends TranslationsVideoDetai
 	@override String connectedTo({required Object deviceName}) => '接続済み: ${deviceName}';
 	@override String get notConnected => 'デバイス未接続';
 	@override String get stopCasting => 'キャスト停止';
+	@override String searchFinished({required Object count}) => '検索完了：${count} 台のデバイスが見つかりました';
+	@override String get protocolDlna => 'DLNA';
+	@override String get protocolGoogleCast => 'Google Cast';
+	@override String get addByIp => '手動で追加';
+	@override String get addByIpTitle => 'デバイスを手動で追加';
+	@override String get addByIpDesc => 'テレビやストリーミング端末の IP アドレスを入力してください。通常はテレビの「設定 → ネットワーク → ネットワーク状態」で確認できます。';
+	@override String get addByIpHint => '例：192.168.1.20';
+	@override String get addByIpAction => '検索';
+	@override String get addByIpInvalid => 'アドレスの形式が正しくありません。192.168.1.20 のような IPv4 アドレスを入力してください';
+	@override String addByIpNotFound({required Object host}) => '${host} でキャストデバイスが見つかりませんでした';
+	@override String get troubleshootTitle => 'デバイスが見つかりませんか？';
+	@override String get troubleshoot => '・スマホ（PC）とテレビを同じ Wi-Fi に接続してください。ゲストネットワークやルーターの AP アイソレーションが有効だと検出できません\n・VPN やプロキシアプリを使用中は検出できないことがあります。オフにして再試行してください\n・DLNA と Google Cast（Chromecast）に対応しています。Apple TV（AirPlay）や一部メーカー独自のキャスト方式には対応していません。テレビ側で DLNA を有効にしてください\n・それでも見つからない場合は「手動で追加」からテレビの IP を入力してください';
+	@override late final _TranslationsVideoDetailCastDlnaCastSheetFailureJa failure = _TranslationsVideoDetailCastDlnaCastSheetFailureJa._(_root);
+}
+
+// Path: videoDetail.cast.dlnaCastSheet.failure
+class _TranslationsVideoDetailCastDlnaCastSheetFailureJa extends TranslationsVideoDetailCastDlnaCastSheetFailureEn {
+	_TranslationsVideoDetailCastDlnaCastSheetFailureJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get unreachable => 'デバイスに接続できません。同じ Wi-Fi にいるか確認し、VPN をオフにしてみてください';
+	@override String get timeout => 'デバイスが応答しません';
+	@override String get mediaRejected => 'デバイスがこの動画を再生できません（未対応の形式、またはリンクを開けません）';
+	@override String get deviceRejected => 'デバイスがキャスト要求を拒否しました';
 }
 
 /// The flat map containing all translations for locale <ja>.
@@ -5306,6 +5538,8 @@ extension on TranslationsJa {
 			'common.disagree' => '不同意',
 			'common.agreeToRules' => '同意ルール',
 			'common.tapToReread' => 'タップで全文を再読',
+			'common.rulesRequiredHint' => '投稿する前にコミュニティルールを読んで同意してください',
+			'common.readAndAgree' => '読んで同意',
 			'common.markdownSyntaxHelp' => 'Markdown構文ヘルプ',
 			'common.previewContent' => '内容をプレビュー',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -5597,10 +5831,10 @@ extension on TranslationsJa {
 			'settings.thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain' => 'この設定は、今後動画を再生する際に以前の設定を使用するかどうかを決定します。',
 			'settings.playControl' => '再生コントロール',
 			'settings.playbackSpeedSettings' => '再生と速度',
-			'settings.playbackBehaviorSettings' => '再生動作',
-			'settings.enhancementSettings' => 'シアターと画質強化',
 			_ => null,
 		} ?? switch (path) {
+			'settings.playbackBehaviorSettings' => '再生動作',
+			'settings.enhancementSettings' => 'シアターと画質強化',
 			'settings.fastForwardTime' => '早送り時間',
 			'settings.fastForwardTimeMustBeAPositiveInteger' => '早送り時間は正の整数でなければなりません。',
 			'settings.rewindTime' => '巻き戻し時間',
@@ -5757,6 +5991,29 @@ extension on TranslationsJa {
 			'settings.defaultBrowserDesc' => 'システム設定でデフォルトリンク設定項目を開き、iwara.tvサイトリンクを追加してください',
 			'settings.themeMode' => 'テーマモード',
 			'settings.themeModeDesc' => 'この設定はアプリのテーマモードを決定します',
+			'settings.glassQuality' => 'Rendering quality',
+			'settings.glassQualityAuto' => 'Automatic',
+			'settings.glassQualityAutoDesc' => 'Adapts to frame time; refraction can change as quality adjusts',
+			'settings.glassQualityStandard' => 'Smooth',
+			'settings.glassQualityStandardDesc' => 'Lightweight glass with highlights and consistent frame pacing',
+			'settings.glassQualityPremium' => 'Full refraction',
+			'settings.glassQualityPremiumDesc' => 'Keeps the full lens effect. Higher GPU cost; desktop platforms use lightweight glass',
+			'settings.glassQualityCurrent' => 'Currently active',
+			'settings.glassChromeParametersDesc' => 'Navigation glass parameters apply live to headers, buttons and the bottom bar',
+			'settings.glassPreview' => 'Preview',
+			'settings.glassPremiumOnly' => 'Only takes effect with the full refraction quality',
+			'settings.glassSaturationNeedsBlur' => 'With the smooth quality, only takes effect when background blur is above 0',
+			'settings.glassOpacity' => 'Opacity',
+			'settings.glassBlur' => 'Background blur (sigma)',
+			'settings.glassBlurDesc' => '0 keeps the background sharp. Blur adds a rendering pass and may reduce smoothness',
+			'settings.glassAdvancedParameters' => 'Advanced navigation parameters',
+			'settings.glassThickness' => 'Lens thickness',
+			'settings.glassRefractiveIndex' => 'Refractive index',
+			'settings.glassLightIntensity' => 'Highlight intensity',
+			'settings.glassSaturation' => 'Background saturation',
+			'settings.glassChromaticAberration' => 'Chromatic aberration',
+			'settings.glassShadows' => 'Shadows',
+			'settings.glassResetParameters' => 'Restore glass defaults',
 			'settings.glassEffect' => '画面のマテリアル',
 			'settings.glassEffectDesc' => 'アプリ全体（ヘッダーのカプセル、メニュー、ダイアログのボタン、ボトムナビゲーション）に使う素材を決めます',
 			'settings.liquidGlassEffect' => 'リキッドガラス',
@@ -6088,6 +6345,8 @@ extension on TranslationsJa {
 			'settings.keybinding.actionGalleryPlayPause' => '再生 / 一時停止',
 			'settings.keybinding.actionGallerySeekBackward' => '巻き戻し',
 			'settings.keybinding.actionGallerySeekForward' => '早送り',
+			_ => null,
+		} ?? switch (path) {
 			'settings.keybinding.actionGalleryToggleMute' => 'ミュート切替',
 			'settings.keybinding.actionPlayPause' => '再生 / 一時停止',
 			'settings.keybinding.actionSpeedUp' => '再生速度を上げる',
@@ -6113,8 +6372,6 @@ extension on TranslationsJa {
 			'settings.doubleTapPause' => 'ダブルタップポーズ',
 			'settings.rightVerticalSwipeVolume' => '右側垂直スワイプボリューム（新ページに入った時に有効）',
 			'settings.leftVerticalSwipeBrightness' => '左側垂直スワイプブライトネス（新ページに入った時に有効）',
-			_ => null,
-		} ?? switch (path) {
 			'settings.longPressFastForward' => '長押しファストフォワード',
 			'settings.enableMouseHoverShowToolbar' => 'マウスホバー時にツールバーを表示',
 			'settings.enableMouseHoverShowToolbarInfo' => '有効にすると、マウスがプレーヤー上にあるときにツールバーが表示されます。3秒間の非アクティブ時に自動的に非表示になります。',
@@ -6125,15 +6382,13 @@ extension on TranslationsJa {
 			'settings.showCenterPlayPauseButtonDesc' => 'プレーヤー中央の大きな再生/一時停止ボタンを表示します。',
 			'settings.audioVideoConfig' => 'オーディオビデオ設定',
 			'settings.expandBuffer' => 'バッファ拡張',
-			'settings.expandBufferInfo' => '有効にすると、バッファサイズが増加し、読み込み時間が長くなりますが、再生がスムーズになります',
+			'settings.expandBufferInfo' => '有効にすると、より多くの動画を先読みし、不安定な回線でも途切れにくくなりますが、メモリ使用量が増えます',
 			'settings.videoSyncMode' => 'ビデオ同期モード',
 			'settings.videoSyncModeSubtitle' => 'オーディオビデオ同期戦略',
 			'settings.hardwareDecodingMode' => 'ハードウェアデコードモード',
 			'settings.hardwareDecodingModeSubtitle' => 'ハードウェアデコード設定',
 			'settings.enableHardwareAcceleration' => 'ハードウェアアクセラレーションを有効にする',
 			'settings.enableHardwareAccelerationInfo' => 'ハードウェアアクセラレーションを有効にすると、デコード性能が向上しますが、一部のデバイスでは互換性がない場合があります',
-			'settings.useOpenSLESAudioOutput' => 'OpenSLESオーディオ出力を使用',
-			'settings.useOpenSLESAudioOutputInfo' => '低遅延オーディオ出力を使用し、オーディオ性能が向上する可能性があります',
 			'settings.videoSyncAudio' => 'オーディオ同期',
 			'settings.videoSyncDisplayResample' => 'ディスプレイリサンプル',
 			'settings.videoSyncDisplayResampleVdrop' => 'ディスプレイリサンプル（フレームドロップ）',
@@ -6527,6 +6782,10 @@ extension on TranslationsJa {
 			'videoDetail.localInfo.currentQuality' => '現在の品質',
 			'videoDetail.localInfo.duration' => '再生時間',
 			'videoDetail.localInfo.resolution' => '解像度',
+			'videoDetail.localInfo.frameRate' => 'フレームレート',
+			'videoDetail.localInfo.frameRateValue' => ({required Object fps}) => '${fps} fps',
+			'videoDetail.localInfo.frameRateInterpolated' => ({required Object fps, required Object from}) => '${fps} fps（補間版、元 ${from} fps）',
+			'videoDetail.localInfo.frameRateHasInterpolated' => ({required Object fps, required Object to}) => '${fps} fps（オリジナル、${to} fps 補間版あり）',
 			'videoDetail.localInfo.fileInfo' => 'ファイル情報',
 			'videoDetail.localInfo.fileName' => 'ファイル名',
 			'videoDetail.localInfo.fileSize' => 'ファイルサイズ',
@@ -6540,6 +6799,9 @@ extension on TranslationsJa {
 			'videoDetail.thisIsAPrivateVideo' => 'これはプライベートビデオです',
 			'videoDetail.getVideoInfoFailed' => 'ビデオ情報の取得に失敗しました。後でもう一度お試しください',
 			'videoDetail.noVideoSourceFound' => '対応するビデオソースが見つかりません',
+			'videoDetail.sourceFileMissingOnServer' => '動画ファイルが Iwara のサーバー上に存在しません（HTTP 404）。ウェブ版でも再生できません。サーバー障害の可能性があるため、後でもう一度お試しください。',
+			'videoDetail.qualityFileMissingOnServer' => ({required Object quality}) => '「${quality}」のファイルがサーバー上にありません（HTTP 404）。画質メニューから別の画質を選んでください。',
+			'videoDetail.playbackRetryExhausted' => '動画を何度も開けなかったため、自動再試行を停止しました。後で再試行してください。',
 			'videoDetail.tagCopiedToClipboard' => ({required Object tagId}) => 'タグ "${tagId}" がクリップボードにコピーされました',
 			'videoDetail.errorLoadingVideo' => 'ビデオの読み込み中にエラーが発生しました',
 			'videoDetail.play' => '再生',
@@ -6597,6 +6859,8 @@ extension on TranslationsJa {
 			'videoDetail.gestureGuide.quest.still' => '静止図',
 			'videoDetail.gestureGuide.quest.done' => '確認して続ける',
 			'videoDetail.gestureGuide.quest.leftController' => '左手',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.rightController' => '右手',
 			'videoDetail.gestureGuide.quest.trigger' => '人差し指トリガー',
 			'videoDetail.gestureGuide.quest.grip' => 'グリップボタン',
@@ -6627,8 +6891,6 @@ extension on TranslationsJa {
 			'videoDetail.gestureGuide.quest.swipeTitle' => '横ドラッグでページを送る',
 			'videoDetail.gestureGuide.quest.swipeBody' => '画像にレイを合わせ、トリガーを押したまま左へドラッグします。ページ送りの表示が出たら離すと次へ、右へドラッグすると前へ戻ります。ピンチでも操作できます。',
 			'videoDetail.gestureGuide.quest.swipeHint' => '画像は 1× のときにページ送りできます。ギャラリー内の動画にも対応しています。ドラッグ中は画面が動かず、離してから切り替わります。',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.gestureGuide.quest.zoomTitle' => '画像の細部を拡大',
 			'videoDetail.gestureGuide.quest.zoomBody' => '見たい部分にレイを合わせてトリガーを押し続け、スティックを上に倒すと拡大、下に倒すと縮小します。押した位置が拡大の中心になります。',
 			'videoDetail.gestureGuide.quest.zoomHint' => 'ウィンドウの大きさは変わらず、中の画像だけが拡大します。画像を押していないときの上下操作は視聴距離を変えます。',
@@ -6695,7 +6957,7 @@ extension on TranslationsJa {
 			'videoDetail.skeleton.fetchingVideoSources' => 'ビデオソースを取得中...',
 			'videoDetail.skeleton.loadingVideo' => 'ビデオを読み込み中...',
 			'videoDetail.skeleton.applyingSolution' => '解像度を適用中...',
-			'videoDetail.skeleton.addingListeners' => '監視器を追加中...',
+			'videoDetail.skeleton.addingListeners' => '動画サーバーに接続中...',
 			'videoDetail.skeleton.successFecthVideoDurationInfo' => 'ビデオの総時間を取得しました、ビデオを読み込み中...',
 			'videoDetail.skeleton.successFecthVideoHeightInfo' => '読み込み完了',
 			'videoDetail.cast.dlnaCast' => 'キャスト',
@@ -6729,6 +6991,22 @@ extension on TranslationsJa {
 			'videoDetail.cast.dlnaCastSheet.connectedTo' => ({required Object deviceName}) => '接続済み: ${deviceName}',
 			'videoDetail.cast.dlnaCastSheet.notConnected' => 'デバイス未接続',
 			'videoDetail.cast.dlnaCastSheet.stopCasting' => 'キャスト停止',
+			'videoDetail.cast.dlnaCastSheet.searchFinished' => ({required Object count}) => '検索完了：${count} 台のデバイスが見つかりました',
+			'videoDetail.cast.dlnaCastSheet.protocolDlna' => 'DLNA',
+			'videoDetail.cast.dlnaCastSheet.protocolGoogleCast' => 'Google Cast',
+			'videoDetail.cast.dlnaCastSheet.addByIp' => '手動で追加',
+			'videoDetail.cast.dlnaCastSheet.addByIpTitle' => 'デバイスを手動で追加',
+			'videoDetail.cast.dlnaCastSheet.addByIpDesc' => 'テレビやストリーミング端末の IP アドレスを入力してください。通常はテレビの「設定 → ネットワーク → ネットワーク状態」で確認できます。',
+			'videoDetail.cast.dlnaCastSheet.addByIpHint' => '例：192.168.1.20',
+			'videoDetail.cast.dlnaCastSheet.addByIpAction' => '検索',
+			'videoDetail.cast.dlnaCastSheet.addByIpInvalid' => 'アドレスの形式が正しくありません。192.168.1.20 のような IPv4 アドレスを入力してください',
+			'videoDetail.cast.dlnaCastSheet.addByIpNotFound' => ({required Object host}) => '${host} でキャストデバイスが見つかりませんでした',
+			'videoDetail.cast.dlnaCastSheet.troubleshootTitle' => 'デバイスが見つかりませんか？',
+			'videoDetail.cast.dlnaCastSheet.troubleshoot' => '・スマホ（PC）とテレビを同じ Wi-Fi に接続してください。ゲストネットワークやルーターの AP アイソレーションが有効だと検出できません\n・VPN やプロキシアプリを使用中は検出できないことがあります。オフにして再試行してください\n・DLNA と Google Cast（Chromecast）に対応しています。Apple TV（AirPlay）や一部メーカー独自のキャスト方式には対応していません。テレビ側で DLNA を有効にしてください\n・それでも見つからない場合は「手動で追加」からテレビの IP を入力してください',
+			'videoDetail.cast.dlnaCastSheet.failure.unreachable' => 'デバイスに接続できません。同じ Wi-Fi にいるか確認し、VPN をオフにしてみてください',
+			'videoDetail.cast.dlnaCastSheet.failure.timeout' => 'デバイスが応答しません',
+			'videoDetail.cast.dlnaCastSheet.failure.mediaRejected' => 'デバイスがこの動画を再生できません（未対応の形式、またはリンクを開けません）',
+			'videoDetail.cast.dlnaCastSheet.failure.deviceRejected' => 'デバイスがキャスト要求を拒否しました',
 			'videoDetail.likeAvatars.dialogTitle' => '誰がこっそり「いいね」したの？',
 			'videoDetail.likeAvatars.dialogDescription' => '誰か気になる？この「いいねアルバム」をめくってみよう～',
 			'videoDetail.likeAvatars.closeTooltip' => '閉じる',
@@ -6914,6 +7192,8 @@ extension on TranslationsJa {
 			'notifications.kApprovedPost' => '投稿が承認されました',
 			'notifications.kApprovedForumPost' => 'フォーラム投稿が承認されました',
 			'notifications.kRejectedContent' => 'コンテンツ審査が拒否されました',
+			'notifications.kWarning' => 'サイトからの警告',
+			'notifications.kWarningHint' => '運営からアカウントに警告が出されました。コミュニティルールをご確認ください。詳細はウェブ版でご覧ください。',
 			'notifications.kUnknownType' => '不明な通知タイプ',
 			'conversation.errors.pleaseSelectAUser' => 'ユーザーを選択してください',
 			'conversation.errors.pleaseEnterATitle' => 'タイトルを入力してください',
@@ -7008,6 +7288,7 @@ extension on TranslationsJa {
 			'download.categorySectionLabel' => '分類',
 			'download.saveToPreviewLabel' => '保存先',
 			'download.saveToPreviewSuggested' => ({required Object name}) => '推奨ファイル名：${name}（システムダイアログで変更可）',
+			'download.saveToPreviewChange' => '変更…',
 			'download.lastUsedBadge' => '前回選択',
 			'download.pickedBadge' => '選択中',
 			'download.forceDeleteTask' => '強制削除タスク',
@@ -7092,6 +7373,8 @@ extension on TranslationsJa {
 			'download.actions.play' => '再生',
 			'download.actions.openWith' => '他のアプリで開く',
 			'download.actions.redownload' => '再ダウンロード',
+			_ => null,
+		} ?? switch (path) {
 			'download.actions.relocate' => 'ファイルを移動…',
 			'download.actions.categorize' => '分類…',
 			'download.actions.viewOnline' => 'オンラインページを見る',
@@ -7141,8 +7424,6 @@ extension on TranslationsJa {
 			'download.deleteByDate.noMatch' => '条件に一致するタスクがありません',
 			'download.deleteByDate.invalidRange' => '開始日は終了日以前にしてください',
 			'download.deleteByDate.confirmTitle' => '削除の確認',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.confirmContent' => ({required Object count}) => '${count}件のダウンロードタスクとそのファイルを削除しますか？この操作は取り消せません。',
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '削除中 ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count}件のタスクを削除しました',
@@ -7316,6 +7597,7 @@ extension on TranslationsJa {
 			'download.location.downloadsFolder' => 'ダウンロード',
 			'download.location.askEveryTime' => '毎回確認する',
 			'download.location.askEveryTimeDesc' => ({required Object location}) => 'ダウンロードのたびに保存先を選びます。一括ダウンロードは ${location} に保存されます',
+			'download.location.firstDownloadNotice' => ({required Object location}) => 'ダウンロードを開始しました。保存先は「${location}」です（ダウンロード設定で変更できます）',
 			'download.location.freeSpace' => ({required Object size}) => '空き ${size}',
 			'download.location.statusWritable' => '書き込み可',
 			'download.location.statusNeedsPermission' => '許可が必要',
@@ -7605,6 +7887,8 @@ extension on TranslationsJa {
 			'translation.fallbackTranslationFailed' => '通常翻訳へのフォールバックも失敗',
 			'translation.translationSettings' => '翻訳設定',
 			'translation.enableGoogleTranslation' => 'Google翻訳を有効にする',
+			_ => null,
+		} ?? switch (path) {
 			'translation.thinking' => '思考中…',
 			'translation.thoughtProcess' => '思考過程',
 			'translation.modelCompatibility' => 'モデル互換性',
@@ -7655,8 +7939,6 @@ extension on TranslationsJa {
 			'mediaPlayer.format' => '形式',
 			'mediaPlayer.suggestion' => '提案',
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'AndroidデバイスはWEBM形式のサポートが限定的です。外部プレイヤーの使用またはWEBMをサポートするプレイヤーアプリのダウンロードをお勧めします',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.currentDeviceCodecNotSupported' => '現在のデバイスはこのビデオ形式のコーデックをサポートしていません',
 			'mediaPlayer.checkNetworkConnection' => 'ネットワーク接続を確認して再試行してください',
 			'mediaPlayer.appMayLackMediaPermission' => 'アプリに必要なメディア再生権限が不足している可能性があります',
@@ -8119,6 +8401,8 @@ extension on TranslationsJa {
 			'firstTimeSetup.common.finishSetup' => '設定を完了',
 			'firstTimeSetup.common.agreeAgreementSnackbar' => 'まず利用規約とコミュニティルールに同意してください',
 			'proxyHelper.systemProxyDetected' => 'システムプロキシを検出',
+			_ => null,
+		} ?? switch (path) {
 			'proxyHelper.copied' => 'コピーしました',
 			'proxyHelper.copy' => 'コピー',
 			'tagSelector.selectTags' => 'タグを選択',
@@ -8169,8 +8453,6 @@ extension on TranslationsJa {
 			'anime4k.presetDescriptions.mode_a_fast_darken' => 'Mode A (Fast) + ライン暗化、高速モードAにライン暗化効果を追加し、ラインをより目立たせ、スタイライズ処理を行います。',
 			'anime4k.presetDescriptions.mode_a_hq_thin' => 'Mode A (HQ) + ライン細化、高品質モードAにライン細化効果を追加し、より洗練された外観にします。',
 			'anime4k.presetNames.mode_a_hq' => 'Mode A (HQ)',
-			_ => null,
-		} ?? switch (path) {
 			'anime4k.presetNames.mode_b_hq' => 'Mode B (HQ)',
 			'anime4k.presetNames.mode_c_hq' => 'Mode C (HQ)',
 			'anime4k.presetNames.mode_a_a_hq' => 'Mode A+A (HQ)',
@@ -8416,6 +8698,12 @@ extension on TranslationsJa {
 			'vrFormat.resetToAutoDesc' => 'この動画の手動設定を忘れ、自動判定に任せます',
 			'vrFormat.manualBadge' => '手動で指定済み',
 			'vrFormat.panoramaHint' => '画面をドラッグで見回し、ピンチで視野角を変更',
+			'vrFormat.gyroControl' => 'ジャイロで視点操作',
+			'vrFormat.gyroControlDesc' => 'VR パノラマ再生中は端末を動かすと見回せます。ドラッグで微調整もできます',
+			'vrFormat.gyroPromptTitle' => 'ジャイロ操作をオンにしますか？',
+			'vrFormat.gyroPromptBody' => 'ジャイロセンサーをオンにして、よりリアルな VR 体験にしますか？この機能は設定でオフにできます。',
+			'vrFormat.gyroPromptEnable' => 'オンにする',
+			'vrFormat.gyroPromptDecline' => '今はしない',
 			'vrFormat.panoramaGestureNotice' => '見回し中は画面のドラッグが視点操作になります。シークはシークバーをお使いください',
 			'vrFormat.shaderUnsupported' => 'この端末ではリアルタイムの見回しに対応していないため、片目表示に切り替えました',
 			'vrFormat.handoffTooltip' => '別の方法で再生',
@@ -8627,6 +8915,8 @@ extension on TranslationsJa {
 			'localMedia.webdav.pickRootTitle' => '追加するフォルダーを選択',
 			'localMedia.webdav.serverRoot' => 'ルート',
 			'localMedia.webdav.alreadyAdded' => 'この NAS フォルダーは追加済みです',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.webdav.relogin' => '再ログイン',
 			'localMedia.webdav.stateAuthFailed' => '再ログインが必要',
 			'localMedia.webdav.stateCertUntrusted' => 'サーバー証明書が変更されました',
@@ -8683,8 +8973,6 @@ extension on TranslationsJa {
 			'historyPage.rangeByLastViewed' => '最終閲覧日時で絞り込み',
 			'ai.title' => 'AI',
 			'ai.providers' => 'プロバイダー',
-			_ => null,
-		} ?? switch (path) {
 			'ai.providersHint' => '1つ以上のAIプロバイダーを追加し、各機能で使用するプロバイダーを指定します。',
 			'ai.addProvider' => 'プロバイダーを追加',
 			'ai.noProviders' => 'プロバイダーがまだありません。追加するとAI翻訳・検索・署名機能が利用可能になります。',
@@ -8871,6 +9159,82 @@ extension on TranslationsJa {
 			'poll.voteFailed' => '投票を送信できませんでした',
 			'poll.copyLink' => '投票のリンクをコピー',
 			'poll.translateFailed' => '投票を翻訳できませんでした',
+			'frameInterp.title' => 'フレーム補間タスク',
+			'frameInterp.action' => 'フレーム補間（2倍のフレームレートで生成）',
+			'frameInterp.playInterpolated' => '補間版を再生',
+			'frameInterp.playOriginal' => 'オリジナルを再生',
+			'frameInterp.deleteInterpolated' => '補間版も削除する',
+			'frameInterp.deleteInterpolatedDesc' => '補間した動画ファイルとそのタスク記録を削除します',
+			'frameInterp.deleteInterpolatedOnly' => '補間版を削除',
+			'frameInterp.deleteInterpolatedOnlyTitle' => '補間版を削除しますか？',
+			'frameInterp.deleteInterpolatedOnlyBody' => '補間した動画ファイルとそのタスク記録だけを削除します。元の動画はそのまま残り、後でもう一度補間できます。',
+			'frameInterp.interpolatedDeleted' => '補間版を削除しました',
+			'frameInterp.deleteInterpolatedFailed' => '補間版を削除できませんでした。ファイルが使用中か、権限がない可能性があります',
+			'frameInterp.viewTasks' => '補間タスクを表示',
+			'frameInterp.badge' => '補間',
+			'frameInterp.fpsBadge' => ({required Object fps}) => '${fps} FPS',
+			'frameInterp.specLine' => ({required Object width, required Object height, required Object from, required Object to}) => '${width}×${height} · ${from} → ${to} fps',
+			'frameInterp.runningDetail' => ({required Object percent, required Object speed}) => '${percent}% · ${speed} fps',
+			'frameInterp.preparing' => '準備中…',
+			'frameInterp.outputMissing' => '補間後のファイルが見つかりません',
+			'frameInterp.empty' => 'フレーム補間タスクはまだありません',
+			'frameInterp.emptyHint' => '「ローカルファイル」または「ダウンロード」で動画を選び、「フレーム補間」を実行してください。',
+			'frameInterp.clearFinished' => '完了した記録を消去',
+			'frameInterp.status.pending' => '待機中',
+			'frameInterp.status.running' => '処理中',
+			'frameInterp.status.completed' => '完了',
+			'frameInterp.status.failed' => '失敗',
+			'frameInterp.status.cancelled' => 'キャンセルされました',
+			'frameInterp.actions.play' => '再生',
+			'frameInterp.actions.cancel' => 'キャンセル',
+			'frameInterp.actions.retry' => '再試行',
+			'frameInterp.actions.delete' => '記録を削除',
+			'frameInterp.actions.revealInFolder' => 'フォルダーで表示',
+			'frameInterp.confirm.cancelTitle' => 'このタスクをキャンセルしますか？',
+			'frameInterp.confirm.cancelContent' => 'ここまでの進捗は失われます。後で最初からやり直せます。',
+			'frameInterp.confirm.deleteTitle' => 'この記録を削除しますか？',
+			'frameInterp.confirm.deleteContent' => '元の動画には影響しません。',
+			'frameInterp.confirm.deleteOutput' => '補間後のファイルも削除する',
+			'frameInterp.confirm.clearTitle' => '完了した記録を消去しますか？',
+			'frameInterp.confirm.clearContent' => '補間後のファイルはディスクに残り、記録だけが削除されます。',
+			'frameInterp.confirm.enqueueTitle' => 'フレーム補間しますか？',
+			'frameInterp.confirm.enqueueAction' => '補間を開始',
+			'frameInterp.confirm.fpsUnit' => 'fps',
+			'frameInterp.confirm.saveNote' => '新しいファイルとして保存され、元の動画はそのまま残ります',
+			'frameInterp.confirm.resetTitle' => '途中再開には未対応です。次の場合は最初からやり直しになります：',
+			'frameInterp.confirm.resetBackground' => '他のアプリに切り替える、または画面をロックする',
+			'frameInterp.confirm.resetClosed' => 'アプリを閉じる、またはシステムに終了される',
+			'frameInterp.toast.queued' => 'フレーム補間キューに追加しました',
+			'frameInterp.toast.completed' => ({required Object title}) => 'フレーム補間が完了しました：${title}',
+			'frameInterp.toast.failed' => ({required Object title}) => 'フレーム補間に失敗しました：${title}',
+			'frameInterp.reject.sourceMissing' => '動画ファイルが見つかりません',
+			'frameInterp.reject.alreadyInterpolated' => 'この動画はすでに補間済みです',
+			'frameInterp.reject.alreadyQueued' => 'この動画はすでにキューに入っています',
+			'frameInterp.reject.alreadyDone' => 'この動画には補間版がすでにあります',
+			'frameInterp.reject.hdr' => 'HDR 動画にはまだ対応していません',
+			'frameInterp.reject.resolutionTooLarge' => '解像度が高すぎるため補間できません',
+			'frameInterp.reject.unreadable' => 'この動画を読み込めませんでした',
+			'frameInterp.reject.noGpu' => '使用可能なグラフィックスカードが見つかりません（Vulkan 対応が必要です）',
+			'frameInterp.error.unknown' => '問題が発生しました',
+			'frameInterp.error.openInput' => '動画を開けませんでした',
+			'frameInterp.error.noVideo' => 'ファイルに映像トラックがありません',
+			'frameInterp.error.decoder' => '動画をデコードできませんでした',
+			'frameInterp.error.hdrUnsupported' => 'HDR 動画にはまだ対応していません',
+			'frameInterp.error.noGpu' => '使用可能なグラフィックスカードが見つかりません',
+			'frameInterp.error.model' => '補間モデルの読み込みに失敗しました。コンポーネントを再インストールしてみてください',
+			'frameInterp.error.encoder' => '使用可能な動画エンコーダーがありません',
+			'frameInterp.error.openOutput' => '出力ファイルを作成できませんでした',
+			'frameInterp.error.write' => '書き込みに失敗しました。ディスクの空き容量が不足している可能性があります',
+			'frameInterp.error.interpolate' => '処理に失敗しました。グラフィックスメモリが不足している可能性があります',
+			'frameInterp.error.componentUnavailable' => 'フレーム補間コンポーネントを利用できません',
+			'frameInterp.error.interrupted' => 'アプリが終了したため中断されました',
+			'frameInterp.error.finalizeFailed' => '完成したファイルを保存できませんでした',
+			'frameInterp.error.sourceMissing' => '動画ファイルが見つかりません',
+			'frameInterp.error.backgrounded' => 'アプリがバックグラウンドに移ったため中断しました。戻ると自動で再開します',
+			'frameInterp.notification.title' => 'フレーム補間中',
+			'frameInterp.notification.titleWithQueue' => ({required Object count}) => 'フレーム補間中 · 待機 ${count} 件',
+			'frameInterp.notification.waiting' => '開始待ち',
+			'frameInterp.component.unsupported' => 'このデバイスではフレーム補間を利用できません',
 			_ => null,
 		};
 	}
