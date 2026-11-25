@@ -68,3 +68,33 @@ high 10 · medium 13 · low 2 · none 1
 Wikidata（正式作品名的多语言标签）、萌娘百科（中文圈译名权威，尤其 VTuber）。
 Danbooru 查不到的那些（`クロスファイア`）与「有页面但无中文名」的那 7 条，
 是这两个源该补位的地方。
+
+## 第二个数据源：EhTagTranslation（iwara 侧）
+
+E 站中文社区维护的标签译名库（约 4.5 万条，每次提交自动发 Release），
+`character` / `parody` 与 iwara 的角色 / 作品标签高度重合。
+
+```bash
+dart run tool/tag_verify/lookup_ehtt.dart            # 用缓存（没有就下载最新 Release）
+dart run tool/tag_verify/lookup_ehtt.dart --refresh  # 强制拉最新
+```
+
+- iwara 写 `tanga_ibuki`、E 站写 `ibuki tanga`，所以**按拆词后的集合匹配**。
+- 每条给出 `zh`（简中，`|` 分隔的写法拆开）、`ja`（介绍里写明的日文原名）、`origins`（所属作品）。
+- 产物 `out/evidence_ehtt_iwara.json`，`make_batches` 自动附进任务的 `evidence.ehtt`；
+  Danbooru 没异议、但 EhTT 中文名不同的条目会出 `adjudicate`（`candidatesFrom: ehtt`）。
+- 两类已知误导方向按命名空间自动挂 `warning`：
+  性癖类（male / female / mixed）用的是本子圈说法（`anal → 爆肛`）；
+  按拼写撞名（`almond_eye` 在 E 站是赛马娘角色，不是「杏眼」）。
+- 协议 CC BY-NC-SA 3.0：**只作核对证据，不把它的文本原样打包进 App。**
+
+实测（2026-11-24，iwara 2942 条）：命中 1404，其中一致 967、不一致 423、
+我们中文位还是英文而它有中文 14（`aemeath → 爱弥斯`、`stella_sora → 星塔旅人`）。
+
+### 整表重译
+
+```bash
+dart run tool/tag_verify/make_batches.dart --retranslate   # iwara 每条都出四语言 translate（跳过 overrides）
+```
+
+每条带 `current`（旧 AI 译名，仅参考）与两份证据；收回仍走 `ingest.dart`，写进 `iwara_tags_localized.json`。

@@ -20,7 +20,7 @@
   "1_girl": {
     "zh-CN": "1个女孩",
     "zh-TW": "1個女孩",
-    "ja": "1人",
+    "ja": "1人の女の子",
     "en": "1 Girl"
   },
   "2020instillation": {
@@ -139,7 +139,7 @@
   },
   "abigail_williams": {
     "zh-CN": "阿比盖尔·威廉姆斯",
-    "zh-TW": "阿比蓋爾·威廉斯",
+    "zh-TW": "艾比蓋爾·威廉斯",
     "ja": "アビゲイル・ウィリアムズ",
     "en": "Abigail Williams"
   },
@@ -222,9 +222,9 @@
     "en": "Aegir"
   },
   "aemeath": {
-    "zh-CN": "Aemeath",
-    "zh-TW": "Aemeath",
-    "ja": "Aemeath",
+    "zh-CN": "爱弥斯",
+    "zh-TW": "愛彌斯",
+    "ja": "エイメス",
     "en": "Aemeath"
   },
   "aerith_gainsborough": {
@@ -270,8 +270,8 @@
     "en": "Ägir"
   },
   "aglaea": {
-    "zh-CN": "阿格莱亚",
-    "zh-TW": "阿格萊亞",
+    "zh-CN": "阿格莱雅",
+    "zh-TW": "阿格萊雅",
     "ja": "アグライア",
     "en": "Aglaea"
   },
@@ -283,7 +283,7 @@
   },
   "ahri": {
     "zh-CN": "阿狸",
-    "zh-TW": "阿狸",
+    "zh-TW": "阿璃",
     "ja": "アーリ",
     "en": "Ahri"
   },
@@ -324,14 +324,14 @@
     "en": "AI Voice"
   },
   "airani_iofiteen": {
-    "zh-CN": "艾兰妮·霍菲汀",
-    "zh-TW": "艾蘭妮·霍菲汀",
-    "ja": "アイラニ・イオフイフティーン",
+    "zh-CN": "艾拉妮·伊欧菲芙婷",
+    "zh-TW": "艾拉妮·伊歐菲芙婷",
+    "ja": "アイラニ・イオフィフティーン",
     "en": "Airani Iofifteen"
   },
   "aizawa_ema": {
-    "zh-CN": "蓝泽惠麻",
-    "zh-TW": "藍澤惠麻",
+    "zh-CN": "蓝泽艾玛",
+    "zh-TW": "藍澤艾瑪",
     "ja": "藍沢エマ",
     "en": "Aizawa Ema"
   },
@@ -426,10 +426,10 @@
     "en": "Alexandrina"
   },
   "algaea": {
-    "zh-CN": "阿格莱亚",
-    "zh-TW": "阿格萊亞",
+    "zh-CN": "阿格莱雅",
+    "zh-TW": "阿格萊雅",
     "ja": "アグライア",
-    "en": "Algaea"
+    "en": "Aglaea"
   },
   "alhaitham": {
     "zh-CN": "艾尔海森",
@@ -444,8 +444,8 @@
     "en": "Alice"
   },
   "alice_thymefield": {
-    "zh-CN": "爱丽丝·塞姆菲尔德",
-    "zh-TW": "愛麗絲·塞姆菲爾德",
+    "zh-CN": "爱丽丝·泰姆菲尔德",
+    "zh-TW": "愛麗絲·泰姆菲爾德",
     "ja": "アリス・タイムフィールド",
     "en": "Alice Thymefield"
   },
@@ -465,7 +465,7 @@
     "zh-CN": "贯通",
     "zh-TW": "貫通",
     "ja": "貫通",
-    "en": "All the way through"
+    "en": "All the Way Through"
   },
   "almond_eye": {
     "zh-CN": "杏眼",
@@ -522,8 +522,8 @@
     "en": "Misa Amane"
   },
   "amatsuka_uto": {
-    "zh-CN": "天使Uto",
-    "zh-TW": "天使Uto",
+    "zh-CN": "天使兔跳",
+    "zh-TW": "天使兔跳",
     "ja": "天使うと",
     "en": "Uto Amatsuka"
   },
@@ -738,8 +738,8 @@
     "en": "Anime Style"
   },
   "anis": {
-    "zh-CN": "阿尼斯",
-    "zh-TW": "阿尼斯",
+    "zh-CN": "阿妮斯",
+    "zh-TW": "阿妮斯",
     "ja": "アニス",
     "en": "Anis"
   },
@@ -776,7 +776,7 @@
   "anzu": {
     "zh-CN": "杏",
     "zh-TW": "杏",
-    "ja": "杏",
+    "ja": "アンズ",
     "en": "Anzu"
   },
   "aoa_heartattack": {
@@ -810,9 +810,9 @@
     "en": "Aoki Lapis"
   },
   "aomori_mine": {
-    "zh-CN": "青森峰",
-    "zh-TW": "青森峰",
-    "ja": "青森みね",
+    "zh-CN": "苍森美弥",
+    "zh-TW": "蒼森美祢",
+    "ja": "蒼森ミネ",
     "en": "Mine Aomori"
   },
   "api_miku": {
@@ -864,8 +864,8 @@
     "en": "Arcueid Brunestud"
   },
   "ardelia_arknights_endfield": {
-    "zh-CN": "阿德莉亚",
-    "zh-TW": "阿德莉亞",
+    "zh-CN": "艾尔黛拉",
+    "zh-TW": "艾爾黛拉",
     "ja": "アーデリア",
     "en": "Ardelia"
   },
@@ -943,7 +943,7 @@
   },
   "arona": {
     "zh-CN": "阿罗娜",
-    "zh-TW": "阿羅娜",
+    "zh-TW": "彩奈",
     "ja": "アロナ",
     "en": "Arona"
   },
@@ -954,7 +954,7 @@
     "en": "Artoria"
   },
   "asagi_mutsuki": {
-    "zh-CN": "浅黄无月",
+    "zh-CN": "浅黄睦月",
     "zh-TW": "淺黃無月",
     "ja": "浅黄ムツキ",
     "en": "Asagi Mutsuki"
@@ -1063,7 +1063,7 @@
   },
   "asuma_toki": {
     "zh-CN": "飞鸟马时",
-    "zh-TW": "飛鳥馬時",
+    "zh-TW": "飛鳥馬季",
     "ja": "飛鳥馬トキ",
     "en": "Asuma Toki"
   },
@@ -1140,8 +1140,8 @@
     "en": "Avatar: The Last Airbender"
   },
   "avywenna_arknights_endfield": {
-    "zh-CN": "艾文娜",
-    "zh-TW": "艾文娜",
+    "zh-CN": "艾维文娜",
+    "zh-TW": "艾維文娜",
     "ja": "アヴィウェンナ",
     "en": "Avywenna"
   },
@@ -1158,8 +1158,8 @@
     "en": "Ayaka"
   },
   "ayakashi_rumble": {
-    "zh-CN": "妖怪Rumble!",
-    "zh-TW": "妖怪Rumble!",
+    "zh-CN": "妖怪大乱斗",
+    "zh-TW": "妖怪大亂鬥",
     "ja": "あやかしランブル！",
     "en": "Ayakashi Rumble!"
   },
@@ -1254,7 +1254,7 @@
     "en": "Baizhi"
   },
   "bakemonogatari": {
-    "zh-CN": "化物語",
+    "zh-CN": "化物语",
     "zh-TW": "化物語",
     "ja": "化物語",
     "en": "Bakemonogatari"
@@ -1357,7 +1357,7 @@
   },
   "battle_girl_high_school": {
     "zh-CN": "战斗女子高校",
-    "zh-TW": "戰鬥女子高校",
+    "zh-TW": "戰鬥女子學園",
     "ja": "バトルガール ハイスクール",
     "en": "Battle Girl High School"
   },
@@ -1434,8 +1434,8 @@
     "en": "Beauty Mark"
   },
   "becky_blackbell": {
-    "zh-CN": "贝姬·布莱克贝尔",
-    "zh-TW": "貝姬·布萊克貝爾",
+    "zh-CN": "贝琪·布莱克贝尔",
+    "zh-TW": "貝琪·布萊克貝爾",
     "ja": "ベッキー・ブラックベル",
     "en": "Becky Blackbell"
   },
@@ -1674,8 +1674,8 @@
     "en": "Black Hair"
   },
   "black_heart": {
-    "zh-CN": "黑心",
-    "zh-TW": "黑心",
+    "zh-CN": "圣黑之心",
+    "zh-TW": "聖黑之心",
     "ja": "ブラックハート",
     "en": "Black Heart"
   },
@@ -1698,8 +1698,8 @@
     "en": "Black Rock Shooter"
   },
   "black_sister": {
-    "zh-CN": "黑妹妹",
-    "zh-TW": "黑妹妹",
+    "zh-CN": "圣黑之妹",
+    "zh-TW": "聖黑之妹",
     "ja": "ブラックシスター",
     "en": "Black Sister"
   },
@@ -1788,8 +1788,8 @@
     "en": "Blowjob"
   },
   "blue_archive": {
-    "zh-CN": "碧蓝档案",
-    "zh-TW": "碧藍檔案",
+    "zh-CN": "蔚蓝档案",
+    "zh-TW": "蔚藍檔案",
     "ja": "ブルーアーカイブ",
     "en": "Blue Archive"
   },
@@ -1813,7 +1813,7 @@
   },
   "bo_peep": {
     "zh-CN": "牧羊女宝儿",
-    "zh-TW": "牧羊女寶兒",
+    "zh-TW": "牧羊女寶貝",
     "ja": "ボー・ピープ",
     "en": "Bo Peep"
   },
@@ -1909,7 +1909,7 @@
   },
   "bopeep": {
     "zh-CN": "牧羊女宝儿",
-    "zh-TW": "牧羊女寶兒",
+    "zh-TW": "牧羊女寶貝",
     "ja": "ボー・ピープ",
     "en": "Bo Peep"
   },
@@ -2005,7 +2005,7 @@
   },
   "brigitte": {
     "zh-CN": "布丽吉塔",
-    "zh-TW": "布麗吉塔",
+    "zh-TW": "碧姬",
     "ja": "ブリギッテ",
     "en": "Brigitte"
   },
@@ -2204,7 +2204,7 @@
   "calabiyau": {
     "zh-CN": "卡拉彼丘",
     "zh-TW": "卡拉彼丘",
-    "ja": "カラビヤウ",
+    "ja": "ストリノヴァ",
     "en": "Strinova"
   },
   "call_on_me": {
@@ -2244,8 +2244,8 @@
     "en": "Cammy White"
   },
   "cana_alberona": {
-    "zh-CN": "卡娜·阿鲁佩洛娜",
-    "zh-TW": "卡娜·阿魯佩洛娜",
+    "zh-CN": "卡娜·阿尔贝罗纳",
+    "zh-TW": "卡娜·阿爾貝羅納",
     "ja": "カナ・アルベローナ",
     "en": "Cana Alberona"
   },
@@ -2304,9 +2304,9 @@
     "en": "Car Sex"
   },
   "carlotta": {
-    "zh-CN": "卡洛塔",
-    "zh-TW": "卡洛塔",
-    "ja": "カロッタ",
+    "zh-CN": "珂莱塔",
+    "zh-TW": "珂萊塔",
+    "ja": "カルロッタ",
     "en": "Carlotta"
   },
   "cartethyia": {
@@ -2318,7 +2318,7 @@
   "castorice": {
     "zh-CN": "遐蝶",
     "zh-TW": "遐蝶",
-    "ja": "カストリーチェ",
+    "ja": "キャストリス",
     "en": "Castorice"
   },
   "casual_nudity": {
@@ -2664,9 +2664,9 @@
     "en": "Cinderella"
   },
   "cipher": {
-    "zh-CN": "密码",
-    "zh-TW": "密碼",
-    "ja": "サイファー",
+    "zh-CN": "赛飞儿",
+    "zh-TW": "賽飛兒",
+    "ja": "サフェル",
     "en": "Cipher"
   },
   "cirno": {
@@ -2682,8 +2682,8 @@
     "en": "Cissia"
   },
   "citlali": {
-    "zh-CN": "茜特拉莉",
-    "zh-TW": "茜特拉莉",
+    "zh-CN": "茜特菈莉",
+    "zh-TW": "茜特菈莉",
     "ja": "シトラリ",
     "en": "Citlali"
   },
@@ -2994,10 +2994,10 @@
     "en": "Creampie"
   },
   "crelly": {
-    "zh-CN": "crelly",
-    "zh-TW": "crelly",
-    "ja": "crelly",
-    "en": "crelly"
+    "zh-CN": "Crelly",
+    "zh-TW": "Crelly",
+    "ja": "Crelly",
+    "en": "Crelly"
   },
   "crime_miku": {
     "zh-CN": "犯罪初音",
@@ -3271,7 +3271,7 @@
   },
   "danganronpa": {
     "zh-CN": "弹丸论破",
-    "zh-TW": "彈丸論破",
+    "zh-TW": "槍彈辯駁",
     "ja": "ダンガンロンパ",
     "en": "Danganronpa"
   },
@@ -3307,7 +3307,7 @@
   },
   "dark_souls": {
     "zh-CN": "黑暗之魂",
-    "zh-TW": "黑暗之魂",
+    "zh-TW": "黑暗靈魂",
     "ja": "ダークソウル",
     "en": "Dark Souls"
   },
@@ -3343,7 +3343,7 @@
   },
   "dead_or_alive": {
     "zh-CN": "死或生",
-    "zh-TW": "死或生",
+    "zh-TW": "生死格鬥",
     "ja": "デッド オア アライブ",
     "en": "Dead or Alive"
   },
@@ -3432,10 +3432,10 @@
     "en": "Dialogue"
   },
   "dialyn": {
-    "zh-CN": "dialyn",
-    "zh-TW": "dialyn",
-    "ja": "dialyn",
-    "en": "dialyn"
+    "zh-CN": "琉音",
+    "zh-TW": "琉音",
+    "ja": "ダイアリン",
+    "en": "Dialyn"
   },
   "diaper": {
     "zh-CN": "尿布",
@@ -3529,7 +3529,7 @@
   },
   "doaxvv": {
     "zh-CN": "死或生沙滩排球：维纳斯假期",
-    "zh-TW": "死或生沙灘排球：維納斯假期",
+    "zh-TW": "生死格鬥：沙灘排球維納斯假期",
     "ja": "デッド オア アライブ エクストリーム ヴィーナス バケーション",
     "en": "DOAXVV"
   },
@@ -3583,8 +3583,8 @@
   },
   "dongfang_zhizi": {
     "zh-CN": "东方栀子",
-    "zh-TW": "東方栀子",
-    "ja": "東方栀子",
+    "zh-TW": "東方梔子",
+    "ja": "東方梔子",
     "en": "Dongfang Zhizi"
   },
   "donut_hole": {
@@ -3752,7 +3752,7 @@
   "earlette": {
     "zh-CN": "厄莱特",
     "zh-TW": "厄萊特",
-    "ja": "アレット",
+    "ja": "アーレット",
     "en": "Earlette"
   },
   "eda_clawthorne": {
@@ -3774,8 +3774,8 @@
     "en": "Edging"
   },
   "edna": {
-    "zh-CN": "埃德娜",
-    "zh-TW": "埃德娜",
+    "zh-CN": "艾德娜",
+    "zh-TW": "艾德娜",
     "ja": "エドナ",
     "en": "Edna"
   },
@@ -3834,8 +3834,8 @@
     "en": "Electric Shock"
   },
   "elegg": {
-    "zh-CN": "埃勒格",
-    "zh-TW": "埃勒格",
+    "zh-CN": "伊莱格",
+    "zh-TW": "艾蕾格",
     "ja": "エレグ",
     "en": "Elegg"
   },
@@ -3846,8 +3846,8 @@
     "en": "Elf"
   },
   "elinalise_dragonroad": {
-    "zh-CN": "艾莉娜丽洁·龙路",
-    "zh-TW": "艾莉娜麗潔·龍路",
+    "zh-CN": "艾莉娜丽洁·杜拉冈罗德",
+    "zh-TW": "艾莉娜麗潔·杜拉岡羅德",
     "ja": "エリナリーゼ・ドラゴンロード",
     "en": "Elinalise Dragonroad"
   },
@@ -3912,9 +3912,9 @@
     "en": "Emerald Sustrai"
   },
   "emma_august": {
-    "zh-CN": "艾玛·奥古斯特",
-    "zh-TW": "艾瑪·奧古斯特",
-    "ja": "エマ・アウグスト",
+    "zh-CN": "艾玛·奥加斯特",
+    "zh-TW": "艾瑪·奧加斯特",
+    "ja": "えま★おうがすと",
     "en": "Emma August"
   },
   "emotionless": {
@@ -4009,13 +4009,13 @@
   },
   "erza_scarlet": {
     "zh-CN": "艾露莎·斯卡雷特",
-    "zh-TW": "艾露莎·斯卡雷特",
+    "zh-TW": "艾爾莎·史卡雷特",
     "ja": "エルザ・スカーレット",
     "en": "Erza Scarlet"
   },
   "escoffier": {
-    "zh-CN": "埃斯科菲耶",
-    "zh-TW": "埃斯科菲耶",
+    "zh-CN": "爱可菲",
+    "zh-TW": "愛可菲",
     "ja": "エスコフィエ",
     "en": "Escoffier"
   },
@@ -4064,7 +4064,7 @@
   "evelyn_chevalier": {
     "zh-CN": "伊芙琳·舒瓦利耶",
     "zh-TW": "伊芙琳·舒瓦利耶",
-    "ja": "エヴリン・シュヴァリエ",
+    "ja": "イヴリン・シェヴァリエ",
     "en": "Evelyn Chevalier"
   },
   "excuse_me": {
@@ -4398,10 +4398,10 @@
     "en": "Flavia"
   },
   "fleurdelys": {
-    "zh-CN": "弗勒德莉丝",
-    "zh-TW": "弗勒德莉絲",
-    "ja": "フルルドリス",
-    "en": "Fleurdelis"
+    "zh-CN": "芙露德莉斯",
+    "zh-TW": "芙露德莉斯",
+    "ja": "フルールドリス",
+    "en": "Fleurdelys"
   },
   "flexible": {
     "zh-CN": "柔软",
@@ -4627,19 +4627,19 @@
   },
   "futaba_minato": {
     "zh-CN": "双叶凑音",
-    "zh-TW": "双葉湊音",
+    "zh-TW": "雙葉湊音",
     "ja": "双葉湊音",
     "en": "Futaba Minato"
   },
   "futami_ami": {
     "zh-CN": "双海亚美",
-    "zh-TW": "双海亞美",
+    "zh-TW": "雙海亞美",
     "ja": "双海亜美",
     "en": "Ami Futami"
   },
   "futami_mami": {
     "zh-CN": "双海真美",
-    "zh-TW": "双海真美",
+    "zh-TW": "雙海真美",
     "ja": "双海真美",
     "en": "Mami Futami"
   },
@@ -4938,14 +4938,14 @@
     "en": "Glide"
   },
   "glory_hole": {
-    "zh-CN": "荣耀之洞",
-    "zh-TW": "榮耀之洞",
+    "zh-CN": "寻欢洞",
+    "zh-TW": "尋歡洞",
     "ja": "グローリーホール",
     "en": "Glory Hole"
   },
   "gloryhole": {
-    "zh-CN": "荣耀之洞",
-    "zh-TW": "榮耀之洞",
+    "zh-CN": "寻欢洞",
+    "zh-TW": "尋歡洞",
     "ja": "グローリーホール",
     "en": "Gloryhole"
   },
@@ -5106,8 +5106,8 @@
     "en": "Green Hair"
   },
   "green_heart": {
-    "zh-CN": "绿心",
-    "zh-TW": "綠心",
+    "zh-CN": "翠绿之心",
+    "zh-TW": "翠綠之心",
     "ja": "グリーンハート",
     "en": "Green Heart"
   },
@@ -5328,7 +5328,7 @@
     "en": "Handjob"
   },
   "hanekawa_hasumi": {
-    "zh-CN": "羽川莲实",
+    "zh-CN": "羽川莲见",
     "zh-TW": "羽川蓮實",
     "ja": "羽川ハスミ",
     "en": "Hasumi Hanekawa"
@@ -5400,8 +5400,8 @@
     "en": "Hatsune Miku"
   },
   "hatsune_mikuo": {
-    "zh-CN": "初音Mikuo",
-    "zh-TW": "初音Mikuo",
+    "zh-CN": "初音未来 [男版]",
+    "zh-TW": "初音未來 [男版]",
     "ja": "初音ミクオ",
     "en": "Hatsune Mikuo"
   },
@@ -5532,7 +5532,7 @@
     "en": "Heterosexual"
   },
   "hex_maniac": {
-    "zh-CN": "灵异狂",
+    "zh-CN": "灵异迷",
     "zh-TW": "靈異狂",
     "ja": "オカルトマニア",
     "en": "Hex Maniac"
@@ -5671,7 +5671,7 @@
   },
   "hime_futaba": {
     "zh-CN": "双叶姬",
-    "zh-TW": "双葉姬",
+    "zh-TW": "雙葉姬",
     "ja": "双葉ひめ",
     "en": "Hime Futaba"
   },
@@ -5838,8 +5838,8 @@
     "en": "Honkai: Star Rail"
   },
   "honoka": {
-    "zh-CN": "穗乃果",
-    "zh-TW": "穗乃果",
+    "zh-CN": "穗香",
+    "zh-TW": "穗香",
     "ja": "ほのか",
     "en": "Honoka"
   },
@@ -6054,8 +6054,8 @@
     "en": "Hyacine"
   },
   "hyakumantenbara_salome": {
-    "zh-CN": "壹百满天原萨乐美",
-    "zh-TW": "壹百滿天原薩樂美",
+    "zh-CN": "壹百满天原莎乐美",
+    "zh-TW": "壹百滿天原莎樂美",
     "ja": "壱百満天原サロメ",
     "en": "Hyakumantenbara Salome"
   },
@@ -6356,7 +6356,7 @@
   "inui_toko": {
     "zh-CN": "戌亥床",
     "zh-TW": "戌亥床",
-    "ja": "戌亥トコ",
+    "ja": "戌亥とこ",
     "en": "Inui Toko"
   },
   "inverted_nipples": {
@@ -6462,9 +6462,9 @@
     "en": "Interspecies Sex"
   },
   "itagaki_kanoe": {
-    "zh-CN": "板垣伴衣",
-    "zh-TW": "板垣伴衣",
-    "ja": "板垣伴衣",
+    "zh-CN": "板垣鹿江",
+    "zh-TW": "板垣鹿江",
+    "ja": "板垣カノエ",
     "en": "Kanoe Itagaki"
   },
   "italian": {
@@ -6510,7 +6510,7 @@
     "en": "Moe Iwasaka"
   },
   "izayoi_nonomi": {
-    "zh-CN": "十六夜野乃美",
+    "zh-CN": "十六夜野宫",
     "zh-TW": "十六夜野乃美",
     "ja": "十六夜ノノミ",
     "en": "Nonomi Izayoi"
@@ -6630,10 +6630,10 @@
     "en": "Jinhsi"
   },
   "jinshi": {
-    "zh-CN": "今汐",
-    "zh-TW": "今汐",
-    "ja": "今汐",
-    "en": "Jinhsi"
+    "zh-CN": "壬氏",
+    "zh-TW": "壬氏",
+    "ja": "壬氏",
+    "en": "Jinshi"
   },
   "jk": {
     "zh-CN": "女高中生",
@@ -6656,7 +6656,7 @@
   "jougasaki_mika": {
     "zh-CN": "城崎美嘉",
     "zh-TW": "城崎美嘉",
-    "ja": "城崎美嘉",
+    "ja": "城ヶ崎美嘉",
     "en": "Mika Jougasaki"
   },
   "joutouguu_mayumi": {
@@ -6888,8 +6888,8 @@
     "en": "Kana Arima"
   },
   "kanaeru_kobo": {
-    "zh-CN": "科波·卡纳埃尔",
-    "zh-TW": "科波·卡納埃爾",
+    "zh-CN": "可波·卡娜埃露",
+    "zh-TW": "可波·卡娜埃露",
     "ja": "こぼ・かなえる",
     "en": "Kobo Kanaeru"
   },
@@ -6912,9 +6912,9 @@
     "en": "Kanan"
   },
   "kananagi_seiran": {
-    "zh-CN": "金凪青兰",
-    "zh-TW": "金凪青蘭",
-    "ja": "金凪青蘭",
+    "zh-CN": "奏渚汐蓝",
+    "zh-TW": "奏渚汐藍",
+    "ja": "奏渚汐藍",
     "en": "Seiran Kananagi"
   },
   "kancolle": {
@@ -7087,8 +7087,8 @@
   },
   "kicchou_yachie": {
     "zh-CN": "吉吊八千慧",
-    "zh-TW": "吉吊八千慧",
-    "ja": "吉吊八千慧",
+    "zh-TW": "吉弔八千慧",
+    "ja": "吉弔八千慧",
     "en": "Yachie Kicchou"
   },
   "kidnapping": {
@@ -7196,7 +7196,7 @@
   "kiriya_rukoni": {
     "zh-CN": "Kiriya Rukoni",
     "zh-TW": "Kiriya Rukoni",
-    "ja": "Kiriya Rukoni",
+    "ja": "伐谷るこに",
     "en": "Kiriya Rukoni"
   },
   "kiryu_coco": {
@@ -7226,7 +7226,7 @@
   "kishitori_isaka": {
     "zh-CN": "Kishitori Isaka",
     "zh-TW": "Kishitori Isaka",
-    "ja": "Kishitori Isaka",
+    "ja": "キシトリ・イサカ",
     "en": "Kishitori Isaka"
   },
   "kiso": {
@@ -7286,7 +7286,7 @@
   "klukai": {
     "zh-CN": "可露凯",
     "zh-TW": "可露凱",
-    "ja": "クロエ",
+    "ja": "クルカイ",
     "en": "Klukai"
   },
   "knot": {
@@ -7334,7 +7334,7 @@
   "kokomi": {
     "zh-CN": "珊瑚宫心海",
     "zh-TW": "珊瑚宮心海",
-    "ja": "珊瑚宮ここみ",
+    "ja": "珊瑚宮心海",
     "en": "Sangonomiya Kokomi"
   },
   "kokona": {
@@ -7358,7 +7358,7 @@
   "koleda_belobog": {
     "zh-CN": "珂蕾妲·贝洛伯格",
     "zh-TW": "珂蕾妲·貝洛伯格",
-    "ja": "コレダ・ベロボーグ",
+    "ja": "クレタ・ベロボーグ",
     "en": "Koleda Belobog"
   },
   "komai_ume": {
@@ -7434,8 +7434,8 @@
     "en": "Koshitantan"
   },
   "kotone_fujita": {
-    "zh-CN": "藤田琴音",
-    "zh-TW": "藤田琴音",
+    "zh-CN": "藤田言音",
+    "zh-TW": "藤田言音",
     "ja": "藤田ことね",
     "en": "Kotone Fujita"
   },
@@ -7466,13 +7466,13 @@
   "krolik": {
     "zh-CN": "克罗丽科",
     "zh-TW": "克羅麗科",
-    "ja": "クロリック",
+    "ja": "キャロリック",
     "en": "Krolik"
   },
   "kuchiba_chisa": {
     "zh-CN": "朽叶千咲",
     "zh-TW": "朽葉千咲",
-    "ja": "朽葉ちさ",
+    "ja": "朽葉千咲",
     "en": "Kuchiba Chisa"
   },
   "kuchiki_rukia": {
@@ -7544,7 +7544,7 @@
   "kyo_chan": {
     "zh-CN": "Kyo-chan",
     "zh-TW": "Kyo-chan",
-    "ja": "Kyo-chan",
+    "ja": "キョーちゃん",
     "en": "Kyo-chan"
   },
   "kyoko_kirigiri": {
@@ -7562,7 +7562,7 @@
   "kyougoku_satsuki": {
     "zh-CN": "京极皋月",
     "zh-TW": "京極皋月",
-    "ja": "京極さつき",
+    "ja": "京極サツキ",
     "en": "Satsuki Kyougoku"
   },
   "kyouka": {
@@ -7614,9 +7614,9 @@
     "en": "Laimu"
   },
   "lainie": {
-    "zh-CN": "蕾妮",
-    "zh-TW": "蕾妮",
-    "ja": "レイニ",
+    "zh-CN": "莱妮",
+    "zh-TW": "萊妮",
+    "ja": "レイニー",
     "en": "Lainie"
   },
   "lalatina_dustiness_ford": {
@@ -7698,8 +7698,8 @@
     "en": "Latex"
   },
   "lauma": {
-    "zh-CN": "劳玛",
-    "zh-TW": "勞瑪",
+    "zh-CN": "菈乌玛",
+    "zh-TW": "菈烏瑪",
     "ja": "ラウマ",
     "en": "Lauma"
   },
@@ -7794,8 +7794,8 @@
     "en": "Lesbian with Male"
   },
   "leva": {
-    "zh-CN": "莱娜",
-    "zh-TW": "萊娜",
+    "zh-CN": "莱娅",
+    "zh-TW": "萊婭",
     "ja": "リヴァ",
     "en": "Leva"
   },
@@ -7884,8 +7884,8 @@
     "en": "Lilia"
   },
   "liliya_olenyeva": {
-    "zh-CN": "莉莉娅·阿林",
-    "zh-TW": "莉莉婭·阿林",
+    "zh-CN": "莉莉娅·阿琳",
+    "zh-TW": "莉莉婭·阿琳",
     "ja": "リリア・アリーン",
     "en": "Liliya Olenyeva"
   },
@@ -7938,8 +7938,8 @@
     "en": "Link"
   },
   "linnea": {
-    "zh-CN": "林内娅",
-    "zh-TW": "林內婭",
+    "zh-CN": "莉奈娅",
+    "zh-TW": "莉奈婭",
     "ja": "リンネア",
     "en": "Linnea"
   },
@@ -8077,14 +8077,14 @@
   },
   "lucia_elowen": {
     "zh-CN": "卢西娅·艾洛温",
-    "zh-TW": "盧西亞·艾洛溫",
-    "ja": "ルシア・エローウェン",
+    "zh-TW": "盧西婭·艾洛溫",
+    "ja": "リュシア・エロウェン",
     "en": "Lucia Elowen"
   },
   "luciana_de_montefio": {
     "zh-CN": "露西亚娜·德·蒙特夫",
     "zh-TW": "露西亞娜·德·蒙特夫",
-    "ja": "ルシアナ・デ・モンテフィオ",
+    "ja": "ルシアーナ・デ・モンテフィーノ",
     "en": "Luciana de Montefio"
   },
   "lucoa": {
@@ -8269,7 +8269,7 @@
   },
   "makima": {
     "zh-CN": "玛奇玛",
-    "zh-TW": "瑪奇瑪",
+    "zh-TW": "真紀真",
     "ja": "マキマ",
     "en": "Makima"
   },
@@ -8420,7 +8420,7 @@
   "mating_press": {
     "zh-CN": "压榨体位",
     "zh-TW": "壓榨體位",
-    "ja": "メイティングプレス",
+    "ja": "種付けプレス",
     "en": "Mating Press"
   },
   "matoi_ryuuko": {
@@ -8568,8 +8568,8 @@
     "en": "Melissa Shield"
   },
   "melona": {
-    "zh-CN": "美洛娜",
-    "zh-TW": "美洛娜",
+    "zh-CN": "梅罗娜",
+    "zh-TW": "梅羅娜",
     "ja": "メローナ",
     "en": "Melona"
   },
@@ -8628,10 +8628,10 @@
     "en": "Mesugaki"
   },
   "metan": {
-    "zh-CN": "四国美潭",
-    "zh-TW": "四國美潭",
-    "ja": "四国めたん",
-    "en": "Shikoku Metan"
+    "zh-CN": "玫碳",
+    "zh-TW": "玫碳",
+    "ja": "めたん",
+    "en": "Metan"
   },
   "metroid": {
     "zh-CN": "银河战士",
@@ -8670,20 +8670,20 @@
     "en": "miHoYo"
   },
   "mika_misono": {
-    "zh-CN": "圣园弥香",
-    "zh-TW": "聖園彌香",
+    "zh-CN": "圣园未花",
+    "zh-TW": "聖園未花",
     "ja": "聖園ミカ",
     "en": "Mika Misono"
   },
   "mikari_tachibana": {
-    "zh-CN": "橘美香里",
-    "zh-TW": "橘美香里",
-    "ja": "橘美香里",
+    "zh-CN": "橘美花莉",
+    "zh-TW": "橘美花莉",
+    "ja": "橘美花莉",
     "en": "Mikari Tachibana"
   },
   "mikasa_ackerman": {
     "zh-CN": "三笠·阿克曼",
-    "zh-TW": "三笠·阿克曼",
+    "zh-TW": "米卡莎·阿卡曼",
     "ja": "ミカサ・アッカーマン",
     "en": "Mikasa Ackerman"
   },
@@ -8874,14 +8874,14 @@
     "en": "Misaki Shokuhou"
   },
   "miside": {
-    "zh-CN": "MiSide",
-    "zh-TW": "MiSide",
-    "ja": "MiSide",
+    "zh-CN": "米塔",
+    "zh-TW": "米塔",
+    "ja": "ミサイド",
     "en": "MiSide"
   },
   "misono_mika": {
-    "zh-CN": "圣园弥香",
-    "zh-TW": "聖園彌香",
+    "zh-CN": "圣园未花",
+    "zh-TW": "聖園未花",
     "ja": "聖園ミカ",
     "en": "Mika Misono"
   },
@@ -8922,9 +8922,9 @@
     "en": "Mitachurl"
   },
   "mitsuda_oshiki": {
-    "zh-CN": "Mitsuda Oshiki",
-    "zh-TW": "Mitsuda Oshiki",
-    "ja": "Mitsuda Oshiki",
+    "zh-CN": "折岸蜜",
+    "zh-TW": "折岸蜜",
+    "ja": "折岸みつ",
     "en": "Mitsuda Oshiki"
   },
   "mitsuri_kanroji": {
@@ -8958,8 +8958,8 @@
     "en": "Miyoi Okunoda"
   },
   "miyoshi_takane": {
-    "zh-CN": "三善高岭",
-    "zh-TW": "三善高嶺",
+    "zh-CN": "三善贵音",
+    "zh-TW": "三善貴音",
     "ja": "三善タカネ",
     "en": "Takane Miyoshi"
   },
@@ -9146,7 +9146,7 @@
   "mornye": {
     "zh-CN": "莫宁",
     "zh-TW": "莫寧",
-    "ja": "モルニ",
+    "ja": "モーニエ",
     "en": "Mornye"
   },
   "mother": {
@@ -9403,7 +9403,7 @@
   },
   "narmaya": {
     "zh-CN": "娜露梅",
-    "zh-TW": "娜露梅",
+    "zh-TW": "娜魯梅亞",
     "ja": "ナルメア",
     "en": "Narmaya"
   },
@@ -9438,9 +9438,9 @@
     "en": "Natsuki Karin"
   },
   "natsume_iroha": {
-    "zh-CN": "夏目彩羽",
-    "zh-TW": "夏目彩羽",
-    "ja": "夏目いろは",
+    "zh-CN": "枣伊吕波",
+    "zh-TW": "棗伊呂波",
+    "ja": "棗イロハ",
     "en": "Natsume Iroha"
   },
   "natsume_moe": {
@@ -9487,7 +9487,7 @@
   },
   "nefertari_vivi": {
     "zh-CN": "奈菲鲁塔丽·薇薇",
-    "zh-TW": "奈菲魯塔麗·薇薇",
+    "zh-TW": "納菲魯塔利·薇薇",
     "ja": "ネフェルタリ・ビビ",
     "en": "Nefertari Vivi"
   },
@@ -9505,7 +9505,7 @@
   },
   "nekomata_okayu": {
     "zh-CN": "猫又小粥",
-    "zh-TW": "猫又小粥",
+    "zh-TW": "貓又小粥",
     "ja": "猫又おかゆ",
     "en": "Nekomata Okayu"
   },
@@ -9528,14 +9528,14 @@
     "en": "Nekomiya Mana"
   },
   "nekopara": {
-    "zh-CN": "巧克力与香子兰",
-    "zh-TW": "巧克力與香子蘭",
-    "ja": "ネコパラ",
+    "zh-CN": "猫娘乐园",
+    "zh-TW": "貓娘樂園",
+    "ja": "ネコぱら",
     "en": "Nekopara"
   },
   "nemesis": {
     "zh-CN": "涅墨西斯",
-    "zh-TW": "涅墨西斯",
+    "zh-TW": "涅梅西斯",
     "ja": "ネメシス",
     "en": "Nemesis"
   },
@@ -9558,20 +9558,20 @@
     "en": "Neopolitan"
   },
   "nepgear": {
-    "zh-CN": "涅普吉雅",
-    "zh-TW": "涅普吉雅",
+    "zh-CN": "涅普姬雅",
+    "zh-TW": "涅普姬雅",
     "ja": "ネプギア",
     "en": "Nepgear"
   },
   "neptune": {
     "zh-CN": "涅普迪努",
-    "zh-TW": "涅普媞努",
+    "zh-TW": "妮普禔努",
     "ja": "ネプテューヌ",
     "en": "Neptune"
   },
   "nerissa_ravencroft": {
-    "zh-CN": "涅莉萨·雷文克罗夫特",
-    "zh-TW": "涅莉薩·雷文克羅夫特",
+    "zh-CN": "纳瑞莎·雷文克罗夫特",
+    "zh-TW": "納瑞莎·雷文克羅夫特",
     "ja": "ネリッサ・レイヴンクロフト",
     "en": "Nerissa Ravencroft"
   },
@@ -9660,14 +9660,14 @@
     "en": "Nico Robin"
   },
   "nicole_demara": {
-    "zh-CN": "妮可·德马拉",
-    "zh-TW": "妮可·德馬拉",
+    "zh-CN": "妮可·德玛拉",
+    "zh-TW": "妮可·德瑪拉",
     "ja": "ニコル・デマラ",
     "en": "Nicole Demara"
   },
   "nicole_reeyn": {
-    "zh-CN": "妮可·莱恩",
-    "zh-TW": "妮可·萊恩",
+    "zh-CN": "尼可·莱恩",
+    "zh-TW": "尼可·萊恩",
     "ja": "ニコ・ライン",
     "en": "Nicole Reeyn"
   },
@@ -9895,7 +9895,7 @@
   },
   "nojiko_one_piece": {
     "zh-CN": "诺琪高",
-    "zh-TW": "諾琪高",
+    "zh-TW": "虹子",
     "ja": "ノジコ",
     "en": "Nojiko"
   },
@@ -9972,8 +9972,8 @@
     "en": "Nue Houjuu"
   },
   "nui_sociere": {
-    "zh-CN": "纽伊·索西艾尔",
-    "zh-TW": "紐伊·索西艾爾",
+    "zh-CN": "纽伊·索西艾瑞",
+    "zh-TW": "紐伊·索西艾瑞",
     "ja": "ニュイ・ソシエール",
     "en": "Nui Sociere"
   },
@@ -10026,9 +10026,9 @@
     "en": "Office Lady"
   },
   "oki_aoi": {
-    "zh-CN": "冲葵",
-    "zh-TW": "沖葵",
-    "ja": "沖アオイ",
+    "zh-CN": "扇喜葵",
+    "zh-TW": "扇喜碧",
+    "ja": "扇喜アオイ",
     "en": "Oki Aoi"
   },
   "old_man": {
@@ -10038,8 +10038,8 @@
     "en": "Old Man"
   },
   "olga_discordia": {
-    "zh-CN": "奥尔加·迪斯科迪亚",
-    "zh-TW": "奧爾加·迪斯科迪亞",
+    "zh-CN": "奥利卡·迪斯克伦蒂亚",
+    "zh-TW": "奧利卡·迪斯克倫蒂亞",
     "ja": "オルガ・ディスコルディア",
     "en": "Olga Discordia"
   },
@@ -10087,7 +10087,7 @@
   },
   "onikata_kayoko": {
     "zh-CN": "鬼方佳代子",
-    "zh-TW": "鬼方佳代子",
+    "zh-TW": "鬼方佳世子",
     "ja": "鬼方カヨコ",
     "en": "Onikata Kayoko"
   },
@@ -10146,8 +10146,8 @@
     "en": "Open Mouth Gag"
   },
   "open_panties": {
-    "zh-CN": "开档内裤",
-    "zh-TW": "開檔內褲",
+    "zh-CN": "开裆内裤",
+    "zh-TW": "開襠內褲",
     "ja": "オープンショーツ",
     "en": "Open Panties"
   },
@@ -10374,9 +10374,9 @@
     "en": "Pantyhose"
   },
   "pantyjob": {
-    "zh-CN": "丝袜脚交",
-    "zh-TW": "絲襪腳交",
-    "ja": "パンスト足コキ",
+    "zh-CN": "内裤交",
+    "zh-TW": "內褲交",
+    "ja": "パンツコキ",
     "en": "Pantyjob"
   },
   "pantyshot": {
@@ -10410,8 +10410,8 @@
     "en": "Pardofelis"
   },
   "parody": {
-    "zh-CN": "原作",
-    "zh-TW": "原作",
+    "zh-CN": "戏仿",
+    "zh-TW": "戲仿",
     "ja": "パロディ",
     "en": "Parody"
   },
@@ -10512,8 +10512,8 @@
     "en": "Penny Polendina"
   },
   "pepper": {
-    "zh-CN": "培珀",
-    "zh-TW": "培珀",
+    "zh-CN": "佩珀",
+    "zh-TW": "佩珀",
     "ja": "ペッパー",
     "en": "Pepper"
   },
@@ -10616,13 +10616,13 @@
   "phrolova": {
     "zh-CN": "弗洛洛",
     "zh-TW": "弗洛洛",
-    "ja": "フロロワ",
+    "ja": "フローヴァ",
     "en": "Phrolova"
   },
   "physical_strip": {
-    "zh-CN": "物理剥离",
-    "zh-TW": "物理剝離",
-    "ja": "物理ストリップ",
+    "zh-CN": "物理脱衣",
+    "zh-TW": "物理脫衣",
+    "ja": "物理脱衣",
     "en": "Physical Strip"
   },
   "piercings": {
@@ -10826,7 +10826,7 @@
   "poppy": {
     "zh-CN": "波比",
     "zh-TW": "波比",
-    "ja": "ポッピー",
+    "ja": "ポピー",
     "en": "Poppy"
   },
   "portal": {
@@ -10975,7 +10975,7 @@
   },
   "pripara": {
     "zh-CN": "美妙天堂",
-    "zh-TW": "美妙天堂",
+    "zh-TW": "星光樂園",
     "ja": "プリパラ",
     "en": "PriPara"
   },
@@ -11011,7 +11011,7 @@
   },
   "project_sekai": {
     "zh-CN": "世界计划",
-    "zh-TW": "世界計劃",
+    "zh-TW": "世界計畫",
     "ja": "プロジェクトセカイ",
     "en": "Project Sekai"
   },
@@ -11100,9 +11100,9 @@
     "en": "Puffy Nipples"
   },
   "pulchra": {
-    "zh-CN": "Pulchra",
-    "zh-TW": "Pulchra",
-    "ja": "Pulchra",
+    "zh-CN": "波可娜·费雷尼",
+    "zh-TW": "波可娜·費雷尼",
+    "ja": "プルクラ・フェリーニ",
     "en": "Pulchra"
   },
   "punishing_gray_raven": {
@@ -11370,8 +11370,8 @@
     "en": "Rappa"
   },
   "rapunzel": {
-    "zh-CN": "拉芬泽尔",
-    "zh-TW": "拉芬澤爾",
+    "zh-CN": "长发公主",
+    "zh-TW": "長髮公主",
     "ja": "ラプンツェル",
     "en": "Rapunzel"
   },
@@ -11461,7 +11461,7 @@
   },
   "rei_ayanami": {
     "zh-CN": "绫波丽",
-    "zh-TW": "綾波麗",
+    "zh-TW": "綾波零",
     "ja": "綾波レイ",
     "en": "Rei Ayanami"
   },
@@ -11653,7 +11653,7 @@
   },
   "rita_mordio": {
     "zh-CN": "丽塔·摩尔迪奥",
-    "zh-TW": "麗塔·摩爾迪奧",
+    "zh-TW": "莉塔·摩迪歐",
     "ja": "リタ・モルディオ",
     "en": "Rita Mordio"
   },
@@ -11730,14 +11730,14 @@
     "en": "Roslyn"
   },
   "rossi": {
-    "zh-CN": "罗西",
-    "zh-TW": "羅西",
+    "zh-CN": "洛茜",
+    "zh-TW": "洛茜",
     "ja": "ロッシ",
     "en": "Rossi"
   },
   "rossi_arknights_endfield": {
-    "zh-CN": "罗西 (明日方舟：终末地)",
-    "zh-TW": "羅西 (明日方舟：終末地)",
+    "zh-CN": "洛茜 (明日方舟：终末地)",
+    "zh-TW": "洛茜 (明日方舟：終末地)",
     "ja": "ロッシ (アークナイツ エンドフィールド)",
     "en": "Rossi (Arknights Endfield)"
   },
@@ -11970,8 +11970,8 @@
     "en": "Saliva"
   },
   "sameko_saba": {
-    "zh-CN": "Sameko Saba",
-    "zh-TW": "Sameko Saba",
+    "zh-CN": "鲨鱼子沙巴",
+    "zh-TW": "鯊魚子沙巴",
     "ja": "サメ子サバ",
     "en": "Sameko Saba"
   },
@@ -12200,7 +12200,7 @@
   "selfcest": {
     "zh-CN": "自交",
     "zh-TW": "自交",
-    "ja": "自己愛",
+    "ja": "自分姦",
     "en": "Selfcest"
   },
   "selfie": {
@@ -12654,9 +12654,9 @@
     "en": "Shy"
   },
   "shylily": {
-    "zh-CN": "Shylily",
-    "zh-TW": "Shylily",
-    "ja": "Shylily",
+    "zh-CN": "夏莉莉",
+    "zh-TW": "夏莉莉",
+    "ja": "シャイリリー",
     "en": "Shylily"
   },
   "sienna_khan": {
@@ -12739,7 +12739,7 @@
   },
   "sissy": {
     "zh-CN": "娘炮/女装癖",
-    "zh-TW": "娘炮/女裝癖",
+    "zh-TW": "娘砲/女裝癖",
     "ja": "シシー",
     "en": "Sissy"
   },
@@ -12979,7 +12979,7 @@
   },
   "sono_bisque_doll": {
     "zh-CN": "更衣人偶坠入爱河",
-    "zh-TW": "更衣人偶墜入愛河",
+    "zh-TW": "戀上換裝娃娃",
     "ja": "その着せ替え人形は恋をする",
     "en": "Sono Bisque Doll"
   },
@@ -13273,7 +13273,7 @@
   },
   "street_fighter": {
     "zh-CN": "街头霸王",
-    "zh-TW": "街頭霸王",
+    "zh-TW": "快打旋風",
     "ja": "ストリートファイター",
     "en": "Street Fighter"
   },
@@ -13392,10 +13392,10 @@
     "en": "Sukuna Shinmyoumaru"
   },
   "sumi_serina": {
-    "zh-CN": "鹫见芹香",
-    "zh-TW": "鷲見芹香",
+    "zh-CN": "鹫见芹娜",
+    "zh-TW": "鷲見芹娜",
     "ja": "鷲見セリナ",
-    "en": "Washimi Serina"
+    "en": "Sumi Serina"
   },
   "summer": {
     "zh-CN": "夏天",
@@ -13428,14 +13428,14 @@
     "en": "Sundress"
   },
   "sunna": {
-    "zh-CN": "Sunna",
-    "zh-TW": "Sunna",
-    "ja": "Sunna",
+    "zh-CN": "千夏",
+    "zh-TW": "千夏",
+    "ja": "千夏",
     "en": "Sunna"
   },
   "sunohara_kokona": {
-    "zh-CN": "春原心菜",
-    "zh-TW": "春原心菜",
+    "zh-CN": "春原心奈",
+    "zh-TW": "春原心奈",
     "ja": "春原ココナ",
     "en": "Sunohara Kokona"
   },
@@ -13554,9 +13554,9 @@
     "en": "Sweet Devil"
   },
   "sweety": {
-    "zh-CN": "甜美",
-    "zh-TW": "甜美",
-    "ja": "スウィーティー",
+    "zh-CN": "红豆",
+    "zh-TW": "紅豆",
+    "ja": "紅豆",
     "en": "Sweety"
   },
   "swimsuit": {
@@ -13596,15 +13596,15 @@
     "en": "T-elos"
   },
   "tachibana_hikari": {
-    "zh-CN": "橘日向",
-    "zh-TW": "橘日向",
-    "ja": "橘ひかり",
+    "zh-CN": "橘光",
+    "zh-TW": "橘光",
+    "ja": "橘ヒカリ",
     "en": "Tachibana Hikari"
   },
   "tachibana_nozomi": {
-    "zh-CN": "橘乃美",
-    "zh-TW": "橘乃美",
-    "ja": "橘のぞみ",
+    "zh-CN": "橘望",
+    "zh-TW": "橘望",
+    "ja": "橘ノゾミ",
     "en": "Tachibana Nozomi"
   },
   "tagme": {
@@ -13837,7 +13837,7 @@
   },
   "teen_titans": {
     "zh-CN": "少年泰坦",
-    "zh-TW": "少年泰坦",
+    "zh-TW": "少年悍將",
     "ja": "ティーン・タイタンズ",
     "en": "Teen Titans"
   },
@@ -13854,8 +13854,8 @@
     "en": "Tendo Arisu"
   },
   "tendo_kei": {
-    "zh-CN": "天童kei",
-    "zh-TW": "天童kei",
+    "zh-CN": "天童凯伊",
+    "zh-TW": "天童凱伊",
     "ja": "天童ケイ",
     "en": "Tendo Kei"
   },
@@ -13915,7 +13915,7 @@
   },
   "the_eminence_in_shadow": {
     "zh-CN": "想要成为影之强者！",
-    "zh-TW": "想要成為影之強者！",
+    "zh-TW": "我想成為影之強者！",
     "ja": "陰の実力者になりたくて！",
     "en": "The Eminence in Shadow"
   },
@@ -13946,7 +13946,7 @@
   "thelema": {
     "zh-CN": "瑟莉姆",
     "zh-TW": "瑟莉姆",
-    "ja": "セリマ",
+    "ja": "セルマ",
     "en": "Thelema"
   },
   "theresa": {
@@ -14167,14 +14167,14 @@
   },
   "tokoyami_towa": {
     "zh-CN": "常暗永远",
-    "zh-TW": "常暗永遠",
+    "zh-TW": "常闇永遠",
     "ja": "常闇トワ",
     "en": "Tokoyami Towa"
   },
   "tomari_mari": {
-    "zh-CN": "兔鞠Mari",
-    "zh-TW": "兔鞠Mari",
-    "ja": "兔鞠まり",
+    "zh-CN": "兔鞠玛丽",
+    "zh-TW": "兔鞠瑪麗",
+    "ja": "兎鞠まり",
     "en": "Tomari Mari"
   },
   "tomboy": {
@@ -14346,9 +14346,9 @@
     "en": "Hiyori Tsuchinaga"
   },
   "tsukasa_kudamaki": {
-    "zh-CN": "管牧典",
-    "zh-TW": "管牧典",
-    "ja": "管牧典",
+    "zh-CN": "菅牧典",
+    "zh-TW": "菅牧典",
+    "ja": "菅牧典",
     "en": "Tsukasa Kudamaki"
   },
   "tsukatsuki_rio": {
@@ -14443,7 +14443,7 @@
   },
   "tutorial": {
     "zh-CN": "教程",
-    "zh-TW": "教程",
+    "zh-TW": "教學",
     "ja": "チュートリアル",
     "en": "Tutorial"
   },
@@ -14671,7 +14671,7 @@
   },
   "ushio_noa": {
     "zh-CN": "生盐乃爱",
-    "zh-TW": "生塩乃愛",
+    "zh-TW": "生鹽乃愛",
     "ja": "生塩ノア",
     "en": "Noa Ushio"
   },
@@ -14760,8 +14760,8 @@
     "en": "Vanilla"
   },
   "varesa": {
-    "zh-CN": "瓦蕾莎",
-    "zh-TW": "瓦蕾莎",
+    "zh-CN": "瓦雷莎",
+    "zh-TW": "瓦雷莎",
     "ja": "ヴァレサ",
     "en": "Varesa"
   },
@@ -14826,8 +14826,8 @@
     "en": "Vertical Screen"
   },
   "very_large_dildo": {
-    "zh-CN": "巨型阳具",
-    "zh-TW": "巨型陽具",
+    "zh-CN": "巨型假阳具",
+    "zh-TW": "巨型假陽具",
     "ja": "超大ディルド",
     "en": "Very Large Dildo"
   },
@@ -14856,8 +14856,8 @@
     "en": "Vienna"
   },
   "vikala": {
-    "zh-CN": "唯卡拉",
-    "zh-TW": "唯卡拉",
+    "zh-CN": "碧卡拉",
+    "zh-TW": "碧卡拉",
     "ja": "ビカラ",
     "en": "Vikala"
   },
@@ -15122,7 +15122,7 @@
   "weiss_schnee": {
     "zh-CN": "魏丝·雪倪",
     "zh-TW": "魏絲·雪倪",
-    "ja": "ワイス·シュニー",
+    "ja": "ワイス・シュニー",
     "en": "Weiss Schnee"
   },
   "wendy_marvell": {
@@ -15174,8 +15174,8 @@
     "en": "White Hair"
   },
   "white_heart": {
-    "zh-CN": "白灵心",
-    "zh-TW": "白靈心",
+    "zh-CN": "纯白之心",
+    "zh-TW": "純白之心",
     "ja": "ホワイトハート",
     "en": "White Heart"
   },
@@ -15324,9 +15324,9 @@
     "en": "X-Ray"
   },
   "xaihi_arknights_endfield": {
-    "zh-CN": "艾茜",
-    "zh-TW": "艾茜",
-    "ja": "アイシー",
+    "zh-CN": "赛希",
+    "zh-TW": "賽希",
+    "ja": "ザイヒ",
     "en": "Xaihi"
   },
   "xani": {
@@ -15516,15 +15516,15 @@
     "en": "Yellow Hair"
   },
   "yellow_heart": {
-    "zh-CN": "黄灵心",
-    "zh-TW": "黃靈心",
+    "zh-CN": "黄色之心",
+    "zh-TW": "黃色之心",
     "ja": "イエローハート",
     "en": "Yellow Heart"
   },
   "yidhari": {
-    "zh-CN": "伊德海拉",
-    "zh-TW": "伊德海拉",
-    "ja": "イドーラ",
+    "zh-CN": "伊德海莉",
+    "zh-TW": "伊德海莉",
+    "ja": "イドリー",
     "en": "Yidhari"
   },
   "yifeng": {
@@ -15540,9 +15540,9 @@
     "en": "Yinlin"
   },
   "yixuan": {
-    "zh-CN": "Yixuan",
-    "zh-TW": "Yixuan",
-    "ja": "Yixuan",
+    "zh-CN": "仪玄",
+    "zh-TW": "儀玄",
+    "ja": "儀玄",
     "en": "Yixuan"
   },
   "yoimiya": {
@@ -15624,8 +15624,8 @@
     "en": "Youmu Konpaku"
   },
   "yowane_haku": {
-    "zh-CN": "弱音哈库",
-    "zh-TW": "弱音哈庫",
+    "zh-CN": "弱音白",
+    "zh-TW": "弱音白",
     "ja": "弱音ハク",
     "en": "Yowane Haku"
   },
@@ -15744,8 +15744,8 @@
     "en": "Mahiro Yukishiro"
   },
   "yukong": {
-    "zh-CN": "御空",
-    "zh-TW": "御空",
+    "zh-CN": "驭空",
+    "zh-TW": "馭空",
     "ja": "御空",
     "en": "Yukong"
   },
@@ -15764,7 +15764,7 @@
   "yumiella_dolkness": {
     "zh-CN": "尤蜜雅·戴克尼斯",
     "zh-TW": "尤蜜雅·戴克尼斯",
-    "ja": "ユミエラ・ドルクスネス",
+    "ja": "ユミエラ・ドルクネス",
     "en": "Yumiella Dolkness"
   },
   "yun_jin": {
@@ -15804,8 +15804,8 @@
     "en": "Yuri"
   },
   "yurizono_seia": {
-    "zh-CN": "百合园圣亚",
-    "zh-TW": "百合園聖亞",
+    "zh-CN": "百合园圣娅",
+    "zh-TW": "百合園聖婭",
     "ja": "百合園セイア",
     "en": "Seia Yurizono"
   },
@@ -15864,8 +15864,8 @@
     "en": "Maimai Yuzuriha"
   },
   "yvette": {
-    "zh-CN": "伊芙特",
-    "zh-TW": "伊芙特",
+    "zh-CN": "伊薇特",
+    "zh-TW": "伊薇特",
     "ja": "イヴェット",
     "en": "Yvette"
   },
@@ -15942,9 +15942,9 @@
     "en": "Zero Two"
   },
   "zhao": {
-    "zh-CN": "小赵",
-    "zh-TW": "小趙",
-    "ja": "シャオジャオ",
+    "zh-CN": "照",
+    "zh-TW": "照",
+    "ja": "照",
     "en": "Zhao"
   },
   "zhezhi": {
@@ -15960,10 +15960,10 @@
     "en": "Zhiyu Moke"
   },
   "zhu_xi": {
-    "zh-CN": "朱棣",
-    "zh-TW": "朱棣",
-    "ja": "朱棣",
-    "en": "Zhu Di"
+    "zh-CN": "朱熹",
+    "zh-TW": "朱熹",
+    "ja": "朱熹",
+    "en": "Zhu Xi"
   },
   "zhu_yuan": {
     "zh-CN": "朱鸢",
@@ -15978,9 +15978,9 @@
     "en": "Zhuang Fangyi"
   },
   "zibai": {
-    "zh-CN": "子白",
-    "zh-TW": "子白",
-    "ja": "子白",
+    "zh-CN": "兹白",
+    "zh-TW": "茲白",
+    "ja": "兹白",
     "en": "Zibai"
   },
   "zombie": {
@@ -16064,10 +16064,10 @@
   },
   "amane_konata": {
     "_src": "amane konata",
-    "zh-CN": "天音彼方",
-    "zh-TW": "天音彼方",
-    "ja": "天音かなた",
-    "en": "Kanata Amane"
+    "zh-CN": "天音此方",
+    "zh-TW": "天音此方",
+    "ja": "天音こなた",
+    "en": "Amane Konata"
   },
   "anal_use_bell_tail": {
     "_src": "anal use bell tail",
@@ -16092,8 +16092,8 @@
   },
   "anya_melfissa": {
     "_src": "anya melfissa",
-    "zh-CN": "阿涅娅·梅尔菲莎",
-    "zh-TW": "阿涅婭·梅爾菲莎",
+    "zh-CN": "阿妮娅·梅尔菲莎",
+    "zh-TW": "阿妮婭·梅爾菲莎",
     "ja": "アーニャ・メルフィッサ",
     "en": "Anya Melfissa"
   },
@@ -16155,8 +16155,8 @@
   },
   "ayunda_risu": {
     "_src": "ayunda risu",
-    "zh-CN": "阿尤达·里斯",
-    "zh-TW": "阿尤達·里斯",
+    "zh-CN": "阿芸达·栗丝",
+    "zh-TW": "阿芸達·栗絲",
     "ja": "アユンダ・リス",
     "en": "Ayunda Risu"
   },
@@ -16176,8 +16176,8 @@
   },
   "barbariana": {
     "_src": "barbariana",
-    "zh-CN": "芭芭利安娜",
-    "zh-TW": "芭芭利安娜",
+    "zh-CN": "巴巴丽安娜",
+    "zh-TW": "巴巴麗安娜",
     "ja": "バーバリアナ",
     "en": "Barbariana"
   },
@@ -16212,7 +16212,7 @@
   "blanc": {
     "_src": "blanc",
     "zh-CN": "布兰",
-    "zh-TW": "珀兒",
+    "zh-TW": "布蘭",
     "ja": "ブラン",
     "en": "Blanc"
   },
@@ -16253,9 +16253,9 @@
   },
   "breeding_mount": {
     "_src": "breeding mount",
-    "zh-CN": "骑乘授精",
-    "zh-TW": "騎乘受精",
-    "ja": "繁殖マウント",
+    "zh-CN": "拟牝台",
+    "zh-TW": "擬牝台",
+    "ja": "擬牝台",
     "en": "Breeding Mount"
   },
   "cerestia": {
@@ -16295,21 +16295,21 @@
   },
   "ciaccona": {
     "_src": "ciaccona",
-    "zh-CN": "恰空",
-    "zh-TW": "恰空",
-    "ja": "シャッコーナ",
+    "zh-CN": "夏空",
+    "zh-TW": "夏空",
+    "ja": "シャコンヌ",
     "en": "Ciaccona"
   },
   "clothed_female_nude_female": {
     "_src": "clothed female nude female",
-    "zh-CN": "著衣女与裸女",
+    "zh-CN": "着衣女与裸女",
     "zh-TW": "著衣女與裸女",
     "ja": "着衣女性と全裸女性",
     "en": "Clothed Female Nude Female"
   },
   "clothed_female_nude_male": {
     "_src": "clothed female nude male",
-    "zh-CN": "著衣女与裸男",
+    "zh-CN": "着衣女与裸男",
     "zh-TW": "著衣女與裸男",
     "ja": "着衣女性と全裸男性",
     "en": "Clothed Female Nude Male"
@@ -16380,7 +16380,7 @@
   "cupitan": {
     "_src": "cupitan",
     "zh-CN": "库皮坦",
-    "zh-TW": "邱比特",
+    "zh-TW": "庫皮坦",
     "ja": "クピタン",
     "en": "Cupitan"
   },
@@ -16428,9 +16428,9 @@
   },
   "denia": {
     "_src": "denia",
-    "zh-CN": "德妮娅",
-    "zh-TW": "德妮婭",
-    "ja": "デニア",
+    "zh-CN": "达妮娅",
+    "zh-TW": "達妮婭",
+    "ja": "ダーニャ",
     "en": "Denia"
   },
   "detective_conan": {
@@ -16442,7 +16442,7 @@
   },
   "dinosaur_king": {
     "_src": "dinosaur king",
-    "zh-CN": "恐龙王",
+    "zh-CN": "古代王者恐龙王",
     "zh-TW": "古代王者恐龍王",
     "ja": "古代王者 恐竜キング",
     "en": "Dinosaur King"
@@ -16519,9 +16519,9 @@
   },
   "evernight": {
     "_src": "evernight",
-    "zh-CN": "永夜",
-    "zh-TW": "永夜",
-    "ja": "永夜",
+    "zh-CN": "长夜月",
+    "zh-TW": "長夜月",
+    "ja": "長夜月",
     "en": "Evernight"
   },
   "eyepatch_bikini": {
@@ -16540,8 +16540,8 @@
   },
   "fanny_packing": {
     "_src": "fanny packing",
-    "zh-CN": "强行填充",
-    "zh-TW": "強行填充",
+    "zh-CN": "人肉腰包",
+    "zh-TW": "人肉腰包",
     "ja": "ファニーパッキング",
     "en": "Fanny Packing"
   },
@@ -16659,9 +16659,9 @@
   },
   "himekawa_yoshino": {
     "_src": "himekawa yoshino",
-    "zh-CN": "姬川四糸乃",
-    "zh-TW": "姬川四糸乃",
-    "ja": "姫川よしの",
+    "zh-CN": "冰芽川四糸乃",
+    "zh-TW": "冰芽川四糸乃",
+    "ja": "氷芽川四糸乃",
     "en": "Yoshino Himekawa"
   },
   "1_boy": {
@@ -16722,8 +16722,8 @@
   },
   "hsin": {
     "_src": "hsin",
-    "zh-CN": "辛",
-    "zh-TW": "辛",
+    "zh-CN": "心月狐",
+    "zh-TW": "心月狐",
     "ja": "シン",
     "en": "Hsin"
   },
@@ -16876,9 +16876,9 @@
   },
   "kei_amane": {
     "_src": "kei amane",
-    "zh-CN": "雨音圭",
-    "zh-TW": "雨音圭",
-    "ja": "雨音圭",
+    "zh-CN": "天音庆",
+    "zh-TW": "天音慶",
+    "ja": "天音慶",
     "en": "Kei Amane"
   },
   "kenzaki_ririka": {
@@ -16918,9 +16918,9 @@
   },
   "kotora_lilii": {
     "_src": "kotora lilii",
-    "zh-CN": "琴良莉莉",
-    "zh-TW": "琴良莉莉",
-    "ja": "琴良りりい",
+    "zh-CN": "小寅百合",
+    "zh-TW": "小寅百合",
+    "ja": "小寅百合ヰ",
     "en": "Lilii Kotora"
   },
   "kousaka_reina": {
@@ -16932,16 +16932,16 @@
   },
   "krystal": {
     "_src": "krystal",
-    "zh-CN": "克里斯塔尔",
-    "zh-TW": "克里斯塔爾",
+    "zh-CN": "克莉斯塔尔",
+    "zh-TW": "克莉斯塔爾",
     "ja": "クリスタル",
     "en": "Krystal"
   },
   "kurageu_roa": {
     "_src": "kurageu roa",
-    "zh-CN": "萝亚",
-    "zh-TW": "蘿亞",
-    "ja": "クラゲウ・ロア",
+    "zh-CN": "海月云萝亚",
+    "zh-TW": "海月雲蘿亞",
+    "ja": "海月雲ろあ",
     "en": "Kurageu Roa"
   },
   "kuriyama_mirai": {
@@ -17102,7 +17102,7 @@
     "_src": "matingpress",
     "zh-CN": "折叠体位",
     "zh-TW": "折疊體位",
-    "ja": "合わせ鏡体位",
+    "ja": "種付けプレス",
     "en": "Mating Press"
   },
   "mayuri": {
@@ -17122,16 +17122,16 @@
   "mekami_shifty": {
     "_src": "mekami shifty",
     "zh-CN": "希芙蒂",
-    "zh-TW": "希芙蒂",
+    "zh-TW": "謝芙蒂",
     "ja": "シフティー",
     "en": "Shifty"
   },
   "meumy": {
     "_src": "meumy",
-    "zh-CN": "喵美",
-    "zh-TW": "喵美",
-    "ja": "ミュウミィ",
-    "en": "Meumy"
+    "zh-CN": "MeUmy",
+    "zh-TW": "MeUmy",
+    "ja": "MeUmy",
+    "en": "MeUmy"
   },
   "minami_yume": {
     "_src": "minami yume",
@@ -17226,8 +17226,8 @@
   },
   "nefer": {
     "_src": "nefer",
-    "zh-CN": "内芙尔",
-    "zh-TW": "內芙爾",
+    "zh-CN": "奈芙尔",
+    "zh-TW": "奈芙爾",
     "ja": "ネフェル",
     "en": "Nefer"
   },
@@ -17277,7 +17277,7 @@
     "_src": "nte",
     "zh-CN": "异环",
     "zh-TW": "異環",
-    "ja": "異環",
+    "ja": "Neverness to Everness",
     "en": "Neverness to Everness"
   },
   "nylon": {
@@ -17289,8 +17289,8 @@
   },
   "odette": {
     "_src": "odette",
-    "zh-CN": "奥洁塔",
-    "zh-TW": "奧潔塔",
+    "zh-CN": "奥黛塔",
+    "zh-TW": "奧黛塔",
     "ja": "オデット",
     "en": "Odette"
   },
@@ -17310,8 +17310,8 @@
   },
   "orchidea": {
     "_src": "orchidea",
-    "zh-CN": "兰花",
-    "zh-TW": "蘭花",
+    "zh-CN": "兰",
+    "zh-TW": "蘭",
     "ja": "オルキデア",
     "en": "Orchidea"
   },
@@ -17331,8 +17331,8 @@
   },
   "palutena": {
     "_src": "palutena",
-    "zh-CN": "帕鲁蒂娜",
-    "zh-TW": "帕魯蒂娜",
+    "zh-CN": "帕露蒂娜",
+    "zh-TW": "帕露蒂娜",
     "ja": "パルテナ",
     "en": "Palutena"
   },
@@ -17359,8 +17359,8 @@
   },
   "phaetusa": {
     "_src": "phaetusa",
-    "zh-CN": "帕厄图萨",
-    "zh-TW": "帕厄圖薩",
+    "zh-CN": "翡图萨",
+    "zh-TW": "翡圖薩",
     "ja": "パエトゥーサ",
     "en": "Phaetusa"
   },
@@ -17569,8 +17569,8 @@
   },
   "shishido_akari": {
     "_src": "shishido akari",
-    "zh-CN": "狮子堂明里",
-    "zh-TW": "獅子堂明里",
+    "zh-CN": "狮子堂灯",
+    "zh-TW": "獅子堂燈",
     "ja": "獅子堂あかり",
     "en": "Akari Shishido"
   },
@@ -17597,9 +17597,9 @@
   },
   "silver_palace": {
     "_src": "silver palace",
-    "zh-CN": "银之宫",
-    "zh-TW": "銀之宮",
-    "ja": "銀の宮",
+    "zh-CN": "白银之城",
+    "zh-TW": "白銀之城",
+    "ja": "白銀の城",
     "en": "Silver Palace"
   },
   "sinsack": {
@@ -17682,8 +17682,8 @@
   "sumire_yoshizawa": {
     "_src": "sumire yoshizawa",
     "zh-CN": "芳泽堇",
-    "zh-TW": "芳澤堇",
-    "ja": "芳澤かすみ",
+    "zh-TW": "芳澤菫",
+    "ja": "芳澤すみれ",
     "en": "Sumire Yoshizawa"
   },
   "suzuki_mirei": {
@@ -17898,9 +17898,9 @@
   },
   "yoshii_sari": {
     "_src": "yoshii sari",
-    "zh-CN": "吉井沙里",
-    "zh-TW": "吉井沙里",
-    "ja": "吉井沙里",
+    "zh-CN": "义井沙里",
+    "zh-TW": "義井沙里",
+    "ja": "義井沙里",
     "en": "Sari Yoshii"
   },
   "yoshikawa_yuuko": {
@@ -17923,5 +17923,677 @@
     "zh-TW": "小笠原晴香",
     "ja": "小笠原晴香",
     "en": "Haruka Ogasawara"
+  },
+  "against_wall": {
+    "_src": "against wall",
+    "zh-CN": "靠墙",
+    "zh-TW": "靠牆",
+    "ja": "壁際",
+    "en": "Against Wall"
+  },
+  "amelia_watson": {
+    "_src": "amelia watson",
+    "zh-CN": "阿米莉亚·华生",
+    "zh-TW": "阿米莉亞·華生",
+    "ja": "アメリア・ワトソン",
+    "en": "Amelia Watson"
+  },
+  "baby_bump": {
+    "_src": "baby bump",
+    "zh-CN": "孕肚",
+    "zh-TW": "孕肚",
+    "ja": "妊婦腹",
+    "en": "Baby Bump"
+  },
+  "big_tits": {
+    "_src": "big tits",
+    "zh-CN": "巨乳",
+    "zh-TW": "巨乳",
+    "ja": "巨乳",
+    "en": "Big Tits"
+  },
+  "bilibili": {
+    "_src": "bilibili",
+    "zh-CN": "哔哩哔哩",
+    "zh-TW": "嗶哩嗶哩",
+    "ja": "ビリビリ動画",
+    "en": "Bilibili"
+  },
+  "breast_feeding": {
+    "_src": "breast feeding",
+    "zh-CN": "哺乳",
+    "zh-TW": "哺乳",
+    "ja": "授乳",
+    "en": "Breast Feeding"
+  },
+  "breast_grab": {
+    "_src": "breast grab",
+    "zh-CN": "抓胸",
+    "zh-TW": "抓胸",
+    "ja": "胸掴み",
+    "en": "Breast Grab"
+  },
+  "breast_groping": {
+    "_src": "breast groping",
+    "zh-CN": "揉胸",
+    "zh-TW": "揉胸",
+    "ja": "胸揉み",
+    "en": "Breast Groping"
+  },
+  "burn_up_excess": {
+    "_src": "burn up excess",
+    "zh-CN": "暴力天使EXCESS",
+    "zh-TW": "暴力天使EXCESS",
+    "ja": "BURN-UP EXCESS",
+    "en": "Burn-Up Excess"
+  },
+  "cardcaptor_sakura": {
+    "_src": "cardcaptor sakura",
+    "zh-CN": "魔卡少女樱",
+    "zh-TW": "庫洛魔法使",
+    "ja": "カードキャプターさくら",
+    "en": "Cardcaptor Sakura"
+  },
+  "cast_off": {
+    "_src": "cast off",
+    "zh-CN": "可脱",
+    "zh-TW": "可脫",
+    "ja": "キャストオフ",
+    "en": "Cast Off"
+  },
+  "catch_catch": {
+    "_src": "catch catch",
+    "zh-CN": "Catch Catch",
+    "zh-TW": "Catch Catch",
+    "ja": "Catch Catch",
+    "en": "Catch Catch"
+  },
+  "caught": {
+    "_src": "caught",
+    "zh-CN": "被抓包",
+    "zh-TW": "被抓包",
+    "ja": "オナバレ",
+    "en": "Caught"
+  },
+  "cecilia_immergreen": {
+    "_src": "cecilia immergreen",
+    "zh-CN": "塞西莉亚·伊默格林",
+    "zh-TW": "塞西莉亞·伊默格林",
+    "ja": "セシリア・イマーグリーン",
+    "en": "Cecilia Immergreen"
+  },
+  "chaos_zero_nightmare": {
+    "_src": "chaos zero nightmare",
+    "zh-CN": "卡厄思梦境",
+    "zh-TW": "卡厄思夢境",
+    "ja": "カオスゼロナイトメア",
+    "en": "Chaos Zero Nightmare"
+  },
+  "chie_abasto": {
+    "_src": "chie abasto",
+    "zh-CN": "Chie Abasto",
+    "zh-TW": "Chie Abasto",
+    "ja": "Chie Abasto",
+    "en": "Chie Abasto"
+  },
+  "clitoris_piercing": {
+    "_src": "clitoris piercing",
+    "zh-CN": "阴蒂穿孔",
+    "zh-TW": "陰蒂穿孔",
+    "ja": "クリトリスピアス",
+    "en": "Clitoris Piercing"
+  },
+  "covered_eye": {
+    "_src": "covered eye",
+    "zh-CN": "遮单眼",
+    "zh-TW": "遮單眼",
+    "ja": "片目隠れ",
+    "en": "Covered Eye"
+  },
+  "danica": {
+    "_src": "danica",
+    "zh-CN": "达妮卡",
+    "zh-TW": "達妮卡",
+    "ja": "ダニカ",
+    "en": "Danica"
+  },
+  "dark_room": {
+    "_src": "dark room",
+    "zh-CN": "暗室",
+    "zh-TW": "暗室",
+    "ja": "暗室",
+    "en": "Dark Room"
+  },
+  "daughter": {
+    "_src": "daughter",
+    "zh-CN": "女儿",
+    "zh-TW": "女兒",
+    "ja": "娘",
+    "en": "Daughter"
+  },
+  "double_vaginal": {
+    "_src": "double vaginal",
+    "zh-CN": "双插阴道",
+    "zh-TW": "雙插陰道",
+    "ja": "一穴二本",
+    "en": "Double Vaginal"
+  },
+  "dream": {
+    "_src": "dream",
+    "zh-CN": "梦境",
+    "zh-TW": "夢境",
+    "ja": "夢",
+    "en": "Dream"
+  },
+  "dreaming": {
+    "_src": "dreaming",
+    "zh-CN": "做梦",
+    "zh-TW": "做夢",
+    "ja": "夢見",
+    "en": "Dreaming"
+  },
+  "easter": {
+    "_src": "easter",
+    "zh-CN": "复活节",
+    "zh-TW": "復活節",
+    "ja": "イースター",
+    "en": "Easter"
+  },
+  "echidna": {
+    "_src": "echidna",
+    "zh-CN": "艾姬多娜",
+    "zh-TW": "艾姬多娜",
+    "ja": "エキドナ",
+    "en": "Echidna"
+  },
+  "evanescia": {
+    "_src": "evanescia",
+    "zh-CN": "绯英",
+    "zh-TW": "緋英",
+    "ja": "緋英",
+    "en": "Evanescia"
+  },
+  "female_knight": {
+    "_src": "female knight",
+    "zh-CN": "女骑士",
+    "zh-TW": "女騎士",
+    "ja": "女騎士",
+    "en": "Female Knight"
+  },
+  "forest": {
+    "_src": "forest",
+    "zh-CN": "森林",
+    "zh-TW": "森林",
+    "ja": "森",
+    "en": "Forest"
+  },
+  "french_kiss": {
+    "_src": "french kiss",
+    "zh-CN": "舌吻",
+    "zh-TW": "舌吻",
+    "ja": "フレンチキス",
+    "en": "French Kiss"
+  },
+  "futa_on_male": {
+    "_src": "futa on male",
+    "zh-CN": "扶她对男性",
+    "zh-TW": "扶她對男性",
+    "ja": "ふたなり×男",
+    "en": "Futa on Male"
+  },
+  "gender_change": {
+    "_src": "gender change",
+    "zh-CN": "性转换",
+    "zh-TW": "性轉換",
+    "ja": "性転換",
+    "en": "Gender Change"
+  },
+  "gravity_effect": {
+    "_src": "gravity effect",
+    "zh-CN": "重力效果",
+    "zh-TW": "重力效果",
+    "ja": "重力エフェクト",
+    "en": "Gravity Effect"
+  },
+  "grey_eyes": {
+    "_src": "grey eyes",
+    "zh-CN": "灰眼",
+    "zh-TW": "灰眼",
+    "ja": "灰色の目",
+    "en": "Grey Eyes"
+  },
+  "hair_pull": {
+    "_src": "hair pull",
+    "zh-CN": "扯发",
+    "zh-TW": "扯髮",
+    "ja": "髪引っ張り",
+    "en": "Hair Pull"
+  },
+  "haru_urara": {
+    "_src": "haru urara",
+    "zh-CN": "春乌拉拉",
+    "zh-TW": "春烏拉拉",
+    "ja": "ハルウララ",
+    "en": "Haru Urara"
+  },
+  "henshin": {
+    "_src": "henshin",
+    "zh-CN": "变身",
+    "zh-TW": "變身",
+    "ja": "変身",
+    "en": "Henshin"
+  },
+  "holding_hands": {
+    "_src": "holding hands",
+    "zh-CN": "牵手",
+    "zh-TW": "牽手",
+    "ja": "手繋ぎ",
+    "en": "Holding Hands"
+  },
+  "homeless": {
+    "_src": "homeless",
+    "zh-CN": "无家可归",
+    "zh-TW": "無家可歸",
+    "ja": "ホームレス",
+    "en": "Homeless"
+  },
+  "honey_flash": {
+    "_src": "honey flash",
+    "zh-CN": "甜心闪光",
+    "zh-TW": "甜心閃光",
+    "ja": "ハニーフラッシュ",
+    "en": "Honey Flash"
+  },
+  "imashino_misaki": {
+    "_src": "imashino misaki",
+    "zh-CN": "戒野美咲",
+    "zh-TW": "戒野美咲",
+    "ja": "戒野ミサキ",
+    "en": "Misaki Imashino"
+  },
+  "interlocked_fingers": {
+    "_src": "interlocked fingers",
+    "zh-CN": "十指紧扣",
+    "zh-TW": "十指緊扣",
+    "ja": "恋人繋ぎ",
+    "en": "Interlocked Fingers"
+  },
+  "inui_sajuna": {
+    "_src": "inui sajuna",
+    "zh-CN": "乾纱寿叶",
+    "zh-TW": "乾紗壽葉",
+    "ja": "乾紗寿葉",
+    "en": "Sajuna Inui"
+  },
+  "jaune_arc": {
+    "_src": "jaune arc",
+    "zh-CN": "强·亚克",
+    "zh-TW": "強·亞克",
+    "ja": "ジョーン・アーク",
+    "en": "Jaune Arc"
+  },
+  "jirai_kei": {
+    "_src": "jirai kei",
+    "zh-CN": "地雷系",
+    "zh-TW": "地雷系",
+    "ja": "地雷系",
+    "en": "Jirai Kei"
+  },
+  "kaela_kovalskia": {
+    "_src": "kaela kovalskia",
+    "zh-CN": "卡埃拉·科瓦尔斯基亚",
+    "zh-TW": "卡埃拉·科瓦爾斯基亞",
+    "ja": "カエラ・コヴァルスキア",
+    "en": "Kaela Kovalskia"
+  },
+  "kiriko": {
+    "_src": "kiriko",
+    "zh-CN": "雾子",
+    "zh-TW": "霧子",
+    "ja": "キリコ",
+    "en": "Kiriko"
+  },
+  "kissing_penis": {
+    "_src": "kissing penis",
+    "zh-CN": "亲吻阴茎",
+    "zh-TW": "親吻陰莖",
+    "ja": "ペニスにキス",
+    "en": "Kissing Penis"
+  },
+  "kneeling": {
+    "_src": "kneeling",
+    "zh-CN": "下跪",
+    "zh-TW": "下跪",
+    "ja": "跪く",
+    "en": "Kneeling"
+  },
+  "krushdafight": {
+    "_src": "krushdafight",
+    "zh-CN": "KRUSHDAFIGHT",
+    "zh-TW": "KRUSHDAFIGHT",
+    "ja": "KRUSHDAFIGHT",
+    "en": "KRUSHDAFIGHT"
+  },
+  "kureiji_ollie": {
+    "_src": "kureiji ollie",
+    "zh-CN": "克蕾西·奥莉",
+    "zh-TW": "克蕾西·奧莉",
+    "ja": "クレイジー・オリー",
+    "en": "Kureiji Ollie"
+  },
+  "lie_ren": {
+    "_src": "lie ren",
+    "zh-CN": "烈·莲",
+    "zh-TW": "烈·蓮",
+    "ja": "ライ・レン",
+    "en": "Lie Ren"
+  },
+  "long_legs": {
+    "_src": "long legs",
+    "zh-CN": "长腿",
+    "zh-TW": "長腿",
+    "ja": "足長",
+    "en": "Long Legs"
+  },
+  "manuka": {
+    "_src": "manuka",
+    "zh-CN": "玛努卡",
+    "zh-TW": "瑪努卡",
+    "ja": "マヌカ",
+    "en": "Manuka"
+  },
+  "mercury_black": {
+    "_src": "mercury black",
+    "zh-CN": "墨丘利·布莱克",
+    "zh-TW": "墨丘利·布萊克",
+    "ja": "マーキュリー・ブラック",
+    "en": "Mercury Black"
+  },
+  "misteln_schariac": {
+    "_src": "misteln schariac",
+    "zh-CN": "米丝忒琳·沙尼亚特",
+    "zh-TW": "米絲忒琳·沙尼亞特",
+    "ja": "ミステル・シャニアテ",
+    "en": "Misteln Schariac"
+  },
+  "monster_hunter": {
+    "_src": "monster hunter",
+    "zh-CN": "怪物猎人",
+    "zh-TW": "魔物獵人",
+    "ja": "モンスターハンター",
+    "en": "Monster Hunter"
+  },
+  "moria_luluka": {
+    "_src": "moria luluka",
+    "zh-CN": "森亚露露卡",
+    "zh-TW": "森亞露露卡",
+    "ja": "森亜るるか",
+    "en": "Moria Luluka"
+  },
+  "motorcycle": {
+    "_src": "motorcycle",
+    "zh-CN": "摩托车",
+    "zh-TW": "機車",
+    "ja": "バイク",
+    "en": "Motorcycle"
+  },
+  "mugshot": {
+    "_src": "mugshot",
+    "zh-CN": "入狱照",
+    "zh-TW": "入獄照",
+    "ja": "マグショット",
+    "en": "Mugshot"
+  },
+  "nanally": {
+    "_src": "nanally",
+    "zh-CN": "娜娜莉",
+    "zh-TW": "娜娜莉",
+    "ja": "ナナリ",
+    "en": "Nanally"
+  },
+  "nanvel_candlestick": {
+    "_src": "nanvel candlestick",
+    "zh-CN": "南贝尔·坎德尔斯蒂克",
+    "zh-TW": "南貝爾·坎德爾斯蒂克",
+    "ja": "ナンベル・キャンドルスティック",
+    "en": "Nanvel Candlestick"
+  },
+  "newhalf": {
+    "_src": "newhalf",
+    "zh-CN": "人妖",
+    "zh-TW": "人妖",
+    "ja": "ニューハーフ",
+    "en": "Newhalf"
+  },
+  "oil": {
+    "_src": "oil",
+    "zh-CN": "涂油",
+    "zh-TW": "塗油",
+    "ja": "オイル",
+    "en": "Oil"
+  },
+  "otaku_room": {
+    "_src": "otaku room",
+    "zh-CN": "御宅房间",
+    "zh-TW": "御宅房間",
+    "ja": "オタク部屋",
+    "en": "Otaku Room"
+  },
+  "plumophilia": {
+    "_src": "plumophilia",
+    "zh-CN": "恋羽癖",
+    "zh-TW": "戀羽癖",
+    "ja": "羽毛フェチ",
+    "en": "Plumophilia"
+  },
+  "porn_with_plot": {
+    "_src": "porn with plot",
+    "zh-CN": "剧情向成人内容",
+    "zh-TW": "劇情向成人內容",
+    "ja": "ストーリー重視エロ",
+    "en": "Porn with Plot"
+  },
+  "qingxiao": {
+    "_src": "qingxiao",
+    "zh-CN": "清宵",
+    "zh-TW": "清宵",
+    "ja": "清宵",
+    "en": "Qingxiao"
+  },
+  "rabbit_ears": {
+    "_src": "rabbit ears",
+    "zh-CN": "兔耳",
+    "zh-TW": "兔耳",
+    "ja": "うさ耳",
+    "en": "Rabbit Ears"
+  },
+  "rio_kinezono": {
+    "_src": "rio kinezono",
+    "zh-CN": "甲子园利绪",
+    "zh-TW": "甲子園利緒",
+    "ja": "甲子園利緒",
+    "en": "Rio Kinezono"
+  },
+  "roach": {
+    "_src": "roach",
+    "zh-CN": "蟑螂",
+    "zh-TW": "蟑螂",
+    "ja": "ゴキブリ",
+    "en": "Roach"
+  },
+  "ronova": {
+    "_src": "ronova",
+    "zh-CN": "若娜瓦",
+    "zh-TW": "若娜瓦",
+    "ja": "ロノヴァ",
+    "en": "Ronova"
+  },
+  "shadowheart": {
+    "_src": "shadowheart",
+    "zh-CN": "影心",
+    "zh-TW": "影心",
+    "ja": "シャドウハート",
+    "en": "Shadowheart"
+  },
+  "shared_senses": {
+    "_src": "shared senses",
+    "zh-CN": "感官共享",
+    "zh-TW": "感官共享",
+    "ja": "感覚共有",
+    "en": "Shared Senses"
+  },
+  "shulk": {
+    "_src": "shulk",
+    "zh-CN": "修尔克",
+    "zh-TW": "修爾克",
+    "ja": "シュルク",
+    "en": "Shulk"
+  },
+  "sigrid": {
+    "_src": "sigrid",
+    "zh-CN": "希格莉德",
+    "zh-TW": "希格莉德",
+    "ja": "シグリッド",
+    "en": "Sigrid"
+  },
+  "silvervale": {
+    "_src": "silvervale",
+    "zh-CN": "樱花狼灵",
+    "zh-TW": "櫻花狼靈",
+    "ja": "シルバーベール",
+    "en": "Silvervale"
+  },
+  "skinny": {
+    "_src": "skinny",
+    "zh-CN": "纤瘦",
+    "zh-TW": "纖瘦",
+    "ja": "華奢",
+    "en": "Skinny"
+  },
+  "soredomo_tsuma": {
+    "_src": "soredomo tsuma",
+    "zh-CN": "依然爱着妻子",
+    "zh-TW": "依然愛著妻子",
+    "ja": "それでも妻を愛してる",
+    "en": "Soredomo Tsuma"
+  },
+  "tachy": {
+    "_src": "tachy",
+    "zh-CN": "迅梓",
+    "zh-TW": "迅梓",
+    "ja": "タキ",
+    "en": "Tachy"
+  },
+  "teenager": {
+    "_src": "teenager",
+    "zh-CN": "青少年",
+    "zh-TW": "青少年",
+    "ja": "ティーンエイジャー",
+    "en": "Teenager"
+  },
+  "tentacle_dildo": {
+    "_src": "tentacle dildo",
+    "zh-CN": "触手假阳具",
+    "zh-TW": "觸手假陽具",
+    "ja": "触手ディルド",
+    "en": "Tentacle Dildo"
+  },
+  "text_dialog": {
+    "_src": "text dialog",
+    "zh-CN": "对话文本",
+    "zh-TW": "對話文本",
+    "ja": "テキストダイアログ",
+    "en": "Text Dialog"
+  },
+  "tressa": {
+    "_src": "tressa",
+    "zh-CN": "特蕾莎",
+    "zh-TW": "特蕾莎",
+    "ja": "トレサ",
+    "en": "Tressa"
+  },
+  "upright_straddle": {
+    "_src": "upright straddle",
+    "zh-CN": "对面座位",
+    "zh-TW": "對面座位",
+    "ja": "対面座位",
+    "en": "Upright Straddle"
+  },
+  "usuhoso": {
+    "_src": "usuhoso",
+    "zh-CN": "薄细",
+    "zh-TW": "薄細",
+    "ja": "うすほそ",
+    "en": "Usuhoso"
+  },
+  "utazumi_sakurako": {
+    "_src": "utazumi sakurako",
+    "zh-CN": "歌住樱子",
+    "zh-TW": "歌住櫻子",
+    "ja": "歌住サクラコ",
+    "en": "Sakurako Utazumi"
+  },
+  "vesna": {
+    "_src": "vesna",
+    "zh-CN": "薇斯纳",
+    "zh-TW": "薇斯納",
+    "ja": "ヴェスナ",
+    "en": "Vesna"
+  },
+  "vestia_zeta": {
+    "_src": "vestia zeta",
+    "zh-CN": "维斯提亚·泽塔",
+    "zh-TW": "維斯提亞·澤塔",
+    "ja": "ベスティア・ゼータ",
+    "en": "Vestia Zeta"
+  },
+  "vodyanitsa": {
+    "_src": "vodyanitsa",
+    "zh-CN": "沃雅妮莎",
+    "zh-TW": "沃雅妮莎",
+    "ja": "ヴォジャニーツァ",
+    "en": "Vodyanitsa"
+  },
+  "vulgarity": {
+    "_src": "vulgarity",
+    "zh-CN": "粗俗",
+    "zh-TW": "粗俗",
+    "ja": "下品",
+    "en": "Vulgarity"
+  },
+  "wii_fit_trainer": {
+    "_src": "wii fit trainer",
+    "zh-CN": "Wii Fit教练",
+    "zh-TW": "Wii Fit教練",
+    "ja": "Wii Fit トレーナー",
+    "en": "Wii Fit Trainer"
+  },
+  "xishi": {
+    "_src": "xishi",
+    "zh-CN": "西施",
+    "zh-TW": "西施",
+    "ja": "西施",
+    "en": "Xi Shi"
+  },
+  "xnalara": {
+    "_src": "xnalara",
+    "zh-CN": "XNALara",
+    "zh-TW": "XNALara",
+    "ja": "XNALara",
+    "en": "XNALara"
+  },
+  "ymv": {
+    "_src": "ymv",
+    "zh-CN": "YMV",
+    "zh-TW": "YMV",
+    "ja": "YMV",
+    "en": "YMV"
+  },
+  "yoshino_niko": {
+    "_src": "yoshino niko",
+    "zh-CN": "吉野妮可",
+    "zh-TW": "吉野妮可",
+    "ja": "吉野ニコ",
+    "en": "Niko Yoshino"
   }
 }
